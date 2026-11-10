@@ -28,7 +28,7 @@
 | 框架 | Flutter / Dart 3.13+ |
 | 状态管理 | Riverpod（100% 迁移完成，0 GetX） |
 | 路由 | go_router |
-| 本地数据库 | SQLite (sqflite 2.4+ + SQLCipher)，当前 schema v37（manifest 单一真源） |
+| 本地数据库 | SQLite (sqflite 2.4+ + SQLCipher)，当前 schema v39（v38 FTS 草稿未注册；manifest 单一真源） |
 | 网络 | Dio 5.10 |
 | 实时通讯 | WebSocket + WebRTC |
 | 国际化 | slang ^4.18.0，默认语言 zh-CN |

@@ -57,7 +57,8 @@ class SqliteService {
   // v35: 消息四表 conv_seq/accepted_at（R07 会话权威排序；可空，NULL=服务端未给出）
   // v36: 业务消息 ID 与 conversation.last_msg_id 原值保真 TEXT；不可逆降级。
   // v37: 频道来源和工作区 ID；旧行保持未知，不推断授权。
-  static const _dbVersion = 37;
+  // v39: 账号库内的个人频道显示偏好；跳过未注册的 v38 FTS 草稿。
+  static const _dbVersion = 39;
 
   // 单例构造
   SqliteService._privateConstructor();

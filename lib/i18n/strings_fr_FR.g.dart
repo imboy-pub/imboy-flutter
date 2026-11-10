@@ -742,6 +742,7 @@ class _Translations$chat$fr_FR extends Translations$chat$zh_CN {
 	@override String get videoCallPlaceholder => '[Appel vidéo]';
 	@override String get voiceCallPlaceholder => '[Appel audio]';
 	@override String get notFriendCannotSend => 'Pas amis, impossible d\'envoyer';
+	@override late final _Translations$chat$inbox$fr_FR inbox = _Translations$chat$inbox$fr_FR._(_root);
 }
 
 // Path: common
@@ -2856,6 +2857,30 @@ class _Translations$account$alipaySim$fr_FR extends Translations$account$alipayS
 	@override String get storeName => 'Boutique phare des technologies de l\'information';
 }
 
+// Path: chat.inbox
+class _Translations$chat$inbox$fr_FR extends Translations$chat$inbox$zh_CN {
+	_Translations$chat$inbox$fr_FR._(TranslationsFrFr root) : this._root = root, super.internal(root);
+
+	final TranslationsFrFr _root; // ignore: unused_field
+
+	// Translations
+	@override String get filterDirect => 'Privés';
+	@override String get searchHint => 'Rechercher un nom ou un message récent';
+	@override String get searchHistory => 'Rechercher dans l’historique';
+	@override String get unreadEmpty => 'Aucun message non lu ou en attente';
+	@override String get emptyFilter => 'Aucune conversation dans cette catégorie';
+	@override String get clearFilters => 'Voir tous les messages';
+	@override String get channelLoadFailed => 'Impossible de charger les messages des canaux';
+	@override String get notificationSettings => 'Paramètres de notification';
+	@override String get channelOnly => 'Afficher uniquement dans Canaux';
+	@override String get channelOnlyDescription => 'L’abonnement et les notifications sont conservés. Vous pouvez rétablir l’affichage dans Messages depuis Canaux.';
+	@override String get restoreToInbox => 'Afficher dans Messages';
+	@override String get actionFailed => 'Échec de l’action. Réessayez.';
+	@override String get undo => 'Annuler';
+	@override String get openChannels => 'Ouvrir Canaux';
+	@override String get channelEmptyDescription => 'Actualisez vos abonnements ou rétablissez les canaux masqués depuis la page Canaux.';
+}
+
 // Path: organization.common
 class _Translations$organization$common$fr_FR extends Translations$organization$common$zh_CN {
 	_Translations$organization$common$fr_FR._(TranslationsFrFr root) : this._root = root, super.internal(root);
@@ -4040,6 +4065,21 @@ extension on TranslationsFrFr {
 			'chat.videoCallPlaceholder' => '[Appel vidéo]',
 			'chat.voiceCallPlaceholder' => '[Appel audio]',
 			'chat.notFriendCannotSend' => 'Pas amis, impossible d\'envoyer',
+			'chat.inbox.filterDirect' => 'Privés',
+			'chat.inbox.searchHint' => 'Rechercher un nom ou un message récent',
+			'chat.inbox.searchHistory' => 'Rechercher dans l’historique',
+			'chat.inbox.unreadEmpty' => 'Aucun message non lu ou en attente',
+			'chat.inbox.emptyFilter' => 'Aucune conversation dans cette catégorie',
+			'chat.inbox.clearFilters' => 'Voir tous les messages',
+			'chat.inbox.channelLoadFailed' => 'Impossible de charger les messages des canaux',
+			'chat.inbox.notificationSettings' => 'Paramètres de notification',
+			'chat.inbox.channelOnly' => 'Afficher uniquement dans Canaux',
+			'chat.inbox.channelOnlyDescription' => 'L’abonnement et les notifications sont conservés. Vous pouvez rétablir l’affichage dans Messages depuis Canaux.',
+			'chat.inbox.restoreToInbox' => 'Afficher dans Messages',
+			'chat.inbox.actionFailed' => 'Échec de l’action. Réessayez.',
+			'chat.inbox.undo' => 'Annuler',
+			'chat.inbox.openChannels' => 'Ouvrir Canaux',
+			'chat.inbox.channelEmptyDescription' => 'Actualisez vos abonnements ou rétablissez les canaux masqués depuis la page Canaux.',
 			'common.about' => 'À propos',
 			'common.aboutApp' => 'À propos de l\'application',
 			'common.accept' => 'Accepter',
@@ -4434,6 +4474,8 @@ extension on TranslationsFrFr {
 			'common.cameraModePhoto' => 'Photo',
 			'common.cameraModeVideo' => 'Vidéo',
 			'common.cameraRetake' => 'Reprendre',
+			_ => null,
+		} ?? switch (path) {
 			'common.cameraUse' => 'Utiliser',
 			'common.cameraNoDevice' => 'Aucun appareil disponible',
 			'common.avatarEditAvatar' => 'Modifier l\'avatar',
@@ -4449,8 +4491,6 @@ extension on TranslationsFrFr {
 			'common.pleaseEnterContent' => 'Entrez le contenu.',
 			'common.comingSoon' => 'Bientôt disponible.',
 			'common.backgroundTransparency' => 'Transparence de l\'arrière-plan',
-			_ => null,
-		} ?? switch (path) {
 			'common.defaultBackground' => 'Arrière-plan par défaut',
 			'common.solidColorBackground' => 'Arrière-plan de couleur unie',
 			'common.selectImageFailed' => 'Échec de la sélection de l\'image.',
@@ -4948,6 +4988,8 @@ extension on TranslationsFrFr {
 			'common.switchCamera' => 'Changer de caméra',
 			'common.timeDaysShort' => ({required Object count}) => '${count}j',
 			'common.timeHoursShort' => ({required Object count}) => '${count}h',
+			_ => null,
+		} ?? switch (path) {
 			'common.timeMinutesShort' => ({required Object count}) => '${count}min',
 			'common.timeNowShort' => 'maint.',
 			'common.transferAccepted' => 'Reçu',
@@ -4963,8 +5005,6 @@ extension on TranslationsFrFr {
 			'common.uploadPartialFailed' => ({required Object count}) => 'Échec du téléversement de ${count} éléments',
 			'common.voiceSttConverting' => 'Reconnaissance en cours...',
 			'common.voiceSttNotConfigured' => 'La conversion en texte n\'est pas encore configurée',
-			_ => null,
-		} ?? switch (path) {
 			'common.voiceSttPreviewTitle' => 'Aperçu de la conversion voix en texte',
 			'common.retry' => 'Réessayer',
 			'common.retrying' => 'Nouvelle tentative…',
@@ -5462,6 +5502,8 @@ extension on TranslationsFrFr {
 			'main.myOrders' => 'Commandes',
 			'main.purchaseUnlockHint' => 'Après achat, accédez à l\'historique et aux nouveautés du canal.',
 			'main.payingDots' => 'Paiement...',
+			_ => null,
+		} ?? switch (path) {
 			'main.purchaseAndUnlock' => 'Acheter et déverrouiller',
 			'main.orderDetail' => 'Détails de la commande',
 			'main.orderAmountLabel' => ({required Object currency, required Object amount}) => 'Montant : ${currency} ${amount}',
@@ -5477,8 +5519,6 @@ extension on TranslationsFrFr {
 			'main.webQRExpired' => 'QR code expiré',
 			'main.webQRRefresh' => 'Actualiser le QR code',
 			'main.webSwitchToQR' => 'Connexion par QR code',
-			_ => null,
-		} ?? switch (path) {
 			'main.e2eeErrDefault' => 'Échec E2EE, message non envoyé',
 			'main.e2eeErrPeerDeviceNotReady' => 'L\'installation de sécurité n\'est pas terminée sur l\'appareil de certains membres, message non envoyé ; réessayez plus tard',
 			'main.liveRoomTitleLabel' => 'Titre du live',
@@ -5976,6 +6016,8 @@ extension on TranslationsFrFr {
 			'passport.oneKeyFailedRetry' => 'Échec de la connexion en un clic, vérifiez le réseau et réessayez',
 			'splash.slogan' => 'Communiquez librement',
 			'talkRecord.uploadProgressRegister' => 'Préparation du transfert',
+			_ => null,
+		} ?? switch (path) {
 			'talkRecord.uploadProgressUpload' => 'Transfert audio',
 			'talkRecord.uploadProgressConfirm' => 'Confirmation audio',
 			'talkRecord.uploadProgressSubmitting' => 'Envoi pour enregistrement',
@@ -5991,8 +6033,6 @@ extension on TranslationsFrFr {
 			'talkRecord.aiConfigured' => 'Configuré sur cet appareil',
 			'talkRecord.aiNotConfigured' => 'Non configuré',
 			'talkRecord.aiLoading' => 'Lecture de la configuration locale…',
-			_ => null,
-		} ?? switch (path) {
 			'talkRecord.aiDeviceOnlyNotice' => 'Les clés sont chiffrées uniquement pour ce compte sur cet appareil. Aucun envoi à IMBoy, sauvegarde cloud ou transfert vers un autre appareil. Saisissez-les à nouveau sur un nouvel appareil.',
 			'talkRecord.aiEnterprisePolicyNotice' => 'Enregistrer une clé n’autorise pas le traitement externe. Les enregistrements d’entreprise nécessitent l’autorisation de la politique d’entreprise et un consentement pour chaque traitement.',
 			'talkRecord.aiMaxNotice' => 'Utilise l’API générale Zhipu, facturée séparément. L’abonnement annuel Coding Plan Max ne couvre pas automatiquement cet usage. Les transcriptions seront envoyées à Zhipu.',

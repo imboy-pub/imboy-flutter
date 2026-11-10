@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:go_router/go_router.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/conversation/widget/right_button.dart';
 
@@ -14,15 +15,15 @@ void main() {
   );
 
   group('RightButton — 渲染', () {
-    testWidgets('渲染两个 CupertinoButton：搜索 + 添加', (tester) async {
+    testWidgets('导航栏只保留添加菜单，历史搜索移至有文字的入口', (tester) async {
       await tester.pumpWidget(host(const RightButton()));
       await tester.pump();
 
       // 2026-08-31 起 IconButton → CupertinoButton(padding: zero)（与
       // contact_page 导航栏按钮同款，修右间距浮出 ~37px 问题）
       expect(find.byType(RightButton), findsOneWidget);
-      expect(find.byType(CupertinoButton), findsNWidgets(2));
-      expect(find.byIcon(CupertinoIcons.search), findsOneWidget);
+      expect(find.byType(CupertinoButton), findsOneWidget);
+      expect(find.byIcon(CupertinoIcons.search), findsNothing);
       expect(find.byIcon(CupertinoIcons.plus_circle), findsOneWidget);
     });
 
@@ -39,7 +40,7 @@ void main() {
       await tester.pump();
 
       expect(tester.takeException(), isNull);
-      expect(find.byType(CupertinoButton), findsNWidgets(2));
+      expect(find.byType(CupertinoButton), findsOneWidget);
     });
   });
 
@@ -77,14 +78,41 @@ void main() {
       await tester.pumpAndSettle();
     }
 
-    testWidgets('弹出后 5 个菜单项齐全（2026-08 折行 bug 的回归锚点）', (tester) async {
+    testWidgets('弹出后保留原有菜单项并提供历史消息搜索', (tester) async {
       await openMenu(tester);
 
+      expect(find.text(t.chat.inbox.searchHistory), findsOneWidget);
+      expect(find.byIcon(CupertinoIcons.search), findsOneWidget);
       expect(find.byIcon(CupertinoIcons.chat_bubble), findsOneWidget);
       expect(find.byIcon(CupertinoIcons.person_add), findsOneWidget);
       expect(find.byIcon(CupertinoIcons.person), findsOneWidget);
       expect(find.byIcon(CupertinoIcons.qrcode), findsOneWidget);
       expect(find.byIcon(CupertinoIcons.qrcode_viewfinder), findsOneWidget);
+    });
+
+    testWidgets('历史搜索菜单关闭后打开原有消息搜索路由', (tester) async {
+      final router = GoRouter(
+        routes: [
+          GoRoute(
+            path: '/',
+            builder: (_, _) =>
+                Scaffold(appBar: AppBar(actions: const [RightButton()])),
+          ),
+          GoRoute(
+            path: '/message_search',
+            builder: (_, _) =>
+                const Scaffold(body: Text('history destination')),
+          ),
+        ],
+      );
+      addTearDown(router.dispose);
+      await tester.pumpWidget(MaterialApp.router(routerConfig: router));
+      await tester.tap(find.byIcon(CupertinoIcons.plus_circle));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text(t.chat.inbox.searchHistory));
+      await tester.pumpAndSettle();
+      expect(find.text('history destination'), findsOneWidget);
+      expect(find.byKey(const ValueKey('add_menu_panel')), findsNothing);
     });
 
     testWidgets('菜单项文字最多两行', (tester) async {

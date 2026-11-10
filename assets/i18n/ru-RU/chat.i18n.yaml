@@ -213,3 +213,21 @@ invalidMessagePlaceholder: "[Недействительное сообщение
 videoCallPlaceholder: "[Видеозвонок]"
 voiceCallPlaceholder: "[Аудиозвонок]"
 notFriendCannotSend: "Не друзья, отправка невозможна"
+
+# Unified personal message inbox.
+inbox:
+  filterDirect: "Личные"
+  searchHint: "Поиск по именам или последним сообщениям"
+  searchHistory: "Поиск в истории сообщений"
+  unreadEmpty: "Нет непрочитанных или ожидающих сообщений"
+  emptyFilter: "В этой категории нет бесед"
+  clearFilters: "Показать все сообщения"
+  channelLoadFailed: "Не удалось загрузить сообщения каналов"
+  notificationSettings: "Настройки уведомлений"
+  channelOnly: "Показывать только в Каналах"
+  channelOnlyDescription: "Подписка и уведомления сохранятся. Вернуть канал в Сообщения можно на странице Каналы."
+  restoreToInbox: "Показывать в Сообщениях"
+  actionFailed: "Не удалось выполнить действие. Повторите попытку."
+  undo: "Отменить"
+  openChannels: "Открыть Каналы"
+  channelEmptyDescription: "Обновите подписки или восстановите скрытые каналы на странице Каналы."

@@ -1,16 +1,15 @@
-import 'package:imboy/component/ui/badge_widget.dart';
 import 'package:imboy/component/ui/bot_badge.dart';
 import 'package:imboy/store/repository/contact_repo_sqlite.dart';
-import 'package:imboy/theme/default/app_duration.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:imboy/theme/default/font_types.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:imboy/component/ui/avatar.dart';
-import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/conversation/conversation_provider.dart';
+import 'package:imboy/page/conversation/message_inbox_time.dart';
+import 'package:imboy/page/conversation/widget/message_inbox_tile.dart';
 import 'package:imboy/page/group/group_avatar_cache.dart'
     show defaultGroupAvatarLoader;
 import 'package:imboy/store/model/conversation_model.dart';
@@ -22,12 +21,14 @@ class ConversationItem extends ConsumerStatefulWidget {
   final ConversationModel model;
   final void Function()? onTapAvatar;
   final void Function()? onTap;
+  final VoidCallback? onLongPress;
 
   const ConversationItem({
     super.key,
     required this.model,
     required this.onTapAvatar,
     this.onTap,
+    this.onLongPress,
   });
 
   @override
@@ -35,8 +36,6 @@ class ConversationItem extends ConsumerStatefulWidget {
 }
 
 class _ConversationItemState extends ConsumerState<ConversationItem> {
-  bool _isPressed = false;
-
   /// 对端账号类型（0=真人 1=AI 2=官方），透明 AI 徽章数据源
   int _peerAccountType = 0;
 
@@ -90,221 +89,136 @@ class _ConversationItemState extends ConsumerState<ConversationItem> {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
 
-    // 背景色处理：置顶会话使用淡灰背景
-    final Color bgColor = currentModel.isPinned
-        ? (isDark
-              ? AppColors.darkSurfaceGrouped
-              : AppColors.lightSurfaceGrouped.withValues(alpha: 0.5))
-        : (isDark ? AppColors.darkSurface : AppColors.lightSurface);
-
-    return GestureDetector(
-      onTap: widget.onTap,
-      // 不触发 HapticFeedback：iOS 系统列表按下不给触感，只有切换/选择类
-      // 操作才给。每点一个会话都震一下是噪音，高频列表尤其明显。
-      onTapDown: (_) => setState(() => _isPressed = true),
-      onTapUp: (_) => setState(() => _isPressed = false),
-      onTapCancel: () => setState(() => _isPressed = false),
-      behavior: HitTestBehavior.opaque,
-      child: AnimatedContainer(
-        // DESIGN.md 6.4：Cell 按压反馈 100ms
-        duration: AppDuration.buttonPress,
-        color: _isPressed
-            // 按压态半透明高光叠加：暗色用白、亮色用黑，属固定交互反馈
-            ? (isDark ? AppColors.overlayWhite10 : AppColors.overlayBlack5)
-            : bgColor,
-        padding: const EdgeInsets.symmetric(
-          horizontal: AppSpacing.regular,
-          vertical: AppSpacing.medium,
-        ),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            // 头像区域 + 未读角标
-            BadgeWidget(
-              showBadge: (remindCounter > 0),
-              semanticLabel: context.t.common.unreadCount(
-                count: '$remindCounter',
-              ),
-              content: Text(
-                remindCounter > 99 ? '99+' : "$remindCounter",
-                style: context
-                    .textStyle(
-                      FontSizeType.caption2,
-                      color: AppColors.onPrimary,
-                      fontWeight: FontWeight.bold,
-                    )
-                    .copyWith(fontFeatures: [FontFeature.tabularFigures()]),
-              ),
-              color: AppColors.iosRed,
-              padding: const EdgeInsets.all(5),
-              top: -4,
-              left: -4,
-              right: null,
-              child: GestureDetector(
-                onTap: widget.onTapAvatar,
-                child: currentModel.type == 'C2G'
-                    ? SmartGroupAvatar(
-                        avatar: currentModel.avatar,
-                        groupId: currentModel.peerId.toString(),
-                        onTap: widget.onTapAvatar,
-                        size: 56,
-                        avatarLoader: defaultGroupAvatarLoader,
-                        heroTag: 'avatar_${currentModel.peerId}',
-                      )
-                    : Avatar(
-                        imgUri: currentModel.avatar,
-                        width: 56,
-                        height: 56,
-                        heroTag: 'avatar_${currentModel.peerId}',
-                      ),
-              ),
+    return MessageInboxTile(
+      avatar: currentModel.type == 'C2G'
+          ? SmartGroupAvatar(
+              avatar: currentModel.avatar,
+              groupId: currentModel.peerId.toString(),
+              onTap: widget.onTapAvatar,
+              size: MessageInboxTile.avatarSize,
+              avatarLoader: defaultGroupAvatarLoader,
+              heroTag: 'avatar_${currentModel.peerId}',
+            )
+          : Avatar(
+              imgUri: currentModel.avatar,
+              onTap: widget.onTapAvatar,
+              width: MessageInboxTile.avatarSize,
+              height: MessageInboxTile.avatarSize,
+              heroTag: 'avatar_${currentModel.peerId}',
             ),
-
-            // 12pt 不是随手取的：分隔线按 16(左padding)+56(头像)+12 = 84 起画
-            // （conversation_page)。这里给 14 的话文字左缘和分隔线差 2pt。
-            AppSpacing.horizontalMedium,
-
-            // 内容区域
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  // 标题与时间
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Expanded(child: _buildTitle(currentModel, theme, isDark)),
-                      _buildTime(currentModel, theme, isDark),
-                    ],
-                  ),
-                  AppSpacing.verticalTiny,
-                  // 消息预览
-                  Row(
-                    children: [
-                      // 在制中（发送中 / 待重试）均显示进度指示，
-                      // 待重试不再误显示为彻底失败。
-                      if (IMBoyMessageStatus.isInFlightStatus(
-                        currentModel.lastMsgStatus,
-                      ))
-                        const Padding(
-                          padding: EdgeInsets.only(right: AppSpacing.tiny),
-                          child: CupertinoActivityIndicator(radius: 6),
-                        ),
-                      Expanded(
-                        child: _buildContent(currentModel, theme, isDark),
-                      ),
-                      if (manualPending)
-                        // W09.a：人工待处理旗标（服务端元数据投影，非未读）。
-                        Padding(
-                          padding: const EdgeInsets.only(
-                            left: AppSpacing.small,
-                          ),
-                          child: Icon(
-                            CupertinoIcons.flag_fill,
-                            size: 12,
-                            color: AppColors.iosOrange,
-                            semanticLabel: context.t.chat.manualPendingBadge,
-                          ),
-                        ),
-                      if (currentModel.isMuted > 0)
-                        // 纯图标：不补 semanticLabel 的话读屏用户完全不知道
-                        // 这个会话已设免打扰。
-                        Padding(
-                          padding: const EdgeInsets.only(
-                            left: AppSpacing.small,
-                          ),
-                          child: Icon(
-                            CupertinoIcons.bell_slash_fill,
-                            size: 12,
-                            color: AppColors.iosGray3,
-                            semanticLabel: context.t.common.muteNotifications,
-                          ),
-                        ),
-                    ],
-                  ),
-                ],
-              ),
+      title: _buildTitle(currentModel, isDark),
+      preview: Row(
+        children: [
+          // 发送中和待重试继续使用同一在制状态，不误显示成彻底失败。
+          if (IMBoyMessageStatus.isInFlightStatus(currentModel.lastMsgStatus))
+            const Padding(
+              padding: EdgeInsets.only(right: AppSpacing.tiny),
+              child: CupertinoActivityIndicator(radius: AppSpacing.medium / 2),
             ),
-          ],
-        ),
+          Expanded(child: _buildContent(currentModel, isDark)),
+        ],
       ),
+      timeLabel: formatMessageInboxTime(
+        currentModel.lastTime,
+        yesterdayLabel: context.t.common.yesterday,
+      ),
+      unreadCount: remindCounter,
+      isMuted: currentModel.isMuted > 0,
+      isPinned: currentModel.isPinned,
+      // 人工待处理保留独立标记，与未读、免打扰状态互不覆盖。
+      trailingStatus: manualPending
+          ? Icon(
+              CupertinoIcons.flag_fill,
+              size: AppSpacing.medium,
+              color: AppColors.getIosOrange(theme.brightness),
+              semanticLabel: context.t.chat.manualPendingBadge,
+            )
+          : null,
+      onTap: widget.onTap,
+      onLongPress: widget.onLongPress,
     );
   }
 
-  Widget _buildTitle(
-    ConversationModel currentModel,
-    ThemeData theme,
-    bool isDark,
-  ) {
+  Widget _buildTitle(ConversationModel currentModel, bool isDark) {
     // 末档原本是 `peerId.toString()`，把 TSID 直接渲染给用户。
     // 判据与兜底已收口到 ConversationModel.displayTitle —— 会话列表、搜索过滤、
     // 跳转参数、聊天页原本各写一遍，写歪一处就漏一条路径。
     String displayTitle = currentModel.displayTitle;
 
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Flexible(
-          child: Text(
-            displayTitle,
-            style: context
-                .textStyle(
-                  FontSizeType.body,
-                  fontWeight: FontWeight.w600,
-                  color: isDark
-                      ? AppColors.darkTextPrimary
-                      : AppColors.lightTextPrimary,
-                )
-                .copyWith(letterSpacing: -0.4),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
-        ),
-        // 昵称先 ellipsis，徽章不压缩（透明 AI 披露）
-        if (_peerAccountType > 0) ...[
-          AppSpacing.horizontalTiny,
-          BotBadge(accountType: _peerAccountType),
-        ],
-      ],
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        var compactBadge = false;
+        if (_peerAccountType > 0) {
+          final scaler = MediaQuery.textScalerOf(context);
+          final measurement = TextPainter(
+            text: TextSpan(
+              text: _peerAccountType == 1
+                  ? context.t.agent.badgeAi
+                  : context.t.agent.badgeOfficial,
+              style: context.textStyle(
+                FontSizeType.caption2,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            textDirection: Directionality.of(context),
+            textScaler: scaler,
+          )..layout();
+          final badgeWidth =
+              measurement.width +
+              AppSpacing.small * 2 +
+              AppSpacing.medium +
+              AppSpacing.tiny;
+          final titleSize = context.textStyle(FontSizeType.body).fontSize!;
+          compactBadge =
+              constraints.maxWidth <
+              badgeWidth + AppSpacing.tiny + scaler.scale(titleSize) * 2;
+          measurement.dispose();
+        }
+        return Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Flexible(
+              child: Text(
+                displayTitle,
+                style: context
+                    .textStyle(
+                      FontSizeType.body,
+                      fontWeight: FontWeight.w600,
+                      color: isDark
+                          ? AppColors.darkTextPrimary
+                          : AppColors.lightTextPrimary,
+                    )
+                    .copyWith(letterSpacing: -0.4),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+            // 窄屏和大字体使用现有紧凑徽章，身份读屏标签仍完整保留。
+            if (_peerAccountType > 0) ...[
+              AppSpacing.horizontalTiny,
+              BotBadge(accountType: _peerAccountType, compact: compactBadge),
+            ],
+          ],
+        );
+      },
     );
   }
 
-  Widget _buildTime(
-    ConversationModel currentModel,
-    ThemeData theme,
-    bool isDark,
-  ) {
-    if (currentModel.lastTime <= 0) return const SizedBox.shrink();
-
-    // 不画 disclosure chevron：整行都可点，箭头传达不了额外信息，
-    // 只是占宽度、和时间挤在一起。微信 / Telegram / iMessage 的会话列表
-    // 都没有这个箭头。
-    return Text(
-      DateTimeHelper.lastTimeFmt(currentModel.lastTime),
-      style: context
-          .textStyle(
-            FontSizeType.footnote,
-            color: AppColors.iosGray,
-            fontWeight: FontWeight.w400,
-          )
-          .copyWith(fontFeatures: const [FontFeature.tabularFigures()]),
-    );
-  }
-
-  Widget _buildContent(
-    ConversationModel currentModel,
-    ThemeData theme,
-    bool isDark,
-  ) {
+  Widget _buildContent(ConversationModel currentModel, bool isDark) {
     String content = currentModel.content;
     TextStyle contentStyle = context
-        .textStyle(FontSizeType.subheadline, color: AppColors.iosGray)
+        .textStyle(
+          FontSizeType.subheadline,
+          color: isDark
+              ? AppColors.darkTextSecondary
+              : AppColors.lightTextSecondary,
+        )
         .copyWith(height: 1.3, letterSpacing: -0.2);
 
     if (content.contains('_color_red_')) {
       List<String> parts = content.split('_color_red_');
       return RichText(
+        textScaler: MediaQuery.textScalerOf(context),
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
         text: TextSpan(
@@ -327,6 +241,7 @@ class _ConversationItemState extends ConsumerState<ConversationItem> {
 
     if (currentModel.mentionUnread > 0) {
       return RichText(
+        textScaler: MediaQuery.textScalerOf(context),
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
         text: TextSpan(

@@ -22,6 +22,12 @@ import 'package:imboy/service/sqlite.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:synchronized/synchronized.dart';
 
+/// Schema 38 is the explicitly declared, unregistered FTS trigger draft.
+/// Released v37 and v39 retain repository maintenance. A future trigger rollout
+/// must update this capability predicate with its migration, not assume >=38.
+const String messageFtsRepositoryMaintenanceGuardSql =
+    '(SELECT user_version FROM pragma_user_version) <> 38';
+
 /// FTS 搜索结果
 class FtsSearchResult {
   final String id;
@@ -76,7 +82,7 @@ class MessageFtsRepo {
         // 双行（搜索同 id 命中两条）；update 后重索引路径必然重复。
         await _db.execute(
           'DELETE FROM msg_c2c_fts WHERE id = ? '
-          'AND (SELECT user_version FROM pragma_user_version) < 38',
+          'AND $messageFtsRepositoryMaintenanceGuardSql',
           [id],
           3,
           isCurrent,
@@ -85,9 +91,9 @@ class MessageFtsRepo {
         await _db.execute(
           rowid == null
               ? 'INSERT INTO msg_c2c_fts(id, conversation_uk3, text_content) '
-                    'SELECT ?, ?, ? WHERE (SELECT user_version FROM pragma_user_version) < 38'
+                    'SELECT ?, ?, ? WHERE $messageFtsRepositoryMaintenanceGuardSql'
               : 'INSERT INTO msg_c2c_fts(rowid, id, conversation_uk3, text_content) '
-                    'SELECT ?, ?, ?, ? WHERE (SELECT user_version FROM pragma_user_version) < 38',
+                    'SELECT ?, ?, ?, ? WHERE $messageFtsRepositoryMaintenanceGuardSql',
           rowid == null
               ? [id, conversationUk3, textContent]
               : [rowid, id, conversationUk3, textContent],
@@ -122,7 +128,7 @@ class MessageFtsRepo {
         // 幂等化，同 indexC2cMessage
         await _db.execute(
           'DELETE FROM msg_c2g_fts WHERE id = ? '
-          'AND (SELECT user_version FROM pragma_user_version) < 38',
+          'AND $messageFtsRepositoryMaintenanceGuardSql',
           [id],
           3,
           isCurrent,
@@ -131,9 +137,9 @@ class MessageFtsRepo {
         await _db.execute(
           rowid == null
               ? 'INSERT INTO msg_c2g_fts(id, conversation_uk3, text_content) '
-                    'SELECT ?, ?, ? WHERE (SELECT user_version FROM pragma_user_version) < 38'
+                    'SELECT ?, ?, ? WHERE $messageFtsRepositoryMaintenanceGuardSql'
               : 'INSERT INTO msg_c2g_fts(rowid, id, conversation_uk3, text_content) '
-                    'SELECT ?, ?, ?, ? WHERE (SELECT user_version FROM pragma_user_version) < 38',
+                    'SELECT ?, ?, ?, ? WHERE $messageFtsRepositoryMaintenanceGuardSql',
           rowid == null
               ? [id, conversationUk3, textContent]
               : [rowid, id, conversationUk3, textContent],
@@ -171,7 +177,7 @@ class MessageFtsRepo {
     }
   }
 
-  /// 从 FTS 索引中移除一条消息的索引行（v37 repo 路径，v38 后为 no-op）。
+  /// 从 FTS 索引中移除一条消息的索引行（v37/v39 repo 路径，v38 草稿为 no-op）。
   ///
   /// v37 基线的 FTS5 表是 contentless（content=''）：
   /// - 常规 FTS5 表：plain `DELETE ... WHERE rowid = ?` 直接生效；
@@ -187,7 +193,7 @@ class MessageFtsRepo {
     int? rowid,
   }) async {
     final table = type == 'C2C' ? 'msg_c2c_fts' : 'msg_c2g_fts';
-    final guard = '(SELECT user_version FROM pragma_user_version) < 38';
+    const guard = messageFtsRepositoryMaintenanceGuardSql;
     try {
       if (rowid != null) {
         try {
@@ -340,7 +346,7 @@ class MessageFtsRepo {
       await _db.execute(
         "INSERT INTO $table($table, id, conversation_uk3, text_content) "
         "SELECT 'delete', ?, ?, ? "
-        'WHERE (SELECT user_version FROM pragma_user_version) < 38',
+        'WHERE $messageFtsRepositoryMaintenanceGuardSql',
         [id, conversationUk3, textContent],
       );
     } catch (e) {

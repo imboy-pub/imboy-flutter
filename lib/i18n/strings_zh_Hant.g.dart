@@ -742,6 +742,7 @@ class Translations$chat$zh_Hant extends Translations$chat$zh_CN {
 	@override String get videoCallPlaceholder => '[視訊通話]';
 	@override String get voiceCallPlaceholder => '[語音通話]';
 	@override String get notFriendCannotSend => '非好友關係，無法發送訊息';
+	@override late final Translations$chat$inbox$zh_Hant inbox = Translations$chat$inbox$zh_Hant.internal(_root);
 }
 
 // Path: common
@@ -2853,6 +2854,30 @@ class Translations$account$alipaySim$zh_Hant extends Translations$account$alipay
 	@override String get balanceSource => '帳戶餘額';
 }
 
+// Path: chat.inbox
+class Translations$chat$inbox$zh_Hant extends Translations$chat$inbox$zh_CN {
+	Translations$chat$inbox$zh_Hant.internal(TranslationsZhHant root) : this._root = root, super.internal(root);
+
+	final TranslationsZhHant _root; // ignore: unused_field
+
+	// Translations
+	@override String get filterDirect => '私訊';
+	@override String get searchHint => '搜尋名稱或最新訊息';
+	@override String get searchHistory => '搜尋歷史訊息';
+	@override String get unreadEmpty => '沒有未讀或待處理訊息';
+	@override String get emptyFilter => '此分類沒有對話';
+	@override String get clearFilters => '查看所有訊息';
+	@override String get channelLoadFailed => '頻道訊息載入失敗';
+	@override String get notificationSettings => '通知設定';
+	@override String get channelOnly => '僅在頻道頁顯示';
+	@override String get channelOnlyDescription => '保留訂閱與通知，可在頻道頁恢復至訊息頁。';
+	@override String get restoreToInbox => '在訊息頁顯示';
+	@override String get actionFailed => '操作失敗，請重試';
+	@override String get undo => '復原';
+	@override String get openChannels => '前往頻道';
+	@override String get channelEmptyDescription => '在頻道頁更新訂閱清單，也可以恢復已隱藏的頻道。';
+}
+
 // Path: organization.common
 class Translations$organization$common$zh_Hant extends Translations$organization$common$zh_CN {
 	Translations$organization$common$zh_Hant.internal(TranslationsZhHant root) : this._root = root, super.internal(root);
@@ -4037,6 +4062,21 @@ extension on TranslationsZhHant {
 			'chat.videoCallPlaceholder' => '[視訊通話]',
 			'chat.voiceCallPlaceholder' => '[語音通話]',
 			'chat.notFriendCannotSend' => '非好友關係，無法發送訊息',
+			'chat.inbox.filterDirect' => '私訊',
+			'chat.inbox.searchHint' => '搜尋名稱或最新訊息',
+			'chat.inbox.searchHistory' => '搜尋歷史訊息',
+			'chat.inbox.unreadEmpty' => '沒有未讀或待處理訊息',
+			'chat.inbox.emptyFilter' => '此分類沒有對話',
+			'chat.inbox.clearFilters' => '查看所有訊息',
+			'chat.inbox.channelLoadFailed' => '頻道訊息載入失敗',
+			'chat.inbox.notificationSettings' => '通知設定',
+			'chat.inbox.channelOnly' => '僅在頻道頁顯示',
+			'chat.inbox.channelOnlyDescription' => '保留訂閱與通知，可在頻道頁恢復至訊息頁。',
+			'chat.inbox.restoreToInbox' => '在訊息頁顯示',
+			'chat.inbox.actionFailed' => '操作失敗，請重試',
+			'chat.inbox.undo' => '復原',
+			'chat.inbox.openChannels' => '前往頻道',
+			'chat.inbox.channelEmptyDescription' => '在頻道頁更新訂閱清單，也可以恢復已隱藏的頻道。',
 			'common.about' => '關於',
 			'common.aboutApp' => '關於應用',
 			'common.accept' => '同意',
@@ -4431,6 +4471,8 @@ extension on TranslationsZhHant {
 			'common.cameraShootFailed' => '拍攝失敗',
 			'common.cameraCapture' => '拍攝',
 			'common.cameraModePhoto' => '照片',
+			_ => null,
+		} ?? switch (path) {
 			'common.cameraModeVideo' => '影片',
 			'common.cameraRetake' => '重拍',
 			'common.cameraUse' => '使用',
@@ -4446,8 +4488,6 @@ extension on TranslationsZhHant {
 			'common.forcedOfflineByDevice' => ({required Object device}) => '你已被裝置【${device}】強制下線',
 			'common.loadingTagDataFailed' => '載入標籤資料失敗',
 			'common.pleaseEnterContent' => '請輸入內容',
-			_ => null,
-		} ?? switch (path) {
 			'common.comingSoon' => '敬請期待',
 			'common.backgroundTransparency' => '背景透明程度',
 			'common.defaultBackground' => '預設背景',
@@ -4945,6 +4985,8 @@ extension on TranslationsZhHant {
 			'common.switchCamera' => '切換鏡頭',
 			'common.timeDaysShort' => ({required Object count}) => '${count}d',
 			'common.timeHoursShort' => ({required Object count}) => '${count}h',
+			_ => null,
+		} ?? switch (path) {
 			'common.timeMinutesShort' => ({required Object count}) => '${count}m',
 			'common.timeNowShort' => 'now',
 			'common.transferAccepted' => '已收款',
@@ -4960,8 +5002,6 @@ extension on TranslationsZhHant {
 			'common.uploadPartialFailed' => ({required Object count}) => '${count} 項上傳失敗',
 			'common.voiceSttConverting' => '正在辨識中...',
 			'common.voiceSttNotConfigured' => '轉文字功能尚未設定',
-			_ => null,
-		} ?? switch (path) {
 			'common.voiceSttPreviewTitle' => '語音轉文字預覽',
 			'common.retry' => '重試',
 			'common.retrying' => '重試中…',
@@ -5459,6 +5499,8 @@ extension on TranslationsZhHant {
 			'main.myOrders' => '我的訂單',
 			'main.purchaseUnlockHint' => '購買後可解鎖頻道歷史訊息與後續更新內容。',
 			'main.payingDots' => '付款中...',
+			_ => null,
+		} ?? switch (path) {
 			'main.purchaseAndUnlock' => '立即購買並解鎖',
 			'main.orderDetail' => '訂單詳情',
 			'main.orderAmountLabel' => ({required Object currency, required Object amount}) => '金額: ${currency} ${amount}',
@@ -5474,8 +5516,6 @@ extension on TranslationsZhHant {
 			'main.webQRExpired' => '二維碼已過期',
 			'main.webQRRefresh' => '重新整理二維碼',
 			'main.webSwitchToQR' => '使用 QR 碼登入',
-			_ => null,
-		} ?? switch (path) {
 			'main.e2eeErrDefault' => '端到端加密失敗，訊息未傳送',
 			'main.e2eeErrPeerDeviceNotReady' => '有成員的裝置尚未完成安全設定，訊息未傳送；請稍後重試',
 			'main.liveRoomTitleLabel' => '直播間標題',
@@ -5973,6 +6013,8 @@ extension on TranslationsZhHant {
 			'passport.oneKeyFailedRetry' => '一鍵登入失敗，請檢查網路後重試',
 			'splash.slogan' => '暢所欲言，自在溝通',
 			'talkRecord.uploadProgressRegister' => '準備上傳',
+			_ => null,
+		} ?? switch (path) {
 			'talkRecord.uploadProgressUpload' => '上傳音訊',
 			'talkRecord.uploadProgressConfirm' => '確認音訊',
 			'talkRecord.uploadProgressSubmitting' => '提交儲存',
@@ -5988,8 +6030,6 @@ extension on TranslationsZhHant {
 			'talkRecord.aiConfigured' => '本裝置已設定',
 			'talkRecord.aiNotConfigured' => '尚未設定',
 			'talkRecord.aiLoading' => '正在讀取本裝置設定…',
-			_ => null,
-		} ?? switch (path) {
 			'talkRecord.aiDeviceOnlyNotice' => 'Key 僅加密儲存在目前帳號的本裝置，不上傳 IMBoy、不參與雲端備份或換機移轉。換裝置需重新輸入。',
 			'talkRecord.aiEnterprisePolicyNotice' => '設定 Key 不代表已授權對外處理。企業錄音仍需企業政策允許，傳送前還需本次處理同意。',
 			'talkRecord.aiMaxNotice' => '使用另行計費的智譜通用 API。Coding Plan 年度 Max 不保證涵蓋此處費用；轉寫文字會傳送至智譜。',

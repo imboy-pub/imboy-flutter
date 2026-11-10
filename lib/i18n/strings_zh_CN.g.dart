@@ -2139,6 +2139,8 @@ class Translations$chat$zh_CN {
 
 	/// zh-CN: '非好友关系，无法发送消息'
 	String get notFriendCannotSend => '非好友关系，无法发送消息';
+
+	late final Translations$chat$inbox$zh_CN inbox = Translations$chat$inbox$zh_CN.internal(_root);
 }
 
 // Path: common
@@ -9505,6 +9507,60 @@ class Translations$account$alipaySim$zh_CN {
 	String get balanceSource => '账户余额';
 }
 
+// Path: chat.inbox
+class Translations$chat$inbox$zh_CN {
+	Translations$chat$inbox$zh_CN.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// zh-CN: '私聊'
+	String get filterDirect => '私聊';
+
+	/// zh-CN: '搜索名称或最新消息'
+	String get searchHint => '搜索名称或最新消息';
+
+	/// zh-CN: '搜索历史消息'
+	String get searchHistory => '搜索历史消息';
+
+	/// zh-CN: '暂无未读或待处理消息'
+	String get unreadEmpty => '暂无未读或待处理消息';
+
+	/// zh-CN: '此分类暂无会话'
+	String get emptyFilter => '此分类暂无会话';
+
+	/// zh-CN: '查看全部消息'
+	String get clearFilters => '查看全部消息';
+
+	/// zh-CN: '频道消息加载失败'
+	String get channelLoadFailed => '频道消息加载失败';
+
+	/// zh-CN: '通知设置'
+	String get notificationSettings => '通知设置';
+
+	/// zh-CN: '仅在频道页显示'
+	String get channelOnly => '仅在频道页显示';
+
+	/// zh-CN: '保留订阅和通知，可在频道页恢复到消息页。'
+	String get channelOnlyDescription => '保留订阅和通知，可在频道页恢复到消息页。';
+
+	/// zh-CN: '在消息页显示'
+	String get restoreToInbox => '在消息页显示';
+
+	/// zh-CN: '操作失败，请重试'
+	String get actionFailed => '操作失败，请重试';
+
+	/// zh-CN: '撤销'
+	String get undo => '撤销';
+
+	/// zh-CN: '前往频道'
+	String get openChannels => '前往频道';
+
+	/// zh-CN: '在频道页更新订阅列表，也可以恢复已隐藏的频道。'
+	String get channelEmptyDescription => '在频道页更新订阅列表，也可以恢复已隐藏的频道。';
+}
+
 // Path: customerService.governance
 class Translations$customerService$governance$zh_CN {
 	Translations$customerService$governance$zh_CN.internal(this._root);
@@ -11687,6 +11743,21 @@ extension on Translations {
 			'chat.videoCallPlaceholder' => '[视频通话]',
 			'chat.voiceCallPlaceholder' => '[语音通话]',
 			'chat.notFriendCannotSend' => '非好友关系，无法发送消息',
+			'chat.inbox.filterDirect' => '私聊',
+			'chat.inbox.searchHint' => '搜索名称或最新消息',
+			'chat.inbox.searchHistory' => '搜索历史消息',
+			'chat.inbox.unreadEmpty' => '暂无未读或待处理消息',
+			'chat.inbox.emptyFilter' => '此分类暂无会话',
+			'chat.inbox.clearFilters' => '查看全部消息',
+			'chat.inbox.channelLoadFailed' => '频道消息加载失败',
+			'chat.inbox.notificationSettings' => '通知设置',
+			'chat.inbox.channelOnly' => '仅在频道页显示',
+			'chat.inbox.channelOnlyDescription' => '保留订阅和通知，可在频道页恢复到消息页。',
+			'chat.inbox.restoreToInbox' => '在消息页显示',
+			'chat.inbox.actionFailed' => '操作失败，请重试',
+			'chat.inbox.undo' => '撤销',
+			'chat.inbox.openChannels' => '前往频道',
+			'chat.inbox.channelEmptyDescription' => '在频道页更新订阅列表，也可以恢复已隐藏的频道。',
 			'common.about' => '关于',
 			'common.aboutApp' => '关于应用',
 			'common.accept' => '接受',
@@ -12024,6 +12095,8 @@ extension on Translations {
 			'common.sendFailed' => '发送失败',
 			'common.forceOffline' => '下线',
 			'common.forceDeviceOffline' => '让该设备下线',
+			_ => null,
+		} ?? switch (path) {
 			'common.forceDeviceOfflineConfirm' => '将向该设备发送下线指令，确认继续？',
 			'common.confirmForceOffline' => '确认下线',
 			'common.forceOfflineCommandSent' => '已发送下线指令',
@@ -12039,8 +12112,6 @@ extension on Translations {
 			'common.locationVisible' => '已显示你的位置',
 			'common.noNearbyPeople' => '暂无附近的人',
 			'common.clickSearchButtonToFind' => '点击上方的搜索按钮查找附近的人',
-			_ => null,
-		} ?? switch (path) {
 			'common.operationFailed' => _root.common.error,
 			'common.featureInDevelopment' => '功能开发中...',
 			'common.addedToDenylist' => '已加入黑名单',
@@ -12538,6 +12609,8 @@ extension on Translations {
 			'common.webAudioNotSupported' => 'Web 平台暂不支持语音消息播放',
 			'common.e2eeKeyRecreationFailed' => ({required Object error}) => '密钥创建失败: ${error}',
 			'common.redPacket' => '红包',
+			_ => null,
+		} ?? switch (path) {
 			'common.transfer' => '转账',
 			'common.withdraw' => '提现',
 			'common.redPacketSend' => '发红包',
@@ -12553,8 +12626,6 @@ extension on Translations {
 			'common.withdrawSuccess' => '提现成功',
 			'common.withdrawConfirm' => '确认提现',
 			'common.withdrawFeeNotice' => '手续费与到账时间以实际结算为准',
-			_ => null,
-		} ?? switch (path) {
 			'common.withdrawAmountError' => '请输入不低于0.01元的金额',
 			'common.withdrawAccountEmpty' => '请输入提现账号',
 			'common.withdrawMethod' => '提现方式',
@@ -13052,6 +13123,8 @@ extension on Translations {
 			'groupDiscovery.sortPopular' => '热门',
 			'groupDiscovery.sortNewest' => '最新',
 			'groupDiscovery.emptyTitle' => '暂无公开群，稍后再来看看',
+			_ => null,
+		} ?? switch (path) {
 			'groupDiscovery.searchEmpty' => '无匹配的公开群',
 			'groupList.attrAll' => '全部',
 			'groupList.attrOwner' => '我创建',
@@ -13067,8 +13140,6 @@ extension on Translations {
 			'groupSchedule.noSchedule' => '暂无日程',
 			'groupSchedule.startTime' => '开始时间',
 			'groupSchedule.endTime' => '结束时间',
-			_ => null,
-		} ?? switch (path) {
 			'groupSchedule.participants' => '参与人数',
 			'groupSchedule.statusCancelled' => '已取消',
 			'groupSchedule.statusInProgress' => '进行中',
@@ -13566,6 +13637,8 @@ extension on Translations {
 			'organization.inviteColleagues.title' => '邀请同事',
 			'organization.inviteColleagues.tabInvite' => '邀请同事',
 			'organization.inviteColleagues.tabPossible' => '可能的同事',
+			_ => null,
+		} ?? switch (path) {
 			'organization.inviteColleagues.wechatInvite' => '微信邀请同事',
 			'organization.inviteColleagues.wechatInviteHint' => '把邀请码发给微信好友，对方打开 imboy 加入',
 			'organization.inviteColleagues.faceToFace' => '面对面邀请同事',
@@ -13581,8 +13654,6 @@ extension on Translations {
 			'organization.inviteColleagues.guideCodeMissing' => '暂无有效邀请码，请先联系企业管理员生成',
 			'organization.inviteColleagues.possibleEmptyCta' => '去邀请同事',
 			'organization.inviteColleagues.codeLoadFailed' => '邀请码加载失败，请重试',
-			_ => null,
-		} ?? switch (path) {
 			'organization.inviteColleagues.codeMissingHint' => '暂无有效邀请码，生成后即可分享',
 			'organization.inviteColleagues.generateCode' => '生成邀请码',
 			'organization.inviteColleagues.generateForbidden' => '仅企业管理员可生成邀请码，请联系管理员',
@@ -14080,6 +14151,8 @@ extension on Translations {
 			'talkRecord.exportFixtureHint' => '组件阶段：下载链接为 fixture 示例，不产生真实文件。',
 			'talkRecord.transferTitle' => '移交管理责任',
 			'talkRecord.transferScopeHint' => '移交仅变更管理责任人；记录归属（企业与工作区）保持不变。',
+			_ => null,
+		} ?? switch (path) {
 			'talkRecord.transferCreatedByHint' => '创建者记录保持不变；此动作与分享权限相互独立。',
 			'talkRecord.transferCandidateSectionTitle' => '选择新责任人',
 			'talkRecord.transferCandidateEmpty' => '没有符合条件的候选同事',
@@ -14095,8 +14168,6 @@ extension on Translations {
 			'talkRecord.transferConfirmKeepOff' => '移交后你将不再保留查看权限，也无法再管理这条记录。',
 			'talkRecord.transferConfirmKeepOn' => '移交后你保留查看权限，但管理权归新责任人。',
 			'talkRecord.transferConfirmAction' => '确认移交',
-			_ => null,
-		} ?? switch (path) {
 			'talkRecord.transferSuccessTitle' => '管理责任已移交',
 			'talkRecord.transferSuccessOwner' => ({required Object name}) => '新责任人：${name}',
 			'talkRecord.transferSuccessKeptAccess' => '你仍保留查看权限；分享管理由新责任人负责。',

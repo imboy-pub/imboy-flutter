@@ -808,6 +808,7 @@ class _Translations$chat$en_US extends Translations$chat$zh_CN {
 	@override String get videoCallPlaceholder => '[Video call]';
 	@override String get voiceCallPlaceholder => '[Voice call]';
 	@override String get notFriendCannotSend => 'You are not friends, unable to send messages';
+	@override late final _Translations$chat$inbox$en_US inbox = _Translations$chat$inbox$en_US._(_root);
 }
 
 // Path: common
@@ -3434,6 +3435,30 @@ class _Translations$account$alipaySim$en_US extends Translations$account$alipayS
 	@override String get balanceSource => 'Account Balance';
 }
 
+// Path: chat.inbox
+class _Translations$chat$inbox$en_US extends Translations$chat$inbox$zh_CN {
+	_Translations$chat$inbox$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
+
+	final TranslationsEnUs _root; // ignore: unused_field
+
+	// Translations
+	@override String get filterDirect => 'Direct';
+	@override String get searchHint => 'Search names or latest messages';
+	@override String get searchHistory => 'Search message history';
+	@override String get unreadEmpty => 'No unread or pending messages';
+	@override String get emptyFilter => 'No conversations in this category';
+	@override String get clearFilters => 'View all messages';
+	@override String get channelLoadFailed => 'Channel messages could not be loaded';
+	@override String get notificationSettings => 'Notification settings';
+	@override String get channelOnly => 'Show only in Channels';
+	@override String get channelOnlyDescription => 'Keep your subscription and notifications. Restore to Messages from the Channels page.';
+	@override String get restoreToInbox => 'Show in Messages';
+	@override String get actionFailed => 'Action failed. Please try again.';
+	@override String get undo => 'Undo';
+	@override String get openChannels => 'Open Channels';
+	@override String get channelEmptyDescription => 'Update subscriptions or restore hidden channels from the Channels page.';
+}
+
 // Path: customerService.governance
 class _Translations$customerService$governance$en_US extends Translations$customerService$governance$zh_CN {
 	_Translations$customerService$governance$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
@@ -4728,6 +4753,21 @@ extension on TranslationsEnUs {
 			'chat.videoCallPlaceholder' => '[Video call]',
 			'chat.voiceCallPlaceholder' => '[Voice call]',
 			'chat.notFriendCannotSend' => 'You are not friends, unable to send messages',
+			'chat.inbox.filterDirect' => 'Direct',
+			'chat.inbox.searchHint' => 'Search names or latest messages',
+			'chat.inbox.searchHistory' => 'Search message history',
+			'chat.inbox.unreadEmpty' => 'No unread or pending messages',
+			'chat.inbox.emptyFilter' => 'No conversations in this category',
+			'chat.inbox.clearFilters' => 'View all messages',
+			'chat.inbox.channelLoadFailed' => 'Channel messages could not be loaded',
+			'chat.inbox.notificationSettings' => 'Notification settings',
+			'chat.inbox.channelOnly' => 'Show only in Channels',
+			'chat.inbox.channelOnlyDescription' => 'Keep your subscription and notifications. Restore to Messages from the Channels page.',
+			'chat.inbox.restoreToInbox' => 'Show in Messages',
+			'chat.inbox.actionFailed' => 'Action failed. Please try again.',
+			'chat.inbox.undo' => 'Undo',
+			'chat.inbox.openChannels' => 'Open Channels',
+			'chat.inbox.channelEmptyDescription' => 'Update subscriptions or restore hidden channels from the Channels page.',
 			'common.about' => 'About',
 			'common.aboutApp' => 'About App',
 			'common.accept' => 'Accept',
@@ -5067,6 +5107,8 @@ extension on TranslationsEnUs {
 			'common.officialReply' => 'Official reply',
 			'common.setPasswordSecurityTips' => 'Set a login password to enhance security and ensure you can always access your account.',
 			'common.locationHidden' => 'Your location has been hidden',
+			_ => null,
+		} ?? switch (path) {
 			'common.locationVisible' => 'Your location has been shown',
 			'common.noNearbyPeople' => 'No nearby people yet',
 			'common.clickSearchButtonToFind' => 'Click the search button above to find nearby people',
@@ -5082,8 +5124,6 @@ extension on TranslationsEnUs {
 			'common.groupAnnouncementPublishFailed' => 'Failed to publish announcement',
 			'common.groupAnnouncementPublishSuccess' => 'Announcement published',
 			'common.groupAnnouncementDeleteFailed' => 'Failed to delete announcement',
-			_ => null,
-		} ?? switch (path) {
 			'common.groupAnnouncementDeleteSuccess' => 'Announcement deleted',
 			'common.privacyClearChatHistory' => 'Clear chat history',
 			'common.privacyClearChatHistoryConfirm' => 'Are you sure you want to clear all chat history? This action cannot be undone.',
@@ -5581,6 +5621,8 @@ extension on TranslationsEnUs {
 			'common.searchDisabledTitle' => 'Message search unavailable',
 			'common.searchDisabledByEncryption' => 'End-to-end encryption is on, so the server cannot read your messages and full-text search is not available',
 			'common.amountMustPositive' => 'Amount must be greater than 0',
+			_ => null,
+		} ?? switch (path) {
 			'common.answer' => 'Answer',
 			'common.collapse' => 'Collapse',
 			'common.declineCall' => 'Decline',
@@ -5596,8 +5638,6 @@ extension on TranslationsEnUs {
 			'common.e2eeRetryFailedNone' => 'No failed messages to retry',
 			'common.e2eeModeStandard' => 'Standard mode',
 			'common.e2eeModeCompliance' => 'Compliance encryption',
-			_ => null,
-		} ?? switch (path) {
 			'common.e2eeModeStrict' => 'End-to-end encryption',
 			'common.enterAmount' => 'Please enter an amount',
 			'common.expandFull' => 'Expand',
@@ -6095,6 +6135,8 @@ extension on TranslationsEnUs {
 			'groupSchedule.statusInProgress' => 'In Progress',
 			'groupSchedule.statusNotStarted' => 'Not Started',
 			'groupSchedule.statusEnded' => 'Ended',
+			_ => null,
+		} ?? switch (path) {
 			'groupSchedule.cancelSuccess' => 'Schedule cancelled',
 			'groupSchedule.cancelFailed' => 'Cancel failed, please try again',
 			'groupSchedule.confirmAttend' => 'Confirm Attendance',
@@ -6110,8 +6152,6 @@ extension on TranslationsEnUs {
 			'groupSchedule.participantPending' => 'Pending',
 			'groupSchedule.attendSummary' => ({required Object attending, required Object total}) => '${attending}/${total} joined',
 			'groupSchedule.remindBefore' => ({required Object minutes}) => 'Reminds ${minutes} min before',
-			_ => null,
-		} ?? switch (path) {
 			'groupSchedule.duration' => ({required Object minutes}) => 'About ${minutes} min',
 			'groupSchedule.hintToday' => 'today',
 			'groupSchedule.hintTomorrow' => 'tomorrow',
@@ -6609,6 +6649,8 @@ extension on TranslationsEnUs {
 			'organization.inviteColleagues.generateForbidden' => 'Only enterprise admins can generate the invite code',
 			'organization.inviteColleagues.possibleEmpty' => 'No pending colleagues',
 			'organization.inviteColleagues.possibleEmptyHint' => 'Invite your colleagues to join',
+			_ => null,
+		} ?? switch (path) {
 			'organization.inviteColleagues.invitedBy' => ({required Object name}) => 'Invited by ${name}',
 			'organization.inviteColleagues.invitedAt' => ({required Object time}) => 'Invited at ${time}',
 			'organization.inviteColleagues.revoke' => 'Revoke',
@@ -6624,8 +6666,6 @@ extension on TranslationsEnUs {
 			'organization.inviteQr.entryHint' => 'Show the QR code or share the invite code; others join by scanning or typing',
 			'organization.inviteQr.scanHint' => 'Others scan this code with the imboy scanner to join this enterprise',
 			'organization.inviteQr.codeLabel' => 'Enterprise invite code',
-			_ => null,
-		} ?? switch (path) {
 			'organization.inviteQr.expiresWith' => ({required Object date}) => 'Valid until ${date}',
 			'organization.inviteQr.generate' => 'Generate invite code',
 			'organization.inviteQr.generateFirst' => 'No active invite code yet. A generated code is valid for 7 days; others can join by scanning or entering it.',
@@ -7123,6 +7163,8 @@ extension on TranslationsEnUs {
 			'talkRecord.transferSuccessKeptAccess' => 'You still have view access; sharing is managed by the new owner.',
 			'talkRecord.transferSuccessScopeUnchanged' => 'The note\'s organization and workspace are unchanged.',
 			'talkRecord.transferFailedBody' => 'Transfer failed, retry later.',
+			_ => null,
+		} ?? switch (path) {
 			'talkRecord.transferConflictHint' => 'The note was updated by someone else. Refresh and retry.',
 			'talkRecord.transferPersonalUnsupported' => 'Personal notes do not support ownership transfer yet.',
 			'talkRecord.transferOnlyOwner' => 'Only the current managing owner can transfer ownership.',
@@ -7138,8 +7180,6 @@ extension on TranslationsEnUs {
 			'talkRecord.deleteOnlyOwner' => 'Only the owner can delete this note.',
 			'talkRecord.deleteFailedBody' => 'Delete failed, retry later.',
 			'talkRecord.deleteConflictHint' => 'The note was updated by someone else. Refresh and retry.',
-			_ => null,
-		} ?? switch (path) {
 			'talkRecord.deleteStatusTitle' => 'Note deleted',
 			'talkRecord.deleteStatusNoContentHint' => 'Note content is no longer shown.',
 			'talkRecord.deleteCleanupSectionTitle' => 'Attachment cleanup status',

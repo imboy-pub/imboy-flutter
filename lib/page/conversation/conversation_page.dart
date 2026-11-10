@@ -45,6 +45,11 @@ import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:imboy/i18n/strings.g.dart';
 
 import 'conversation_provider.dart';
+import 'message_inbox_channel_host.dart';
+import 'message_inbox_entry.dart';
+import 'widget/message_inbox_filter_bar.dart';
+import 'widget/message_inbox_tile.dart';
+import 'widget/message_inbox_actions.dart';
 import 'widget/conversation_item.dart';
 
 /// 会话点击是否应派发到 Web Shell 右栏：仅当当前页面挂载于 `/web_shell`
@@ -98,6 +103,7 @@ class _ConversationPageState extends ConsumerState<ConversationPage> {
   /// 会话搜索控制器与当前 query（已 trim + 小写）。空串表示未过滤。
   final TextEditingController _searchCtrl = TextEditingController();
   String _searchQuery = '';
+  MessageInboxFilter _filter = MessageInboxFilter.all;
 
   void _onSearchChanged(String value) {
     final q = value.trim().toLowerCase();
@@ -272,42 +278,105 @@ class _ConversationPageState extends ConsumerState<ConversationPage> {
   Widget build(BuildContext context) {
     ref.watch(featureRevisionProvider);
     final state = ref.watch(conversationProvider);
+    final channelWidget = AppFeatureRegistry.isEnabled(FeatureKeys.channel)
+        ? compiledSubscribedChannelStrip()
+        : null;
+    if (channelWidget == null) {
+      return _buildInbox(
+        context,
+        state,
+        const MessageInboxChannelData(),
+        false,
+      );
+    }
+    // Optional channels contribute rows to this same list via the generated
+    // factory; the core page retains no channel implementation dependency.
+    return MessageInboxChannelHost(
+      builder: (context, channels) =>
+          _buildInbox(context, state, channels, true),
+      child: channelWidget,
+    );
+  }
+
+  Widget _buildInbox(
+    BuildContext context,
+    ConversationState state,
+    MessageInboxChannelData channels,
+    bool showChannels,
+  ) {
     final notifier = ref.read(conversationProvider.notifier);
     final t = context.t;
     final brightness = Theme.of(context).brightness;
-
-    // 本地过滤已加载会话（标题 + 预览文本）；不触网、不另造数据源。
-    final all = state.conversations;
-    final filtered = _searchQuery.isEmpty
-        ? all
-        : all
-              .where(
-                // 按 displayTitle 搜而非 raw title：raw title 里可能存着
-                // 存量脏值（peerId 本身），那样「搜屏幕上看得见的名字搜不到、
-                // 搜一串谁也不会输入的 TSID 反而能搜到」。
-                (c) =>
-                    c.displayTitle.toLowerCase().contains(_searchQuery) ||
-                    c.subtitle.toLowerCase().contains(_searchQuery),
-              )
-              .toList();
+    final filter = !showChannels && _filter == MessageInboxFilter.channel
+        ? MessageInboxFilter.all
+        : _filter;
+    final entries = [
+      // CHANNEL records are not chat rows: the adapter checks scope and access.
+      for (final model in state.conversations)
+        if (model.type.toUpperCase() != 'CHANNEL')
+          MessageInboxEntry(
+            key: 'chat:${model.uk3}',
+            kind: switch (model.type.toUpperCase()) {
+              'C2C' => MessageInboxKind.direct,
+              'C2G' => MessageInboxKind.group,
+              _ => MessageInboxKind.other,
+            },
+            title: model.displayTitle,
+            preview: model.subtitle,
+            lastTime: model.lastTime,
+            unreadCount: state.conversationRemind[model.uk3] ?? model.unreadNum,
+            manualPending: state.manualPending[model.uk3] == true,
+            isPinned: model.isPinned,
+            builder: (context) => _buildConversationRow(context, model, state),
+          ),
+      ...channels.entries,
+    ];
+    final filtered = selectMessageInboxEntries(
+      entries,
+      filter: filter,
+      query: _searchQuery,
+    );
+    final indexes = <String, int>{
+      for (var i = 0; i < filtered.length; i++) filtered[i].key: i,
+    };
+    final includesChannels =
+        showChannels &&
+        (filter == MessageInboxFilter.all ||
+            filter == MessageInboxFilter.unread ||
+            filter == MessageInboxFilter.channel);
+    final waiting =
+        (filter != MessageInboxFilter.channel && state.isLoading) ||
+        (includesChannels && channels.isLoading);
+    final channelError = includesChannels && channels.error != null;
+    void clearView() {
+      _searchCtrl.clear();
+      setState(() {
+        _searchQuery = '';
+        _filter = MessageInboxFilter.all;
+      });
+    }
 
     return IosPageTemplate(
       title: widget.title ?? t.chat.titleMessage,
       leading: widget.leading,
-      // RightButton 自带 44px 热区；IosPageTemplate 已把 SDK 导航栏
-      // leading/trailing 边距收窄为左右各 8px（原 16px，曾致图标字面
-      // 距屏缘 ~27px、与 Workspace 壳顶栏不一致），不再叠加外层 Padding
+      backgroundColor: brightness == Brightness.dark
+          ? AppColors.darkSurface
+          : AppColors.lightSurface,
       actions: [
-        RightButton(),
+        const RightButton(),
         if (widget.trailingActions != null) ...widget.trailingActions!,
       ],
       slivers: [
         CupertinoSliverRefreshControl(
-          onRefresh: () => notifier.syncAuthoritativeConversationList(
-            trigger: 'pull_to_refresh',
-          ),
+          onRefresh: () async {
+            await Future.wait([
+              notifier.syncAuthoritativeConversationList(
+                trigger: 'pull_to_refresh',
+              ),
+              if (channels.refresh != null) channels.refresh!(),
+            ]);
+          },
         ),
-        // 搜索框 - 嵌入 List 顶部
         SliverToBoxAdapter(
           child: Padding(
             padding: const EdgeInsets.fromLTRB(
@@ -320,7 +389,7 @@ class _ConversationPageState extends ConsumerState<ConversationPage> {
               key: const Key('conversation_search_input'),
               controller: _searchCtrl,
               onChanged: _onSearchChanged,
-              placeholder: t.common.search,
+              placeholder: t.chat.inbox.searchHint,
               backgroundColor: AppColors.getSurfaceGrouped(
                 brightness,
                 isOLEDMode: true,
@@ -328,7 +397,29 @@ class _ConversationPageState extends ConsumerState<ConversationPage> {
             ),
           ),
         ),
-
+        SliverToBoxAdapter(
+          child: Padding(
+            padding: const EdgeInsets.only(bottom: AppSpacing.small),
+            child: MessageInboxFilterBar(
+              selected: filter,
+              showChannels: showChannels,
+              onChanged: (value) {
+                FocusScope.of(context).unfocus();
+                setState(() => _filter = value);
+              },
+            ),
+          ),
+        ),
+        // Names/latest previews are local; history search has a separate label.
+        if (_searchQuery.isNotEmpty)
+          SliverToBoxAdapter(
+            child: CupertinoButton(
+              key: const Key('message-inbox-history-search'),
+              minimumSize: const Size(48, 48),
+              onPressed: () => context.push('/message_search'),
+              child: Text(t.chat.inbox.searchHistory),
+            ),
+          ),
         if (_e2eeRecoveryNeeded)
           SliverToBoxAdapter(
             child: E2EERecoveryBanner(
@@ -340,258 +431,321 @@ class _ConversationPageState extends ConsumerState<ConversationPage> {
               },
             ),
           ),
-
         if (state.connectDesc.isNotEmpty)
           SliverToBoxAdapter(child: NetworkFailureTips()),
-
-        if (AppFeatureRegistry.isEnabled(FeatureKeys.channel))
+        if (channelError)
           SliverToBoxAdapter(
-            child: compiledSubscribedChannelStrip() ?? const SizedBox.shrink(),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: AppSpacing.regular,
+              ),
+              child: Row(
+                children: [
+                  Expanded(child: Text(t.chat.inbox.channelLoadFailed)),
+                  CupertinoButton(
+                    minimumSize: const Size(48, 48),
+                    onPressed: channels.refresh,
+                    child: Text(t.common.buttonRetry),
+                  ),
+                ],
+              ),
+            ),
           ),
-
-        if (state.isLoading)
+        if (filtered.isEmpty && waiting)
           const SliverFillRemaining(child: ShimmerList())
-        else if (all.isEmpty)
+        else if (filtered.isEmpty && !channelError)
           SliverFillRemaining(
             hasScrollBody: false,
-            child: NoDataView(text: t.common.noConversationMessages),
+            child: NoDataView(
+              text: _searchQuery.isNotEmpty
+                  ? t.common.searchNoResults
+                  : filter == MessageInboxFilter.unread
+                  ? t.chat.inbox.unreadEmpty
+                  : filter != MessageInboxFilter.all
+                  ? t.chat.inbox.emptyFilter
+                  : t.common.noConversationMessages,
+              description:
+                  filter == MessageInboxFilter.channel && _searchQuery.isEmpty
+                  ? t.chat.inbox.channelEmptyDescription
+                  : null,
+              onTop:
+                  filter == MessageInboxFilter.channel && _searchQuery.isEmpty
+                  ? () => context.push('/channel')
+                  : filter != MessageInboxFilter.all || _searchQuery.isNotEmpty
+                  ? clearView
+                  : null,
+              retryLabel:
+                  filter == MessageInboxFilter.channel && _searchQuery.isEmpty
+                  ? t.chat.inbox.openChannels
+                  : t.chat.inbox.clearFilters,
+            ),
           )
-        else if (filtered.isEmpty)
-          SliverFillRemaining(
-            hasScrollBody: false,
-            child: NoDataView(text: t.common.searchNoResults),
-          )
-        else
+        else if (filtered.isNotEmpty)
           SliverPadding(
             padding: const EdgeInsets.only(bottom: AppSpacing.large),
             sliver: SliverList(
-              delegate: SliverChildBuilderDelegate((context, index) {
-                final model = filtered[index];
-                // W09.a（J17.c）：人工待处理状态感知——未读>0 是「标已读」
-                //（不动待处理）；无未读时已待处理则「取消待处理」（显式
-                // false），否则「标未读」=设待处理（显式 true，不写 unread）。
-                final isPending = state.manualPending[model.uk3] == true;
-                // 侧滑三个操作抽成闭包：既给 SlidableAction 用，也挂到
-                // Semantics.customSemanticsActions 上。读屏用户做不出侧滑手势，
-                // 不挂的话「已读 / 置顶 / 删除」对他们完全不可达。
-                final markReadLabel = model.unreadNum > 0
-                    ? t.chat.markRead
-                    : (isPending
-                          ? t.chat.cancelManualPending
-                          : t.chat.markUnread);
-                final pinLabel = model.isPinned ? t.chat.unpin : t.chat.pin;
-
-                Future<void> onToggleRead() async {
-                  if (model.unreadNum > 0) {
-                    try {
-                      final db = await SqliteService.to.db;
-                      if (db != null) {
-                        final tb = MessageRepo.getTableName(model.type);
-                        await db.update(
-                          tb,
-                          {MessageRepo.status: IMBoyMessageStatus.seen},
-                          where:
-                              "${MessageRepo.conversationUk3} = ? and ${MessageRepo.status} = ? and ${MessageRepo.isAuthor} = ?",
-                          whereArgs: [
-                            model.uk3,
-                            IMBoyMessageStatus.delivered,
-                            0,
-                          ],
-                        );
-                      }
-                    } catch (_) {}
-                    await notifier.advanceWatermarkToLatest(model);
-                    await notifier.setConversationRemind(model, 0);
-                    // W09.a（J17.c 彼此不清除）：标已读不动人工待处理。
-                    notifier.applyConversationSnapshot(
-                      model.copyWith(unreadNum: 0),
-                    );
-                  } else {
-                    // W09.a：人工待处理走服务端 user_setting 元数据
-                    // （显式目标 true/false），**不写 unreadNum**——人工标记
-                    // 与真实未读水位分离。冲突时展示服务端最新状态（J17.d），
-                    // 失败给错误提示不假成功（J16.b）。
-                    final r = await notifier.setManualPending(
-                      model,
-                      !isPending,
-                    );
-                    if (!mounted) return;
-                    if (r.conflict && r.serverValue != null) {
-                      AppLoading.showToast(
-                        t.chat.manualPendingConflict(
-                          param: r.serverValue!
-                              ? t.chat.manualPendingBadge
-                              : t.chat.manualPendingOff,
+              delegate: SliverChildBuilderDelegate(
+                (context, index) {
+                  final entry = filtered[index];
+                  return Column(
+                    key: ValueKey(entry.key),
+                    children: [
+                      entry.builder(context),
+                      if (index < filtered.length - 1)
+                        Padding(
+                          padding: const EdgeInsetsDirectional.only(
+                            start: MessageInboxTile.contentIndent,
+                          ),
+                          child: Divider(
+                            height: 0.5,
+                            color: AppColors.getIosSeparator(brightness)
+                                .withValues(alpha: 0.3),
+                          ),
                         ),
-                      );
-                    } else if (!r.applied) {
-                      AppLoading.showError(t.common.tipFailed);
-                    }
-                  }
-                }
-
-                Future<void> onTogglePin(BuildContext ctx) async {
-                  // 补反馈：原来忽略返回值、成功失败都无提示（QA#30）
-                  final willPin = !model.isPinned;
-                  final ok = await notifier.setConversationPinned(
-                    model,
-                    willPin,
+                    ],
                   );
-                  if (!ctx.mounted) return;
-                  if (ok) {
-                    AppLoading.showToast(
-                      willPin
-                          ? t.common.chatSettingPinnedSuccess
-                          : t.common.chatSettingUnpinnedSuccess,
-                    );
-                  } else {
-                    AppLoading.showError(t.common.errorNetwork);
-                  }
-                }
-
-                Future<void> onDelete() async {
-                  try {
-                    final ok = await notifier.deleteConversationRemote(model);
-                    if (context.mounted && !ok) {
-                      AppLoading.showError(t.common.errorNetwork);
-                    }
-                  } catch (_) {
-                    if (context.mounted) {
-                      AppLoading.showError(t.common.errorNetwork);
-                    }
-                  }
-                }
-
-                return Column(
-                  children: [
-                    Slidable(
-                      key: ValueKey(model.id),
-                      groupTag: '0',
-                      endActionPane: ActionPane(
-                        extentRatio: 0.65,
-                        motion: const ScrollMotion(),
-                        children: [
-                          SlidableAction(
-                            onPressed: (_) => onToggleRead(),
-                            backgroundColor: AppColors.getIosBlue(brightness),
-                            foregroundColor: AppColors.onPrimary,
-                            label: markReadLabel,
-                            icon: model.unreadNum > 0
-                                ? CupertinoIcons.chat_bubble
-                                : (isPending
-                                      ? CupertinoIcons.flag_fill
-                                      : CupertinoIcons.chat_bubble_fill),
-                          ),
-                          SlidableAction(
-                            onPressed: (ctx) => onTogglePin(ctx),
-                            backgroundColor: AppColors.iosOrange,
-                            foregroundColor: AppColors.onPrimary,
-                            label: pinLabel,
-                            icon: model.isPinned
-                                ? CupertinoIcons.pin_slash_fill
-                                : CupertinoIcons.pin_fill,
-                          ),
-                          SlidableAction(
-                            onPressed: (_) => onDelete(),
-                            backgroundColor: AppColors.getIosRed(brightness),
-                            foregroundColor: AppColors.onPrimary,
-                            label: t.common.buttonDelete,
-                            icon: CupertinoIcons.delete_solid,
-                          ),
-                        ],
-                      ),
-                      // 把侧滑操作暴露给读屏：VoiceOver / TalkBack 用户做不出
-                      // 侧滑手势，不挂 customSemanticsActions 的话
-                      // 「已读 / 置顶 / 删除」三个操作对他们完全不可达。
-                      // 挂上后可从读屏的「操作」菜单里选。
-                      child: Builder(
-                        builder: (rowContext) => Semantics(
-                          customSemanticsActions:
-                              <CustomSemanticsAction, VoidCallback>{
-                                CustomSemanticsAction(
-                                  label: markReadLabel,
-                                ): () =>
-                                    unawaited(onToggleRead()),
-                                CustomSemanticsAction(label: pinLabel): () =>
-                                    unawaited(onTogglePin(rowContext)),
-                                CustomSemanticsAction(
-                                  label: t.common.buttonDelete,
-                                ): () =>
-                                    unawaited(onDelete()),
-                              },
-                          child: ConversationItem(
-                            model: model,
-                            onTap: () {
-                              final useSplitView =
-                                  _isWebShellHosted(context) &&
-                                  AppBreakpoints.isWide(
-                                    MediaQuery.sizeOf(context).width,
-                                  );
-                              final action = resolveConversationTap(
-                                useSplitView: useSplitView,
-                                peerId: model.peerId.toString(),
-                                type: model.type,
-                                // 传 resolvedTitle 而非 raw title：
-                                // 存量脏 title 里存的就是 peerId，原样传下去
-                                // 聊天页就把 TSID 显示给用户（批次 14 实测）。
-                                // 也不能传 displayTitle —— 兜底后的「未命名」
-                                // 会堵死聊天页继续查群名/成员名的那条链。
-                                title: model.resolvedTitle,
-                                avatar: model.avatar,
-                                sign: model.sign,
-                              );
-                              if (action is WebSelectChat) {
-                                ref
-                                    .read(webShellProvider.notifier)
-                                    .selectItem(
-                                      ChatSelection(
-                                        peerId: action.peerId,
-                                        chatType: action.chatType,
-                                      ),
-                                    );
-                              } else if (action is MobilePushChat) {
-                                context.push(
-                                  '/chat/${action.peerId}',
-                                  extra: {
-                                    'type': action.chatType,
-                                    'title': action.title,
-                                    'avatar': action.avatar,
-                                    'sign': action.sign,
-                                  },
-                                );
-                              }
-                            },
-                            onTapAvatar: () => context.push(
-                              model.type == 'C2G'
-                                  ? '/group/detail/${model.peerId}'
-                                  : '/contact/people/${model.peerId}',
-                              extra: model.type == 'C2G'
-                                  ? {'title': model.title}
-                                  : {'scene': ''},
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                    // 分隔线：左 16(页面 padding) + 56(头像) + 12(头像后间距) = 84，
-                    // 与文字左缘对齐（DESIGN.md 8.3 A）。
-                    // 末行不画——iOS 列表最后一行下面是空白，多一条线会让列表
-                    // 看起来"还没到底"。
-                    if (index < filtered.length - 1)
-                      Padding(
-                        padding: const EdgeInsets.only(left: 84),
-                        child: Divider(
-                          height: 0.5,
-                          color: AppColors.getIosSeparator(brightness)
-                              .withValues(alpha: 0.3),
-                        ),
-                      ),
-                  ],
-                );
-              }, childCount: filtered.length),
+                },
+                childCount: filtered.length,
+                findChildIndexCallback: (key) =>
+                    key is ValueKey<String> ? indexes[key.value] : null,
+              ),
             ),
           ),
       ],
+    );
+  }
+
+  Widget _buildConversationRow(
+    BuildContext context,
+    ConversationModel model,
+    ConversationState state,
+  ) {
+    final notifier = ref.read(conversationProvider.notifier);
+    final t = context.t;
+    final brightness = Theme.of(context).brightness;
+    final unreadCount = state.conversationRemind[model.uk3] ?? model.unreadNum;
+    final owner = UserRepoLocal.to;
+    final ownerUid = owner.currentUid;
+    final ownerGeneration = owner.sessionGeneration;
+    bool isCurrentRow() =>
+        mounted &&
+        owner.currentUid == ownerUid &&
+        owner.isCurrentSession(ownerGeneration) &&
+        !owner.isAuthTransitioning;
+    // W09.a（J17.c）：人工待处理状态感知——未读>0 是「标已读」
+    //（不动待处理）；无未读时已待处理则「取消待处理」（显式
+    // false），否则「标未读」=设待处理（显式 true，不写 unread）。
+    final isPending = state.manualPending[model.uk3] == true;
+    // 侧滑三个操作抽成闭包：既给 SlidableAction 用，也挂到
+    // Semantics.customSemanticsActions 上。读屏用户做不出侧滑手势，
+    // 不挂的话「已读 / 置顶 / 删除」对他们完全不可达。
+    final markReadLabel = unreadCount > 0
+        ? t.chat.markRead
+        : (isPending ? t.chat.cancelManualPending : t.chat.markUnread);
+    final pinLabel = model.isPinned ? t.chat.unpin : t.chat.pin;
+
+    Future<void> onToggleRead() async {
+      if (!isCurrentRow()) return;
+      if (unreadCount > 0) {
+        try {
+          final db = await SqliteService.to.db;
+          if (db != null && isCurrentRow()) {
+            final tb = MessageRepo.getTableName(model.type);
+            await db.update(
+              tb,
+              {MessageRepo.status: IMBoyMessageStatus.seen},
+              where:
+                  "${MessageRepo.conversationUk3} = ? and ${MessageRepo.status} = ? and ${MessageRepo.isAuthor} = ?",
+              whereArgs: [model.uk3, IMBoyMessageStatus.delivered, 0],
+            );
+          }
+        } catch (_) {}
+        if (!isCurrentRow()) return;
+        await notifier.advanceWatermarkToLatest(model);
+        if (!isCurrentRow()) return;
+        await notifier.setConversationRemind(model, 0);
+        // W09.a（J17.c 彼此不清除）：标已读不动人工待处理。
+        notifier.applyConversationSnapshot(model.copyWith(unreadNum: 0));
+      } else {
+        // W09.a：人工待处理走服务端 user_setting 元数据
+        // （显式目标 true/false），**不写 unreadNum**——人工标记
+        // 与真实未读水位分离。冲突时展示服务端最新状态（J17.d），
+        // 失败给错误提示不假成功（J16.b）。
+        final r = await notifier.setManualPending(model, !isPending);
+        if (!mounted) return;
+        if (r.conflict && r.serverValue != null) {
+          AppLoading.showToast(
+            t.chat.manualPendingConflict(
+              param: r.serverValue!
+                  ? t.chat.manualPendingBadge
+                  : t.chat.manualPendingOff,
+            ),
+          );
+        } else if (!r.applied) {
+          AppLoading.showError(t.common.tipFailed);
+        }
+      }
+    }
+
+    Future<void> onTogglePin(BuildContext ctx) async {
+      if (!isCurrentRow()) return;
+      // 补反馈：原来忽略返回值、成功失败都无提示（QA#30）
+      final willPin = !model.isPinned;
+      final ok = await notifier.setConversationPinned(model, willPin);
+      if (!ctx.mounted) return;
+      if (ok) {
+        AppLoading.showToast(
+          willPin
+              ? t.common.chatSettingPinnedSuccess
+              : t.common.chatSettingUnpinnedSuccess,
+        );
+      } else {
+        AppLoading.showError(t.common.errorNetwork);
+      }
+    }
+
+    Future<void> onDelete() async {
+      if (!isCurrentRow()) return;
+      try {
+        final ok = await notifier.deleteConversationRemote(model);
+        if (context.mounted && !ok) {
+          AppLoading.showError(t.common.errorNetwork);
+        }
+      } catch (_) {
+        if (context.mounted) {
+          AppLoading.showError(t.common.errorNetwork);
+        }
+      }
+    }
+
+    return Slidable(
+      key: ValueKey(model.id),
+      groupTag: '0',
+      endActionPane: ActionPane(
+        extentRatio: 0.65,
+        motion: const ScrollMotion(),
+        children: [
+          SlidableAction(
+            onPressed: (_) => onToggleRead(),
+            backgroundColor: AppColors.getIosBlue(brightness),
+            foregroundColor: AppColors.onPrimary,
+            label: markReadLabel,
+            icon: unreadCount > 0
+                ? CupertinoIcons.chat_bubble
+                : (isPending
+                      ? CupertinoIcons.flag_fill
+                      : CupertinoIcons.chat_bubble_fill),
+          ),
+          SlidableAction(
+            onPressed: (ctx) => onTogglePin(ctx),
+            backgroundColor: AppColors.iosOrange,
+            foregroundColor: AppColors.onPrimary,
+            label: pinLabel,
+            icon: model.isPinned
+                ? CupertinoIcons.pin_slash_fill
+                : CupertinoIcons.pin_fill,
+          ),
+          SlidableAction(
+            onPressed: (_) => onDelete(),
+            backgroundColor: AppColors.getIosRed(brightness),
+            foregroundColor: AppColors.onPrimary,
+            label: t.common.buttonDelete,
+            icon: CupertinoIcons.delete_solid,
+          ),
+        ],
+      ),
+      // 把侧滑操作暴露给读屏：VoiceOver / TalkBack 用户做不出
+      // 侧滑手势，不挂 customSemanticsActions 的话
+      // 「已读 / 置顶 / 删除」三个操作对他们完全不可达。
+      // 挂上后可从读屏的「操作」菜单里选。
+      child: Builder(
+        builder: (rowContext) => Semantics(
+          customSemanticsActions: <CustomSemanticsAction, VoidCallback>{
+            CustomSemanticsAction(label: markReadLabel): () =>
+                unawaited(onToggleRead()),
+            CustomSemanticsAction(label: pinLabel): () =>
+                unawaited(onTogglePin(rowContext)),
+            CustomSemanticsAction(label: t.common.buttonDelete): () =>
+                unawaited(onDelete()),
+          },
+          child: ConversationItem(
+            model: model,
+            onLongPress: () => showMessageInboxActions(
+              context,
+              title: model.displayTitle,
+              actions: [
+                MessageInboxAction(
+                  markReadLabel,
+                  () => unawaited(onToggleRead()),
+                ),
+                MessageInboxAction(
+                  pinLabel,
+                  () => unawaited(onTogglePin(context)),
+                ),
+                if (model.type == 'C2C' || model.type == 'C2G')
+                  MessageInboxAction(t.chat.inbox.notificationSettings, () {
+                    if (!isCurrentRow()) return;
+                    context.push(
+                      '/chat_setting/${model.peerId}',
+                      extra: {'type': model.type},
+                    );
+                  }),
+                MessageInboxAction(
+                  t.common.buttonDelete,
+                  () => unawaited(onDelete()),
+                  destructive: true,
+                ),
+              ],
+            ),
+            onTap: () {
+              final useSplitView =
+                  _isWebShellHosted(context) &&
+                  AppBreakpoints.isWide(MediaQuery.sizeOf(context).width);
+              final action = resolveConversationTap(
+                useSplitView: useSplitView,
+                peerId: model.peerId.toString(),
+                type: model.type,
+                // 传 resolvedTitle 而非 raw title：
+                // 存量脏 title 里存的就是 peerId，原样传下去
+                // 聊天页就把 TSID 显示给用户（批次 14 实测）。
+                // 也不能传 displayTitle —— 兜底后的「未命名」
+                // 会堵死聊天页继续查群名/成员名的那条链。
+                title: model.resolvedTitle,
+                avatar: model.avatar,
+                sign: model.sign,
+              );
+              if (action is WebSelectChat) {
+                ref
+                    .read(webShellProvider.notifier)
+                    .selectItem(
+                      ChatSelection(
+                        peerId: action.peerId,
+                        chatType: action.chatType,
+                      ),
+                    );
+              } else if (action is MobilePushChat) {
+                context.push(
+                  '/chat/${action.peerId}',
+                  extra: {
+                    'type': action.chatType,
+                    'title': action.title,
+                    'avatar': action.avatar,
+                    'sign': action.sign,
+                  },
+                );
+              }
+            },
+            onTapAvatar: () => context.push(
+              model.type == 'C2G'
+                  ? '/group/detail/${model.peerId}'
+                  : '/contact/people/${model.peerId}',
+              extra: model.type == 'C2G'
+                  ? {'title': model.title}
+                  : {'scene': ''},
+            ),
+          ),
+        ),
+      ),
     );
   }
 }

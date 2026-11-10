@@ -742,6 +742,7 @@ class _Translations$chat$ko_KR extends Translations$chat$zh_CN {
 	@override String get videoCallPlaceholder => '[영상 통화]';
 	@override String get voiceCallPlaceholder => '[음성 통화]';
 	@override String get notFriendCannotSend => '친구가 아니어서 메시지를 보낼 수 없습니다';
+	@override late final _Translations$chat$inbox$ko_KR inbox = _Translations$chat$inbox$ko_KR._(_root);
 }
 
 // Path: common
@@ -2853,6 +2854,30 @@ class _Translations$account$alipaySim$ko_KR extends Translations$account$alipayS
 	@override String get balanceSource => '계정 잔액';
 }
 
+// Path: chat.inbox
+class _Translations$chat$inbox$ko_KR extends Translations$chat$inbox$zh_CN {
+	_Translations$chat$inbox$ko_KR._(TranslationsKoKr root) : this._root = root, super.internal(root);
+
+	final TranslationsKoKr _root; // ignore: unused_field
+
+	// Translations
+	@override String get filterDirect => '개인';
+	@override String get searchHint => '이름 또는 최근 메시지 검색';
+	@override String get searchHistory => '메시지 기록 검색';
+	@override String get unreadEmpty => '읽지 않거나 처리 대기 중인 메시지가 없습니다';
+	@override String get emptyFilter => '이 분류에 대화가 없습니다';
+	@override String get clearFilters => '모든 메시지 보기';
+	@override String get channelLoadFailed => '채널 메시지를 불러오지 못했습니다';
+	@override String get notificationSettings => '알림 설정';
+	@override String get channelOnly => '채널 화면에만 표시';
+	@override String get channelOnlyDescription => '구독과 알림은 유지됩니다. 채널 화면에서 메시지 목록으로 복원할 수 있습니다.';
+	@override String get restoreToInbox => '메시지 목록에 표시';
+	@override String get actionFailed => '작업에 실패했습니다. 다시 시도해 주세요.';
+	@override String get undo => '실행 취소';
+	@override String get openChannels => '채널 열기';
+	@override String get channelEmptyDescription => '채널 화면에서 구독 목록을 업데이트하거나 숨긴 채널을 복원하세요.';
+}
+
 // Path: organization.common
 class _Translations$organization$common$ko_KR extends Translations$organization$common$zh_CN {
 	_Translations$organization$common$ko_KR._(TranslationsKoKr root) : this._root = root, super.internal(root);
@@ -4037,6 +4062,21 @@ extension on TranslationsKoKr {
 			'chat.videoCallPlaceholder' => '[영상 통화]',
 			'chat.voiceCallPlaceholder' => '[음성 통화]',
 			'chat.notFriendCannotSend' => '친구가 아니어서 메시지를 보낼 수 없습니다',
+			'chat.inbox.filterDirect' => '개인',
+			'chat.inbox.searchHint' => '이름 또는 최근 메시지 검색',
+			'chat.inbox.searchHistory' => '메시지 기록 검색',
+			'chat.inbox.unreadEmpty' => '읽지 않거나 처리 대기 중인 메시지가 없습니다',
+			'chat.inbox.emptyFilter' => '이 분류에 대화가 없습니다',
+			'chat.inbox.clearFilters' => '모든 메시지 보기',
+			'chat.inbox.channelLoadFailed' => '채널 메시지를 불러오지 못했습니다',
+			'chat.inbox.notificationSettings' => '알림 설정',
+			'chat.inbox.channelOnly' => '채널 화면에만 표시',
+			'chat.inbox.channelOnlyDescription' => '구독과 알림은 유지됩니다. 채널 화면에서 메시지 목록으로 복원할 수 있습니다.',
+			'chat.inbox.restoreToInbox' => '메시지 목록에 표시',
+			'chat.inbox.actionFailed' => '작업에 실패했습니다. 다시 시도해 주세요.',
+			'chat.inbox.undo' => '실행 취소',
+			'chat.inbox.openChannels' => '채널 열기',
+			'chat.inbox.channelEmptyDescription' => '채널 화면에서 구독 목록을 업데이트하거나 숨긴 채널을 복원하세요.',
 			'common.about' => '정보',
 			'common.aboutApp' => '앱 정보',
 			'common.accept' => '수락',
@@ -4431,6 +4471,8 @@ extension on TranslationsKoKr {
 			'common.cameraModePhoto' => '사진',
 			'common.cameraModeVideo' => '동영상',
 			'common.cameraRetake' => '다시 촬영',
+			_ => null,
+		} ?? switch (path) {
 			'common.cameraUse' => '사용',
 			'common.cameraNoDevice' => '사용 가능한 카메라가 없습니다',
 			'common.avatarEditAvatar' => '프로필 사진 편집',
@@ -4446,8 +4488,6 @@ extension on TranslationsKoKr {
 			'common.pleaseEnterContent' => '내용을 입력하세요',
 			'common.comingSoon' => '출시 예정',
 			'common.backgroundTransparency' => '배경 투명도',
-			_ => null,
-		} ?? switch (path) {
 			'common.defaultBackground' => '기본 배경',
 			'common.solidColorBackground' => '단색 배경',
 			'common.selectImageFailed' => '이미지 선택 실패',
@@ -4945,6 +4985,8 @@ extension on TranslationsKoKr {
 			'common.switchCamera' => '카메라 전환',
 			'common.timeDaysShort' => ({required Object count}) => '${count}일',
 			'common.timeHoursShort' => ({required Object count}) => '${count}시간',
+			_ => null,
+		} ?? switch (path) {
 			'common.timeMinutesShort' => ({required Object count}) => '${count}분',
 			'common.timeNowShort' => '지금',
 			'common.transferAccepted' => '받기 완료',
@@ -4960,8 +5002,6 @@ extension on TranslationsKoKr {
 			'common.uploadPartialFailed' => ({required Object count}) => '${count}개 항목 업로드 실패',
 			'common.voiceSttConverting' => '인식 중...',
 			'common.voiceSttNotConfigured' => '텍스트 변환 기능이 아직 설정되지 않았습니다',
-			_ => null,
-		} ?? switch (path) {
 			'common.voiceSttPreviewTitle' => '음성 텍스트 변환 미리보기',
 			'common.retry' => '다시 시도',
 			'common.retrying' => '다시 시도 중…',
@@ -5459,6 +5499,8 @@ extension on TranslationsKoKr {
 			'main.myOrders' => '내 주문',
 			'main.purchaseUnlockHint' => '구매 시 채널의 과거 메시지와 향후 업데이트를 볼 수 있습니다.',
 			'main.payingDots' => '결제 중...',
+			_ => null,
+		} ?? switch (path) {
 			'main.purchaseAndUnlock' => '구매하고 잠금 해제',
 			'main.orderDetail' => '주문 상세',
 			'main.orderAmountLabel' => ({required Object currency, required Object amount}) => '금액: ${currency} ${amount}',
@@ -5474,8 +5516,6 @@ extension on TranslationsKoKr {
 			'main.webQRExpired' => 'QR 코드가 만료되었습니다',
 			'main.webQRRefresh' => 'QR 코드 새로고침',
 			'main.webSwitchToQR' => 'QR 코드로 로그인',
-			_ => null,
-		} ?? switch (path) {
 			'main.e2eeErrDefault' => '종단간 암호화 실패, 메시지가 전송되지 않았습니다',
 			'main.e2eeErrPeerDeviceNotReady' => '일부 멤버의 기기에서 보안 설정이 완료되지 않아 메시지가 전송되지 않았습니다. 잠시 후 다시 시도해 주세요',
 			'main.liveRoomTitleLabel' => '라이브 룸 제목',
@@ -5973,6 +6013,8 @@ extension on TranslationsKoKr {
 			'passport.oneKeyFailedRetry' => '원탭 로그인에 실패했습니다. 네트워크를 확인 후 다시 시도해 주세요',
 			'splash.slogan' => '자유롭게 대화하세요',
 			'talkRecord.uploadProgressRegister' => '업로드 준비 중',
+			_ => null,
+		} ?? switch (path) {
 			'talkRecord.uploadProgressUpload' => '오디오 업로드 중',
 			'talkRecord.uploadProgressConfirm' => '오디오 확인 중',
 			'talkRecord.uploadProgressSubmitting' => '저장 제출 중',
@@ -5988,8 +6030,6 @@ extension on TranslationsKoKr {
 			'talkRecord.aiConfigured' => '이 기기에 설정됨',
 			'talkRecord.aiNotConfigured' => '설정 안 됨',
 			'talkRecord.aiLoading' => '기기 설정을 읽는 중…',
-			_ => null,
-		} ?? switch (path) {
 			'talkRecord.aiDeviceOnlyNotice' => '키는 현재 계정의 이 기기에만 암호화하여 저장됩니다. IMBoy 업로드, 클라우드 백업 및 기기 이전에 포함되지 않습니다. 새 기기에서는 다시 입력하세요.',
 			'talkRecord.aiEnterprisePolicyNotice' => '키 저장만으로 외부 처리가 허용되지는 않습니다. 기업 녹음은 기업 정책 허용과 매 처리 요청에 대한 동의가 필요합니다.',
 			'talkRecord.aiMaxNotice' => '별도 과금되는 Zhipu 일반 API를 사용합니다. 연간 Coding Plan Max가 이 비용을 자동으로 포함하지는 않습니다. 전사문은 Zhipu로 전송됩니다.',

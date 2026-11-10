@@ -24,6 +24,7 @@ import 'channel_list_previews.dart';
 import 'package:imboy/store/model/channel_message_model.dart';
 
 import 'widgets/channel_role_badge.dart';
+import 'widgets/channel_inbox_restore_action.dart';
 
 import 'package:imboy/modules/organization/presentation/current_space_tile.dart';
 
@@ -442,110 +443,123 @@ class _ChannelListItem extends StatelessWidget {
 
     return ColoredBox(
       color: itemBgColor,
-      child: FlatListTile(
-        onTap: () {
-          context.push('/channel/${_detailRouteId(channel)}');
-        },
-        padding: const EdgeInsets.symmetric(
-          horizontal: AppSpacing.regular,
-          vertical: AppSpacing.medium,
-        ),
-        leading: _buildAvatar(),
-        leadingGap: AppSpacing.medium,
-        title: Row(
-          children: [
-            Expanded(
-              child: Text(
-                channel.name,
-                style: context.textStyle(
-                  FontSizeType.medium,
-                  fontWeight: FontWeight.w600,
-                  color: AppColors.getTextColor(brightness),
-                ),
-                overflow: TextOverflow.ellipsis,
-              ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          FlatListTile(
+            onTap: () {
+              context.push('/channel/${_detailRouteId(channel)}');
+            },
+            padding: const EdgeInsets.symmetric(
+              horizontal: AppSpacing.regular,
+              vertical: AppSpacing.medium,
             ),
-            if (preview != null)
-              Padding(
-                padding: const EdgeInsetsDirectional.only(
-                  start: AppSpacing.small,
-                ),
-                child: Text(
-                  _previewTime(),
-                  style: context.textStyle(
-                    FontSizeType.small,
-                    color: AppColors.getTextColor(
-                      brightness,
-                      isSecondary: true,
+            leading: _buildAvatar(),
+            leadingGap: AppSpacing.medium,
+            title: Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    channel.name,
+                    style: context.textStyle(
+                      FontSizeType.medium,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.getTextColor(brightness),
                     ),
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ),
-              ),
-            // 频道可见性图标
-            if (!channel.isPublic)
-              Icon(
-                _getVisibilityIcon(),
-                size: 14,
-                color: _getVisibilityColor().withValues(alpha: 0.7),
-              ),
-            // 付费标签（独立于可见性）
-            if (channel.hasPrice)
-              Container(
-                margin: const EdgeInsets.only(left: 4),
-                padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
-                decoration: BoxDecoration(
-                  color: AppColors.iosOrange.withValues(alpha: 0.1),
-                  borderRadius: AppRadius.borderRadiusTiny,
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(
-                      CupertinoIcons.money_dollar,
-                      size: 10,
-                      color: AppColors.iosOrange,
+                if (preview != null)
+                  Padding(
+                    padding: const EdgeInsetsDirectional.only(
+                      start: AppSpacing.small,
                     ),
-                    AppSpacing.horizontalTiny,
-                    Text(
-                      t.channel.accessTypePaid,
+                    child: Text(
+                      _previewTime(),
                       style: context.textStyle(
-                        FontSizeType.tiny,
-                        fontWeight: FontWeight.w600,
-                        color: AppColors.iosOrange,
+                        FontSizeType.small,
+                        color: AppColors.getTextColor(
+                          brightness,
+                          isSecondary: true,
+                        ),
                       ),
                     ),
-                  ],
-                ),
-              ),
-            // 角色标签（仅"我管理的"标签页显示）
-            if (showRole && channelRoleLabel(channel.userRole).isNotEmpty) ...[
-              Padding(
-                padding: const EdgeInsets.only(left: AppSpacing.tiny),
-                child: ChannelRoleBadge(role: channel.userRole),
-              ),
-            ],
-            if (channel.isVerified)
-              const Padding(
-                padding: EdgeInsets.only(left: 4),
-                child: Icon(
-                  CupertinoIcons.checkmark_seal_fill,
-                  size: 16,
-                  color: AppColors.primary,
-                ),
-              ),
-          ],
-        ),
-        subtitle: summary.isEmpty
-            ? null
-            : Text(
-                summary,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: context.textStyle(
-                  FontSizeType.footnote,
-                  color: AppColors.getTextColor(brightness, isSecondary: true),
-                ),
-              ),
+                  ),
+                // 频道可见性图标
+                if (!channel.isPublic)
+                  Icon(
+                    _getVisibilityIcon(),
+                    size: 14,
+                    color: _getVisibilityColor().withValues(alpha: 0.7),
+                  ),
+                // 付费标签（独立于可见性）
+                if (channel.hasPrice)
+                  Container(
+                    margin: const EdgeInsets.only(left: 4),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 4,
+                      vertical: 1,
+                    ),
+                    decoration: BoxDecoration(
+                      color: AppColors.iosOrange.withValues(alpha: 0.1),
+                      borderRadius: AppRadius.borderRadiusTiny,
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          CupertinoIcons.money_dollar,
+                          size: 10,
+                          color: AppColors.iosOrange,
+                        ),
+                        AppSpacing.horizontalTiny,
+                        Text(
+                          t.channel.accessTypePaid,
+                          style: context.textStyle(
+                            FontSizeType.tiny,
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.iosOrange,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                // 角色标签（仅"我管理的"标签页显示）
+                if (showRole &&
+                    channelRoleLabel(channel.userRole).isNotEmpty) ...[
+                  Padding(
+                    padding: const EdgeInsets.only(left: AppSpacing.tiny),
+                    child: ChannelRoleBadge(role: channel.userRole),
+                  ),
+                ],
+                if (channel.isVerified)
+                  const Padding(
+                    padding: EdgeInsets.only(left: 4),
+                    child: Icon(
+                      CupertinoIcons.checkmark_seal_fill,
+                      size: 16,
+                      color: AppColors.primary,
+                    ),
+                  ),
+              ],
+            ),
+            subtitle: summary.isEmpty
+                ? null
+                : Text(
+                    summary,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: context.textStyle(
+                      FontSizeType.footnote,
+                      color: AppColors.getTextColor(
+                        brightness,
+                        isSecondary: true,
+                      ),
+                    ),
+                  ),
+          ),
+          ChannelInboxRestoreAction(channel: channel),
+        ],
       ),
     );
   }

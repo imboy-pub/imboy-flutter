@@ -292,7 +292,15 @@ void main() {
             'v38 注册需生产决定并同步更新 kInventoryCurrentDbVersion、'
             'SqliteService._dbVersion 与本守护；半注册状态必须被本测试拦截',
       );
-      expect(kMigrationManifest.latestVersion, 37);
+      expect(kMigrationManifest.latestVersion, 39);
+      final preferences = kMigrationManifest.upgradesByTo[39]!;
+      expect(preferences.fromVersion, 37);
+      expect(preferences.affectedObjects, ['channel_inbox_preference']);
+      expect(preferences.sql.toLowerCase(), isNot(contains('virtual table')));
+      expect(
+        kMigrationManifest.edges.any((edge) => edge.id == upgradeV38Fts.id),
+        isFalse,
+      );
     });
 
     test('草稿边身份固定（37→38、不可逆），保持可发现性', () {

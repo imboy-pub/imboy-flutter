@@ -106,6 +106,7 @@ run_item "02_dart_analyze" \
   test/unit_test/service/schema_contract_test.dart \
   test/unit_test/service/migration_v36_message_id_test.dart \
   test/unit_test/service/migration_v37_channel_scope_test.dart \
+  test/unit_test/service/migration_v39_channel_inbox_preference_test.dart \
   test/unit_test/service/database_snapshot_service_test.dart \
   test/unit_test/service/database_migration_orchestrator_test.dart \
   test/unit_test/integration/sqlite_migration_matrix_test.dart \
