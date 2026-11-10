@@ -135,6 +135,7 @@ class _WebNavRailItem extends StatelessWidget {
 
     return Tooltip(
       message: item.label,
+      excludeFromSemantics: true,
       child: Padding(
         padding: const EdgeInsets.symmetric(
           vertical: AppSpacing.tiny,
@@ -143,6 +144,7 @@ class _WebNavRailItem extends StatelessWidget {
         child: ClipRRect(
           borderRadius: AppRadius.borderRadiusMedium,
           child: Semantics(
+            label: item.label,
             selected: isSelected,
             child: CellPressable(
               onTap: onTap,
