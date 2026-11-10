@@ -17,13 +17,16 @@ import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:imboy/theme/default/font_types.dart';
 
 import 'package:imboy/component/helper/func.dart';
+import 'package:imboy/service/account_local_files.dart';
+import 'package:imboy/service/account_local_task_registry.dart';
+import 'package:imboy/service/auth_session_scope.dart';
 
 // ignore: depend_on_referenced_packages
-import 'package:path/path.dart';
-import 'package:path_provider/path_provider.dart';
+import 'package:path/path.dart' as p;
 import 'package:permission_handler/permission_handler.dart';
 
 import 'custom_overlay.dart';
+import 'voice_recording_session.dart';
 
 import 'package:imboy/i18n/strings.g.dart';
 
@@ -101,47 +104,62 @@ class _VoiceWidgetState extends State<VoiceWidget> with WidgetsBindingObserver {
 
   String filePath = '';
   StreamSubscription<dynamic>? recordStream;
+  VoiceRecordingSession? _recording;
+  bool _soundOpened = false;
+  bool _soundStarted = false;
+  bool _waveformStarted = false;
+  bool _finishing = false;
+  bool _disposing = false;
+  bool _controllerDisposed = false;
+  Timer? _sttTimer;
+  Object? _sttLoadingOwner;
 
   @override
   void initState() {
     super.initState();
     if (kDebugMode) debugPrint("> on _VoiceWidgetState initState");
-    init();
     initRecorderController();
     // 添加生命周期监听
     WidgetsBinding.instance.addObserver(this);
+    authSessionReader.addListener(_onSessionChanged);
   }
 
   /// 在iOS真机上面依赖该方法
   /// https://github.com/Canardoux/flutter_sound/issues/868
-  Future<void> init() async {
+  Future<void> init(VoiceRecordingSession recording) async {
+    recording.checkActive();
     if (!kIsWeb) {
-      try {
-        var status = await Permission.microphone.request();
+      var status = await Permission.microphone.request();
+      recording.checkActive();
+      if (status != PermissionStatus.granted) {
+        AppLoading.showError(t.common.microphonePermissionNotObtained);
+        throw RecordingPermissionException(
+          t.common.microphonePermissionNotObtained,
+        );
+      }
+
+      //判断如果还没拥有读写权限就申请获取权限
+      final storageStatus = await Permission.storage.request();
+      recording.checkActive();
+      if (storageStatus.isDenied) {
+        await Permission.storage.request();
+        recording.checkActive();
+        final status = await Permission.storage.status;
+        recording.checkActive();
         if (status != PermissionStatus.granted) {
-          AppLoading.showError(t.common.microphonePermissionNotObtained);
+          AppLoading.showError(t.common.storagePermissionNotObtained);
           throw RecordingPermissionException(
-            t.common.microphonePermissionNotObtained,
+            t.common.storagePermissionNotObtained,
           );
         }
-
-        //判断如果还没拥有读写权限就申请获取权限
-        if (await Permission.storage.request().isDenied) {
-          await Permission.storage.request();
-          if ((await Permission.storage.status) != PermissionStatus.granted) {
-            AppLoading.showError(t.common.storagePermissionNotObtained);
-            throw RecordingPermissionException(
-              t.common.storagePermissionNotObtained,
-            );
-          }
-        }
-      } on Exception catch (e) {
-        iPrint('init_login_error: ${e.runtimeType}');
       }
     }
+    _soundOpened = true;
     await recorder.openRecorder();
+    recording.checkActive();
 
     final session = await AudioSession.instance;
+    recording.checkActive();
     await session.configure(
       AudioSessionConfiguration(
         avAudioSessionCategory: AVAudioSessionCategory.playAndRecord,
@@ -161,6 +179,7 @@ class _VoiceWidgetState extends State<VoiceWidget> with WidgetsBindingObserver {
         androidWillPauseWhenDucked: true,
       ),
     );
+    recording.checkActive();
   }
 
   /// 初始化RecorderController
@@ -187,123 +206,95 @@ class _VoiceWidgetState extends State<VoiceWidget> with WidgetsBindingObserver {
     Overlay.of(context).insert(overlayEntry!);
   }
 
-  /// 设置订阅周期
-  Future<void> setSubscriptionDuration(
-    double d,
-  ) async // d is between 0.0 and 2000 (milliseconds)
-  {
-    setState(() {});
-    await recorder.setSubscriptionDuration(Duration(milliseconds: d.floor()));
-  }
-
   void showVoiceView(BuildContext ctx) {
+    if (_recording != null && !_recording!.finished) return;
     setState(() {
       textShow = t.main.releaseEnd;
     });
-
-    if (recordingDuration.inMilliseconds > _countTotal.inMilliseconds) {
-      hideVoiceView(ctx);
-    }
-
-    ///显示录音悬浮布局
     buildOverLayView(ctx);
-    // debugPrint("> on record showVoiceView");
-    recorderStart(ctx);
+    unawaited(recorderStart(ctx));
   }
 
   Future<void> hideVoiceView(BuildContext ctx) async {
-    iPrint("hideVoiceView ${DateTime.now()}");
-    setState(() {
-      _isPressed = false;
-    });
+    final recording = _recording;
+    if (recording == null || _finishing) return;
+    _finishing = true;
     try {
-      String? result = await recorderStop(recorder);
-      iPrint("recorderStop result: $result");
-      if (result != null) {
-        filePath = result;
-      } else {
-        iPrint("recorderStop returned null");
-        isUp = true;
-      }
-    } on Exception catch (e) {
-      iPrint("recorderStop error: ${e.runtimeType}");
-      isUp = true;
-    }
-
-    if (recordingDuration.inMilliseconds < 1000) {
-      AppLoading.showToast(t.main.speakingTooShort);
-      isUp = true;
-    }
-
-    setState(() {
-      textShow = t.chat.chatHoldDownTalk;
-    });
-
-    if (overlayEntry != null) {
-      overlayEntry?.remove();
-      overlayEntry = null;
-    }
-
-    // 无论是否取消发送，都要取消订阅
-    await cancelRecorderSubscriptions(
-      from: 'hideVoiceView',
-      stopRecorder: true,
-    );
-
-    if (_actionState == VoiceActionState.cancel || isUp) {
-      iPrint("取消发送录音");
-      setState(() {
-        recordingDuration = const Duration();
-        waveform.clear();
-        _actionState = VoiceActionState.send;
-        isUp = false;
-      });
-    } else if (_actionState == VoiceActionState.convert) {
-      iPrint("开始语音转文字流程");
-      final duration = recordingDuration;
-
-      setState(() {
-        recordingDuration = const Duration();
-        waveform.clear();
-        _actionState = VoiceActionState.send;
-        isUp = false;
-      });
-
-      _handleConvertToText(filePath, duration);
-    } else if (strNoEmpty(filePath)) {
-      if (kDebugMode) debugPrint("进行发送录音 waveform length: ${waveform.length}");
-      widget.stopRecord!.call(
-        AudioFile(
-          file: File(filePath),
-          duration: recordingDuration,
-          waveform: waveform,
-          mimeType: recordingMimeType,
-        ),
+      final result = await recording.stop(
+        discard: isUp || _actionState == VoiceActionState.cancel,
       );
-      setState(() {
-        recordingDuration = const Duration();
-        waveform.clear();
-        _actionState = VoiceActionState.send;
-        isUp = false;
-      });
+      if (!recording.canPublish || !identical(_recording, recording)) return;
+      if (recordingDuration.inMilliseconds < 1000) {
+        AppLoading.showToast(t.main.speakingTooShort);
+        return;
+      }
+      if (result == null || result.isEmpty) return;
+      filePath = result;
+      if (_actionState == VoiceActionState.convert) {
+        _handleConvertToText(result, recordingDuration, recording);
+      } else {
+        widget.stopRecord?.call(
+          AudioFile(
+            file: File(result),
+            duration: recordingDuration,
+            waveform: List<double>.of(waveform),
+            mimeType: recordingMimeType,
+          ),
+        );
+      }
+    } catch (error) {
+      iPrint('recorderStop error: ${error.runtimeType}');
+    } finally {
+      _finishing = false;
+      _resetRecordingView(recording);
     }
   }
 
+  void _resetRecordingView(VoiceRecordingSession recording) {
+    if (!recording.isCurrent || !identical(_recording, recording)) return;
+    _removeOverlay();
+    setState(() {
+      _isPressed = false;
+      textShow = t.chat.chatHoldDownTalk;
+      recordingDuration = Duration.zero;
+      recorderTxt = '00:00.000';
+      waveform.clear();
+      _actionState = VoiceActionState.send;
+      isUp = false;
+    });
+  }
+
+  void _removeOverlay() {
+    overlayEntry?.remove();
+    overlayEntry = null;
+  }
+
   /// 处理语音转文字
-  void _handleConvertToText(String path, Duration duration) {
+  void _handleConvertToText(
+    String path,
+    Duration duration,
+    VoiceRecordingSession recording,
+  ) {
+    if (!recording.canPublish) return;
     if (widget.onConvertToText == null) {
       AppLoading.showError(t.common.voiceSttNotConfigured);
       return;
     }
 
-    // 1. 显示加载中
-    AppLoading.show(status: t.common.voiceSttConverting);
+    // 1. 显示加载中；旧会话仅可关闭自己的提示。
+    _cancelStt();
+    final loadingOwner = AppLoading.beginProgress();
+    _sttLoadingOwner = loadingOwner;
+    unawaited(
+      AppLoading.showOwned(loadingOwner, status: t.common.voiceSttConverting),
+    );
 
     // 2. 模拟识别延迟（1.2秒，提供高级流畅动效感）
-    Future.delayed(const Duration(milliseconds: 1200), () {
-      AppLoading.dismiss();
-
-      if (!mounted) return;
+    _sttTimer = Timer(const Duration(milliseconds: 1200), () {
+      _sttTimer = null;
+      _sttLoadingOwner = null;
+      unawaited(AppLoading.dismissOwnedProgress(loadingOwner));
+      if (!recording.canPublish) return;
 
       // 根据语音时长自适应模拟高质量识别文本（保真体验）
       final seconds = duration.inSeconds;
@@ -320,7 +311,7 @@ class _VoiceWidgetState extends State<VoiceWidget> with WidgetsBindingObserver {
 
       // 3. 展开精致、磨砂质感的转文字预览与二次编辑底栏
       showCupertinoModalPopup<void>(
-        context: this.context,
+        context: context,
         builder: (context) {
           final isDark = Theme.of(context).brightness == Brightness.dark;
           final textController = TextEditingController(text: transcribedMock);
@@ -431,6 +422,9 @@ class _VoiceWidgetState extends State<VoiceWidget> with WidgetsBindingObserver {
                           color: ThemeManager.instance.getThemeColor('primary'),
                           borderRadius: AppRadius.borderRadiusMedium,
                           onPressed: () {
+                            if (!recording.canPublish || !context.mounted) {
+                              return;
+                            }
                             final finalTxt = textController.text;
                             if (finalTxt.trim().isNotEmpty) {
                               widget.onConvertToText?.call(finalTxt);
@@ -458,7 +452,16 @@ class _VoiceWidgetState extends State<VoiceWidget> with WidgetsBindingObserver {
     });
   }
 
+  void _cancelStt() {
+    _sttTimer?.cancel();
+    _sttTimer = null;
+    final owner = _sttLoadingOwner;
+    _sttLoadingOwner = null;
+    if (owner != null) unawaited(AppLoading.dismissOwnedProgress(owner));
+  }
+
   void moveVoiceView() {
+    if (_recording?.canRecord != true) return;
     final deltaY = startDy - currentDy;
     final deltaX = currentDx - startDx;
 
@@ -493,68 +496,21 @@ class _VoiceWidgetState extends State<VoiceWidget> with WidgetsBindingObserver {
     }
   }
 
-  Future<void> cancelRecorderSubscriptions({
-    String from = '',
-    bool stopRecorder = false,
-  }) async {
-    // 只在调试模式下打印取消订阅的日志
-    if (const bool.fromEnvironment('DEBUG_AUDIO')) {
-      iPrint(
-        "cancelRecorderSubscriptions $from, recordStream is null: ${recordStream == null}, stopRecorder: $stopRecorder",
-      );
-    }
-
-    if (recordStream != null) {
-      try {
-        await recordStream!.cancel();
-        // 只在调试模式下打印成功取消的日志
-        if (const bool.fromEnvironment('DEBUG_AUDIO')) {
-          iPrint("recordStream cancelled successfully from $from");
-        }
-      } on Exception catch (e) {
-        // 只在调试模式下打印错误日志
-        if (const bool.fromEnvironment('DEBUG_AUDIO')) {
-          iPrint("Error cancelling recordStream from $from: ${e.runtimeType}");
-        }
-      } finally {
-        recordStream = null;
-      }
-    }
-
-    // 只有在明确要求时才停止录音器
-    if (stopRecorder) {
-      try {
-        if (recorder.isRecording) {
-          // 只在调试模式下打印停止录音器的日志
-          if (const bool.fromEnvironment('DEBUG_AUDIO')) {
-            iPrint("Recorder is still recording, stopping it from $from");
-          }
-          await recorder.stopRecorder();
-        }
-      } on Exception catch (e) {
-        // 只在调试模式下打印错误日志
-        if (const bool.fromEnvironment('DEBUG_AUDIO')) {
-          iPrint("Error stopping recorder from $from: ${e.runtimeType}");
-        }
-      }
-    }
+  Future<void> cancelRecorderSubscriptions() async {
+    final subscription = recordStream;
+    if (subscription == null) return;
+    await subscription.cancel();
+    if (identical(recordStream, subscription)) recordStream = null;
   }
 
-  /// Creates an path to a temporary file.
   Future<String> _createTempAacFilePath(
+    VoiceRecordingSession recording,
     String name, {
     String ext = 'aac',
   }) async {
-    if (kIsWeb) {
-      throw Exception(
-        'This method only works for mobile as it creates a temporary AAC file',
-      );
-    }
-    final tmpDir = await getTemporaryDirectory();
-    final path = '${join(tmpDir.path, name)}.$ext';
-    final parent = dirname(path);
-    await Directory(parent).create(recursive: true);
-    return path;
+    final directory = await AccountLocalFiles.directory(recording.task);
+    recording.checkActive();
+    return '${p.join(directory.path, name)}.$ext';
   }
 
   String formatDuration(int milliseconds) {
@@ -574,266 +530,214 @@ class _VoiceWidgetState extends State<VoiceWidget> with WidgetsBindingObserver {
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     super.didChangeAppLifecycleState(state);
-    if (kDebugMode) {}
-
-    // 当应用进入后台、暂停或不活动状态时，停止录音
     if (state == AppLifecycleState.paused ||
         state == AppLifecycleState.detached ||
         state == AppLifecycleState.inactive) {
-      // 如果正在录音，强制停止
-      if (recorder.isRecording && overlayEntry != null) {
-        if (kDebugMode) {}
-        forceStopRecording();
-      }
+      if (_recording != null && !_recording!.finished) forceStopRecording();
+    }
+  }
+
+  void _onSessionChanged() {
+    final recording = _recording;
+    if (recording != null && !recording.isCurrent) {
+      _cancelStt();
+      _removeOverlay();
+      unawaited(_cancelRecording(recording));
     }
   }
 
   /// 强制停止录音（用于应用进入后台或切换输入模式）
   void forceStopRecording() {
-    if (overlayEntry != null) {
-      overlayEntry?.remove();
-      overlayEntry = null;
+    final recording = _recording;
+    if (recording == null) return;
+    if (recording.isCurrent) {
+      _resetRecordingView(recording);
+      AppLoading.showToast(t.common.recordingCancelled);
     }
+    unawaited(_cancelRecording(recording));
+  }
 
-    isUp = true; // 标记为取消状态
-    setState(() {
-      _isPressed = false;
-    });
-    // 先取消订阅并停止录音器，然后清理录音状态
-    cancelRecorderSubscriptions(
-      from: 'forceStopRecording',
-      stopRecorder: true,
-    ).then((_) {
-      // 直接清理录音状态，不需要 context
-      setState(() {
-        textShow = t.chat.chatHoldDownTalk;
-      });
-      if (recordingDuration.inMilliseconds < 1000) {
-        AppLoading.showToast(t.main.speakingTooShort);
-      }
-      recordingDuration = const Duration();
-      waveform.clear();
-    });
-
-    // 显示提示
-    AppLoading.showToast(t.common.recordingCancelled);
+  Future<void> _cancelRecording(VoiceRecordingSession recording) async {
+    try {
+      await recording.cancel();
+    } catch (error) {
+      iPrint('VoiceWidget cancellation failed: ${error.runtimeType}');
+    } finally {
+      _resetRecordingView(recording);
+      if (_disposing && recording.finished) _disposeController();
+    }
   }
 
   /// 当切换到其他输入模式时调用
   void onInputModeChanged() {
-    if (kDebugMode) debugPrint("VoiceWidget onInputModeChanged");
-    if (overlayEntry != null) {
-      if (kDebugMode) {}
-      forceStopRecording();
-    }
+    if (_recording != null && !_recording!.finished) forceStopRecording();
   }
 
-  /// 开始录音
+  /// 开始录音；归属在权限弹窗和任何原生异步操作之前捕获。
   Future<void> recorderStart(BuildContext ctx) async {
-    if (kDebugMode) debugPrint("> on record start");
+    if (_disposing || (_recording != null && !_recording!.finished)) return;
+    _cancelStt();
+    final owner = AccountLocalTaskOwner.capture();
+    final session = authSessionReader.current;
+    VoiceRecordingSession? recording;
     try {
-      // String name = "${Xid().toString()}";
-      String name = "voice_tmp_${DateTime.now().millisecondsSinceEpoch}";
-      if (kIsWeb) {
-        if (await recorder.isEncoderSupported(Codec.opusWebM)) {
-          filePath = '$name.webm';
-          recordCodec = Codec.opusWebM;
-          recordingMimeType = 'audio/webm;codecs="opus"';
-        } else {
-          filePath = '$name.mp4';
-          recordCodec = Codec.aacMP4;
-          recordingMimeType = 'audio/aac';
-        }
-      } else {
-        filePath = await _createTempAacFilePath(name);
-        recordCodec = Codec.aacADTS;
-        recordingMimeType = 'audio/aac';
-      }
-
-      if (kDebugMode) iPrint("recorderStart codec: $recordCodec");
-
-      // 必须要设置，才能够监听 振幅大小
-      await setSubscriptionDuration(1);
-
-      // 确保之前的订阅已取消，但不要停止录音器
-      if (recordStream != null) {
-        try {
-          await recordStream!.cancel();
-          recordStream = null;
-          iPrint("Previous recordStream cancelled");
-        } on Exception catch (e) {
-          iPrint("Error cancelling previous recordStream: ${e.runtimeType}");
-        }
-      }
-
-      // 启动录音器
-      await recorder.startRecorder(
-        toFile: filePath,
-        codec: recordCodec,
-        // bitRate: 8000 | 10000 | 11000 不行
-        bitRate: 12000,
-        // sampleRate: 8000,
-        audioSource: AudioSource.microphone,
+      recording = VoiceRecordingSession(
+        owner: owner,
+        isCurrent: () =>
+            mounted &&
+            !_disposing &&
+            authSessionReader.isCurrent(session) &&
+            AccountLocalTaskOwner.capture() == owner,
+        start: _startRecorder,
+        stop: _stopRecorders,
       );
-
-      iPrint("Recorder started, isRecording: ${recorder.isRecording}");
-
-      // 检查录音器是否正在录音
-      if (!recorder.isRecording) {
-        iPrint(
-          "Recorder is not recording after startRecorder, skipping subscription setup",
-        );
-        return;
-      }
-
-      // 暂时不启动 AudioWaveforms 的录音功能，避免与 FlutterSound 冲突
-      // imboy iOS 兜底：audio_waveforms 原生未注册（vendored 置空），跳过原生调用
-      if (!Platform.isIOS) {
-        await recorderController.record();
-      }
-
-      // 设置录音监听
-      recordStream = recorder.onProgress!.listen(
-        (e) {
-          // 检查是否仍在录音状态且订阅未取消
-          if (!recorder.isRecording || recordStream == null) {
-            // 不再打印日志，直接返回
-            return;
-          }
-
-          // debugPrint("> on record listen e ${e.toString()} ${DateTime.now()}");
-          if (e.decibels != null) {
-            // 分贝
-            double dbLevel = e.decibels as double;
-
-            // 更新当前分贝值
-            currentDecibels = dbLevel;
-
-            // 优化波形数据收集，使其更适合实时显示
-            // 将分贝值转换为0-1之间的振幅值
-            double normalizedAmplitude = (dbLevel + 60) / 60; // 假设-60dB到0dB的范围
-            normalizedAmplitude = normalizedAmplitude.clamp(
-              0.0,
-              1.0,
-            ); // 限制在0-1之间
-
-            // 添加波形数据，限制数组长度以避免内存问题
-            waveform.add(normalizedAmplitude);
-            if (waveform.length > 100) {
-              waveform.removeRange(0, waveform.length - 100); // 保留最近100个数据点
-            }
-
-            // 只在调试模式下打印日志
-            if (const bool.fromEnvironment('DEBUG_AUDIO')) {}
-            if (overlayEntry != null) {
-              overlayEntry!.markNeedsBuild();
-            }
-            setState(() {
-              recordingDuration = e.duration;
-              recorderTxt = formatDuration(recordingDuration.inMilliseconds);
-            });
-          }
-        },
-        onError: (Object error) {
-          iPrint("Error in record stream: ${error.runtimeType}");
-          // 发生错误时取消订阅
-          cancelRecorderSubscriptions(from: 'stream_error');
-        },
-        onDone: () {
-          iPrint("Record stream completed");
-          // 流完成时取消订阅
-          cancelRecorderSubscriptions(from: 'stream_done');
-        },
-      );
-
-      iPrint("Record stream subscription setup completed");
-      setState(() {
-        filePath = filePath;
-      });
-    } on Exception catch (err) {
-      iPrint("on record start err: ${err.runtimeType}");
-      // 发生错误时停止录音
-      await recorderStop(recorder);
-    }
-  }
-
-  /// 结束录音
-  Future<String?> recorderStop(FlutterSoundRecorder recorder) async {
-    iPrint("recorderStop ${DateTime.now()}");
-    try {
-      // 先取消订阅，防止停止录音后仍有监听事件，但不停止录音器
-      await cancelRecorderSubscriptions(
-        from: 'recorderStop_before_stop',
-        stopRecorder: false,
-      );
-
-      // 暂时不停止 recorderController，避免与 FlutterSound 冲突
-      try {
-        await recorderController.stop().timeout(
-          const Duration(seconds: 2),
-          onTimeout: () {
-            iPrint("recorderController.stop() timeout after 2s");
-            return null;
-          },
-        );
-        iPrint("recorderController stopped");
-      } on Exception catch (e) {
-        iPrint("recorderController.stop() error: ${e.runtimeType}");
-      }
-
-      // 停止 FlutterSound recorder - 添加超时保护防止永久阻塞
-      String? filepath;
-      try {
-        filepath = await recorder.stopRecorder().timeout(
-          const Duration(seconds: 5),
-          onTimeout: () {
-            iPrint("recorder.stopRecorder() timeout after 5s - returning null");
-            return null;
-          },
-        );
-        iPrint(
-          "FlutterSound recorder stopped, hasFilepath: ${filepath != null}",
-        );
-      } on TimeoutException {
-        iPrint("recorder.stopRecorder() timed out - treating as cancellation");
-        return null;
-      } on Exception catch (e) {
-        iPrint("recorder.stopRecorder() error: ${e.runtimeType}");
-        return null;
-      }
-
-      // 再次确保订阅已取消，此时可以停止录音器
-      await cancelRecorderSubscriptions(
-        from: 'recorderStop_after_stop',
-        stopRecorder: false,
-      );
-
-      if (filepath != null && filepath.isNotEmpty) {
-        try {
-          final file = File(filepath);
-          if (file.existsSync()) {
-            iPrint("recorderStop file exists, size: ${file.lengthSync()}");
-          } else {
-            iPrint("recorderStop file does not exist");
-          }
-        } on Exception catch (e) {
-          iPrint("recorderStop file check error: ${e.runtimeType}");
-        }
-      } else {
-        iPrint("recorderStop filepath is null or empty");
-      }
-
-      recorderTxt = '00:00.000';
-      if (mounted) {
+      _recording = recording;
+      await recording.started;
+    } on AccountLocalTaskCancelledException {
+      if (recording != null) await _cancelRecording(recording);
+    } catch (error) {
+      iPrint('on record start error: ${error.runtimeType}');
+      if (recording != null) await _cancelRecording(recording);
+    } finally {
+      if (recording == null && mounted && !_disposing) {
+        _removeOverlay();
         setState(() {
-          recorderTxt = recorderTxt;
+          _isPressed = false;
+          textShow = t.chat.chatHoldDownTalk;
         });
       }
-      return filepath;
-    } on Exception catch (err) {
-      iPrint('recorderStop error: ${err.runtimeType}');
-      return null;
     }
+  }
+
+  Future<void> _startRecorder(VoiceRecordingSession recording) async {
+    await init(recording);
+    final name = 'voice_tmp_${DateTime.now().microsecondsSinceEpoch}';
+    if (kIsWeb) {
+      final supportsOpus = await recorder.isEncoderSupported(Codec.opusWebM);
+      recording.checkActive();
+      recordCodec = supportsOpus ? Codec.opusWebM : Codec.aacMP4;
+      recordingMimeType = supportsOpus
+          ? 'audio/webm;codecs="opus"'
+          : 'audio/aac';
+      filePath =
+          '${recording.task.owner.storageDigest}_$name'
+          '${supportsOpus ? '.webm' : '.mp4'}';
+    } else {
+      filePath = await _createTempAacFilePath(recording, name);
+      recordCodec = Codec.aacADTS;
+      recordingMimeType = 'audio/aac';
+    }
+    recording.checkActive();
+    await recorder.setSubscriptionDuration(const Duration(milliseconds: 1));
+    recording.checkActive();
+    await cancelRecorderSubscriptions();
+    recording.checkActive();
+
+    _soundStarted = true;
+    await recorder.startRecorder(
+      toFile: filePath,
+      codec: recordCodec,
+      bitRate: 12000,
+      audioSource: AudioSource.microphone,
+    );
+    recording.checkActive();
+    if (!recorder.isRecording) throw StateError('Recorder did not start');
+
+    // imboy iOS 兜底：audio_waveforms 原生未注册，跳过原生调用。
+    if (!kIsWeb && !Platform.isIOS) {
+      final waveformPath = await _createTempAacFilePath(
+        recording,
+        '${name}_waveform',
+        ext: 'm4a',
+      );
+      recording.checkActive();
+      _waveformStarted = true;
+      await recorderController.record(path: waveformPath);
+      recording.checkActive();
+    }
+
+    recordStream = recorder.onProgress!.listen(
+      (event) {
+        if (!mounted ||
+            !recording.canRecord ||
+            !recorder.isRecording ||
+            recordStream == null) {
+          return;
+        }
+        if (event.decibels == null) return;
+        currentDecibels = event.decibels as double;
+        waveform.add(((currentDecibels + 60) / 60).clamp(0.0, 1.0));
+        if (waveform.length > 100) {
+          waveform.removeRange(0, waveform.length - 100);
+        }
+        overlayEntry?.markNeedsBuild();
+        setState(() {
+          recordingDuration = event.duration;
+          recorderTxt = formatDuration(recordingDuration.inMilliseconds);
+        });
+        if (recordingDuration > _countTotal) unawaited(hideVoiceView(context));
+      },
+      onError: (Object error) {
+        iPrint('Error in record stream: ${error.runtimeType}');
+        unawaited(_cancelRecording(recording));
+      },
+      onDone: () {
+        if (recording.canRecord) unawaited(_cancelRecording(recording));
+      },
+    );
+  }
+
+  /// No timeout may release ownership while a native stop/flush still runs.
+  Future<String?> _stopRecorders() async {
+    Object? firstError;
+    StackTrace? firstStack;
+    String? result;
+    Future<void> settle(Future<void> Function() operation) async {
+      try {
+        await operation();
+      } catch (error, stack) {
+        firstError ??= error;
+        firstStack ??= stack;
+      }
+    }
+
+    await settle(cancelRecorderSubscriptions);
+    if (_waveformStarted) {
+      await settle(() async {
+        if (recorderController.recorderState == RecorderState.initialized) {
+          // A native start can fail after opening its writer, before the
+          // controller enters recording. Its public stop() skips this state.
+          await AudioWaveformsInterface.instance.stop();
+          recorderController.dispose();
+          if (_disposing) {
+            _controllerDisposed = true;
+          } else {
+            initRecorderController();
+          }
+        } else {
+          await recorderController.stop();
+        }
+        _waveformStarted = false;
+      });
+    }
+    if (_soundStarted) {
+      await settle(() async {
+        result = await recorder.stopRecorder();
+        _soundStarted = false;
+      });
+    }
+    if (_soundOpened) {
+      await settle(() async {
+        await recorder.closeRecorder();
+        _soundOpened = false;
+        _soundStarted = false;
+      });
+    }
+    if (firstError != null) {
+      Error.throwWithStackTrace(firstError!, firstStack!);
+    }
+    if (_disposing) _disposeController();
+    return result;
   }
 
   @override
@@ -844,6 +748,7 @@ class _VoiceWidgetState extends State<VoiceWidget> with WidgetsBindingObserver {
 
     return GestureDetector(
       onLongPressStart: (details) {
+        if (_recording != null && !_recording!.finished) return;
         HapticFeedback.mediumImpact(); // 添加触觉反馈
         start = details.globalPosition.dy;
         startDy = details.globalPosition.dy;
@@ -857,6 +762,7 @@ class _VoiceWidgetState extends State<VoiceWidget> with WidgetsBindingObserver {
         showVoiceView(context);
       },
       onLongPressEnd: (details) {
+        if (_recording?.isCurrent != true) return;
         HapticFeedback.lightImpact(); // 添加触觉反馈
         setState(() {
           _isPressed = false;
@@ -864,6 +770,7 @@ class _VoiceWidgetState extends State<VoiceWidget> with WidgetsBindingObserver {
         hideVoiceView(context);
       },
       onLongPressMoveUpdate: (details) {
+        if (_recording?.canRecord != true) return;
         offset = details.globalPosition.dy;
         currentDy = details.globalPosition.dy;
         currentDx = details.globalPosition.dx;
@@ -933,25 +840,25 @@ class _VoiceWidgetState extends State<VoiceWidget> with WidgetsBindingObserver {
     );
   }
 
+  void _disposeController() {
+    if (_controllerDisposed) return;
+    _controllerDisposed = true;
+    recorderController.dispose();
+  }
+
   @override
   void dispose() {
-    // 移除生命周期监听
+    _disposing = true;
     WidgetsBinding.instance.removeObserver(this);
-
-    // 确保录音停止并取消所有订阅
-    iPrint("VoiceWidget dispose: cleaning up resources");
-    if (recorder.isRecording) {
-      recorderStop(recorder).then((_) {
-        cancelRecorderSubscriptions(from: 'dispose', stopRecorder: true);
-      });
+    authSessionReader.removeListener(_onSessionChanged);
+    _cancelStt();
+    _removeOverlay();
+    final recording = _recording;
+    if (recording == null) {
+      _disposeController();
     } else {
-      cancelRecorderSubscriptions(from: 'dispose', stopRecorder: true);
+      unawaited(_cancelRecording(recording));
     }
-
-    recorderController.dispose();
-    // Be careful : you must `close` the audio session when you have finished with it.
-    recorder.closeRecorder();
-    // recordPlugin?.dispose();
     super.dispose();
   }
 }

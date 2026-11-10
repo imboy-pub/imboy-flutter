@@ -5,20 +5,11 @@
 //   - 通过 path_provider MethodChannel mock 隔离文件系统依赖
 //   - 不依赖真实设备或网络，在 CI flutter test 中稳定运行
 //
-// 测试用例 / Test cases (共 10 个 / total 10):
-//   1. Shamir 3-of-5 标准分割与恢复
-//   2. 2-of-5 份额不足应恢复失败（与原始值不一致）
-//   3. 4-of-5 份额超量应恢复成功
-//   4. 密钥备份加密——正确密码可解密
-//   5. 密钥备份解密——错误密码应抛出异常
-//   6. 本地备份写入/读取数据一致性
-//   7. 空备份文件恢复应抛出异常（优雅失败）
-//   8. 备份文件数据损坏后校验和不匹配应抛出异常
-//   9. 备份文件 Magic Number 错误应抛出异常
-//  10. 备份密码强度计算覆盖弱/中/强三档
+// 覆盖 Shamir 份额恢复、备份加解密和读写、损坏检测、密码校验。
+// 文件导出使用合成登录账号，验证生成物的账号归属。
 //
 // 运行方式 / How to run:
-//   flutter test test/service/e2ee_backup_restore_test.dart
+//   flutter test test/unit_test/service/e2ee_backup_restore_test.dart
 
 import 'dart:convert';
 import 'dart:io';
@@ -28,6 +19,9 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/service/e2ee_crypto_service.dart';
 import 'package:imboy/service/e2ee_local_backup_service.dart';
+import 'package:imboy/config/const.dart';
+import 'package:imboy/service/storage.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 // ---------------------------------------------------------------------------
 // 测试常量 / Test fixtures
@@ -102,7 +96,13 @@ Future<String> _createValidBackup({
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  setUpAll(_setupPathProviderMock);
+  setUpAll(() async {
+    SharedPreferences.setMockInitialValues({
+      Keys.currentUid: 'synthetic-backup-owner',
+    });
+    await StorageService.init();
+    _setupPathProviderMock();
+  });
   tearDownAll(_tearDownPathProviderMock);
 
   // =========================================================================

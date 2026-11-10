@@ -4,6 +4,8 @@ import 'dart:typed_data';
 import 'package:dio/dio.dart' show CancelToken;
 
 import 'package:imboy/store/api/e2ee_backup_api.dart';
+import 'package:imboy/service/account_local_task_registry.dart';
+import 'package:imboy/service/auth_session_scope.dart';
 
 import 'e2ee_crypto_service.dart';
 import 'e2ee_local_backup_service.dart';
@@ -40,27 +42,50 @@ class E2EEServerBackupService {
     E2EEBackupApi? api,
     CancelToken? cancelToken,
   }) async {
-    final backupApi = api ?? E2EEBackupApi();
-    final bytes = await E2EELocalBackupService.packBackupBytes(
-      password: password,
-      privateKey: privateKey,
-      publicKey: publicKey,
-      deviceId: deviceId,
-      keyId: keyId,
-      accountId: accountId,
-    );
-    final payload = base64.encode(bytes);
-    // salt 位于二进制格式固定偏移（[头 32] 之后），提取供服务端存储/探测
-    final salt = bytes.sublist(32, 32 + E2EECryptoService.saltLength);
-
-    var result = await _putOnce(backupApi, payload, salt, cancelToken);
-    if (!result.ok &&
-        result.versionConflict &&
-        !(cancelToken?.isCancelled ?? false)) {
-      // 并发撞版本：刷新最新版本后重试一次
-      result = await _putOnce(backupApi, payload, salt, cancelToken);
+    final session = authSessionReader.current;
+    if (!authSessionReader.isCurrent(session) ||
+        (accountId != null && accountId != session.uid)) {
+      throw const AccountLocalTaskCancelledException();
     }
-    return result;
+    final owner = AccountLocalTaskOwner.capture(uid: session.uid);
+    final cancellation = cancelToken ?? CancelToken();
+    return AccountLocalTaskRegistry.instance.run<E2EEBackupPutResult>(
+      owner,
+      onCancel: () => cancellation.cancel('account cleanup'),
+      operation: (task) async {
+        void ensureCurrent() {
+          task.throwIfCancelled();
+          if (cancellation.isCancelled ||
+              !authSessionReader.isCurrent(session) ||
+              AccountLocalTaskOwner.capture() != owner) {
+            throw const AccountLocalTaskCancelledException();
+          }
+        }
+
+        final backupApi = api ?? E2EEBackupApi();
+        final bytes = await E2EELocalBackupService.packBackupBytes(
+          password: password,
+          privateKey: privateKey,
+          publicKey: publicKey,
+          deviceId: deviceId,
+          keyId: keyId,
+          accountId: session.uid,
+        );
+        ensureCurrent();
+        final payload = base64.encode(bytes);
+        // salt 位于二进制格式固定偏移（[头 32] 之后），提取供服务端存储/探测
+        final salt = bytes.sublist(32, 32 + E2EECryptoService.saltLength);
+
+        var result = await _putOnce(backupApi, payload, salt, cancellation);
+        ensureCurrent();
+        if (!result.ok && result.versionConflict && !cancellation.isCancelled) {
+          // 并发撞版本：刷新最新版本后重试一次
+          result = await _putOnce(backupApi, payload, salt, cancellation);
+        }
+        ensureCurrent();
+        return result;
+      },
+    );
   }
 
   /// 从云端备份恢复密钥（换机场景）
@@ -75,22 +100,46 @@ class E2EEServerBackupService {
     String? expectedAccountId,
     E2EEBackupApi? api,
   }) async {
-    final backupApi = api ?? E2EEBackupApi();
-    final row = await backupApi.getBackup();
-    if (row == null) {
-      throw StateError('无云端备份');
+    final session = authSessionReader.current;
+    if (!authSessionReader.isCurrent(session) ||
+        (expectedAccountId != null && expectedAccountId != session.uid)) {
+      throw const AccountLocalTaskCancelledException();
     }
-    final payload = row['encrypted_payload'];
-    final expectedHash = row['payload_hash'];
-    if (payload is! String || payload.isEmpty) {
-      throw ArgumentError('云端备份密文为空');
-    }
-    verifyPayloadHash(payload, expectedHash?.toString());
-    final bytes = base64.decode(payload);
-    return E2EELocalBackupService.unpackBackupBytes(
-      bytes: Uint8List.fromList(bytes),
-      password: password,
-      expectedAccountId: expectedAccountId,
+    final owner = AccountLocalTaskOwner.capture(uid: session.uid);
+    final cancellation = CancelToken();
+    return AccountLocalTaskRegistry.instance.run<Map<String, dynamic>>(
+      owner,
+      onCancel: () => cancellation.cancel('account cleanup'),
+      operation: (task) async {
+        void ensureCurrent() {
+          task.throwIfCancelled();
+          if (!authSessionReader.isCurrent(session) ||
+              AccountLocalTaskOwner.capture() != owner) {
+            throw const AccountLocalTaskCancelledException();
+          }
+        }
+
+        final backupApi = api ?? E2EEBackupApi();
+        final row = await backupApi.getBackup(cancelToken: cancellation);
+        ensureCurrent();
+        if (row == null) {
+          throw StateError('无云端备份');
+        }
+        final payload = row['encrypted_payload'];
+        final expectedHash = row['payload_hash'];
+        if (payload is! String || payload.isEmpty) {
+          throw ArgumentError('云端备份密文为空');
+        }
+        verifyPayloadHash(payload, expectedHash?.toString());
+        final bytes = base64.decode(payload);
+        final restored = await E2EELocalBackupService.unpackBackupBytes(
+          bytes: Uint8List.fromList(bytes),
+          password: password,
+          expectedAccountId: session.uid,
+        );
+        ensureCurrent();
+        return restored;
+      },
     );
   }
 

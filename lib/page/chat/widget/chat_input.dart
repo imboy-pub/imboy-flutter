@@ -22,11 +22,11 @@ import 'package:imboy/theme/providers/theme_provider.dart';
 import 'package:imboy/page/chat/widget/quick_reply_manage_page.dart';
 import 'package:imboy/page/chat/widget/chat_input_types.dart';
 import 'package:imboy/service/quick_reply_service.dart';
+import 'package:imboy/service/account_draft_store.dart';
 import 'package:imboy/service/storage.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/theme/default/app_radius.dart';
 import 'package:imboy/theme/default/app_colors.dart';
-import 'package:imboy/utils/chat_draft_keys.dart';
 
 /// 聊天输入框组件
 class ChatInput extends StatefulWidget {
@@ -117,9 +117,7 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
   FocusNode get inputFocusNode => _inputFocusNode;
   TextEditingController get textController => _textController;
   late AnimationController _bottomHeightController; // 兼容旧动画逻辑
-  late final String draftKey;
-  late final String draftCursorKey;
-  late final bool _draftStorageEnabled;
+  late final AccountDraftStore _drafts;
   Timer? _debounceTimer;
 
   final _emojiShowing = ValueNotifier<bool>(false); // 是否显示表情面板
@@ -143,6 +141,7 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
   /// mentionNotifierProvider 是 autoDispose：必须持有订阅使其存活，
   /// 否则 loadGroupMembers 加载完 state 即被销毁，输入 @ 时拿到空候选（#33）
   ProviderSubscription<MentionState>? _mentionSubscription;
+  MentionNotifier? _mentionNotifier;
 
   final double iconSize = 40; // 图标大小
   final double _softKeyHeight = 270; // 软键盘默认高度
@@ -184,16 +183,7 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
-    // Bind delayed saves and send cleanup to this composer's original account.
-    // Ownerless legacy drafts must never be attributed to the current user.
-    final keys = chatDraftKeys(
-      UserRepoLocal.to.currentUid,
-      widget.type,
-      widget.peerId,
-    );
-    _draftStorageEnabled = keys != null;
-    draftKey = keys?.text ?? '';
-    draftCursorKey = keys?.cursor ?? '';
+    _drafts = AccountDraftStore.capture(widget.type, widget.peerId);
 
     _initTextController();
     _initAnimationController();
@@ -228,9 +218,8 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
       mentionNotifierProvider,
       (_, _) {},
     );
-    await container
-        .read(mentionNotifierProvider.notifier)
-        .loadGroupMembers(widget.peerId);
+    _mentionNotifier = container.read(mentionNotifierProvider.notifier);
+    await _mentionNotifier!.loadGroupMembers(widget.peerId);
     _membersLoaded = true;
   }
 
@@ -257,7 +246,7 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
       return;
     }
     final service = QuickReplyService(
-      const StorageServiceQuickReplyStore(),
+      StorageServiceQuickReplyStore(),
       defaults: _defaultQuickReplies,
     );
     final list = await service.load(uid);
@@ -320,14 +309,11 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
   /// 初始化事件监听器（输入框获取焦点自动切回文本模式）
   void _initEventListeners() {
     /// 加载本地草稿（避免信息丢失提升用户体验）
-    final draft = _draftStorageEnabled
-        ? StorageService.to.getString(draftKey)
-        : '';
-    if (draft.isNotEmpty) {
-      _setText(draft);
+    final draft = _drafts.read();
+    if (draft.text.isNotEmpty) {
+      _setText(draft.text);
       // C3: 恢复上次离开时的光标位置（clamp 到合法区间，防止数据损坏）
-      final cursorStr = StorageService.to.getString(draftCursorKey);
-      final cursor = int.tryParse(cursorStr);
+      final cursor = draft.cursor;
       if (cursor != null) {
         final clamped = cursor.clamp(0, _textController.text.length);
         _textController.selection = TextSelection.collapsed(offset: clamped);
@@ -641,22 +627,23 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
       _debounceTimer?.cancel();
     }
     _debounceTimer = Timer(const Duration(milliseconds: 300), () {
+      if (!mounted) return;
       final text = _textController.text.trim();
       _sendButtonVisible.value = text.isNotEmpty;
       _characterCount.value = text.characters.length;
       _syncQuickRepliesVisibility();
 
       // 超长自动裁剪并存储草稿
-      if (_draftStorageEnabled && text.length <= (widget.maxLength ?? 1000)) {
-        StorageService.to.setString(draftKey, _textController.text);
-        // C3: 同步保存光标位置（baseOffset 可能为 -1 表示无 selection，忽略）
-        final baseOffset = _textController.selection.baseOffset;
-        if (baseOffset >= 0) {
-          StorageService.to.setString(draftCursorKey, baseOffset.toString());
-        }
+      if (text.length <= (widget.maxLength ?? 1000)) {
+        unawaited(
+          _drafts.save(
+            _textController.text,
+            cursor: _textController.selection.baseOffset,
+          ),
+        );
       }
 
-      widget.onTextChanged?.call(_textController.text);
+      if (_drafts.isCurrent) widget.onTextChanged?.call(_textController.text);
     });
   }
 
@@ -679,10 +666,9 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
     _quickReplies.dispose();
 
     // 清理 @提及状态
-    if (widget.type == 'C2G') {
+    if (widget.type == 'C2G' && _drafts.isCurrent) {
       try {
-        final container = ProviderScope.containerOf(context);
-        container.read(mentionNotifierProvider.notifier).clear();
+        _mentionNotifier?.clear();
       } catch (_) {
         // Provider 可能未初始化，忽略
       }
@@ -743,6 +729,7 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
 
   /// 处理发送按钮点击（异步发送，草稿清理，安全判断 mounted）
   Future<void> _handleSendPressed() async {
+    if (!_drafts.isCurrent) return;
     final submittedText = _textController.text;
     final trimmedText = submittedText.trim();
     iPrint('📤 [ChatInput._handleSendPressed] 开始: text="$trimmedText"');
@@ -750,13 +737,10 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
       iPrint('📤 [ChatInput._handleSendPressed] 调用 widget.onSendPressed');
       final res = await widget.onSendPressed(trimmedText);
       iPrint('📤 [ChatInput._handleSendPressed] onSendPressed 返回: $res');
-      if (!mounted) return; // 异步gap后安全检查
+      if (!mounted || !_drafts.isCurrent) return;
       if (res && _textController.text == submittedText) {
         _textController.clear();
-        if (_draftStorageEnabled) {
-          StorageService.to.remove(draftKey);
-          StorageService.to.remove(draftCursorKey);
-        }
+        unawaited(_drafts.clear());
         // 清空 @提及数据
         _mentionData = const MentionData();
         _notifyMentionsChanged();

@@ -94,6 +94,19 @@ extension MessageModelMapper on MessageModel {
     }
   }
 
+  TextMessage _invalidPayloadMessage() => TextMessage(
+    authorId: fromId.toString(),
+    createdAt: DateTimeHelper.millisecondToDateTime(createdAt),
+    id: id.toString(),
+    text: t.chat.invalidMessagePlaceholder,
+    status: MessageStatus.error,
+    metadata: {
+      'conversation_uk3': conversationUk3,
+      'peer_id': toId,
+      'error': 'invalid_payload',
+    },
+  );
+
   Future<Message> toTypeMessage() async {
     // WebSocket API v2.0: payload 可能是 Map 或 String（E2EE 场景）
     Map<String, dynamic> payloadData;
@@ -196,18 +209,7 @@ extension MessageModelMapper on MessageModel {
         '⚠️ toTypeMessage: payload 无效或为空，id=$id, '
         'type=${payload.runtimeType}',
       );
-      return TextMessage(
-        authorId: fromId.toString(),
-        createdAt: DateTimeHelper.millisecondToDateTime(createdAt),
-        id: id.toString(),
-        text: t.chat.invalidMessagePlaceholder,
-        status: MessageStatus.error,
-        metadata: {
-          'conversation_uk3': conversationUk3,
-          'peer_id': toId,
-          'error': 'invalid_payload',
-        },
-      );
+      return _invalidPayloadMessage();
     }
 
     // E2EE-061 Slice 6：payload 此刻已是**明文**，若带 attachment_descriptor
@@ -286,6 +288,17 @@ extension MessageModelMapper on MessageModel {
       // 这里应该不会为空，因为已经通过了 isValidMsgType 检查
     }
 
+    // 保留撤回优先级和缺失/null 正文的空串语义；其他形状不转为可见正文。
+    // Preserve revoked messages and null text; never stringify invalid bodies.
+    final textBody = payloadData['text'];
+    if (!IMBoyMessageStatus.isRevokedStatus(status) &&
+        (effectiveMsgType == MessageType.text ||
+            effectiveMsgType == MessageType.textStream) &&
+        textBody != null &&
+        textBody is! String) {
+      return _invalidPayloadMessage();
+    }
+
     String sysPrompt = payloadData['sys_prompt'] as String? ?? '';
     Message? message;
     // enum MessageType { custom, file, image, text, unsupported }
@@ -340,7 +353,7 @@ extension MessageModelMapper on MessageModel {
         createdAt: createdDt,
         id: safeId,
         // peerId: toId,
-        text: (payloadData['text'] ?? '') as String,
+        text: textBody as String? ?? '',
         status: typesStatus,
         metadata: {...metadata, ...payloadData},
       );
@@ -427,7 +440,7 @@ extension MessageModelMapper on MessageModel {
         authorId: author.id,
         createdAt: createdDt,
         id: safeId,
-        text: (payloadData['text'] ?? '') as String,
+        text: textBody as String? ?? '',
         status: typesStatus,
         metadata: {
           ...metadata,

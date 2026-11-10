@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:imboy/app_core/feature_flags/app_feature_registry.dart';
 import 'package:imboy/app_core/feature_flags/feature_keys.dart';
@@ -10,9 +11,12 @@ import 'package:imboy/config/const.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:imboy/service/e2ee_backup_setup_service.dart';
+import 'package:imboy/service/account_local_task_registry.dart';
+import 'package:imboy/service/auth_session_scope.dart';
 import 'package:imboy/service/storage.dart';
 import 'package:imboy/service/storage_secure.dart';
 import 'package:imboy/store/api/e2ee_backup_api.dart';
+import 'package:imboy/store/repository/user_repo_local.dart';
 
 /// 路径3 编排服务：首启判定 / 完成回执 / 换号防呆 / 无口令跳过自动重传。
 ///
@@ -22,12 +26,16 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   final secureStore = <String, String?>{};
+  final deletedKeys = <String>[];
+  Future<String?> Function(String key, String? value)? interceptRead;
 
   setUp(() async {
     AppFeatureRegistry.replaceSnapshotForTest({FeatureKeys.e2ee: true});
     SharedPreferences.setMockInitialValues(<String, Object>{});
     await StorageService.init();
     secureStore.clear();
+    deletedKeys.clear();
+    interceptRead = null;
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
         .setMockMethodCallHandler(
           const MethodChannel('plugins.it_nomads.com/flutter_secure_storage'),
@@ -39,9 +47,14 @@ void main() {
                 return null;
               case 'read':
                 final args = call.arguments as Map<Object?, Object?>;
-                return secureStore[args['key'] as String];
+                final key = args['key'] as String;
+                final value = secureStore[key];
+                return interceptRead == null
+                    ? value
+                    : await interceptRead!(key, value);
               case 'delete':
                 final args = call.arguments as Map<Object?, Object?>;
+                deletedKeys.add(args['key'] as String);
                 secureStore.remove(args['key'] as String);
                 return null;
               case 'containsKey':
@@ -83,6 +96,10 @@ void main() {
 
     test('已完成设置 → 恒 false', () async {
       await seedKeys();
+      await StorageService.to.setString(
+        Keys.currentUid,
+        'synthetic-backup-owner',
+      );
       await E2EEBackupSetupService.to.completeSetup(passphrase: 'x');
       expect(await E2EEBackupSetupService.to.needsSetup(), isFalse);
     });
@@ -185,15 +202,18 @@ void main() {
     test('空会话（uid 未落库）：读不到但不误删缓存', () async {
       // 测试环境 currentUid 为空串 ≠ 'user-A'——视为会话未知，
       // 只拒绝返回，不清除（口令是用户唯一的恢复凭据副本）
+      await StorageService.to.setString(Keys.currentUid, 'user-A');
       await E2EEBackupSetupService.to.completeSetup(
         passphrase: 'old-user-pwd',
         uid: 'user-A',
       );
+      await StorageService.to.remove(Keys.currentUid);
       expect(await E2EEBackupSetupService.to.cachedPassphrase(), isNull);
       expect(secureStore.containsKey(kE2eeBackupPassphraseSecureKey), isTrue);
     });
 
     test('换号防呆：已登录账号与缓存归属不同 → 读不到并清除', () async {
+      await StorageService.to.setString(Keys.currentUid, 'user-A');
       await E2EEBackupSetupService.to.completeSetup(
         passphrase: 'old-user-pwd',
         uid: 'user-A',
@@ -202,6 +222,89 @@ void main() {
       expect(await E2EEBackupSetupService.to.cachedPassphrase(), isNull);
       expect(secureStore.containsKey(kE2eeBackupPassphraseSecureKey), isFalse);
     });
+
+    test('A 的迟到口令读取不能返回或删除 B 的新口令', () async {
+      await StorageService.to.setString(Keys.currentUid, 'user-A');
+      await E2EEBackupSetupService.to.completeSetup(passphrase: 'A-passphrase');
+      final reading = Completer<void>(), release = Completer<void>();
+      interceptRead = (key, value) async {
+        if (key == kE2eeBackupPassphraseSecureKey && !reading.isCompleted) {
+          reading.complete();
+          await release.future;
+        }
+        return value;
+      };
+      final pending = E2EEBackupSetupService.to.cachedPassphrase();
+      await reading.future;
+      await StorageService.to.setString(Keys.currentUid, 'user-B');
+      await E2EEBackupSetupService.to.completeSetup(passphrase: 'B-passphrase');
+      release.complete();
+      expect(await pending, isNull);
+      expect(deletedKeys, isEmpty);
+      expect(
+        await E2EEBackupSetupService.to.cachedPassphrase(),
+        'B-passphrase',
+      );
+    });
+
+    test('删除旧口令前在会话写入队列内复核原始值', () async {
+      await StorageService.to.setString(Keys.currentUid, 'user-B');
+      secureStore[kE2eeBackupPassphraseSecureKey] = jsonEncode({
+        'uid': 'user-A',
+        'passphrase': 'A-passphrase',
+      });
+      final session = authSessionReader.current;
+      final entered = Completer<void>(), release = Completer<void>();
+      final firstRead = Completer<void>();
+      interceptRead = (key, value) async {
+        if (key == kE2eeBackupPassphraseSecureKey && !firstRead.isCompleted) {
+          firstRead.complete();
+        }
+        return value;
+      };
+      final writer = UserRepoLocal.to.writeSessionSecret(
+        uid: session.uid,
+        generation: session.generation,
+        write: () async {
+          entered.complete();
+          await release.future;
+          secureStore[kE2eeBackupPassphraseSecureKey] = jsonEncode({
+            'uid': 'user-B',
+            'passphrase': 'B-passphrase',
+          });
+        },
+        discard: () async {},
+      );
+      await entered.future;
+      final staleRead = E2EEBackupSetupService.to.cachedPassphrase();
+      await firstRead.future;
+      await Future<void>.delayed(Duration.zero);
+      release.complete();
+      await writer;
+      expect(await staleRead, isNull);
+      expect(deletedKeys, isEmpty);
+      expect(
+        await E2EEBackupSetupService.to.cachedPassphrase(),
+        'B-passphrase',
+      );
+    });
+
+    test(
+      'a late backup completion cannot restore a cleared account secret',
+      () async {
+        await StorageService.to.setString(Keys.currentUid, 'user-A');
+        await StorageService.to.remove(Keys.currentUid);
+        await expectLater(
+          E2EEBackupSetupService.to.completeSetup(
+            passphrase: 'synthetic-late-passphrase',
+            uid: 'user-A',
+          ),
+          throwsStateError,
+        );
+        expect(secureStore, isEmpty);
+        expect(StorageService.to.getBool(kE2eeBackupSetupDoneKey), isFalse);
+      },
+    );
   });
 
   group('uploadWithCachedPassphrase', () {
@@ -219,6 +322,75 @@ void main() {
       );
       expect(result.ok, isFalse);
     });
+
+    test('读取密钥期间换号不混用 A 口令和 B 密钥上传', () async {
+      await StorageService.to.setString(Keys.currentUid, 'user-A');
+      await E2EEBackupSetupService.to.completeSetup(passphrase: 'A-passphrase');
+      await seedKeys();
+      final reading = Completer<void>(), release = Completer<void>();
+      interceptRead = (key, value) async {
+        if (key == 'e2ee_public_key' && !reading.isCompleted) {
+          reading.complete();
+          await release.future;
+        }
+        return value;
+      };
+      final api = _FakeBackupApi();
+      final upload = E2EEBackupSetupService.to.uploadWithCachedPassphrase(
+        api: api,
+      );
+      await reading.future;
+      await StorageService.to.setString(Keys.currentUid, 'user-B');
+      secureStore['e2ee_private_key'] = 'B-private';
+      secureStore['e2ee_public_key'] = 'B-public';
+      await E2EEBackupSetupService.to.completeSetup(passphrase: 'B-passphrase');
+      release.complete();
+      expect((await upload).ok, isFalse);
+      expect(api.infoCalls, 0);
+      expect(secureStore['e2ee_private_key'], 'B-private');
+      expect(
+        await E2EEBackupSetupService.to.cachedPassphrase(),
+        'B-passphrase',
+      );
+    });
+
+    for (final key in ['e2ee_device_id', 'e2ee_key_id']) {
+      test('清理等待准备阶段 $key 读取并阻止后续上传', () async {
+        await StorageService.to.setString(Keys.currentUid, 'user-A');
+        await E2EEBackupSetupService.to.completeSetup(
+          passphrase: 'A-passphrase',
+        );
+        await seedKeys();
+        secureStore['e2ee_device_id'] = 'A-device';
+        secureStore['e2ee_key_id'] = 'A-key';
+        final owner = AccountLocalTaskOwner.capture();
+        final reading = Completer<void>(), release = Completer<void>();
+        interceptRead = (readKey, value) async {
+          if (readKey == key && !reading.isCompleted) {
+            reading.complete();
+            await release.future;
+          }
+          return value;
+        };
+        final api = _FakeBackupApi();
+        final upload = E2EEBackupSetupService.to.uploadWithCachedPassphrase(
+          api: api,
+        );
+        await reading.future;
+        final cleanup = AccountLocalTaskRegistry.instance.beginCleanup(owner);
+        addTearDown(cleanup.release);
+        var drained = false;
+        final stopped = cleanup.stopped.then((_) => drained = true);
+        await Future<void>.delayed(Duration.zero);
+        expect(drained, isFalse);
+        await StorageService.to.remove(Keys.currentUid);
+        release.complete();
+        expect((await upload).ok, isFalse);
+        await stopped;
+        expect(api.infoCalls, 0);
+        expect(drained, isTrue);
+      });
+    }
   });
 }
 

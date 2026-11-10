@@ -14,12 +14,89 @@
 library;
 
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:imboy/component/ui/phone_input.dart';
 import 'package:imboy/i18n/strings.g.dart';
+import 'package:imboy/theme/default/theme.dart';
 
 void main() {
+  testWidgets('国家码文字随实际 AppTheme 深浅切换保持可读', (tester) async {
+    for (final mode in [ThemeMode.light, ThemeMode.dark, ThemeMode.light]) {
+      await tester.pumpWidget(
+        TranslationProvider(
+          child: MaterialApp(
+            theme: AppTheme.getLightTheme(),
+            darkTheme: AppTheme.getDarkTheme(),
+            themeMode: mode,
+            home: Scaffold(body: PhoneInputWidget(onInputChanged: (_, _) {})),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      // Inspect rendered text rather than only the selector configuration.
+      final dialCode = find.byWidgetPredicate(
+        (widget) => widget is Text && widget.data?.trim() == '+86',
+      );
+      expect(dialCode, findsOneWidget);
+      final theme = Theme.of(tester.element(dialCode));
+      expect(
+        theme.brightness,
+        mode == ThemeMode.dark ? Brightness.dark : Brightness.light,
+      );
+      final paragraph = tester.renderObject<RenderParagraph>(dialCode);
+      expect(
+        paragraph.text.style?.color,
+        theme.colorScheme.onSurface,
+        reason: '国家码应使用当前主题正文色，不能在暗色主题保留浅色黑字',
+      );
+      expect(tester.takeException(), isNull);
+    }
+  });
+
+  testWidgets('270 宽度和两倍字号不溢出，号码回调仍正确', (tester) async {
+    tester.view.devicePixelRatio = 1;
+    tester.view.physicalSize = const Size(270, 600);
+    addTearDown(() {
+      tester.view.resetDevicePixelRatio();
+      tester.view.resetPhysicalSize();
+    });
+    String? capturedFull;
+    String? capturedLocal;
+
+    await tester.pumpWidget(
+      TranslationProvider(
+        child: MaterialApp(
+          theme: AppTheme.getLightTheme(),
+          builder: (context, child) => MediaQuery(
+            data: MediaQuery.of(context)
+                .copyWith(textScaler: const TextScaler.linear(2)),
+            child: child!,
+          ),
+          home: Scaffold(
+            body: PhoneInputWidget(
+              onInputChanged: (full, local) {
+                capturedFull = full;
+                capturedLocal = local;
+              },
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(find.text('+86'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+
+    await tester.enterText(find.byType(TextField), '13800000001');
+    await tester.pumpAndSettle();
+    expect(capturedFull, '+8613800000001');
+    expect(capturedLocal, '13800000001');
+    expect(tester.takeException(), isNull);
+  });
+
   testWidgets('输入号码后回调携带 localNumber 原文（P0 缺陷回归）', (tester) async {
     String? capturedFull;
     String? capturedLocal;

@@ -1,12 +1,14 @@
-import 'dart:async';
-import 'dart:typed_data';
+import 'dart:io';
 
+import 'package:device_info_plus/device_info_plus.dart';
+import 'package:device_info_plus_platform_interface/device_info_plus_platform_interface.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'package:imboy/app_core/feature_flags/runtime_feature_recovery.dart';
 import 'package:imboy/component/http/http_client.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/config/env.dart';
@@ -16,6 +18,8 @@ import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/passport/passport_notifier.dart';
 import 'package:imboy/service/sqlite.dart';
 import 'package:imboy/service/storage.dart';
+import 'package:imboy/service/websocket.dart';
+import 'package:imboy/service/websocket_message_queue.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 
 import '../../../env_test_pin.dart';
@@ -34,9 +38,36 @@ import '../../../env_test_pin.dart';
 const MethodChannel _secureChannel = MethodChannel(
   'plugins.it_nomads.com/flutter_secure_storage',
 );
-const MethodChannel _deviceInfoChannel = MethodChannel(
-  'dev.fluttercommunity.plus/device_info',
-);
+
+class _SyntheticDeviceInfo extends DeviceInfoPlatform {
+  @override
+  Future<BaseDeviceInfo> deviceInfo() async {
+    if (Platform.isLinux) {
+      return LinuxDeviceInfo(
+        name: 'test',
+        id: 'synthetic-device',
+        prettyName: 'test',
+        machineId: 'synthetic-machine',
+      );
+    }
+    return BaseDeviceInfo({
+      'computerName': 'test',
+      'hostName': 'test',
+      'arch': 'arm64',
+      'model': 'test',
+      'modelName': 'test',
+      'kernelVersion': 'test',
+      'osRelease': 'test',
+      'majorVersion': 1,
+      'minorVersion': 0,
+      'patchVersion': 0,
+      'activeCPUs': 1,
+      'memorySize': 1,
+      'cpuFrequency': 1,
+      'systemGUID': 'synthetic-device',
+    });
+  }
+}
 
 /// 按 path 路由响应并记录请求序的测试适配器。
 class _RouterAdapter implements HttpClientAdapter {
@@ -139,10 +170,11 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
   final secure = <String, String>{};
   late _RouterAdapter adapter;
+  late DeviceInfoPlatform originalDeviceInfo;
 
-  setUpAll(() {
+  setUpAll(() async {
     // notifier 的 _localizedAuthErrMsg 需要可用的 t（slang 全局翻译）
-    LocaleSettings.setLocaleSync(AppLocale.zhCn);
+    await LocaleSettings.setLocale(AppLocale.zhCn);
     // 阻断 openSocket 真连接（成功对照腿会触发）；套件结束恢复
     envMap['dev'] = const _NoWsLoopbackEnv();
     currentEnv = 'dev';
@@ -151,6 +183,8 @@ void main() {
   tearDownAll(pinLoopbackTestEnv);
 
   setUp(() async {
+    originalDeviceInfo = DeviceInfoPlatform.instance;
+    DeviceInfoPlatform.instance = _SyntheticDeviceInfo();
     SharedPreferences.setMockInitialValues(<String, Object>{});
     await StorageService.init();
     // _commitLogin 会触达 SqliteService.to.db；测试内直接声明不可用，
@@ -189,37 +223,16 @@ void main() {
           }
           return null;
         });
-    // DeviceExt.to.detail 在 macOS 测试宿主走 macOsInfo 平台通道
-    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
-        .setMockMethodCallHandler(_deviceInfoChannel, (call) async {
-          if (call.method == 'getDeviceInfo') {
-            return <String, dynamic>{
-              'computerName': 'imboy-test',
-              'hostName': 'imboy-test.local',
-              'arch': 'arm64',
-              'model': 'MacTest',
-              'modelName': 'MacTest',
-              'kernelVersion': 'test-kernel',
-              'osRelease': '27.0.0',
-              'majorVersion': 27,
-              'minorVersion': 0,
-              'patchVersion': 0,
-              'activeCPUs': 8,
-              'memorySize': 16,
-              'cpuFrequency': 3200,
-              'systemGUID': 'test-device-guid',
-            };
-          }
-          return null;
-        });
   });
 
   tearDown(() async {
+    RuntimeFeatureRecovery.dispose();
+    WebSocketService.to.dispose();
+    PersistentMessageQueue.to.dispose();
     HttpClient.adapterForTest = null;
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
         .setMockMethodCallHandler(_secureChannel, null);
-    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
-        .setMockMethodCallHandler(_deviceInfoChannel, null);
+    DeviceInfoPlatform.instance = originalDeviceInfo;
   });
 
   test('登录 401 errorPassword：notifier 置错且凭据零落盘（A01-NC-2）', () async {

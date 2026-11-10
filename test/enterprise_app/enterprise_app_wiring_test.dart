@@ -71,8 +71,17 @@ void main() {
 
     test('本地消息通知的标题拼接企业来源前缀', () {
       final String src = read(path);
-      expect(src.contains('hostedMessageNotificationPrefix('), isTrue);
-      expect(src.contains("senderName: '\$hostedPrefix\$senderName'"), isTrue);
+      final String notification = read(
+        'lib/service/message_notifications.dart',
+      );
+      expect(src.contains("part 'message_notifications.dart';"), isTrue);
+      expect(src.contains('_showMessageNotification('), isTrue);
+      expect(notification.contains("part of 'message.dart';"), isTrue);
+      expect(notification.contains('hostedMessageNotificationPrefix('), isTrue);
+      expect(
+        notification.contains("senderName: '\$hostedPrefix\$senderName'"),
+        isTrue,
+      );
     });
   });
 

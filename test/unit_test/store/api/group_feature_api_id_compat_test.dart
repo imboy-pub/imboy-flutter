@@ -4,7 +4,9 @@ import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/component/http/http_response.dart';
 import 'package:imboy/component/http/http_transformer.dart';
+import 'package:imboy/config/const.dart';
 import 'package:imboy/service/group_album_service.dart';
+import 'package:imboy/service/storage.dart';
 import 'package:imboy/store/api/attachment_direct_api.dart';
 import 'package:imboy/store/api/group_album_api.dart';
 import 'package:imboy/store/api/group_file_api.dart';
@@ -14,6 +16,13 @@ import 'package:imboy/store/api/group_task_api.dart';
 part 'group_feature_api_fixtures.dart';
 
 void main() {
+  setUp(() async {
+    await StorageService.to.setString(Keys.currentUid, '1');
+  });
+  tearDown(() async {
+    await StorageService.to.remove(Keys.currentUid);
+  });
+
   group('GroupScheduleApi schedule_id compatibility', () {
     test(
       'getSchedule should forward legacy/uid schedule_id as string',

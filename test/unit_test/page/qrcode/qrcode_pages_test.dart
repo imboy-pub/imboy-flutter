@@ -6,7 +6,9 @@ import 'package:intl/intl.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
 import 'package:imboy/component/helper/datetime.dart';
+import 'package:imboy/component/helper/func.dart' show avatarImageProvider;
 import 'package:imboy/component/ui/avatar.dart' show SmartGroupAvatar;
+import 'package:imboy/component/ui/imboy_cached_image_provider.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/qrcode/channel_qrcode_page.dart';
 import 'package:imboy/page/qrcode/group_qrcode_page.dart';
@@ -26,11 +28,40 @@ import 'package:imboy/store/model/group_model.dart';
 ///   故跳过整页渲染；其 QR 卡片结构与本文件两页一致。
 void main() {
   const sevenDaysMs = 7 * 86400 * 1000;
+  const channelAvatar = 'u1/qr_fixture/channel_avatar.png';
 
   Widget wrap(Widget page) {
     return TranslationProvider(
       child: ProviderScope(child: MaterialApp(home: page)),
     );
+  }
+
+  Future<ImageProvider<Object>> warmChannelAvatar(WidgetTester tester) async {
+    final provider = avatarImageProvider(channelAvatar, w: 100);
+    expect(
+      provider,
+      isA<IMBoyCachedImageProvider>().having(
+        (image) => image.publicDirect,
+        'publicDirect',
+        isTrue,
+      ),
+    );
+    final key = await provider.obtainKey(ImageConfiguration.empty);
+    // Keep the real public avatar provider; only its decoded bytes are a
+    // fixture. Public object keys use the same key for header and QR sizes.
+    final image = await tester.runAsync(
+      () => createTestImage().timeout(const Duration(seconds: 5)),
+    );
+    expect(image, isNotNull);
+    final cache = PaintingBinding.instance.imageCache;
+    cache.putIfAbsent(
+      key,
+      () => OneFrameImageStreamCompleter(
+        Future<ImageInfo>.value(ImageInfo(image: image!)),
+      ),
+    );
+    addTearDown(() => cache.evict(key));
+    return provider;
   }
 
   /// 断言页面 footer 展示了"当前时间 + 7 天"的过期日期。
@@ -105,13 +136,14 @@ void main() {
     testWidgets('CQ-4 有头像时渲染包含 avatarImageProvider 的 QrImageView', (
       tester,
     ) async {
+      final avatarProvider = await warmChannelAvatar(tester);
       await tester.pumpWidget(
         wrap(
           const ChannelQrCodePage(
             channelData: {
               'id': 'ch123',
               'name': '测试频道',
-              'avatar': 'test_channel_avatar.png',
+              'avatar': channelAvatar,
             },
           ),
         ),
@@ -120,16 +152,19 @@ void main() {
 
       final qrImage = tester.widget<QrImageView>(find.byType(QrImageView));
       expect(qrImage.embeddedImage, isNotNull);
+      expect(qrImage.embeddedImage, avatarProvider);
+      expect(tester.takeException(), isNull);
     });
 
     testWidgets('CQ-5 有头像时渲染圆角 Avatar 叠加层', (tester) async {
+      await warmChannelAvatar(tester);
       await tester.pumpWidget(
         wrap(
           const ChannelQrCodePage(
             channelData: {
               'id': 'ch123',
               'name': '测试频道',
-              'avatar': 'test_channel_avatar.png',
+              'avatar': channelAvatar,
             },
           ),
         ),
@@ -151,6 +186,7 @@ void main() {
         isTrue,
         reason: '应该渲染含有 ClipRRect 的白底圆角头像 Container 叠加层',
       );
+      expect(tester.takeException(), isNull);
     });
   });
 

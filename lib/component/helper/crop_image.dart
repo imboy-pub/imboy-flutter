@@ -7,6 +7,9 @@ import 'package:crop_your_image/crop_your_image.dart';
 
 import 'package:imboy/store/api/attachment_api.dart';
 import 'package:imboy/i18n/strings.g.dart';
+import 'package:imboy/service/account_local_files.dart';
+import 'package:imboy/service/account_local_task_registry.dart';
+import 'package:imboy/service/auth_session_scope.dart';
 
 // ignore: must_be_immutable
 class CropImageRoute extends StatefulWidget {
@@ -32,16 +35,29 @@ class _CropImageRouteState extends State<CropImageRoute> {
   final _controller = CropController();
   Uint8List? _imageBytes;
   bool _isCropping = false;
+  late final AuthSessionScope _session;
+  late final AccountLocalTaskOwner _owner;
+
+  bool get _isCurrent =>
+      mounted &&
+      authSessionReader.isCurrent(_session) &&
+      AccountLocalTaskOwner.capture() == _owner;
 
   @override
   void initState() {
     super.initState();
+    _session = authSessionReader.current;
+    _owner = AccountLocalTaskOwner.capture(uid: _session.uid);
     _loadImage();
   }
 
   Future<void> _loadImage() async {
-    final bytes = await widget.image.readAsBytes();
-    if (mounted) setState(() => _imageBytes = bytes);
+    try {
+      final bytes = await widget.image.readAsBytes();
+      if (_isCurrent) setState(() => _imageBytes = bytes);
+    } on IOException catch (error) {
+      if (kDebugMode) debugPrint('> image read failed: ${error.runtimeType}');
+    }
   }
 
   @override
@@ -111,25 +127,42 @@ class _CropImageRouteState extends State<CropImageRoute> {
   }
 
   void _startCrop() {
+    if (!_isCurrent || _isCropping) return;
     setState(() => _isCropping = true);
     _controller.crop();
   }
 
   Future<void> _onCropped(CropResult result) async {
-    switch (result) {
-      case CropSuccess(:final croppedImage):
-        final tmpFile = File(
-          '${Directory.systemTemp.path}/cropped_${DateTime.now().millisecondsSinceEpoch}.jpg',
-        );
-        await tmpFile.writeAsBytes(croppedImage);
-        await _upload(tmpFile);
-        Future<void>.delayed(const Duration(milliseconds: 200)).then(
-          (_) => tmpFile.delete().catchError((_) => tmpFile, test: (_) => true),
-        );
-      case CropFailure(:final cause):
-        if (kDebugMode) debugPrint('> crop failed: $cause');
+    if (!_isCurrent) return;
+    try {
+      switch (result) {
+        case CropSuccess(:final croppedImage):
+          await AccountLocalTaskRegistry.instance.run<void>(
+            _owner,
+            operation: (task) async {
+              final directory = await AccountLocalFiles.directory(task);
+              task.throwIfCancelled();
+              if (!_isCurrent) return;
+              final tmpFile = File(
+                '${directory.path}/cropped_${DateTime.now().microsecondsSinceEpoch}.jpg',
+              );
+              try {
+                await tmpFile.writeAsBytes(croppedImage, flush: true);
+                task.throwIfCancelled();
+                if (_isCurrent) await _upload(tmpFile);
+              } finally {
+                if (await tmpFile.exists()) await tmpFile.delete();
+              }
+            },
+          );
+        case CropFailure(:final cause):
+          if (kDebugMode) debugPrint('> crop failed: $cause');
+      }
+    } on Object catch (error) {
+      if (kDebugMode) debugPrint('> crop upload ended: ${error.runtimeType}');
+    } finally {
+      if (_isCurrent) setState(() => _isCropping = false);
     }
-    if (mounted) setState(() => _isCropping = false);
   }
 
   Future<void> _upload(File file) async {
@@ -140,7 +173,7 @@ class _CropImageRouteState extends State<CropImageRoute> {
       widget.prefix,
       file,
       (Map<String, dynamic> resp, String uri) async {
-        if (mounted) Navigator.pop(context, uri);
+        if (_isCurrent) Navigator.pop(context, uri);
       },
       (Error error) {
         if (kDebugMode) debugPrint("> on upload ${error.runtimeType}");

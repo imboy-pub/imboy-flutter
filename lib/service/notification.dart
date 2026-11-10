@@ -1,11 +1,17 @@
 import 'dart:convert';
 
+import 'package:crypto/crypto.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:go_router/go_router.dart';
 import 'package:imboy/config/init.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/service/notification_payload_rules.dart';
+import 'package:imboy/service/account_local_task_registry.dart';
+import 'package:imboy/service/auth_session_scope.dart';
+import 'package:imboy/service/login_account_history_service.dart';
+import 'package:synchronized/synchronized.dart';
 
 /// 通知点击响应回调类型
 typedef NotificationTapCallback = void Function(String? payload);
@@ -24,6 +30,7 @@ typedef NotificationTapCallback = void Function(String? payload);
 /// - 添加通知点击跳转支持
 /// - 添加会话消息通知专用方法
 class NotificationService {
+  static final _notificationLock = Lock();
   final FlutterLocalNotificationsPlugin _plugin =
       FlutterLocalNotificationsPlugin();
 
@@ -54,6 +61,7 @@ class NotificationService {
     const initializationSettings = InitializationSettings(
       android: androidSettings,
       iOS: iosSettings,
+      macOS: iosSettings,
     );
 
     // 初始化插件
@@ -142,9 +150,59 @@ class NotificationService {
   ///
   /// [title] 通知标题
   /// [body] 通知内容
-  /// [id] 通知ID，默认使用时间戳生成唯一ID
+  /// [id] 账号内通知标识；平台通知 ID 按账号隔离，默认使用时间戳
   /// [payload] 通知负载，用于传递额外数据
+  /// Account messages retain the session captured before upstream async work.
+  /// Only explicitly public device notices may be shown without a login.
   Future<void> show({
+    required String title,
+    required String body,
+    int? id,
+    String? payload,
+    AuthSessionScope? session,
+    AccountLocalTaskOwner? owner,
+    bool devicePublic = false,
+  }) async {
+    final capturedSession = session ?? authSessionReader.current;
+    final account = devicePublic
+        ? AccountLocalTaskOwner.capture(uid: '')
+        : owner ?? AccountLocalTaskOwner.capture(uid: capturedSession.uid);
+    void requireCurrent(AccountLocalTask? task) {
+      task?.throwIfCancelled();
+      if (!devicePublic &&
+          (!authSessionReader.isCurrent(capturedSession) ||
+              account.uid != capturedSession.uid ||
+              account != AccountLocalTaskOwner.capture())) {
+        throw const AccountLocalTaskCancelledException();
+      }
+    }
+
+    requireCurrent(null);
+    Future<void> showOwned(AccountLocalTask? task) =>
+        _notificationLock.synchronized(() async {
+          requireCurrent(task);
+          await _showOwned(
+            account,
+            () => requireCurrent(task),
+            title: title,
+            body: body,
+            id: id,
+            payload: payload,
+          );
+        });
+    if (devicePublic) {
+      await showOwned(null);
+    } else {
+      await AccountLocalTaskRegistry.instance.run<void>(
+        account,
+        operation: showOwned,
+      );
+    }
+  }
+
+  Future<void> _showOwned(
+    AccountLocalTaskOwner owner,
+    void Function() requireCurrent, {
     required String title,
     required String body,
     int? id,
@@ -153,36 +211,73 @@ class NotificationService {
     if (!_isInitialized) {
       await initialize();
     }
+    requireCurrent();
+    final group = owner.uid.isEmpty ? 'imboy-device' : _accountGroup(owner);
+    var notificationId =
+        int.parse(
+          sha256
+              .convert(
+                utf8.encode(
+                  '$group:${id ?? DateTime.now().microsecondsSinceEpoch}',
+                ),
+              )
+              .toString()
+              .substring(0, 8),
+          radix: 16,
+        ) &
+        0x7fffffff;
+    if (_supportsActiveNotifications) {
+      final active = await _plugin.getActiveNotifications();
+      // Avoid replacing another account's notification even on an ID collision.
+      while (active.any(
+        (item) => item.id == notificationId && item.groupKey != group,
+      )) {
+        notificationId = (notificationId + 1) & 0x7fffffff;
+      }
+    }
+    requireCurrent();
 
     // 构建通知详情
-    const androidDetails = AndroidNotificationDetails(
+    final androidDetails = AndroidNotificationDetails(
       'imboy_notification_channel',
       'ImBoy 通知',
       channelDescription: 'ImBoy 应用的通知频道',
       importance: Importance.max,
       priority: Priority.high,
       showWhen: true,
+      groupKey: group,
+      tag: group,
     );
 
-    const iosDetails = DarwinNotificationDetails(
+    final iosDetails = DarwinNotificationDetails(
       presentAlert: true,
       presentBadge: true,
       presentSound: true,
+      threadIdentifier: group,
     );
 
-    const details = NotificationDetails(
+    final details = NotificationDetails(
       android: androidDetails,
       iOS: iosDetails,
+      macOS: iosDetails,
     );
 
     // 显示通知
     await _plugin.show(
-      id: id ?? DateTime.now().millisecondsSinceEpoch >> 10,
+      id: notificationId,
       title: title,
       body: body,
       notificationDetails: details,
       payload: payload,
     );
+    try {
+      requireCurrent();
+    } on AccountLocalTaskCancelledException {
+      // The OS may finish an already-entered write after cancellation. Remove
+      // that exact account notification before releasing the task barrier.
+      await _plugin.cancel(id: notificationId, tag: group);
+      rethrow;
+    }
   }
 
   /// 显示消息通知（专用方法）
@@ -202,6 +297,8 @@ class NotificationService {
     required String peerId,
     required String chatType,
     String? senderAvatar,
+    AuthSessionScope? session,
+    AccountLocalTaskOwner? owner,
   }) async {
     // 构建通知负载（用于点击跳转）
     // payload key `chatType` 与 `_handleNavigation` 消费端保持同步
@@ -220,6 +317,8 @@ class NotificationService {
       title: senderName,
       body: content,
       payload: payload,
+      session: session,
+      owner: owner,
     );
 
     iPrint(
@@ -291,11 +390,47 @@ class NotificationService {
     await _plugin.cancelAll();
   }
 
-  /// 获取活跃通知列表（仅Android）
+  static bool get _supportsActiveNotifications =>
+      !kIsWeb &&
+      (defaultTargetPlatform == TargetPlatform.android ||
+          defaultTargetPlatform == TargetPlatform.iOS ||
+          defaultTargetPlatform == TargetPlatform.macOS);
+
+  static String _accountGroup(AccountLocalTaskOwner owner) =>
+      'imboy-account:${owner.storageDigest}';
+
+  Future<void> validateAccountRemoval() =>
+      _notificationLock.synchronized(() async {
+        if (!_supportsActiveNotifications) return;
+        for (final item in await _plugin.getActiveNotifications()) {
+          if (item.groupKey == 'imboy-device') continue;
+          if (item.id == null ||
+              !RegExp(r'^imboy-account:[a-f0-9]{64}$')
+                  .hasMatch(item.groupKey ?? '')) {
+            throw const AccountLocalDataOwnershipException();
+          }
+        }
+      });
+
+  Future<void> cancelAccount(AccountLocalTaskOwner owner) =>
+      _notificationLock.synchronized(() async {
+        if (!_supportsActiveNotifications) return;
+        final group = _accountGroup(owner);
+        for (final item in await _plugin.getActiveNotifications()) {
+          if (item.groupKey != group) continue;
+          if (item.id == null) throw const AccountLocalDataOwnershipException();
+          await _plugin.cancel(id: item.id!, tag: item.tag);
+        }
+        if ((await _plugin.getActiveNotifications()).any(
+          (item) => item.groupKey == group,
+        )) {
+          throw StateError('Account notifications could not be removed');
+        }
+      });
+
+  /// 获取平台支持的活跃通知列表（Android / iOS / macOS）。
   Future<List<ActiveNotification>> getActiveNotifications() async {
-    // 注意：此方法仅在 Android 平台有效
-    // iOS 平台需要使用其他方法
-    return [];
+    return _plugin.getActiveNotifications();
   }
 
   /// 释放资源

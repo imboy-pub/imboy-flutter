@@ -10,6 +10,7 @@ import 'package:imboy/config/const.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/channel/channel_compose_page.dart';
 import 'package:imboy/page/channel/channel_provider.dart';
+import 'package:imboy/service/account_local_task_registry.dart';
 import 'package:imboy/service/storage.dart';
 import 'package:imboy/utils/chat_draft_keys.dart';
 import 'package:imboy/store/model/channel_model.dart';
@@ -134,20 +135,35 @@ void main() {
   });
 
   testWidgets(
-    'dispose after account switch persists only for original account',
+    'dispose after account cleanup cannot recreate the article draft',
     (tester) async {
       await mount(tester, '1001');
       await enter(tester, 'pending A title', 'pending A body');
+      final owner = AccountLocalTaskOwner.capture();
+      final a = chatDraftKeys('1001', 'channel-compose', '995501')!.text;
+      final b = chatDraftKeys('1002', 'channel-compose', '995501')!.text;
       await StorageService.to.setString(Keys.currentUid, '1002');
+      await StorageService.to.setString(
+        b,
+        '{"title":"B title","body":"B body"}',
+      );
+      final cleanup = AccountLocalTaskRegistry.instance.beginCleanup(owner);
+      try {
+        await cleanup.stopped;
+        await StorageService.to.remove(a);
+      } finally {
+        cleanup.release();
+      }
       await mount(tester, '1002');
-      expect(text(tester), ['', '']);
+      expect(text(tester), ['B title', 'B body']);
+      expect(StorageService.to.getKeys(), isNot(contains(a)));
       await mount(tester, '1001');
-      expect(text(tester), ['pending A title', 'pending A body']);
+      expect(text(tester), ['', '']);
       await tester.pumpWidget(const SizedBox.shrink());
     },
   );
 
-  testWidgets('late publish clears only original account article', (
+  testWidgets('late publish after account switch cannot reset either account', (
     tester,
   ) async {
     final a = chatDraftKeys('1001', 'channel-compose', '995501')!.text;
@@ -162,7 +178,7 @@ void main() {
     await StorageService.to.setString(b, '{"title":"B title","body":"B body"}');
     publisher.result.complete(true);
     await tester.pumpAndSettle();
-    expect(StorageService.to.getString(a), isEmpty);
+    expect(StorageService.to.getString(a), contains('A body'));
     expect(StorageService.to.getString(b), contains('B body'));
     await tester.pump(const Duration(seconds: 3));
     await tester.pumpAndSettle();

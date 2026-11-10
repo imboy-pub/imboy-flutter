@@ -7,6 +7,7 @@ import 'package:imboy/config/const.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/channel/channel_provider.dart';
 import 'package:imboy/page/channel/widgets/channel_publish_bar.dart';
+import 'package:imboy/service/account_local_task_registry.dart';
 import 'package:imboy/service/storage.dart';
 import 'package:imboy/store/model/channel_model.dart';
 import 'package:imboy/utils/chat_draft_keys.dart';
@@ -112,7 +113,7 @@ void main() {
       isEmpty,
     );
   });
-  testWidgets('late publish clears original account and route only', (
+  testWidgets('late publish after account switch cannot reset either account', (
     tester,
   ) async {
     final a = chatDraftKeys('A', 'channel-text', '1001')!.text;
@@ -130,9 +131,34 @@ void main() {
     await tester.pump();
     publisher.result.complete(true);
     await tester.pumpAndSettle();
-    expect(StorageService.to.getString(a), isEmpty);
+    expect(StorageService.to.getString(a), 'A draft');
     expect(StorageService.to.getString(b), 'B draft');
     expect(StorageService.to.getString('channel_draft_1002'), 'legacy B');
+    await tester.pumpWidget(const SizedBox.shrink());
+  });
+
+  testWidgets('dispose after cleanup cannot recreate A or change B draft', (
+    tester,
+  ) async {
+    await mount(tester, 'A');
+    await enter(tester, 'pending A');
+    final owner = AccountLocalTaskOwner.capture();
+    final a = chatDraftKeys('A', 'channel-text', '1001')!.text;
+    final b = chatDraftKeys('B', 'channel-text', '1001')!.text;
+    await StorageService.to.setString(Keys.currentUid, 'B');
+    await StorageService.to.setString(b, 'B draft');
+    final cleanup = AccountLocalTaskRegistry.instance.beginCleanup(owner);
+    try {
+      await cleanup.stopped;
+      await StorageService.to.remove(a);
+    } finally {
+      cleanup.release();
+    }
+    await tester.pumpWidget(const SizedBox.shrink());
+    expect(StorageService.to.getKeys(), isNot(contains(a)));
+    expect(StorageService.to.getString(b), 'B draft');
+    await mount(tester, 'A');
+    expect(text(tester), isEmpty);
     await tester.pumpWidget(const SizedBox.shrink());
   });
 }

@@ -212,4 +212,117 @@ void main() {
           .setMockMethodCallHandler(sqlcipherChannel, null);
     }
   });
+
+  test(
+    'history removal uses its saved environment and removes restore artifacts',
+    () async {
+      const uid = 'history-env-test-uid';
+      const savedEnvironment = 'historyTest';
+      const channel = MethodChannel('com.davidmartos96.sqflite_sqlcipher');
+      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+          .setMockMethodCallHandler(channel, (call) async {
+            if (call.method == 'getDatabasesPath') {
+              return Directory.systemTemp.path;
+            }
+            return null;
+          });
+      final directory = await getDatabasesPath();
+      final target = path.join(directory, '${savedEnvironment}_$uid.db');
+      final other = path.join(directory, '${currentEnv}_$uid.db');
+      final recovery = '$target.restore.selected';
+      final otherRecoveries = [
+        '$other.restore.other-environment',
+        path.join(directory, '${savedEnvironment}_$uid-other.db.restore.b'),
+      ];
+      final artifacts = [
+        for (final copy in ['', '.pre_restore.bak', '.restoring.tmp'])
+          for (final suffix in ['', '-wal', '-shm', '-journal'])
+            '$target$copy$suffix',
+        for (final suffix in ['', '-wal', '-shm', '-journal'])
+          '$recovery/original.db$suffix',
+        '$recovery/replacement.db',
+      ];
+      final preserved = [
+        other,
+        for (final directory in otherRecoveries) '$directory/original.db-wal',
+      ];
+      final previousEnvironment = currentEnv;
+      currentEnv = savedEnvironment;
+      await StorageService.to.setString(Keys.currentUid, uid);
+      final handle = await openMem();
+      SqliteService.setDbForTest(handle);
+      await StorageService.to.remove(Keys.currentUid);
+      currentEnv = previousEnvironment;
+      try {
+        for (final name in [...artifacts, ...preserved]) {
+          final file = File(name);
+          await file.parent.create(recursive: true);
+          await file.writeAsString('synthetic database');
+        }
+        await SqliteService.to
+            .deleteDatabaseForUid(uid, environment: savedEnvironment)
+            .timeout(const Duration(seconds: 5));
+        expect(handle.isOpen, isFalse, reason: 'selected stale handle closes');
+        for (final name in artifacts) {
+          expect(await File(name).exists(), isFalse, reason: name);
+        }
+        expect(await Directory(recovery).exists(), isFalse);
+        for (final name in preserved) {
+          expect(await File(name).readAsString(), 'synthetic database');
+        }
+      } finally {
+        currentEnv = previousEnvironment;
+        SqliteService.setDbForTest(null);
+        if (handle.isOpen) await handle.close();
+        for (final name in [...artifacts, ...preserved]) {
+          if (await File(name).exists()) await File(name).delete();
+        }
+        for (final directory in [recovery, ...otherRecoveries]) {
+          final folder = Directory(directory);
+          if (await folder.exists()) await folder.delete(recursive: true);
+        }
+        TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+            .setMockMethodCallHandler(channel, null);
+      }
+    },
+  );
+
+  test(
+    'history removal rejects the active account before closing its handle',
+    () async {
+      await StorageService.to.setString(Keys.currentUid, 'still-signed-in');
+      final handle = await openMem();
+      SqliteService.setDbForTest(handle);
+      try {
+        await expectLater(
+          SqliteService.to.closeDatabaseForUid('still-signed-in'),
+          throwsStateError,
+        );
+        await expectLater(
+          SqliteService.to.deleteDatabaseForUid('still-signed-in'),
+          throwsStateError,
+        );
+        expect(handle.isOpen, isTrue);
+      } finally {
+        SqliteService.setDbForTest(null);
+        await handle.close();
+      }
+    },
+  );
+
+  test('closing historical A preserves the cached B handle', () async {
+    await StorageService.to.setString(Keys.currentUid, 'retained-b');
+    final other = await openMem();
+    SqliteService.setDbForTest(other);
+    await StorageService.to.remove(Keys.currentUid);
+    try {
+      await SqliteService.to.closeDatabaseForUid('selected-a');
+      expect(other.isOpen, isTrue);
+      await StorageService.to.setString(Keys.currentUid, 'retained-b');
+      expect(await SqliteService.to.db, same(other));
+    } finally {
+      SqliteService.setDbForTest(null);
+      await other.close();
+    }
+  });
 }

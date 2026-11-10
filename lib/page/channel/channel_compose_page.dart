@@ -19,10 +19,8 @@ import 'package:imboy/page/channel/widgets/channel_markdown.dart';
 import 'package:imboy/page/channel/widgets/markdown_format.dart';
 import 'package:imboy/page/moment/moment_utils.dart';
 import 'package:imboy/service/message_type_constants.dart';
-import 'package:imboy/service/storage.dart';
+import 'package:imboy/service/account_draft_store.dart';
 import 'package:imboy/store/api/attachment_api.dart';
-import 'package:imboy/store/repository/user_repo_local.dart';
-import 'package:imboy/utils/chat_draft_keys.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_radius.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
@@ -111,14 +109,9 @@ class _ChannelComposePageState extends ConsumerState<ChannelComposePage> {
 
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _contentController = TextEditingController();
-  late final String? _draftKey;
-  late final String _ownerUid;
-  late final int _ownerSession;
+  late final AccountDraftStore _drafts;
 
-  bool get _sessionCurrent =>
-      UserRepoLocal.to.currentUid == _ownerUid &&
-      UserRepoLocal.to.isCurrentSession(_ownerSession) &&
-      !UserRepoLocal.to.isAuthTransitioning;
+  bool get _sessionCurrent => _drafts.isCurrent;
 
   /// 正文焦点：绑定 TextField，用于「格式工具条」随焦点显示 + 插入后回焦。
   final FocusNode _contentFocusNode = FocusNode();
@@ -144,14 +137,7 @@ class _ChannelComposePageState extends ConsumerState<ChannelComposePage> {
   @override
   void initState() {
     super.initState();
-    _ownerUid = UserRepoLocal.to.currentUid;
-    _ownerSession = UserRepoLocal.to.sessionGeneration;
-    // Delayed exit/publish cleanup must retain this composer's original owner.
-    _draftKey = chatDraftKeys(
-      UserRepoLocal.to.currentUid,
-      'channel-compose',
-      widget.channelId,
-    )?.text;
+    _drafts = AccountDraftStore.capture('channel-compose', widget.channelId);
     _contentFocusNode.addListener(_onContentFocusChanged);
     WidgetsBinding.instance.addPostFrameCallback((_) => _restoreDraft());
   }
@@ -186,9 +172,8 @@ class _ChannelComposePageState extends ConsumerState<ChannelComposePage> {
   // ---- 草稿（标题 + 正文 + 封面索引，图片本地资源不落盘）----
 
   void _restoreDraft() {
-    final key = _draftKey;
-    if (!mounted || key == null) return;
-    final raw = StorageService.to.getString(key);
+    if (!mounted) return;
+    final raw = _drafts.read().text;
     if (raw.isEmpty) return;
     // 新版草稿为 JSON；兼容旧版「仅正文」纯文本草稿。
     // ponytail: coverIndex 不还原——图片未持久化，重开需重选图，还原索引无意义。
@@ -208,24 +193,19 @@ class _ChannelComposePageState extends ConsumerState<ChannelComposePage> {
   }
 
   void _persistDraftOnExit() {
-    // 已发布就别再存了：_publish 成功后 remove(_draftKey) 与 pop() 都是
-    // unawaited，pop 触发 dispose 时 controller 里文本还在，会把刚发出去的
-    // 内容当草稿写回去——下次进撰写页凭空冒出上一篇。两个异步顺序还不定，
-    // 表现为偶发。用标志位比清空 controller 稳。
-    final key = _draftKey;
-    if (_published || key == null) return;
+    // 发布后 controller 仍有文本；退出时不能把已清除的草稿写回来。
+    if (_published) return;
     final title = _titleController.text.trim();
     final body = _contentController.text.trim();
     if (title.isEmpty && body.isEmpty) {
-      unawaited(StorageService.to.remove(key));
+      unawaited(_drafts.clear());
       return;
     }
     // ponytail: 图片本地路径不持久化（重启后 File 可能失效），草稿只存文字类字段
     // + 封面在当前已选图中的索引占位（重开撰写页图片需重选）。不做多草稿箱（二期可选）。
     final coverIndex = _coverAsset == null ? -1 : _images.indexOf(_coverAsset!);
     unawaited(
-      StorageService.to.setString(
-        key,
+      _drafts.save(
         jsonEncode({'title': title, 'body': body, 'coverIndex': coverIndex}),
       ),
     );
@@ -430,12 +410,11 @@ class _ChannelComposePageState extends ConsumerState<ChannelComposePage> {
           msgType: ChannelMessageType.imageText,
           payload: payload,
         );
-    if (!mounted) return;
+    if (!mounted || !_sessionCurrent) return;
     if (ok) {
       _published = true;
       _discardPendingImageUpload();
-      final key = _draftKey;
-      if (key != null) unawaited(StorageService.to.remove(key));
+      unawaited(_drafts.clear());
       unawaited(HapticFeedback.lightImpact());
       AppLoading.showSuccess(t.common.tipSuccess);
       context.pop();
@@ -463,7 +442,7 @@ class _ChannelComposePageState extends ConsumerState<ChannelComposePage> {
     }
 
     final controller = _imageUploadController ??=
-        BatchUploadController<_ImageUpload>(
+        BatchUploadController<_ImageUpload>.forCurrentAccount(
           fileUploader: (file, _) => _uploadImage(file),
           concurrency: _uploadConcurrency,
         );

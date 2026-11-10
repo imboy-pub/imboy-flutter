@@ -6,6 +6,7 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:crypto/crypto.dart';
+import 'package:dio/dio.dart' show CancelToken;
 import 'package:imboy/service/talk_record/talk_record_adts.dart';
 import 'package:imboy/service/talk_record/talk_record_manifest.dart';
 import 'package:imboy/service/talk_record/talk_record_platform_adapters.dart';
@@ -34,21 +35,24 @@ typedef TalkRecordFinalDirectUpload = Future<DirectUploadResult> Function(
   File file, {
   required String clientUploadId,
   required String scopeRef,
+  CancelToken? cancelToken,
 });
 
 /// 成品 direct 会话状态查询 seam（默认 [DirectAttachmentApi.status]；
 /// 恢复第一跳，RESERVED/DECLARED/GRANTED/FINALIZING/CONFIRMED 权威态）。
 typedef TalkRecordFinalDirectStatus = Future<DirectUploadResult> Function(
-  String objectKey,
-);
+  String objectKey, {
+  CancelToken? cancelToken,
+});
 
 /// 成品 direct register 单步 seam（默认 [DirectAttachmentApi.registerSession]，
 /// 同 client_upload_id 幂等）：object_key 在任何 PUT/finalize 前产生，
 /// 调用方先持久化再续作，崩溃窗口不丢单。
 typedef TalkRecordFinalDirectRegister = Future<String> Function(
   String clientUploadId,
-  String scopeRef,
-);
+  String scopeRef, {
+  CancelToken? cancelToken,
+});
 
 class TalkRecordAttachmentUploadGateway
     implements TalkRecordUploadGateway, TalkRecordUploadProgressSource {
@@ -74,6 +78,7 @@ class TalkRecordAttachmentUploadGateway
              File file, {
              required String clientUploadId,
              required String scopeRef,
+             CancelToken? cancelToken,
            }) => DirectAttachmentApi.uploadFile(
              file,
              fileName: 'final.aac',
@@ -81,20 +86,28 @@ class TalkRecordAttachmentUploadGateway
              scope: 'talk_record',
              scopeRef: scopeRef,
              clientUploadId: clientUploadId,
+             cancelToken: cancelToken,
            )),
        directStatus =
            directStatus ??
-           ((String objectKey) =>
-               DirectAttachmentApi.status(objectKey: objectKey)),
+           ((String objectKey, {CancelToken? cancelToken}) =>
+               DirectAttachmentApi.status(
+                 objectKey: objectKey,
+                 cancelToken: cancelToken,
+               )),
        directRegister =
            directRegister ??
-           ((String clientUploadId, String scopeRef) =>
-               DirectAttachmentApi.registerSession(
-                 fileName: 'final.aac',
-                 scope: 'talk_record',
-                 scopeRef: scopeRef,
-                 clientUploadId: clientUploadId,
-               ));
+           ((
+             String clientUploadId,
+             String scopeRef, {
+             CancelToken? cancelToken,
+           }) => DirectAttachmentApi.registerSession(
+             fileName: 'final.aac',
+             scope: 'talk_record',
+             scopeRef: scopeRef,
+             clientUploadId: clientUploadId,
+             cancelToken: cancelToken,
+           ));
   final TalkRecordApi api;
   final TalkRecordPartTransport transport;
   final int confirmAttempts;
@@ -110,6 +123,7 @@ class TalkRecordAttachmentUploadGateway
     required Directory directory,
     required TalkRecordKeyStore keys,
     required void Function() checkAccount,
+    CancelToken? cancelToken,
   }) async {
     void report(TalkRecordUploadPhase phase, int confirmed) {
       checkAccount();
@@ -132,7 +146,15 @@ class TalkRecordAttachmentUploadGateway
     }
 
     try {
-      await _upload(binding, manifest, directory, keys, checkAccount, update);
+      await _upload(
+        binding,
+        manifest,
+        directory,
+        keys,
+        checkAccount,
+        update,
+        cancelToken,
+      );
       report(TalkRecordUploadPhase.completed, manifest.segments.length);
     } on Object {
       // A revoked account must never publish its late progress to a new user.
@@ -152,6 +174,7 @@ class TalkRecordAttachmentUploadGateway
     TalkRecordKeyStore keys,
     void Function() checkAccount,
     void Function(TalkRecordUploadPhase, int) report,
+    CancelToken? cancelToken,
   ) async {
     _validateLocal(binding, manifest);
     checkAccount();
@@ -208,6 +231,7 @@ class TalkRecordAttachmentUploadGateway
       checkpoints,
       guard,
       (phase) => report(phase, confirmed()),
+      cancelToken,
     );
   }
 
@@ -310,6 +334,7 @@ class TalkRecordAttachmentUploadGateway
     TalkRecordUploadCheckpointStore checkpoints,
     void Function() guard,
     void Function(TalkRecordUploadPhase) report,
+    CancelToken? cancelToken,
   ) async {
     final plaintextDir = Directory('${directory.path}/.upload_plain');
     await _clearPlaintext(plaintextDir);
@@ -326,6 +351,7 @@ class TalkRecordAttachmentUploadGateway
           checkpoints,
           guard,
           report,
+          cancelToken,
         );
       }
       // no-backend-ffmpeg V1：客户端合成成品并 S3 直传（数据流 App→S3），
@@ -338,6 +364,7 @@ class TalkRecordAttachmentUploadGateway
         checkpoint,
         checkpoints,
         guard,
+        cancelToken,
       );
       report(TalkRecordUploadPhase.submitting);
       // Server mark bounds use capture.duration_ms, advanced by the end event.

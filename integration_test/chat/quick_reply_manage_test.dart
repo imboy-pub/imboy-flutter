@@ -115,7 +115,7 @@ void main() {
       if (currentUid.isNotEmpty) {
         flowLog('重置当前用户 ($currentUid) 的快捷回复以确保测试一致性...');
         final service = QuickReplyService(
-          const StorageServiceQuickReplyStore(),
+          StorageServiceQuickReplyStore(),
           defaults: [],
         );
         await service.reset(currentUid);

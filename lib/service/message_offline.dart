@@ -30,10 +30,18 @@ class MessageOfflineService {
   static MessageOfflineService? _instance;
 
   /// 获取单例实例
-  static MessageOfflineService get instance {
-    _instance ??= MessageOfflineService._internal();
-    return _instance!;
-  }
+  static MessageOfflineService get instance =>
+      _instance ??= MessageOfflineService._internal();
+
+  /// Local data removal keeps event subscriptions alive for the next login,
+  /// but must not restore erased cursors from an existing service instance.
+  static void resetLocalCursors() => _instance
+    ?.._c2cLastMsgAt = 0
+    .._c2gLastMsgAt = 0
+    .._c2gCursor = ''
+    .._c2gCursorKey = ''
+    .._s2cLastMsgAt = 0
+    .._pullCooldown.clear();
 
   /// 私有构造函数
   MessageOfflineService._internal() {

@@ -187,6 +187,18 @@ class _Translations$account$ko_KR extends Translations$account$zh_CN {
 	@override String get bindAlipay => 'Alipay 연동';
 	@override String get unbindAlipay => '연동 해제';
 	@override String get confirmUnbindAlipay => '연동 해제 확인';
+	@override String get loginHistoryTitle => '로그인 기록';
+	@override String loginHistorySelected({required Object account}) => '선택한 계정: ${account}';
+	@override String get loginHistoryChooseToClear => '데이터를 삭제할 저장된 계정을 선택하세요';
+	@override String get loginHistoryClear => '선택한 계정의 기기 데이터 삭제';
+	@override String get loginHistoryClearTitle => '이 계정의 기기 데이터를 삭제할까요?';
+	@override String get loginHistoryClearConfirm => '삭제 확인';
+	@override String loginHistoryClearBody({required Object account}) => '이 기기에 저장된 “${account}” 계정의 모든 로컬 데이터를 삭제할까요? 삭제 후 다시 로그인해야 합니다. 서버의 계정과 데이터는 삭제되지 않습니다.';
+	@override String get loginHistoryClearFailed => '삭제가 완료되지 않았습니다';
+	@override String get loginHistoryIdentityUnavailable => '이 계정에 한 번 로그인한 후 로그아웃하고 다시 시도하세요. 이전 기록으로는 계정을 정확히 식별할 수 없어 데이터를 삭제하지 않았습니다.';
+	@override String get loginHistoryCleanupBusy => '현재 계정에서 로그아웃하고 로그인 또는 삭제 작업이 끝난 후 다시 시도하세요.';
+	@override String get loginHistorySharedData => '이 계정은 다른 로그인 환경과 로컬 데이터를 공유하므로 현재 별도로 삭제할 수 없습니다.';
+	@override String get loginHistoryOwnershipUnavailable => '이 기기에 어느 계정의 것인지 확인할 수 없는 이전 버전의 공유 데이터가 있어 데이터를 삭제하지 않았습니다. 다른 계정에 영향을 주지 않도록 이전 데이터를 처리한 후 다시 시도하세요.';
 }
 
 // Path: agent
@@ -3522,6 +3534,18 @@ extension on TranslationsKoKr {
 			'account.bindAlipay' => 'Alipay 연동',
 			'account.unbindAlipay' => '연동 해제',
 			'account.confirmUnbindAlipay' => '연동 해제 확인',
+			'account.loginHistoryTitle' => '로그인 기록',
+			'account.loginHistorySelected' => ({required Object account}) => '선택한 계정: ${account}',
+			'account.loginHistoryChooseToClear' => '데이터를 삭제할 저장된 계정을 선택하세요',
+			'account.loginHistoryClear' => '선택한 계정의 기기 데이터 삭제',
+			'account.loginHistoryClearTitle' => '이 계정의 기기 데이터를 삭제할까요?',
+			'account.loginHistoryClearConfirm' => '삭제 확인',
+			'account.loginHistoryClearBody' => ({required Object account}) => '이 기기에 저장된 “${account}” 계정의 모든 로컬 데이터를 삭제할까요? 삭제 후 다시 로그인해야 합니다. 서버의 계정과 데이터는 삭제되지 않습니다.',
+			'account.loginHistoryClearFailed' => '삭제가 완료되지 않았습니다',
+			'account.loginHistoryIdentityUnavailable' => '이 계정에 한 번 로그인한 후 로그아웃하고 다시 시도하세요. 이전 기록으로는 계정을 정확히 식별할 수 없어 데이터를 삭제하지 않았습니다.',
+			'account.loginHistoryCleanupBusy' => '현재 계정에서 로그아웃하고 로그인 또는 삭제 작업이 끝난 후 다시 시도하세요.',
+			'account.loginHistorySharedData' => '이 계정은 다른 로그인 환경과 로컬 데이터를 공유하므로 현재 별도로 삭제할 수 없습니다.',
+			'account.loginHistoryOwnershipUnavailable' => '이 기기에 어느 계정의 것인지 확인할 수 없는 이전 버전의 공유 데이터가 있어 데이터를 삭제하지 않았습니다. 다른 계정에 영향을 주지 않도록 이전 데이터를 처리한 후 다시 시도하세요.',
 			'agent.plazaTitle' => 'AI 어시스턴트 광장',
 			'agent.transparencyBanner' => '여기 있는 구성원은 모두 AI 어시스턴트이며 신원이 명확히 표시됩니다. 암호화 채팅에는 실제 사람만 있습니다.',
 			'agent.searchHint' => '어시스턴트 검색',
@@ -3908,6 +3932,8 @@ extension on TranslationsKoKr {
 			'chat.chatResend' => '재전송',
 			'chat.profileExportProfile' => '프로필 내보내기',
 			'chat.momentsSend' => '전송',
+			_ => null,
+		} ?? switch (path) {
 			'chat.loginExpiredMessage' => '로그인이 만료되었습니다. 다시 로그인하세요',
 			'chat.customImage' => '사용자 지정 이미지',
 			'chat.burnAfterReading' => '읽은 후 자동 삭제',
@@ -3920,8 +3946,6 @@ extension on TranslationsKoKr {
 			'chat.historyUnavailable' => '히스토리 메시지를 일시적으로 사용할 수 없습니다',
 			'chat.historyUnavailableHint' => '서버측 히스토리 보관이 비활성화되었거나 사용할 수 없습니다. 다시 시도를 탭하여 재동기화하세요',
 			'chat.momentsRecordVideo' => '동영상 촬영',
-			_ => null,
-		} ?? switch (path) {
 			'chat.momentsVisibilityPrivate' => '나만 보기',
 			'chat.momentsMediaTooManyImages' => '이미지는 최대 9장까지 선택할 수 있습니다',
 			'chat.momentsMediaTooManyVideos' => '동영상은 최대 1개까지만 선택할 수 있습니다',
@@ -4422,6 +4446,8 @@ extension on TranslationsKoKr {
 			'common.pleaseEnterContent' => '내용을 입력하세요',
 			'common.comingSoon' => '출시 예정',
 			'common.backgroundTransparency' => '배경 투명도',
+			_ => null,
+		} ?? switch (path) {
 			'common.defaultBackground' => '기본 배경',
 			'common.solidColorBackground' => '단색 배경',
 			'common.selectImageFailed' => '이미지 선택 실패',
@@ -4434,8 +4460,6 @@ extension on TranslationsKoKr {
 			'common.fileOpenNotImplemented' => '파일 열기 기능이 아직 구현되지 않음',
 			'common.fileShareNotImplemented' => '파일 공유 기능이 아직 구현되지 않음',
 			'common.retrySuccess' => '재시도 성공',
-			_ => null,
-		} ?? switch (path) {
 			'common.deleteSuccess' => '삭제 성공',
 			'common.localDeleteSuccess' => '로컬 삭제 성공',
 			'common.localDeleteFailed' => '로컬 삭제 실패',
@@ -4936,6 +4960,8 @@ extension on TranslationsKoKr {
 			'common.uploadPartialFailed' => ({required Object count}) => '${count}개 항목 업로드 실패',
 			'common.voiceSttConverting' => '인식 중...',
 			'common.voiceSttNotConfigured' => '텍스트 변환 기능이 아직 설정되지 않았습니다',
+			_ => null,
+		} ?? switch (path) {
 			'common.voiceSttPreviewTitle' => '음성 텍스트 변환 미리보기',
 			'common.retry' => '다시 시도',
 			'common.retrying' => '다시 시도 중…',
@@ -4948,8 +4974,6 @@ extension on TranslationsKoKr {
 			'common.legacyUploadOutboxCheck' => '메시지가 이미 전송 대기 중일 수 있습니다. 다시 보내기 전에 대화 기록을 확인하세요.',
 			'common.legacyUploadRecoveryMismatch' => '선택한 파일이 일치하지 않거나 복구할 수 없습니다.',
 			'common.legacyUploadRecoveryContinues' => '첨부파일을 복구했습니다. 원래 메시지 처리를 계속합니다.',
-			_ => null,
-		} ?? switch (path) {
 			'common.legacyUploadReturnToOriginalPage' => '업로드가 완료되지 않았습니다. 원래 화면에서 파일을 다시 선택하고 제출하세요。',
 			'complaint.complaint' => '신고',
 			'complaint.e2eeConsentTitle' => '암호화 메시지 증거 제출',
@@ -5450,6 +5474,8 @@ extension on TranslationsKoKr {
 			'main.webQRExpired' => 'QR 코드가 만료되었습니다',
 			'main.webQRRefresh' => 'QR 코드 새로고침',
 			'main.webSwitchToQR' => 'QR 코드로 로그인',
+			_ => null,
+		} ?? switch (path) {
 			'main.e2eeErrDefault' => '종단간 암호화 실패, 메시지가 전송되지 않았습니다',
 			'main.e2eeErrPeerDeviceNotReady' => '일부 멤버의 기기에서 보안 설정이 완료되지 않아 메시지가 전송되지 않았습니다. 잠시 후 다시 시도해 주세요',
 			'main.liveRoomTitleLabel' => '라이브 룸 제목',
@@ -5462,8 +5488,6 @@ extension on TranslationsKoKr {
 			'main.complianceKeyInfoHint' => '컴플라이언스 감사 키는 compliance_e2ee 모드의 이중 암호화에 사용됩니다. 위 지문이 관리자가 공표한 지문과 일치하지 않으면 서버가 변조되었을 수 있습니다.',
 			'main.complianceKeyInfoKeyId' => '키 ID',
 			'main.complianceKeyInfoLocalPin' => '로컬 고정(TOFU)',
-			_ => null,
-		} ?? switch (path) {
 			'main.complianceKeyInfoPinnedAt' => '고정 시간',
 			'main.complianceKeyInfoPinnedNone' => '아직 고정되지 않음(다음 가져오기 시 자동 고정)',
 			'main.complianceKeyInfoRefreshFailed' => '가져오기 실패. 네트워크 확인 후 다시 시도해 주세요',
@@ -5964,6 +5988,8 @@ extension on TranslationsKoKr {
 			'talkRecord.aiConfigured' => '이 기기에 설정됨',
 			'talkRecord.aiNotConfigured' => '설정 안 됨',
 			'talkRecord.aiLoading' => '기기 설정을 읽는 중…',
+			_ => null,
+		} ?? switch (path) {
 			'talkRecord.aiDeviceOnlyNotice' => '키는 현재 계정의 이 기기에만 암호화하여 저장됩니다. IMBoy 업로드, 클라우드 백업 및 기기 이전에 포함되지 않습니다. 새 기기에서는 다시 입력하세요.',
 			'talkRecord.aiEnterprisePolicyNotice' => '키 저장만으로 외부 처리가 허용되지는 않습니다. 기업 녹음은 기업 정책 허용과 매 처리 요청에 대한 동의가 필요합니다.',
 			'talkRecord.aiMaxNotice' => '별도 과금되는 Zhipu 일반 API를 사용합니다. 연간 Coding Plan Max가 이 비용을 자동으로 포함하지는 않습니다. 전사문은 Zhipu로 전송됩니다.',
@@ -5976,8 +6002,6 @@ extension on TranslationsKoKr {
 			'talkRecord.aiUnsupportedPlatform' => '이 플랫폼의 기기 보안 저장소가 검증되지 않아 키를 저장할 수 없습니다.',
 			'talkRecord.aiKeyPlaceholder' => 'API 키 입력',
 			'talkRecord.aiReplacePlaceholder' => '새 API 키 입력(기존 키는 미리 표시하지 않음)',
-			_ => null,
-		} ?? switch (path) {
 			'talkRecord.aiSaveAction' => '이 기기에 저장',
 			'talkRecord.aiReplaceAction' => '기기 키 교체',
 			'talkRecord.aiDeleteAction' => '기기 키 삭제',

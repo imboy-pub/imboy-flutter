@@ -2,12 +2,16 @@ import 'dart:convert';
 
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:imboy/config/const.dart';
 import 'package:imboy/service/e2ee/e2ee_bootstrap.dart';
 import 'package:imboy/service/e2ee/megolm_backup_section.dart';
 import 'package:imboy/service/e2ee_local_backup_service.dart';
 import 'package:imboy/service/e2ee_service.dart';
 import 'package:imboy/service/group_session_service.dart';
+import 'package:imboy/service/sqlite.dart';
+import 'package:imboy/service/storage.dart';
 import 'package:imboy/store/api/e2ee_api.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:vodozemac/vodozemac.dart' as vod;
 
 import '../../vodozemac_native_lib.dart';
@@ -240,8 +244,19 @@ void main() {
       markTestSkipped('vodozemac 测试原生库缺失');
       return;
     }
+    SharedPreferences.setMockInitialValues({Keys.currentUid: '100'});
+    await StorageService.init();
+    // Exercise the real secure-storage restore without a SQLCipher plugin.
+    SqliteService.setDbUnavailableForTest();
+    addTearDown(() async {
+      SqliteService.setDbForTest(null);
+      SharedPreferences.setMockInitialValues({});
+      await StorageService.init();
+    });
     await ensureVodozemac();
     GroupSessionService.debugMarkVodReady();
+    // Skip unrelated device/Olm registration; Megolm import/decrypt stays native.
+    E2eeBootstrap.debugMarkReadyForTest('100');
 
     final outbound = vod.GroupSession();
     final sessionId = outbound.sessionId;

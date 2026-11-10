@@ -5,10 +5,84 @@
 /// 2. compatResp：兼容旧 go-fastdfs 回调形态（data.url 存 object_key）
 library;
 
+import 'dart:async';
+import 'dart:io';
+import 'dart:typed_data';
+
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:imboy/config/const.dart';
+import 'package:imboy/service/storage.dart';
+import 'package:imboy/service/account_local_task_registry.dart';
 import 'package:imboy/store/api/attachment_api.dart';
 
+class _HeldUploadFile extends Fake implements File {
+  final readStarted = Completer<void>();
+  final bytes = Completer<Uint8List>();
+  @override
+  String get path => '/synthetic-upload/input.png';
+  @override
+  Future<Uint8List> readAsBytes() {
+    readStarted.complete();
+    return bytes.future;
+  }
+}
+
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+  test(
+    'cleanup drains file preparation and its asynchronous error callback',
+    () async {
+      SharedPreferences.setMockInitialValues({
+        Keys.currentUid: 'prepare-owner',
+      });
+      await StorageService.init();
+      final file = _HeldUploadFile();
+      final errorStarted = Completer<void>(), errorReleased = Completer<void>();
+      var succeeded = false;
+      final work = IOOverrides.runZoned(
+        () => AttachmentApi.uploadFileViaPresignCompat(
+          'img',
+          file,
+          (_, _) => succeeded = true,
+          (_) async {
+            errorStarted.complete();
+            await errorReleased.future;
+          },
+          process: false,
+        ),
+        createFile: (_) => file,
+      );
+      final failed = expectLater(
+        work,
+        throwsA(isA<AccountLocalTaskCancelledException>()),
+      );
+      await file.readStarted.future;
+      final cleanup = AccountLocalTaskRegistry.instance.beginCleanup(
+        AccountLocalTaskOwner.capture(),
+      );
+      var stopped = false;
+      final drained = cleanup.stopped.then((_) => stopped = true);
+      try {
+        await Future<void>.delayed(Duration.zero);
+        expect(stopped, isFalse);
+        file.bytes.complete(Uint8List.fromList([1, 2, 3]));
+        await errorStarted.future;
+        expect(stopped, isFalse);
+        errorReleased.complete();
+        await failed;
+        await drained;
+        expect(succeeded, isFalse);
+      } finally {
+        if (!file.bytes.isCompleted) file.bytes.complete(Uint8List(0));
+        if (!errorReleased.isCompleted) errorReleased.complete();
+        await failed;
+        await drained;
+        cleanup.release();
+      }
+    },
+  );
+
   group('AttachmentApi.validateUpload', () {
     test('空文件返回错误', () {
       expect(AttachmentApi.validateUpload(0, 'image/png'), isNotNull);

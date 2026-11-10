@@ -1,5 +1,7 @@
 import 'dart:io';
 
+import 'package:dio/dio.dart' show CancelToken;
+
 import 'package:imboy/modules/talk_record/application/talk_record_upload_progress.dart';
 
 import 'package:imboy/modules/talk_record/application/talk_record_processing_consent.dart';

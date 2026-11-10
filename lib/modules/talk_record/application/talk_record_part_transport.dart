@@ -12,8 +12,9 @@ abstract interface class TalkRecordPartTransport {
   Future<void> put(
     TalkRecordUploadRef ticket,
     File plaintext,
-    void Function() guard,
-  );
+    void Function() guard, {
+    CancelToken? cancelToken,
+  });
 }
 
 /// V3-18 direct s3_put：字节直传对象存储（presign URL + 服务端签发的
@@ -27,8 +28,9 @@ class TalkRecordS3PutPartTransport implements TalkRecordPartTransport {
   Future<void> put(
     TalkRecordUploadRef ticket,
     File plaintext,
-    void Function() guard,
-  ) async {
+    void Function() guard, {
+    CancelToken? cancelToken,
+  }) async {
     guard();
     if (!ticket.uploadable) {
       throw StateError('s3_put descriptor unavailable');
@@ -49,6 +51,7 @@ class TalkRecordS3PutPartTransport implements TalkRecordPartTransport {
     try {
       final response = await dio.put<void>(
         ticket.grantUrl,
+        cancelToken: cancelToken,
         data: plaintext.openRead().map((chunk) {
           guard();
           return chunk;

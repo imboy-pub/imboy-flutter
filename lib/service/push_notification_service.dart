@@ -32,6 +32,8 @@ import 'package:imboy/config/const.dart' show Keys;
 import 'package:imboy/config/init.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/service/app_logger.dart';
+import 'package:imboy/service/account_local_task_registry.dart';
+import 'package:imboy/service/auth_session_scope.dart';
 import 'package:imboy/service/notification.dart';
 import 'package:imboy/service/notification_payload_rules.dart';
 import 'package:imboy/service/storage.dart';
@@ -322,13 +324,30 @@ class PushNotificationService {
   /// FCM 在前台收到消息时不会自动显示通知，
   /// 需要通过 flutter_local_notifications 手动展示。
   void _handleForegroundMessage(RemoteMessage message) {
+    final session = authSessionReader.current;
+    final owner = AccountLocalTaskOwner.capture();
+    if (!authSessionReader.isCurrent(session)) return;
     iPrint('[Push] 前台消息: ${message.messageId}');
     final notification = message.notification;
     if (notification != null) {
-      _notificationService.show(
-        title: notification.title ?? '',
-        body: notification.body ?? '',
-        payload: jsonEncode(message.data),
+      unawaited(
+        _notificationService
+            .show(
+              title: notification.title ?? '',
+              body: notification.body ?? '',
+              payload: jsonEncode(message.data),
+              session: session,
+              owner: owner,
+            )
+            .catchError((Object error, StackTrace stack) {
+              if (error is! AccountLocalTaskCancelledException) {
+                AppLogger.error(
+                  '[Push] foreground notification failed',
+                  error,
+                  stack,
+                );
+              }
+            }),
       );
     }
   }

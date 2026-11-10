@@ -7,6 +7,8 @@ import 'package:imboy/config/env.dart';
 import 'package:imboy/config/init.dart' show currentEnv;
 import 'package:imboy/component/upload/resumable_attachment_uploader.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
+import 'package:imboy/service/account_local_task_registry.dart';
+import 'package:imboy/service/account_local_files.dart';
 import 'package:imboy/store/api/attachment_direct_api.dart';
 import 'package:video_compress/video_compress.dart';
 import 'package:wechat_assets_picker/wechat_assets_picker.dart';
@@ -29,6 +31,8 @@ import 'package:imboy/component/http/http_response.dart';
 import 'package:imboy/store/model/entity_image.dart';
 import 'package:imboy/store/model/entity_video.dart';
 import 'package:imboy/i18n/strings.g.dart';
+
+part 'attachment_direct_pipeline.dart';
 
 /// 服务端已明确拒绝原上传身份；恢复队列必须隔离，不能换 key 重试。
 class UploadSessionRejected extends StateError {
@@ -264,6 +268,34 @@ class AttachmentSealRequest {
 }
 
 class AttachmentApi {
+  static Future<T> _withUploadOwner<T>(
+    Future<T> Function(AccountLocalTask task, void Function() check) operation,
+  ) {
+    final actor = UserRepoLocal.to;
+    final generation = actor.sessionGeneration;
+    final owner = AccountLocalTaskOwner.capture();
+    return AccountLocalTaskRegistry.instance.run<T>(
+      owner,
+      operation: (task) async {
+        void check() {
+          task.throwIfCancelled();
+          if (actor.currentUid != owner.uid ||
+              !actor.isCurrentSession(generation) ||
+              actor.isAuthTransitioning ||
+              (currentEnv.isEmpty ? 'pro' : currentEnv) != owner.environment ||
+              Env().apiBaseUrl != owner.endpoint) {
+            throw StateError('upload preparation session changed');
+          }
+        }
+
+        check();
+        final result = await operation(task, check);
+        check();
+        return result;
+      },
+    );
+  }
+
   /// 单文件直传上限：100MB。
   static const int maxUploadBytes = 100 * 1024 * 1024;
 
@@ -360,6 +392,7 @@ class AttachmentApi {
     DirectSessionFn? directSessionFn,
     DirectFilePutFn? directPutFn,
     void Function()? requireSession,
+    CancelToken? cancelToken,
 
     /// W5-01：远程阶段边界的持久化检查点。每个边界 await 一次；抛错即
     /// 中止上传推进（durable checkpoint fail-closed：材料未落盘不上网络）。
@@ -414,6 +447,7 @@ class AttachmentApi {
         sessionFn: directSessionFn,
         putFn: directPutFn,
         requireSession: requireSession,
+        cancelToken: cancelToken,
       );
     }
 
@@ -641,182 +675,6 @@ class AttachmentApi {
     return objectKey;
   }
 
-  static Future<String> _uploadDirect(
-    Uint8List bytes,
-    String fileName,
-    String mime, {
-    required bool process,
-    required String scope,
-    String? scopeRef,
-    String? anchorMsgId,
-    String? clientUploadId,
-    AttachmentSealRequest? seal,
-    ResumableUploadState? resume,
-    Future<void> Function(UploadCheckpoint event)? checkpoint,
-    DirectSessionFn? sessionFn,
-    DirectFilePutFn? putFn,
-    void Function()? requireSession,
-  }) async {
-    final actor = UserRepoLocal.to;
-    final generation = actor.sessionGeneration;
-    final environment = currentEnv;
-
-    Future<IMBoyHttpResponse> guardedSession(
-      String path, {
-      Map<String, dynamic>? body,
-    }) async {
-      requireSession?.call();
-      final response = sessionFn != null
-          ? await sessionFn(path, body: body)
-          : path.endsWith('/status')
-          ? await HttpClient.client.get(path, queryParameters: body)
-          : await HttpClient.client.post(path, data: body);
-      requireSession?.call();
-      if (path.endsWith('/register') &&
-          !response.ok &&
-          response.msg == 'legacy_session_conflict') {
-        throw LegacyUploadConflict();
-      }
-      if (path.endsWith('/register') &&
-          !response.ok &&
-          response.msg == 'declaration_conflict') {
-        throw UploadSessionRejected('upload declaration conflict');
-      }
-      return response;
-    }
-
-    final validationError = validateUpload(bytes.length, mime);
-    if (validationError != null) throw StateError(validationError);
-    final id = clientUploadId ?? newClientUploadId();
-    final groupMessage =
-        scope == 'group' && anchorMsgId != null && anchorMsgId.isNotEmpty;
-    final purpose = groupMessage ? 'message' : 'attachment';
-    final anchor = groupMessage ? anchorMsgId : null;
-    final cipher = seal == null ? null : AttachmentDescriptor.supportedCipher;
-    String state = '';
-    final key = await DirectAttachmentApi.registerSession(
-      fileName: fileName,
-      scope: scope,
-      scopeRef: scopeRef,
-      clientUploadId: id,
-      cipher: cipher,
-      purpose: purpose,
-      anchorMsgId: anchor,
-      sessionFn: guardedSession,
-      onState: (value) => state = value,
-    );
-    if (!{
-      'RESERVED',
-      'DECLARED',
-      'GRANTED',
-      'FINALIZING',
-      'CONFIRMED',
-    }.contains(state)) {
-      throw UploadSessionRejected('direct session terminal: $state');
-    }
-    if (resume?.objectKey.isNotEmpty == true && resume!.objectKey != key) {
-      throw UploadSessionRejected('upload object identity changed');
-    }
-    if (resume?.objectKey.isNotEmpty != true) {
-      await checkpoint?.call(UploadCheckpoint.presigned(objectKey: key));
-    }
-    SealedAttachment? sealed = resume?.sealedAttachment;
-    if (seal != null && sealed == null) {
-      if (resume?.skipPut == true &&
-          (resume?.contentKey == null || resume?.baseNonce == null)) {
-        throw StateError(
-          'confirmed encrypted upload requires original material',
-        );
-      }
-      sealed = AttachmentEncryptor.seal(
-        plaintext: bytes,
-        bindingHash: seal.bindingHash,
-        attachmentId: seal.attachmentId,
-        objectKey: key,
-        mime: mime,
-        name: fileName,
-        contentKey:
-            resume?.contentKey ?? AttachmentEncryptor.randomContentKey(),
-        baseNonce: resume?.baseNonce ?? AttachmentEncryptor.randomBaseNonce(),
-        chunkSize: seal.chunkSize,
-        thumb: seal.thumbDescriptor,
-      );
-    }
-    if (sealed != null) {
-      if (seal == null || sealed.descriptor.objectKey != key) {
-        throw UploadSessionRejected('upload ciphertext identity changed');
-      }
-      seal.descriptor = sealed.descriptor;
-    }
-    final body = sealed?.ciphertext ?? bytes;
-    final hash = sealed?.ciphertextSha256Hex ?? sha256.convert(body).toString();
-    seal?.uploadedFileHash256 = hash;
-    if (resume?.skipPut != true) {
-      await checkpoint?.call(
-        UploadCheckpoint(
-          UploadCheckpointStage.sealed,
-          contentKey: sealed?.descriptor.contentKey,
-          baseNonce: sealed?.descriptor.baseNonce,
-          ciphertextSha256: hash,
-          uploadBytes: body,
-          descriptor: sealed?.descriptor,
-        ),
-      );
-    }
-    final directory = await Directory.systemTemp.createTemp('imboy-direct-');
-    final progress = process
-        ? UploadProgressSession(actor, generation, environment, requireSession)
-        : null;
-    try {
-      final file = File('${directory.path}/body');
-      await file.writeAsBytes(body, flush: true);
-      bool putCheckpoint = resume?.skipPut == true;
-      final result = await DirectAttachmentApi.uploadFile(
-        file,
-        fileName: fileName,
-        mime: mime,
-        scope: scope,
-        scopeRef: scopeRef,
-        clientUploadId: id,
-        cipher: cipher,
-        purpose: purpose,
-        anchorMsgId: anchor,
-        sessionFn: guardedSession,
-        putFn: putFn,
-        onProgress: (sent, total) {
-          progress?.update(sent, total);
-        },
-        checkpoint: (event) async {
-          requireSession?.call();
-          if (event.objectKey != null && event.objectKey != key) {
-            throw UploadSessionRejected('upload object identity changed');
-          }
-          if (event.stage == DirectCheckpointStage.putDone && !putCheckpoint) {
-            await checkpoint?.call(
-              UploadCheckpoint.putDone(ciphertextSha256: hash),
-            );
-            putCheckpoint = true;
-          }
-        },
-      );
-      if (result.objectKey != key ||
-          result.state != DirectAttachmentApi.stateConfirmed ||
-          result.quarantined) {
-        throw StateError('direct upload not confirmed');
-      }
-      if (!putCheckpoint) {
-        await checkpoint?.call(
-          UploadCheckpoint.putDone(ciphertextSha256: hash),
-        );
-      }
-      await checkpoint?.call(const UploadCheckpoint.confirmed());
-      return key;
-    } finally {
-      await progress?.dispose();
-      await directory.delete(recursive: true);
-    }
-  }
-
   /// presign 兼容版上传（drop-in 替换旧 [uploadFile]，签名一致）。
   ///
   /// S6 非聊天面（头像/channel/feedback/moment 等）用：回调 resp 形态兼容旧
@@ -831,7 +689,7 @@ class AttachmentApi {
     bool process = true,
     String scope = 'private',
     String? scopeRef,
-  }) async {
+  }) => _withUploadOwner((task, check) async {
     try {
       final String path = file is PlatformFile
           ? (file.path ?? "")
@@ -840,6 +698,7 @@ class AttachmentApi {
         throw Exception('uploadFileViaPresignCompat: 文件路径为空');
       }
       final Uint8List bytes = await File(path).readAsBytes();
+      check();
       final String mime = resolveUploadMime(path, bytes);
       final String ext = path.contains('.')
           ? path.substring(path.lastIndexOf('.') + 1)
@@ -855,6 +714,7 @@ class AttachmentApi {
         scope: scope,
         scopeRef: scopeRef,
       );
+      check();
       await callback(
         compatResp(meta),
         IMBoyHttpResponse.payloadStr(meta, 'object_key') ?? '',
@@ -869,9 +729,9 @@ class AttachmentApi {
       // 调用方 onError 回调签名是 (Error)，dio/文件读取抛的是 Exception——
       // 直接透传会在回调参数隐式转型处抛 TypeError，把真正的失败原因吞掉
       // （批次125 头像上传实证）。非 Error 统一包装，保住原始错误信息。
-      errorCallback(e is Error ? e : StateError('upload failed: $e'));
+      await errorCallback(e is Error ? e : StateError('upload failed: $e'));
     }
-  }
+  });
 
   /// presign 兼容版字节上传（drop-in 替换旧 [uploadBytes]，签名一致）。
   ///
@@ -889,7 +749,7 @@ class AttachmentApi {
     String? anchorMsgId,
     Map<String, dynamic>? messageIntent,
     AttachmentSealRequest? seal,
-  }) async {
+  }) => _withUploadOwner((task, check) async {
     try {
       String ext = path.contains('.')
           ? path.substring(path.lastIndexOf('.') + 1)
@@ -908,6 +768,7 @@ class AttachmentApi {
         messageIntent: messageIntent,
         seal: seal,
       );
+      check();
       await callback(
         compatResp(meta),
         IMBoyHttpResponse.payloadStr(meta, 'object_key') ?? '',
@@ -915,9 +776,9 @@ class AttachmentApi {
     } on Object catch (e) {
       // 同 uploadFileViaPresignCompat：非 Error 的 Exception 包装后回调，
       // 避免在调用方 (Error) 签名处抛 TypeError 吞掉真实失败原因。
-      errorCallback(e is Error ? e : StateError('upload failed: $e'));
+      await errorCallback(e is Error ? e : StateError('upload failed: $e'));
     }
-  }
+  });
 
   /// 构造兼容旧 go-fastdfs 回调的 resp（data.url 存 object_key）。
   @visibleForTesting
@@ -988,13 +849,16 @@ class AttachmentApi {
     String? anchorMsgId,
     Map<String, dynamic>? messageIntent,
     AttachmentSealRequest? seal,
-  }) async {
+  }) => _withUploadOwner((task, check) async {
     final Uint8List? bytes = await entity.originBytes;
+    check();
     if (bytes == null || bytes.isEmpty) {
       throw Exception('uploadImageEntityViaPresign: 无法获取图片原始数据');
     }
     final String mime = await entity.mimeTypeAsync ?? 'image/jpeg';
+    check();
     final String title = await entity.titleAsync;
+    check();
     final String ext = title.contains('.')
         ? title.substring(title.lastIndexOf('.') + 1)
         : 'jpg';
@@ -1019,7 +883,7 @@ class AttachmentApi {
       'width': entity.width,
       'height': entity.height,
     };
-  }
+  });
 
   /// 视频 AssetEntity 经 presign 直传（缩略图 + 压缩视频双 object_key）。
   ///
@@ -1049,126 +913,175 @@ class AttachmentApi {
     if (!AttachmentSealPolicy.sealTogether(videoSeal, thumbSeal)) {
       throw const E2eeSecurityException('attachment_partial_seal');
     }
-    final File? file = await entity.file;
-    if (file == null) {
-      throw Exception('uploadVideoViaPresign: 无法获取视频文件');
-    }
-    final String path = file.path;
-
-    // 缩略图尺寸（沿用旧 uploadVideo 逻辑）
-    int width = 800;
-    int height = 0;
-    if (entity.width < width) {
-      width = entity.width;
-      height = entity.height;
-    } else {
-      height = (entity.height / entity.width * width).toInt();
-    }
-
-    // 1. 缩略图 → presign
-    final File thumbnailFile = await VideoCompress.getFileThumbnail(
-      path,
-      quality: 68,
-      position: -1,
-    );
-    final Uint8List thumbBytes = await thumbnailFile.readAsBytes();
-    final String thumbName = '${Xid().toString()}.jpg';
-
-    // 2. 压缩视频 → presign
-    //
-    // 压缩是优化而非必需：部分机型（实测华为 MRD-AL00 / MTK 编码器）转码必失败
-    // （TranscodeEngine: Failed to stop the muxer），此前直接抛异常导致
-    // **视频消息完全发不出去且无任何提示**。失败一律退回原视频，
-    // 大小超限由下游 uploadViaPresign 的 maxUploadBytes 校验兜底。
-    // deleteOrigin 必须为 false，否则降级时原文件已被删掉。
-    MediaInfo? info;
-    try {
-      info = await VideoCompress.compressVideo(
-        path,
-        quality: VideoQuality.Res640x480Quality,
-        deleteOrigin: false,
-      );
-    } on Object catch (e) {
-      debugPrint('uploadVideoViaPresign: 视频压缩失败，退回原视频上传: $e');
-    }
-    if (info == null) {
-      // 降级路径的元数据必须探测原视频拿，不能用 entity 推算：
-      // 实测 entity.duration 在相机合成的 asset 上是**毫秒**（与 photo_manager
-      // 文档的"秒"不符），据此换算会把 3 秒视频显示成 50:00。
-      // getMediaInfo 只读元数据不转码，压缩失败的机型上同样可用。
+    return _withUploadOwner((task, check) async {
+      final temporaryFiles = <File>[];
+      final temporaryDirectories = <Directory>[];
       try {
-        info = await VideoCompress.getMediaInfo(path);
-      } on Object catch (e) {
-        debugPrint('uploadVideoViaPresign: 读取原视频元数据失败: $e');
+        final File? file = await entity.file;
+        check();
+        if (file == null) {
+          throw Exception('uploadVideoViaPresign: 无法获取视频文件');
+        }
+        final input = await _ownedVideoInput(
+          file,
+          task,
+          check,
+          temporaryDirectories,
+        );
+        final String path = input.path;
+
+        // 缩略图尺寸（沿用旧 uploadVideo 逻辑）
+        int width = 800;
+        int height = 0;
+        if (entity.width < width) {
+          width = entity.width;
+          height = entity.height;
+        } else {
+          height = (entity.height / entity.width * width).toInt();
+        }
+
+        // 1. 缩略图 → presign
+        final File thumbnailFile = await VideoCompress.getFileThumbnail(
+          path,
+          quality: 68,
+          position: -1,
+        );
+        temporaryFiles.add(thumbnailFile);
+        check();
+        final Uint8List thumbBytes = await thumbnailFile.readAsBytes();
+        check();
+        final String thumbName = '${Xid().toString()}.jpg';
+
+        // 2. 压缩视频 → presign
+        //
+        // 压缩是优化而非必需：部分机型（实测华为 MRD-AL00 / MTK 编码器）转码必失败
+        // （TranscodeEngine: Failed to stop the muxer），此前直接抛异常导致
+        // **视频消息完全发不出去且无任何提示**。失败一律退回原视频，
+        // 大小超限由下游 uploadViaPresign 的 maxUploadBytes 校验兜底。
+        // deleteOrigin 必须为 false，否则降级时原文件已被删掉。
+        MediaInfo? info;
+        try {
+          info = await VideoCompress.compressVideo(
+            path,
+            quality: VideoQuality.Res640x480Quality,
+            deleteOrigin: false,
+          );
+        } on Object catch (e) {
+          debugPrint('uploadVideoViaPresign: 视频压缩失败，退回原视频上传: $e');
+        }
+        if (info == null) {
+          // 降级路径的元数据必须探测原视频拿，不能用 entity 推算：
+          // 实测 entity.duration 在相机合成的 asset 上是**毫秒**（与 photo_manager
+          // 文档的"秒"不符），据此换算会把 3 秒视频显示成 50:00。
+          // getMediaInfo 只读元数据不转码，压缩失败的机型上同样可用。
+          try {
+            info = await VideoCompress.getMediaInfo(path);
+          } on Object catch (e) {
+            debugPrint('uploadVideoViaPresign: 读取原视频元数据失败: $e');
+          }
+        }
+        final File videoFile = info?.file ?? input;
+        if (videoFile.path != path) temporaryFiles.add(videoFile);
+        check();
+        final Uint8List videoBytes = await videoFile.readAsBytes();
+        check();
+        final String videoName = '${Xid().toString()}.mp4';
+        check();
+        await _prepareVideoPair(
+          thumbBytes: thumbBytes,
+          thumbName: thumbName,
+          videoBytes: videoBytes,
+          videoName: videoName,
+          scope: scope,
+          scopeRef: scopeRef,
+          anchorMsgId: anchorMsgId,
+          messageIntent: messageIntent,
+          thumbSeal: thumbSeal,
+          videoSeal: videoSeal,
+        );
+        check();
+        final thumbMeta = await uploadBytesViaPresignMeta(
+          thumbBytes,
+          thumbName,
+          'image/jpeg',
+          process: false,
+          scope: scope,
+          scopeRef: scopeRef,
+          anchorMsgId: anchorMsgId,
+          messageIntent: messageIntent,
+          seal: thumbSeal,
+        );
+        // 缩略图先封装完，它的 descriptor 才能挂进视频的 descriptor
+        // （接收侧由 AttachmentOpenRegistry 一并登记两个 object_key）。
+        videoSeal?.thumbDescriptor = thumbSeal?.descriptor;
+
+        check();
+        final String videoObjKey = await uploadViaPresign(
+          videoBytes,
+          videoName,
+          'video/mp4',
+          scope: scope,
+          scopeRef: scopeRef,
+          anchorMsgId: anchorMsgId,
+          messageIntent: messageIntent,
+          seal: videoSeal,
+        );
+
+        final EntityImage thumb = EntityImage(
+          fileHash256:
+              IMBoyHttpResponse.payloadStr(thumbMeta, 'file_hash256') ?? '',
+          name: thumbName,
+          uri: IMBoyHttpResponse.payloadStr(thumbMeta, 'object_key') ?? '',
+          size: IMBoyHttpResponse.payloadInt(thumbMeta, 'size') ?? 0,
+          width: width,
+          height: height,
+        );
+        final EntityVideo video = EntityVideo(
+          // 与服务端 attachment.file_hash256 同值：封装时是密文哈希
+          fileHash256:
+              videoSeal?.uploadedFileHash256 ??
+              sha256.convert(videoBytes).toString(),
+          name: videoName,
+          uri: videoObjKey,
+          // info 现在来自压缩结果或原视频探测，两者的 duration 都是毫秒。
+          // 探测也失败时宁可留空，也不拿 entity.duration 换算——单位不可靠。
+          size: info?.filesize ?? videoBytes.length,
+          duration: info?.duration,
+          author: info?.author,
+          width: info?.width ?? entity.width,
+          height: info?.height ?? entity.height,
+        );
+        check();
+        return <String, dynamic>{'thumb': thumb, 'video': video};
+      } finally {
+        for (final file in temporaryFiles) {
+          if (await file.exists()) await file.delete();
+        }
+        for (final directory in temporaryDirectories) {
+          if (await directory.exists()) await directory.delete(recursive: true);
+        }
       }
-    }
-    final File videoFile = info?.file ?? file;
-    final Uint8List videoBytes = await videoFile.readAsBytes();
-    final String videoName = '${Xid().toString()}.mp4';
-    await _prepareVideoPair(
-      thumbBytes: thumbBytes,
-      thumbName: thumbName,
-      videoBytes: videoBytes,
-      videoName: videoName,
-      scope: scope,
-      scopeRef: scopeRef,
-      anchorMsgId: anchorMsgId,
-      messageIntent: messageIntent,
-      thumbSeal: thumbSeal,
-      videoSeal: videoSeal,
-    );
-    final thumbMeta = await uploadBytesViaPresignMeta(
-      thumbBytes,
-      thumbName,
-      'image/jpeg',
-      process: false,
-      scope: scope,
-      scopeRef: scopeRef,
-      anchorMsgId: anchorMsgId,
-      messageIntent: messageIntent,
-      seal: thumbSeal,
-    );
-    // 缩略图先封装完，它的 descriptor 才能挂进视频的 descriptor
-    // （接收侧由 AttachmentOpenRegistry 一并登记两个 object_key）。
-    videoSeal?.thumbDescriptor = thumbSeal?.descriptor;
+    });
+  }
 
-    final String videoObjKey = await uploadViaPresign(
-      videoBytes,
-      videoName,
-      'video/mp4',
-      scope: scope,
-      scopeRef: scopeRef,
-      anchorMsgId: anchorMsgId,
-      messageIntent: messageIntent,
-      seal: videoSeal,
-    );
-
-    final EntityImage thumb = EntityImage(
-      fileHash256:
-          IMBoyHttpResponse.payloadStr(thumbMeta, 'file_hash256') ?? '',
-      name: thumbName,
-      uri: IMBoyHttpResponse.payloadStr(thumbMeta, 'object_key') ?? '',
-      size: IMBoyHttpResponse.payloadInt(thumbMeta, 'size') ?? 0,
-      width: width,
-      height: height,
-    );
-    final EntityVideo video = EntityVideo(
-      // 与服务端 attachment.file_hash256 同值：封装时是密文哈希
-      fileHash256:
-          videoSeal?.uploadedFileHash256 ??
-          sha256.convert(videoBytes).toString(),
-      name: videoName,
-      uri: videoObjKey,
-      // info 现在来自压缩结果或原视频探测，两者的 duration 都是毫秒。
-      // 探测也失败时宁可留空，也不拿 entity.duration 换算——单位不可靠。
-      size: info?.filesize ?? videoBytes.length,
-      duration: info?.duration,
-      author: info?.author,
-      width: info?.width ?? entity.width,
-      height: info?.height ?? entity.height,
-    );
-    await VideoCompress.deleteAllCache();
-    return <String, dynamic>{'thumb': thumb, 'video': video};
+  static Future<File> _ownedVideoInput(
+    File source,
+    AccountLocalTask task,
+    void Function() check,
+    List<Directory> temporaryDirectories,
+  ) async {
+    check();
+    final ownerDirectory = await AccountLocalFiles.directory(task);
+    final directory = await ownerDirectory.createTemp('video-');
+    temporaryDirectories.add(directory);
+    check();
+    final extension = source.path.split('.').last;
+    final safeExtension = RegExp(r'^[a-zA-Z0-9]{1,8}$').hasMatch(extension)
+        ? extension
+        : 'mp4';
+    final input = await source.copy('${directory.path}/source.$safeExtension');
+    check();
+    return input;
   }
 
   static Future<void> _prepareVideoPair({
@@ -1251,120 +1164,148 @@ class AttachmentApi {
     if (!AttachmentSealPolicy.sealTogether(videoSeal, thumbSeal)) {
       throw const E2eeSecurityException('attachment_partial_seal');
     }
-    final bool sealed = videoSeal != null && thumbSeal != null;
-    final int videoWidth = width;
-    final int videoHeight = height;
-    try {
-      final String path = file.path;
-
-      // 1. 缩略图 → presign
-      final File thumbnailFile = await VideoCompress.getFileThumbnail(
-        path,
-        quality: 68,
-        position: -1,
-      );
-      final Uint8List thumbBytes = await thumbnailFile.readAsBytes();
-      final String thumbName = '${Xid().toString()}.jpg';
-
-      // 2. 压缩视频 → presign（同上：压缩失败退回原视频，不放弃整次上传）
-      MediaInfo? info;
+    return _withUploadOwner((task, check) async {
+      final temporaryFiles = <File>[];
+      final temporaryDirectories = <Directory>[];
       try {
-        info = await VideoCompress.compressVideo(
-          path,
-          quality: VideoQuality.Res640x480Quality,
-          deleteOrigin: false,
-        );
-      } on Object catch (e) {
-        debugPrint('[attachment_api] 视频压缩失败，退回原视频上传: $e');
-      }
-      final File videoFile = info?.file ?? File(path);
-      final Uint8List videoBytes = await videoFile.readAsBytes();
-      final String videoName = '${Xid().toString()}.mp4';
-      await _prepareVideoPair(
-        thumbBytes: thumbBytes,
-        thumbName: thumbName,
-        videoBytes: videoBytes,
-        videoName: videoName,
-        scope: scope,
-        scopeRef: scopeRef,
-        anchorMsgId: anchorMsgId,
-        messageIntent: messageIntent,
-        thumbSeal: thumbSeal,
-        videoSeal: videoSeal,
-      );
-      final thumbMeta = await uploadBytesViaPresignMeta(
-        thumbBytes,
-        thumbName,
-        'image/jpeg',
-        process: false,
-        scope: scope,
-        scopeRef: scopeRef,
-        anchorMsgId: anchorMsgId,
-        messageIntent: messageIntent,
-        seal: thumbSeal,
-      );
-      // 缩略图先封装完，它的 descriptor 才能挂进视频的 descriptor
-      // （接收侧由 AttachmentOpenRegistry 一并登记两个 object_key）。
-      videoSeal?.thumbDescriptor = thumbSeal?.descriptor;
+        final bool sealed = videoSeal != null && thumbSeal != null;
+        final int videoWidth = width;
+        final int videoHeight = height;
+        try {
+          final input = await _ownedVideoInput(
+            file,
+            task,
+            check,
+            temporaryDirectories,
+          );
+          final String path = input.path;
 
-      final String videoObjKey = await uploadViaPresign(
-        videoBytes,
-        videoName,
-        'video/mp4',
-        scope: scope,
-        scopeRef: scopeRef,
-        anchorMsgId: anchorMsgId,
-        messageIntent: messageIntent,
-        seal: videoSeal,
-      );
+          // 1. 缩略图 → presign
+          final File thumbnailFile = await VideoCompress.getFileThumbnail(
+            path,
+            quality: 68,
+            position: -1,
+          );
+          temporaryFiles.add(thumbnailFile);
+          check();
+          final Uint8List thumbBytes = await thumbnailFile.readAsBytes();
+          check();
+          final String thumbName = '${Xid().toString()}.jpg';
 
-      await VideoCompress.deleteAllCache();
-      if (sealed) {
-        // 缩略图尺寸（沿用 uploadVideoViaPresign：长边压到 800 内）
-        final int thumbW = videoWidth < 800 ? videoWidth : 800;
-        final int thumbH = videoWidth < 800
-            ? videoHeight
-            : (videoHeight / videoWidth * 800).toInt();
-        final EntityImage thumb = EntityImage(
-          fileHash256:
-              IMBoyHttpResponse.payloadStr(thumbMeta, 'file_hash256') ?? '',
-          name: thumbName,
-          uri: IMBoyHttpResponse.payloadStr(thumbMeta, 'object_key') ?? '',
-          size: IMBoyHttpResponse.payloadInt(thumbMeta, 'size') ?? 0,
-          width: thumbW,
-          height: thumbH,
-        );
-        final EntityVideo video = EntityVideo(
-          // 与服务端 attachment.file_hash256 同值：封装时是密文哈希
-          fileHash256:
-              videoSeal.uploadedFileHash256 ??
-              sha256.convert(videoBytes).toString(),
-          name: videoName,
-          uri: videoObjKey,
-          // duration：压缩结果与调用方 stopwatch 计时都是毫秒；探测缺失时
-          // 退调用方值，宁可近似也不留空。
-          size: info?.filesize ?? videoBytes.length,
-          duration: info?.duration ?? durationMs.toDouble(),
-          author: info?.author,
-          width: info?.width ?? videoWidth,
-          height: info?.height ?? videoHeight,
-        );
-        return <String, dynamic>{'thumb': thumb, 'video': video};
+          // 2. 压缩视频 → presign（同上：压缩失败退回原视频，不放弃整次上传）
+          MediaInfo? info;
+          try {
+            info = await VideoCompress.compressVideo(
+              path,
+              quality: VideoQuality.Res640x480Quality,
+              deleteOrigin: false,
+            );
+          } on Object catch (e) {
+            debugPrint('[attachment_api] 视频压缩失败，退回原视频上传: $e');
+          }
+          final File videoFile = info?.file ?? File(path);
+          if (videoFile.path != path) temporaryFiles.add(videoFile);
+          check();
+          final Uint8List videoBytes = await videoFile.readAsBytes();
+          check();
+          final String videoName = '${Xid().toString()}.mp4';
+          check();
+          await _prepareVideoPair(
+            thumbBytes: thumbBytes,
+            thumbName: thumbName,
+            videoBytes: videoBytes,
+            videoName: videoName,
+            scope: scope,
+            scopeRef: scopeRef,
+            anchorMsgId: anchorMsgId,
+            messageIntent: messageIntent,
+            thumbSeal: thumbSeal,
+            videoSeal: videoSeal,
+          );
+          check();
+          final thumbMeta = await uploadBytesViaPresignMeta(
+            thumbBytes,
+            thumbName,
+            'image/jpeg',
+            process: false,
+            scope: scope,
+            scopeRef: scopeRef,
+            anchorMsgId: anchorMsgId,
+            messageIntent: messageIntent,
+            seal: thumbSeal,
+          );
+          // 缩略图先封装完，它的 descriptor 才能挂进视频的 descriptor
+          // （接收侧由 AttachmentOpenRegistry 一并登记两个 object_key）。
+          videoSeal?.thumbDescriptor = thumbSeal?.descriptor;
+
+          check();
+          final String videoObjKey = await uploadViaPresign(
+            videoBytes,
+            videoName,
+            'video/mp4',
+            scope: scope,
+            scopeRef: scopeRef,
+            anchorMsgId: anchorMsgId,
+            messageIntent: messageIntent,
+            seal: videoSeal,
+          );
+
+          check();
+          if (sealed) {
+            // 缩略图尺寸（沿用 uploadVideoViaPresign：长边压到 800 内）
+            final int thumbW = videoWidth < 800 ? videoWidth : 800;
+            final int thumbH = videoWidth < 800
+                ? videoHeight
+                : (videoHeight / videoWidth * 800).toInt();
+            final EntityImage thumb = EntityImage(
+              fileHash256:
+                  IMBoyHttpResponse.payloadStr(thumbMeta, 'file_hash256') ?? '',
+              name: thumbName,
+              uri: IMBoyHttpResponse.payloadStr(thumbMeta, 'object_key') ?? '',
+              size: IMBoyHttpResponse.payloadInt(thumbMeta, 'size') ?? 0,
+              width: thumbW,
+              height: thumbH,
+            );
+            final EntityVideo video = EntityVideo(
+              // 与服务端 attachment.file_hash256 同值：封装时是密文哈希
+              fileHash256:
+                  videoSeal.uploadedFileHash256 ??
+                  sha256.convert(videoBytes).toString(),
+              name: videoName,
+              uri: videoObjKey,
+              // duration：压缩结果与调用方 stopwatch 计时都是毫秒；探测缺失时
+              // 退调用方值，宁可近似也不留空。
+              size: info?.filesize ?? videoBytes.length,
+              duration: info?.duration ?? durationMs.toDouble(),
+              author: info?.author,
+              width: info?.width ?? videoWidth,
+              height: info?.height ?? videoHeight,
+            );
+            return <String, dynamic>{'thumb': thumb, 'video': video};
+          }
+          return <String, dynamic>{
+            'video_uri': videoObjKey,
+            'thumb_uri':
+                IMBoyHttpResponse.payloadStr(thumbMeta, 'object_key') ?? '',
+            'size': info?.filesize ?? videoBytes.length,
+            'duration': durationMs,
+            'width': width,
+            'height': height,
+          };
+        } on Object catch (e) {
+          debugPrint('[attachment_api] uploadVideoFileViaPresign error: $e');
+          check();
+          return null;
+        }
+      } finally {
+        for (final file in temporaryFiles) {
+          if (await file.exists()) await file.delete();
+        }
+        for (final directory in temporaryDirectories) {
+          if (await directory.exists()) await directory.delete(recursive: true);
+        }
       }
-      return <String, dynamic>{
-        'video_uri': videoObjKey,
-        'thumb_uri':
-            IMBoyHttpResponse.payloadStr(thumbMeta, 'object_key') ?? '',
-        'size': info?.filesize ?? videoBytes.length,
-        'duration': durationMs,
-        'width': width,
-        'height': height,
-      };
-    } on Object catch (e) {
-      debugPrint('[attachment_api] uploadVideoFileViaPresign error: $e');
-      await VideoCompress.deleteAllCache();
-      return null;
-    }
+    });
   }
 
   /// 裸 Dio PUT 直传到 Garage presigned URL（不经 HttpClient，不注 JWT；指数退避重试）。

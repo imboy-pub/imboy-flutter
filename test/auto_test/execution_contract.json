@@ -548,6 +548,42 @@
         "integration_test/auth/password_change_test.dart"
       ]
     },
+    "test/unit_test/api/attachment_direct_cancellation_cases.dart": {
+      "kind": "included-test",
+      "basis": [
+        "Dart part registers direct PUT cancellation cases once from the parent main; it has no independent entrypoint."
+      ],
+      "included_by": [
+        "test/unit_test/api/attachment_direct_api_test.dart"
+      ]
+    },
+    "test/unit_test/api/group_direct_cleanup_cases.dart": {
+      "kind": "included-test",
+      "basis": [
+        "Dart part registers group file and album cleanup cases once from the parent main; it has no independent entrypoint."
+      ],
+      "included_by": [
+        "test/unit_test/api/group_direct_upload_test.dart"
+      ]
+    },
+    "test/unit_test/store/attachment_upload_cleanup_test_cases.dart": {
+      "kind": "included-test",
+      "basis": [
+        "Dart part registers the held upload checkpoint cleanup case once from the FFI recovery parent main."
+      ],
+      "included_by": [
+        "test/unit_test/store/attachment_upload_task_recovery_test.dart"
+      ]
+    },
+    "test/talk_record/talk_record_coordinator_cleanup_cases.dart": {
+      "kind": "included-test",
+      "basis": [
+        "Dart part registers recording and upload lifecycle cancellation cases once from the coordinator parent main."
+      ],
+      "included_by": [
+        "test/talk_record/talk_record_recording_coordinator_test.dart"
+      ]
+    },
     "integration_test/e2ee_release/harness_smoke_test.dart": {
       "kind": "included-test",
       "basis": [
@@ -921,6 +957,9 @@
         "isolated-accounts",
         "business-writes"
       ],
+      "source_dependencies": [
+        "integration_test/demo_flow/dual_account_persistence_assertions.dart"
+      ],
       "runner": "device-pair",
       "basis": [
         "Reviewed target platform prerequisites and native runner behavior; paired roles use execution_adapters.py orchestration."
@@ -986,6 +1025,9 @@
         "isolated-backend",
         "isolated-accounts",
         "business-writes"
+      ],
+      "source_dependencies": [
+        "integration_test/demo_flow/dual_account_persistence_assertions.dart"
       ],
       "runner": "device-pair",
       "pair_topology": "same-platform",

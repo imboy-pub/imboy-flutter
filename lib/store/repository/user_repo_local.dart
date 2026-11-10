@@ -4,15 +4,19 @@ import 'dart:async';
 
 import 'package:imboy/app_core/feature_flags/app_feature_registry.dart';
 import 'package:imboy/config/env.dart';
+import 'package:imboy/config/init.dart' show currentEnv;
 
 import 'package:flutter/foundation.dart';
 
 import 'package:imboy/config/const.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/http/http_response.dart';
-import 'package:imboy/modules/organization/infrastructure/current_organization_store.dart';
-import 'package:imboy/modules/organization/infrastructure/organization_cache.dart';
+import 'package:imboy/modules/organization/public.dart'
+    show CurrentOrganizationStore, OrganizationCache;
 import 'package:imboy/service/e2ee/e2ee_secret_inventory.dart';
+import 'package:imboy/service/account_local_data_service.dart';
+import 'package:imboy/service/account_local_task_registry.dart';
+import 'package:imboy/service/login_account_history_service.dart';
 import 'package:imboy/service/push_notification_service.dart';
 import 'package:imboy/service/sqlite.dart';
 import 'package:imboy/service/storage.dart';
@@ -50,6 +54,7 @@ class UserRepoLocal extends ChangeNotifier {
   final _authChanges = ChangeNotifier();
   int _pendingAuthTransitions = 0;
   bool _authTransitionFailed = false;
+  bool _isClearingAccountData = false;
 
   // Lifecycle state only: UID/generation remain authoritative above.
   bool get isAuthTransitioning =>
@@ -109,7 +114,11 @@ class UserRepoLocal extends ChangeNotifier {
 
   Future<bool> saveAccessTokenForSession(int generation, String token) =>
       _serializeSessionWrite(() async {
-        if (!isCurrentSession(generation)) return false;
+        if (!isCurrentSession(generation) ||
+            !isLoggedIn ||
+            _isClearingAccountData) {
+          return false;
+        }
         await SecureTokenStorageService.saveToken(token);
         return isCurrentSession(generation);
       });
@@ -303,35 +312,67 @@ class UserRepoLocal extends ChangeNotifier {
     }
   }
 
-  Future<bool> changeSetting(UserSettingModel setting) async {
-    Map<String, dynamic> u = StorageService.getMap(Keys.currentUser);
-    u['setting'] = setting.toMap();
-    await StorageService.setMap(Keys.currentUser, u);
-    notifyListeners();
-    return true;
-  }
+  bool _canUpdateProfile(String uid, int generation) =>
+      uid.isNotEmpty &&
+      currentUid == uid &&
+      isCurrentSession(generation) &&
+      !isAuthTransitioning &&
+      !_isClearingAccountData;
+
+  Future<bool> changeSetting(UserSettingModel setting) =>
+      changeSettingForSession(
+        setting,
+        uid: currentUid,
+        generation: sessionGeneration,
+      );
 
   /// 将设置写入与登录/退出串行化，拒绝已失效账号的异步结果。
   Future<bool> changeSettingForSession(
     UserSettingModel setting, {
     required String uid,
     required int generation,
-  }) => _serializeSessionWrite(() async {
-    if (currentUid != uid ||
-        !isCurrentSession(generation) ||
-        isClearingSession) {
-      return false;
-    }
-    return changeSetting(setting);
-  });
+  }) {
+    if (!_canUpdateProfile(uid, generation)) return Future<bool>.value(false);
+    final savedSetting = setting.toMap();
+    return _serializeSessionWrite(() async {
+      if (!_canUpdateProfile(uid, generation)) return false;
+      final user = StorageService.getMap(Keys.currentUser);
+      user['setting'] = savedSetting;
+      await StorageService.to.persistPreference(
+        () => StorageService.setMap(Keys.currentUser, user),
+      );
+      notifyListeners();
+      return true;
+    });
+  }
 
-  Future<bool> changeInfo(Map<String, dynamic> payload) async {
-    await StorageService.setMap(Keys.currentUser, payload);
-    notifyListeners();
-    return true;
+  Future<bool> changeInfo(Map<String, dynamic> payload) {
+    final uid = currentUid;
+    final generation = sessionGeneration;
+    if (!_canUpdateProfile(uid, generation)) return Future<bool>.value(false);
+    final savedPayload = Map<String, dynamic>.of(payload)
+      ..remove(LoginAccountHistoryService.localProfileKey);
+    // 与退出和历史账号清理共用写队列，迟到的资料响应不能恢复已删除的数据。
+    return _serializeSessionWrite(() async {
+      if (!_canUpdateProfile(uid, generation)) return false;
+      final localIdentity = StorageService.getMap(
+        Keys.currentUser,
+      )[LoginAccountHistoryService.localProfileKey];
+      await StorageService.to.persistPreference(
+        () => StorageService.setMap(Keys.currentUser, {
+          ...savedPayload,
+          LoginAccountHistoryService.localProfileKey: ?localIdentity,
+        }),
+      );
+      notifyListeners();
+      return true;
+    });
   }
 
   Future<bool> loginAfter(String account, Map<String, dynamic> payload) {
+    if (_isClearingAccountData) {
+      throw const LoginAccountCleanupBusyException();
+    }
     validateLoginPayload(payload);
     _sessionGeneration++;
     _beginAuthTransition();
@@ -371,19 +412,15 @@ class UserRepoLocal extends ChangeNotifier {
 
     // 验证必需字段
     validateLoginPayload(payload);
+    // Persist deletion ownership before publishing credentials/currentUid. A
+    // failed history write must not introduce a partially established session.
+    final loginIdentity = await LoginAccountHistoryService().rememberLogin(
+      account: account,
+      profile: payload,
+      environment: currentEnv.isEmpty ? 'pro' : currentEnv,
+      endpoint: Env().apiBaseUrl,
+    );
     AssetUrlResolver.instance.clear();
-
-    StorageService.to.setString(Keys.lastLoginAccount, account);
-    List<String>? li = StorageService.to.getStringList(Keys.loginHistory);
-    if (li == null) {
-      li = [account];
-      unawaited(StorageService.to.setList(Keys.loginHistory, li));
-    } else {
-      // 移除已存在的账号（如果有），然后插入到最前面
-      li.remove(account);
-      li.insert(0, account);
-      unawaited(StorageService.to.setList(Keys.loginHistory, li));
-    }
 
     AppFeatureRegistry.bindScope(
       endpoint: Env().apiBaseUrl,
@@ -401,12 +438,40 @@ class UserRepoLocal extends ChangeNotifier {
     payload.remove('refreshtoken');
 
     // await StorageService.to.setString(Keys.currentUid, payload['uid']);
-    await StorageService.setMap(Keys.currentUser, payload);
-    await StorageService.to.setString(
-      Keys.currentUid,
-      (payload['user_id'] ?? payload['uid']).toString(),
+    await StorageService.to.persistPreference(
+      () => StorageService.setMap(Keys.currentUser, {
+        ...payload,
+        LoginAccountHistoryService.localProfileKey: loginIdentity.toJson(),
+      }),
     );
-
+    await StorageService.to.persistPreference(
+      () => StorageService.to.setString(
+        Keys.currentUid,
+        (payload['user_id'] ?? payload['uid']).toString(),
+      ),
+    );
+    // Only a committed local session can become visible login history. Failure
+    // to save this optional display state must not strand an authenticated user.
+    try {
+      final previous = LoginAccountHistoryService().readHistory(
+        Keys.loginHistory,
+      );
+      await StorageService.to.persistPreference(
+        () => StorageService.to.setList(Keys.loginHistory, [
+          account,
+          ...previous.where((value) => value != account),
+        ]),
+      );
+      await StorageService.to.persistPreference(
+        () => StorageService.to.setString(Keys.lastLoginAccount, account),
+      );
+    } on Object catch (error, stack) {
+      AppLogger.error(
+        '[user_repo_local] login history save failed',
+        error,
+        stack,
+      );
+    }
     unawaited(RuntimeFeatureRecovery.refreshNow());
     notifyListeners();
     // 初始化 WebSocket 链接
@@ -451,6 +516,7 @@ class UserRepoLocal extends ChangeNotifier {
   });
 
   Future<bool> quitLogin({int? expectedGeneration}) {
+    if (_isClearingAccountData) return Future<bool>.value(false);
     if (expectedGeneration != null && !isCurrentSession(expectedGeneration)) {
       return Future<bool>.value(false);
     }
@@ -472,6 +538,64 @@ class UserRepoLocal extends ChangeNotifier {
         }
       }),
     );
+    _authChanges.notifyListeners();
+    return result;
+  }
+
+  /// Login-page cleanup shares the session write queue. A new login cannot
+  /// reopen files or overwrite secrets while the confirmed account is cleared.
+  Future<void> clearHistoricalAccountData(String value) {
+    if (isLoggedIn ||
+        _pendingAuthTransitions > 0 ||
+        _isClearingSession ||
+        _isClearingAccountData) {
+      throw const LoginAccountCleanupBusyException();
+    }
+    final history = LoginAccountHistoryService();
+    final identity = history.resolve(
+      value: value,
+      environment: currentEnv.isEmpty ? 'pro' : currentEnv,
+      endpoint: Env().apiBaseUrl,
+    );
+    history.requireIndependentStorage(identity);
+    // Revoke outstanding responses before queued cleanup starts. They must
+    // not restore credentials or other session data after deletion completes.
+    final generation = ++_sessionGeneration;
+    _isClearingAccountData = true;
+    _beginAuthTransition();
+    final result = () async {
+      AccountLocalTaskCleanup? tasks;
+      try {
+        tasks = AccountLocalTaskRegistry.instance.beginCleanup(
+          AccountLocalTaskOwner(
+            uid: identity.uid,
+            environment: identity.environment,
+            endpoint: identity.endpoint,
+          ),
+        );
+        // Upload completion may still be waiting for writeSessionSecret. Drain
+        // it before taking that same queue, otherwise cleanup would deadlock.
+        await tasks.stopped.timeout(const Duration(seconds: 30));
+        await _serializeSessionWrite(() async {
+          if (isLoggedIn || generation != _sessionGeneration) {
+            throw const LoginAccountCleanupBusyException();
+          }
+          await AccountLocalDataService().clear(
+            uid: identity.uid,
+            environment: identity.environment,
+            endpoint: identity.endpoint,
+            clearLastSessionData: history.ownsLastSession(identity),
+          );
+          await history.forget(identity);
+          notifyListeners();
+        });
+      } finally {
+        tasks?.release();
+        _isClearingAccountData = false;
+        // Historical-file cleanup failure does not invalidate another session.
+        _endAuthTransition(null);
+      }
+    }();
     _authChanges.notifyListeners();
     return result;
   }

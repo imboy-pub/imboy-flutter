@@ -1,10 +1,11 @@
-import 'dart:io';
 import 'dart:ui' as ui;
 
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:imboy/component/extension/imboy_cache_manager.dart';
+import 'package:imboy/service/account_local_task_registry.dart';
+import 'package:imboy/service/auth_session_scope.dart';
 
 /// gate 后的 debug 日志：仅 [IMBoyCacheManager.debugLogEnabled] 为 true 时输出
 /// 复用 IMBoyCacheManager 的全局 flag 让测试可统一关闭两边的日志
@@ -23,14 +24,36 @@ class ImageNotFoundException implements Exception {
 }
 
 class IMBoyCachedImageProvider extends ImageProvider<IMBoyCachedImageProvider> {
-  const IMBoyCachedImageProvider(
+  factory IMBoyCachedImageProvider(
+    String url,
+    Map<String, String> headers, {
+    bool publicDirect = false,
+  }) {
+    final owner = AccountLocalTaskOwner.capture();
+    return IMBoyCachedImageProvider._owned(
+      url,
+      headers,
+      publicDirect,
+      owner,
+      IMBoyCacheManager().generationFor(owner),
+      owner.uid.isEmpty ? null : authSessionReader.current,
+    );
+  }
+
+  const IMBoyCachedImageProvider._owned(
     this.url,
-    this.headers, {
-    this.publicDirect = false,
-  });
+    this.headers,
+    this.publicDirect,
+    this._owner,
+    this._generation,
+    this._session,
+  );
 
   final String url;
   final Map<String, String> headers;
+  final AccountLocalTaskOwner _owner;
+  final int _generation;
+  final AuthSessionScope? _session;
 
   /// 公开资源直读（scope=public，如头像）：[url] 为完整公开 URL，直读直下，
   /// 不走 object_key 短时签发 / go-fastdfs HMAC（见 resource-access-control.md §9）。
@@ -38,7 +61,9 @@ class IMBoyCachedImageProvider extends ImageProvider<IMBoyCachedImageProvider> {
 
   @override
   Future<IMBoyCachedImageProvider> obtainKey(ImageConfiguration configuration) {
-    return Future<IMBoyCachedImageProvider>.value(this);
+    final cache = IMBoyCacheManager();
+    cache.trackImageKey(_owner, this);
+    return SynchronousFuture(this);
   }
 
   @override
@@ -56,28 +81,41 @@ class IMBoyCachedImageProvider extends ImageProvider<IMBoyCachedImageProvider> {
     IMBoyCachedImageProvider key,
     ImageDecoderCallback decode,
   ) async {
-    assert(key == this);
+    final cache = IMBoyCacheManager();
+    final owner = key._owner;
+    final generation = key._generation;
+    void requireCurrentLoad() {
+      if (cache.generationFor(owner) != generation ||
+          (key._session != null &&
+              !authSessionReader.isCurrent(key._session)) ||
+          (owner.uid.isNotEmpty && owner != AccountLocalTaskOwner.capture())) {
+        throw const MediaCacheCleanupException();
+      }
+    }
 
     // 重试机制：最多尝试3次
     const maxAttempts = 3;
 
     for (int attempt = 0; attempt < maxAttempts; attempt++) {
+      requireCurrentLoad();
       try {
         if (kDebugMode) {
           _log('加载图片 (尝试 ${attempt + 1}/$maxAttempts)');
         }
 
-        final file = await IMBoyCacheManager().getSingleFile(
-          url,
-          headers: headers,
-          publicDirect: publicDirect,
+        final file = await cache.getSingleFile(
+          key.url,
+          headers: key.headers,
+          publicDirect: key.publicDirect,
+          owner: owner,
         );
+        requireCurrentLoad();
 
         // 验证文件存在且可读
         if (!await file.exists()) {
           _log('⚠️ 文件不存在');
           if (attempt < maxAttempts - 1) {
-            await _clearCacheAndRetry(url);
+            await _clearCacheAndRetry(key.url, owner, generation);
             continue;
           }
           throw StateError('文件不存在 (已尝试 $maxAttempts 次)');
@@ -85,12 +123,12 @@ class IMBoyCachedImageProvider extends ImageProvider<IMBoyCachedImageProvider> {
 
         // 读取文件字节
         final bytes = await file.readAsBytes();
+        requireCurrentLoad();
 
         if (bytes.isEmpty) {
           _log('⚠️ 文件为空');
           if (attempt < maxAttempts - 1) {
-            await _deleteFileIfExists(file);
-            await _clearCacheAndRetry(url);
+            await _clearCacheAndRetry(key.url, owner, generation);
             continue;
           }
           throw StateError('文件为空 (已尝试 $maxAttempts 次)');
@@ -100,18 +138,34 @@ class IMBoyCachedImageProvider extends ImageProvider<IMBoyCachedImageProvider> {
         try {
           final buffer = await ui.ImmutableBuffer.fromUint8List(bytes);
           final codec = await decode(buffer);
+          if (cache.generationFor(owner) != generation ||
+              (key._session != null &&
+                  !authSessionReader.isCurrent(key._session)) ||
+              (owner.uid.isNotEmpty &&
+                  owner != AccountLocalTaskOwner.capture())) {
+            codec.dispose();
+            throw const MediaCacheCleanupException();
+          }
           // debugPrint('✅ 图片加载成功: $url');
           return codec;
         } on Exception catch (decodeError) {
+          if (decodeError is MediaCacheCleanupException ||
+              decodeError is AccountLocalTaskCancelledException) {
+            rethrow;
+          }
           _log('⚠️ 图片解码失败: ${decodeError.runtimeType}');
           if (attempt < maxAttempts - 1) {
-            await _deleteFileIfExists(file);
-            await _clearCacheAndRetry(url);
+            await _clearCacheAndRetry(key.url, owner, generation);
             continue;
           }
           rethrow;
         }
       } on Exception catch (e) {
+        if (e is MediaCacheCleanupException ||
+            e is AccountLocalTaskCancelledException) {
+          rethrow;
+        }
+        requireCurrentLoad();
         // 404/401/403 无法通过重试解决，直接降级占位（不重试、不暴露异常）
         if (_isNotFoundError(e)) {
           _log('❌ 图片资源不可显示 (404/401/403)');
@@ -140,25 +194,24 @@ class IMBoyCachedImageProvider extends ImageProvider<IMBoyCachedImageProvider> {
     throw StateError('图片加载失败');
   }
 
-  /// 删除文件（如果存在）
-  Future<void> _deleteFileIfExists(File file) async {
-    try {
-      if (await file.exists()) {
-        await file.delete();
-        _log('🗑️ 已删除缓存文件');
-      }
-    } on Exception catch (e) {
-      _log('⚠️ 删除文件失败: ${e.runtimeType}');
-    }
-  }
-
   /// 清除缓存并准备重试
-  Future<void> _clearCacheAndRetry(String url) async {
+  Future<void> _clearCacheAndRetry(
+    String url,
+    AccountLocalTaskOwner owner,
+    int generation,
+  ) async {
     try {
-      // 清除缓存管理器中的缓存
-      await IMBoyCacheManager().emptyCache();
+      await IMBoyCacheManager().removeResource(
+        url,
+        owner: owner,
+        generation: generation,
+      );
       _log('🔄 已清除缓存，准备重试');
     } on Exception catch (e) {
+      if (e is MediaCacheCleanupException ||
+          e is AccountLocalTaskCancelledException) {
+        rethrow;
+      }
       _log('⚠️ 清除缓存失败: ${e.runtimeType}');
     }
   }
@@ -170,11 +223,15 @@ class IMBoyCachedImageProvider extends ImageProvider<IMBoyCachedImageProvider> {
     }
     return other is IMBoyCachedImageProvider &&
         other.url == url &&
-        other.publicDirect == publicDirect;
+        other.publicDirect == publicDirect &&
+        other._owner == _owner &&
+        other._generation == _generation &&
+        other._session == _session;
   }
 
   @override
-  int get hashCode => Object.hash(url, publicDirect);
+  int get hashCode =>
+      Object.hash(url, publicDirect, _owner, _generation, _session);
 
   @override
   String toString() => 'IMBoyCachedImageProvider(${url.hashCode})';

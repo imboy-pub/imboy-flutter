@@ -1,5 +1,11 @@
 import 'dart:io' as io;
 
+import 'package:dio/dio.dart' show CancelToken;
+import 'package:imboy/config/env.dart';
+import 'package:imboy/config/init.dart' show currentEnv;
+import 'package:imboy/service/account_local_task_registry.dart';
+import 'package:imboy/service/auth_session_scope.dart';
+
 import 'package:imboy/component/http/http_client.dart';
 import 'package:imboy/component/http/http_response.dart';
 import 'package:imboy/config/const.dart';
@@ -183,45 +189,88 @@ class GroupFileApi extends HttpClient {
       return null;
     }
 
-    // status 是 GET；其他 direct 操作使用 POST。
-    final DirectSessionFn session =
-        sessionFn ??
-        (String path, {Map<String, dynamic>? body}) => path.endsWith('/status')
-            ? get(path, queryParameters: body)
-            : post(path, data: body);
-    final DirectUploadResult direct = await DirectAttachmentApi.uploadFile(
-      file,
-      fileName: name,
-      mime: mime,
-      scope: 'group',
-      scopeRef: gid,
-      clientUploadId: clientUploadId,
-      sessionFn: session,
-      putFn: putFn,
+    final auth = authSessionReader.current;
+    final owner = AccountLocalTaskOwner.capture(uid: auth.uid);
+    final cancel = CancelToken();
+    final task = AccountLocalTaskRegistry.instance.register(
+      owner,
+      onCancel: () => cancel.cancel('account local data cleanup'),
     );
-    if (direct.state != DirectAttachmentApi.stateConfirmed) {
-      // FINALIZING/UNKNOWN_QUARANTINED：附件未经 proof，bind 只会被
-      // not_confirmed 拒绝——不发起，如实报失败。
-      return null;
+    void check() {
+      task.throwIfCancelled();
+      if (!authSessionReader.isCurrent(auth) ||
+          (currentEnv.isEmpty ? 'pro' : currentEnv) != owner.environment ||
+          Env().apiBaseUrl != owner.endpoint) {
+        throw const AccountLocalTaskCancelledException();
+      }
     }
 
-    final GroupFileBindFn bind =
-        bindFn ??
-        (Map<String, dynamic> body) => post(API.groupFileBind, data: body);
-    final IMBoyHttpResponse resp = await bind(<String, dynamic>{
-      'gid': gid,
-      'file_name': name,
-      'file_type': mime,
-      'object_key': direct.objectKey,
-      'file_size': file.lengthSync(),
-      'file_md5': '',
-    });
-    if (!resp.ok || resp.payload == null) {
-      return null;
+    void onAuthChanged() {
+      if (!authSessionReader.isCurrent(auth)) {
+        cancel.cancel('upload account changed');
+      }
     }
-    return Map<String, dynamic>.from(
-      IMBoyHttpResponse.payloadAsMap(resp.payload),
-    );
+
+    authSessionReader.addListener(onAuthChanged);
+    try {
+      check();
+      // status 是 GET；其他 direct 操作使用 POST。
+      Future<IMBoyHttpResponse> session(
+        String path, {
+        Map<String, dynamic>? body,
+      }) async {
+        check();
+        final response = sessionFn != null
+            ? await sessionFn(path, body: body)
+            : path.endsWith('/status')
+            ? await get(path, queryParameters: body, cancelToken: cancel)
+            : await post(path, data: body, cancelToken: cancel);
+        check();
+        return response;
+      }
+
+      final DirectUploadResult direct = await DirectAttachmentApi.uploadFile(
+        file,
+        fileName: name,
+        mime: mime,
+        scope: 'group',
+        scopeRef: gid,
+        clientUploadId: clientUploadId,
+        sessionFn: session,
+        putFn: putFn,
+        cancelToken: cancel,
+      );
+      check();
+      if (direct.state != DirectAttachmentApi.stateConfirmed) {
+        // FINALIZING/UNKNOWN_QUARANTINED：附件未经 proof，bind 只会被
+        // not_confirmed 拒绝——不发起，如实报失败。
+        return null;
+      }
+
+      final GroupFileBindFn bind =
+          bindFn ??
+          (Map<String, dynamic> body) =>
+              post(API.groupFileBind, data: body, cancelToken: cancel);
+      check();
+      final IMBoyHttpResponse resp = await bind(<String, dynamic>{
+        'gid': gid,
+        'file_name': name,
+        'file_type': mime,
+        'object_key': direct.objectKey,
+        'file_size': file.lengthSync(),
+        'file_md5': '',
+      });
+      check();
+      if (!resp.ok || resp.payload == null) {
+        return null;
+      }
+      return Map<String, dynamic>.from(
+        IMBoyHttpResponse.payloadAsMap(resp.payload),
+      );
+    } finally {
+      authSessionReader.removeListener(onAuthChanged);
+      task.finish();
+    }
   }
 
   /// 删除群文件

@@ -19,6 +19,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:jverify/jverify.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:imboy/config/env.dart';
+import 'package:imboy/service/login_account_history_service.dart';
 import 'package:imboy/page/bottom_navigation/bottom_navigation_page.dart';
 import 'package:imboy/store/api/user_api.dart';
 import 'package:imboy/store/api/e2ee_api.dart';
@@ -44,6 +45,7 @@ import 'package:imboy/i18n/strings.g.dart';
 
 import 'passport_state.dart';
 part 'passport_notifier.g.dart';
+part 'passport_history.dart';
 
 String formatJverifyLoginError(int? code, String? message) {
   final detail = message?.trim() ?? '';
@@ -107,20 +109,7 @@ class PassportNotifier extends _$PassportNotifier {
 
   /// 初始化登录历史记录
   void initLoginHistory() {
-    final history = StorageService.to.getStringList(Keys.loginHistory) ?? [];
-    final accountHistory =
-        StorageService.to.getStringList(Keys.loginHistoryAccount) ?? [];
-    final mobileHistory =
-        StorageService.to.getStringList(Keys.loginHistoryMobile) ?? [];
-    final emailHistory =
-        StorageService.to.getStringList(Keys.loginHistoryEmail) ?? [];
-
-    state = state.copyWith(
-      loginHistory: history,
-      accountHistory: accountHistory,
-      mobileHistory: mobileHistory,
-      emailHistory: emailHistory,
-    );
+    state = _readPassportLoginHistory(state);
   }
 
   /// 保存历史记录
@@ -129,13 +118,18 @@ class PassportNotifier extends _$PassportNotifier {
     final info = _historyInfoFor(type);
     if (info == null) return;
 
-    final list = List<String>.from(info.currentList);
-    list.remove(value);
-    list.insert(0, value);
-    final trimmed = list.length > 5 ? list.sublist(0, 5) : list;
+    final trimmed = await _savePassportLoginHistory(info.key, value);
+    if (ref.mounted) info.updateState(trimmed);
+  }
 
-    await StorageService.to.setList(info.key, trimmed);
-    info.updateState(trimmed);
+  /// Called only after the user confirms the selected history entry.
+  Future<void> clearHistoryAccountData(String type, String value) async {
+    final info = _historyInfoFor(type);
+    if (info == null || !info.currentList.contains(value)) {
+      throw const LoginAccountIdentityUnavailableException();
+    }
+    await UserRepoLocal.to.clearHistoricalAccountData(value);
+    if (ref.mounted) initLoginHistory();
   }
 
   /// 删除历史记录
@@ -285,8 +279,11 @@ class PassportNotifier extends _$PassportNotifier {
   }
 
   /// 返回按钮组件
-  Widget backButton({Color? color}) {
+  Widget backButton({Color? color, bool isRtl = false}) {
     Color c = color ?? AppColors.onPrimary;
+    final backIcon = isRtl
+        ? CupertinoIcons.chevron_right_circle
+        : CupertinoIcons.chevron_left_circle;
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTap: () {
@@ -309,11 +306,12 @@ class PassportNotifier extends _$PassportNotifier {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 10),
         child: Row(
+          mainAxisSize: MainAxisSize.min,
           children: [
             Container(
               padding: const EdgeInsets.only(left: 0, top: 10, bottom: 10),
               // 圆形返回图标（设计拍板：返回键用圆形）
-              child: Icon(CupertinoIcons.chevron_left_circle, color: c),
+              child: Icon(backIcon, color: c),
             ),
             Text(
               t.common.buttonBack,
@@ -397,7 +395,9 @@ class PassportNotifier extends _$PassportNotifier {
       _showCancelLogoutDialog();
       return t.common.cancelLogoutTitle;
     } else {
-      return state.error;
+      return state.error.isNotEmpty
+          ? state.error
+          : t.common.operationFailedAgainLater;
     }
   }
 
@@ -589,7 +589,7 @@ class PassportNotifier extends _$PassportNotifier {
             AppInitializer.triggerGroupMembershipSelfHeal(source: 'login'),
           );
         }
-        return 1;
+        return status;
       }
       // 理论上不可达：!resp2.ok 分支均已 return 0
       return 0;
@@ -660,7 +660,7 @@ class PassportNotifier extends _$PassportNotifier {
             ),
           );
         }
-        return 1;
+        return status;
       }
     } on PlatformException {
       safeUpdateState((state) => state.copyWith(error: '网络故障，请稍后重试'));

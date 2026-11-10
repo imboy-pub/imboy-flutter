@@ -1,4 +1,10 @@
 import 'dart:io';
+import 'dart:async';
+
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:imboy/config/const.dart';
+import 'package:imboy/service/storage.dart';
+import 'package:imboy/service/account_local_task_registry.dart';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:crypto/crypto.dart' as crypto;
@@ -8,75 +14,7 @@ import 'package:imboy/store/api/attachment_direct_api.dart';
 import 'package:imboy/store/api/group_album_api.dart';
 import 'package:imboy/store/api/group_file_api.dart';
 
-mixin _RecordingMethods {
-  final methods = <String>[];
-  IMBoyHttpResponse response(String method, String path, dynamic data) {
-    methods.add('$method $path');
-    if (path.endsWith('/register')) {
-      return IMBoyHttpResponse.success({
-        'object_key': 'group/3001/photo',
-        'state': 'CONFIRMED',
-      });
-    }
-    if (path.endsWith('/status') && method == 'GET') {
-      return IMBoyHttpResponse.success({
-        'state': 'CONFIRMED',
-        'expected': {
-          'sha256': crypto.sha256.convert([1, 2, 3]).toString(),
-          'size_bytes': 3,
-          'mime': 'image/png',
-        },
-      });
-    }
-    throw StateError('unexpected $method $path');
-  }
-}
-
-class _FileMethodApi extends GroupFileApi with _RecordingMethods {
-  @override
-  Future<IMBoyHttpResponse> get(
-    String uri, {
-    Map<String, dynamic>? queryParameters,
-    dynamic options,
-    dynamic cancelToken,
-    dynamic onReceiveProgress,
-    dynamic httpTransformer,
-  }) async => response('GET', uri, queryParameters);
-  @override
-  Future<IMBoyHttpResponse> post(
-    String uri, {
-    Object? data,
-    Map<String, dynamic>? queryParameters,
-    dynamic options,
-    dynamic cancelToken,
-    dynamic onSendProgress,
-    dynamic onReceiveProgress,
-    dynamic httpTransformer,
-  }) async => response('POST', uri, data);
-}
-
-class _AlbumMethodApi extends GroupAlbumApi with _RecordingMethods {
-  @override
-  Future<IMBoyHttpResponse> get(
-    String uri, {
-    Map<String, dynamic>? queryParameters,
-    dynamic options,
-    dynamic cancelToken,
-    dynamic onReceiveProgress,
-    dynamic httpTransformer,
-  }) async => response('GET', uri, queryParameters);
-  @override
-  Future<IMBoyHttpResponse> post(
-    String uri, {
-    Object? data,
-    Map<String, dynamic>? queryParameters,
-    dynamic options,
-    dynamic cancelToken,
-    dynamic onSendProgress,
-    dynamic onReceiveProgress,
-    dynamic httpTransformer,
-  }) async => response('POST', uri, data);
-}
+part 'group_direct_cleanup_cases.dart';
 
 /// V3-12 群文件/群相册 direct 化（Lane B3）定向测试：不触网，全 seam 注入。
 ///
@@ -90,6 +28,13 @@ class _AlbumMethodApi extends GroupAlbumApi with _RecordingMethods {
 ///   * direct 会话：register(scope=group,scope_ref=gid)→declare→grant→
 ///     s3_put PUT→finalize(CONFIRMED)。
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+  setUp(() async {
+    SharedPreferences.setMockInitialValues({
+      Keys.currentUid: 'group-upload-owner',
+    });
+    await StorageService.init();
+  });
   test('默认 HTTP：群文件和相册恢复均用 GET status', () async {
     final dir = await Directory.systemTemp.createTemp('group-status-test');
     try {
@@ -214,6 +159,14 @@ void main() {
       throw StateError('unexpected action $action');
     };
   }
+
+  _registerGroupCleanupTests(
+    writeFile,
+    (actions) => directSession(
+      keyOf: (name) => 'u1/group/cleanup/$name',
+      onRequest: (action, _) => actions.add(action),
+    ),
+  );
 
   group('GroupFileApi.uploadFileDirect（群文件单文件 direct+bind）', () {
     final GroupFileApi api = GroupFileApi();
