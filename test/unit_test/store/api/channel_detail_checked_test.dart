@@ -33,23 +33,22 @@ void main() {
         );
         await expectLater(
           api.getSubscribers(channelId: '12', cursor: 30, limit: 30),
-          throwsA(isA<StateError>().having(
-            (error) => error.message,
-            'message',
-            'channel_subscribers_request_failed',
-          )),
+          throwsA(
+            isA<StateError>().having(
+              (error) => error.message,
+              'message',
+              'channel_subscribers_request_failed',
+            ),
+          ),
         );
       });
     }
     test('成功码但缺失payload仍为失败', () async {
       final api = _Api(IMBoyHttpResponse.success(null));
-      await expectLater(
-        api.getSubscribers(channelId: '12'),
-        throwsStateError,
-      );
+      await expectLater(api.getSubscribers(channelId: '12'), throwsStateError);
     });
     test('真实成功空列表保持末页含义和原cursor参数', () async {
-      final api = _Api(IMBoyHttpResponse.success({'list': []}));
+      final api = _Api(IMBoyHttpResponse.success({'list': <dynamic>[]}));
       expect(
         await api.getSubscribers(channelId: '12', cursor: 30, limit: 30),
         isEmpty,

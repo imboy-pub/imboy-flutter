@@ -194,9 +194,7 @@ class _SelectFriendPageState extends ConsumerState<SelectFriendPage> {
               peerIsReceiver
                   ? "[${t.common.personalCard}]${peer['nickname']}"
                   : "[${t.common.personalCard}]${model.nickname}",
-              style: TextStyle(
-                color: Theme.of(context).colorScheme.tertiary,
-              ),
+              style: TextStyle(color: Theme.of(context).colorScheme.tertiary),
             ),
           ],
         ),
@@ -293,8 +291,10 @@ class _SelectFriendPageState extends ConsumerState<SelectFriendPage> {
   );
 
   double _suspensionHeight(BuildContext context) {
+    final inheritedStyle = DefaultTextStyle.of(context).style;
+    final style = inheritedStyle.merge(_suspensionTextStyle(context));
     final painter = TextPainter(
-      text: TextSpan(text: 'A', style: _suspensionTextStyle(context)),
+      text: TextSpan(text: 'A', style: style),
       textDirection: Directionality.of(context),
       textScaler: MediaQuery.textScalerOf(context),
       maxLines: 1,
@@ -320,10 +320,7 @@ class _SelectFriendPageState extends ConsumerState<SelectFriendPage> {
         color: isDark
             ? AppColors.darkSurfaceGrouped
             : AppColors.lightSurfaceGrouped,
-        child: Text(
-          tag,
-          style: _suspensionTextStyle(context),
-        ),
+        child: Text(tag, style: _suspensionTextStyle(context)),
       ),
     );
   }
@@ -331,12 +328,14 @@ class _SelectFriendPageState extends ConsumerState<SelectFriendPage> {
   Widget _buildListView(List<ContactModel> visibleList) {
     final brightness = Theme.of(context).brightness;
     final barData = _indexBarDataFor(visibleList);
-    final suspensionHeight = _suspensionHeight(context);
 
     // IndexBar 是固定高度的 Column（27 项 × itemHeight），列表区高度不足时
     // 右侧字母栏会 RenderFlex overflow；按可用高度压缩每项高度即可。
     return LayoutBuilder(
       builder: (context, constraints) {
+        // Measure below Scaffold's Material so inherited line height matches
+        // the actual header Text as well as the AzListView suspension extent.
+        final suspensionHeight = _suspensionHeight(context);
         final itemHeight = constraints.maxHeight.isFinite
             ? math.min(
                 kIndexBarItemHeight,

@@ -552,12 +552,12 @@ class _ChannelHeaderBarState extends ConsumerState<ChannelHeaderBar> {
             _buildCircleActionItem(
               icon: CupertinoIcons.share,
               label: t.channel.share,
-              onTap: widget.onShareTap ?? () {},
+              onTap: widget.onShareTap,
             ),
             _buildCircleActionItem(
               icon: CupertinoIcons.arrowshape_turn_up_right_fill,
               label: t.channel.shareToChat,
-              onTap: widget.onForwardTap ?? () {},
+              onTap: widget.onForwardTap,
             ),
           ] else ...[
             // Mute / Unmute Bell Button
@@ -625,10 +625,10 @@ class _ChannelHeaderBarState extends ConsumerState<ChannelHeaderBar> {
         ? AppColors.iosGray3Dark
         : AppColors.iosGray3;
 
-    // 纯图标按钮必须有语义标签（DESIGN.md 11.4 / a11y 门）：label 即
-    // 该动作的可读名（调用方传入）。
+    // 可见 Text 提供唯一动作名称，整组保留按钮焦点与禁用状态。
     return Semantics(
-      label: label,
+      container: true,
+      enabled: !disabled,
       child: CupertinoButton(
         padding: EdgeInsets.zero,
         onPressed: disabled ? null : onTap,

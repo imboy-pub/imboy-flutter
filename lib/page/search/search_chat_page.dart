@@ -389,9 +389,7 @@ class _SearchChatPageState extends ConsumerState<_SearchChatBody> {
 
   Widget _buildSearchContent(SearchDataState state, Brightness b) {
     if (state.isLoading && state.searchResults.isEmpty) {
-      return const Center(
-        child: CupertinoActivityIndicator(),
-      );
+      return const Center(child: CupertinoActivityIndicator());
     }
     if (state.currentQuery.isEmpty) return _buildHistoryList(state, b);
     if (state.errorMessage.isNotEmpty) {

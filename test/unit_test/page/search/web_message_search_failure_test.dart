@@ -122,7 +122,8 @@ void main() {
       ProviderScope(
         child: MaterialApp(
           builder: (context, child) => MediaQuery(
-            data: MediaQuery.of(context).copyWith(textScaler: const TextScaler.linear(2)),
+            data: MediaQuery.of(context)
+                .copyWith(textScaler: const TextScaler.linear(2)),
             child: child!,
           ),
           home: WebSearchPage(
@@ -131,7 +132,13 @@ void main() {
             otherSearchForTest: (query) async {
               queries.add(query);
               if (!recover) throw Exception('temporary search failure');
-              return [SearchItem(type: SearchItemType.contact, id: '200', title: 'Recovered $query')];
+              return [
+                SearchItem(
+                  type: SearchItemType.contact,
+                  id: '200',
+                  title: 'Recovered $query',
+                ),
+              ];
             },
           ),
         ),
@@ -139,7 +146,10 @@ void main() {
     );
     await tester.pumpAndSettle();
     expect(find.text(t.common.searchError), findsOneWidget);
-    expect(tester.widget<TextField>(find.byType(TextField)).controller!.text, 'first query');
+    expect(
+      tester.widget<TextField>(find.byType(TextField)).controller!.text,
+      'first query',
+    );
     expect(tester.takeException(), isNull);
     recover = true;
     await tester.ensureVisible(find.text(t.common.buttonRetry));
@@ -167,7 +177,13 @@ void main() {
             otherSearchForTest: (query) async {
               queries.add(query);
               if (query == 'failed query') throw Exception('temporary failure');
-              return [SearchItem(type: SearchItemType.contact, id: '200', title: 'Found $query')];
+              return [
+                SearchItem(
+                  type: SearchItemType.contact,
+                  id: '200',
+                  title: 'Found $query',
+                ),
+              ];
             },
           ),
         ),

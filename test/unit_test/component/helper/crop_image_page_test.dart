@@ -28,7 +28,10 @@ class _RecoverableImageFile extends Fake implements File {
 
 CupertinoButton _button(WidgetTester tester, String label) =>
     tester.widget<CupertinoButton>(
-      find.ancestor(of: find.text(label), matching: find.byType(CupertinoButton)),
+      find.ancestor(
+        of: find.text(label),
+        matching: find.byType(CupertinoButton),
+      ),
     );
 
 void main() {
@@ -42,65 +45,66 @@ void main() {
     await StorageService.to.remove(Keys.currentUid);
   });
 
-  testWidgets('missing image can recover on retry with safe large-text actions', (
-    tester,
-  ) async {
-    tester.view.physicalSize = const Size(320, 480);
-    tester.view.devicePixelRatio = 1;
-    addTearDown(tester.view.resetPhysicalSize);
-    addTearDown(tester.view.resetDevicePixelRatio);
-    final image = _RecoverableImageFile();
+  testWidgets(
+    'missing image can recover on retry with safe large-text actions',
+    (tester) async {
+      tester.view.physicalSize = const Size(320, 480);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+      final image = _RecoverableImageFile();
 
-    await tester.pumpWidget(
-      TranslationProvider(
-        child: MaterialApp(
-          builder: (context, child) => MediaQuery(
-            data: MediaQuery.of(context).copyWith(
-              padding: const EdgeInsets.only(top: 24, bottom: 34),
-              textScaler: TextScaler.linear(2.5),
+      await tester.pumpWidget(
+        TranslationProvider(
+          child: MaterialApp(
+            builder: (context, child) => MediaQuery(
+              data: MediaQuery.of(context).copyWith(
+                padding: const EdgeInsets.only(top: 24, bottom: 34),
+                textScaler: TextScaler.linear(2.5),
+              ),
+              child: child!,
             ),
-            child: child!,
+            home: CropImageRoute(image, 'avatar'),
           ),
-          home: CropImageRoute(image, 'avatar'),
         ),
-      ),
-    );
-    await tester.pump();
-
-    expect(image.reads, 1);
-    expect(find.text(t.common.imageLoadFailed), findsOneWidget);
-    expect(find.text(t.common.buttonRetry), findsOneWidget);
-    expect(find.byType(CupertinoActivityIndicator), findsNothing);
-    expect(_button(tester, t.common.buttonAccomplish).onPressed, isNull);
-    expect(_button(tester, t.common.buttonCancel).onPressed, isNotNull);
-    expect(tester.takeException(), isNull);
-
-    // Restore a valid PNG through the same File.readAsBytes boundary; no media,
-    // filesystem, upload, or network capability is exercised by this fixture.
-    image.bytes = base64Decode(
-      'iVBORw0KGgoAAAANSUhEUgAAAAgAAAAICAIAAABLbSncAAAAFElEQVR4nGN0av3C'
-      'gA0wYRUdtBIAXQcBy0IK/PYAAAAASUVORK5CYII=',
-    );
-    await tester.tap(find.text(t.common.buttonRetry));
-    await tester.pump();
-    await tester.pump(const Duration(milliseconds: 100));
-
-    expect(image.reads, 2);
-    expect(find.byType(Crop), findsOneWidget);
-    expect(find.text(t.common.imageLoadFailed), findsNothing);
-    expect(_button(tester, t.common.buttonAccomplish).onPressed, isNotNull);
-    for (final label in [t.common.buttonCancel, t.common.buttonAccomplish]) {
-      final action = find.ancestor(
-        of: find.text(label),
-        matching: find.byType(CupertinoButton),
       );
-      final rect = tester.getRect(action);
-      expect(rect.left, greaterThanOrEqualTo(0));
-      expect(rect.right, lessThanOrEqualTo(320));
-      expect(rect.bottom, lessThanOrEqualTo(480 - 34));
-      expect(rect.height, greaterThanOrEqualTo(44));
-    }
-    expect(tester.takeException(), isNull);
-    await tester.pumpWidget(const SizedBox.shrink());
-  });
+      await tester.pump();
+
+      expect(image.reads, 1);
+      expect(find.text(t.common.imageLoadFailed), findsOneWidget);
+      expect(find.text(t.common.buttonRetry), findsOneWidget);
+      expect(find.byType(CupertinoActivityIndicator), findsNothing);
+      expect(_button(tester, t.common.buttonAccomplish).onPressed, isNull);
+      expect(_button(tester, t.common.buttonCancel).onPressed, isNotNull);
+      expect(tester.takeException(), isNull);
+
+      // Restore a valid PNG through the same File.readAsBytes boundary; no media,
+      // filesystem, upload, or network capability is exercised by this fixture.
+      image.bytes = base64Decode(
+        'iVBORw0KGgoAAAANSUhEUgAAAAgAAAAICAIAAABLbSncAAAAFElEQVR4nGN0av3C'
+        'gA0wYRUdtBIAXQcBy0IK/PYAAAAASUVORK5CYII=',
+      );
+      await tester.tap(find.text(t.common.buttonRetry));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 100));
+
+      expect(image.reads, 2);
+      expect(find.byType(Crop), findsOneWidget);
+      expect(find.text(t.common.imageLoadFailed), findsNothing);
+      expect(_button(tester, t.common.buttonAccomplish).onPressed, isNotNull);
+      for (final label in [t.common.buttonCancel, t.common.buttonAccomplish]) {
+        final action = find.ancestor(
+          of: find.text(label),
+          matching: find.byType(CupertinoButton),
+        );
+        final rect = tester.getRect(action);
+        expect(rect.left, greaterThanOrEqualTo(0));
+        expect(rect.right, lessThanOrEqualTo(320));
+        expect(rect.bottom, lessThanOrEqualTo(480 - 34));
+        expect(rect.height, greaterThanOrEqualTo(44));
+      }
+      expect(tester.takeException(), isNull);
+      await tester.pumpWidget(const SizedBox.shrink());
+    },
+  );
 }

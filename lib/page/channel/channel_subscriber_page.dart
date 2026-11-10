@@ -493,7 +493,8 @@ class _ChannelSubscriberPageState extends ConsumerState<ChannelSubscriberPage>
       child: ListView.builder(
         controller: _scrollController,
         physics: const AlwaysScrollableScrollPhysics(),
-        itemCount: _subscribers.length + errorRows + (_hasMore || _isLoading ? 1 : 0),
+        itemCount:
+            _subscribers.length + errorRows + (_hasMore || _isLoading ? 1 : 0),
         itemBuilder: (context, index) {
           if (errorRows == 1 && index == 0) {
             return _buildRetry(_loadSubscribers);

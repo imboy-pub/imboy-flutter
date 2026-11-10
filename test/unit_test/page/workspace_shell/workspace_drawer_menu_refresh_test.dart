@@ -44,13 +44,10 @@ void main() {
   });
 
   for (final withCache in [false, true]) {
-    testWidgets('空间加载失败可原地重试，保留缓存并禁止重复请求 cache=$withCache', (
-      tester,
-    ) async {
+    testWidgets('空间加载失败可原地重试，保留缓存并禁止重复请求 cache=$withCache', (tester) async {
       if (withCache) {
-        OrganizationCache.forAccount(_account).replaceMineOrgs([
-          const Organization(id: '101', name: '缓存企业'),
-        ]);
+        OrganizationCache.forAccount(_account)
+            .replaceMineOrgs([const Organization(id: '101', name: '缓存企业')]);
       }
       final api = _PendingOrganizations();
       tester.view.devicePixelRatio = 1;
@@ -68,9 +65,8 @@ void main() {
           child: TranslationProvider(
             child: MaterialApp(
               builder: (context, child) => MediaQuery(
-                data: MediaQuery.of(context).copyWith(
-                  textScaler: const TextScaler.linear(2),
-                ),
+                data: MediaQuery.of(context)
+                    .copyWith(textScaler: const TextScaler.linear(2)),
                 child: child!,
               ),
               home: const Scaffold(

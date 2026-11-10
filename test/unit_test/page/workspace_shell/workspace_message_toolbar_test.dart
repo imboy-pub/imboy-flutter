@@ -27,9 +27,8 @@ Future<void> _pumpToolbar(
         child: MaterialApp(
           theme: ThemeData(brightness: brightness),
           builder: (context, child) => MediaQuery(
-            data: MediaQuery.of(context).copyWith(
-              textScaler: TextScaler.linear(textScale),
-            ),
+            data: MediaQuery.of(context)
+                .copyWith(textScaler: TextScaler.linear(textScale)),
             child: child!,
           ),
           home: Scaffold(
@@ -126,9 +125,11 @@ void main() {
       await tester.sendKeyEvent(LogicalKeyboardKey.enter);
       await tester.pump();
       expect(changed, [WorkspaceMessageTab.schedule]);
-      final selected = tester.getSemantics(
-        find.byKey(const ValueKey('workspace-message-schedule-tab')),
-      ).getSemanticsData();
+      final selected = tester
+          .getSemantics(
+            find.byKey(const ValueKey('workspace-message-schedule-tab')),
+          )
+          .getSemanticsData();
       expect(selected.label, t.workspace.tabSchedule);
       expect(selected.flagsCollection.isSelected.toBoolOrNull(), isTrue);
       expect(selected.flagsCollection.isFocused.toBoolOrNull(), isTrue);

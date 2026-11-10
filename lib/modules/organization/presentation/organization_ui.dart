@@ -90,15 +90,12 @@ Future<bool> orgConfirmDangerAction(
           onPressed: () => Navigator.of(ctx).pop(false),
           child: const Text('取消'),
         ),
-        Semantics(
-          label: '$title 确认',
-          child: TextButton(
-            style: TextButton.styleFrom(
-              foregroundColor: Theme.of(ctx).colorScheme.error,
-            ),
-            onPressed: () => Navigator.of(ctx).pop(true),
-            child: Text(confirmText),
+        TextButton(
+          style: TextButton.styleFrom(
+            foregroundColor: Theme.of(ctx).colorScheme.error,
           ),
+          onPressed: () => Navigator.of(ctx).pop(true),
+          child: Text(confirmText, semanticsLabel: '$confirmText，$title'),
         ),
       ],
     ),
@@ -124,15 +121,12 @@ Future<bool> orgConfirmAction(
           onPressed: () => Navigator.of(ctx).pop(false),
           child: const Text('取消'),
         ),
-        Semantics(
-          label: '$title 确认',
-          child: TextButton(
-            style: TextButton.styleFrom(
-              foregroundColor: Theme.of(ctx).colorScheme.primary,
-            ),
-            onPressed: () => Navigator.of(ctx).pop(true),
-            child: Text(confirmText),
+        TextButton(
+          style: TextButton.styleFrom(
+            foregroundColor: Theme.of(ctx).colorScheme.primary,
           ),
+          onPressed: () => Navigator.of(ctx).pop(true),
+          child: Text(confirmText, semanticsLabel: '$confirmText，$title'),
         ),
       ],
     ),
@@ -167,12 +161,9 @@ Future<String?> orgPromptInput(
           onPressed: () => Navigator.of(ctx).pop(),
           child: const Text('取消'),
         ),
-        Semantics(
-          label: '$title 提交',
-          child: TextButton(
-            onPressed: () => Navigator.of(ctx).pop(controller.text.trim()),
-            child: const Text('确定'),
-          ),
+        TextButton(
+          onPressed: () => Navigator.of(ctx).pop(controller.text.trim()),
+          child: Text('确定', semanticsLabel: '确定，$title'),
         ),
       ],
     ),

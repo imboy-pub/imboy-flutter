@@ -81,6 +81,7 @@ class _SearchResponseApi implements FtsApi {
     queries.add(keyword);
     return response;
   }
+
   @override
   Future<MessageSearchResult?> refreshResultVisibility(
     MessageSearchResult item,
@@ -102,9 +103,8 @@ void main() {
         overrides: [ftsApiProvider.overrideWithValue(api)],
         child: MaterialApp(
           builder: (context, child) => MediaQuery(
-            data: MediaQuery.of(context).copyWith(
-              textScaler: const TextScaler.linear(2),
-            ),
+            data: MediaQuery.of(context)
+                .copyWith(textScaler: const TextScaler.linear(2)),
             child: child!,
           ),
           home: const SearchChatPage(
@@ -127,12 +127,29 @@ void main() {
     await tester.pumpAndSettle();
     expect(tester.takeException(), isNull);
     final oldest = find.text('历史-0');
-    await tester.scrollUntilVisible(
-      oldest,
-      150,
-      scrollable: find.byType(Scrollable).last,
+    final historyList = find.byType(ListView);
+    final historyScrollable = find.descendant(
+      of: historyList,
+      matching: find.byType(Scrollable),
     );
-    await tester.tap(oldest);
+    expect(historyScrollable, findsOneWidget);
+    // Section 会一次构建所有历史项；找到文字不代表它已进入可点击视窗。
+    await tester.scrollUntilVisible(
+      oldest.hitTestable(),
+      150,
+      scrollable: historyScrollable,
+    );
+    await tester.pumpAndSettle();
+    expect(oldest.hitTestable(), findsOneWidget);
+    final viewport = tester.getRect(historyList);
+    final label = tester.getRect(oldest);
+    expect(label.top, greaterThanOrEqualTo(viewport.top));
+    expect(label.bottom, lessThanOrEqualTo(viewport.bottom));
+    expect(
+      tester.state<ScrollableState>(historyScrollable).position.pixels,
+      greaterThan(0),
+    );
+    await tester.tap(oldest.hitTestable());
     await tester.pumpAndSettle();
     expect(scoped.read(searchProvider).currentQuery, '历史-0');
     expect(scoped.read(searchProvider).searchResults, isEmpty);

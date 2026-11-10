@@ -140,9 +140,8 @@ void main() {
           ),
           GoRoute(
             path: '/e2ee_key_recovery',
-            builder: (context, state) => const Scaffold(
-              body: Text('E2EE recovery destination'),
-            ),
+            builder: (context, state) =>
+                const Scaffold(body: Text('E2EE recovery destination')),
           ),
         ],
       );

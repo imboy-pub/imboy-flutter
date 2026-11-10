@@ -64,14 +64,17 @@ void main() {
       cursors.add(cursor);
       if (cursor == 0) return List.generate(30, _subscriber);
       moreAttempts++;
-      if (moreAttempts == 1) throw StateError('channel_subscribers_request_failed');
+      if (moreAttempts == 1)
+        throw StateError('channel_subscribers_request_failed');
       return retry.future;
     });
 
     await tester.pumpWidget(_buildTestApp(api));
     await tester.pumpAndSettle();
     expect(find.byType(CupertinoActivityIndicator), findsNothing);
-    final controller = tester.widget<ListView>(find.byType(ListView)).controller!;
+    final controller = tester
+        .widget<ListView>(find.byType(ListView))
+        .controller!;
     controller.jumpTo(controller.position.maxScrollExtent);
     await tester.pumpAndSettle();
     expect(cursors, [0, 30]);
@@ -144,7 +147,9 @@ void main() {
     });
     await tester.pumpWidget(_buildTestApp(api));
     await tester.pumpAndSettle();
-    final controller = tester.widget<ListView>(find.byType(ListView)).controller!;
+    final controller = tester
+        .widget<ListView>(find.byType(ListView))
+        .controller!;
     controller.jumpTo(controller.position.maxScrollExtent);
     await tester.pump();
     expect(cursors, [0, 30]);

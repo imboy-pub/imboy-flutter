@@ -271,41 +271,40 @@ void main() {
   testWidgets('image preview uses localized close and returns to files', (
     tester,
   ) async {
-    final semantics = tester.ensureSemantics();
-    addTearDown(semantics.dispose);
     final previousLocale = LocaleSettings.currentLocale;
-    addTearDown(() async {
-      await LocaleSettings.setLocale(previousLocale);
-    });
-    await LocaleSettings.setLocale(AppLocale.enUs);
-    final fakeService = _FakeGroupFileService(
-      files: [
-        {
-          'file_id': 'f1',
-          'file_name': '示例图片.jpg',
-          'file_category': 'image',
-          'file_url': 'https://example.com/a.jpg',
-        },
-      ],
-      categoryStats: const [],
-      searchResult: const [],
-    );
-    GroupFileService.instanceForTest = fakeService;
+    try {
+      await tester.runAsync(() => LocaleSettings.setLocale(AppLocale.enUs));
+      final fakeService = _FakeGroupFileService(
+        files: [
+          {
+            'file_id': 'f1',
+            'file_name': '示例图片.jpg',
+            'file_category': 'image',
+            'file_url': 'https://example.com/a.jpg',
+          },
+        ],
+        categoryStats: const [],
+        searchResult: const [],
+      );
+      GroupFileService.instanceForTest = fakeService;
 
-    await tester.pumpWidget(_buildTestApp());
-    await tester.pumpAndSettle();
+      await tester.pumpWidget(_buildTestApp());
+      await tester.pumpAndSettle();
 
-    await tester.tap(find.text('示例图片.jpg'));
-    await tester.pumpAndSettle();
+      await tester.tap(find.text('示例图片.jpg'));
+      await tester.pumpAndSettle();
 
-    final close = find.bySemanticsLabel(t.common.buttonClose);
-    expect(close, findsOneWidget);
-    expect(find.text(t.common.groupFileOpenFailed), findsNothing);
-    expect(find.byType(InteractiveViewer), findsOneWidget);
-    await tester.tap(close);
-    await tester.pumpAndSettle();
-    expect(find.byType(InteractiveViewer), findsNothing);
-    expect(find.text('示例图片.jpg'), findsOneWidget);
+      final close = find.bySemanticsLabel(t.common.buttonClose);
+      expect(close, findsOneWidget);
+      expect(find.text(t.common.groupFileOpenFailed), findsNothing);
+      expect(find.byType(InteractiveViewer), findsOneWidget);
+      await tester.tap(close);
+      await tester.pumpAndSettle();
+      expect(find.byType(InteractiveViewer), findsNothing);
+      expect(find.text('示例图片.jpg'), findsOneWidget);
+    } finally {
+      await tester.runAsync(() => LocaleSettings.setLocale(previousLocale));
+    }
   });
 
   testWidgets('tap document file opens in-app web preview', (tester) async {

@@ -295,9 +295,8 @@ void main() {
       var backCalls = 0;
       Widget app(Widget body) => MaterialApp(
         builder: (context, child) => MediaQuery(
-          data: MediaQuery.of(context).copyWith(
-            textScaler: const TextScaler.linear(2.5),
-          ),
+          data: MediaQuery.of(context)
+              .copyWith(textScaler: const TextScaler.linear(2.5)),
           child: child!,
         ),
         home: IosPageTemplate(title: t.talkRecord.invalidTitle, body: body),
@@ -336,9 +335,7 @@ void main() {
       await tester.pumpWidget(
         app(
           const SingleChildScrollView(
-            child: Column(
-              children: [TalkRecordInvalidView(), Text('宿主后续内容')],
-            ),
+            child: Column(children: [TalkRecordInvalidView(), Text('宿主后续内容')]),
           ),
         ),
       );

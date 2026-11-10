@@ -92,9 +92,8 @@ void main() {
               unawaited(
                 Navigator.of(context).push<void>(
                   MaterialPageRoute(
-                    builder: (context) => const Scaffold(
-                      body: Text('通知设置目标页面'),
-                    ),
+                    builder: (context) =>
+                        const Scaffold(body: Text('通知设置目标页面')),
                   ),
                 ),
               );

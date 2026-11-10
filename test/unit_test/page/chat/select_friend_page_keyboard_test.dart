@@ -25,9 +25,8 @@ Future<void> _pumpPage(WidgetTester tester, {double textScale = 1}) async {
       child: ProviderScope(
         child: MaterialApp(
           builder: (context, child) => MediaQuery(
-            data: MediaQuery.of(context).copyWith(
-              textScaler: TextScaler.linear(textScale),
-            ),
+            data: MediaQuery.of(context)
+                .copyWith(textScaler: TextScaler.linear(textScale)),
             child: child!,
           ),
           home: const SelectFriendPage(
@@ -41,8 +40,19 @@ Future<void> _pumpPage(WidgetTester tester, {double textScale = 1}) async {
   // The no-isolate SQLite fixture completes the real post-frame query on the
   // current isolate; it requires no real network or filesystem from the page.
   await tester.pump();
-  await tester.pump(const Duration(milliseconds: 200));
+  await tester.pumpAndSettle();
   expect(find.text(_friendName), findsOneWidget);
+}
+
+Future<void> _focusFriendFromSearch(WidgetTester tester) async {
+  await tester.tap(find.byKey(const Key('select_friend_search_input')));
+  await tester.pump();
+  expect(
+    tester.widget<EditableText>(find.byType(EditableText)).focusNode.hasFocus,
+    isTrue,
+  );
+  await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+  await tester.pumpAndSettle();
 }
 
 void main() {
@@ -88,8 +98,7 @@ void main() {
     try {
       await _pumpPage(tester);
       final friend = find.text(_friendName);
-      Focus.of(tester.element(friend)).requestFocus();
-      await tester.pump();
+      await _focusFriendFromSearch(tester);
       final data = tester.getSemantics(friend).getSemanticsData();
       expect(data.label, contains(_friendName));
       expect(data.flagsCollection.isButton, isTrue);
@@ -104,8 +113,7 @@ void main() {
       expect(find.byType(CupertinoAlertDialog), findsNothing);
       expect(find.byType(SelectFriendPage), findsOneWidget);
 
-      Focus.of(tester.element(friend)).requestFocus();
-      await tester.pump();
+      await _focusFriendFromSearch(tester);
       expect(
         tester.getSemantics(friend).flagsCollection.isFocused.toBoolOrNull(),
         isTrue,
@@ -121,47 +129,50 @@ void main() {
     }
   });
 
-  testWidgets('large text fits contact row, synchronized header and confirmation', (
-    tester,
-  ) async {
-    tester.view.physicalSize = const Size(320, 700);
-    tester.view.devicePixelRatio = 1;
-    addTearDown(tester.view.resetPhysicalSize);
-    addTearDown(tester.view.resetDevicePixelRatio);
-    await _pumpPage(tester, textScale: 2.5);
+  testWidgets(
+    'large text fits contact row, synchronized header and confirmation',
+    (tester) async {
+      tester.view.physicalSize = const Size(320, 700);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+      await _pumpPage(tester, textScale: 2.5);
 
-    final friendParagraph = tester.renderObject<RenderParagraph>(
-      find.text(_friendName),
-    );
-    expect(
-      friendParagraph.getMaxIntrinsicHeight(friendParagraph.size.width),
-      lessThanOrEqualTo(friendParagraph.size.height + 0.01),
-    );
-    // Check the actual header paragraphs, excluding the plugin's separate
-    // compact index bar. The page and AzListView must agree on header height.
-    final list = tester.widget<AzListView>(find.byType(AzListView));
-    expect(list.susItemHeight, greaterThan(32));
-    final headers = find.byWidgetPredicate(
-      (widget) => widget is Text &&
-          widget.data == 'A' && widget.style?.fontWeight == FontWeight.w600,
-    );
-    expect(headers, findsWidgets);
-    for (final element in headers.evaluate()) {
-      final paragraph = element.renderObject! as RenderParagraph;
-      expect(
-        paragraph.getMaxIntrinsicHeight(paragraph.size.width),
-        lessThanOrEqualTo(paragraph.size.height + 0.01),
+      final friendParagraph = tester.renderObject<RenderParagraph>(
+        find.text(_friendName),
       );
-      expect(paragraph.size.height, lessThanOrEqualTo(list.susItemHeight));
-    }
+      expect(
+        friendParagraph.getMaxIntrinsicHeight(friendParagraph.size.width),
+        lessThanOrEqualTo(friendParagraph.size.height + 0.01),
+      );
+      // Check the actual header paragraphs, excluding the plugin's separate
+      // compact index bar. The page and AzListView must agree on header height.
+      final list = tester.widget<AzListView>(find.byType(AzListView));
+      expect(list.susItemHeight, greaterThan(32));
+      final headers = find.byWidgetPredicate(
+        (widget) =>
+            widget is Text &&
+            widget.data == 'A' &&
+            widget.style?.fontWeight == FontWeight.w600,
+      );
+      expect(headers, findsWidgets);
+      for (final element in headers.evaluate()) {
+        final paragraph = element.renderObject! as RenderParagraph;
+        expect(
+          paragraph.getMaxIntrinsicHeight(paragraph.size.width),
+          lessThanOrEqualTo(paragraph.size.height + 0.01),
+        );
+        expect(paragraph.size.height, lessThanOrEqualTo(list.susItemHeight));
+      }
 
-    await tester.tap(find.text(_friendName));
-    await tester.pumpAndSettle();
-    expect(find.text('[${t.common.personalCard}]测试名片'), findsOneWidget);
-    expect(find.text(t.common.buttonCancel), findsOneWidget);
-    expect(find.text(t.common.buttonSend), findsOneWidget);
-    expect(tester.takeException(), isNull);
-    await tester.tap(find.text(t.common.buttonCancel));
-    await tester.pumpAndSettle();
-  });
+      await tester.tap(find.text(_friendName));
+      await tester.pumpAndSettle();
+      expect(find.text('[${t.common.personalCard}]测试名片'), findsOneWidget);
+      expect(find.text(t.common.buttonCancel), findsOneWidget);
+      expect(find.text(t.common.buttonSend), findsOneWidget);
+      expect(tester.takeException(), isNull);
+      await tester.tap(find.text(t.common.buttonCancel));
+      await tester.pumpAndSettle();
+    },
+  );
 }
