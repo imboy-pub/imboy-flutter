@@ -213,7 +213,6 @@ class _EnterpriseShellPageState extends ConsumerState<EnterpriseShellPage> {
       ),
       child: Semantics(
         label: context.t.organization.inviteColleagues.title,
-        button: true,
         child: Icon(
           CupertinoIcons.person_add,
           size: 22,

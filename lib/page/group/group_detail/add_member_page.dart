@@ -125,7 +125,7 @@ class AddMemberPageState extends ConsumerState<AddMemberPage> {
                     .toggleSelection(model, widget.groupId);
               },
         child: Semantics(
-          button: true,
+          button: isMember ? true : null,
           enabled: !isMember,
           selected: isSelected,
           child: Padding(

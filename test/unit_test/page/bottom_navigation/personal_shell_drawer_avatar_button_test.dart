@@ -161,9 +161,19 @@ void main() {
 
   for (final inRail in [false, true]) {
     final label = inRail ? '侧栏 Popover' : '手机 Sheet';
-    testWidgets('$label 保留入口作用域，设置先关闭弹层再入栈', (tester) async {
+    testWidgets('$label 具名键盘入口保留作用域，设置先关闭弹层再入栈', (tester) async {
+      final semantics = tester.ensureSemantics();
+      addTearDown(semantics.dispose);
       final router = await _pumpMenu(tester, inRail: inRail);
-      await tester.tap(find.byKey(const ValueKey('menu-opener')));
+      await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+      await tester.pump();
+      final opener = tester.getSemantics(
+        find.bySemanticsLabel(t.organization.experienceUi.switchSpace),
+      );
+      expect(opener.flagsCollection.isButton, isTrue);
+      expect(opener.flagsCollection.isFocused.toBoolOrNull(), isTrue);
+      expect(opener.value, t.organization.experienceUi.personalSpace);
+      await tester.sendKeyEvent(LogicalKeyboardKey.enter);
       await tester.pumpAndSettle();
       expect(
         find.byKey(

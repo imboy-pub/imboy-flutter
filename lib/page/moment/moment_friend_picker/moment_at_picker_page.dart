@@ -228,7 +228,6 @@ class _MomentAtPickerPageState extends ConsumerState<MomentAtPickerPage> {
       // 不用 InkWell：DESIGN.md §13.2 禁止 Cupertino 列表行用 Material Ripple。
       onTap: () => _onFriendToggle(c),
       child: Semantics(
-        button: true,
         selected: checked,
         child: Padding(
           padding: const EdgeInsets.symmetric(

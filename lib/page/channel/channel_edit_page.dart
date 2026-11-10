@@ -111,6 +111,8 @@ class _ChannelEditPageState extends ConsumerState<ChannelEditPage> {
             ..addAll(latest.tags ?? const []);
         });
       }
+    } catch (e) {
+      iPrint('[ChannelEdit] 加载频道失败: $e');
     } finally {
       if (mounted && showLoading) {
         setState(() => _isLoading = false);
@@ -327,6 +329,22 @@ class _ChannelEditPageState extends ConsumerState<ChannelEditPage> {
         ),
         body: ResourcePageLayout(
           child: const Center(child: CupertinoActivityIndicator()),
+        ),
+      );
+    }
+
+    if (_channel == null) {
+      return Scaffold(
+        appBar: GlassAppBar(
+          title: t.channel.editChannel,
+          automaticallyImplyLeading: true,
+        ),
+        body: ResourcePageLayout(
+          child: NoDataView(
+            icon: CupertinoIcons.exclamationmark_circle,
+            text: t.common.loadError,
+            onTop: _loadChannel,
+          ),
         ),
       );
     }

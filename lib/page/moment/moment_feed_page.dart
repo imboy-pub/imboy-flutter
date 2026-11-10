@@ -335,7 +335,6 @@ class _MomentFeedPageState extends State<MomentFeedPage> {
         // 纯图标按钮，CupertinoButton 无 tooltip 参数，须显式 Semantics
         // 才有读屏标签（与同文件 _MomentNotifyEntry 写法一致）。
         Semantics(
-          button: true,
           label: t.main.publish,
           child: CupertinoButton(
             padding: EdgeInsets.zero,
@@ -575,7 +574,6 @@ class _MomentCard extends StatelessWidget {
                       CellPressable(
                         onTap: onActionTap,
                         child: Semantics(
-                          button: true,
                           // 该按钮弹出「赞/评论/删除」整套 Action Sheet，
                           // 标签应为"更多操作"，此前误标成"评论"误导读屏用户。
                           label: t.discovery.momentActionMore,
@@ -1364,7 +1362,6 @@ class _MomentNotifyEntry extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final unread = ref.watch(momentNotifyProvider.select((s) => s.unreadCount));
     return Semantics(
-      button: true,
       label: t.momentNotify.title,
       hint: unread > 0 ? '$unread' : null,
       child: CupertinoButton(

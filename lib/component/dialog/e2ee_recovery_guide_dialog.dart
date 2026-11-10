@@ -5,7 +5,9 @@ import 'package:imboy/app_core/feature_flags/feature_keys.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:imboy/component/ui/cell_pressable.dart';
 import 'package:imboy/i18n/strings.g.dart';
+import 'package:imboy/theme/default/app_sizes.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
 
 /// 「新设备登录后待引导」持久标记键 / Pending-guide flag key after a new-device login.
@@ -101,52 +103,65 @@ class E2EERecoveryBanner extends ConsumerWidget {
         ?.copyWith(color: scheme.onSecondaryContainer);
     return Material(
       color: scheme.secondaryContainer,
-      child: GestureDetector(
-        onTap: () {
-          if (AppFeatureRegistry.isEnabled(FeatureKeys.e2ee)) {
-            context.push('/e2ee_key_recovery');
-          }
-        },
-        child: Padding(
-          padding: const EdgeInsets.symmetric(
-            horizontal: AppSpacing.regular,
-            vertical: AppSpacing.medium,
-          ),
-          child: Row(
-            children: [
-              Icon(
-                CupertinoIcons.lock,
-                size: 20,
-                color: scheme.onSecondaryContainer,
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Text(t.chat.e2eeRecoveryBannerText, style: textStyle),
-              ),
-              const SizedBox(width: 8),
-              GestureDetector(
-                onTap: onDismiss,
-                behavior: HitTestBehavior.opaque,
-                // 44×44 最小触达区：视觉图标保持 18，用 SizedBox 扩命中区
-                child: SizedBox(
-                  width: 44,
-                  height: 44,
-                  child: Center(
-                    child: Semantics(
-                      label: t.common.buttonClose,
-                      button: true,
-                      child: Icon(
-                        CupertinoIcons.xmark_circle_fill,
-                        size: 18,
+      child: Row(
+        children: [
+          Expanded(
+            child: CellPressable(
+              onTap: () {
+                if (AppFeatureRegistry.isEnabled(FeatureKeys.e2ee)) {
+                  context.push('/e2ee_key_recovery');
+                }
+              },
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(
+                  minHeight: AppSizes.touchTarget,
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: AppSpacing.regular,
+                    vertical: AppSpacing.medium,
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(
+                        CupertinoIcons.lock,
+                        size: AppSizes.iconSizeSmall,
                         color: scheme.onSecondaryContainer,
                       ),
+                      AppSpacing.horizontalMedium,
+                      Expanded(
+                        child: Text(
+                          t.chat.e2eeRecoveryBannerText,
+                          style: textStyle,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+          CellPressable(
+            onTap: onDismiss,
+            child: Padding(
+              padding: const EdgeInsets.only(right: AppSpacing.regular),
+              child: Semantics(
+                label: t.common.buttonClose,
+                child: SizedBox(
+                  width: AppSizes.touchTarget,
+                  height: AppSizes.touchTarget,
+                  child: Center(
+                    child: Icon(
+                      CupertinoIcons.xmark_circle_fill,
+                      size: AppSizes.iconSizeSmall,
+                      color: scheme.onSecondaryContainer,
                     ),
                   ),
                 ),
               ),
-            ],
+            ),
           ),
-        ),
+        ],
       ),
     );
   }

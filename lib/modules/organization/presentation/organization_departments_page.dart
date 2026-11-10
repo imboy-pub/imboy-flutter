@@ -184,7 +184,6 @@ class _OrganizationDepartmentsPageState
 
   Widget _departmentExpander(OrganizationDepartment d, bool expanded) =>
       Semantics(
-        button: true,
         label: expanded
             ? t.organization.departments.collapseNode(name: d.name)
             : t.organization.departments.expandNode(name: d.name),
@@ -370,7 +369,6 @@ class _OrganizationDepartmentsPageState
         actions: [
           if (_canGovern)
             Semantics(
-              button: true,
               label: t.organization.departments.createRootDept,
               child: IconButton(
                 icon: const Icon(CupertinoIcons.add),

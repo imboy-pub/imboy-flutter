@@ -68,6 +68,7 @@ ResponseBody _response(int status) => ResponseBody.fromString(
 class _SearchResponseApi implements FtsApi {
   _SearchResponseApi(this.response, {this.refresh});
   final MessageSearchResponse response;
+  final queries = <String>[];
   final Future<MessageSearchResult?> Function(MessageSearchResult)? refresh;
   @override
   Future<MessageSearchResponse?> searchConversationMessages({
@@ -76,7 +77,10 @@ class _SearchResponseApi implements FtsApi {
     int page = 1,
     int size = 20,
     String? msgType,
-  }) async => response;
+  }) async {
+    queries.add(keyword);
+    return response;
+  }
   @override
   Future<MessageSearchResult?> refreshResultVisibility(
     MessageSearchResult item,
@@ -86,6 +90,58 @@ class _SearchResponseApi implements FtsApi {
 }
 
 void main() {
+  testWidgets('矮窗口大字的搜索历史可滚动到末条并发起真实搜索', (tester) async {
+    SharedPreferences.setMockInitialValues({Keys.currentUid: '1001'});
+    await StorageService.init();
+    tester.view.physicalSize = const Size(320, 360);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    final api = _SearchResponseApi(MessageSearchResponse(items: [], total: 0));
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [ftsApiProvider.overrideWithValue(api)],
+        child: MaterialApp(
+          builder: (context, child) => MediaQuery(
+            data: MediaQuery.of(context).copyWith(
+              textScaler: const TextScaler.linear(2),
+            ),
+            child: child!,
+          ),
+          home: const SearchChatPage(
+            conversationUk3: 'C2C_1001_1002',
+            type: 'C2C',
+            peerId: '1002',
+            peerTitle: '',
+            peerAvatar: '',
+            peerSign: '',
+          ),
+        ),
+      ),
+    );
+    final scoped = ProviderScope.containerOf(
+      tester.element(find.byType(EditableText)),
+    );
+    for (var index = 0; index < 8; index++) {
+      await scoped.read(searchProvider.notifier).addToHistory('历史-$index');
+    }
+    await tester.pumpAndSettle();
+    expect(tester.takeException(), isNull);
+    final oldest = find.text('历史-0');
+    await tester.scrollUntilVisible(
+      oldest,
+      150,
+      scrollable: find.byType(Scrollable).last,
+    );
+    await tester.tap(oldest);
+    await tester.pumpAndSettle();
+    expect(scoped.read(searchProvider).currentQuery, '历史-0');
+    expect(scoped.read(searchProvider).searchResults, isEmpty);
+    expect(api.queries, ['历史-0']);
+    expect(find.byType(ChoiceChip), findsNWidgets(3));
+    expect(tester.takeException(), isNull);
+    await tester.pumpWidget(const SizedBox.shrink());
+  });
+
   // FtsApi is a singleton and retains the first injected Dio adapter.
   final sharedAdapter = _DelayedAdapter();
   for (final navigate in [false, true]) {

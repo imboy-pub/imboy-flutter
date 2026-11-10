@@ -485,7 +485,6 @@ class _MomentDetailPageState extends State<MomentDetailPage> {
       actions: [
         // 纯图标按钮须显式 Semantics，CupertinoButton 无 tooltip 参数。
         Semantics(
-          button: true,
           label: t.discovery.momentActionMore,
           child: CupertinoButton(
             padding: EdgeInsets.zero,

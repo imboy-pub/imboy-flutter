@@ -268,9 +268,16 @@ void main() {
     expect(find.text('文件地址无效'), findsOneWidget);
   });
 
-  testWidgets('tap image file opens in-app full-screen preview', (
+  testWidgets('image preview uses localized close and returns to files', (
     tester,
   ) async {
+    final semantics = tester.ensureSemantics();
+    addTearDown(semantics.dispose);
+    final previousLocale = LocaleSettings.currentLocale;
+    addTearDown(() async {
+      await LocaleSettings.setLocale(previousLocale);
+    });
+    await LocaleSettings.setLocale(AppLocale.enUs);
     final fakeService = _FakeGroupFileService(
       files: [
         {
@@ -291,8 +298,14 @@ void main() {
     await tester.tap(find.text('示例图片.jpg'));
     await tester.pumpAndSettle();
 
-    expect(find.bySemanticsLabel('关闭'), findsOneWidget);
-    expect(find.text('无法打开文件链接'), findsNothing);
+    final close = find.bySemanticsLabel(t.common.buttonClose);
+    expect(close, findsOneWidget);
+    expect(find.text(t.common.groupFileOpenFailed), findsNothing);
+    expect(find.byType(InteractiveViewer), findsOneWidget);
+    await tester.tap(close);
+    await tester.pumpAndSettle();
+    expect(find.byType(InteractiveViewer), findsNothing);
+    expect(find.text('示例图片.jpg'), findsOneWidget);
   });
 
   testWidgets('tap document file opens in-app web preview', (tester) async {

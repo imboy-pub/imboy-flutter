@@ -10,6 +10,9 @@ import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/service/account_local_files.dart';
 import 'package:imboy/service/account_local_task_registry.dart';
 import 'package:imboy/service/auth_session_scope.dart';
+import 'package:imboy/theme/default/app_colors.dart';
+import 'package:imboy/theme/default/app_spacing.dart';
+import 'package:imboy/theme/default/font_types.dart';
 
 // ignore: must_be_immutable
 class CropImageRoute extends StatefulWidget {
@@ -34,6 +37,7 @@ class CropImageRoute extends StatefulWidget {
 class _CropImageRouteState extends State<CropImageRoute> {
   final _controller = CropController();
   Uint8List? _imageBytes;
+  bool _imageReadFailed = false;
   bool _isCropping = false;
   late final AuthSessionScope _session;
   late final AccountLocalTaskOwner _owner;
@@ -52,12 +56,54 @@ class _CropImageRouteState extends State<CropImageRoute> {
   }
 
   Future<void> _loadImage() async {
+    if (!_isCurrent) return;
+    if (_imageReadFailed) setState(() => _imageReadFailed = false);
     try {
       final bytes = await widget.image.readAsBytes();
       if (_isCurrent) setState(() => _imageBytes = bytes);
     } on IOException catch (error) {
+      if (_isCurrent) setState(() => _imageReadFailed = true);
       if (kDebugMode) debugPrint('> image read failed: ${error.runtimeType}');
     }
+  }
+
+  Widget _buildImage() {
+    if (_imageReadFailed) {
+      return Center(
+        child: SingleChildScrollView(
+          padding: AppSpacing.allRegular,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                t.common.imageLoadFailed,
+                textAlign: TextAlign.center,
+                style: context.textStyle(
+                  FontSizeType.body,
+                  color: AppColors.onPrimary,
+                ),
+              ),
+              AppSpacing.verticalSmall,
+              CupertinoButton(
+                onPressed: _loadImage,
+                child: Text(t.common.buttonRetry),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+    if (_imageBytes == null) {
+      return const Center(
+        child: CupertinoActivityIndicator(color: CupertinoColors.white),
+      );
+    }
+    return Crop(
+      image: _imageBytes!,
+      controller: _controller,
+      aspectRatio: 1.0,
+      onCropped: _onCropped,
+    );
   }
 
   @override
@@ -68,59 +114,51 @@ class _CropImageRouteState extends State<CropImageRoute> {
         height: size.height,
         width: size.width,
         color: Colors.black,
-        child: Column(
-          children: [
-            Expanded(
-              child: _imageBytes == null
-                  ? const Center(
-                      child: CupertinoActivityIndicator(
-                        color: CupertinoColors.white,
+        child: SafeArea(
+          child: Column(
+            children: [
+              Expanded(child: _buildImage()),
+              Row(
+                children: [
+                  Expanded(
+                    child: CupertinoButton(
+                      onPressed: () => Navigator.of(context).pop(),
+                      child: Text(
+                        t.common.buttonCancel,
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(fontWeight: FontWeight.normal),
                       ),
-                    )
-                  : Crop(
-                      image: _imageBytes!,
-                      controller: _controller,
-                      aspectRatio: 1.0,
-                      onCropped: _onCropped,
                     ),
-            ),
-            Row(
-              children: [
-                CupertinoButton(
-                  onPressed: () => Navigator.of(context).pop(),
-                  child: Text(
-                    t.common.buttonCancel,
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(fontWeight: FontWeight.normal),
                   ),
-                ),
-                const Expanded(child: SizedBox.shrink()),
-                CupertinoButton(
-                  onPressed: (_imageBytes == null || _isCropping)
-                      ? null
-                      : _startCrop,
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 10),
-                    child: _isCropping
-                        ? const SizedBox(
-                            width: 16,
-                            height: 16,
-                            child: CupertinoActivityIndicator(
-                              color: CupertinoColors.white,
-                            ),
-                          )
-                        : Text(
-                            t.common.buttonAccomplish,
-                            textAlign: TextAlign.center,
-                            style: const TextStyle(
-                              fontWeight: FontWeight.normal,
-                            ),
-                          ),
+                  Expanded(
+                    child: CupertinoButton(
+                      onPressed: (_imageBytes == null || _isCropping)
+                          ? null
+                          : _startCrop,
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 10),
+                        child: _isCropping
+                            ? const SizedBox(
+                                width: 16,
+                                height: 16,
+                                child: CupertinoActivityIndicator(
+                                  color: CupertinoColors.white,
+                                ),
+                              )
+                            : Text(
+                                t.common.buttonAccomplish,
+                                textAlign: TextAlign.center,
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.normal,
+                                ),
+                              ),
+                      ),
+                    ),
                   ),
-                ),
-              ],
-            ),
-          ],
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );

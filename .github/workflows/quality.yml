@@ -152,6 +152,7 @@ jobs:
         run: bash .github/scripts/ci_checkout_submodules.sh 0
 
       - name: Setup Flutter
+        id: flutter-sdk
         uses: subosito/flutter-action@v2
         with:
           # 与 ci.yml/integration_test.yml 的 FLUTTER_VERSION 保持一致，
@@ -209,7 +210,7 @@ jobs:
       # 之外新增 1 条 analyzer 问题即 FAIL；基线内减少仅提示收紧。
       # ----------------------------------------------------------------
       - name: Formatting of tracked first-party Dart files
-        if: ${{ !cancelled() }}
+        if: ${{ !cancelled() && steps.flutter-sdk.outcome == 'success' }}
         id: dart-format
         run: |
           if git ls-files -z '*.dart' ':!plugin/' | xargs -0 dart format --output=none --set-exit-if-changed; then

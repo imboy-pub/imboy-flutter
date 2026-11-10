@@ -81,7 +81,6 @@ class RemoveMemberPageState extends ConsumerState<RemoveMemberPage> {
               notifier.toggleSelection(model);
             },
             child: Semantics(
-              button: true,
               selected: isSelected,
               child: Row(
                 children: [

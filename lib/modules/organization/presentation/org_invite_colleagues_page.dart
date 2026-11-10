@@ -470,7 +470,6 @@ class _OrgInviteColleaguesPageState extends State<OrgInviteColleaguesPage> {
       onPressed: _openMoreSheet,
       child: Semantics(
         label: context.t.organization.common.moreActions,
-        button: true,
         child: Icon(
           CupertinoIcons.ellipsis,
           size: 20,

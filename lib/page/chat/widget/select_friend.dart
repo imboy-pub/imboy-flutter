@@ -9,6 +9,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lpinyin/lpinyin.dart';
 
 import 'package:imboy/component/ui/avatar.dart';
+import 'package:imboy/component/ui/cell_pressable.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/nodata_view.dart';
 import 'package:imboy/component/ui/shimmer_list.dart';
@@ -140,68 +141,64 @@ class _SelectFriendPageState extends ConsumerState<SelectFriendPage> {
       context: context,
       builder: (context) => CupertinoAlertDialog(
         title: Text(t.chat.sendTo),
-        content: SizedBox(
-          height: 164,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              peerIsReceiver
-                  ? Row(
-                      children: [
-                        Avatar(imgUri: model.avatar),
-                        Expanded(
-                          child: Padding(
-                            padding: const EdgeInsets.only(left: 10),
-                            child: Text(
-                              model.title,
-                              style: context.textStyle(
-                                FontSizeType.medium,
-                                fontWeight: FontWeight.normal,
-                              ),
-                              maxLines: 6,
-                              overflow: TextOverflow.ellipsis,
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            peerIsReceiver
+                ? Row(
+                    children: [
+                      Avatar(imgUri: model.avatar),
+                      Expanded(
+                        child: Padding(
+                          padding: const EdgeInsets.only(left: 10),
+                          child: Text(
+                            model.title,
+                            style: context.textStyle(
+                              FontSizeType.medium,
+                              fontWeight: FontWeight.normal,
                             ),
+                            maxLines: 6,
+                            overflow: TextOverflow.ellipsis,
                           ),
                         ),
-                      ],
-                    )
-                  : Row(
-                      children: [
-                        Avatar(imgUri: peer['avatar']!),
-                        Expanded(
-                          child: Padding(
-                            padding: const EdgeInsets.only(left: 10),
-                            child: Text(
-                              peer['title']!,
-                              style: context.textStyle(
-                                FontSizeType.medium,
-                                fontWeight: FontWeight.normal,
-                              ),
-                              maxLines: 6,
-                              overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                  )
+                : Row(
+                    children: [
+                      Avatar(imgUri: peer['avatar']!),
+                      Expanded(
+                        child: Padding(
+                          padding: const EdgeInsets.only(left: 10),
+                          child: Text(
+                            peer['title']!,
+                            style: context.textStyle(
+                              FontSizeType.medium,
+                              fontWeight: FontWeight.normal,
                             ),
+                            maxLines: 6,
+                            overflow: TextOverflow.ellipsis,
                           ),
                         ),
-                      ],
-                    ),
-              Container(
-                height: 1,
-                margin: const EdgeInsets.symmetric(vertical: 8),
-                color: CupertinoColors.separator.withValues(alpha: 0.3),
-              ),
-              Expanded(
-                child: Text(
-                  // visitCard
-                  peerIsReceiver
-                      ? "[${t.common.personalCard}]${peer['nickname']}"
-                      : "[${t.common.personalCard}]${model.nickname}",
-                  style: TextStyle(
-                    color: Theme.of(context).colorScheme.tertiary,
+                      ),
+                    ],
                   ),
-                ),
+            Container(
+              height: 1,
+              margin: const EdgeInsets.symmetric(vertical: 8),
+              color: CupertinoColors.separator.withValues(alpha: 0.3),
+            ),
+            Text(
+              // visitCard
+              peerIsReceiver
+                  ? "[${t.common.personalCard}]${peer['nickname']}"
+                  : "[${t.common.personalCard}]${model.nickname}",
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.tertiary,
               ),
-            ],
-          ),
+            ),
+          ],
         ),
         actions: [
           CupertinoDialogAction(
@@ -241,42 +238,36 @@ class _SelectFriendPageState extends ConsumerState<SelectFriendPage> {
     final brightness = Theme.of(context).brightness;
     return Column(
       children: [
-        Semantics(
-          button: true,
-          child: GestureDetector(
-            // 不用 InkWell：DESIGN.md §13.2 禁止 Cupertino 列表行用 Ripple
-            behavior: HitTestBehavior.opaque,
-            onTap: () {
-              sendToDialog(model);
-            },
-            child: Container(
-              height: _itemHeight,
-              // 行背景用 surface，与页面 grouped 背景形成 iOS 分组层次
-              color: brightness == Brightness.dark
-                  ? AppColors.darkSurface
-                  : AppColors.lightSurface,
-              padding: const EdgeInsets.symmetric(
-                horizontal: AppSpacing.regular,
-              ),
-              child: Row(
-                children: [
-                  Avatar(imgUri: model.avatar, width: 44, height: 44),
-                  AppSpacing.horizontalMedium,
-                  Expanded(
-                    child: Text(
-                      model.title,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: context
-                          .textStyle(
-                            FontSizeType.body,
-                            fontWeight: FontWeight.w500,
-                          )
-                          .copyWith(letterSpacing: -0.4),
-                    ),
+        CellPressable(
+          onTap: () => sendToDialog(model),
+          child: Container(
+            constraints: const BoxConstraints(minHeight: _itemHeight),
+            // 行背景用 surface，与页面 grouped 背景形成 iOS 分组层次
+            color: brightness == Brightness.dark
+                ? AppColors.darkSurface
+                : AppColors.lightSurface,
+            padding: const EdgeInsets.symmetric(
+              horizontal: AppSpacing.regular,
+              vertical: AppSpacing.small,
+            ),
+            child: Row(
+              children: [
+                Avatar(imgUri: model.avatar, width: 44, height: 44),
+                AppSpacing.horizontalMedium,
+                Expanded(
+                  child: Text(
+                    model.title,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: context
+                        .textStyle(
+                          FontSizeType.body,
+                          fontWeight: FontWeight.w500,
+                        )
+                        .copyWith(letterSpacing: -0.4),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
         ),
@@ -295,7 +286,25 @@ class _SelectFriendPageState extends ConsumerState<SelectFriendPage> {
   }
 
   /// 构建吸顶分组头（A-Z），样式对齐 contact_page
-  Widget _buildSusItem(BuildContext context, String tag) {
+  TextStyle _suspensionTextStyle(BuildContext context) => context.textStyle(
+    FontSizeType.footnote,
+    fontWeight: FontWeight.w600,
+    color: AppColors.iosGray,
+  );
+
+  double _suspensionHeight(BuildContext context) {
+    final painter = TextPainter(
+      text: TextSpan(text: 'A', style: _suspensionTextStyle(context)),
+      textDirection: Directionality.of(context),
+      textScaler: MediaQuery.textScalerOf(context),
+      maxLines: 1,
+    )..layout();
+    final height = math.max(32.0, painter.height + AppSpacing.small);
+    painter.dispose();
+    return height;
+  }
+
+  Widget _buildSusItem(BuildContext context, String tag, double height) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     // width 必须按约束决定，不能写死 double.infinity。
     // AzListView 把吸顶头同时用在两处：列表内联项（宽度有界）和悬浮头
@@ -304,7 +313,7 @@ class _SelectFriendPageState extends ConsumerState<SelectFriendPage> {
     // "BoxConstraints forces an infinite width" 断言，整页布局崩掉。
     return LayoutBuilder(
       builder: (context, constraints) => Container(
-        height: 32,
+        height: height,
         width: constraints.hasBoundedWidth ? double.infinity : null,
         padding: const EdgeInsets.symmetric(horizontal: AppSpacing.regular),
         alignment: Alignment.centerLeft,
@@ -313,11 +322,7 @@ class _SelectFriendPageState extends ConsumerState<SelectFriendPage> {
             : AppColors.lightSurfaceGrouped,
         child: Text(
           tag,
-          style: context.textStyle(
-            FontSizeType.footnote,
-            fontWeight: FontWeight.w600,
-            color: AppColors.iosGray,
-          ),
+          style: _suspensionTextStyle(context),
         ),
       ),
     );
@@ -326,6 +331,7 @@ class _SelectFriendPageState extends ConsumerState<SelectFriendPage> {
   Widget _buildListView(List<ContactModel> visibleList) {
     final brightness = Theme.of(context).brightness;
     final barData = _indexBarDataFor(visibleList);
+    final suspensionHeight = _suspensionHeight(context);
 
     // IndexBar 是固定高度的 Column（27 项 × itemHeight），列表区高度不足时
     // 右侧字母栏会 RenderFlex overflow；按可用高度压缩每项高度即可。
@@ -340,6 +346,7 @@ class _SelectFriendPageState extends ConsumerState<SelectFriendPage> {
         return AzListView(
           data: visibleList,
           itemCount: visibleList.length,
+          susItemHeight: suspensionHeight,
           indexBarItemHeight: itemHeight,
           itemBuilder: (context, i) {
             final showDivider =
@@ -360,7 +367,11 @@ class _SelectFriendPageState extends ConsumerState<SelectFriendPage> {
             if ('↑' == model.getSuspensionTag()) {
               return const SizedBox.shrink();
             }
-            return _buildSusItem(context, model.getSuspensionTag());
+            return _buildSusItem(
+              context,
+              model.getSuspensionTag(),
+              suspensionHeight,
+            );
           },
           indexBarData: barData,
           indexBarOptions: IndexBarOptions(

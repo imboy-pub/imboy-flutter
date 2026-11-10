@@ -91,7 +91,6 @@ Future<bool> orgConfirmDangerAction(
           child: const Text('取消'),
         ),
         Semantics(
-          button: true,
           label: '$title 确认',
           child: TextButton(
             style: TextButton.styleFrom(
@@ -126,7 +125,6 @@ Future<bool> orgConfirmAction(
           child: const Text('取消'),
         ),
         Semantics(
-          button: true,
           label: '$title 确认',
           child: TextButton(
             style: TextButton.styleFrom(
@@ -170,7 +168,6 @@ Future<String?> orgPromptInput(
           child: const Text('取消'),
         ),
         Semantics(
-          button: true,
           label: '$title 提交',
           child: TextButton(
             onPressed: () => Navigator.of(ctx).pop(controller.text.trim()),

@@ -124,7 +124,6 @@ class _TransferOwnerPageState extends State<TransferOwnerPage> {
             // 不用 InkWell：DESIGN.md §13.2 禁止 Cupertino 列表行用 Ripple
             onTap: () => setState(() => _selectedUid = uid),
             child: Semantics(
-              button: true,
               selected: isSelected,
               child: Row(
                 children: [

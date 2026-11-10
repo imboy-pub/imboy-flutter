@@ -286,7 +286,6 @@ class _OrganizationDetailPageState extends State<OrganizationDetailPage> {
           // 出码是 owner/admin 治理动作（成员 GET 403），按 canGovern 隐藏。
           if (org != null && org.canGovern && !org.isArchived)
             Semantics(
-              button: true,
               label: t.organization.inviteQr.orgQrcode,
               child: IconButton(
                 key: const ValueKey('organization-detail-invite-qr'),
@@ -302,7 +301,6 @@ class _OrganizationDetailPageState extends State<OrganizationDetailPage> {
             ),
           if (org != null && org.canGovern && !org.isArchived)
             Semantics(
-              button: true,
               label: t.organization.detail.renameOrgTitle,
               child: IconButton(
                 icon: const Icon(CupertinoIcons.pencil),

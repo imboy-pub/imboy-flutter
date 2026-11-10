@@ -980,7 +980,6 @@ class _MediaThumb extends StatelessWidget {
           child: CellPressable(
             onTap: onRemove,
             child: Semantics(
-              button: true,
               label: context.t.common.delete,
               child: SizedBox(
                 width: 44,

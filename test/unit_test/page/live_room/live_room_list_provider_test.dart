@@ -1,5 +1,9 @@
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:imboy/i18n/strings.g.dart';
+import 'package:imboy/page/live_room/live_room_list/live_room_list_page.dart';
 import 'package:imboy/page/live_room/live_room_list/live_room_list_provider.dart';
 import 'package:imboy/store/api/live_room_api.dart';
 import 'package:imboy/store/model/live_room_model.dart';
@@ -11,6 +15,7 @@ class _FakeLiveRoomApi extends LiveRoomApi {
   final Map<int, Map<String, dynamic>?> pageResults;
   final Map<String, dynamic>? _defaultResult;
   int callCount = 0;
+  final requestedPages = <int>[];
 
   _FakeLiveRoomApi({
     Map<String, dynamic>? myListResult,
@@ -21,6 +26,7 @@ class _FakeLiveRoomApi extends LiveRoomApi {
   @override
   Future<Map<String, dynamic>?> myList({int page = 1, int size = 20}) async {
     callCount++;
+    requestedPages.add(page);
     if (pageResults.containsKey(page)) return pageResults[page];
     return _defaultResult;
   }
@@ -57,6 +63,61 @@ Map<String, dynamic> _roomJson({
 // ── Tests ─────────────────────────────────────────────────────────────────────
 
 void main() {
+  Widget buildPage(LiveRoomApi api) => TranslationProvider(
+    child: ProviderScope(
+      overrides: [
+        liveRoomListProvider.overrideWith(
+          () => _TestLiveRoomListNotifier(api: api),
+        ),
+      ],
+      child: const MaterialApp(home: LiveRoomListPage()),
+    ),
+  );
+
+  testWidgets('空列表可下拉刷新第一页，不会把空态滚动当成下一页', (tester) async {
+    final api = _FakeLiveRoomApi(myListResult: null);
+    await tester.pumpWidget(buildPage(api));
+    await tester.pumpAndSettle();
+    expect(api.requestedPages, [1]);
+    expect(find.text(t.common.noData), findsOneWidget);
+    expect(find.byType(CupertinoActivityIndicator), findsNothing);
+
+    await tester.drag(find.byType(CustomScrollView), const Offset(0, 300));
+    await tester.pumpAndSettle();
+    expect(api.requestedPages, [1, 1]);
+    expect(find.text(t.common.noData), findsOneWidget);
+    expect(tester.takeException(), isNull);
+    await tester.pumpWidget(const SizedBox.shrink());
+  });
+
+  testWidgets('列表未填满窗口时可点击加载更多，闲置页尾不转圈', (tester) async {
+    final api = _FakeLiveRoomApi(
+      pageResults: {
+        1: {
+          'list': [_roomJson(id: 'r1', title: '第一页直播间')],
+          'total': 2,
+        },
+        2: {
+          'list': [_roomJson(id: 'r2', title: '第二页直播间')],
+          'total': 2,
+        },
+      },
+    );
+    await tester.pumpWidget(buildPage(api));
+    await tester.pumpAndSettle();
+    expect(api.requestedPages, [1]);
+    expect(find.byType(CupertinoActivityIndicator), findsNothing);
+    await tester.tap(find.text(t.common.loadMore));
+    await tester.pumpAndSettle();
+    expect(api.requestedPages, [1, 2]);
+    expect(find.text('第一页直播间'), findsOneWidget);
+    expect(find.text('第二页直播间'), findsOneWidget);
+    expect(find.text(t.common.loadMore), findsNothing);
+    expect(find.byType(CupertinoActivityIndicator), findsNothing);
+    expect(tester.takeException(), isNull);
+    await tester.pumpWidget(const SizedBox.shrink());
+  });
+
   group('LiveRoomModel.fromJson', () {
     test('parses string id correctly', () {
       final model = LiveRoomModel.fromJson(_roomJson(id: 'xk9zp1'));

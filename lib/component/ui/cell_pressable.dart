@@ -10,6 +10,8 @@ import 'package:imboy/theme/default/app_colors.dart';
 ///
 /// [onTap] / [onLongPress] 至少一个非 null 才响应触摸；
 /// 两者皆为 null 时整行透明、不响应（用于只读 Cell）。
+/// 已启用时提供按钮角色，子节点只补充 label / selected 等状态；
+/// 重复声明 button 会使当前 Flutter 拆开名称与焦点语义。
 ///
 /// 使用示例：
 /// ```dart

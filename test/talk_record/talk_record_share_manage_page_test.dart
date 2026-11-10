@@ -7,9 +7,13 @@
 library;
 
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'package:imboy/component/ui/ios_settings_ui.dart';
+import 'package:imboy/i18n/strings.g.dart';
+import 'package:imboy/modules/talk_record/presentation/share/talk_record_invalid_view.dart';
 import 'package:imboy/modules/talk_record/presentation/share/talk_record_share_fixture_service.dart';
 import 'package:imboy/modules/talk_record/presentation/share/talk_record_share_manage_page.dart';
 import 'package:imboy/modules/talk_record/presentation/share/talk_record_share_providers.dart';
@@ -282,6 +286,66 @@ void main() {
         find.byKey(const ValueKey('talk_record_invalid_back')),
         findsOneWidget,
       );
+    });
+
+    testWidgets('短屏 2.5 倍文字可滚动至返回，嵌入态保持自然布局', (tester) async {
+      tester.view.devicePixelRatio = 1;
+      tester.view.physicalSize = const Size(320, 280);
+      addTearDown(tester.view.reset);
+      var backCalls = 0;
+      Widget app(Widget body) => MaterialApp(
+        builder: (context, child) => MediaQuery(
+          data: MediaQuery.of(context).copyWith(
+            textScaler: const TextScaler.linear(2.5),
+          ),
+          child: child!,
+        ),
+        home: IosPageTemplate(title: t.talkRecord.invalidTitle, body: body),
+      );
+      await tester.pumpWidget(
+        app(TalkRecordInvalidView(onBack: () => backCalls++)),
+      );
+      expect(tester.takeException(), isNull);
+      final view = find.byType(TalkRecordInvalidView);
+      final back = find.byKey(const ValueKey('talk_record_invalid_back'));
+      final paragraph = tester.renderObject<RenderParagraph>(
+        find.text(t.talkRecord.invalidBody),
+      );
+      expect(paragraph.textScaler.scale(1), 2.5);
+      expect(paragraph.didExceedMaxLines, isFalse);
+      expect(back.hitTestable(), findsNothing);
+      await tester.scrollUntilVisible(
+        back,
+        100,
+        scrollable: find.descendant(
+          of: view,
+          matching: find.byType(Scrollable),
+        ),
+      );
+      await tester.pumpAndSettle();
+      final viewport = tester.getRect(view).inflate(0.1);
+      final button = tester.getRect(back);
+      expect(viewport.contains(button.topLeft), isTrue);
+      expect(viewport.contains(button.bottomRight), isTrue);
+      expect(back.hitTestable(), findsOneWidget);
+      await tester.tap(back);
+      await tester.pumpAndSettle();
+      expect(backCalls, 1);
+
+      // 宿主页已有滚动容器时，不要求 View 获得有限高度或占满视口。
+      await tester.pumpWidget(
+        app(
+          const SingleChildScrollView(
+            child: Column(
+              children: [TalkRecordInvalidView(), Text('宿主后续内容')],
+            ),
+          ),
+        ),
+      );
+      expect(find.text(t.talkRecord.invalidBody), findsOneWidget);
+      expect(back, findsNothing);
+      expect(tester.getSize(view).height.isFinite, isTrue);
+      expect(tester.takeException(), isNull);
     });
   });
 

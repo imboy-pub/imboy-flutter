@@ -2,6 +2,8 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:imboy/component/ui/cell_pressable.dart';
+import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/font_types.dart';
 import 'package:imboy/component/ui/sound_manager.dart';
@@ -54,30 +56,31 @@ class NumericKeypad extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final colorScheme = Theme.of(context).colorScheme;
 
-    return GestureDetector(
-      behavior: HitTestBehavior.opaque,
-      onTap: () async {
-        // 播放金属感按键音效
-        try {
-          await SoundManager.playMetallicSound();
-        } on Exception catch (e) {
-          // 如果音效播放失败，不影响功能继续使用
-          if (kDebugMode) debugPrint("金属音效播放失败: ${e.runtimeType}");
-        }
+    return CellPressable(
+      onTap: keyboardDataBean.type == PayKeyboardType.none
+          ? null
+          : () async {
+              // 播放金属感按键音效
+              try {
+                await SoundManager.playMetallicSound();
+              } on Exception catch (e) {
+                // 如果音效播放失败，不影响功能继续使用
+                if (kDebugMode) debugPrint("金属音效播放失败: ${e.runtimeType}");
+              }
 
-        if (keyboardDataBean.type == PayKeyboardType.delete) {
-          if (controller.value.isNotEmpty) {
-            controller.value = controller.value.substring(
-              0,
-              controller.value.length - 1,
-            );
-            onChanged(controller.value);
-          }
-        } else if (keyboardDataBean.type == PayKeyboardType.num) {
-          controller.value += keyboardDataBean.value;
-          onChanged(controller.value);
-        }
-      },
+              if (keyboardDataBean.type == PayKeyboardType.delete) {
+                if (controller.value.isNotEmpty) {
+                  controller.value = controller.value.substring(
+                    0,
+                    controller.value.length - 1,
+                  );
+                  onChanged(controller.value);
+                }
+              } else if (keyboardDataBean.type == PayKeyboardType.num) {
+                controller.value += keyboardDataBean.value;
+                onChanged(controller.value);
+              }
+            },
       child: Container(
         alignment: Alignment.center,
         decoration: BoxDecoration(
@@ -100,6 +103,7 @@ class NumericKeypad extends StatelessWidget {
         child: keyboardDataBean.type == PayKeyboardType.delete
             ? Icon(
                 CupertinoIcons.delete,
+                semanticLabel: t.common.buttonDelete,
                 color: isDark
                     ? Colors.white60
                     : colorScheme.onSurface.withValues(alpha: 0.6),

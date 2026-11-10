@@ -422,7 +422,6 @@ class _ContactPageState extends ConsumerState<ContactPage> {
       actions: [
         Semantics(
           label: t.contact.tags,
-          button: true,
           child: CupertinoButton(
             padding: EdgeInsets.zero,
             child: const Icon(CupertinoIcons.tag, size: 22),
@@ -431,7 +430,6 @@ class _ContactPageState extends ConsumerState<ContactPage> {
         ),
         Semantics(
           label: t.common.addFriend,
-          button: true,
           child: CupertinoButton(
             key: const Key('add_friend_button'),
             padding: EdgeInsets.zero,

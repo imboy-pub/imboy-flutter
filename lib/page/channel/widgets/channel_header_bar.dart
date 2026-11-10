@@ -629,7 +629,6 @@ class _ChannelHeaderBarState extends ConsumerState<ChannelHeaderBar> {
     // 该动作的可读名（调用方传入）。
     return Semantics(
       label: label,
-      button: true,
       child: CupertinoButton(
         padding: EdgeInsets.zero,
         onPressed: disabled ? null : onTap,

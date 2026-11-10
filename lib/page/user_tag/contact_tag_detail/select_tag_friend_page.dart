@@ -108,7 +108,6 @@ class _SelectFriendPageState extends ConsumerState<SelectFriendPage> {
               });
             },
             child: Semantics(
-              button: true,
               selected: model.selected,
               child: Row(
                 children: [

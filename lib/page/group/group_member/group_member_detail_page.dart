@@ -276,7 +276,6 @@ class _GroupMemberDetailPageState extends ConsumerState<GroupMemberDetailPage> {
           ),
           // 纯图标按钮须显式 Semantics，CupertinoButton 无 tooltip 参数。
           leading: Semantics(
-            button: true,
             label: t.common.buttonBack,
             child: CupertinoButton(
               padding: EdgeInsets.zero,

@@ -201,7 +201,6 @@ class ChangePasswordPage extends ConsumerWidget {
                 ),
               ),
               Semantics(
-                button: true,
                 label: obscure ? t.common.showPassword : t.common.hidePassword,
                 child: CupertinoButton(
                   padding: EdgeInsets.zero,

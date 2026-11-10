@@ -235,7 +235,6 @@ class _OrganizationInvitationsPageState
         actions: [
           if (!widget.mineMode)
             Semantics(
-              button: true,
               label: t.organization.invitations.createInvitation,
               child: IconButton(
                 icon: const Icon(CupertinoIcons.add),
