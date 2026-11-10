@@ -277,7 +277,8 @@ raise SystemExit(code)
         self.assertIsNotNone(match, f'CI job is missing: {name}')
         return match.group(1)
 
-    def run_ci_dependencies(self, platform, *, chrome='success', binary_name='google-chrome'):
+    def run_ci_dependencies(self, platform, *, suite='unit', chrome='success',
+                            binary_name='google-chrome', pip_exit=0):
         """Run CI's actual dependency command and Chrome helper with synthetic SDK tools."""
         host = self.ci_job('host-tests')
         step = re.search(r'^      - name: Prepare isolated host dependencies\n(.*?)(?=^      - |\Z)',
@@ -285,6 +286,7 @@ raise SystemExit(code)
         self.assertIsNotNone(step)
         self.assertIn('id: dependencies', step[1])
         self.assertIn('WORKER_PLATFORM: ${{ matrix.platform }}', step[1])
+        self.assertIn('WORKER_SUITE: ${{ matrix.suite }}', step[1])
         self.assertIn('WORKER_EVIDENCE_DIR: ${{ runner.temp }}/execution-${{ matrix.platform }}-${{ matrix.suite }}',
                       step[1])
         command = '\n'.join(line[10:] for line in step[1].split('        run: |\n', 1)[1].splitlines())
@@ -307,6 +309,10 @@ raise SystemExit(code)
             flutter = binaries / 'flutter'
             flutter.write_text('#!/bin/sh\nprintf "flutter %s\\n" "$*" >> "$CI_FIXTURE_CALLS"\n')
             flutter.chmod(0o755)
+            python = binaries / 'python3'
+            python.write_text('#!/bin/sh\nprintf "python3 %s\\n" "$*" >> "$CI_FIXTURE_CALLS"\n'
+                              'exit "$CI_FIXTURE_PIP_EXIT"\n')
+            python.chmod(0o755)
             browser = binaries / binary_name
             if chrome != 'missing':
                 response = ('printf "synthetic Chrome loader failure\\n" >&2\nexit 17\n'
@@ -318,6 +324,7 @@ raise SystemExit(code)
             evidence = project / 'worker evidence'
             calls_file, env_file = project / 'calls.log', project / 'github.env'
             env = {**os.environ, 'PATH': str(binaries), 'WORKER_PLATFORM': platform,
+                   'WORKER_SUITE': suite, 'CI_FIXTURE_PIP_EXIT': str(pip_exit),
                    'WORKER_EVIDENCE_DIR': str(evidence), 'GITHUB_ENV': str(env_file),
                    'CI_FIXTURE_CALLS': str(calls_file)}
             env.pop('CHROME_EXECUTABLE', None)
@@ -581,6 +588,21 @@ raise SystemExit(code)
                 self.assertEqual(calls, ['path-deps --check', 'flutter pub get --enforce-lockfile', 'env', 'vod'])
                 self.assertEqual(published, '')
                 self.assertIsNone(log)
+
+    def test_ci_tooling_installs_hash_pinned_xml_dependency_before_host_tools(self):
+        for platform in ('linux', 'macos'):
+            with self.subTest(platform=platform):
+                result, calls, _, _, _ = self.run_ci_dependencies(platform, suite='tooling')
+                self.assertEqual(result.returncode, 0, result.stderr)
+                self.assertEqual(calls, [
+                    'python3 -m pip install --disable-pip-version-check --require-hashes --only-binary=:all: -r scripts/requirements-tooling.txt',
+                    'path-deps --check', 'flutter pub get --enforce-lockfile', 'env', 'vod'])
+
+    def test_ci_tooling_dependency_failure_stops_host_preparation(self):
+        result, calls, _, _, _ = self.run_ci_dependencies('linux', suite='tooling', pip_exit=19)
+        self.assertEqual(result.returncode, 19, result.stderr)
+        self.assertEqual(len(calls), 1)
+        self.assertIn('--require-hashes', calls[0])
 
     def test_ci_worker_matrix_is_derived_from_the_same_frozen_plan(self):
         plan = self.ci_job('execution-plan')
