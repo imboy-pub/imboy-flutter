@@ -122,7 +122,7 @@ void main() {
   testWidgets('流程A-1 删除联系人：红字入口 → 二次确认含备注回显 → 取消不删除', (tester) async {
     final spy = await _pump(tester);
 
-    // 删除入口存在且 destructive 渲染为 iosRed。
+    // 删除入口使用可读的破坏性文字色，并保留确认前的危险动作提示。
     // 该 tile 的 title 是 Center(child: Text(...))，样式经 DefaultTextStyle
     // 穿透（见 ios_settings_ui.dart 注释），Text.style 本身为 null。
     final deleteTile = find.text(t.common.deleteContact);
@@ -131,8 +131,21 @@ void main() {
         .style;
     expect(
       inheritedStyle.color,
-      AppColors.getIosRed(Brightness.light),
+      AppColors.getDestructiveText(Brightness.light),
       reason: 'fn:…:001 删除联系人必须使用破坏性红字',
+    );
+    final tile = tester.widget<CupertinoListTile>(
+      find.ancestor(of: deleteTile, matching: find.byType(CupertinoListTile)),
+    );
+    final foreground = inheritedStyle.color!.computeLuminance();
+    final background = tile.backgroundColor!.computeLuminance();
+    final contrast = foreground > background
+        ? (foreground + 0.05) / (background + 0.05)
+        : (background + 0.05) / (foreground + 0.05);
+    expect(
+      contrast,
+      greaterThanOrEqualTo(4.5),
+      reason: '危险动作普通字号文字必须在实际列表底色上保持可读',
     );
 
     // 点击 → 二次确认框：标题 + 内容回显备注（备注优先于昵称）

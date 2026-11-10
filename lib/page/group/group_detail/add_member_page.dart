@@ -115,19 +115,19 @@ class AddMemberPageState extends ConsumerState<AddMemberPage> {
       // 已是群成员的行不可选，用 enabled: false 让读屏读出"已停用"，
       // 否则用户会一直点一个永远没反应的行。
       // 名字由 Text 自带语义提供，此处不重复设 label（避免双标签重复朗读）。
-      child: Semantics(
-        button: true,
-        enabled: !isMember,
-        selected: isSelected,
-        child: CellPressable(
-          // 不用 InkWell：DESIGN.md §13.2 禁止 Cupertino 列表行用 Material Ripple
-          onTap: isMember
-              ? null
-              : () {
-                  ref
-                      .read(addMemberProvider.notifier)
-                      .toggleSelection(model, widget.groupId);
-                },
+      child: CellPressable(
+        // 不用 InkWell：DESIGN.md §13.2 禁止 Cupertino 列表行用 Material Ripple
+        onTap: isMember
+            ? null
+            : () {
+                ref
+                    .read(addMemberProvider.notifier)
+                    .toggleSelection(model, widget.groupId);
+              },
+        child: Semantics(
+          button: true,
+          enabled: !isMember,
+          selected: isSelected,
           child: Padding(
             padding: const EdgeInsets.symmetric(
               horizontal: AppSpacing.regular,

@@ -572,13 +572,13 @@ class _MomentCard extends StatelessWidget {
                         ),
                       ),
                       // 右上角•••操作入口，命中区 44×44
-                      Semantics(
-                        button: true,
-                        // 该按钮弹出「赞/评论/删除」整套 Action Sheet，
-                        // 标签应为"更多操作"，此前误标成"评论"误导读屏用户。
-                        label: t.discovery.momentActionMore,
-                        child: CellPressable(
-                          onTap: onActionTap,
+                      CellPressable(
+                        onTap: onActionTap,
+                        child: Semantics(
+                          button: true,
+                          // 该按钮弹出「赞/评论/删除」整套 Action Sheet，
+                          // 标签应为"更多操作"，此前误标成"评论"误导读屏用户。
+                          label: t.discovery.momentActionMore,
                           child: const SizedBox(
                             width: 44,
                             height: 44,

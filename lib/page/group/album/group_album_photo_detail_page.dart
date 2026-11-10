@@ -135,11 +135,9 @@ class _GroupAlbumPhotoDetailPageState
     final confirm = await showCupertinoDialog<bool>(
       context: context,
       builder: (context) => CupertinoAlertDialog(
-        title: Flexible(
-          child: Text(
-            t.common.groupAlbumPhotoDeleteTitle,
-            textAlign: TextAlign.center,
-          ),
+        title: Text(
+          t.common.groupAlbumPhotoDeleteTitle,
+          textAlign: TextAlign.center,
         ),
         content: Text(t.common.groupAlbumPhotoDeleteConfirm),
         actions: [

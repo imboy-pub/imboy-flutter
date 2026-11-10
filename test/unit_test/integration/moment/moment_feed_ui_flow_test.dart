@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/modules/moment_social/public.dart';
@@ -10,13 +11,18 @@ import 'package:imboy/page/moment/moment_utils.dart';
 
 import 'support/moment_feed_fixture.dart';
 
-Future<void> _pumpMomentFeedPage(WidgetTester tester) async {
+Future<void> _pumpMomentFeedPage(
+  WidgetTester tester, {
+  List<Map<String, dynamic>> items = const [],
+}) async {
   addTearDown(() async {
     await tester.pumpWidget(const SizedBox.shrink());
     await tester.pump();
   });
 
-  await tester.pumpWidget(MomentTestWrapper(child: buildMomentFeedPage()));
+  await tester.pumpWidget(
+    MomentTestWrapper(child: buildMomentFeedPage(items: items)),
+  );
   await tester.pump();
   await tester.runAsync(() async {
     await Future<void>.delayed(const Duration(milliseconds: 50));
@@ -62,6 +68,35 @@ void main() {
         await _pumpMomentFeedPage(tester);
 
         expect(find.byType(MomentFeedPage), findsOneWidget);
+      });
+
+      testWidgets('更多操作的名称与键盘焦点位于同一个按钮', (tester) async {
+        final semantics = tester.ensureSemantics();
+        try {
+          await _pumpMomentFeedPage(
+            tester,
+            items: [MockMomentData.createMoment(authorUid: '')],
+          );
+
+          final more = find.bySemanticsLabel(t.discovery.momentActionMore);
+          expect(more, findsOneWidget);
+          final before = tester.getSemantics(more).getSemanticsData();
+          expect(before.label, t.discovery.momentActionMore);
+          expect(before.flagsCollection.isButton, isTrue);
+          Focus.of(tester.element(find.byIcon(CupertinoIcons.ellipsis)))
+              .requestFocus();
+          await tester.pump();
+          expect(
+            tester.getSemantics(more).flagsCollection.isFocused.toBoolOrNull(),
+            isTrue,
+          );
+          await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+          await tester.pumpAndSettle();
+          expect(find.byType(CupertinoActionSheet), findsOneWidget);
+          expect(tester.takeException(), isNull);
+        } finally {
+          semantics.dispose();
+        }
       });
 
       testWidgets('下拉刷新用 CupertinoSliverRefreshControl', (tester) async {

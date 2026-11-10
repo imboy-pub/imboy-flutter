@@ -7,6 +7,7 @@ import 'package:cross_file/cross_file.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:file_picker_platform_interface/file_picker_platform_interface.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/component/ui/app_loading.dart';
@@ -56,53 +57,87 @@ void main() {
     tester,
   ) async {
     final semantics = tester.ensureSemantics();
-    addTearDown(semantics.dispose);
-    tester.view.physicalSize = const Size(320, 640);
-    tester.view.devicePixelRatio = 1;
-    addTearDown(tester.view.resetPhysicalSize);
-    addTearDown(tester.view.resetDevicePixelRatio);
-    GroupFileService.instanceForTest = _FakeGroupFileService(
-      files: const [
-        {'file_id': 'f1', 'file_name': '图片B', 'file_category': 'image'},
-      ],
-      categoryStats: const [
-        {'category': 'document', 'count': 1},
-        {'category': 'image', 'count': 1},
-      ],
-      searchResult: const [],
-    );
-    await tester.pumpWidget(
-      ProviderScope(
-        child: TranslationProvider(
-          child: MaterialApp(
-            builder: (context, child) => MediaQuery(
-              data: MediaQuery.of(context)
-                  .copyWith(textScaler: const TextScaler.linear(2)),
-              child: AppLoading.init()(context, child),
+    try {
+      tester.view.physicalSize = const Size(320, 640);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+      GroupFileService.instanceForTest = _FakeGroupFileService(
+        files: const [
+          {'file_id': 'f1', 'file_name': '图片B', 'file_category': 'image'},
+        ],
+        categoryStats: const [
+          {'category': 'document', 'count': 1},
+          {'category': 'image', 'count': 1},
+        ],
+        searchResult: const [],
+      );
+      await tester.pumpWidget(
+        ProviderScope(
+          child: TranslationProvider(
+            child: MaterialApp(
+              builder: (context, child) => MediaQuery(
+                // 13pt 的两倍字高加 16pt 内边距仍能装入最小 44pt；
+                // 2.5 倍才要求分类条真实增高，避免依赖字体度量的误判。
+                data: MediaQuery.of(context)
+                    .copyWith(textScaler: const TextScaler.linear(2.5)),
+                child: AppLoading.init()(context, child),
+              ),
+              home: const GroupFilePage(groupId: 'g1'),
             ),
-            home: const GroupFilePage(groupId: 'g1'),
           ),
         ),
-      ),
-    );
-    await tester.pumpAndSettle();
-    final filters = find.byWidgetPredicate(
-      (widget) =>
-          widget is SingleChildScrollView &&
-          widget.scrollDirection == Axis.horizontal,
-    );
-    expect(tester.getSize(filters).height, greaterThan(44));
-    final label = '${t.chat.groupFileCategoryImage} (1)';
-    await tester.ensureVisible(find.text(label));
-    final initial = tester.getSemantics(find.text(label)).getSemanticsData();
-    expect(initial.flagsCollection.isSelected.toBoolOrNull() ?? false, isFalse);
-    await tester.tap(find.text(label));
-    await tester.pumpAndSettle();
-    final selected = tester.getSemantics(find.text(label)).getSemanticsData();
-    expect(selected.flagsCollection.isButton, isTrue);
-    expect(selected.flagsCollection.isSelected.toBoolOrNull() ?? false, isTrue);
-    expect(find.text('图片B'), findsOneWidget);
-    expect(tester.takeException(), isNull);
+      );
+      await tester.pumpAndSettle();
+      final filters = find.byWidgetPredicate(
+        (widget) =>
+            widget is SingleChildScrollView &&
+            widget.scrollDirection == Axis.horizontal,
+      );
+      final label = '${t.chat.groupFileCategoryImage} (1)';
+      final labelFinder = find.text(label);
+      await tester.ensureVisible(labelFinder);
+      await tester.pumpAndSettle();
+
+      final paragraph = tester.renderObject<RenderParagraph>(labelFinder);
+      expect(
+        MediaQuery.textScalerOf(tester.element(labelFinder)).scale(1),
+        2.5,
+      );
+      expect(paragraph.textScaler.scale(1), 2.5);
+      expect(tester.getSize(filters).height, greaterThan(44));
+      expect(paragraph.didExceedMaxLines, isFalse);
+      final viewport = tester.getRect(filters);
+      final origin = tester.getTopLeft(labelFinder);
+      final glyphs = paragraph.getBoxesForSelection(
+        TextSelection(baseOffset: 0, extentOffset: label.length),
+      );
+      expect(glyphs, isNotEmpty);
+      for (final glyph in glyphs) {
+        final bounds = glyph.toRect().shift(origin);
+        expect(bounds.left, greaterThanOrEqualTo(viewport.left));
+        expect(bounds.top, greaterThanOrEqualTo(viewport.top));
+        expect(bounds.right, lessThanOrEqualTo(viewport.right));
+        expect(bounds.bottom, lessThanOrEqualTo(viewport.bottom));
+      }
+      final initial = tester.getSemantics(labelFinder).getSemanticsData();
+      expect(
+        initial.flagsCollection.isSelected.toBoolOrNull() ?? false,
+        isFalse,
+      );
+      await tester.tap(labelFinder);
+      await tester.pumpAndSettle();
+      final selected = tester.getSemantics(labelFinder).getSemanticsData();
+      expect(selected.flagsCollection.isButton, isTrue);
+      expect(
+        selected.flagsCollection.isSelected.toBoolOrNull() ?? false,
+        isTrue,
+      );
+      expect(find.text('图片B'), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    } finally {
+      semantics.dispose();
+    }
   });
 
   testWidgets('category filter narrows list and forwards category', (

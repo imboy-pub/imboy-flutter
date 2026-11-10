@@ -75,14 +75,14 @@ class RemoveMemberPageState extends ConsumerState<RemoveMemberPage> {
           // 多选页必须声明 selected：读屏用户听到名字但不知道选没选。
           // 移除成员是破坏性操作，选中态读不出来风险更高。
           // 名字由 Text 自带语义提供，此处不重复设 label。
-          child: Semantics(
-            button: true,
-            selected: isSelected,
-            child: CellPressable(
-              // 不用 InkWell：DESIGN.md §13.2 禁止 Cupertino 列表行用 Ripple
-              onTap: () {
-                notifier.toggleSelection(model);
-              },
+          child: CellPressable(
+            // 不用 InkWell：DESIGN.md §13.2 禁止 Cupertino 列表行用 Ripple
+            onTap: () {
+              notifier.toggleSelection(model);
+            },
+            child: Semantics(
+              button: true,
+              selected: isSelected,
               child: Row(
                 children: [
                   Padding(

@@ -223,12 +223,13 @@ class _MomentAtPickerPageState extends ConsumerState<MomentAtPickerPage> {
     final checked = _picked.contains(uid);
     // selected 必须声明：这是多选页，读屏用户光听到名字不知道自己选没选。
     // 名字由 Text 自带语义提供，此处不重复设 label（避免双标签重复朗读）。
-    return Semantics(
-      button: true,
-      selected: checked,
-      child: CellPressable(
-        // 不用 InkWell：DESIGN.md §13.2 禁止 Cupertino 列表行用 Material Ripple。
-        onTap: () => _onFriendToggle(c),
+    // 放在 CellPressable 内，使选中状态与名字进入同一焦点语义节点。
+    return CellPressable(
+      // 不用 InkWell：DESIGN.md §13.2 禁止 Cupertino 列表行用 Material Ripple。
+      onTap: () => _onFriendToggle(c),
+      child: Semantics(
+        button: true,
+        selected: checked,
         child: Padding(
           padding: const EdgeInsets.symmetric(
             horizontal: AppSpacing.regular,

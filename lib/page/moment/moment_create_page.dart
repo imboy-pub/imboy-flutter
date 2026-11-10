@@ -977,11 +977,11 @@ class _MediaThumb extends StatelessWidget {
           top: 0,
           // 视觉仍是右上角那颗小 x，但命中区撑到 44×44（DESIGN.md §13.2 硬规则）。
           // 原先 padding:2 + icon:14 只有 ~18×18，缩略图挨得又近，很容易误删旁边一张。
-          child: Semantics(
-            button: true,
-            label: context.t.common.delete,
-            child: CellPressable(
-              onTap: onRemove,
+          child: CellPressable(
+            onTap: onRemove,
+            child: Semantics(
+              button: true,
+              label: context.t.common.delete,
               child: SizedBox(
                 width: 44,
                 height: 44,

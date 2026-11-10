@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
@@ -204,11 +205,11 @@ void main() {
     SqliteService.setDbForTest(db);
     // 自检：注入句柄 + 登录态就位后，Repo 查询应能读到 seed 数据
     final friendCheck = await ContactRepo().findFriend();
-    // ignore: avoid_print
-    print(
-      '[seed-check] findFriend=${friendCheck.length} '
-      'uid=${UserRepoLocal.to.currentUid}',
+    expect(
+      friendCheck.map((contact) => contact.peerId),
+      unorderedEquals(['8001', '8002']),
     );
+    expect(UserRepoLocal.to.currentUid, _me);
   });
 
   tearDownAll(() async {
@@ -229,39 +230,81 @@ void main() {
   });
 
   testWidgets('流程B 勾选切换与已选人数提示', (tester) async {
-    await _openPage(tester);
+    final semantics = tester.ensureSemantics();
+    try {
+      await _openPage(tester);
 
-    await tester.tap(find.text('好友乙'));
-    await tester.pump();
-    expect(
-      find.text(t.main.selected),
-      findsOneWidget,
-      reason: '选中后行内应出现「已选」徽标',
-    );
-    // 行内徽标"已选 (1)" + 完成按钮"完成(1)" 两处都带人数
-    expect(
-      find.textContaining('(1)'),
-      findsExactly(2),
-      reason: '已选徽标与完成按钮均应带 (1) 已选人数提示',
-    );
+      final friend = find.text('好友乙');
+      final initialData = tester.getSemantics(friend).getSemanticsData();
+      expect(initialData.label, contains('好友乙'));
+      expect(initialData.flagsCollection.isButton, isTrue);
+      expect(initialData.flagsCollection.isEnabled.toBoolOrNull(), isTrue);
+      expect(initialData.flagsCollection.isSelected.toBoolOrNull(), isFalse);
+      Focus.of(tester.element(friend)).requestFocus();
+      await tester.pump();
+      expect(
+        tester.getSemantics(friend).flagsCollection.isFocused.toBoolOrNull(),
+        isTrue,
+      );
+      await tester.sendKeyEvent(LogicalKeyboardKey.space);
+      await tester.pump();
+      expect(
+        tester.getSemantics(friend).flagsCollection.isSelected.toBoolOrNull(),
+        isTrue,
+      );
+      expect(
+        find.text(t.main.selected),
+        findsOneWidget,
+        reason: '选中后行内应出现「已选」徽标',
+      );
+      // 行内徽标"已选 (1)" + 完成按钮"完成(1)" 两处都带人数
+      expect(
+        find.textContaining('(1)'),
+        findsExactly(2),
+        reason: '已选徽标与完成按钮均应带 (1) 已选人数提示',
+      );
 
-    await tester.tap(find.text('好友乙'));
-    await tester.pump();
-    expect(find.text(t.main.selected), findsNothing, reason: '再点应取消选中');
-    expect(find.textContaining('(1)'), findsNothing);
+      await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+      await tester.pump();
+      expect(
+        tester.getSemantics(friend).flagsCollection.isSelected.toBoolOrNull(),
+        isFalse,
+      );
+      expect(find.text(t.main.selected), findsNothing, reason: '再次激活应取消选中');
+      expect(find.textContaining('(1)'), findsNothing);
+
+      await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+      await tester.pump();
+      expect(Focus.of(tester.element(friend)).hasFocus, isFalse);
+      expect(Focus.of(tester.element(find.text('成员甲'))).hasFocus, isFalse);
+    } finally {
+      semantics.dispose();
+    }
   });
 
   testWidgets('流程C 成员行禁选：点成员行不产生已选', (tester) async {
-    await _openPage(tester);
+    final semantics = tester.ensureSemantics();
+    try {
+      await _openPage(tester);
 
-    await tester.tap(find.text('成员甲'), warnIfMissed: false);
-    await tester.pump();
-    expect(
-      find.text(t.main.selected),
-      findsNothing,
-      reason: '成员行 onTap 为 null，不应被选中',
-    );
-    expect(find.textContaining('(1)'), findsNothing);
+      final member = find.text('成员甲');
+      final data = tester.getSemantics(member).getSemanticsData();
+      expect(data.flagsCollection.isButton, isTrue);
+      expect(data.flagsCollection.isEnabled.toBoolOrNull(), isFalse);
+      Focus.of(tester.element(member)).requestFocus();
+      await tester.pump();
+      expect(Focus.of(tester.element(member)).hasFocus, isFalse);
+      await tester.tap(find.text('成员甲'), warnIfMissed: false);
+      await tester.pump();
+      expect(
+        find.text(t.main.selected),
+        findsNothing,
+        reason: '成员行 onTap 为 null，不应被选中',
+      );
+      expect(find.textContaining('(1)'), findsNothing);
+    } finally {
+      semantics.dispose();
+    }
   });
 
   testWidgets('流程D 完成按钮门禁：未选禁用、选中可点且提交被拦截', (tester) async {

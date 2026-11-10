@@ -178,29 +178,43 @@ void main() {
       routes: talkRecordRoutes(),
     );
     addTearDown(router.dispose);
+    final detailScope = harnessScope(
+      harness,
+      child: MaterialApp.router(routerConfig: router),
+    );
     await tester.pumpWidget(
-      harnessScope(
-        harness,
-        child: ProviderScope(
-          overrides: [
-            talkRecordPendingAccountProvider.overrideWithValue(
-              const TalkRecordAccount('http://127.0.0.1', ''),
-            ),
-            talkRecordListServiceProvider.overrideWithValue(service),
-          ],
-          child: MaterialApp.router(routerConfig: router),
-        ),
+      ProviderScope(
+        // Keep list and detail dependencies in the notifier's root scope.
+        overrides: [
+          ...detailScope.overrides,
+          talkRecordPendingAccountProvider.overrideWithValue(
+            const TalkRecordAccount('http://127.0.0.1', ''),
+          ),
+          talkRecordListServiceProvider.overrideWithValue(service),
+        ],
+        child: detailScope.child,
       ),
     );
     await tester.pumpAndSettle();
-    await tester.tap(find.byKey(const ValueKey('talk_record_row_102')));
+    expect(service.pageCalls, hasLength(1));
+    expect(service.pageCalls.single['scope'], 'personal');
+    final draftRow = find.byKey(const ValueKey('talk_record_row_102'));
+    final syncedRow = find.byKey(ValueKey('talk_record_row_${record.id}'));
+    expect(draftRow, findsOneWidget);
+    expect(syncedRow, findsOneWidget);
+    await tester.tap(draftRow);
     await tester.pumpAndSettle();
-    expect(router.state.path, kTalkRecordListPath);
+    expect(router.state.uri.path, kTalkRecordListPath);
+    expect(find.byType(TalkRecordDetailPage), findsNothing);
 
-    await tester.tap(find.byKey(ValueKey('talk_record_row_${record.id}')));
+    await tester.tap(syncedRow);
     await tester.pumpAndSettle();
-    expect(router.state.path, '$kTalkRecordDetailPath/${record.id}');
+    expect(router.state.uri.path, '$kTalkRecordDetailPath/${record.id}');
     expect(find.byType(TalkRecordDetailPage), findsOneWidget);
+    final detail = tester.widget<TalkRecordDetailPage>(
+      find.byType(TalkRecordDetailPage),
+    );
+    expect(detail.recordId, record.id);
     expect(
       find.byKey(const ValueKey('talk_record_overview_card')),
       findsOneWidget,

@@ -2,9 +2,11 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/config/const.dart';
+import 'package:imboy/page/bottom_navigation/bottom_navigation_page.dart';
 import 'package:imboy/page/chat_shell/chat_shell_bootstrap.dart';
-import 'package:imboy/page/chat_shell/chat_shell_page.dart';
 import 'package:imboy/page/chat_shell/experience_provider.dart';
+import 'package:imboy/page/chat_shell/personal_navigation_layout.dart';
+import 'package:imboy/page/web_shell/web_shell_bootstrap.dart';
 import 'package:imboy/page/workspace_shell/workspace_shell_bootstrap.dart';
 import 'package:imboy/page/workspace_shell/workspace_shell_provider.dart';
 import 'package:imboy/service/storage.dart';
@@ -34,6 +36,17 @@ void main() {
       );
     });
     late Widget result;
+    void expectPersonalEntry() {
+      expect(
+        container.read(productExperienceProvider),
+        ProductExperience.personal,
+      );
+      expect(result, isA<PersonalNavigationLayout>());
+      final layout = result as PersonalNavigationLayout;
+      expect(layout.mobileBuilder(null), isA<BottomNavigationPage>());
+      expect(layout.desktopEntry, isA<WebShellBootstrap>());
+    }
+
     await tester.pumpWidget(
       UncontrolledProviderScope(
         container: container,
@@ -45,7 +58,17 @@ void main() {
         ),
       ),
     );
-    expect(result, isA<ChatShellPage>());
+    expect(container.read(workspaceShellProvider).organizationId, isEmpty);
+    expectPersonalEntry();
+    await expectLater(
+      container
+          .read(productExperienceProvider.notifier)
+          .select(ProductExperience.workspace),
+      throwsStateError,
+    );
+    await tester.pump();
+    expect(container.read(workspaceShellProvider).organizationId, isEmpty);
+    expectPersonalEntry();
     await container
         .read(workspaceShellProvider.notifier)
         .selectOrganization('org-a', () async => '');
@@ -53,11 +76,16 @@ void main() {
         .read(productExperienceProvider.notifier)
         .select(ProductExperience.workspace);
     await tester.pump();
+    expect(container.read(workspaceShellProvider).organizationId, 'org-a');
+    expect(
+      container.read(productExperienceProvider),
+      ProductExperience.workspace,
+    );
     expect(result, isA<WorkspaceShellBootstrap>());
     await container
         .read(productExperienceProvider.notifier)
         .select(ProductExperience.personal);
     await tester.pump();
-    expect(result, isA<ChatShellPage>());
+    expectPersonalEntry();
   });
 }

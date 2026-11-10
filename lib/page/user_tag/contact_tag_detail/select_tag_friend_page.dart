@@ -95,23 +95,23 @@ class _SelectFriendPageState extends ConsumerState<SelectFriendPage> {
           constraints: BoxConstraints(minHeight: _itemHeight.toDouble()),
           // 多选页必须声明 selected：读屏用户听到名字但不知道自己选没选。
           // 名字由 Text 自带语义提供，不重复设 label。
-          child: Semantics(
-            button: true,
-            selected: model.selected,
-            child: CellPressable(
-              // 不用 InkWell：DESIGN.md §13.2 禁止 Cupertino 列表行用 Ripple
-              onTap: () {
-                setState(() {
-                  model.selected = !model.selected;
-                  if (model.selected) {
-                    selectedContact.insert(0, model);
-                  } else {
-                    selectedContact.removeWhere(
-                      (e) => e.peerId == model.peerId,
-                    );
-                  }
-                });
-              },
+          child: CellPressable(
+            // 不用 InkWell：DESIGN.md §13.2 禁止 Cupertino 列表行用 Ripple
+            onTap: () {
+              setState(() {
+                model.selected = !model.selected;
+                if (model.selected) {
+                  selectedContact.insert(0, model);
+                } else {
+                  selectedContact.removeWhere(
+                    (e) => e.peerId == model.peerId,
+                  );
+                }
+              });
+            },
+            child: Semantics(
+              button: true,
+              selected: model.selected,
               child: Row(
                 children: [
                   Padding(

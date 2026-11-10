@@ -151,75 +151,81 @@ void main() {
 
   testWidgets('多选行声明 selected 状态，选中后翻转', (tester) async {
     final handle = tester.ensureSemantics();
-    addTearDown(handle.dispose);
-    await pumpPage(tester);
+    try {
+      await pumpPage(tester);
 
-    final name = find.text('张三');
-    expect(name, findsWidgets);
+      final name = find.text('张三');
+      expect(name, findsWidgets);
 
-    // 初始未选中
-    expect(
-      tester
-              .getSemantics(name.first)
-              .flagsCollection
-              .isSelected
-              .toBoolOrNull() ==
-          true,
-      isFalse,
-      reason: '未选中时不该声明 selected',
-    );
+      // 初始未选中
+      expect(
+        tester
+                .getSemantics(name.first)
+                .flagsCollection
+                .isSelected
+                .toBoolOrNull() ==
+            true,
+        isFalse,
+        reason: '未选中时不该声明 selected',
+      );
 
-    await tester.tap(name.first);
-    await tester.pump();
+      await tester.tap(name.first);
+      await tester.pump();
 
-    // 选中后语义翻转——多选页里这是读屏用户唯一能感知选中与否的途径
-    expect(
-      tester
-              .getSemantics(name.first)
-              .flagsCollection
-              .isSelected
-              .toBoolOrNull() ==
-          true,
-      isTrue,
-      reason: '选中后未声明 selected，读屏用户不知道自己选没选',
-    );
+      // 选中后语义翻转——多选页里这是读屏用户唯一能感知选中与否的途径
+      expect(
+        tester
+                .getSemantics(name.first)
+                .flagsCollection
+                .isSelected
+                .toBoolOrNull() ==
+            true,
+        isTrue,
+        reason: '选中后未声明 selected，读屏用户不知道自己选没选',
+      );
+    } finally {
+      handle.dispose();
+    }
   });
 
   testWidgets('好友行只有一个键盘停靠点，Space 和 Enter 各切换一次', (tester) async {
     final handle = tester.ensureSemantics();
-    addTearDown(handle.dispose);
-    await pumpPage(tester);
-    final name = find.text('张三').first;
-    final row = find
-        .ancestor(of: name, matching: find.byType(CellPressable))
-        .first;
-    expect(row, findsOneWidget);
-    Focus.of(tester.element(name)).requestFocus();
-    await tester.pump();
+    try {
+      await pumpPage(tester);
+      final name = find.text('张三').first;
+      final row = find
+          .ancestor(of: name, matching: find.byType(CellPressable))
+          .first;
+      expect(row, findsOneWidget);
+      Focus.of(tester.element(name)).requestFocus();
+      await tester.pump();
 
-    await tester.sendKeyEvent(LogicalKeyboardKey.space);
-    await tester.pump();
-    expect(
-      tester.getSemantics(name).flagsCollection.isSelected.toBoolOrNull(),
-      isTrue,
-    );
-    await tester.sendKeyEvent(LogicalKeyboardKey.enter);
-    await tester.pump();
-    expect(
-      tester.getSemantics(name).flagsCollection.isSelected.toBoolOrNull(),
-      isFalse,
-    );
+      await tester.sendKeyEvent(LogicalKeyboardKey.space);
+      await tester.pump();
+      expect(
+        tester.getSemantics(name).flagsCollection.isSelected.toBoolOrNull(),
+        isTrue,
+      );
+      await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+      await tester.pump();
+      expect(
+        tester.getSemantics(name).flagsCollection.isSelected.toBoolOrNull(),
+        isFalse,
+      );
 
-    await tester.sendKeyEvent(LogicalKeyboardKey.tab);
-    await tester.pump();
-    final checkboxContext = tester.element(find.byType(Checkbox));
-    expect(
-      Focus.of(checkboxContext).hasFocus,
-      isFalse,
-      reason: '装饰复选框不应产生第二个键盘停靠点',
-    );
-    await tester.pumpWidget(const SizedBox.shrink());
-    await tester.pump();
+      await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+      await tester.pump();
+      final checkboxContext = tester.element(find.byType(Checkbox));
+      expect(
+        Focus.of(checkboxContext).hasFocus,
+        isFalse,
+        reason: '装饰复选框不应产生第二个键盘停靠点',
+      );
+      await tester.pumpWidget(const SizedBox.shrink());
+      await tester.pump();
+    } finally {
+      handle.dispose();
+    }
   });
 
   testWidgets('可见性选项在矮窗口和大字下可滚动到最后一项', (tester) async {

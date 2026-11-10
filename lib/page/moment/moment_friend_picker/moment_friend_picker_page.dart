@@ -420,11 +420,11 @@ class _MomentFriendPickerPageState
 
   Widget _buildVisibilityRow({required int code, required String label}) {
     final selected = _visibility == code;
-    return Semantics(
-      selected: selected,
-      inMutuallyExclusiveGroup: true,
-      child: CellPressable(
-        onTap: () => _onVisibilitySelected(code),
+    return CellPressable(
+      onTap: () => _onVisibilitySelected(code),
+      child: Semantics(
+        selected: selected,
+        inMutuallyExclusiveGroup: true,
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           child: Row(
@@ -505,10 +505,10 @@ class _MomentFriendPickerPageState
         ? theme.colorScheme.onPrimary
         : theme.colorScheme.onSurface;
 
-    return Semantics(
-      selected: selected,
-      child: CellPressable(
-        onTap: entry.loading ? null : () => _onTagTap(entry),
+    return CellPressable(
+      onTap: entry.loading ? null : () => _onTagTap(entry),
+      child: Semantics(
+        selected: selected,
         child: Container(
           constraints: const BoxConstraints(minHeight: 44),
           alignment: Alignment.center,
@@ -614,10 +614,10 @@ class _MomentFriendPickerPageState
   Widget _buildFriendRow(ContactModel c) {
     final uid = c.peerId.toString();
     final checked = _activePicked.contains(uid);
-    return Semantics(
-      selected: checked,
-      child: CellPressable(
-        onTap: () => _onFriendToggle(c),
+    return CellPressable(
+      onTap: () => _onFriendToggle(c),
+      child: Semantics(
+        selected: checked,
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           child: Row(

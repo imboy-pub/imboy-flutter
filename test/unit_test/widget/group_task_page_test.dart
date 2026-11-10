@@ -186,56 +186,64 @@ void main() {
       tester,
     ) async {
       final semantics = tester.ensureSemantics();
-      addTearDown(semantics.dispose);
-      final fake = FakeGroupTaskService(
-        tasksToReturn: const [
-          {'task_id': 'task_abc_1', 'id': 1001, 'title': '键盘待办', 'status': 1},
-        ],
-      );
-      GroupTaskService.testInstance = fake;
-      String? openedTask;
-      final router = GoRouter(
-        routes: [
-          GoRoute(
-            path: '/',
-            builder: (_, _) => const GroupTaskPage(groupId: '200'),
+      try {
+        final fake = FakeGroupTaskService(
+          tasksToReturn: const [
+            {'task_id': 'task_abc_1', 'id': 1001, 'title': '键盘待办', 'status': 1},
+          ],
+        );
+        GroupTaskService.testInstance = fake;
+        String? openedTask;
+        final router = GoRouter(
+          routes: [
+            GoRoute(
+              path: '/',
+              builder: (_, _) => const GroupTaskPage(groupId: '200'),
+            ),
+            GoRoute(
+              path: '/group/200/task/:id',
+              builder: (_, state) {
+                openedTask = state.pathParameters['id'];
+                return const Scaffold(body: Text('task-detail'));
+              },
+            ),
+          ],
+        );
+        addTearDown(router.dispose);
+        await tester.pumpWidget(
+          TranslationProvider(
+            child: ProviderScope(
+              child: MaterialApp.router(routerConfig: router),
+            ),
           ),
-          GoRoute(
-            path: '/group/200/task/:id',
-            builder: (_, state) {
-              openedTask = state.pathParameters['id'];
-              return const Scaffold(body: Text('task-detail'));
-            },
-          ),
-        ],
-      );
-      addTearDown(router.dispose);
-      await tester.pumpWidget(
-        TranslationProvider(
-          child: ProviderScope(child: MaterialApp.router(routerConfig: router)),
-        ),
-      );
-      await tester.pumpAndSettle();
-      final completion = find.bySemanticsLabel(
-        '${t.groupTask.submitTask}: 键盘待办',
-      );
-      final data = tester.getSemantics(completion).getSemanticsData();
-      expect(data.flagsCollection.isButton, isTrue);
-      expect(data.flagsCollection.isSelected.toBoolOrNull() ?? false, isFalse);
-      Focus.of(tester.element(find.byIcon(CupertinoIcons.checkmark_seal)))
-          .requestFocus();
-      await tester.pump();
-      await tester.sendKeyEvent(LogicalKeyboardKey.space);
-      await tester.pumpAndSettle();
-      expect(fake.submitCallCount, 1);
-      expect(openedTask, isNull);
+        );
+        await tester.pumpAndSettle();
+        final completion = find.bySemanticsLabel(
+          '${t.groupTask.submitTask}: 键盘待办',
+        );
+        final data = tester.getSemantics(completion).getSemanticsData();
+        expect(data.flagsCollection.isButton, isTrue);
+        expect(
+          data.flagsCollection.isSelected.toBoolOrNull() ?? false,
+          isFalse,
+        );
+        Focus.of(tester.element(find.byIcon(CupertinoIcons.checkmark_seal)))
+            .requestFocus();
+        await tester.pump();
+        await tester.sendKeyEvent(LogicalKeyboardKey.space);
+        await tester.pumpAndSettle();
+        expect(fake.submitCallCount, 1);
+        expect(openedTask, isNull);
 
-      Focus.of(tester.element(find.text('键盘待办'))).requestFocus();
-      await tester.pump();
-      await tester.sendKeyEvent(LogicalKeyboardKey.enter);
-      await tester.pumpAndSettle();
-      expect(openedTask, '1001');
-      expect(find.text('task-detail'), findsOneWidget);
+        Focus.of(tester.element(find.text('键盘待办'))).requestFocus();
+        await tester.pump();
+        await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+        await tester.pumpAndSettle();
+        expect(openedTask, '1001');
+        expect(find.text('task-detail'), findsOneWidget);
+      } finally {
+        semantics.dispose();
+      }
     });
 
     testWidgets('显示作业标题列表 / displays task titles', (tester) async {

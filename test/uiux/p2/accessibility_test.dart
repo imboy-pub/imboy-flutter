@@ -251,13 +251,23 @@ void main() {
             0.0722 * ch(c.b * 255.0);
       }
 
-      // 文字画在 _GroupedSection 分组容器上：背景取实际 DecoratedBox 色
+      // 文字画在 _GroupedSection 分组容器上，前景按压反馈不属于背景。
       final DecoratedBox bg = tester.widget<DecoratedBox>(
         find
-            .ancestor(of: find.text('应用'), matching: find.byType(DecoratedBox))
+            .ancestor(
+              of: find.text('应用'),
+              matching: find.byWidgetPredicate(
+                (widget) =>
+                    widget is DecoratedBox &&
+                    widget.position == DecorationPosition.background &&
+                    widget.decoration is BoxDecoration &&
+                    (widget.decoration as BoxDecoration).color != null,
+              ),
+            )
             .first,
       );
       final Color surface = (bg.decoration as BoxDecoration).color!;
+      expect(surface.a, 1.0, reason: '${cfg.id} 对比度应使用实际不透明背景');
       final double ratio = (lum(dts.style.color!) > lum(surface))
           ? (lum(dts.style.color!) + 0.05) / (lum(surface) + 0.05)
           : (lum(surface) + 0.05) / (lum(dts.style.color!) + 0.05);
