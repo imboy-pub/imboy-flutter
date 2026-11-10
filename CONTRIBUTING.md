@@ -147,7 +147,7 @@ References: [Semgrep CE languages](https://semgrep.dev/docs/semgrep-ce-languages
 
 Semgrep 的 `nosemgrep` 只放在已复核的调用点，并列出完整规则 ID：JDK/Gradle fixture 编译、操作者明确选择并授权上传的私有视觉适配器、固定 ADB 操作，以及测试执行器的独立 argv 参数。这些例外依赖当前输入来源和调用权限，不能用于来自服务请求的命令。旧 `auto_test.run()` 也在设备发现前拒绝 `flutter` / `patrol` 之外的执行器。
 
-Patrol JUnit 只读取当前运行新产生的本地报告；解析器显式拒绝所有 DOCTYPE 声明，拒绝结果仍使证据校验失败。正常 UTF-8/UTF-16、退出码、计数、跳过和 freshness 检查继续保留。此策略不是通用不可信 XML 服务，也不承诺任意大小输入的资源隔离。Semgrep JSON 门禁不计入已标注结果，SARIF 仍保留 `inSource` suppression 记录。
+Patrol JUnit 只读取当前运行新产生的本地报告；使用 `scripts/requirements-tooling.txt` 固定版本与哈希的 `defusedxml`，显式禁止 DTD、实体声明和外部资源，缺包或拒绝结果仍使证据校验失败。安装命令见 [统一测试执行说明](docs/testing/execution.md)，XML 解析不再使用 Semgrep 例外。正常 UTF-8/UTF-16、退出码、计数、跳过和 freshness 检查继续保留。此策略不是通用不可信 XML 服务，也不承诺任意大小输入的资源隔离。其余逐调用点例外在 SARIF 中保留 `inSource` suppression 记录。
 
 [`.trivyignore.yaml`](./.trivyignore.yaml) 将例外限定到具体 finding ID 和以下两个文件，复核期限为 **2027-02-10**；不排除整个 `macos/`、vendor 或 Ruby 生态：
 
@@ -156,6 +156,6 @@ Patrol JUnit 只读取当前运行新产生的本地报告；解析器显式拒�
 
 正向构建依据是 `macos/Podfile` 只把 `flutter_sound` 指向局部 shim，该 podspec 的源码范围为 `Classes/**/*`；应用 Xcode framework phase 链接 Pods，CI 执行 Flutter 构建。历史 SwiftPM 文件仍有 Sentry pin，部分 CI 仍传递 SENTRY_DSN，因此不能把这些例外写成“已验证最终二进制没有 Sentry”。例外只说明上述维护工具未被当前构建执行。若引入对应 bundle 或 test-server，必须先移除例外并重新验收。其他路径上的同一 ID、未列出的 ID，以及过期例外都继续阻断。
 
-Semgrep annotations name exact rule IDs at reviewed call sites: operator-selected toolchains/private adapters, fixed ADB operations, and separate argv values. The legacy runner rejects unsupported executables before device discovery. Reassess these annotations if inputs or execution authority change; they do not authorize request-controlled commands. The local Patrol JUnit parser rejects every DOCTYPE while preserving result validation, without claiming general untrusted-XML resource isolation. Annotated findings remain visible as in-source suppressions in SARIF.
+Semgrep annotations name exact rule IDs at reviewed call sites: operator-selected toolchains/private adapters, fixed ADB operations, and separate argv values. The legacy runner rejects unsupported executables before device discovery. Reassess these annotations if inputs or execution authority change; they do not authorize request-controlled commands. Local Patrol JUnit parsing uses hash-pinned `defusedxml`, forbids DTDs, entities and external resources, and fails if the dependency is missing. XML parsing no longer needs a Semgrep annotation. Result validation is preserved, without claiming general untrusted-XML resource isolation. Other annotated findings remain visible as in-source suppressions in SARIF.
 
 Trivy exceptions cover only the listed IDs in the two exact upstream-maintainer files, expiring **2027-02-10**. The vendored Ruby bundle belongs to Sentry's own maintenance workflow; the Vapor test server is a separate upstream target. Neither is installed or executed by the current IMBoy Flutter/CocoaPods build. Runtime podspec/SwiftPM source targets do not consume those tools. Residual Sentry pins/defines are not final-binary evidence. Remove the exceptions before enabling those upstream tasks. Findings at other paths, other IDs and expired exceptions remain blocking; HIGH/CRITICAL, secret scanning and scanner-failure gates stay enabled.

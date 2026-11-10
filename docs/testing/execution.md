@@ -18,8 +18,8 @@
 | route-smoke | 路由页面烟雾 | 每条路由独立进程；守卫合同单独保留 |
 | device-single | 单设备业务流程、受控 SQLite 中断重放 | 声明的平台/设备；联网目标需隔离后端，离线目标遵守自身 fixture 合同 |
 | device-pair | 双端消息、RTC、跨平台加密 | 成组角色、平台拓扑及编排器 |
-| native-ui | Patrol、权限与系统 UI | Android instrumentation 与本次 JUnit |
-| tooling | Python unittest、现有 CASES/恢复自检 | Python；部分源码契约需并排后端源码 |
+| native-ui | Patrol、权限与系统 UI | Android instrumentation、本次 JUnit 与固定的 Python XML 解析依赖 |
+| tooling | Python unittest、现有 CASES/恢复自检 | Python 与 `scripts/requirements-tooling.txt`；部分源码契约需并排后端源码 |
 
 独立目标只有一个主套件，profile 可以引用多个套件/目标。目录规则只接管已知家族，
 分类还检查源码、辅助 import 闭包、绑定、FFI、像素断言和平台注解。例外必须注明依据。
@@ -28,6 +28,27 @@
 ## 精确命令
 
 从仓库根运行；报告放在仓外。
+
+运行 `tooling`、包含它的 PR/full 回归、独立框架 gate 或 `native-ui` 前，
+在当前 Python 虚拟环境安装固定的测试工具依赖。以下示例把环境放在仓外：
+
+```bash
+TEST_PYTHON_ENV="$(mktemp -d "${TMPDIR:-/tmp}/imboy-test-python.XXXXXX")"
+python3 -m venv "$TEST_PYTHON_ENV"
+source "$TEST_PYTHON_ENV/bin/activate"
+python3 -m pip install --require-hashes --only-binary=:all: -r scripts/requirements-tooling.txt
+```
+
+`defusedxml` 仅用于 Patrol JUnit 证据解析；普通计划、汇总与其他 worker 不要求此包。
+解析禁止 DTD、实体声明及外部资源，缺少依赖时 Patrol 预检与证据收集明确失败，
+不会回退到标准库解析器。CI 的 Linux/macOS tooling 分片及独立框架 gate 安装同一份
+requirements；手动 `native-ui` 工作流使用 runner 临时目录内的虚拟环境。
+
+Before tooling tests, PR/full regression, the standalone framework gate, or Patrol
+execution, install the hash-pinned test requirements in the active Python virtual
+environment. Planning and non-Patrol workers remain dependency-free. Missing XML
+dependencies block Patrol; there is no parser fallback. The native-ui workflow
+adds its temporary virtual environment to PATH for subsequent Python commands.
 
 ```bash
 REPORT_DIR="${TMPDIR:-/tmp}/imboy-execution-$(date +%Y%m%d-%H%M%S)"

@@ -658,8 +658,25 @@ class GoldenAndPatrolEvidenceTests(unittest.TestCase):
                 self.assertIn('PATROL_RESULT_INVALID', result['errors'])
                 self.assertEqual(0, result['executed'])
 
+    def test_native_junit_missing_hardened_parser_fails_closed(self):
+        xml = '<testsuite tests="1"><testcase classname="MainActivityTest" name="runDartTest[flow]"/></testsuite>'
+        with patch.dict(sys.modules, {'defusedxml': None}):
+            result = self.junit(xml)
+        self.assertEqual('FAIL', result['test_status'])
+        self.assertIn('PATROL_XML_PARSER_MISSING:defusedxml (scripts/requirements-tooling.txt)', result['errors'])
+        self.assertEqual(0, result['executed'])
+
+    def test_native_preflight_requires_hardened_xml_parser(self):
+        item = {'runner': 'patrol', 'platform': 'android', 'offline': True,
+                'target': 'integration_test/patrol/handshake_test.dart'}
+        with patch.dict(sys.modules, {'defusedxml': None}), \
+                patch.object(adapters.shutil, 'which', return_value='/synthetic/patrol'):
+            errors = adapters.preflight_instance(
+                ROOT, item, {'IMBOY_EXECUTION_DEVICE_ANDROID': 'android-a'}, DEVICES)
+        self.assertIn('PATROL_XML_PARSER_MISSING:defusedxml (scripts/requirements-tooling.txt)', errors)
+
     def test_native_bootstrap_empty_skipped_or_inconsistent_evidence_never_passes(self):
-        for xml in ('<testsuite tests="0"/>',
+        for xml in ('<testsuite', '<testsuite tests="0"/>',
                     '<testsuite tests="1"><testcase classname="Bootstrap" name="start"/></testsuite>',
                     '<testsuite tests="1"><testcase classname="MainActivityTest" name="runDartTest[a]"><skipped/></testcase></testsuite>',
                     '<testsuite tests="2"><testcase classname="MainActivityTest" name="runDartTest[a]"/></testsuite>',
