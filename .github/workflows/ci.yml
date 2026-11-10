@@ -84,11 +84,10 @@ jobs:
         with:
           name: execution-plan
           path: ${{ runner.temp }}/execution-plan
-      - name: Install declared Linux SQLite dependency
+      - name: Prepare declared Linux SQLite dependency
         if: matrix.platform == 'linux'
-        run: |
-          sudo apt-get update -qq
-          sudo apt-get install -y --no-install-recommends libsqlite3-dev
+        timeout-minutes: 5
+        run: bash .github/scripts/ci_ensure_system_sqlite.sh
       - name: Setup Flutter
         id: sdk
         uses: subosito/flutter-action@v2
@@ -525,10 +524,9 @@ jobs:
           path: imboy
       - name: Freeze isolated route plan
         run: python3 scripts/auto_test.py execution-plan --profile routes --platform linux --output "${{ runner.temp }}/routes-plan.json"
-      - name: Install declared Linux SQLite dependency
-        run: |
-          sudo apt-get update -qq
-          sudo apt-get install -y --no-install-recommends libsqlite3-dev
+      - name: Prepare declared Linux SQLite dependency
+        timeout-minutes: 5
+        run: bash .github/scripts/ci_ensure_system_sqlite.sh
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:

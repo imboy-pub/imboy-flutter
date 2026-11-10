@@ -208,7 +208,10 @@ Python、C/C++ 构建工具、pkg-config、libGLU 和 `libsqlite3-dev`。Git 必
 否则 archive fallback 缺少执行器所需的提交与 tracked-file 信息。
 `pubspec.yaml` 明确指定 SQLite `source: system`，开发包提供 hook 所需的
 `libsqlite3.so`，并依赖真正的 Debian SQLite runtime；不能从 Ubuntu 复制动态库。
-既有 Ubuntu Linux worker 和路由 job 也显式安装该开发包。
+既有 Ubuntu Linux worker 和路由 job 通过 `ci_ensure_system_sqlite.sh` 核验开发包安装状态、
+实际加载 `libsqlite3.so` 并记录版本；仅缺失时安装，APT 网络等待/重试有界，整个步骤限时五分钟。
+包状态不正确或动态库加载失败仍会阻断，既有 SQLite 真实测试继续完整执行。
+Ubuntu workers verify the installed package and load the system library; missing packages use bounded installation.
 
 Flutter 继续使用 `ci.yml` 的精确 `3.47.5` pin，Dart 由其附带并通过 SDK 检查；
 `flutter pub get --enforce-lockfile` 保留 Git/path 依赖及 lockfile 校验。
