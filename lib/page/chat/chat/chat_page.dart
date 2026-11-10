@@ -1287,16 +1287,16 @@ class ChatPageState extends ConsumerState<ChatPage>
     };
 
     // 打开选择好友页面
-    final result = await context.push<ContactModel>(
+    final pageContext = context;
+    final result = await pageContext.push<ContactModel>(
       '/contact/select_friend',
       extra: {'peer': peer, 'peerIsReceiver': true},
     );
 
     // 如果用户选择了好友，发送名片消息
-    if (result != null && mounted) {
+    if (result != null && mounted && pageContext.mounted) {
       await _attachmentHandler.sendVisitCardMessage(
-        // State.mounted 已在上方检查；此处仅把当前页面上下文传给发送服务。
-        context,
+        pageContext,
         result.peerId.toString(),
         result.title,
         result.avatar,
@@ -1316,15 +1316,16 @@ class ChatPageState extends ConsumerState<ChatPage>
 
     // 打开收藏页面（选择模式）——统一走 go_router，勿用裸 Navigator.push
     // （裸 push 在被污染的 Navigator 上会触发 !_debugLocked 断言）
-    final result = await context.push<UserCollectModel>(
+    final pageContext = context;
+    final result = await pageContext.push<UserCollectModel>(
       '/favorites',
       extra: {'isSelect': true, 'peer': peer},
     );
 
     // 如果用户选择了收藏消息，发送它
-    if (result != null && mounted) {
+    if (result != null && mounted && pageContext.mounted) {
       try {
-        await _attachmentHandler.sendCollectMessage(context, result);
+        await _attachmentHandler.sendCollectMessage(pageContext, result);
       } catch (e) {
         iPrint('[chat_page] 发送收藏消息失败: $e');
         if (mounted) {
