@@ -1,6 +1,8 @@
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
+import 'package:imboy/service/account_local_task_registry.dart';
+import 'package:imboy/service/auth_session_scope.dart';
 import 'package:wechat_assets_picker/wechat_assets_picker.dart';
 
 /// 单项上传状态机：pending → uploading → done / failed。
@@ -76,7 +78,22 @@ class BatchUploadController<T> extends ChangeNotifier {
     this.uploader,
     this.fileUploader,
     this.concurrency = 3,
-  }) : assert(concurrency > 0);
+    this.owner,
+    bool Function()? isCurrent,
+  }) : assert(concurrency > 0),
+       _isCurrent =
+           isCurrent ?? (owner == null ? () => true : _captureSessionGuard());
+
+  factory BatchUploadController.forCurrentAccount({
+    AssetUploader<T>? uploader,
+    FileUploader<T>? fileUploader,
+    int concurrency = 3,
+  }) => BatchUploadController<T>(
+    uploader: uploader,
+    fileUploader: fileUploader,
+    concurrency: concurrency,
+    owner: AccountLocalTaskOwner.capture(),
+  );
 
   /// 相册项（AssetEntity）上传器：仅走 [addAndUpload] 时必需。
   final AssetUploader<T>? uploader;
@@ -86,14 +103,25 @@ class BatchUploadController<T> extends ChangeNotifier {
   final FileUploader<T>? fileUploader;
 
   final int concurrency;
+  final AccountLocalTaskOwner? owner;
+  final bool Function() _isCurrent;
+
+  static bool Function() _captureSessionGuard() {
+    final session = authSessionReader.current;
+    return () => authSessionReader.isCurrent(session);
+  }
 
   final List<UploadItem<T>> _items = [];
   int _nextId = 0;
+  bool _stopped = false;
+  bool _disposed = false;
+  bool get _canRun => !_stopped && _isCurrent();
+  bool get acceptsUploads => _canRun;
 
   List<UploadItem<T>> get items => List.unmodifiable(_items);
   int get length => _items.length;
 
-  bool get isBusy => _items.any((i) => i.isUploading);
+  bool get isBusy => _canRun && _items.any((i) => i.isUploading);
   bool get hasFailed => _items.any((i) => i.isFailed);
 
   /// 已成功项的结果 payload，按加入顺序返回。
@@ -104,7 +132,7 @@ class BatchUploadController<T> extends ChangeNotifier {
 
   /// 追加一批资源并立即分批并行上传（保留 Future.wait 并行语义）。
   Future<void> addAndUpload(List<AssetEntity> assets) async {
-    if (assets.isEmpty) return;
+    if (!_canRun || assets.isEmpty) return;
     final ids = <int>[];
     for (final a in assets) {
       final id = _nextId++;
@@ -118,11 +146,12 @@ class BatchUploadController<T> extends ChangeNotifier {
   /// 追加一个相机即拍的 File 项并立即上传：与相册项同样走逐项状态机，
   /// 上传中有本地缩略图、失败保留可重试，不再即拍即丢。
   Future<void> addFileAndUpload(File file, {bool isVideo = false}) async {
+    if (!_canRun) return;
     assert(fileUploader != null, 'addFileAndUpload requires fileUploader');
     final id = _nextId++;
     _items.add(UploadItem<T>(id: id, file: file, isVideoFile: isVideo));
     notifyListeners();
-    await _uploadById(id);
+    await _runOwned(() => _uploadById(id));
   }
 
   /// 追加一批 File 项并立即分批并行上传（file_picker / Android 绕行路径）。
@@ -132,7 +161,7 @@ class BatchUploadController<T> extends ChangeNotifier {
     bool isVideo = false,
   }) async {
     assert(fileUploader != null, 'addFilesAndUpload requires fileUploader');
-    if (files.isEmpty) return;
+    if (!_canRun || files.isEmpty) return;
     final ids = <int>[];
     for (final f in files) {
       final id = _nextId++;
@@ -152,7 +181,7 @@ class BatchUploadController<T> extends ChangeNotifier {
   /// 存在的意义：草稿把已传成功的 URL 存了下来，恢复时若不注入回来，
   /// 用户重进页面就只剩文字、图全丢（还得重选重传）。
   void adoptUploaded(List<T> uploaded) {
-    if (uploaded.isEmpty) return;
+    if (!_canRun || uploaded.isEmpty) return;
     for (final r in uploaded) {
       _items.add(
         UploadItem<T>(id: _nextId++, status: UploadItemStatus.done, result: r),
@@ -164,21 +193,22 @@ class BatchUploadController<T> extends ChangeNotifier {
   /// 移除指定项（用户手动删除网格缩略图）。上传进行中删除是安全的：其余项按 id
   /// 回写，被删项的 in-flight 结果查不到 id 后丢弃。
   void removeAt(int index) {
-    if (index < 0 || index >= _items.length) return;
+    if (!_canRun || index < 0 || index >= _items.length) return;
     _items.removeAt(index);
     notifyListeners();
   }
 
   /// 单独重试某一失败项（按当前显示下标定位其 id），成功后其余项不受影响。
   Future<void> retry(int index) async {
-    if (index < 0 || index >= _items.length) return;
+    if (!_canRun || index < 0 || index >= _items.length) return;
     final item = _items[index];
     if (!item.canRetry) return;
-    await _uploadById(item.id);
+    await _runOwned(() => _uploadById(item.id));
   }
 
   /// 重试全部失败项（走同一分批限流管道）。
   Future<void> retryFailed() async {
+    if (!_canRun) return;
     final ids = [
       for (final i in _items)
         if (i.canRetry) i.id,
@@ -186,14 +216,30 @@ class BatchUploadController<T> extends ChangeNotifier {
     await _runBatches(ids);
   }
 
-  Future<void> _runBatches(List<int> ids) async {
+  Future<void> _runOwned(Future<void> Function() work) {
+    if (!_canRun) return Future<void>.value();
+    final account = owner;
+    if (account == null) return work();
+    return AccountLocalTaskRegistry.instance.run<void>(
+      account,
+      onCancel: cancel,
+      operation: (task) async {
+        task.throwIfCancelled();
+        if (_canRun) await work();
+      },
+    );
+  }
+
+  Future<void> _runBatches(List<int> ids) => _runOwned(() async {
     for (var i = 0; i < ids.length; i += concurrency) {
+      if (!_canRun) return;
       final batch = ids.skip(i).take(concurrency);
       await Future.wait(batch.map(_uploadById));
     }
-  }
+  });
 
   Future<void> _uploadById(int id) async {
+    if (!_canRun) return;
     final item = _itemById(id);
     if (item == null) return;
     final Future<T?> Function() run;
@@ -231,9 +277,23 @@ class BatchUploadController<T> extends ChangeNotifier {
 
   /// 每次回写都按 id 重新定位当前下标；项已被移除则丢弃这次回写。
   void _setById(int id, UploadItem<T> Function(UploadItem<T>) update) {
+    if (!_canRun) return;
     final idx = _items.indexWhere((e) => e.id == id);
     if (idx < 0) return;
     _items[idx] = update(_items[idx]);
     notifyListeners();
+  }
+
+  /// Stops queued items and late callbacks; active workflows remain awaitable.
+  void cancel() {
+    _stopped = true;
+  }
+
+  @override
+  void dispose() {
+    if (_disposed) return;
+    cancel();
+    _disposed = true;
+    super.dispose();
   }
 }

@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:imboy/service/account_preferences.dart';
 
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/helper/func.dart';
@@ -169,12 +169,15 @@ class ChatBurnService {
     required ConversationModel conversation,
     required String messageId,
     required Future<void> Function(ConversationModel, String) onExpire,
+    bool Function()? isCurrent,
     int attempt = 0,
   }) async {
+    if (isCurrent?.call() == false) return;
     try {
       final String tb = MessageRepo.getTableName(conversation.type);
       final MessageRepo repo = MessageRepo(tableName: tb);
       final MessageModel? m = await repo.find(messageId);
+      if (isCurrent?.call() == false) return;
       if (m == null) {
         try {
           if (chatService?.isDisposed != true) {
@@ -188,6 +191,7 @@ class ChatBurnService {
       }
       await onExpire(conversation, messageId);
     } catch (e) {
+      if (isCurrent?.call() == false) return;
       // 原实现在此静默吞掉，然后照样删掉定时器 —— 销毁失败即永久失败，
       // 消息留在本地 SQLite 可被取证。改为记录 + 有界重试。
       iPrint('阅后即焚销毁失败 $messageId (第 ${attempt + 1} 次): $e');
@@ -200,6 +204,7 @@ class ChatBurnService {
             conversation: conversation,
             messageId: messageId,
             onExpire: onExpire,
+            isCurrent: isCurrent,
             attempt: attempt + 1,
           );
         });
@@ -282,15 +287,18 @@ class ChatBurnService {
     required SqliteChatService? chatService,
     required ConversationModel conversation,
     required String messageId,
-    required String deletedMessageIdsKey,
+    required AccountPreferences preferences,
+    required bool Function() isCurrent,
     required Future<bool> Function(ConversationModel, Message) onRemoveMessage,
     int? deletedAtMs,
   }) async {
+    if (!isCurrent()) return;
     try {
       final String tb = MessageRepo.getTableName(conversation.type);
       final MessageRepo repo = MessageRepo(tableName: tb);
 
       final MessageModel? m = await repo.find(messageId);
+      if (!isCurrent()) return;
       if (m == null) {
         try {
           if (chatService?.isDisposed != true) {
@@ -310,8 +318,9 @@ class ChatBurnService {
 
       MessageRetry.instance.removeFromRetryQueue(messageId);
       await repo.delete(messageId);
-
-      await recordDeletedMessageId(messageId, deletedMessageIdsKey);
+      if (!isCurrent()) return;
+      await recordDeletedMessageId(messageId, preferences);
+      if (!isCurrent()) return;
 
       try {
         if (chatService?.isDisposed != true) {
@@ -420,15 +429,19 @@ class ChatBurnService {
   // ===== SharedPreferences 辅助 =====
 
   static const int deletedMessageRetentionMs = 24 * 60 * 60 * 1000;
+  static const deletedMessageIdsKey = 'imboy.deleted_message_ids.v1';
 
   /// 记录已删除的消息ID到 SharedPreferences
-  Future<void> recordDeletedMessageId(String messageId, String spKey) async {
+  Future<void> recordDeletedMessageId(
+    String messageId,
+    AccountPreferences preferences,
+  ) async {
     try {
-      final prefs = await SharedPreferences.getInstance();
-      final List<String> deleted = prefs.getStringList(spKey) ?? [];
       final int nowMs = DateTimeHelper.millisecond();
-      deleted.add('$messageId:$nowMs');
-      await prefs.setStringList(spKey, deleted);
+      await preferences.updateList(
+        deletedMessageIdsKey,
+        (deleted) => [...deleted, '$messageId:$nowMs'],
+      );
       iPrint('记录已删除消息ID: $messageId');
     } catch (e) {
       iPrint('记录已删除消息ID失败: $e');
@@ -436,10 +449,12 @@ class ChatBurnService {
   }
 
   /// 检查消息ID是否已被删除
-  static Future<bool> isMessageDeleted(String messageId, String spKey) async {
+  static Future<bool> isMessageDeleted(
+    String messageId,
+    AccountPreferences preferences,
+  ) async {
     try {
-      final prefs = await SharedPreferences.getInstance();
-      final List<String> deleted = prefs.getStringList(spKey) ?? [];
+      final List<String> deleted = preferences.readList(deletedMessageIdsKey);
       final int nowMs = DateTimeHelper.millisecond();
       for (final String entry in deleted) {
         final List<String> parts = entry.split(':');
@@ -459,23 +474,17 @@ class ChatBurnService {
   }
 
   /// 清理过期的已删除消息ID记录
-  Future<void> cleanupDeletedMessageIds(String spKey) async {
+  Future<void> cleanupDeletedMessageIds(AccountPreferences preferences) async {
     try {
-      final prefs = await SharedPreferences.getInstance();
-      final List<String> deleted = prefs.getStringList(spKey) ?? [];
       final int nowMs = DateTimeHelper.millisecond();
-      final List<String> cleaned = [];
-      for (final String entry in deleted) {
-        final List<String> parts = entry.split(':');
-        if (parts.length == 2) {
-          final int deletedAt = int.tryParse(parts[1]) ?? 0;
-          if (nowMs - deletedAt < deletedMessageRetentionMs) {
-            cleaned.add(entry);
-          }
-        }
-      }
-      await prefs.setStringList(spKey, cleaned);
-      iPrint('清理已删除消息ID记录完成: ${deleted.length} -> ${cleaned.length}');
+      await preferences.updateList(
+        deletedMessageIdsKey,
+        (deleted) => deleted.where((entry) {
+          final parts = entry.split(':');
+          return parts.length == 2 &&
+              nowMs - (int.tryParse(parts[1]) ?? 0) < deletedMessageRetentionMs;
+        }).toList(),
+      );
     } catch (e) {
       iPrint('清理已删除消息ID记录失败: $e');
     }

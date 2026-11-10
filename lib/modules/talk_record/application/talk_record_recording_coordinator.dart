@@ -4,6 +4,13 @@ library;
 import 'dart:async';
 import 'dart:io';
 
+import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart' show Listenable;
+import 'package:imboy/config/init.dart' show currentEnv;
+import 'package:imboy/service/account_local_task_registry.dart';
+import 'package:imboy/service/auth_session_scope.dart';
+import 'package:imboy/store/repository/user_repo_local.dart';
+
 import 'package:imboy/service/talk_record/talk_record_manifest.dart';
 import 'package:imboy/service/talk_record/talk_record_platform_adapters.dart';
 import 'package:imboy/service/talk_record/talk_record_recorder_service.dart';
@@ -15,6 +22,8 @@ import 'talk_record_launch_failure.dart';
 import 'talk_record_upload_progress.dart';
 
 import 'package:imboy/store/model/talk_record/talk_record_participant_model.dart';
+
+part 'talk_record_task_lifecycle.dart';
 
 /// The gateway must use current server authorization and return a durable lease.
 abstract interface class TalkRecordCaptureGateway {
@@ -34,6 +43,7 @@ abstract interface class TalkRecordUploadGateway {
     required Directory directory,
     required TalkRecordKeyStore keys,
     required void Function() checkAccount,
+    CancelToken? cancelToken,
   });
 }
 
@@ -49,13 +59,15 @@ class TalkRecordRecordingCoordinator implements TalkRecordRecordingLauncher {
     required this.recorderFactory,
     this.captureGateway,
     this.uploadGateway,
-  });
+    Listenable? authChanges,
+  }) : _authChanges = authChanges ?? authSessionReader;
   final TalkRecordBindingStore store;
   final TalkRecordKeyStore keys;
   final TalkRecordAccount Function() currentAccount;
   final TalkRecordRecorderFactory recorderFactory;
   final TalkRecordCaptureGateway? captureGateway;
   final TalkRecordUploadGateway? uploadGateway;
+  final Listenable _authChanges;
   TalkRecordUploadSnapshot? get uploadSnapshot {
     final source = uploadGateway;
     final snapshot = source is TalkRecordUploadProgressSource
@@ -106,6 +118,10 @@ class TalkRecordRecordingCoordinator implements TalkRecordRecordingLauncher {
       _recorder?.snapshot.stopUnconfirmed ?? false;
   Future<void> retryMicrophoneStop() async {
     await _recorder?.retryMicrophoneStop();
+    if (_recordingTask?.isCancelled == true && !microphoneStopUnconfirmed) {
+      final account = _binding?.account;
+      if (account != null) await _stopOwnedRecording(account);
+    }
   }
 
   TalkRecordLocalBinding? get binding => _binding;
@@ -114,22 +130,13 @@ class TalkRecordRecordingCoordinator implements TalkRecordRecordingLauncher {
   StreamSubscription<TalkRecordRecorderSnapshot>? _subscription;
   TalkRecordManifest? _recoverable;
   bool _busy = false;
-
-  void _check(TalkRecordAccount expected) {
-    if (!expected.valid || currentAccount() != expected) {
-      throw StateError('Recording account changed');
-    }
-  }
-
-  Future<T> _exclusive<T>(Future<T> Function() work) async {
-    if (_busy) throw StateError('Recording operation in progress');
-    _busy = true;
-    try {
-      return await work();
-    } finally {
-      _busy = false;
-    }
-  }
+  AccountLocalTask? _operationTask;
+  AccountLocalTask? _recordingTask;
+  int? _operationGeneration, _recordingGeneration;
+  String? _operationEnvironment;
+  CancelToken? _operationCancel;
+  Future<void>? _activeOperation;
+  Future<void>? _stoppingRecorder;
 
   /// Scan only this account. Recovery shows interrupted, without opening mic.
   Future<void> discover() => _exclusive(() async {
@@ -143,6 +150,8 @@ class TalkRecordRecordingCoordinator implements TalkRecordRecordingLauncher {
     if (_recorder != null) {
       await _subscription?.cancel();
       await _recorder!.dispose(); // only an already-ended service reaches here
+      _recordingTask?.finish();
+      _recordingTask = null;
       _recorder = null;
     }
     final bindings = await store.list(account);
@@ -228,6 +237,7 @@ class TalkRecordRecordingCoordinator implements TalkRecordRecordingLauncher {
           language: request.language,
           deviceSessionId: TalkRecordIds.newUuidV4(),
         );
+        _ownRecording(account);
         // Persist owner before mic/manifest creation. A crash between start and
         // session mapping is reconciled by the immutable clientRecordingId.
         await store.save(local);
@@ -236,7 +246,7 @@ class TalkRecordRecordingCoordinator implements TalkRecordRecordingLauncher {
         final recorder = recorderFactory(store.audioDirectory(account));
         _binding = local;
         _recorder = recorder;
-        _listen(recorder);
+        await _listen(recorder);
         await recorder.start(
           recordLocalId: clientId,
           clientRecordingId: clientId,
@@ -260,15 +270,26 @@ class TalkRecordRecordingCoordinator implements TalkRecordRecordingLauncher {
         return const TalkRecordRecordingLaunchResult.started();
       });
     } on Object catch (error) {
+      if (_recorder == null) {
+        _recordingTask?.finish();
+        _recordingTask = null;
+      }
       // The page retains its draft. Existing audio is never discarded on a
       // server/network/key/ownership failure.
       return talkRecordLaunchFailure(error);
     }
   }
 
-  void _listen(TalkRecordRecorderService recorder) {
-    unawaited(_subscription?.cancel());
-    _subscription = recorder.snapshots.listen(_emit);
+  Future<void> _listen(TalkRecordRecorderService recorder) async {
+    await _subscription?.cancel();
+    final lifetime = _recordingTask;
+    _subscription = recorder.snapshots.listen(
+      _emit,
+      onDone: () {
+        lifetime?.finish();
+        if (identical(_recordingTask, lifetime)) _recordingTask = null;
+      },
+    );
   }
 
   void _emit(TalkRecordRecorderSnapshot value) {
@@ -293,9 +314,10 @@ class TalkRecordRecordingCoordinator implements TalkRecordRecordingLauncher {
         throw StateError('Recording key unavailable');
       }
       _check(local.account);
+      _ownRecording(local.account);
       final recorder = recorderFactory(store.audioDirectory(local.account));
       _recorder = recorder;
-      _listen(recorder);
+      await _listen(recorder);
       try {
         await recorder.attachRecovered(manifest: manifest, recordKey: key);
       } on Object {
@@ -362,23 +384,10 @@ class TalkRecordRecordingCoordinator implements TalkRecordRecordingLauncher {
   /// access to old content. Navigation/disposal must never call this method.
   Future<void> accountChanged() async {
     _pendingUploadBinding = null;
-    if (_binding != null && currentAccount() != _binding!.account) {
-      try {
-        await _recorder?.markInterrupted('account_changed');
-      } on Object {
-        // If the platform refuses pause, close capture rather than continuing
-        // to collect audio after an account change. Retain sealed content.
-        if (_recorder?.snapshot.isActive ?? false) await _recorder!.end();
-      } finally {
-        if (microphoneStopUnconfirmed) {
-          _updates.add(_recorder!.snapshot);
-        } else {
-          _updates.add(const TalkRecordRecorderSnapshot());
-        }
-      }
-      if (microphoneStopUnconfirmed) {
-        throw const TalkRecordStopUnconfirmedException();
-      }
+    final local = _binding;
+    if (local != null && currentAccount() != local.account) {
+      _operationCancel?.cancel('recording account changed');
+      await _stopOwnedRecording(local.account, close: false);
     }
   }
 
@@ -639,6 +648,7 @@ class TalkRecordRecordingCoordinator implements TalkRecordRecordingLauncher {
       directory: directory,
       keys: keys,
       checkAccount: check,
+      cancelToken: _operationCancel,
     );
     check();
     await store.save(bound.copyWith(completed: true));

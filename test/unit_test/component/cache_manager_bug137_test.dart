@@ -12,12 +12,20 @@ import 'package:imboy/service/storage.dart';
 /// publicBaseUrl），测试输出零生产域名；被测逻辑只按 host 全等比较，
 /// 换 host 不影响覆盖语义。
 void main() {
-  setUp(() {
-    StorageService.to.setString(Keys.publicBaseUrl, 'https://s3.example.test');
+  setUp(() async {
+    await StorageService.to.setString(
+      Keys.currentUid,
+      'cache-regression-account',
+    );
+    await StorageService.to.setString(
+      Keys.publicBaseUrl,
+      'https://s3.example.test',
+    );
   });
 
-  tearDown(() {
-    StorageService.to.setString(Keys.publicBaseUrl, '');
+  tearDown(() async {
+    await StorageService.to.setString(Keys.currentUid, '');
+    await StorageService.to.setString(Keys.publicBaseUrl, '');
   });
 
   group('IMBoyCacheManager - BUG#137 Garage 完整 URL', () {

@@ -29,15 +29,19 @@ library;
 
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:imboy/config/const.dart';
 import 'package:imboy/service/encryption_mode.dart';
 import 'package:imboy/service/events/events.dart';
 import 'package:imboy/service/group_session_service.dart';
 import 'package:imboy/service/message_retry.dart';
 import 'package:imboy/service/retry_policy.dart';
 import 'package:imboy/service/sqlite.dart';
+import 'package:imboy/service/storage.dart';
 import 'package:imboy/page/chat/chat/services/chat_network_service.dart';
 import 'package:imboy/store/model/message_model.dart';
 import 'package:imboy/store/repository/message_repo_sqlite.dart';
+import 'package:imboy/store/repository/user_repo_local.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 /// 群消息表最小 DDL（列集合 = MessageRepo.defaultColumns，与 msg_c2c 同构）。
@@ -129,6 +133,16 @@ void main() {
   final List<WebSocketMessageSendRequestEvent> sendRequests = [];
 
   setUpAll(() async {
+    // Bind retry work and its FFI database to the message's original author.
+    SharedPreferences.setMockInitialValues({Keys.currentUid: '1001'});
+    await StorageService.init();
+    await StorageService.setMap(Keys.currentUser, {
+      'id': '1001',
+      'nickname': 'peer1001',
+      'avatar': '',
+    });
+    expect(UserRepoLocal.to.currentUid, '1001');
+    expect(UserRepoLocal.to.isAuthTransitioning, isFalse);
     // 与 group_session_service_test.dart 同一范式：mock secure storage channel。
     // `GroupSessionService.isGroupE2EE` 就是读它。
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
@@ -157,6 +171,13 @@ void main() {
     sqfliteFfiInit();
     final db = await databaseFactoryFfi.openDatabase(inMemoryDatabasePath);
     await db.execute(_msgC2gDdl);
+    // The signed-in startup scan reads all three message tables.
+    await db.execute('CREATE TABLE msg_c2c AS SELECT * FROM msg_c2g WHERE 0');
+    await db.execute('CREATE TABLE msg_c2s AS SELECT * FROM msg_c2g WHERE 0');
+    await db.execute(
+      'CREATE TABLE msg_c2g_fts ('
+      'id TEXT, conversation_uk3 TEXT, text_content TEXT)',
+    );
     await db.execute(_contactDdl);
     // send-gate 读 attachment_upload_task（迁移 v33）；内存库缺表会让
     // claim 查询抛错 → 重试空转/超时（与 outbox_read_side_wiring 同因）。
@@ -171,7 +192,7 @@ void main() {
     SqliteService.setDbForTest(db);
     expect(await SqliteService.to.db, isNotNull);
     retry = MessageRetry.instance;
-    await pumpEventQueue(times: 200);
+    await retry.debugWaitForIdle().timeout(const Duration(seconds: 5));
     AppEventBus.on<WebSocketMessageSendRequestEvent>().listen(sendRequests.add);
   });
 

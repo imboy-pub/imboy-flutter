@@ -13,7 +13,7 @@ import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:imboy/service/e2ee_local_backup_service.dart';
 import 'package:imboy/service/e2ee_server_backup_service.dart';
 import 'package:imboy/service/storage_secure.dart';
-import 'package:imboy/store/repository/user_repo_local.dart';
+import 'package:imboy/service/auth_session_scope.dart';
 
 /// E2EE 备份导出页面
 ///
@@ -414,6 +414,7 @@ class _E2EEBackupExportPageState extends State<E2EEBackupExportPage> {
 
   Future<void> _handleExport() async {
     if (!mounted || _isExporting || _isCloudUploading) return;
+    final exportSession = authSessionReader.current;
     final password = _passwordController.text;
     final confirmPassword = _confirmPasswordController.text;
 
@@ -426,7 +427,7 @@ class _E2EEBackupExportPageState extends State<E2EEBackupExportPage> {
       setState(() => _isExporting = true);
 
       final keys = await _readKeys();
-      if (!mounted) return;
+      if (!mounted || !authSessionReader.isCurrent(exportSession)) return;
       if (keys == null) {
         if (mounted) _showError(t.common.e2eeBackupErrNoKeyData);
         return;
@@ -440,10 +441,10 @@ class _E2EEBackupExportPageState extends State<E2EEBackupExportPage> {
         keyId: keys.keyId,
         userNotes: _notesController.text,
         // 账号绑定：恢复端据此拒绝跨账号恢复
-        accountId: UserRepoLocal.to.currentUid,
+        accountId: exportSession.uid,
       );
 
-      if (!mounted) return;
+      if (!mounted || !authSessionReader.isCurrent(exportSession)) return;
       setState(() => _generatedFilePath = filePath);
       _showSuccessDialog();
     } on Exception catch (e) {
@@ -458,6 +459,7 @@ class _E2EEBackupExportPageState extends State<E2EEBackupExportPage> {
   /// 版本冲突自动重试一次，此处失败即提示。
   Future<void> _handleCloudUpload() async {
     if (!mounted || _isExporting || _isCloudUploading) return;
+    final session = authSessionReader.current;
     final password = _passwordController.text;
 
     if (password != _confirmPasswordController.text) {
@@ -469,7 +471,7 @@ class _E2EEBackupExportPageState extends State<E2EEBackupExportPage> {
       setState(() => _isCloudUploading = true);
 
       final keys = await _readKeys();
-      if (!mounted) return;
+      if (!mounted || !authSessionReader.isCurrent(session)) return;
       if (keys == null) {
         if (mounted) _showError(t.common.e2eeBackupErrNoKeyData);
         return;
@@ -482,14 +484,18 @@ class _E2EEBackupExportPageState extends State<E2EEBackupExportPage> {
         deviceId: keys.deviceId,
         keyId: keys.keyId,
         // 账号绑定：恢复端据此拒绝跨账号恢复
-        accountId: UserRepoLocal.to.currentUid,
+        accountId: session.uid,
       );
 
-      if (!mounted) return;
+      if (!mounted || !authSessionReader.isCurrent(session)) return;
       if (result.ok) {
         // 云端上传成功＝备份设置完成（发生率压降路径3）：缓存口令供密钥
         // 变化自动重传 + 落完成标记，老用户不再被首启强制向导打扰
-        await E2EEBackupSetupService.to.completeSetup(passphrase: password);
+        await E2EEBackupSetupService.to.completeSetup(
+          passphrase: password,
+          uid: session.uid,
+          generation: session.generation,
+        );
         if (!mounted) return;
         _showSuccess(
           t.common.e2eeBackupCloudUploadSuccess(version: result.backupVersion),

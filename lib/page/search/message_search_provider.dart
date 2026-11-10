@@ -16,6 +16,7 @@ import 'package:imboy/store/repository/message_fts_repo.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/service/sqlite.dart';
 import 'package:imboy/service/storage.dart';
+import 'package:imboy/service/account_local_task_registry.dart';
 
 import 'message_search_state.dart';
 import 'search_result_expiry.dart';
@@ -135,8 +136,17 @@ class MessageSearchNotifier extends _$MessageSearchNotifier {
     final key = _historyKey();
     final generation = session.sessionGeneration;
     if (key == null) return Future.value();
+    final AccountLocalTask task;
+    try {
+      task = AccountLocalTaskRegistry.instance.register(
+        AccountLocalTaskOwner.capture(),
+      );
+    } on AccountLocalTaskCancelledException {
+      return Future.value();
+    }
     bool isCurrent() =>
         !_disposed &&
+        !task.isCancelled &&
         session.isCurrentSession(generation) &&
         _historyKey() == key;
     _pendingHistoryWrites++;
@@ -158,7 +168,10 @@ class MessageSearchNotifier extends _$MessageSearchNotifier {
             );
           }
         })
-        .whenComplete(() => _pendingHistoryWrites--);
+        .whenComplete(() {
+          _pendingHistoryWrites--;
+          task.finish();
+        });
     _historyWrites = operation.then<void>(
       (_) {},
       onError: (Object _, StackTrace _) {},

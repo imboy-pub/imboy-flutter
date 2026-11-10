@@ -4,12 +4,15 @@ import 'dart:math';
 import 'dart:io' as io;
 
 import 'package:crypto/crypto.dart' as crypto;
+import 'package:dio/dio.dart' show CancelToken;
 import 'package:imboy/store/api/attachment_api.dart' show AttachmentApi;
 import 'package:flutter/foundation.dart';
 
 import 'package:imboy/component/http/http_client.dart';
 import 'package:imboy/component/http/http_response.dart';
 import 'package:imboy/store/api/attachment_api.dart';
+
+part 'attachment_direct_transport.dart';
 
 /// direct-v1（协议 docs/architecture/attachment-direct-transfer-v1-protocol.md，
 /// backend attachment_direct_logic）的客户端实现。
@@ -154,6 +157,12 @@ class DirectAttachmentApi {
   /// fn_dv1_attempt_create 23514 硬门为最终防线）。
   static const int maxAttempts = 3;
 
+  static void _checkCancelled(CancelToken? token, [String objectKey = '']) {
+    if (token?.isCancelled == true) {
+      throw DirectUploadCancelled(objectKey);
+    }
+  }
+
   /// 会话信封里的处理中/终态字面量（与后端 direct_state 对齐）。
   static const String stateConfirmed = 'CONFIRMED';
   static const String stateFinalizing = 'FINALIZING';
@@ -172,16 +181,25 @@ class DirectAttachmentApi {
     String purpose = 'attachment',
     String? anchorMsgId,
     DirectSessionFn? sessionFn,
+    CancelToken? cancelToken,
     void Function(String state)? onState,
   }) async {
+    _checkCancelled(cancelToken);
     Future<IMBoyHttpResponse> session(
       String action, {
       Map<String, dynamic>? body,
-    }) {
+    }) async {
+      _checkCancelled(cancelToken);
       final String path = '/api/v1/attachment/direct/$action';
-      return sessionFn != null
-          ? sessionFn(path, body: body)
-          : HttpClient.client.post(path, data: body);
+      final response = sessionFn != null
+          ? await sessionFn(path, body: body)
+          : await HttpClient.client.post(
+              path,
+              data: body,
+              cancelToken: cancelToken,
+            );
+      _checkCancelled(cancelToken);
+      return response;
     }
 
     final IMBoyHttpResponse reg = await session(
@@ -196,6 +214,7 @@ class DirectAttachmentApi {
         'anchor_msg_id': ?anchorMsgId,
       },
     );
+    _checkCancelled(cancelToken);
     if (!reg.ok) {
       if (reg.msg == 'declaration_conflict') {
         throw const DirectRegistrationConflict();
@@ -229,10 +248,12 @@ class DirectAttachmentApi {
     /// [DirectUploadCancelled]，不调 finalize。
     VoidCallback? registerCancelHandler,
     DirectSessionFn? sessionFn,
+    CancelToken? cancelToken,
     DirectFilePutFn? putFn,
     void Function(int sent, int total)? onProgress,
     Future<void> Function(DirectCheckpoint event)? checkpoint,
   }) async {
+    _checkCancelled(cancelToken);
     if (mime == 'image/jpg') mime = 'image/jpeg';
     final int size = file.lengthSync();
     final String? validationError = AttachmentApi.validateUpload(size, mime);
@@ -243,11 +264,18 @@ class DirectAttachmentApi {
     Future<IMBoyHttpResponse> session(
       String action, {
       Map<String, dynamic>? body,
-    }) {
+    }) async {
+      _checkCancelled(cancelToken);
       final String path = '/api/v1/attachment/direct/$action';
-      return sessionFn != null
-          ? sessionFn(path, body: body)
-          : HttpClient.client.post(path, data: body);
+      final response = sessionFn != null
+          ? await sessionFn(path, body: body)
+          : await HttpClient.client.post(
+              path,
+              data: body,
+              cancelToken: cancelToken,
+            );
+      _checkCancelled(cancelToken);
+      return response;
     }
 
     // 1. register（RESERVED，无写能力/R08）：同 client_upload_id 同声明幂等。
@@ -261,8 +289,10 @@ class DirectAttachmentApi {
       purpose: purpose,
       anchorMsgId: anchorMsgId,
       sessionFn: sessionFn,
+      cancelToken: cancelToken,
       onState: (state) => registeredState = state,
     );
+    _checkCancelled(cancelToken, objectKey);
     await checkpoint?.call(
       DirectCheckpoint(
         DirectCheckpointStage.registered,
@@ -279,6 +309,7 @@ class DirectAttachmentApi {
         file: file,
         mime: mime,
         sessionFn: sessionFn,
+        cancelToken: cancelToken,
         putFn: putFn,
         onProgress: onProgress,
         checkpoint: checkpoint,
@@ -341,6 +372,7 @@ class DirectAttachmentApi {
         ),
       );
 
+      _checkCancelled(cancelToken, objectKey);
       bool cancelled = false;
       bool putFailed = false;
       try {
@@ -352,12 +384,15 @@ class DirectAttachmentApi {
                 size,
                 grant.requiredHeaders,
                 onProgress: onProgress,
+                cancelToken: cancelToken,
               );
         registerCancelHandler?.call();
         await putting;
+        _checkCancelled(cancelToken, objectKey);
       } on DirectUploadCancelled {
         cancelled = true;
       } catch (_) {
+        _checkCancelled(cancelToken, objectKey);
         // 普通 PUT 失败（网络/5xx）：该 attempt 已 dispatch、无 closed 证据，
         // 不得 finalize 它；URL 是单次授权，重放同一 URL 无意义（I05）——
         // 直接 renew 新 attempt。预算由服务端 23514 硬门兜底。
@@ -401,6 +436,7 @@ class DirectAttachmentApi {
             ),
           );
         }
+        _checkCancelled(cancelToken, objectKey);
         return DirectUploadResult(
           objectKey: objectKey,
           state: state,
@@ -425,12 +461,19 @@ class DirectAttachmentApi {
   static Future<String?> strictStatus({
     required String objectKey,
     DirectSessionFn? sessionFn,
+    CancelToken? cancelToken,
   }) async {
+    _checkCancelled(cancelToken, objectKey);
     const path = '/api/v1/attachment/direct/status';
     final query = <String, dynamic>{'object_key': objectKey};
     final response = sessionFn != null
         ? await sessionFn(path, body: query)
-        : await HttpClient.client.get(path, queryParameters: query);
+        : await HttpClient.client.get(
+            path,
+            queryParameters: query,
+            cancelToken: cancelToken,
+          );
+    _checkCancelled(cancelToken, objectKey);
     final payload = response.payload;
     if (!response.ok ||
         payload is! Map ||
@@ -448,15 +491,23 @@ class DirectAttachmentApi {
   static Future<DirectUploadResult> status({
     required String objectKey,
     DirectSessionFn? sessionFn,
+    CancelToken? cancelToken,
   }) async {
+    _checkCancelled(cancelToken, objectKey);
     const String path = '/api/v1/attachment/direct/status';
     final Map<String, dynamic> query = {'object_key': objectKey};
     final IMBoyHttpResponse st = sessionFn != null
         ? await sessionFn(path, body: query)
-        : await HttpClient.client.get(path, queryParameters: query);
+        : await HttpClient.client.get(
+            path,
+            queryParameters: query,
+            cancelToken: cancelToken,
+          );
+    _checkCancelled(cancelToken, objectKey);
     if (!st.ok) {
       throw Exception('direct status 失败: code=${st.code} msg=${st.msg}');
     }
+    _checkCancelled(cancelToken, objectKey);
     return DirectUploadResult(
       objectKey: objectKey,
       state: str(st.payload, 'state'),
@@ -474,27 +525,41 @@ class DirectAttachmentApi {
     required io.File file,
     required String mime,
     DirectSessionFn? sessionFn,
+    CancelToken? cancelToken,
     DirectFilePutFn? putFn,
     void Function(int sent, int total)? onProgress,
     Future<void> Function(DirectCheckpoint event)? checkpoint,
   }) async {
+    _checkCancelled(cancelToken, objectKey);
     if (mime == 'image/jpg') mime = 'image/jpeg';
     final int size = file.lengthSync();
     Future<IMBoyHttpResponse> session(
       String action, {
       Map<String, dynamic>? body,
-    }) {
+    }) async {
+      _checkCancelled(cancelToken);
       final String path = '/api/v1/attachment/direct/$action';
-      return sessionFn != null
-          ? sessionFn(path, body: body)
-          : HttpClient.client.post(path, data: body);
+      final response = sessionFn != null
+          ? await sessionFn(path, body: body)
+          : await HttpClient.client.post(
+              path,
+              data: body,
+              cancelToken: cancelToken,
+            );
+      _checkCancelled(cancelToken);
+      return response;
     }
 
     const String statusPath = '/api/v1/attachment/direct/status';
     final Map<String, dynamic> statusQuery = {'object_key': objectKey};
     final IMBoyHttpResponse st = sessionFn != null
         ? await sessionFn(statusPath, body: statusQuery)
-        : await HttpClient.client.get(statusPath, queryParameters: statusQuery);
+        : await HttpClient.client.get(
+            statusPath,
+            queryParameters: statusQuery,
+            cancelToken: cancelToken,
+          );
+    _checkCancelled(cancelToken, objectKey);
     if (!st.ok) {
       throw Exception('direct status 失败: code=${st.code} msg=${st.msg}');
     }
@@ -510,6 +575,7 @@ class DirectAttachmentApi {
         ? jsonDecode(rawExpected)
         : rawExpected;
     final sha256Hex = await sha256OfFile(file);
+    _checkCancelled(cancelToken, objectKey);
     if (decoded is! Map ||
         decoded['sha256'] != sha256Hex ||
         decoded['size_bytes']?.toString() != size.toString() ||
@@ -542,6 +608,7 @@ class DirectAttachmentApi {
         attemptId: grant.attemptId,
       ),
     );
+    _checkCancelled(cancelToken, objectKey);
     if (putFn != null) {
       await putFn(grant.url, file, size, grant.requiredHeaders);
     } else {
@@ -553,6 +620,7 @@ class DirectAttachmentApi {
         onProgress: onProgress,
       );
     }
+    _checkCancelled(cancelToken, objectKey);
     await checkpoint?.call(
       DirectCheckpoint(
         DirectCheckpointStage.putDone,
@@ -581,6 +649,7 @@ class DirectAttachmentApi {
         ),
       );
     }
+    _checkCancelled(cancelToken, objectKey);
     return DirectUploadResult(
       objectKey: objectKey,
       state: str(fin.payload, 'state'),
@@ -588,53 +657,6 @@ class DirectAttachmentApi {
       // 与 uploadFile 同合同：UNKNOWN 封存态不得把附件发出
       quarantined: str(fin.payload, 'outcome') == 'UNKNOWN_QUARANTINED',
     );
-  }
-
-  /// 默认 PUT：dart:io HttpClient fixed-length streaming。
-  ///
-  /// * contentLength 显式设置 → 非 chunked（Garage/S3 签名 PUT 必需；
-  ///   Dio+Stream 在 Android 忽略手动 content-length 的前科见
-  ///   [AttachmentApi._rawDioPut] 注释——本引擎不经 Dio）；
-  /// * headers 原样发送且**只发** required_headers（无业务凭据，T29/T07）；
-  /// * 取消：[DirectUploadCancelled] 由调用方通过 abort 回调注入（HttpClientRequest.abort）。
-  static Future<void> _ioFilePut(
-    String url,
-    io.File file,
-    int length,
-    Map<String, String> headers, {
-    void Function(int sent, int total)? onProgress,
-  }) async {
-    final io.HttpClient client = io.HttpClient();
-    client.connectionTimeout = const Duration(milliseconds: 30000);
-    try {
-      final io.HttpClientRequest request = await client.openUrl(
-        'PUT',
-        Uri.parse(url),
-      );
-      request.followRedirects = false;
-      headers.forEach((String k, String v) {
-        request.headers.set(k, v);
-      });
-      request.contentLength = length;
-      var sent = 0;
-      await request.addStream(
-        file.openRead().map((chunk) {
-          sent += chunk.length;
-          onProgress?.call(sent, length);
-          return chunk;
-        }),
-      );
-      final io.HttpClientResponse response = await request.close();
-      // 签名 PUT 的负向（缺头/换值/换正文）由存储端拒绝；这里只区分成败，
-      // 错误体不读取（服务端 finalize 的 proof 才是权威，T05/T06）。
-      if (response.statusCode < 200 || response.statusCode >= 300) {
-        await response.drain<void>();
-        throw Exception('direct put failed: http ${response.statusCode}');
-      }
-      await response.drain<void>();
-    } finally {
-      client.close(force: true);
-    }
   }
 
   static DirectGrantDescriptor grantOf(dynamic payload) {

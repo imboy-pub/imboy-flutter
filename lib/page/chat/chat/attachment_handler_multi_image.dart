@@ -118,23 +118,27 @@ Future<void> uploadPickedImages(
   ChatAttachmentHandler handler,
   BuildContext context,
   List<AssetEntity> result,
-) async {
+) => handler._runOwned((check) async {
+  check();
   final images = result.where((e) => e.type == AssetType.image).toList();
   if (images.length < 2) {
     for (final entity in result) {
+      check();
       await handler.uploadSelectedAsset(context, entity);
     }
     return;
   }
+  check();
   await uploadImagesAsMulti(handler, context, images);
   if (!context.mounted) return;
   // 选择器当前只出图片（RequestType.image）；防御性地让非图片项仍逐条走旧路径
   for (final entity in result) {
     if (entity.type != AssetType.image) {
+      check();
       await handler.uploadSelectedAsset(context, entity);
     }
   }
-}
+});
 
 /// N 张图片 → 单条 imageMulti：全部封装决策（fail-closed）→ 逐张上传
 /// （同一 anchor）→ 发一条。
@@ -150,15 +154,18 @@ Future<void> uploadImagesAsMulti(
   ChatAttachmentHandler handler,
   BuildContext context,
   List<AssetEntity> images,
-) async {
+) => handler._runOwned((check) async {
   try {
     final s = handler._uploadScope;
     final String messageId = Xid().toString();
     final seals = await _sealsForMulti(handler, messageId, images.length);
+    check();
     final items = <Map<String, dynamic>>[];
     for (var i = 0; i < images.length; i++) {
       final entity = images[i];
+      check();
       final name = await entity.titleAsync;
+      check();
       final meta = await AttachmentApi.uploadImageEntityViaPresign(
         entity,
         scope: s.scope,
@@ -182,6 +189,7 @@ Future<void> uploadImagesAsMulti(
         ),
         seal: seals[i],
       );
+      check();
       items.add(
         handler._withDescriptor({
           'uri': meta['object_key'],
@@ -209,13 +217,14 @@ Future<void> uploadImagesAsMulti(
         'total': items.length,
       }),
     );
+    check();
     await handler._sendMessage(message);
   } on Object catch (e) {
     final p = ChatAttachmentHandler._attachmentFailurePresentation(e);
     debugPrint('[attachment_handler] uploadImagesAsMulti failed, ${p.log}');
     AppLoading.showError(p.toast);
   }
-}
+});
 
 /// 一次加密判定派生 N 份 seal。attachmentId 逐图区分（`image_0`…）：它进
 /// AAD，同一条消息内多个附件不可互换（见 [AttachmentSealRequest]）。

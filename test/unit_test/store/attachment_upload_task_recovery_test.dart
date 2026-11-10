@@ -14,6 +14,7 @@ import 'package:imboy/service/storage.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/service/encryption_mode.dart';
 import 'package:imboy/service/message_retry.dart';
+import 'package:imboy/service/account_local_task_registry.dart';
 import 'package:imboy/store/model/message_model.dart';
 import 'package:imboy/store/repository/message_repo_sqlite.dart';
 
@@ -37,6 +38,8 @@ import 'package:dio/dio.dart';
 import 'package:imboy/store/repository/attachment_upload_task_repo_sqlite.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
+
+part 'attachment_upload_cleanup_test_cases.dart';
 
 late Directory _uploadCache;
 
@@ -66,16 +69,6 @@ class _MemKeyStore implements UploadKeyStore {
   @override
   Future<Map<String, String>?> read(String ref) async => store[ref];
 }
-
-Uint8List _hexDecode(String hex) => Uint8List.fromList(
-  List<int>.generate(
-    hex.length ~/ 2,
-    (i) => int.parse(hex.substring(i * 2, i * 2 + 2), radix: 16),
-  ),
-);
-
-Uint8List _testBytes() =>
-    Uint8List.fromList(List<int>.generate(4096, (i) => i % 251));
 
 class _Fakes {
   final List<String> presignCalls = [];
@@ -214,6 +207,8 @@ void main() {
   late _Fakes f;
 
   setUp(() async {
+    SharedPreferences.setMockInitialValues({Keys.currentUid: _uidA});
+    await StorageService.init();
     _uploadCache = await Directory.systemTemp.createTemp('imboy-upload-owned-');
     db = await _openDb();
     SqliteService.setDbForTest(db);
@@ -227,6 +222,8 @@ void main() {
     await db.close();
     await _uploadCache.delete(recursive: true);
   });
+
+  _registerAccountUploadCleanupTest(() => repo, () => keys, () => f);
 
   test('并发任务插入和无任务发送栅栏只能有一方成功', () async {
     final base = await _seedRow(

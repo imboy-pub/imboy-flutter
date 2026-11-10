@@ -43,6 +43,7 @@ class TestUploader implements TalkRecordUploadGateway {
     required Directory directory,
     required TalkRecordKeyStore keys,
     required void Function() checkAccount,
+    CancelToken? cancelToken,
   }) async {
     checkAccount();
     lastBinding = binding;
@@ -52,6 +53,7 @@ class TestUploader implements TalkRecordUploadGateway {
 
 class HeldUploader extends TestUploader {
   final entered = Completer<void>(), release = Completer<void>();
+  CancelToken? uploadCancel;
   @override
   Future<void> upload({
     required TalkRecordLocalBinding binding,
@@ -59,7 +61,9 @@ class HeldUploader extends TestUploader {
     required Directory directory,
     required TalkRecordKeyStore keys,
     required void Function() checkAccount,
+    CancelToken? cancelToken,
   }) async {
+    uploadCancel = cancelToken;
     entered.complete();
     await release.future;
     await super.upload(
@@ -68,6 +72,7 @@ class HeldUploader extends TestUploader {
       directory: directory,
       keys: keys,
       checkAccount: checkAccount,
+      cancelToken: cancelToken,
     );
   }
 }
@@ -86,6 +91,7 @@ class ProgressHeldUploader extends HeldUploader
     required Directory directory,
     required TalkRecordKeyStore keys,
     required void Function() checkAccount,
+    CancelToken? cancelToken,
   }) async {
     progress = TalkRecordUploadSnapshot(
       account: binding.account,
@@ -101,6 +107,18 @@ class ProgressHeldUploader extends HeldUploader
       directory: directory,
       keys: keys,
       checkAccount: checkAccount,
+      cancelToken: cancelToken,
     );
+  }
+}
+
+class HeldCloseEngine extends FakeTalkRecordEngine {
+  final closing = Completer<void>();
+  final releaseClose = Completer<void>();
+  @override
+  Future<void> close() async {
+    if (!closing.isCompleted) closing.complete();
+    await releaseClose.future;
+    await super.close();
   }
 }

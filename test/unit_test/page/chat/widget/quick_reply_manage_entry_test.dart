@@ -8,6 +8,8 @@ import 'package:imboy/config/const.dart';
 import 'package:imboy/config/env.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/chat/widget/chat_input.dart';
+import 'package:imboy/page/chat/widget/chat_input_types.dart';
+import 'package:imboy/service/account_local_task_registry.dart';
 import 'package:imboy/service/storage.dart';
 
 /// BUG#101 回归：快捷回复条的「管理」入口必须**不滚动即可触达**。
@@ -37,6 +39,32 @@ void main() {
     IMBoyCacheManager.debugLogEnabled = true;
     await StorageService.to.remove(Keys.currentUid);
   });
+
+  test(
+    'late quick-reply edits cannot recreate A or overwrite B after cleanup',
+    () async {
+      await StorageService.to.setString(Keys.currentUid, 'synthetic-a');
+      final owner = AccountLocalTaskOwner.capture();
+      final oldPage = StorageServiceQuickReplyStore();
+      await oldPage.setString('quick_replies:synthetic-a', '["A"]');
+      await StorageService.to.setString(Keys.currentUid, 'synthetic-b');
+      await StorageServiceQuickReplyStore().setString(
+        'quick_replies:synthetic-b',
+        '["B"]',
+      );
+      await StorageService.to.remove(Keys.currentUid);
+
+      final cleanup = AccountLocalTaskRegistry.instance.beginCleanup(owner);
+      await cleanup.stopped;
+      await StorageService.to.remove('quick_replies:synthetic-a');
+      cleanup.release();
+      await oldPage.setString('quick_replies:synthetic-a', '["late A"]');
+      await oldPage.setString('quick_replies:synthetic-b', '["wrong owner"]');
+      expect(StorageService.to.getString('quick_replies:synthetic-a'), isEmpty);
+      expect(StorageService.to.getString('quick_replies:synthetic-b'), '["B"]');
+      await StorageService.to.setString(Keys.currentUid, 'tsid_uid_101');
+    },
+  );
 
   testWidgets('「管理」入口在 360pt 窄屏、无横向滚动的情况下完整可见', (tester) async {
     addTearDown(tester.view.reset);

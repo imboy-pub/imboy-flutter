@@ -22,6 +22,7 @@ class OtherLoginSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = Translations.of(context);
     if (!showAlipay && !showOneKey) return const SizedBox.shrink();
 
     return Column(
@@ -29,13 +30,19 @@ class OtherLoginSection extends StatelessWidget {
         Row(
           children: [
             const Expanded(child: Divider()),
-            Padding(
-              padding: AppSpacing.symmetricMedium,
-              child: Text(
-                t.account.otherLoginMethods,
-                style: TextStyle(
-                  color: AppColors.iosGray,
-                  fontSize: FontSizeType.small.size,
+            Flexible(
+              flex: 4,
+              child: Padding(
+                padding: AppSpacing.symmetricMedium,
+                child: Text(
+                  t.account.otherLoginMethods,
+                  textAlign: TextAlign.center,
+                  style: context.textStyle(
+                    FontSizeType.small,
+                    color: isDark
+                        ? AppColors.darkTextSecondary
+                        : AppColors.lightTextSecondary,
+                  ),
                 ),
               ),
             ),
@@ -47,10 +54,10 @@ class OtherLoginSection extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             if (showOneKey) ...[
-              _buildOneKeyButton(context),
-              if (showAlipay) const SizedBox(width: 32),
+              Flexible(child: _buildOneKeyButton(context)),
+              if (showAlipay) AppSpacing.horizontalXXLarge,
             ],
-            if (showAlipay) _buildAlipayButton(context),
+            if (showAlipay) Flexible(child: _buildAlipayButton(context)),
           ],
         ),
       ],
@@ -90,9 +97,12 @@ class OtherLoginSection extends StatelessWidget {
         const SizedBox(height: 6),
         Text(
           t.passport.oneKeyLogin,
+          textAlign: TextAlign.center,
           style: context.textStyle(
             FontSizeType.small,
-            color: isDark ? AppColors.darkTextSecondary : AppColors.iosGray,
+            color: isDark
+                ? AppColors.darkTextSecondary
+                : AppColors.lightTextSecondary,
           ),
         ),
       ],
@@ -133,9 +143,12 @@ class OtherLoginSection extends StatelessWidget {
         const SizedBox(height: 6),
         Text(
           t.common.withdrawAlipay,
+          textAlign: TextAlign.center,
           style: context.textStyle(
             FontSizeType.small,
-            color: isDark ? AppColors.darkTextSecondary : AppColors.iosGray,
+            color: isDark
+                ? AppColors.darkTextSecondary
+                : AppColors.lightTextSecondary,
           ),
         ),
       ],

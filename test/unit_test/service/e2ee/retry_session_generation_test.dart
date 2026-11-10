@@ -90,6 +90,7 @@ void main() {
   setUp(() async {
     SharedPreferences.setMockInitialValues({Keys.currentUid: '100'});
     await StorageService.init();
+    // A rejected synthetic login belongs only to the preceding test.
     UserRepoLocal.to.clearAuthTransitionFailureForTest();
     transport = _UnexpectedTransport();
     imboy_http.HttpClient.adapterForTest = transport;
@@ -128,6 +129,7 @@ void main() {
     } finally {
       TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
           .setMockMethodCallHandler(_channel, null);
+      UserRepoLocal.to.clearAuthTransitionFailureForTest();
     }
     expect(calls, 0, reason: 'No unsimulated transport may run');
   });

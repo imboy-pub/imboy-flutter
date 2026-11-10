@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/component/upload/batch_upload_controller.dart';
+import 'package:imboy/service/account_local_task_registry.dart';
 import 'package:wechat_assets_picker/wechat_assets_picker.dart';
 
 /// 构造最小可用 AssetEntity（纯数据，不触发平台通道），供 stub 上传函数按 id 分流。
@@ -11,6 +12,85 @@ AssetEntity _asset(String id) =>
 
 void main() {
   group('BatchUploadController', () {
+    test(
+      'dispose stops later batches and discards in-flight results',
+      () async {
+        final gate = Completer<String?>();
+        final started = <String>[];
+        final controller = BatchUploadController<String>(
+          concurrency: 1,
+          uploader: (asset) {
+            started.add(asset.id);
+            return gate.future;
+          },
+        );
+        var notifications = 0;
+        controller.addListener(() => notifications++);
+        final work = controller.addAndUpload([_asset('a'), _asset('b')]);
+        expect(started, ['a']);
+        controller.dispose();
+        final beforeCompletion = notifications;
+        gate.complete('late-a');
+        await work;
+        expect(started, ['a']);
+        expect(controller.results, isEmpty);
+        expect(notifications, beforeCompletion);
+      },
+    );
+
+    test(
+      'account cleanup drains A and preserves an independent B batch',
+      () async {
+        const ownerA = AccountLocalTaskOwner(
+          uid: 'batch-a',
+          environment: 'local',
+          endpoint: 'https://local.invalid',
+        );
+        const ownerB = AccountLocalTaskOwner(
+          uid: 'batch-b',
+          environment: 'local',
+          endpoint: 'https://local.invalid',
+        );
+        final gate = Completer<String?>();
+        final startedA = <String>[];
+        final accountA = BatchUploadController<String>(
+          owner: ownerA,
+          isCurrent: () => true,
+          concurrency: 1,
+          uploader: (asset) {
+            startedA.add(asset.id);
+            return gate.future;
+          },
+        );
+        final accountB = BatchUploadController<String>(
+          owner: ownerB,
+          isCurrent: () => true,
+          uploader: (asset) async => 'b-${asset.id}',
+        );
+        final workA = accountA.addAndUpload([_asset('a1'), _asset('a2')]);
+        final cleanup = AccountLocalTaskRegistry.instance.beginCleanup(ownerA);
+        var stopped = false;
+        final waiting = cleanup.stopped.then((_) => stopped = true);
+        try {
+          await accountB.addAndUpload([_asset('b1'), _asset('b2')]);
+          expect(stopped, isFalse);
+          gate.complete('late-a');
+          await workA;
+          await waiting;
+          expect(startedA, ['a1']);
+          expect(accountA.results, isEmpty);
+          expect(accountB.results, ['b-b1', 'b-b2']);
+        } finally {
+          if (!gate.isCompleted) gate.complete(null);
+          await workA;
+          await waiting;
+          cleanup.release();
+          accountA.dispose();
+          accountB.dispose();
+        }
+      },
+    );
+
     test('all assets succeed: every item done and results ordered', () async {
       // Arrange
       final controller = BatchUploadController<String>(

@@ -20,13 +20,16 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:imboy/config/const.dart';
 import 'package:imboy/service/e2ee/crypto_store.dart';
 import 'package:imboy/service/events/events.dart';
 import 'package:imboy/service/message_actions.dart';
 import 'package:imboy/service/message_retry.dart';
 import 'package:imboy/service/retry_policy.dart';
 import 'package:imboy/service/sqlite.dart';
+import 'package:imboy/service/storage.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 /// 与 retry_plaintext_guard_integration_test 同一份最小 DDL。
@@ -145,6 +148,10 @@ void main() {
   late StreamSubscription<WebSocketMessageSendRequestEvent> sendSubscription;
 
   setUp(() async {
+    // Retry/outbox work belongs to the sender's active account session.
+    SharedPreferences.setMockInitialValues({Keys.currentUid: '1001'});
+    await StorageService.init();
+    expect(UserRepoLocal.to.isAuthTransitioning, isFalse);
     sqfliteFfiInit();
     db = await databaseFactoryFfi.openDatabase(inMemoryDatabasePath);
     await db.execute(_msgC2cDdl);
@@ -162,7 +169,7 @@ void main() {
       'updated_at INTEGER, upload_path TEXT)',
     );
     await db.insert('contact', {
-      'user_id': '',
+      'user_id': 1001,
       'peer_id': 2002,
       'nickname': 'peer',
       'avatar': '',
@@ -194,6 +201,8 @@ void main() {
     sendRequests.clear();
     SqliteService.setDbForTest(null);
     await db.close();
+    SharedPreferences.setMockInitialValues({});
+    await StorageService.init();
   });
 
   Future<void> insertEncryptedRow(String id, Map<String, dynamic> e2ee) async {

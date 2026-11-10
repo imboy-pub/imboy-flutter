@@ -6,6 +6,8 @@ import 'package:dio/dio.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:imboy/component/http/http_client.dart';
 import 'package:imboy/service/message_retry.dart';
+import 'package:imboy/service/account_local_task_registry.dart';
+import 'package:imboy/service/pending_chat_actions.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -32,8 +34,8 @@ class _Voice extends VoicePlaybackService {
 
 class _DeferredApi extends WorkspaceApi {
   final calls = <List<String>>[];
-  final entered = List.generate(4, (_) => Completer<void>());
-  final gates = List.generate(4, (_) => Completer<void>());
+  final entered = List.generate(5, (_) => Completer<void>());
+  final gates = List.generate(5, (_) => Completer<void>());
 
   @override
   Future<void> markGroupRead(
@@ -65,68 +67,66 @@ Future<void> _waitForQueue(bool Function(List<dynamic>) predicate) async {
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
-  test(
-    'new reads survive an in-flight flush, foreign records and retry',
-    () async {
-      sqfliteFfiInit();
-      databaseFactory = databaseFactoryFfi;
-      FlutterSecureStorage.setMockInitialValues({
-        'secure_token': _fakeJwt,
-        'secure_refresh_token': _fakeJwt,
-      });
-      HttpClient.adapterForTest = _NoNetworkAdapter();
-      addTearDown(() => HttpClient.adapterForTest = null);
-      await _seedQueue();
-      final db = await openFixtureDatabaseAtVersion(version: 32);
-      SqliteService.setDbForTest(db);
-      await db.insert('conversation', {
-        'user_id': 995011,
-        'peer_id': 995301,
+  test('new reads survive an in-flight flush, foreign records, retry and account cleanup', () async {
+    sqfliteFfiInit();
+    databaseFactory = databaseFactoryFfi;
+    FlutterSecureStorage.setMockInitialValues({
+      'secure_token': _fakeJwt,
+      'secure_refresh_token': _fakeJwt,
+    });
+    HttpClient.adapterForTest = _NoNetworkAdapter();
+    addTearDown(() => HttpClient.adapterForTest = null);
+    await _seedQueue();
+    final db = await openFixtureDatabaseAtVersion(version: 32);
+    SqliteService.setDbForTest(db);
+    await db.insert('conversation', {
+      'user_id': 995011,
+      'peer_id': 995301,
+      'type': 'C2G',
+      'unread_num': 4,
+      'last_time': 1790931169467,
+    });
+    final uk3 = ConversationUk3Generator.generateSmart(
+      type: 'C2G',
+      currentUserId: '995011',
+      peerId: '995301',
+    );
+    for (var index = 1; index <= 4; index++) {
+      await db.insert('msg_c2g', {
+        'id': '${1000 + index}',
+        'msg_type': 'text',
+        'from_id': 995012,
+        'to_id': 995011,
+        'conversation_uk3': uk3,
+        'payload': '{}',
+        'created_at': 1790931169467 + index,
+        'status': 20,
+        'is_author': 0,
         'type': 'C2G',
-        'unread_num': 3,
-        'last_time': 1790931169467,
+        'action': '',
       });
-      final uk3 = ConversationUk3Generator.generateSmart(
-        type: 'C2G',
-        currentUserId: '995011',
-        peerId: '995301',
-      );
-      for (var index = 1; index <= 3; index++) {
-        await db.insert('msg_c2g', {
-          'id': '${1000 + index}',
-          'msg_type': 'text',
-          'from_id': 995012,
-          'to_id': 995011,
-          'conversation_uk3': uk3,
-          'payload': '{}',
-          'created_at': 1790931169467 + index,
-          'status': 20,
-          'is_author': 0,
-          'type': 'C2G',
-          'action': '',
-        });
-      }
-      final api = _DeferredApi();
-      final container = ProviderContainer(
-        overrides: [
-          workspaceApiProvider.overrideWithValue(api),
-          voicePlaybackServiceProvider.overrideWith(_Voice.new),
-        ],
-      );
-      final keepAlive = container.listen(chatProvider, (_, _) {});
-      final notifier = container.read(chatProvider.notifier);
-      addTearDown(() async {
-        keepAlive.close();
-        container.dispose();
-        MessageService.to.dispose();
-        MessageRetry.instance.dispose();
-        SqliteService.setDbForTest(null);
-        await db.close();
-      });
-      await _checkInFlightEnqueue(notifier, api);
-      await _checkFailedRetry(notifier, api);
-    },
-  );
+    }
+    final api = _DeferredApi();
+    final container = ProviderContainer(
+      overrides: [
+        workspaceApiProvider.overrideWithValue(api),
+        voicePlaybackServiceProvider.overrideWith(_Voice.new),
+      ],
+    );
+    final keepAlive = container.listen(chatProvider, (_, _) {});
+    final notifier = container.read(chatProvider.notifier);
+    addTearDown(() async {
+      keepAlive.close();
+      container.dispose();
+      MessageService.to.dispose();
+      MessageRetry.instance.dispose();
+      SqliteService.setDbForTest(null);
+      await db.close();
+    });
+    await _checkInFlightEnqueue(notifier, api);
+    await _checkFailedRetry(notifier, api);
+    await _checkCleanupInFlight(notifier, api);
+  });
 }
 
 Future<void> _seedQueue() async {
@@ -188,6 +188,47 @@ Future<void> _checkFailedRetry(ChatNotifier notifier, _DeferredApi api) async {
   await _waitForQueue(
     (items) => items.length == 1 && items.single['id'] == 'foreign',
   );
+}
+
+Future<void> _checkCleanupInFlight(
+  ChatNotifier notifier,
+  _DeferredApi api,
+) async {
+  expect(await notifier.markAsRead('C2G', '995301', ['1004']), isTrue);
+  await api.entered[4].future.timeout(const Duration(seconds: 3));
+  final owner = AccountLocalTaskOwner.capture();
+  final cleanup = AccountLocalTaskRegistry.instance.beginCleanup(owner);
+  var stopped = false;
+  final joined = cleanup.stopped.then((_) => stopped = true);
+  try {
+    // The provider can receive an old UI callback while cleanup rejects new tasks.
+    await notifier.enqueueReactionAction({
+      'id': 'late',
+      'from': owner.uid,
+      'type': 'C2C',
+    });
+    expect(stopped, isFalse);
+    await StorageService.to.remove(Keys.currentUid);
+    api.gates[4].complete();
+    await joined.timeout(const Duration(seconds: 3));
+    await PendingChatActions.instance.removeAccount(owner.uid);
+    await notifier.enqueueReactionAction({
+      'id': 'later',
+      'from': owner.uid,
+      'type': 'C2C',
+    });
+    expect((await _pending()).map((item) => item['from']), ['995099']);
+    expect(
+      await PendingChatActions.instance.snapshot(
+        PendingChatActions.reactionsKey,
+      ),
+      isEmpty,
+    );
+  } finally {
+    if (!api.gates[4].isCompleted) api.gates[4].complete();
+    await cleanup.stopped;
+    cleanup.release();
+  }
 }
 
 class _NoNetworkAdapter implements HttpClientAdapter {

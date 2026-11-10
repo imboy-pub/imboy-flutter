@@ -2,7 +2,9 @@ import 'dart:io';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
-import 'package:path_provider/path_provider.dart';
+import 'package:imboy/service/account_local_files.dart';
+import 'package:imboy/service/account_local_task_registry.dart';
+import 'package:imboy/service/auth_session_scope.dart';
 
 /// E2EE 备份文件的 URL 下载服务（导入增强 A）。
 ///
@@ -12,7 +14,7 @@ import 'package:path_provider/path_provider.dart';
 ///   凭据绝不能发到第三方主机——下载链接可能指向任意邮箱/网盘/自建主机。
 /// - 仅允许 HTTPS；HTTP 一律拒绝。
 /// - 超时、体积上限，避免恶意大文件耗尽存储。
-/// - 下载结果写到 [getTemporaryDirectory]，由调用方在用完后删除。
+/// - 下载结果写到账号的临时目录，由调用方在用完后删除。
 class E2EEBackupUrlDownloadService {
   E2EEBackupUrlDownloadService._();
 
@@ -38,6 +40,34 @@ class E2EEBackupUrlDownloadService {
       );
     }
 
+    final session = authSessionReader.current;
+    if (!authSessionReader.isCurrent(session)) {
+      throw const AccountLocalTaskCancelledException();
+    }
+    final owner = AccountLocalTaskOwner.capture(uid: session.uid);
+    final cancelToken = CancelToken();
+    return AccountLocalTaskRegistry.instance.run<String>(
+      owner,
+      onCancel: () => cancelToken.cancel('account cleanup'),
+      operation: (task) => _download(url, session, task, cancelToken),
+    );
+  }
+
+  static Future<String> _download(
+    String url,
+    AuthSessionScope session,
+    AccountLocalTask task,
+    CancelToken cancelToken,
+  ) async {
+    void ensureCurrent() {
+      task.throwIfCancelled();
+      if (!authSessionReader.isCurrent(session) ||
+          AccountLocalTaskOwner.capture() != task.owner) {
+        cancelToken.cancel('account changed');
+        throw const AccountLocalTaskCancelledException();
+      }
+    }
+
     final dio = Dio(
       BaseOptions(
         connectTimeout: connectTimeout,
@@ -52,15 +82,15 @@ class E2EEBackupUrlDownloadService {
 
     // 流式下载：在 onReceiveProgress 中累计字节，超限即取消请求，
     // 避免大文件先全量读入内存再拒绝（OOM 风险）。
-    final cancelToken = CancelToken();
     int receivedBytes = 0;
     bool overLimit = false;
+    String? partialPath;
+    bool complete = false;
 
     try {
       final response = await dio.get<ResponseBody>(
         url,
         onReceiveProgress: (received, _) {
-          receivedBytes = received;
           if (received > maxSizeBytes) {
             overLimit = true;
             cancelToken.cancel('file too large');
@@ -68,6 +98,7 @@ class E2EEBackupUrlDownloadService {
         },
         cancelToken: cancelToken,
       );
+      ensureCurrent();
 
       // 流式响应：先检查状态码，再逐块写盘
       final statusCode = response.statusCode;
@@ -86,14 +117,17 @@ class E2EEBackupUrlDownloadService {
         );
       }
 
-      final tempDir = await getTemporaryDirectory();
+      final tempDir = await AccountLocalFiles.directory(task);
+      ensureCurrent();
       final timestamp = DateTime.now().toIso8601String().replaceAll(':', '-');
       final fileName = 'imboy_e2ee_backup_url_$timestamp.enc';
       final filePath = '${tempDir.path}/$fileName';
+      partialPath = filePath;
       final file = File(filePath);
       final sink = file.openWrite();
       try {
         await for (final chunk in stream.stream) {
+          ensureCurrent();
           receivedBytes += chunk.length;
           if (receivedBytes > maxSizeBytes) {
             overLimit = true;
@@ -105,6 +139,7 @@ class E2EEBackupUrlDownloadService {
       } finally {
         await sink.close();
       }
+      ensureCurrent();
 
       if (overLimit) {
         await E2EEBackupUrlDownloadService.cleanupTempFile(filePath);
@@ -123,6 +158,8 @@ class E2EEBackupUrlDownloadService {
         );
       }
 
+      ensureCurrent();
+      complete = true;
       return filePath;
     } on E2EEBackupUrlDownloadException {
       rethrow;
@@ -158,7 +195,8 @@ class E2EEBackupUrlDownloadService {
         message: e.toString(),
       );
     } finally {
-      dio.close();
+      dio.close(force: true);
+      if (!complete) await cleanupTempFile(partialPath);
     }
   }
 

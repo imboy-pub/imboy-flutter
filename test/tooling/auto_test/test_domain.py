@@ -41,12 +41,16 @@ class DomainGenerationTest(unittest.TestCase):
         self.assertEqual(domain.check_domain(self.root), [])
 
     def test_capability_and_feature_counts(self):
-        self.assertEqual(len(self.first['capabilities']), 49)
+        self.assertEqual(len(self.first['capabilities']), 48)
         self.assertEqual(set(self.first['feature_mapping']),
                          set(domain.load_selected_features(ROOT)))
         for feature, item in self.first['feature_mapping'].items():
             self.assertEqual(item['disposition'], 'mapped', feature)
             self.assertTrue(item['capabilities'], feature)
+
+    def test_capability_ids_are_unique(self):
+        ids = [cap['capability_id'] for cap in self.first['capabilities']]
+        self.assertEqual(len(ids), len(set(ids)))
 
     def test_all_capabilities_have_real_targets(self):
         for cap in self.first['capabilities']:
@@ -105,6 +109,13 @@ class DomainValidationTest(unittest.TestCase):
                                   if c['capability_id'] != 'e2ee.policy_gate']
         errors = domain.validate_domain(ROOT, matrix)
         self.assertTrue(any('缺少必须覆盖 capability: e2ee.policy_gate' in e for e in errors), errors)
+
+    def test_duplicate_capability_id_rejected(self):
+        matrix = self._mutated()
+        cap = next(c for c in matrix['capabilities'] if c['capability_id'] == 'rtc.c2c_call')
+        matrix['capabilities'].append(dict(cap))
+        errors = domain.validate_domain(ROOT, matrix)
+        self.assertIn('matrix capability_id 重复: rtc.c2c_call', errors)
 
     def test_missing_app_target_without_blocked(self):
         matrix = self._mutated()
@@ -177,11 +188,21 @@ class FeatureManifestMappingTest(unittest.TestCase):
 
     def test_rtc_feature_requires_c2c_device_and_signaling_evidence(self):
         matrix = domain.generate_domain_matrix(ROOT)
-        self.assertEqual(domain.FEATURE_CAPABILITY_MAP.get('rtc'), ['rtc.c2c_call'])
+        self.assertEqual(domain.FEATURE_CAPABILITY_MAP.get('rtc'), [
+            'rtc.c2c_call',
+            'rtc.signaling_negative',
+            'rtc.relay_force',
+            'rtc.feature_gate',
+        ])
         cap = next(c for c in matrix['capabilities'] if c['capability_id'] == 'rtc.c2c_call')
         self.assertEqual(cap['feature_key'], 'rtc')
         self.assertEqual(cap['required_evidence_level'], 'A')
         self.assertIsNone(cap['blocked_code'])
+        self.assertEqual(set(cap['requirements']), {
+            'device.android', 'device.macos', 'backend.local', 'livekit',
+            'fixture.disposable_account',
+        })
+        self.assertEqual(cap['fixture'], 'iso:user_device_a+user_device_b')
         self.assertTrue({
             'integration_test/rtc/c2c_call_matrix_a_side_test.dart',
             'integration_test/rtc/c2c_call_matrix_b_side_test.dart',
@@ -189,6 +210,10 @@ class FeatureManifestMappingTest(unittest.TestCase):
             'test/unit_test/page/chat/p2p_call_livekit_test.dart',
             'test/unit_test/page/chat/p2p_call_preview_test.dart',
             'test/unit_test/page/chat/p2p_call_floating_test.dart',
+            'test/unit_test/widget/incoming_call_view_test.dart',
+            'test/unit_test/page/chat/p2p_call_state_machine_test.dart',
+            'test/unit_test/page/chat/webrtc_protocol_alignment_test.dart',
+            'test/unit_test/service/message_webrtc_msgid_scoping_test.dart',
             'test/unit_test/rtc/rtc_strict_gate_test.dart',
             'test/unit_test/rtc/rtc_relay_stats_judge_test.dart',
             'test/unit_test/page/contact/people_info_rtc_feature_gate_test.dart',
@@ -199,6 +224,64 @@ class FeatureManifestMappingTest(unittest.TestCase):
             'test/logic/webrtc_ws_logic_tests.erl',
         })
         self.assertNotIn('integration_test/rtc/rtc_group_regression_test.dart', cap['app_targets'])
+
+    def test_rtc_negative_relay_and_gate_keep_required_evidence(self):
+        matrix = domain.generate_domain_matrix(ROOT)
+        expected = {
+            'rtc.signaling_negative': {
+                'level': 'B',
+                'requirements': {'backend.local', 'fixture.disposable_account'},
+                'app': {
+                    'integration_test/rtc/rtc_negative_matrix_test.dart',
+                    'test/unit_test/service/message_webrtc_msgid_scoping_test.dart',
+                    'test/unit_test/page/chat/webrtc_protocol_alignment_test.dart',
+                    'test/unit_test/component/chat/message_webrtc_builder_test.dart',
+                },
+                'backend': {
+                    'test/logic/webrtc_ws_logic_tests.erl',
+                    'test/logic/rtc_room_logic_tests.erl',
+                },
+            },
+            'rtc.relay_force': {
+                'level': 'A',
+                'requirements': {'device.android', 'backend.local'},
+                'app': {
+                    'integration_test/rtc/rtc_relay_realdevice_test.dart',
+                    'test/unit_test/rtc/rtc_relay_stats_judge_test.dart',
+                },
+                'backend': {'test/api/rtc_room_handler_tests.erl'},
+            },
+            'rtc.feature_gate': {
+                'level': 'B',
+                'requirements': {'backend.local'},
+                'app': {
+                    'test/unit_test/page/contact/people_info_rtc_feature_gate_test.dart',
+                    'test/unit_test/page/chat/widget/extra_items_feature_gate_test.dart',
+                    'test/unit_test/app_core/feature_flags/app_feature_registry_test.dart',
+                    'test/unit_test/rtc/rtc_strict_gate_test.dart',
+                    'test/unit_test/api/rtc_room_api_test.dart',
+                    'test/unit_test/store/api/rtc_room_api_test.dart',
+                    'integration_test/rtc/rtc_group_regression_test.dart',
+                },
+                'backend': {
+                    'test/lib/imboy_feature_tests.erl',
+                    'test/api/feature_gate_middleware_tests.erl',
+                },
+            },
+        }
+        for capability_id, evidence in expected.items():
+            with self.subTest(capability_id=capability_id):
+                capabilities = [c for c in matrix['capabilities']
+                                if c['capability_id'] == capability_id]
+                self.assertEqual(len(capabilities), 1)
+                cap = capabilities[0]
+                self.assertEqual(cap['feature_key'], 'rtc')
+                self.assertEqual(cap['required_evidence_level'], evidence['level'])
+                self.assertEqual(cap['disposition'], 'required')
+                self.assertIsNone(cap['blocked_code'])
+                self.assertTrue(evidence['requirements'].issubset(cap['requirements']))
+                self.assertTrue(evidence['app'].issubset(cap['app_targets']))
+                self.assertTrue(evidence['backend'].issubset(cap['backend_targets']))
 
     def test_feature_key_values_are_manifest_or_core(self):
         # CAPABILITY_SPECS 是跨 profile 全集：feature_key 只需属于已知 feature 全集或 core，

@@ -2,6 +2,8 @@ import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/component/extension/imboy_cache_manager.dart';
+import 'package:imboy/config/const.dart';
+import 'package:imboy/service/storage.dart';
 
 // 测试 IMBoyCacheManager 对音频文件的处理
 // 验证音频文件下载时不会因为图片格式验证而失败
@@ -10,6 +12,12 @@ import 'package:imboy/component/extension/imboy_cache_manager.dart';
 // 实际的网络请求应该在集成测试中完成
 
 void main() {
+  setUp(() async {
+    await StorageService.to.setString(Keys.currentUid, 'audio-cache-signature');
+  });
+  tearDown(() async {
+    await StorageService.to.remove(Keys.currentUid);
+  });
   group('IMBoyCacheManager - Audio File Download Tests', () {
     late IMBoyCacheManager cacheManager;
 

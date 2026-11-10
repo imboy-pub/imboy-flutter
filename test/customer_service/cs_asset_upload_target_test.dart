@@ -14,6 +14,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:imboy/component/http/http_client.dart';
 import 'package:imboy/modules/customer_service/infrastructure/cs_api.dart';
 import 'package:imboy/service/storage.dart';
+import 'package:imboy/service/account_local_task_registry.dart';
 
 class TargetAdapter implements HttpClientAdapter {
   final methods = <String>[];
@@ -127,6 +128,50 @@ void main() {
           },
         );
   });
+  test(
+    'account cleanup cancels active PUT and drains without confirm',
+    () async {
+      final adapter = TargetAdapter()
+        ..bound = true
+        ..putGate = Completer<void>();
+      HttpClient.adapterForTest = adapter;
+      addTearDown(() => HttpClient.adapterForTest = null);
+      final enterprise = EnterpriseApi()
+        ..dio.options.baseUrl = 'https://api.invalid';
+      final operation = CsAssetUploadOperation();
+      final upload =
+          CsApi(
+            assetApiFactory: () => enterprise,
+            putTransportFactory: () => CsAssetPutTransport(adapter: adapter),
+          ).uploadEnterpriseAsset(
+            '1',
+            workspaceId: '2',
+            conversationId: '3',
+            mime: 'text/plain',
+            bytes: Uint8List.fromList([65]),
+            operation: operation,
+          );
+      final failed = expectLater(
+        upload,
+        throwsA(isA<CsAssetOperationException>()),
+      );
+      await adapter.putEntered.future;
+      final cleanup = AccountLocalTaskRegistry.instance.beginCleanup(
+        AccountLocalTaskOwner.capture(),
+      );
+      try {
+        await cleanup.stopped;
+        await failed;
+        expect(adapter.putCancelled, isTrue);
+        expect(adapter.methods, ['POST', 'PUT']);
+        expect(operation.stage, CsAssetUploadStage.unknown);
+      } finally {
+        if (!adapter.putGate!.isCompleted) adapter.putGate!.complete();
+        cleanup.release();
+      }
+    },
+  );
+
   for (final phase in [
     CsAssetUploadStage.presigning,
     CsAssetUploadStage.confirming,
@@ -518,9 +563,6 @@ void main() {
     },
   );
   test('unbound member target is refused before PUT or confirm', () async {
-    TestWidgetsFlutterBinding.ensureInitialized();
-    SharedPreferences.setMockInitialValues({});
-    await StorageService.init();
     final adapter = TargetAdapter();
     HttpClient.adapterForTest = adapter;
     addTearDown(() {

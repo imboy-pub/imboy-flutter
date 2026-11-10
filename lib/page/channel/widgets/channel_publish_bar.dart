@@ -14,13 +14,11 @@ import 'package:imboy/component/upload/batch_upload_controller.dart';
 import 'package:imboy/component/voice_record/voice_widget.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/service/message_type_constants.dart';
-import 'package:imboy/service/storage.dart';
+import 'package:imboy/service/account_draft_store.dart';
 import 'package:imboy/store/api/attachment_api.dart';
-import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:imboy/theme/default/font_types.dart';
-import 'package:imboy/utils/chat_draft_keys.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:wechat_assets_picker/wechat_assets_picker.dart';
 import 'package:xid/xid.dart';
@@ -68,25 +66,14 @@ class _ChannelPublishBarState extends ConsumerState<ChannelPublishBar> {
   /// 不参与行宽分配，与发送按钮显示条件无关）。
   bool _isInputFocused = false;
 
-  late final String? _draftKey;
-  late final String _ownerUid;
-  late final int _ownerSession;
+  late final AccountDraftStore _drafts;
 
-  bool get _sessionCurrent =>
-      UserRepoLocal.to.currentUid == _ownerUid &&
-      UserRepoLocal.to.isCurrentSession(_ownerSession) &&
-      !UserRepoLocal.to.isAuthTransitioning;
+  bool get _sessionCurrent => _drafts.isCurrent;
 
   @override
   void initState() {
     super.initState();
-    _ownerUid = UserRepoLocal.to.currentUid;
-    _ownerSession = UserRepoLocal.to.sessionGeneration;
-    _draftKey = chatDraftKeys(
-      UserRepoLocal.to.currentUid,
-      'channel-text',
-      widget.channelId,
-    )?.text;
+    _drafts = AccountDraftStore.capture('channel-text', widget.channelId);
     widget.focusNode.addListener(_onFocusChanged);
     WidgetsBinding.instance.addPostFrameCallback((_) => _restoreDraft());
   }
@@ -108,11 +95,10 @@ class _ChannelPublishBarState extends ConsumerState<ChannelPublishBar> {
     super.dispose();
   }
 
-  /// 恢复上次未发送的草稿文本（复用朋友圈 StorageService 草稿模式）。
+  /// 仅恢复创建输入栏时所属会话的草稿。
   void _restoreDraft() {
-    final key = _draftKey;
-    if (key == null || !mounted) return;
-    final draft = StorageService.to.getString(key);
+    if (!mounted) return;
+    final draft = _drafts.read().text;
     if (draft.isEmpty) return;
     // 静默恢复草稿，不弹 toast 打扰（文本回填本身即反馈）
     setState(() => _messageController.text = draft);
@@ -121,14 +107,7 @@ class _ChannelPublishBarState extends ConsumerState<ChannelPublishBar> {
   /// 退出前把未发送文本落盘；已清空则顺带清掉旧草稿，避免残留。
   /// 使用创建时捕获的账号和路由，延迟退出也不会写入切换后的账号。
   void _persistDraftOnExit() {
-    final key = _draftKey;
-    if (key == null) return;
-    final content = _messageController.text.trim();
-    if (content.isEmpty) {
-      unawaited(StorageService.to.remove(key));
-      return;
-    }
-    unawaited(StorageService.to.setString(key, content));
+    unawaited(_drafts.save(_messageController.text.trim()));
   }
 
   /// 打开「撰写图文」页（公众号式多图+正文，作为单条 imageText 发布）。
@@ -157,12 +136,11 @@ class _ChannelPublishBarState extends ConsumerState<ChannelPublishBar> {
 
     // await 之后必须查 mounted：用户发送后立刻返回上一页(dispose)时，
     // 成功分支若不检查会 setState after dispose 崩溃（失败分支已有保护）。
-    if (!mounted) return;
+    if (!mounted || !_sessionCurrent) return;
     if (success) {
       _messageController.clear();
       setState(() {});
-      final key = _draftKey;
-      if (key != null) unawaited(StorageService.to.remove(key));
+      unawaited(_drafts.clear());
       // 仅震动反馈：消息进流即确认，连发场景不再弹成功 toast
       unawaited(HapticFeedback.lightImpact());
       widget.onMessageSent?.call();
@@ -343,12 +321,12 @@ class _ChannelPublishBarState extends ConsumerState<ChannelPublishBar> {
         return;
       }
     }
-    if (!mounted) return;
+    if (!mounted || !_sessionCurrent) return;
     final t = context.t;
 
     // 逐项上传控制器：批内并行、批间串行限流（_uploadConcurrency），失败项保留
     // 为可重试态而非整批作废。已发布项记入 publishedIdx，避免重试后重复发布。
-    final controller = BatchUploadController<ChannelMediaUpload>(
+    final controller = BatchUploadController.forCurrentAccount(
       uploader: _uploadSingleAsset,
       // file_picker 绕行项（macOS）走 File 管道，与相册项同一状态机
       fileUploader: _uploadImageFile,

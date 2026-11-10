@@ -11,6 +11,7 @@ extension _TalkRecordUploadParts on TalkRecordAttachmentUploadGateway {
     TalkRecordUploadCheckpointStore store,
     void Function() guard,
     void Function(TalkRecordUploadPhase) report,
+    CancelToken? cancelToken,
   ) async {
     final state = Map<String, dynamic>.from(
       cp.parts['${segment.seq}'] as Map? ?? {},
@@ -25,7 +26,16 @@ extension _TalkRecordUploadParts on TalkRecordAttachmentUploadGateway {
       cp.parts['${segment.seq}'] = state;
       await store.save(cp);
       report(TalkRecordUploadPhase.upload);
-      await _put(b, segment, directory, plaintextDir, keys, session, guard);
+      await _put(
+        b,
+        segment,
+        directory,
+        plaintextDir,
+        keys,
+        session,
+        guard,
+        cancelToken,
+      );
       state['put_done'] = true;
       cp.parts['${segment.seq}'] = state;
       await store.save(cp);
@@ -86,6 +96,7 @@ extension _TalkRecordUploadParts on TalkRecordAttachmentUploadGateway {
     TalkRecordKeyStore keys,
     TalkRecordAudioUploadSession session,
     void Function() guard,
+    CancelToken? cancelToken,
   ) async {
     guard();
     await plaintextDir.create(recursive: true);
@@ -93,7 +104,12 @@ extension _TalkRecordUploadParts on TalkRecordAttachmentUploadGateway {
     try {
       await _decrypt(b, segment, directory, plain, keys, guard);
       guard();
-      await transport.put(session.uploadRef, plain, guard);
+      await transport.put(
+        session.uploadRef,
+        plain,
+        guard,
+        cancelToken: cancelToken,
+      );
       guard();
     } finally {
       if (await plain.exists()) await plain.delete();

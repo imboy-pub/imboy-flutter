@@ -187,6 +187,18 @@ class _Translations$account$ru_RU extends Translations$account$zh_CN {
 	@override String get bindAlipay => 'Привязать Alipay';
 	@override String get unbindAlipay => 'Отвязать';
 	@override String get confirmUnbindAlipay => 'Подтвердить отвязку';
+	@override String get loginHistoryTitle => 'История входов';
+	@override String loginHistorySelected({required Object account}) => 'Выбранная учётная запись: ${account}';
+	@override String get loginHistoryChooseToClear => 'Выберите сохранённую учётную запись для очистки её данных';
+	@override String get loginHistoryClear => 'Очистить данные выбранной учётной записи на устройстве';
+	@override String get loginHistoryClearTitle => 'Очистить данные этой учётной записи на устройстве?';
+	@override String get loginHistoryClearConfirm => 'Подтвердить очистку';
+	@override String loginHistoryClearBody({required Object account}) => 'Удалить все локальные данные учётной записи «${account}» на этом устройстве? После очистки потребуется снова войти. Учётная запись и её данные на сервере не будут удалены.';
+	@override String get loginHistoryClearFailed => 'Очистка не завершена';
+	@override String get loginHistoryIdentityUnavailable => 'Войдите в эту учётную запись один раз, затем выйдите и повторите попытку. По старой записи нельзя надёжно определить учётную запись, поэтому данные не удалены.';
+	@override String get loginHistoryCleanupBusy => 'Выйдите из текущей учётной записи и дождитесь завершения операций входа или очистки, затем повторите попытку.';
+	@override String get loginHistorySharedData => 'Эта учётная запись использует общие локальные данные с другой средой входа, поэтому пока нельзя очистить её отдельно.';
+	@override String get loginHistoryOwnershipUnavailable => 'На устройстве есть старые общие данные, которые нельзя надёжно отнести к конкретной учётной записи. Данные не были удалены. Сначала разберитесь с этими старыми данными, затем повторите попытку, чтобы не затронуть другие учётные записи.';
 }
 
 // Path: agent
@@ -3531,6 +3543,18 @@ extension on TranslationsRuRu {
 			'account.bindAlipay' => 'Привязать Alipay',
 			'account.unbindAlipay' => 'Отвязать',
 			'account.confirmUnbindAlipay' => 'Подтвердить отвязку',
+			'account.loginHistoryTitle' => 'История входов',
+			'account.loginHistorySelected' => ({required Object account}) => 'Выбранная учётная запись: ${account}',
+			'account.loginHistoryChooseToClear' => 'Выберите сохранённую учётную запись для очистки её данных',
+			'account.loginHistoryClear' => 'Очистить данные выбранной учётной записи на устройстве',
+			'account.loginHistoryClearTitle' => 'Очистить данные этой учётной записи на устройстве?',
+			'account.loginHistoryClearConfirm' => 'Подтвердить очистку',
+			'account.loginHistoryClearBody' => ({required Object account}) => 'Удалить все локальные данные учётной записи «${account}» на этом устройстве? После очистки потребуется снова войти. Учётная запись и её данные на сервере не будут удалены.',
+			'account.loginHistoryClearFailed' => 'Очистка не завершена',
+			'account.loginHistoryIdentityUnavailable' => 'Войдите в эту учётную запись один раз, затем выйдите и повторите попытку. По старой записи нельзя надёжно определить учётную запись, поэтому данные не удалены.',
+			'account.loginHistoryCleanupBusy' => 'Выйдите из текущей учётной записи и дождитесь завершения операций входа или очистки, затем повторите попытку.',
+			'account.loginHistorySharedData' => 'Эта учётная запись использует общие локальные данные с другой средой входа, поэтому пока нельзя очистить её отдельно.',
+			'account.loginHistoryOwnershipUnavailable' => 'На устройстве есть старые общие данные, которые нельзя надёжно отнести к конкретной учётной записи. Данные не были удалены. Сначала разберитесь с этими старыми данными, затем повторите попытку, чтобы не затронуть другие учётные записи.',
 			'agent.plazaTitle' => 'ИИ-ассистенты',
 			'agent.transparencyBanner' => 'Все участники здесь — ИИ-ассистенты с чётко обозначенным статусом. В зашифрованных чатах — только настоящие люди.',
 			'agent.searchHint' => 'Поиск ассистентов',
@@ -3917,6 +3941,8 @@ extension on TranslationsRuRu {
 			'chat.chatResend' => 'Отправить снова',
 			'chat.profileExportProfile' => 'Экспортировать профиль',
 			'chat.momentsSend' => 'Отправить',
+			_ => null,
+		} ?? switch (path) {
 			'chat.loginExpiredMessage' => 'Срок входа истёк, войдите снова',
 			'chat.customImage' => 'Пользовательское изображение',
 			'chat.burnAfterReading' => 'Удалить после прочтения',
@@ -3929,8 +3955,6 @@ extension on TranslationsRuRu {
 			'chat.historyUnavailable' => 'История сообщений временно недоступна',
 			'chat.historyUnavailableHint' => 'Архив истории на сервере отключён или недоступен. Нажмите «Повторить», чтобы синхронизировать заново',
 			'chat.momentsRecordVideo' => 'Снять видео',
-			_ => null,
-		} ?? switch (path) {
 			'chat.momentsVisibilityPrivate' => 'Только я',
 			'chat.momentsMediaTooManyImages' => 'Можно выбрать не более 9 изображений',
 			'chat.momentsMediaTooManyVideos' => 'Можно выбрать только 1 видео',
@@ -4431,6 +4455,8 @@ extension on TranslationsRuRu {
 			'common.pleaseEnterContent' => 'Пожалуйста, введите содержание',
 			'common.comingSoon' => 'Скоро будет доступно',
 			'common.backgroundTransparency' => 'Прозрачность фона',
+			_ => null,
+		} ?? switch (path) {
 			'common.defaultBackground' => 'Фон по умолчанию',
 			'common.solidColorBackground' => 'Сплошной фон',
 			'common.selectImageFailed' => 'Не удалось выбрать изображение',
@@ -4443,8 +4469,6 @@ extension on TranslationsRuRu {
 			'common.fileOpenNotImplemented' => 'Функция открытия файла не реализована',
 			'common.fileShareNotImplemented' => 'Функция обмена файлом не реализована',
 			'common.retrySuccess' => 'Повтор успешен',
-			_ => null,
-		} ?? switch (path) {
 			'common.deleteSuccess' => 'Успешно удалено',
 			'common.localDeleteSuccess' => 'Локальное удаление успешно',
 			'common.localDeleteFailed' => 'Локальное удаление не удалось',
@@ -4945,6 +4969,8 @@ extension on TranslationsRuRu {
 			'common.uploadPartialFailed' => ({required Object count}) => 'Не удалось загрузить элементов: ${count}',
 			'common.voiceSttConverting' => 'Распознавание...',
 			'common.voiceSttNotConfigured' => 'Функция распознавания речи не настроена',
+			_ => null,
+		} ?? switch (path) {
 			'common.voiceSttPreviewTitle' => 'Предпросмотр распознанного текста',
 			'common.retry' => 'Повторить',
 			'common.retrying' => 'Повтор…',
@@ -4957,8 +4983,6 @@ extension on TranslationsRuRu {
 			'common.legacyUploadOutboxCheck' => 'Сообщение уже может быть в очереди. Проверьте историю чата перед повторной отправкой.',
 			'common.legacyUploadRecoveryMismatch' => 'Файл не совпадает или восстановление недоступно.',
 			'common.legacyUploadRecoveryContinues' => 'Вложение восстановлено; обработка исходного сообщения продолжается.',
-			_ => null,
-		} ?? switch (path) {
 			'common.legacyUploadReturnToOriginalPage' => 'Загрузка не завершена. Вернитесь на исходную страницу, снова выберите файл и отправьте.',
 			'complaint.complaint' => 'Жалоба',
 			'complaint.e2eeConsentTitle' => 'Отправить зашифрованные доказательства',
@@ -5459,6 +5483,8 @@ extension on TranslationsRuRu {
 			'main.webQRExpired' => 'Срок действия QR-кода истёк',
 			'main.webQRRefresh' => 'Обновить QR-код',
 			'main.webSwitchToQR' => 'Войти по QR-коду',
+			_ => null,
+		} ?? switch (path) {
 			'main.e2eeErrDefault' => 'Ошибка сквозного шифрования, сообщение не отправлено',
 			'main.e2eeErrPeerDeviceNotReady' => 'Настройка безопасности не завершена на устройствах некоторых участников, сообщение не отправлено; повторите попытку позже',
 			'main.liveRoomTitleLabel' => 'Название трансляции',
@@ -5471,8 +5497,6 @@ extension on TranslationsRuRu {
 			'main.complianceKeyInfoHint' => 'Ключ комплаенс-аудита используется для двойного шифрования в режиме compliance_e2ee. Если отпечаток выше не совпадает с опубликованным администратором, сервер мог быть подменён.',
 			'main.complianceKeyInfoKeyId' => 'ID ключа',
 			'main.complianceKeyInfoLocalPin' => 'Локальная фиксация (TOFU)',
-			_ => null,
-		} ?? switch (path) {
 			'main.complianceKeyInfoPinnedAt' => 'Время фиксации',
 			'main.complianceKeyInfoPinnedNone' => 'Ещё не зафиксирован (зафиксируется автоматически при следующем получении)',
 			'main.complianceKeyInfoRefreshFailed' => 'Не удалось получить. Проверьте сеть и повторите',
@@ -5973,6 +5997,8 @@ extension on TranslationsRuRu {
 			'talkRecord.aiConfigured' => 'Настроено на этом устройстве',
 			'talkRecord.aiNotConfigured' => 'Не настроено',
 			'talkRecord.aiLoading' => 'Чтение настроек устройства…',
+			_ => null,
+		} ?? switch (path) {
 			'talkRecord.aiDeviceOnlyNotice' => 'Ключи хранятся в зашифрованном виде только для этого аккаунта на этом устройстве. Они не передаются в IMBoy, облачные копии или на другие устройства. На новом устройстве введите их заново.',
 			'talkRecord.aiEnterprisePolicyNotice' => 'Сохранение ключа не разрешает внешнюю обработку. Для корпоративных записей нужны разрешение политики организации и согласие на каждую обработку.',
 			'talkRecord.aiMaxNotice' => 'Используется общий API Zhipu с отдельной оплатой. Годовой Coding Plan Max не покрывает это использование автоматически. Расшифровки будут отправлены в Zhipu.',
@@ -5985,8 +6011,6 @@ extension on TranslationsRuRu {
 			'talkRecord.aiUnsupportedPlatform' => 'Защищённое хранилище этой платформы ещё не проверено. Сохранение ключей недоступно.',
 			'talkRecord.aiKeyPlaceholder' => 'Введите API-ключ',
 			'talkRecord.aiReplacePlaceholder' => 'Введите новый API-ключ; сохранённый ключ не подставляется',
-			_ => null,
-		} ?? switch (path) {
 			'talkRecord.aiSaveAction' => 'Сохранить на устройстве',
 			'talkRecord.aiReplaceAction' => 'Заменить ключ устройства',
 			'talkRecord.aiDeleteAction' => 'Удалить ключ устройства',

@@ -402,6 +402,42 @@ class Translations$account$zh_CN {
 
 	/// zh-CN: '确认解除绑定'
 	String get confirmUnbindAlipay => '确认解除绑定';
+
+	/// zh-CN: '历史登录账号'
+	String get loginHistoryTitle => '历史登录账号';
+
+	/// zh-CN: '当前选中账号：$account'
+	String loginHistorySelected({required Object account}) => '当前选中账号：${account}';
+
+	/// zh-CN: '请先选择要清理的历史账号'
+	String get loginHistoryChooseToClear => '请先选择要清理的历史账号';
+
+	/// zh-CN: '清理选中账号的本机数据'
+	String get loginHistoryClear => '清理选中账号的本机数据';
+
+	/// zh-CN: '清理此账号的本机数据？'
+	String get loginHistoryClearTitle => '清理此账号的本机数据？';
+
+	/// zh-CN: '确认清理'
+	String get loginHistoryClearConfirm => '确认清理';
+
+	/// zh-CN: '是否清理账号「$account」在当前设备上的全部本地数据？清理后需要重新登录，不会删除服务器上的账号和数据。'
+	String loginHistoryClearBody({required Object account}) => '是否清理账号「${account}」在当前设备上的全部本地数据？清理后需要重新登录，不会删除服务器上的账号和数据。';
+
+	/// zh-CN: '清理未完成'
+	String get loginHistoryClearFailed => '清理未完成';
+
+	/// zh-CN: '请先登录此账号一次，再退出登录后重试。旧历史记录无法可靠识别账号，本次未清理数据。'
+	String get loginHistoryIdentityUnavailable => '请先登录此账号一次，再退出登录后重试。旧历史记录无法可靠识别账号，本次未清理数据。';
+
+	/// zh-CN: '请先退出当前登录账号，并等待登录或清理操作结束后重试。'
+	String get loginHistoryCleanupBusy => '请先退出当前登录账号，并等待登录或清理操作结束后重试。';
+
+	/// zh-CN: '此账号与其他登录环境共用本机数据，暂无法单独清理。'
+	String get loginHistorySharedData => '此账号与其他登录环境共用本机数据，暂无法单独清理。';
+
+	/// zh-CN: '此设备有无法确认账号归属的旧版共享数据，本次未清理。为避免影响其他账号，请先处理旧数据后重试。'
+	String get loginHistoryOwnershipUnavailable => '此设备有无法确认账号归属的旧版共享数据，本次未清理。为避免影响其他账号，请先处理旧数据后重试。';
 }
 
 // Path: agent
@@ -11091,6 +11127,18 @@ extension on Translations {
 			'account.bindAlipay' => '绑定支付宝',
 			'account.unbindAlipay' => '解除绑定',
 			'account.confirmUnbindAlipay' => '确认解除绑定',
+			'account.loginHistoryTitle' => '历史登录账号',
+			'account.loginHistorySelected' => ({required Object account}) => '当前选中账号：${account}',
+			'account.loginHistoryChooseToClear' => '请先选择要清理的历史账号',
+			'account.loginHistoryClear' => '清理选中账号的本机数据',
+			'account.loginHistoryClearTitle' => '清理此账号的本机数据？',
+			'account.loginHistoryClearConfirm' => '确认清理',
+			'account.loginHistoryClearBody' => ({required Object account}) => '是否清理账号「${account}」在当前设备上的全部本地数据？清理后需要重新登录，不会删除服务器上的账号和数据。',
+			'account.loginHistoryClearFailed' => '清理未完成',
+			'account.loginHistoryIdentityUnavailable' => '请先登录此账号一次，再退出登录后重试。旧历史记录无法可靠识别账号，本次未清理数据。',
+			'account.loginHistoryCleanupBusy' => '请先退出当前登录账号，并等待登录或清理操作结束后重试。',
+			'account.loginHistorySharedData' => '此账号与其他登录环境共用本机数据，暂无法单独清理。',
+			'account.loginHistoryOwnershipUnavailable' => '此设备有无法确认账号归属的旧版共享数据，本次未清理。为避免影响其他账号，请先处理旧数据后重试。',
 			'agent.plazaTitle' => 'AI 助手广场',
 			'agent.transparencyBanner' => '这里的成员都是 AI 助手，身份会明确标注；加密聊天里，只有真人。',
 			'agent.searchHint' => '搜索助手',
@@ -11477,6 +11525,8 @@ extension on Translations {
 			'chat.imageMessage' => '[图片]',
 			'chat.initiateChat' => '发起群聊',
 			'chat.exportMyData' => '导出我的数据',
+			_ => null,
+		} ?? switch (path) {
 			'chat.exportDataDesc' => '导出你的个人信息、联系人和聊天记录',
 			'chat.customMessage' => '自定义消息',
 			'chat.card' => '名片',
@@ -11489,8 +11539,6 @@ extension on Translations {
 			'chat.pinned' => '已置顶',
 			'chat.rating' => '评级',
 			'chat.readAgreeParam' => ({required Object param}) => '已经阅读并同意${param}',
-			_ => null,
-		} ?? switch (path) {
 			'chat.remindMeLater' => '下次再说',
 			'chat.quickReplyManage' => '管理快捷回复',
 			'chat.quickReplyEmpty' => '暂无快捷回复，点击右下角添加',
@@ -11991,6 +12039,8 @@ extension on Translations {
 			'common.locationVisible' => '已显示你的位置',
 			'common.noNearbyPeople' => '暂无附近的人',
 			'common.clickSearchButtonToFind' => '点击上方的搜索按钮查找附近的人',
+			_ => null,
+		} ?? switch (path) {
 			'common.operationFailed' => _root.common.error,
 			'common.featureInDevelopment' => '功能开发中...',
 			'common.addedToDenylist' => '已加入黑名单',
@@ -12003,8 +12053,6 @@ extension on Translations {
 			'common.groupAnnouncementPublishFailed' => '公告发布失败',
 			'common.groupAnnouncementPublishSuccess' => '公告已发布',
 			'common.groupAnnouncementDeleteFailed' => '公告删除失败',
-			_ => null,
-		} ?? switch (path) {
 			'common.groupAnnouncementDeleteSuccess' => '公告已删除',
 			'common.privacyClearChatHistory' => '清除聊天记录',
 			'common.privacyClearChatHistoryConfirm' => '确定要清除所有聊天记录吗？此操作不可恢复。',
@@ -12505,6 +12553,8 @@ extension on Translations {
 			'common.withdrawSuccess' => '提现成功',
 			'common.withdrawConfirm' => '确认提现',
 			'common.withdrawFeeNotice' => '手续费与到账时间以实际结算为准',
+			_ => null,
+		} ?? switch (path) {
 			'common.withdrawAmountError' => '请输入不低于0.01元的金额',
 			'common.withdrawAccountEmpty' => '请输入提现账号',
 			'common.withdrawMethod' => '提现方式',
@@ -12517,8 +12567,6 @@ extension on Translations {
 			'common.withdrawWechatFormatError' => '请输入正确的微信号（6-20位，字母开头）',
 			'common.withdrawConfirmAmount' => ({required Object amount}) => '提现金额：￥${amount}',
 			'common.withdrawConfirmMethod' => ({required Object method}) => '提现方式：${method}',
-			_ => null,
-		} ?? switch (path) {
 			'common.withdrawConfirmAccount' => ({required Object account}) => '提现账号：${account}',
 			'common.noHistory' => '暂无历史记录',
 			'common.enterAmount' => '请输入金额',
@@ -13019,6 +13067,8 @@ extension on Translations {
 			'groupSchedule.noSchedule' => '暂无日程',
 			'groupSchedule.startTime' => '开始时间',
 			'groupSchedule.endTime' => '结束时间',
+			_ => null,
+		} ?? switch (path) {
 			'groupSchedule.participants' => '参与人数',
 			'groupSchedule.statusCancelled' => '已取消',
 			'groupSchedule.statusInProgress' => '进行中',
@@ -13031,8 +13081,6 @@ extension on Translations {
 			'groupSchedule.cancelSchedule' => '取消日程',
 			'groupSchedule.scheduleIdMissing' => '日程ID缺失，无法查看详情',
 			'groupSchedule.untitledSchedule' => '未命名日程',
-			_ => null,
-		} ?? switch (path) {
 			'groupSchedule.cardViewAndAttend' => '查看详情并确认参加',
 			'groupSchedule.cardViewDetail' => '查看详情',
 			'groupSchedule.organizer' => '发起人',
@@ -13533,6 +13581,8 @@ extension on Translations {
 			'organization.inviteColleagues.guideCodeMissing' => '暂无有效邀请码，请先联系企业管理员生成',
 			'organization.inviteColleagues.possibleEmptyCta' => '去邀请同事',
 			'organization.inviteColleagues.codeLoadFailed' => '邀请码加载失败，请重试',
+			_ => null,
+		} ?? switch (path) {
 			'organization.inviteColleagues.codeMissingHint' => '暂无有效邀请码，生成后即可分享',
 			'organization.inviteColleagues.generateCode' => '生成邀请码',
 			'organization.inviteColleagues.generateForbidden' => '仅企业管理员可生成邀请码，请联系管理员',
@@ -13545,8 +13595,6 @@ extension on Translations {
 			'organization.inviteColleagues.revokeBody' => ({required Object name}) => '撤销对「${name}」的邀请？',
 			'organization.inviteColleagues.revoked' => '已撤销邀请',
 			'organization.inviteColleagues.groupStep1' => '把邀请码分享到你的微信群',
-			_ => null,
-		} ?? switch (path) {
 			'organization.inviteColleagues.groupStep2' => '同事复制邀请码，打开 imboy App',
 			'organization.inviteColleagues.groupStep3' => '在「通讯录 → 加入企业」输入邀请码即可加入',
 			'organization.inviteColleagues.codeLabelWith' => ({required Object code}) => '邀请码：${code}',
@@ -14047,6 +14095,8 @@ extension on Translations {
 			'talkRecord.transferConfirmKeepOff' => '移交后你将不再保留查看权限，也无法再管理这条记录。',
 			'talkRecord.transferConfirmKeepOn' => '移交后你保留查看权限，但管理权归新责任人。',
 			'talkRecord.transferConfirmAction' => '确认移交',
+			_ => null,
+		} ?? switch (path) {
 			'talkRecord.transferSuccessTitle' => '管理责任已移交',
 			'talkRecord.transferSuccessOwner' => ({required Object name}) => '新责任人：${name}',
 			'talkRecord.transferSuccessKeptAccess' => '你仍保留查看权限；分享管理由新责任人负责。',
@@ -14059,8 +14109,6 @@ extension on Translations {
 			'talkRecord.deleteTitle' => '删除记录',
 			'talkRecord.deleteConfirmTitle' => '确认删除这条记录？',
 			'talkRecord.deleteConfirmDialogContent' => '删除后不再展示正文；已导出或保存的副本无法收回。',
-			_ => null,
-		} ?? switch (path) {
 			'talkRecord.deleteConfirmBodyPoint1' => '删除后不再展示记录正文与摘要。',
 			'talkRecord.deleteConfirmBodyPoint2' => '删除会先撤销所有人的访问；已导出或保存的副本无法收回。',
 			'talkRecord.deleteConfirmBodyPoint3' => '附件按留存规则与引用情况清理；提交清理不代表字节已立即删除。',

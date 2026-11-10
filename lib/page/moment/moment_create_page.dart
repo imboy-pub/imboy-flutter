@@ -61,7 +61,7 @@ class _MomentCreatePageState extends State<MomentCreatePage> {
   /// 不影响其余成功项。concurrency=momentMaxImageCount(9) 等价于原
   /// Future.wait 全并行（朋友圈上限）。
   late final BatchUploadController<Map<String, dynamic>> _uploads =
-      BatchUploadController<Map<String, dynamic>>(
+      BatchUploadController<Map<String, dynamic>>.forCurrentAccount(
         uploader: _uploadAsset,
         fileUploader: _uploadCapturedFile,
         concurrency: momentMaxImageCount,
@@ -280,6 +280,7 @@ class _MomentCreatePageState extends State<MomentCreatePage> {
   }
 
   Future<String?> _uploadFile(String prefix, File file) async {
+    if (!_uploads.acceptsUploads) return null;
     final completer = Completer<String?>();
     await AttachmentApi.uploadFileViaPresignCompat(
       prefix,
@@ -395,7 +396,7 @@ class _MomentCreatePageState extends State<MomentCreatePage> {
   /// 失败返回 null，调用方用 `whereType` 过滤，不阻塞其余成功项。
   Future<Map<String, dynamic>?> _uploadAsset(AssetEntity asset) async {
     final file = await asset.file;
-    if (file == null) return null;
+    if (file == null || !_uploads.acceptsUploads) return null;
     if (asset.type == AssetType.video) {
       return _uploadVideoFile(file);
     }
@@ -406,31 +407,22 @@ class _MomentCreatePageState extends State<MomentCreatePage> {
 
   /// 视频上传三件套（原视频/缩略图/时长逻辑，从 `_pickVideo` 抽出复用）。
   Future<Map<String, dynamic>?> _uploadVideoFile(File file) async {
-    final url = await _uploadFile('video', file);
-    if (url == null || url.isEmpty) return null;
-
-    String coverUrl = '';
-    int durationMs = 0;
-    try {
-      final thumb = await VideoCompress.getFileThumbnail(
-        file.path,
-        quality: 60,
-        position: -1,
-      );
-      final uploadedCover = await _uploadFile('img', thumb);
-      coverUrl = uploadedCover ?? '';
-      final mediaInfo = await VideoCompress.getMediaInfo(file.path);
-      durationMs = (mediaInfo.duration ?? 0).toInt();
-    } on Exception {
-      coverUrl = '';
-      durationMs = 0;
-    }
-
+    if (!_uploads.acceptsUploads) return null;
+    final info = await VideoCompress.getMediaInfo(file.path);
+    if (!_uploads.acceptsUploads) return null;
+    final result = await AttachmentApi.uploadVideoFileViaPresign(
+      file,
+      durationMs: info.duration?.round() ?? 0,
+      width: info.width ?? 0,
+      height: info.height ?? 0,
+      scope: 'moment',
+    );
+    if (result == null || !_uploads.acceptsUploads) return null;
     return <String, dynamic>{
       'type': 'video',
-      'url': url,
-      'cover_url': coverUrl,
-      'duration_ms': durationMs,
+      'url': result['video_uri'],
+      'cover_url': result['thumb_uri'],
+      'duration_ms': result['duration'],
     };
   }
 

@@ -26,6 +26,12 @@ class AppLoading {
   /// 保证异步上传不会覆盖或关闭后来显示的提示。
   static Object beginProgress() => _progressOwner = Object();
 
+  static Future<void> showOwned(Object owner, {String? status}) {
+    if (!identical(_progressOwner, owner)) return Future.value();
+    _ownedProgressShown = true;
+    return el.EasyLoading.show(status: status);
+  }
+
   static Future<void> showOwnedProgress(
     Object owner,
     double value, {
