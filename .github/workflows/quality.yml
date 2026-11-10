@@ -28,7 +28,7 @@ jobs:
   # ----------------------------------------------------------------
   auto-test-framework:
     name: Auto-test framework gate
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     defaults:
       run:
         working-directory: imboyapp
@@ -78,7 +78,7 @@ jobs:
   # ----------------------------------------------------------------
   sqlite-migration-gate:
     name: SQLite migration gate
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v7
         with:
@@ -129,7 +129,7 @@ jobs:
   # ----------------------------------------------------------------
   flutter-analyze:
     name: Flutter analyze
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v7
         with:
@@ -226,7 +226,7 @@ jobs:
   # ----------------------------------------------------------------
   secrets-scan:
     name: Secrets scan (gitleaks)
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v7
         with:
