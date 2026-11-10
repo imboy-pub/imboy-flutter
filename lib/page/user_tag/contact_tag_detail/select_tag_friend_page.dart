@@ -103,9 +103,7 @@ class _SelectFriendPageState extends ConsumerState<SelectFriendPage> {
                 if (model.selected) {
                   selectedContact.insert(0, model);
                 } else {
-                  selectedContact.removeWhere(
-                    (e) => e.peerId == model.peerId,
-                  );
+                  selectedContact.removeWhere((e) => e.peerId == model.peerId);
                 }
               });
             },
