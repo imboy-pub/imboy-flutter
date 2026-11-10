@@ -140,6 +140,9 @@ def main():
     if not adb.exists():
         adb = shutil.which('adb')
     assert adb
+    # Operator-selected SDK/device; the serial is one -s argument and the
+    # device-side shell command is the fixed getprop invocation below.
+    # nosemgrep: python.lang.security.audit.dangerous-subprocess-use-tainted-env-args.dangerous-subprocess-use-tainted-env-args
     assert subprocess.check_output([str(adb), '-s', device, 'shell', 'getprop',
                                     'ro.kernel.qemu'], text=True).strip() != '1'
     run = Path(tempfile.mkdtemp(prefix='gz-oa-native-session-'))
@@ -151,6 +154,9 @@ def main():
         servers = [tls_server(cert, key), tls_server(cert, key)]
         for server in servers:
             port = server.server_port
+            # Fixed ADB reverse operation with operator-selected SDK/device and
+            # a port allocated by this local server; argv is never shell-expanded.
+            # nosemgrep: python.lang.security.audit.dangerous-subprocess-use-tainted-env-args.dangerous-subprocess-use-tainted-env-args
             subprocess.run([str(adb), '-s', device, 'reverse', f'tcp:{port}', f'tcp:{port}'],
                            check=True, stdout=subprocess.DEVNULL)
             ports.append(port)
@@ -172,6 +178,9 @@ def main():
         raise SystemExit(0 if result['status'] == 'PASS_NATIVE_WEBVIEW_SESSION' else 1)
     finally:
         for port in ports:
+            # Remove only reverse ports recorded above using the same trusted
+            # SDK/device and fixed argv operation, without a shell.
+            # nosemgrep: python.lang.security.audit.dangerous-subprocess-use-tainted-env-args.dangerous-subprocess-use-tainted-env-args
             subprocess.run([str(adb), '-s', device, 'reverse', '--remove', f'tcp:{port}'],
                            stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         for server in servers:

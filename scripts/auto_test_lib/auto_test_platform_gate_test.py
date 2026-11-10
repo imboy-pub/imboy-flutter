@@ -166,27 +166,43 @@ class ExecuteGateBeforeSpawnTest(unittest.TestCase):
         self.assertEqual(code, 2)
         self.assertEqual(spawned, [])
 
-    def test_qualified_device_execute_spawns_flutter_test_as_first_subprocess(self):
-        # 资格通过时执行链才允许前进：首个（也是唯一一个）子进程必须是
-        # 携带 -d <设备> 的 flutter test，且 recorder 立即终止流程。
-        spec = {'id': 'GATE-SPEC', 'runner': {'type': 'flutter', 'target': 'gate_test.dart'},
+    def test_unknown_runner_rejected_before_device_discovery_or_spawn(self):
+        spec = {'id': 'GATE-SPEC', 'runner': {'type': 'unknown-runner', 'target': 'gate_test.dart'},
                 'safe_to_execute': True}
-        started = []
+        with tempfile.TemporaryDirectory() as tmp, \
+                mock.patch.object(auto_test, 'discover_devices') as discover, \
+                mock.patch.object(auto_test.subprocess, 'run') as spawn:
+            code = auto_test.run([(Path('gate_test.dart'), spec)],
+                                 device='REALANDROID01', execute=True,
+                                 artifact_dir=Path(tmp))
+        self.assertEqual(code, 64)
+        discover.assert_not_called()
+        spawn.assert_not_called()
 
-        def recorder(cmd, **kwargs):
-            started.append(cmd)
-            raise AssertionError('测试到此为止：已确认首个子进程')
+    def test_qualified_device_execute_spawns_declared_test_runner_as_first_subprocess(self):
+        for runner, prefix, device_flag in (
+                ('flutter', ['flutter', 'test', 'gate_test.dart'], '-d'),
+                ('patrol', ['patrol', 'test', '--target', 'gate_test.dart'], '--device')):
+            with self.subTest(runner=runner), tempfile.TemporaryDirectory() as tmp:
+                spec = {'id': 'GATE-SPEC', 'runner': {'type': runner, 'target': 'gate_test.dart'},
+                        'safe_to_execute': True}
+                started = []
 
-        with mock.patch.object(auto_test, 'discover_devices', return_value=(ALL, None)), \
-             mock.patch.object(auto_test.subprocess, 'run', side_effect=recorder):
-            with self.assertRaises(AssertionError):
-                auto_test.run([({'p': 'gate_test.dart'}, spec)],
-                              device='REALANDROID01', execute=True,
-                              artifact_dir=Path(tempfile.mkdtemp()))
-        self.assertEqual(len(started), 1)
-        self.assertEqual(started[0][:3], ['flutter', 'test', 'gate_test.dart'])
-        self.assertIn('-d', started[0])
-        self.assertIn('REALANDROID01', started[0])
+                def recorder(cmd, **kwargs):
+                    started.append(cmd)
+                    raise AssertionError('测试到此为止：已确认首个子进程')
+
+                with mock.patch.object(auto_test, 'discover_devices', return_value=(ALL, None)), \
+                        mock.patch.object(auto_test.subprocess, 'run', side_effect=recorder):
+                    with self.assertRaises(AssertionError):
+                        auto_test.run([(Path('gate_test.dart'), spec)],
+                                      device='REALANDROID01', execute=True,
+                                      artifact_dir=Path(tmp))
+                self.assertEqual(len(started), 1)
+                self.assertEqual(started[0][:len(prefix)], prefix)
+                self.assertIn(device_flag, started[0])
+                self.assertIn('REALANDROID01', started[0])
+                self.assertEqual(started[0][-1], '--machine')
 
 
 class CaptureGateTest(unittest.TestCase):

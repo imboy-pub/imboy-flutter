@@ -1,0 +1,77 @@
+# Reviewed on 2026-11-10 against 94bce49abec9d82f664a1f8add0e1f4eed027731.
+# Exact finding IDs and paths only; do not exclude the vendor tree or all Ruby.
+# IMBoy does not run these upstream maintainer tasks. Remove these exceptions
+# before adding that bundle or test server to an IMBoy build/deployment path.
+# See CONTRIBUTING.md for build-graph evidence and remaining coverage limits.
+vulnerabilities:
+  - id: CVE-2026-33176
+    paths:
+      - macos/Shims/vendor/Sentry/Gemfile.lock
+    expired_at: 2027-02-10
+    statement: >-
+      Vendored Sentry maintainer bundle used by its own Fastlane/Slather tasks;
+      IMBoy's Flutter/CocoaPods build does not install or execute this bundle.
+  - id: GHSA-8474-xrp6-wh69
+    paths:
+      - macos/Shims/vendor/Sentry/Gemfile.lock
+    expired_at: 2027-02-10
+    statement: >-
+      Vendored Sentry maintainer bundle used by its own Fastlane/Slather tasks;
+      IMBoy's Flutter/CocoaPods build does not install or execute this bundle.
+  - id: CVE-2026-35611
+    paths:
+      - macos/Shims/vendor/Sentry/Gemfile.lock
+    expired_at: 2027-02-10
+    statement: >-
+      Vendored Sentry maintainer bundle used by its own Fastlane/Slather tasks;
+      IMBoy's Flutter/CocoaPods build does not install or execute this bundle.
+  - id: CVE-2026-54906
+    paths:
+      - macos/Shims/vendor/Sentry/Gemfile.lock
+    expired_at: 2027-02-10
+    statement: >-
+      Vendored Sentry maintainer bundle used by its own Fastlane/Slather tasks;
+      IMBoy's Flutter/CocoaPods build does not install or execute this bundle.
+  - id: CVE-2026-54904
+    paths:
+      - macos/Shims/vendor/Sentry/Gemfile.lock
+    expired_at: 2027-02-10
+    statement: >-
+      Vendored Sentry maintainer bundle used by its own Fastlane/Slather tasks;
+      IMBoy's Flutter/CocoaPods build does not install or execute this bundle.
+  - id: CVE-2026-54297
+    paths:
+      - macos/Shims/vendor/Sentry/Gemfile.lock
+    expired_at: 2027-02-10
+    statement: >-
+      Vendored Sentry maintainer bundle used by its own Fastlane/Slather tasks;
+      IMBoy's Flutter/CocoaPods build does not install or execute this bundle.
+  - id: CVE-2026-45363
+    paths:
+      - macos/Shims/vendor/Sentry/Gemfile.lock
+    expired_at: 2027-02-10
+    statement: >-
+      Vendored Sentry maintainer bundle used by its own Fastlane/Slather tasks;
+      IMBoy's Flutter/CocoaPods build does not install or execute this bundle.
+  - id: CVE-2026-79770
+    paths:
+      - macos/Shims/vendor/Sentry/Gemfile.lock
+    expired_at: 2027-02-10
+    statement: >-
+      Vendored Sentry maintainer bundle used by its own Fastlane/Slather tasks;
+      IMBoy's Flutter/CocoaPods build does not install or execute this bundle.
+  - id: CVE-2026-85396
+    paths:
+      - macos/Shims/vendor/Sentry/Gemfile.lock
+    expired_at: 2027-02-10
+    statement: >-
+      Vendored Sentry maintainer bundle used by its own Fastlane/Slather tasks;
+      IMBoy's Flutter/CocoaPods build does not install or execute this bundle.
+misconfigurations:
+  - id: DS-0017
+    paths:
+      - macos/Shims/vendor/Sentry/test-server/Dockerfile
+    expired_at: 2027-02-10
+    statement: >-
+      Independent upstream Vapor test server, absent from IMBoy build/deployment
+      targets and Sentry runtime package targets; not an IMBoy service image.

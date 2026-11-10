@@ -18,7 +18,6 @@ import socket
 import subprocess
 import sys
 import time
-import xml.etree.ElementTree as ET
 from concurrent.futures import ThreadPoolExecutor
 from functools import lru_cache
 from pathlib import Path
@@ -693,6 +692,8 @@ def preflight_instance(root: Path, instance: dict, env: dict | None = None,
         errors.append(f'RUNNER_MISSING:{executable}')
     if runner == 'patrol' and instance.get('platform') != 'android':
         errors.append('PATROL_ANDROID_INSTRUMENTATION_REQUIRED')
+    if runner == 'patrol' and importlib.util.find_spec('defusedxml') is None:
+        errors.append('PATROL_XML_PARSER_MISSING:defusedxml (scripts/requirements-tooling.txt)')
     for name in instance.get('required_env', []):
         if not _value(env, name, str(instance.get('account_role') or instance.get('role') or '')):
             errors.append(f'FIXTURE_VALUE_MISSING:{name}')
@@ -840,9 +841,17 @@ def parse_patrol_junit(paths: list[str | Path], exit_code: int | None) -> dict:
     errors = []
     if not paths:
         errors.append('PATROL_RESULT_MISSING')
+    else:
+        try:
+            # Plans and non-Patrol workers do not need XML dependencies.
+            from defusedxml import ElementTree as ET
+        except ImportError:
+            errors.append('PATROL_XML_PARSER_MISSING:defusedxml (scripts/requirements-tooling.txt)')
+            paths = []
     for path in paths:
         try:
-            tree = ET.parse(path).getroot()
+            tree = ET.parse(path, forbid_dtd=True, forbid_entities=True,
+                            forbid_external=True).getroot()
             for suite in tree.iter('testsuite'):
                 cases = list(suite.findall('testcase'))
                 if suite.get('tests') is not None and int(suite.get('tests', '0')) != len(cases):

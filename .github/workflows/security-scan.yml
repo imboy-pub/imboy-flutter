@@ -1,0 +1,391 @@
+name: Security Scan
+
+on:
+  push:
+    branches: [main, dev]
+  pull_request:
+    branches: [main, dev]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: security-scan-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+env:
+  # 1: block on findings; 0: report findings only. Scanner failures still fail.
+  # 1：发现问题时失败；0：仅报告问题。扫描器执行错误始终失败。
+  FINDINGS_EXIT_CODE: "1"
+  SEMGREP_VERSION: "1.184.0"
+  TRIVY_VERSION: "v0.76.2"
+
+jobs:
+  semgrep:
+    name: Semgrep
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      security-events: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: "3.12"
+
+      - name: Install Semgrep CE
+        run: python -m pip install --disable-pip-version-check "semgrep==${SEMGREP_VERSION}"
+
+      - name: Run Semgrep
+        id: semgrep_scan
+        run: |
+          printf '%s\n\n' 'Dart is community-supported; the selected registry packs do not guarantee Dart-specific rules. Check the scan language table. Uninitialized submodule source is not included.' >> "$GITHUB_STEP_SUMMARY"
+          mkdir -p .security-reports
+          semgrep scan \
+            --metrics=off \
+            --disable-version-check \
+            --jobs=2 \
+            --timeout=15 \
+            --config=p/security-audit \
+            --config=p/secrets \
+            --config=p/owasp-top-ten \
+            --exclude=.security-reports \
+            --json --output=.security-reports/semgrep.json \
+            --sarif-output=.security-reports/semgrep.sarif \
+            .
+          test -s .security-reports/semgrep.json
+          test -s .security-reports/semgrep.sarif
+
+      - name: Summarize and enforce Semgrep findings
+        id: semgrep_report
+        if: ${{ !cancelled() }}
+        env:
+          SCAN_OUTCOME: ${{ steps.semgrep_scan.outcome }}
+        run: |
+          python3 - <<'PY'
+          import collections
+          import json
+          import os
+          import re
+          from pathlib import Path, PurePosixPath
+
+          def fail(message):
+              print(f"::error::{message}")
+              raise SystemExit(2)
+
+          inventory_path = Path(".security-reports/semgrep-inventory.json")
+          inventory_path.unlink(missing_ok=True)
+          if os.environ.get("SCAN_OUTCOME") != "success":
+              fail("Semgrep execution failed or did not run; findings were not evaluated.")
+          if os.environ.get("FINDINGS_EXIT_CODE") not in ("0", "1"):
+              fail("FINDINGS_EXIT_CODE must be 0 or 1.")
+          try:
+              report = json.loads(Path(".security-reports/semgrep.json").read_text())
+              if report["version"] != os.environ["SEMGREP_VERSION"]:
+                  fail("Unexpected Semgrep report version.")
+              findings = report["results"]
+              scanned = report["paths"]["scanned"]
+              diagnostics = report.get("errors", [])
+              if not all(isinstance(value, list) for value in (findings, scanned, diagnostics)):
+                  fail("Invalid Semgrep report collections.")
+              if not scanned or not all(isinstance(path, str) and path for path in scanned):
+                  fail("Semgrep did not complete a non-empty scan.")
+              severities = ("CRITICAL", "HIGH", "ERROR", "MEDIUM", "WARNING", "LOW", "INFO")
+              counts = collections.Counter()
+              inventory = []
+              for item in findings:
+                  severity = item["extra"]["severity"]
+                  rule_id, path = item["check_id"], item["path"]
+                  start, end = item["start"]["line"], item["end"]["line"]
+                  if severity not in severities:
+                      fail("Unexpected Semgrep severity; review the gate before proceeding.")
+                  if (not isinstance(rule_id, str) or not rule_id
+                          or not isinstance(path, str) or not path
+                          or PurePosixPath(path).is_absolute() or ".." in PurePosixPath(path).parts
+                          or any(ord(char) < 32 for char in rule_id + path)
+                          or type(start) is not int or type(end) is not int or not 1 <= start <= end):
+                      fail("Invalid Semgrep finding identifier or location.")
+                  technology = item["extra"].get("metadata", {}).get("technology", [])
+                  inventory.append({
+                      "rule_id": rule_id,
+                      "category": "secret" if "secrets" in technology else "code",
+                      "severity": severity,
+                      "locations": [{"path": path, "start_line": start, "end_line": end}],
+                  })
+                  counts[severity] += 1
+              if not all(isinstance(item, dict) for item in diagnostics):
+                  fail("Invalid Semgrep diagnostics.")
+              coverage_warnings = [item for item in diagnostics if item.get("level") in ("warn", "warning")]
+              fatal_diagnostics = [item for item in diagnostics if item.get("level") not in ("warn", "warning")]
+              def diagnostic_type(item):
+                  value = item.get("type", "Unknown")
+                  value = value[0] if isinstance(value, list) and value else value
+                  return value if isinstance(value, str) and re.fullmatch(r"[A-Za-z][A-Za-z0-9_]{0,79}", value) else "Unknown"
+              warning_types = collections.Counter(map(diagnostic_type, coverage_warnings))
+              summary = (
+                  "### Semgrep\n\n"
+                  f"Scanned files: {len(scanned)}. "
+                  + "; ".join(f"{level}: {counts[level]}" for level in severities)
+                  + f". Analysis coverage warnings: {len(coverage_warnings)}"
+                  + f"; fatal/unknown diagnostics: {len(fatal_diagnostics)}.\n"
+                  + "Rule severity (including legacy ERROR) is not a CVSS score.\n"
+              )
+              if coverage_warnings:
+                  summary += ("\nSome files or rules were not fully analyzed: "
+                              + "; ".join(f"{kind}: {count}" for kind, count in sorted(warning_types.items())) + ".\n")
+                  print("::warning::Semgrep reported incomplete analysis. Review coverage warnings in the job summary.")
+              with open(os.environ["GITHUB_STEP_SUMMARY"], "a") as output:
+                  output.write(summary)
+              if fatal_diagnostics:
+                  fail("Semgrep reported fatal or unknown diagnostics; findings were not evaluated.")
+              payload = {
+                  "schema_version": "security-inventory/v1",
+                  "scanner": "Semgrep", "scanner_version": report["version"],
+                  "repository": os.environ["GITHUB_REPOSITORY"], "git_sha": os.environ["GITHUB_SHA"],
+                  "run_id": os.environ["GITHUB_RUN_ID"], "run_attempt": os.environ["GITHUB_RUN_ATTEMPT"],
+                  "findings": inventory,
+              }
+              inventory_path.write_text(json.dumps(payload, indent=2) + "\n")
+              with open(os.environ["GITHUB_OUTPUT"], "a") as output:
+                  output.write("inventory_ready=true\n")
+          except (KeyError, TypeError, ValueError, OSError, AttributeError):
+              fail("Invalid or missing Semgrep report; no findings gate result is available.")
+          blocking_count = sum(counts[level] for level in ("CRITICAL", "HIGH", "ERROR"))
+          if blocking_count:
+              print("::warning::Semgrep HIGH/CRITICAL/ERROR findings require Code scanning review.")
+              raise SystemExit(int(os.environ["FINDINGS_EXIT_CODE"]))
+          PY
+
+      - name: Upload sanitized Semgrep inventory
+        if: ${{ !cancelled() && steps.semgrep_report.outputs.inventory_ready == 'true' && hashFiles('.security-reports/semgrep-inventory.json') != '' }}
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        with:
+          name: semgrep-inventory-${{ github.run_id }}-${{ github.run_attempt }}
+          path: .security-reports/semgrep-inventory.json
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Upload Semgrep results
+        if: ${{ !cancelled() && hashFiles('.security-reports/semgrep.sarif') != '' }}
+        uses: github/codeql-action/upload-sarif@33d7b85da1a04171e211befe2c739303b9a4c066 # v4.39.3
+        with:
+          sarif_file: .security-reports/semgrep.sarif
+          category: semgrep
+
+  trivy:
+    name: Trivy
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      security-events: write
+    env:
+      TRIVY_INCLUDE_DEV_DEPS: "true"
+      TRIVY_IGNOREFILE: .trivyignore.yaml
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Prepare report directory
+        run: |
+          printf '%s\n\n' 'Reviewed exceptions are limited to exact finding IDs and unused upstream-maintainer file paths in .trivyignore.yaml, expiring 2027-02-10; no directory-wide exclusions.' >> "$GITHUB_STEP_SUMMARY"
+          printf '%s\n\n' 'Trivy reads pubspec.lock and existing Podfile.lock files. Android Gradle dependencies without a lockfile, actual SDK versions and fork contents are not fully covered.' >> "$GITHUB_STEP_SUMMARY"
+          mkdir -p .security-reports
+
+      - name: Run Trivy filesystem scan
+        id: trivy_scan
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
+        with:
+          version: ${{ env.TRIVY_VERSION }}
+          scan-type: fs
+          scan-ref: .
+          scanners: vuln,misconfig,secret
+          format: sarif
+          output: .security-reports/trivy.sarif
+          severity: HIGH,CRITICAL
+          limit-severities-for-sarif: true
+          # Findings are enforced separately after successful execution and report validation.
+          exit-code: "0"
+          ignore-unfixed: false
+          skip-dirs: .git,.security-reports
+          cache: false
+          cache-dir: ${{ runner.temp }}/trivy-cache
+          timeout: 10m
+
+      - name: Verify Trivy report
+        id: trivy_report
+        if: ${{ !cancelled() }}
+        env:
+          SCAN_OUTCOME: ${{ steps.trivy_scan.outcome }}
+        run: |
+          python3 - <<'PY'
+          import json
+          import os
+          from pathlib import Path, PurePosixPath
+          from urllib.parse import unquote, urlsplit
+
+          def fail(message):
+              print(f"::error::{message}")
+              raise SystemExit(2)
+
+          inventory_path = Path(".security-reports/trivy-inventory.json")
+          inventory_path.unlink(missing_ok=True)
+          if os.environ.get("SCAN_OUTCOME") != "success":
+              fail("Trivy execution failed or did not run; findings were not evaluated.")
+          try:
+              report = json.loads(Path(".security-reports/trivy.sarif").read_text())
+              if report["version"] != "2.1.0" or not isinstance(report["runs"], list) or len(report["runs"]) != 1:
+                  fail("Expected one SARIF 2.1.0 Trivy run.")
+              run = report["runs"][0]
+              driver = run["tool"]["driver"]
+              if driver["name"] != "Trivy" or driver["version"] != os.environ["TRIVY_VERSION"].removeprefix("v"):
+                  fail("Unexpected SARIF scanner or Trivy version.")
+              rules, results = driver["rules"], run["results"]
+              if not isinstance(rules, list) or not isinstance(results, list):
+                  fail("Trivy rules and results must be arrays, including for a clean scan.")
+              invocations = run.get("invocations", [])
+              if not isinstance(invocations, list) or any(item.get("executionSuccessful") is not True for item in invocations):
+                  fail("Trivy SARIF reports an unsuccessful or unknown invocation.")
+              for invocation in invocations:
+                  for field in ("toolExecutionNotifications", "toolConfigurationNotifications"):
+                      notifications = invocation.get(field, [])
+                      if not isinstance(notifications, list) or any(
+                          item.get("level") not in ("note", "warning", "none") for item in notifications
+                      ):
+                          fail("Trivy SARIF contains fatal or unknown execution/configuration diagnostics.")
+              categories = {
+                  "OsPackageVulnerability": "vulnerability",
+                  "LanguageSpecificPackageVulnerability": "vulnerability",
+                  "Misconfiguration": "misconfiguration", "Secret": "secret",
+              }
+              inventory = []
+              for result in results:
+                  index = result["ruleIndex"]
+                  if type(index) is not int or not 0 <= index < len(rules):
+                      fail("Invalid Trivy rule index.")
+                  rule = rules[index]
+                  rule_id = result["ruleId"]
+                  tags = rule["properties"]["tags"]
+                  if (not isinstance(rule_id, str) or not rule_id or rule_id != rule["id"]
+                          or any(ord(char) < 32 for char in rule_id) or result["level"] != "error"
+                          or not isinstance(tags, list) or not all(isinstance(tag, str) for tag in tags)):
+                      fail("Invalid Trivy result or rule mapping.")
+                  category = categories.get(rule["name"])
+                  severity = [tag for tag in tags if tag in ("HIGH", "CRITICAL")]
+                  if category is None or len(severity) != 1 or sorted(tags) != sorted([category, "security", severity[0]]):
+                      fail("Unknown Trivy rule category or severity; review the gate before proceeding.")
+                  locations = result["locations"]
+                  if not isinstance(locations, list) or not locations:
+                      fail("Trivy result must contain a file location.")
+                  safe_locations = []
+                  for location in locations:
+                      physical = location["physicalLocation"]
+                      uri = urlsplit(physical["artifactLocation"]["uri"])
+                      path = unquote(uri.path)
+                      start, end = physical["region"]["startLine"], physical["region"]["endLine"]
+                      if (uri.scheme or uri.netloc or uri.query or uri.fragment or not path
+                              or PurePosixPath(path).is_absolute() or ".." in PurePosixPath(path).parts
+                              or any(ord(char) < 32 for char in path)
+                              or type(start) is not int or type(end) is not int or not 1 <= start <= end):
+                          fail("Invalid Trivy file location.")
+                      safe_locations.append({"path": path, "start_line": start, "end_line": end})
+                  item = {"rule_id": rule_id, "category": category, "severity": severity[0], "locations": safe_locations}
+                  if category == "vulnerability":
+                      fields = {}
+                      allowed = {"Package": "package", "Installed Version": "installed_version", "Fixed Version": "fixed_version"}
+                      for line in result["message"]["text"].splitlines():
+                          key, separator, value = line.partition(": ")
+                          if separator and key in allowed:
+                              if key in fields or any(ord(char) < 32 for char in value):
+                                  fail("Invalid Trivy dependency metadata.")
+                              fields[key] = value
+                      if set(fields) != set(allowed) or not fields["Package"] or not fields["Installed Version"]:
+                          fail("Missing Trivy dependency metadata.")
+                      item.update({allowed[key]: value for key, value in fields.items()})
+                  inventory.append(item)
+              if {result["ruleIndex"] for result in results} != set(range(len(rules))):
+                  fail("Trivy rules and results do not reconcile.")
+              payload = {
+                  "schema_version": "security-inventory/v1",
+                  "scanner": "Trivy", "scanner_version": driver["version"],
+                  "repository": os.environ["GITHUB_REPOSITORY"], "git_sha": os.environ["GITHUB_SHA"],
+                  "run_id": os.environ["GITHUB_RUN_ID"], "run_attempt": os.environ["GITHUB_RUN_ATTEMPT"],
+                  "findings": inventory,
+              }
+              inventory_path.write_text(json.dumps(payload, indent=2) + "\n")
+              with open(os.environ["GITHUB_STEP_SUMMARY"], "a") as output:
+                  output.write(f"### Trivy\n\nExecution and SARIF validation succeeded. HIGH/CRITICAL findings: {len(results)}.\n")
+              with open(os.environ["GITHUB_OUTPUT"], "a") as output:
+                  output.write(f"blocking_count={len(results)}\ninventory_ready=true\n")
+          except (KeyError, TypeError, ValueError, OSError, AttributeError):
+              fail("Invalid or missing Trivy SARIF; no findings gate result is available.")
+          PY
+
+      - name: Enforce Trivy findings
+        if: ${{ !cancelled() }}
+        env:
+          REPORT_OUTCOME: ${{ steps.trivy_report.outcome }}
+          BLOCKING_COUNT: ${{ steps.trivy_report.outputs.blocking_count }}
+        run: |
+          python3 - <<'PY'
+          import os
+          import re
+
+          if os.environ.get("REPORT_OUTCOME") != "success":
+              print("::error::Trivy report validation failed or did not run.")
+              raise SystemExit(2)
+          count = os.environ.get("BLOCKING_COUNT", "")
+          mode = os.environ.get("FINDINGS_EXIT_CODE", "")
+          if not re.fullmatch(r"[0-9]+", count) or mode not in ("0", "1"):
+              print("::error::Invalid Trivy findings count or FINDINGS_EXIT_CODE.")
+              raise SystemExit(2)
+          if count.strip("0"):
+              print("::warning::Trivy HIGH/CRITICAL findings require Code scanning review.")
+              raise SystemExit(int(mode))
+          PY
+
+      - name: Upload sanitized Trivy inventory
+        if: ${{ !cancelled() && steps.trivy_report.outputs.inventory_ready == 'true' && hashFiles('.security-reports/trivy-inventory.json') != '' }}
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        with:
+          name: trivy-inventory-${{ github.run_id }}-${{ github.run_attempt }}
+          path: .security-reports/trivy-inventory.json
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Upload Trivy results
+        if: ${{ !cancelled() && hashFiles('.security-reports/trivy.sarif') != '' }}
+        uses: github/codeql-action/upload-sarif@33d7b85da1a04171e211befe2c739303b9a4c066 # v4.39.3
+        with:
+          sarif_file: .security-reports/trivy.sarif
+          category: trivy
+
+  security-scan:
+    name: security-scan
+    if: ${{ always() }}
+    needs: [semgrep, trivy]
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions: {}
+    env:
+      SEMGREP_RESULT: ${{ needs.semgrep.result }}
+      TRIVY_RESULT: ${{ needs.trivy.result }}
+    steps:
+      - name: Require both scanners to succeed
+        run: |
+          printf 'Semgrep: %s\nTrivy: %s\n' "$SEMGREP_RESULT" "$TRIVY_RESULT"
+          if [[ "$SEMGREP_RESULT" != "success" || "$TRIVY_RESULT" != "success" ]]; then
+            echo "::error::Security scanning failed, was cancelled, or did not run."
+            exit 1
+          fi

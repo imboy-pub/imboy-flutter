@@ -73,6 +73,15 @@ jobs:
         with:
           name: specialist-plan
           path: ${{ runner.temp }}/specialist-plan
+      - name: Prepare Patrol XML dependencies
+        if: inputs.profile == 'native-ui'
+        shell: bash
+        run: |
+          set -euo pipefail
+          python_env="$(mktemp -d "$RUNNER_TEMP/patrol-python.XXXXXX")"
+          python3 -m venv "$python_env"
+          "$python_env/bin/python3" -m pip install --disable-pip-version-check --require-hashes --only-binary=:all: -r scripts/requirements-tooling.txt
+          printf '%s\n' "$python_env/bin" >> "$GITHUB_PATH"
       - name: Verify prepared SDK
         env:
           PROFILE: ${{ inputs.profile }}

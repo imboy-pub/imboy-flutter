@@ -89,15 +89,24 @@ jobs:
           flutter-version: ${{ env.FLUTTER_VERSION }}
           channel: stable
           cache: true
+      - name: Setup Python for tooling
+        if: matrix.suite == 'tooling'
+        uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: '3.12'
       - name: Verify SDK compatibility
         run: python3 scripts/check_sdk_compatibility.py
       - name: Prepare isolated host dependencies
         id: dependencies
         env:
           WORKER_PLATFORM: ${{ matrix.platform }}
+          WORKER_SUITE: ${{ matrix.suite }}
           WORKER_EVIDENCE_DIR: ${{ runner.temp }}/execution-${{ matrix.platform }}-${{ matrix.suite }}
         run: |
           set -euo pipefail
+          if [ "$WORKER_SUITE" = tooling ]; then
+            python3 -m pip install --disable-pip-version-check --require-hashes --only-binary=:all: -r scripts/requirements-tooling.txt
+          fi
           bash .github/scripts/ci_patch_path_deps.sh --check
           flutter pub get --enforce-lockfile
           bash .github/scripts/ci_gen_env.sh

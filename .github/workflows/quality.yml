@@ -52,6 +52,17 @@ jobs:
           path: imboyadmin
           fetch-depth: 1
 
+      - name: Setup Python for tooling
+        if: ${{ !inputs.tests_owned_by_ci }}
+        uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: '3.12'
+
+      - name: Install Python tooling dependencies
+        if: ${{ !inputs.tests_owned_by_ci }}
+        run: |
+          python3 -m pip install --disable-pip-version-check --require-hashes --only-binary=:all: -r scripts/requirements-tooling.txt
+
       - name: Run unified framework gate (same entry as local)
         env:
           AUTO_TEST_REPORT_ROOT: ${{ runner.temp }}/auto-test-framework
