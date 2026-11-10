@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Retry known temporary dependency-download HTTP failures, never all build errors.
+# Retry known temporary dependency-download failures, never all build errors.
 set -euo pipefail
 
 if [[ $# == 0 ]]; then
@@ -30,10 +30,19 @@ for attempt in 1 2 3; do
 
   # tee truncates the log for each attempt; an earlier HTTP failure must not
   # cause a later compiler, signing, checksum, or package-resolution error to retry.
-  if [[ "$status" -ge 128 ]] || ! grep -Eq \
+  retryable=false
+  if grep -Eq \
       -e "Server returned HTTP response code: $retryable_http for URL: https://" \
       -e "failed downloading 'https://[^']+'.*badResponseStatusCode\($retryable_http\)" \
       "$log"; then
+    retryable=true
+  elif [[ "$status" == 69 && "${1##*/}" == flutter && "${2:-}" == pub && "${3:-}" == get ]] &&
+      grep -Eq "^fatal: unable to access 'https://[^']+': Could not resolve host: [^[:space:]]+$" "$log"; then
+    # Pub reports unavailable (69) for Git DNS failures. Restrict this case to
+    # package download so earlier transport output cannot retry a failed build.
+    retryable=true
+  fi
+  if [[ "$status" -ge 128 || "$retryable" != true ]]; then
     exit "$status"
   fi
   if [[ "$attempt" == 3 ]]; then
@@ -41,6 +50,6 @@ for attempt in 1 2 3; do
     exit "$status"
   fi
   delay=$((attempt * 10))
-  echo "::warning::Temporary dependency download HTTP error; retrying in ${delay}s."
+  echo "::warning::Temporary dependency download error; retrying in ${delay}s."
   sleep "$delay"
 done

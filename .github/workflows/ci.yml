@@ -217,7 +217,7 @@ jobs:
           git config --global --add safe.directory "$FLUTTER_ROOT"
           python3 scripts/check_sdk_compatibility.py
           bash .github/scripts/ci_patch_path_deps.sh --check
-          flutter pub get --enforce-lockfile
+          bash .github/scripts/ci_retry_build_downloads.sh flutter pub get --enforce-lockfile
           bash .github/scripts/ci_gen_env.sh
           curl --proto '=https' --tlsv1.2 -fsS https://sh.rustup.rs \
             -o "$RUNNER_TEMP/rustup-init.sh"
