@@ -328,8 +328,9 @@ iosAccelerate    = Cubic(0.4, 0.0, 1.0, 1.0)       // 离开动画
 ### 6.4 点击反馈规则
 
 - **禁用 Material Ripple** 在 Cell / ListTile 中
-- 用 `opacity 0.4` 的短暂闪烁（100ms）替代
-- 参考 `CupertinoButton` 的 pressed 状态
+- 普通按钮复用 `CupertinoButton` 的按下透明度反馈。
+- 自定义整行入口复用 `CellPressable`：浅色 4% 黑、深色 6% 白的即时前景反馈；反馈必须覆盖不透明的行背景，不能被子卡片遮住。
+- 桌面入口支持 Tab / Shift+Tab 聚焦、Enter / Space 激活；焦点反馈与触摸反馈使用相同的可见层。
 
 ---
 
@@ -703,6 +704,7 @@ CONTRACT-FREEZE-T02 冻结项（C-F1~C-F4），**后续修改必须维持这些�
   禁止首屏全屏转菊花
 - 下拉刷新：CupertinoSliverRefreshControl（已有数据时保留旧内容，
   不清空成骨架屏）
+- 下一页失败：保留已加载行，在列表尾部说明失败并重试同一页；成功前不能跳过失败页继续加载。网络失败不得显示为“无权限”或“暂无内容”。
 - 小区域/按钮内：CupertinoActivityIndicator（12–20pt）；
   按钮忙碌 = 禁用 + 换执行文案（如「上传中」），不只变灰
 - 可量化长任务：3pt LinearProgressIndicator + 真实进度文案（§8.16）；
@@ -833,6 +835,10 @@ CONTRACT-FREEZE-T02 冻结项（C-F1~C-F4），**后续修改必须维持这些�
 - 尊重系统字号设置（`MediaQuery.textScaleFactor`）
 - 布局不能因字号放大而截断或溢出
 - 使用现有 `FontScaleCalculator`
+- 列表行和文案按钮以最小高度约束触点，允许内容自然增高；长标题、表单标签和横排动作按可用宽度换行。
+- 表单 Tab 复用 `LoginFormTabs` 的动态测高；不得用固定表单高度容纳可缩放文字。
+- 阅读、设置和钱包表单复用 680pt 内容宽度。媒体画布、聊天分栏和以窗口宽度计算网格的页面单独适配，不能全局强制限宽。
+- `IosPageTemplate.child` 由模板负责滚动；独立 `ListView` / `CustomScrollView` 放入 `body` / `slivers`，避免同轴无界高度。短窗口状态页的说明和恢复动作须可滚动到达。
 
 ### 11.3 Reduce Motion
 
@@ -845,11 +851,12 @@ CONTRACT-FREEZE-T02 冻结项（C-F1~C-F4），**后续修改必须维持这些�
 - 所有 IconButton 必须有 `semanticLabel`
 - 聊天气泡 `Semantics(label: "来自张三的消息: xxx，14点23分")`
 - 未读红点 `semanticLabel: "5 条未读"`
+- 名称、角色和选中状态应落在同一个可聚焦操作节点；回归从具名语义节点验证，不能把 Tooltip 的布局容器当成操作节点。
 
 ### 11.5 触达区域
 
 - 最小 44×44pt（iOS）/ 48×48dp（Android）
-- 使用 `InkWell` / `GestureDetector` 的 `behavior: HitTestBehavior.opaque`
+- 自定义行优先复用 `CellPressable`，纯图标动作使用具名 Cupertino 按钮；保留媒体长按、拖动和缩放等专属手势。
 
 ---
 
@@ -997,6 +1004,8 @@ Scaffold(
 - [ ] VoiceOver 标签完整
 - [ ] 动画 duration ≤ 400ms（除引导）
 - [ ] 测试过 Android 真机（项目规则要求）
+
+逐页源码审查与处置记录见 [UI/UX 页面审查台账](docs/design/uiux-page-review.csv)。台账分别记录直接修改、共享组件改善、保留实现和待复核项；源码审查、自动化 widget 渲染与原生设备视觉验收不能互相代替。纯导出文件不计入页面数。
 
 ---
 

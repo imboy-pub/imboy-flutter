@@ -15,12 +15,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lpinyin/lpinyin.dart';
 
+import 'package:imboy/component/ui/cell_pressable.dart';
+import 'package:imboy/component/ui/nodata_view.dart';
 import 'package:imboy/component/ui/avatar.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/store/model/contact_model.dart';
 import 'package:imboy/store/repository/contact_repo_sqlite.dart';
-import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:imboy/theme/default/font_types.dart';
 
@@ -45,6 +46,7 @@ class _MomentAtPickerPageState extends ConsumerState<MomentAtPickerPage> {
   List<ContactModel> _displayFriends = const [];
 
   bool _loading = true;
+  bool _loadFriendsFailed = false;
   String _keyword = '';
 
   @override
@@ -58,6 +60,11 @@ class _MomentAtPickerPageState extends ConsumerState<MomentAtPickerPage> {
   }
 
   Future<void> _loadFriends() async {
+    if (!mounted) return;
+    setState(() {
+      _loading = true;
+      _loadFriendsFailed = false;
+    });
     try {
       final list = await ContactRepo().findFriend();
       for (final c in list) {
@@ -80,7 +87,10 @@ class _MomentAtPickerPageState extends ConsumerState<MomentAtPickerPage> {
       });
     } on Exception {
       if (!mounted) return;
-      setState(() => _loading = false);
+      setState(() {
+        _loading = false;
+        _loadFriendsFailed = true;
+      });
     }
   }
 
@@ -166,13 +176,18 @@ class _MomentAtPickerPageState extends ConsumerState<MomentAtPickerPage> {
     if (_loading) {
       return const Center(child: CupertinoActivityIndicator());
     }
-    if (_friends.isEmpty) {
-      return Center(
-        child: Text(
-          t.momentFriendPicker.emptyFriends,
-          style: const TextStyle(color: AppColors.iosGray),
-        ),
+    if (_loadFriendsFailed) {
+      return NoDataView(
+        text: t.common.loadError,
+        icon: CupertinoIcons.exclamationmark_circle,
+        onTop: _loadFriends,
       );
+    }
+    if (_friends.isEmpty) {
+      return NoDataView(text: t.momentFriendPicker.emptyFriends);
+    }
+    if (_keyword.isNotEmpty && _displayFriends.isEmpty) {
+      return NoDataView(text: t.common.searchNoResults);
     }
     if (_keyword.isNotEmpty) {
       return ListView.builder(
@@ -211,9 +226,8 @@ class _MomentAtPickerPageState extends ConsumerState<MomentAtPickerPage> {
     return Semantics(
       button: true,
       selected: checked,
-      child: GestureDetector(
+      child: CellPressable(
         // 不用 InkWell：DESIGN.md §13.2 禁止 Cupertino 列表行用 Material Ripple。
-        behavior: HitTestBehavior.opaque,
         onTap: () => _onFriendToggle(c),
         child: Padding(
           padding: const EdgeInsets.symmetric(
@@ -237,11 +251,13 @@ class _MomentAtPickerPageState extends ConsumerState<MomentAtPickerPage> {
               // 点击走的是那条窄路径；统一由整行接管后命中区更宽更好点。
               // ExcludeSemantics：行已声明 selected 状态，读屏不必再念一遍复选框。
               ExcludeSemantics(
-                child: IgnorePointer(
-                  child: Checkbox(
-                    value: checked,
-                    onChanged: (_) {},
-                    visualDensity: VisualDensity.compact,
+                child: ExcludeFocus(
+                  child: IgnorePointer(
+                    child: Checkbox(
+                      value: checked,
+                      onChanged: (_) {},
+                      visualDensity: VisualDensity.compact,
+                    ),
                   ),
                 ),
               ),

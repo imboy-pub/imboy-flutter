@@ -19,6 +19,7 @@ import 'package:imboy/store/model/workspace_model.dart';
 import 'package:imboy/page/workspace/workspace_view_widgets.dart'
     show
         WorkspaceEmptyView,
+        WorkspaceInlineError,
         WorkspaceErrorView,
         WorkspaceLoadingView,
         workspaceErrorMessage;
@@ -39,7 +40,9 @@ class _WorkspaceProjectsPageState extends ConsumerState<WorkspaceProjectsPage> {
   int _pages = 1;
 
   Future<void> _refresh(EntityId wsId) async {
-    ref.invalidate(projectListPageProvider((wsId, 1)));
+    for (var page = 1; page <= _pages; page++) {
+      ref.invalidate(projectListPageProvider((wsId, page)));
+    }
   }
 
   @override
@@ -110,7 +113,17 @@ class _WorkspaceProjectsPageState extends ConsumerState<WorkspaceProjectsPage> {
                     ),
                   ),
           ),
-          if (!hasLoading && loadedPages.isNotEmpty && totalPage > _pages)
+          if (firstError != null)
+            SliverToBoxAdapter(
+              child: WorkspaceInlineError(
+                message: workspaceErrorMessage(firstError),
+                onRetry: () => _refresh(wsId),
+              ),
+            ),
+          if (!hasLoading &&
+              firstError == null &&
+              loadedPages.isNotEmpty &&
+              totalPage > _pages)
             SliverToBoxAdapter(
               child: Center(
                 child: TextButton(

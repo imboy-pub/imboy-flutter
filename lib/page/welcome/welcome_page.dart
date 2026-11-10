@@ -146,7 +146,7 @@ class _WelcomePageState extends ConsumerState<WelcomePage> {
                               .textStyle(
                                 FontSizeType.large,
                                 fontWeight: FontWeight.w700,
-                                color: AppColors.primaryDark,
+                                color: isDark ? AppColors.darkTextPrimary : AppColors.primaryDark,
                               )
                               .copyWith(letterSpacing: 0.5),
                         ),
@@ -195,7 +195,7 @@ class _WelcomePageState extends ConsumerState<WelcomePage> {
                               style: context
                                   .textStyle(
                                     FontSizeType.extraLargeTitle,
-                                    color: AppColors.primaryDark,
+                                    color: isDark ? AppColors.darkTextPrimary : AppColors.primaryDark,
                                     fontWeight: FontWeight.bold,
                                   )
                                   .copyWith(letterSpacing: -0.5),
@@ -208,7 +208,7 @@ class _WelcomePageState extends ConsumerState<WelcomePage> {
                               style: context
                                   .textStyle(
                                     FontSizeType.medium,
-                                    color: AppColors.slateText,
+                                    color: isDark ? AppColors.darkTextSecondary : AppColors.slateText,
                                   )
                                   .copyWith(height: 1.6),
                               textAlign: TextAlign.center,
@@ -300,7 +300,7 @@ class _WelcomePageState extends ConsumerState<WelcomePage> {
                           context.t.welcome.skip,
                           style: context.textStyle(
                             FontSizeType.normal,
-                            color: AppColors.slateText,
+                            color: isDark ? AppColors.darkTextSecondary : AppColors.slateText,
                             fontWeight: FontWeight.w600,
                           ),
                         ),

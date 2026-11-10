@@ -65,6 +65,12 @@ void main() {
     expect(resolveInitialIndex({'index': '1'}, 4, fallback: 2), 1);
     expect(resolveInitialIndex({'index': 'invalid'}, 4, fallback: 2), 0);
     expect(resolveInitialIndex({}, 3, fallback: 3), 2);
+    expect(
+      resolveInitialIndex({'index': '1'}, 4, restoredIndex: 3),
+      3,
+      reason: 'Live resize must not replay a previously consumed URL index',
+    );
+    expect(resolveInitialIndex({'index': '1'}, 3, restoredIndex: 2), 2);
   });
   const tabCount = 4; // 消息/联系人/频道/我的
 

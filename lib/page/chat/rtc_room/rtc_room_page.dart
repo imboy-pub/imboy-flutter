@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:livekit_client/livekit_client.dart';
 
 import 'package:imboy/component/ui/app_loading.dart';
+import 'package:imboy/component/ui/cell_pressable.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/chat/rtc_room/rtc_room_provider.dart';
 import 'package:imboy/theme/default/app_colors.dart';
@@ -84,6 +85,7 @@ class _RtcRoomPageState extends ConsumerState<RtcRoomPage> {
     });
 
     return CupertinoPageScaffold(
+      backgroundColor: CallTokens.bgDeep,
       child: SafeArea(
         child: Column(
           children: [
@@ -563,14 +565,14 @@ class _RtcRoomPageState extends ConsumerState<RtcRoomPage> {
     required Future<void> Function() onPressed,
     Color background = CallTokens.whiteA12,
   }) {
-    return Semantics(
-      label: label,
-      button: true,
-      child: Material(
-        color: background,
-        shape: const CircleBorder(),
-        child: GestureDetector(
-          onTap: onPressed,
+    return Material(
+      color: background,
+      shape: const CircleBorder(),
+      clipBehavior: Clip.antiAlias,
+      child: CellPressable(
+        onTap: onPressed,
+        child: Semantics(
+          label: label,
           child: SizedBox(
             width: _controlButtonSize,
             height: _controlButtonSize,

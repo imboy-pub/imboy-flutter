@@ -130,6 +130,7 @@ class _OrganizationInvitationsPageState
         context: context,
         barrierDismissible: false,
         builder: (ctx) => AlertDialog(
+          scrollable: true,
           title: Text(t.organization.invitations.invitationCreated),
           content: Column(
             mainAxisSize: MainAxisSize.min,

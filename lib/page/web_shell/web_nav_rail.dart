@@ -143,11 +143,11 @@ class _WebNavRailItem extends StatelessWidget {
         ),
         child: ClipRRect(
           borderRadius: AppRadius.borderRadiusMedium,
-          child: Semantics(
-            label: item.label,
-            selected: isSelected,
-            child: CellPressable(
-              onTap: onTap,
+          child: CellPressable(
+            onTap: onTap,
+            child: Semantics(
+              label: item.label,
+              selected: isSelected,
               child: Container(
                 width: AppSizes.buttonHeightXLarge,
                 height: AppSizes.buttonHeightXLarge,

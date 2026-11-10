@@ -209,6 +209,7 @@ class _TagRelationPageState extends ConsumerState<TagRelationPage> {
         AppSpacing.verticalTiny,
         Text(
           value,
+          textAlign: TextAlign.center,
           style: context.textStyle(
             FontSizeType.medium,
             fontWeight: FontWeight.w600,
@@ -217,6 +218,7 @@ class _TagRelationPageState extends ConsumerState<TagRelationPage> {
         ),
         Text(
           label,
+          textAlign: TextAlign.center,
           style: context.textStyle(
             FontSizeType.small,
             color: Theme.of(context).colorScheme.onSurface
@@ -244,7 +246,7 @@ class _TagRelationPageState extends ConsumerState<TagRelationPage> {
         children: [
           Icon(icon, size: 16, color: color),
           const SizedBox(width: 4),
-          Text(label, style: TextStyle(color: color)),
+          Flexible(child: Text(label, style: TextStyle(color: color))),
         ],
       ),
     );
@@ -383,7 +385,7 @@ class _TagRelationPageState extends ConsumerState<TagRelationPage> {
                                   ),
                                 ),
                                 AppSpacing.horizontalMedium,
-                                Text(t.common.loading),
+                                Flexible(child: Text(t.common.loading)),
                               ],
                             )
                           : Text(
@@ -393,6 +395,7 @@ class _TagRelationPageState extends ConsumerState<TagRelationPage> {
                               style: context.textStyle(
                                 FontSizeType.medium,
                                 fontWeight: FontWeight.w600,
+                                color: AppColors.onPrimary,
                               ),
                             ),
                     ),
@@ -460,12 +463,14 @@ class _TagRelationPageState extends ConsumerState<TagRelationPage> {
                 ),
               ),
               AppSpacing.horizontalMedium,
-              Text(
-                t.chat.tagStatistics,
-                style: context.textStyle(
-                  FontSizeType.medium,
-                  fontWeight: FontWeight.w600,
-                  color: Theme.of(context).colorScheme.onSurface,
+              Expanded(
+                child: Text(
+                  t.chat.tagStatistics,
+                  style: context.textStyle(
+                    FontSizeType.medium,
+                    fontWeight: FontWeight.w600,
+                    color: Theme.of(context).colorScheme.onSurface,
+                  ),
                 ),
               ),
             ],
@@ -522,7 +527,11 @@ class _TagRelationPageState extends ConsumerState<TagRelationPage> {
           ),
         ],
       ),
-      child: Row(
+      child: Wrap(
+        alignment: WrapAlignment.spaceBetween,
+        crossAxisAlignment: WrapCrossAlignment.center,
+        spacing: AppSpacing.small,
+        runSpacing: AppSpacing.tiny,
         children: [
           Text(
             t.common.quickActions,
@@ -531,13 +540,11 @@ class _TagRelationPageState extends ConsumerState<TagRelationPage> {
               color: Theme.of(context).colorScheme.onSurface,
             ),
           ),
-          const Spacer(),
           _buildQuickActionButton(
             t.common.reset,
             CupertinoIcons.arrow_clockwise,
             _hasChanges() ? _resetTags : null,
           ),
-          AppSpacing.horizontalSmall,
           _buildQuickActionButton(
             t.common.clear,
             CupertinoIcons.clear,

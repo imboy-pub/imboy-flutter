@@ -237,11 +237,13 @@ class _StorageSpacePageState extends ConsumerState<StorageSpacePage> {
           ),
         ),
         const SizedBox(width: 6),
-        Text(
-          text,
-          style: context.textStyle(
-            FontSizeType.small,
-            color: AppColors.iosGray,
+        Flexible(
+          child: Text(
+            text,
+            style: context.textStyle(
+              FontSizeType.small,
+              color: AppColors.iosGray,
+            ),
           ),
         ),
       ],
@@ -391,7 +393,6 @@ class _StorageSpacePageState extends ConsumerState<StorageSpacePage> {
                   ),
                 ),
               ),
-              ?action,
             ],
           ),
           const SizedBox(height: AppSpacing.regular),
@@ -410,6 +411,13 @@ class _StorageSpacePageState extends ConsumerState<StorageSpacePage> {
               color: AppColors.iosGray,
             ),
           ),
+          if (action != null) ...[
+            AppSpacing.verticalMedium,
+            Align(
+              alignment: AlignmentDirectional.centerEnd,
+              child: action,
+            ),
+          ],
         ],
       ),
     );

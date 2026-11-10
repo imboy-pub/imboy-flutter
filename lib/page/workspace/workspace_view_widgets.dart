@@ -114,14 +114,18 @@ class WorkspaceEmptyView extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Center(
-      child: Padding(
+      child: SingleChildScrollView(
         padding: AppSpacing.allXLarge,
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             Icon(icon, size: 48, color: theme.colorScheme.onSurfaceVariant),
             AppSpacing.verticalRegular,
-            Text(title, style: theme.textTheme.titleSmall),
+            Text(
+              title,
+              style: theme.textTheme.titleSmall,
+              textAlign: TextAlign.center,
+            ),
             AppSpacing.verticalSmall,
             Text(
               subtitle,
@@ -155,7 +159,7 @@ class WorkspaceErrorView extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Center(
-      child: Padding(
+      child: SingleChildScrollView(
         padding: AppSpacing.allXLarge,
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -183,6 +187,39 @@ class WorkspaceErrorView extends StatelessWidget {
       ),
     );
   }
+}
+
+/// 分页失败保留已读内容，在列表尾部给出明确恢复入口。
+class WorkspaceInlineError extends StatelessWidget {
+  const WorkspaceInlineError({
+    super.key,
+    required this.message,
+    required this.onRetry,
+  });
+
+  final String message;
+  final VoidCallback onRetry;
+
+  @override
+  Widget build(BuildContext context) => Padding(
+    padding: AppSpacing.allRegular,
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          message,
+          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+            color: Theme.of(context).colorScheme.error,
+          ),
+        ),
+        TextButton(
+          key: const ValueKey('workspace-inline-error-retry'),
+          onPressed: onRetry,
+          child: Text(t.common.buttonRetry),
+        ),
+      ],
+    ),
+  );
 }
 
 /// 加载态（列表骨架占位，非空白）。

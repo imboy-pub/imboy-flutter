@@ -3,6 +3,9 @@ import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/ios_settings_ui.dart';
+import 'package:imboy/component/ui/cell_pressable.dart';
+import 'package:imboy/page/settings/widget/settings_notice_card.dart';
+import 'package:imboy/component/ui/resource_page_layout.dart';
 import 'package:imboy/component/ui/cupertino_modal_surface.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/settings/e2ee_backup_export_page.dart';
@@ -56,6 +59,7 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
   @override
   Widget build(BuildContext context) {
     return IosPageTemplate(
+      contentMaxWidth: ResourcePageLayout.maxWidth,
       title: t.main.e2eeKeyRecoveryTitle,
       actions: [
         CupertinoButton(
@@ -342,9 +346,8 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
 
     return Material(
       color: AppColors.transparent,
-      child: GestureDetector(
+      child: CellPressable(
         onTap: _isRetrying ? null : _retryFailedMessages,
-        behavior: HitTestBehavior.opaque,
         child: Container(
           margin: const EdgeInsets.symmetric(horizontal: 16),
           padding: AppSpacing.allRegular,
@@ -469,56 +472,17 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
   }
 
   /// 构建 E2EE 说明卡片
-  Widget _buildE2EEInfoCard(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16),
-      decoration: BoxDecoration(
-        color: isDark
-            ? AppColors.darkSurfaceGroupedTertiary
-            : AppColors.lightSurface,
-        borderRadius: AppRadius.borderRadiusMedium,
-        border: Border.all(color: AppColors.iosBlue.withValues(alpha: 0.2)),
-      ),
-      child: Padding(
-        padding: AppSpacing.allRegular,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Icon(CupertinoIcons.info, color: AppColors.iosBlue, size: 20),
-                AppSpacing.horizontalSmall,
-                Text(
-                  t.common.e2eeAboutTitle,
-                  style: context.textStyle(
-                    FontSizeType.subheadline,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
-            ),
-            AppSpacing.verticalMedium,
-            Text(
-              t.common.e2eeInfoPoint1,
-              style: context.textStyle(FontSizeType.footnote),
-            ),
-            AppSpacing.verticalTiny,
-            Text(
-              t.common.e2eeInfoPoint2,
-              style: context.textStyle(FontSizeType.footnote),
-            ),
-            AppSpacing.verticalTiny,
-            Text(
-              t.common.e2eeInfoPoint3,
-              style: context.textStyle(FontSizeType.footnote),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
+  Widget _buildE2EEInfoCard(BuildContext context) => SettingsNoticeCard(
+    margin: AppSpacing.pageHorizontal,
+    title: t.common.e2eeAboutTitle,
+    icon: CupertinoIcons.info,
+    accent: AppColors.iosBlue,
+    paragraphs: [
+      t.common.e2eeInfoPoint1,
+      t.common.e2eeInfoPoint2,
+      t.common.e2eeInfoPoint3,
+    ],
+  );
 
   /// 构建恢复方法卡片
   Widget _buildRecoveryMethodCard(
@@ -535,7 +499,7 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
 
     return Material(
       color: AppColors.transparent,
-      child: GestureDetector(
+      child: CellPressable(
         onTap: onTap,
         child: Container(
           margin: const EdgeInsets.symmetric(horizontal: 16),
@@ -652,7 +616,7 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
 
     return Material(
       color: AppColors.transparent,
-      child: GestureDetector(
+      child: CellPressable(
         onTap: onTap,
         child: Container(
           margin: const EdgeInsets.symmetric(horizontal: 16),

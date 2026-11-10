@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:azlistview/azlistview.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:imboy/component/ui/cell_pressable.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/component/ui/app_loading.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
@@ -118,9 +119,8 @@ class AddMemberPageState extends ConsumerState<AddMemberPage> {
         button: true,
         enabled: !isMember,
         selected: isSelected,
-        child: GestureDetector(
+        child: CellPressable(
           // 不用 InkWell：DESIGN.md §13.2 禁止 Cupertino 列表行用 Material Ripple
-          behavior: HitTestBehavior.opaque,
           onTap: isMember
               ? null
               : () {
@@ -321,11 +321,13 @@ class AddMemberPageState extends ConsumerState<AddMemberPage> {
                         color: Theme.of(context).colorScheme.primary,
                       ),
                       const SizedBox(width: AppSpacing.small),
-                      Text(
-                        t.main.selectedCount(count: '${state.selects.length}'),
-                        style: TextStyle(
-                          color: Theme.of(context).colorScheme.primary,
-                          fontWeight: FontWeight.w500,
+                      Expanded(
+                        child: Text(
+                          t.main.selectedCount(count: '${state.selects.length}'),
+                          style: TextStyle(
+                            color: Theme.of(context).colorScheme.primary,
+                            fontWeight: FontWeight.w500,
+                          ),
                         ),
                       ),
                     ],

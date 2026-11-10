@@ -51,7 +51,7 @@ class _InitErrorPageState extends State<InitErrorPage> {
       home: CupertinoPageScaffold(
         child: SafeArea(
           child: Center(
-            child: Padding(
+            child: SingleChildScrollView(
               padding: const EdgeInsets.symmetric(horizontal: 24),
               child: Column(
                 mainAxisSize: MainAxisSize.min,

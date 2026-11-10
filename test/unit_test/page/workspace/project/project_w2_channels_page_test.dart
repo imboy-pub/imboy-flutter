@@ -14,10 +14,69 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/workspace/project/w2/project_channels_page.dart';
 import 'package:imboy/store/api/workspace_api.dart' show WorkspaceApiException;
+import 'package:imboy/store/model/project_w2_model.dart';
+import 'package:imboy/store/model/workspace_model.dart';
 
 import 'w2_test_helpers.dart';
 
+class _PagedChannelApi extends FakeChannelApi {
+  bool failSecondPage = true;
+  final List<int> requestedPages = [];
+
+  @override
+  Future<WorkspacePageResult<ProjectChannelModel>> list(
+    EntityId projectId, {
+    int page = 1,
+    int size = 10,
+  }) async {
+    requestedPages.add(page);
+    if (page == 2 && failSecondPage) {
+      throw StateError('temporary page failure');
+    }
+    return WorkspacePageResult<ProjectChannelModel>(
+      list: [linkedChannel(channelId: page == 1 ? '8001' : '8002')],
+      total: 2,
+      totalPage: 2,
+    );
+  }
+}
+
 void main() {
+  testWidgets('第二页失败保留第一页，重试重新请求失败页', (tester) async {
+    final api = _PagedChannelApi();
+    await pumpW2Page(
+      tester,
+      home: const ProjectChannelsPage(
+        projectId: testProjectId,
+        workspaceId: testWsId,
+      ),
+      channelApi: api,
+      projectApi: FakeProjectDetailApi(),
+      workspaceApi: FakeWorkspaceApi(),
+      ws: testWs(),
+      currentUid: testOwnerUid,
+    );
+    await tester.tap(find.byKey(const ValueKey('project-w2-load-more')));
+    await settleSteps(tester);
+    expect(
+      find.byKey(const ValueKey('project-channel-tile-8001')),
+      findsOneWidget,
+    );
+    expect(find.textContaining('temporary page failure'), findsOneWidget);
+    expect(find.byKey(const ValueKey('project-w2-load-more')), findsNothing);
+
+    api.failSecondPage = false;
+    await tester.tap(
+      find.byKey(const ValueKey('workspace-inline-error-retry')),
+    );
+    await settleSteps(tester);
+    expect(api.requestedPages.where((page) => page == 2), hasLength(2));
+    expect(
+      find.byKey(const ValueKey('project-channel-tile-8002')),
+      findsOneWidget,
+    );
+    expect(find.textContaining('temporary page failure'), findsNothing);
+  });
   testWidgets('列表渲染关联频道 + 关联入口（Project Owner）', (tester) async {
     final api = FakeChannelApi(
       seed: [

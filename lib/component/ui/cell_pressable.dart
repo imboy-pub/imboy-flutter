@@ -107,10 +107,15 @@ class _CellPressableState extends State<CellPressable> {
           onLongPressDown: hasLongPress ? (_) => _setPressed(true) : null,
           onLongPressCancel: hasLongPress ? () => _setPressed(false) : null,
           onLongPressUp: hasLongPress ? () => _setPressed(false) : null,
-          child: ColoredBox(
-            color: enabled && (_pressed || _focusVisible)
-                ? highlightColor
-                : AppColors.transparent,
+          child: DecoratedBox(
+            // Paint above opaque cell backgrounds so pointer and keyboard
+            // feedback remains visible without changing the child's layout.
+            position: DecorationPosition.foreground,
+            decoration: BoxDecoration(
+              color: enabled && (_pressed || _focusVisible)
+                  ? highlightColor
+                  : AppColors.transparent,
+            ),
             child: widget.child,
           ),
         ),

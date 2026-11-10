@@ -188,29 +188,38 @@ class _AddFriendPageState extends ConsumerState<AddFriendPage> {
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text(
-                  "${t.account.myAccount}：",
-                  style: context.textStyle(
-                    FontSizeType.normal,
-                    color: AppColors.iosGray,
-                  ),
-                ),
-                Text(
-                  UserRepoLocal.to.current.account,
-                  style: context.textStyle(
-                    FontSizeType.normal,
-                    fontWeight: FontWeight.w600,
+                Flexible(
+                  child: Text.rich(
+                    TextSpan(
+                      text: "${t.account.myAccount}：",
+                      children: [
+                        TextSpan(
+                          text: UserRepoLocal.to.current.account,
+                          style: context.textStyle(
+                            FontSizeType.normal,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
+                    ),
+                    style: context.textStyle(
+                      FontSizeType.normal,
+                      color: AppColors.iosGray,
+                    ),
                   ),
                 ),
                 AppSpacing.horizontalMedium,
-                GestureDetector(
+                CupertinoButton(
+                  padding: EdgeInsets.zero,
+                  minimumSize: const Size.square(AppSpacing.xxxLarge),
                   // 统一走 go_router：原生 push 的 UserQrCodePage 内
                   // 「扫一扫」跳 ScannerPage 会失灵（混用排查批次3）
-                  onTap: () => context.push('/qrcode/user'),
-                  child: const Icon(
+                  onPressed: () => context.push('/qrcode/user'),
+                  child: Icon(
                     CupertinoIcons.qrcode,
                     color: AppColors.primary,
-                    size: 20,
+                    size: AppSpacing.large,
+                    semanticLabel: t.account.myQrcode,
                   ),
                 ),
               ],

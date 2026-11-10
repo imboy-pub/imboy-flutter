@@ -112,29 +112,30 @@ class _BindMobilePageState extends ConsumerState<BindMobilePage> {
             ),
             children: [
               CupertinoListTile.notched(
-                title: Row(
+                title: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    SizedBox(
-                      width: 80,
-                      child: Text(
-                        t.account.mobile,
-                        style: context.textStyle(FontSizeType.body),
+                    Text(
+                      t.account.mobile,
+                      maxLines: 2,
+                      style: context.textStyle(
+                        FontSizeType.footnote,
+                        color: AppColors.iosGray,
                       ),
                     ),
-                    Expanded(
-                      child: PhoneInputWidget(
-                        initialValue: '',
-                        onInputChanged: (String full, String local) => ref
-                            .read(bindMobileProvider.notifier)
-                            .updateMobile(full),
-                        hintText: t.account.enterMobileHint,
-                        decoration: const InputDecoration(
-                          border: InputBorder.none,
-                          isDense: true,
-                          contentPadding: EdgeInsets.symmetric(
-                            horizontal: 0,
-                            vertical: AppSpacing.medium,
-                          ),
+                    AppSpacing.verticalTiny,
+                    PhoneInputWidget(
+                      initialValue: '',
+                      onInputChanged: (String full, String local) => ref
+                          .read(bindMobileProvider.notifier)
+                          .updateMobile(full),
+                      hintText: t.account.enterMobileHint,
+                      decoration: const InputDecoration(
+                        border: InputBorder.none,
+                        isDense: true,
+                        contentPadding: EdgeInsets.symmetric(
+                          horizontal: 0,
+                          vertical: AppSpacing.medium,
                         ),
                       ),
                     ),
@@ -142,36 +143,39 @@ class _BindMobilePageState extends ConsumerState<BindMobilePage> {
                 ),
               ),
               CupertinoListTile.notched(
-                title: Row(
+                title: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    SizedBox(
-                      width: 80,
-                      child: Text(
-                        t.common.verificationCode,
-                        style: context.textStyle(FontSizeType.body),
+                    Text(
+                      t.common.verificationCode,
+                      maxLines: 2,
+                      style: context.textStyle(
+                        FontSizeType.footnote,
+                        color: AppColors.iosGray,
                       ),
                     ),
-                    Expanded(
-                      child: CupertinoTextField(
-                        controller: ref
-                            .read(bindMobileProvider.notifier)
-                            .codeCtl,
-                        placeholder: '000000',
-                        keyboardType: TextInputType.number,
-                        inputFormatters: [
-                          FilteringTextInputFormatter.digitsOnly,
-                          LengthLimitingTextInputFormatter(6),
-                        ],
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 0,
-                          vertical: AppSpacing.medium,
-                        ),
-                        decoration: null,
-                        style: context.textStyle(FontSizeType.body),
+                    AppSpacing.verticalTiny,
+                    CupertinoTextField(
+                      controller: ref
+                          .read(bindMobileProvider.notifier)
+                          .codeCtl,
+                      placeholder: '000000',
+                      keyboardType: TextInputType.number,
+                      inputFormatters: [
+                        FilteringTextInputFormatter.digitsOnly,
+                        LengthLimitingTextInputFormatter(6),
+                      ],
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 0,
+                        vertical: AppSpacing.medium,
                       ),
+                      decoration: null,
+                      style: context.textStyle(FontSizeType.body),
                     ),
-                    AppSpacing.horizontalSmall,
-                    _buildCodeButton(context, ref, asyncState),
+                    Align(
+                      alignment: AlignmentDirectional.centerEnd,
+                      child: _buildCodeButton(context, ref, asyncState),
+                    ),
                   ],
                 ),
               ),

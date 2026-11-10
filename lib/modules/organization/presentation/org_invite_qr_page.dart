@@ -157,7 +157,7 @@ class _OrgInviteQrPageState extends State<OrgInviteQrPage> {
       title: t.organization.inviteQr.title,
       body: OrgStateView(
         loading: _loading,
-        error: _permissionDenied ? null : _error,
+        error: _permissionDenied || _inviteDisabled ? null : _error,
         permissionDenied: _permissionDenied,
         empty: false,
         emptyText: '',
@@ -284,8 +284,10 @@ class _OrgInviteQrPageState extends State<OrgInviteQrPage> {
           ),
         ),
         AppSpacing.verticalLarge,
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
+        Wrap(
+          alignment: WrapAlignment.center,
+          spacing: AppSpacing.medium,
+          runSpacing: AppSpacing.small,
           children: [
             OutlinedButton.icon(
               key: const ValueKey('org-invite-copy'),
@@ -293,7 +295,6 @@ class _OrgInviteQrPageState extends State<OrgInviteQrPage> {
               icon: const Icon(CupertinoIcons.doc_on_doc),
               label: Text(t.organization.inviteQr.copyCode),
             ),
-            AppSpacing.horizontalMedium,
             TextButton.icon(
               key: const ValueKey('org-invite-regenerate'),
               onPressed: _regenerating

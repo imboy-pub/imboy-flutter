@@ -313,7 +313,13 @@ class _MemberPreview extends StatelessWidget {
                     : null,
               ),
               AppSpacing.horizontalSmall,
-              Text(m.nickname.isEmpty ? m.account : m.nickname),
+              Flexible(
+                child: Text(
+                  m.nickname.isEmpty ? m.account : m.nickname,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
               AppSpacing.horizontalTiny,
               WorkspaceRoleBadge(role: m.role),
             ],

@@ -274,9 +274,11 @@ class LogoutAccountPage extends ConsumerWidget {
                             .changeValue(state.selectedValue),
                 ),
                 trailing: const SizedBox.shrink(),
-                onTap: () => ref
-                    .read(logoutAccountProvider.notifier)
-                    .changeValue(state.selectedValue),
+                onTap: state.isLoading
+                    ? null
+                    : () => ref
+                        .read(logoutAccountProvider.notifier)
+                        .changeValue(state.selectedValue),
               ),
             ],
           ),

@@ -571,17 +571,21 @@ class _ResultRow extends StatelessWidget {
       children: [
         Icon(icon, size: 18, color: color),
         AppSpacing.horizontalSmall,
-        Expanded(child: Text(label, style: theme.textTheme.bodyMedium)),
-        Text(
-          text,
-          // 结果状态字：脚注档 footnote（13px）
-          style: TextStyle(fontSize: FontSizeType.footnote.size, color: color),
-          overflow: TextOverflow.ellipsis,
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(label, style: theme.textTheme.bodyMedium),
+              Text(
+                text,
+                style: context.textStyle(FontSizeType.footnote, color: color),
+              ),
+            ],
+          ),
         ),
         if (result.phase == WorkspaceRelationPhase.failed && onRetry != null)
           IconButton(
             key: const ValueKey('workspace-invite-row-retry'),
-            visualDensity: VisualDensity.compact,
             onPressed: onRetry,
             icon: const Icon(CupertinoIcons.arrow_clockwise, size: 18),
             tooltip: t.common.buttonRetry,

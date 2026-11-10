@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:imboy/component/ui/cell_pressable.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:imboy/theme/default/app_radius.dart';
 import 'package:imboy/theme/default/font_types.dart';
@@ -948,8 +949,7 @@ class _MediaThumb extends StatelessWidget {
           ),
         if (item.isFailed)
           Positioned.fill(
-            child: GestureDetector(
-              behavior: HitTestBehavior.opaque,
+            child: CellPressable(
               onTap: onRetry,
               child: _ThumbOverlay(
                 child: Column(
@@ -980,8 +980,7 @@ class _MediaThumb extends StatelessWidget {
           child: Semantics(
             button: true,
             label: context.t.common.delete,
-            child: GestureDetector(
-              behavior: HitTestBehavior.opaque,
+            child: CellPressable(
               onTap: onRemove,
               child: SizedBox(
                 width: 44,
@@ -1068,8 +1067,7 @@ class _MediaAddButton extends StatelessWidget {
   const _MediaAddButton({required this.size, required this.onTap});
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      behavior: HitTestBehavior.opaque,
+    return CellPressable(
       onTap: onTap,
       child: Container(
         width: size,
@@ -1078,8 +1076,13 @@ class _MediaAddButton extends StatelessWidget {
           borderRadius: AppRadius.borderRadiusMedium,
           color: AppColors.iosGray.withValues(alpha: 0.12),
         ),
-        child: const Center(
-          child: Icon(CupertinoIcons.add, size: 30, color: AppColors.iosGray),
+        child: Center(
+          child: Icon(
+            CupertinoIcons.add,
+            size: 30,
+            color: AppColors.iosGray,
+            semanticLabel: t.common.buttonAdd,
+          ),
         ),
       ),
     );
@@ -1104,8 +1107,7 @@ class _ToolbarItem extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     // 不用 InkWell：DESIGN.md §13.2 明令禁止在 Cupertino 列表行上使用
     // Material Ripple。用透明命中区 + 最小 44pt 高度，反馈交给页面整体风格。
-    return GestureDetector(
-      behavior: HitTestBehavior.opaque,
+    return CellPressable(
       onTap: onTap,
       child: ConstrainedBox(
         constraints: const BoxConstraints(minHeight: 44),
@@ -1128,11 +1130,14 @@ class _ToolbarItem extends StatelessWidget {
                 ),
               ),
               if (value != null)
-                Text(
-                  value!,
-                  style: context.textStyle(
-                    FontSizeType.footnote,
-                    color: AppColors.iosGray,
+                Flexible(
+                  child: Text(
+                    value!,
+                    textAlign: TextAlign.end,
+                    style: context.textStyle(
+                      FontSizeType.footnote,
+                      color: AppColors.iosGray,
+                    ),
                   ),
                 ),
               const SizedBox(width: 6),
@@ -1165,26 +1170,28 @@ class _ToolbarSwitch extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 6),
-      child: Row(
-        children: [
-          Icon(icon, size: 18, color: AppColors.wechatBlue),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Text(
-              label,
-              style: context.textStyle(
-                FontSizeType.normal,
-                fontWeight: FontWeight.w500,
-                color: isDark
-                    ? AppColors.darkTextPrimary
-                    : AppColors.lightTextPrimary,
+    return MergeSemantics(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 6),
+        child: Row(
+          children: [
+            Icon(icon, size: 18, color: AppColors.wechatBlue),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Text(
+                label,
+                style: context.textStyle(
+                  FontSizeType.normal,
+                  fontWeight: FontWeight.w500,
+                  color: isDark
+                      ? AppColors.darkTextPrimary
+                      : AppColors.lightTextPrimary,
+                ),
               ),
             ),
-          ),
-          CupertinoSwitch(value: value, onChanged: onChanged),
-        ],
+            CupertinoSwitch(value: value, onChanged: onChanged),
+          ],
+        ),
       ),
     );
   }

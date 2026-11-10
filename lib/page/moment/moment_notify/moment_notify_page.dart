@@ -10,6 +10,8 @@ library;
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart'
     show Scaffold, Divider, RefreshIndicator, Theme;
+import 'package:imboy/component/ui/cell_pressable.dart';
+import 'package:imboy/component/ui/nodata_view.dart';
 import 'package:imboy/component/ui/app_loading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -17,7 +19,6 @@ import 'package:go_router/go_router.dart';
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/ui/avatar.dart';
 import 'package:imboy/component/ui/common_bar.dart';
-import 'package:imboy/component/ui/nodata_view.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/moment/moment_notify/moment_notify_provider.dart';
 import 'package:imboy/page/moment/moment_notify/moment_notify_state.dart';
@@ -223,9 +224,8 @@ class _MomentNotifyPageState extends ConsumerState<MomentNotifyPage> {
           DateTime.fromMillisecondsSinceEpoch(item.createdAt).toLocal(),
         );
 
-        // DESIGN.md §13.2：卡片点击态用 GestureDetector，禁用 Material Ripple
-        return GestureDetector(
-          behavior: HitTestBehavior.opaque,
+        // DESIGN.md §13.2：卡片点击态用 CellPressable，禁用 Material Ripple
+        return CellPressable(
           onTap: () => _onItemTap(context, item, notifier),
           child: Padding(
             padding: const EdgeInsets.symmetric(

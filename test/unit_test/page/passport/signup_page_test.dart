@@ -5,6 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:imboy/component/extension/imboy_cache_manager.dart';
+import 'package:imboy/component/ui/phone_input.dart';
 import 'package:imboy/config/env.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/passport/signup_page.dart';
@@ -26,9 +27,21 @@ import 'package:imboy/theme/default/app_colors.dart';
 /// 跳过 JVerify SDK 初始化的假 Notifier——避免 platform channel 回调
 /// timer 泄漏触发 !timersPending 断言
 class _FakePassportNotifier extends PassportNotifier {
+  final sentCodes = <(String, String, String)>[];
+
   @override
   PassportState build() {
     return PassportState(loginAccountCtl: TextEditingController());
+  }
+
+  @override
+  Future<String?> sendCode(
+    String accountType,
+    String account,
+    String scene,
+  ) async {
+    sentCodes.add((accountType, account, scene));
+    return null;
   }
 }
 
@@ -38,26 +51,48 @@ GoRouter _stubRouter() {
     initialLocation: '/sign_up',
     routes: [
       GoRoute(path: '/sign_up', builder: (_, _) => const SignupPage()),
+      GoRoute(
+        path: '/sign_up/continue',
+        builder: (_, _) => stub('signup continue stub'),
+      ),
       GoRoute(path: '/sign_in', builder: (_, _) => stub('sign_in stub')),
     ],
   );
 }
 
-Future<void> _pump(WidgetTester tester) async {
+Future<void> _pump(
+  WidgetTester tester, {
+  Size viewport = const Size(390, 1400),
+  double textScale = 1,
+  _FakePassportNotifier? notifier,
+}) async {
   // SignupPage 内含 BezierContainer + PassportTitle + 2 TextField + Tab + button
   // 需充足画布
   tester.view.devicePixelRatio = 1.0;
-  tester.view.physicalSize = const Size(390, 1400);
+  tester.view.physicalSize = viewport;
   addTearDown(() {
     tester.view.resetDevicePixelRatio();
     tester.view.resetPhysicalSize();
   });
 
+  final router = _stubRouter();
+  addTearDown(router.dispose);
   await tester.pumpWidget(
     ProviderScope(
-      overrides: [passportProvider.overrideWith(() => _FakePassportNotifier())],
+      overrides: [
+        passportProvider.overrideWith(
+          () => notifier ?? _FakePassportNotifier(),
+        ),
+      ],
       child: TranslationProvider(
-        child: MaterialApp.router(routerConfig: _stubRouter()),
+        child: MaterialApp.router(
+          routerConfig: router,
+          builder: (context, child) => MediaQuery(
+            data: MediaQuery.of(context)
+                .copyWith(textScaler: TextScaler.linear(textScale)),
+            child: child!,
+          ),
+        ),
       ),
     ),
   );
@@ -186,4 +221,74 @@ void main() {
       await _unmount(tester);
     });
   });
+
+  for (final mobile in [false, true]) {
+    final type = mobile ? 'mobile' : 'email';
+    testWidgets('320短屏两倍字号：$type 下一步可滚动到达并进入注册继续页', (
+      tester,
+    ) async {
+      final notifier = _FakePassportNotifier();
+      await _pump(
+        tester,
+        viewport: const Size(320, 480),
+        textScale: 2,
+        notifier: notifier,
+      );
+      await tester.pumpAndSettle();
+      if (mobile) {
+        final tab = find.descendant(
+          of: find.byType(TabBar),
+          matching: find.text(t.account.mobile),
+        );
+        await tester.ensureVisible(tab);
+        await tester.pump();
+        await tester.tap(tab);
+        await tester.pumpAndSettle();
+      }
+      Finder field(String hint) => find.byWidgetPredicate(
+        (widget) => widget is TextField && widget.decoration?.hintText == hint,
+      );
+      await tester.enterText(field(t.account.nicknameHint), '合成成员');
+      if (mobile) {
+        await tester.enterText(
+          find.descendant(
+            of: find.byType(PhoneInputWidget),
+            matching: find.byType(TextField),
+          ),
+          '13800000001',
+        );
+      } else {
+        await tester.enterText(
+          field(t.passport.hintEmail),
+          'layout@example.test',
+        );
+      }
+      await tester.enterText(
+        field(t.passport.hintPassword),
+        'synthetic-password',
+      );
+      await tester.pumpAndSettle();
+      final next = find.ancestor(
+        of: find.text(t.common.nextStep),
+        matching: find.byType(CupertinoButton),
+      );
+      await tester.ensureVisible(next);
+      await tester.pumpAndSettle();
+      final bounds = tester.getRect(next);
+      final formBounds = tester.getRect(find.byType(TabBarView));
+      expect(bounds.top, greaterThanOrEqualTo(-0.01));
+      expect(bounds.bottom, lessThanOrEqualTo(480.01));
+      expect(formBounds.bottom + 0.01, greaterThanOrEqualTo(bounds.bottom));
+      expect(tester.widget<CupertinoButton>(next).onPressed, isNotNull);
+      expect(tester.takeException(), isNull);
+      await tester.tap(next);
+      await tester.pumpAndSettle();
+      expect(notifier.sentCodes, [
+        (type, mobile ? '+8613800000001' : 'layout@example.test', 'signup'),
+      ]);
+      expect(find.text('signup continue stub'), findsOneWidget);
+      expect(tester.takeException(), isNull);
+      await _unmount(tester);
+    });
+  }
 }

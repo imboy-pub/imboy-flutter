@@ -1,6 +1,7 @@
 import 'package:azlistview/azlistview.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:imboy/component/ui/cell_pressable.dart';
 import 'package:imboy/component/ui/app_loading.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -69,7 +70,7 @@ class _ContactTagDetailPageState extends ConsumerState<ContactTagDetailPage> {
     final menuDecoration = model.isMenuEntry
         ? contactMenuDecorationOf(model.peerId)
         : null;
-    return GestureDetector(
+    return CellPressable(
       onTap: model.onPressed,
       onLongPress: model.onLongPressed,
       child: Container(
@@ -166,8 +167,10 @@ class _ContactTagDetailPageState extends ConsumerState<ContactTagDetailPage> {
           '${detailState.tagName} (${detailState.refererTime})',
         ),
         rightDMActions: [
-          GestureDetector(
-            onTap: () {
+          CupertinoButton(
+            padding: EdgeInsets.zero,
+            minimumSize: const Size(44, 44),
+            onPressed: () {
               showCupertinoModalPopup<void>(
                 context: context,
                 builder: (context) => Container(
@@ -297,7 +300,8 @@ class _ContactTagDetailPageState extends ConsumerState<ContactTagDetailPage> {
               padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
               child: Icon(
                 CupertinoIcons.ellipsis,
-                color: Theme.of(context).colorScheme.onPrimary,
+                color: AppColors.getIosBlue(Theme.of(context).brightness),
+                semanticLabel: t.common.operationOptions,
               ),
             ),
           ),
@@ -316,8 +320,10 @@ class _ContactTagDetailPageState extends ConsumerState<ContactTagDetailPage> {
                 ),
                 child: searchBar(
                   context,
-                  leading: GestureDetector(
-                    onTap: () {
+                  leading: CupertinoButton(
+                    padding: EdgeInsets.zero,
+                    minimumSize: const Size(44, 44),
+                    onPressed: () {
                       ref
                           .read(contactTagDetailProvider.notifier)
                           .doSearch(
@@ -326,20 +332,30 @@ class _ContactTagDetailPageState extends ConsumerState<ContactTagDetailPage> {
                             tagId: widget.tag.tagId,
                           );
                     },
-                    child: const Icon(CupertinoIcons.search),
+                    child: Icon(
+                      CupertinoIcons.search,
+                      semanticLabel: t.common.search,
+                    ),
                   ),
                   trailing: _kwd.isEmpty
                       ? [
-                          GestureDetector(
-                            onTap: () {
+                          CupertinoButton(
+                            padding: EdgeInsets.zero,
+                            minimumSize: const Size(44, 44),
+                            onPressed: () {
                               addContact(context);
                             },
-                            child: const Icon(CupertinoIcons.plus_square),
+                            child: Icon(
+                              CupertinoIcons.plus_square,
+                              semanticLabel: t.common.buttonAdd,
+                            ),
                           ),
                         ]
                       : [
-                          GestureDetector(
-                            onTap: () {
+                          CupertinoButton(
+                            padding: EdgeInsets.zero,
+                            minimumSize: const Size(44, 44),
+                            onPressed: () {
                               setState(() {
                                 _kwd = '';
                                 _searchController.text = '';
@@ -352,7 +368,11 @@ class _ContactTagDetailPageState extends ConsumerState<ContactTagDetailPage> {
                                     tagId: widget.tag.tagId,
                                   );
                             },
-                            child: const Icon(CupertinoIcons.xmark, size: 22),
+                            child: Icon(
+                              CupertinoIcons.xmark,
+                              size: 22,
+                              semanticLabel: t.common.clear,
+                            ),
                           ),
                         ],
                   controller: _searchController,
@@ -583,7 +603,9 @@ class _ContactTagDetailPageState extends ConsumerState<ContactTagDetailPage> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  if (widget.tag.refererTime == 0)
+                  if (_kwd.trim().isNotEmpty)
+                    NoDataView(text: t.common.searchNoResults)
+                  else if (widget.tag.refererTime == 0)
                     NoDataView(text: t.common.noMembersInCurrentTag),
                   CupertinoButton(
                     color: Theme.of(context).colorScheme.surface,

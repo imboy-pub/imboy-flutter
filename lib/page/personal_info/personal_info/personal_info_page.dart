@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:go_router/go_router.dart';
+import 'package:imboy/component/ui/detail_settings_tile.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
 
@@ -58,15 +59,9 @@ class _PersonalInfoPageState extends ConsumerState<PersonalInfoPage> {
           ImBoySettingsSection(
             header: Text(t.common.basicInfo.toUpperCase()),
             children: [
-              ImBoySettingsTile(
+              DetailSettingsTile(
                 title: Text(t.account.nickname),
-                trailing: Text(
-                  nickname.isEmpty ? t.common.notSet : nickname,
-                  style: context.textStyle(
-                    FontSizeType.subheadline,
-                    color: AppColors.iosGray,
-                  ),
-                ),
+                value: nickname.isEmpty ? t.common.notSet : nickname,
                 onTap: () async {
                   final result = await Navigator.push(
                     context,
@@ -77,26 +72,14 @@ class _PersonalInfoPageState extends ConsumerState<PersonalInfoPage> {
                   if (result == true && mounted) setState(() {});
                 },
               ),
-              ImBoySettingsTile(
+              DetailSettingsTile(
                 title: Text(t.account.account),
-                trailing: Text(
-                  account,
-                  style: context.textStyle(
-                    FontSizeType.subheadline,
-                    color: AppColors.iosGray,
-                  ),
-                ),
+                value: account,
               ),
               if (UserRepoLocal.to.current.email.isNotEmpty)
-                ImBoySettingsTile(
+                DetailSettingsTile(
                   title: Text(t.account.loginEmail),
-                  trailing: Text(
-                    UserRepoLocal.to.current.email,
-                    style: context.textStyle(
-                      FontSizeType.subheadline,
-                      color: AppColors.iosGray,
-                    ),
-                  ),
+                  value: UserRepoLocal.to.current.email,
                 ),
             ],
           ),
@@ -151,42 +134,50 @@ class _PersonalInfoPageState extends ConsumerState<PersonalInfoPage> {
               clipBehavior: Clip.none,
               alignment: Alignment.center,
               children: [
-                GestureDetector(
-                  onTap: () => _openAvatarPreview(context),
-                  child: Hero(
-                    tag: _avatarHeroTag,
-                    child: Container(
-                      width: 96,
-                      height: 96,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: AppColors.primary.withValues(alpha: 0.1),
-                        image: DecorationImage(
-                          image: avatarImageProvider(currentUserAvatar, w: 192),
-                          fit: BoxFit.cover,
+                Semantics(
+                  label: t.chat.viewLargeImage,
+                  child: CupertinoButton(
+                    padding: EdgeInsets.zero,
+                    onPressed: currentUserAvatar.isEmpty
+                        ? null
+                        : () => _openAvatarPreview(context),
+                    child: Hero(
+                      tag: _avatarHeroTag,
+                      child: Container(
+                        width: 96,
+                        height: 96,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: AppColors.primary.withValues(alpha: 0.1),
+                          image: DecorationImage(
+                            image: avatarImageProvider(currentUserAvatar, w: 192),
+                            fit: BoxFit.cover,
+                          ),
                         ),
-                      ),
-                      child: currentUserAvatar.isEmpty
-                          ? Center(
-                              child: AvatarFallbackContent(
-                                name: nickname,
-                                color: AppColors.primary,
-                                iconSize: 44,
-                                textStyle: context.textStyle(
-                                  FontSizeType.extraLargeTitle,
-                                  fontWeight: FontWeight.bold,
+                        child: currentUserAvatar.isEmpty
+                            ? Center(
+                                child: AvatarFallbackContent(
+                                  name: nickname,
+                                  color: AppColors.primary,
+                                  iconSize: 44,
+                                  textStyle: context.textStyle(
+                                    FontSizeType.extraLargeTitle,
+                                    fontWeight: FontWeight.bold,
+                                  ),
                                 ),
-                              ),
-                            )
-                          : null,
+                              )
+                            : null,
+                      ),
                     ),
                   ),
                 ),
                 Positioned(
-                  right: -4,
-                  bottom: -4,
-                  child: GestureDetector(
-                    onTap: () => _showAvatarBottomSheet(context),
+                  right: 0,
+                  bottom: 0,
+                  child: CupertinoButton(
+                    padding: const EdgeInsets.all(6),
+                    minimumSize: const Size(44, 44),
+                    onPressed: () => _showAvatarBottomSheet(context),
                     child: Container(
                       width: 32,
                       height: 32,
@@ -195,8 +186,9 @@ class _PersonalInfoPageState extends ConsumerState<PersonalInfoPage> {
                         shape: BoxShape.circle,
                         border: Border.all(color: scaffoldBg, width: 2),
                       ),
-                      child: const Icon(
+                      child: Icon(
                         CupertinoIcons.camera_fill,
+                        semanticLabel: t.common.avatarEditAvatar,
                         size: 14,
                         color: AppColors.onPrimary,
                       ),
@@ -316,8 +308,8 @@ class _AvatarPreviewPage extends StatelessWidget {
         backgroundColor: AppColors.transparent,
         leading: CupertinoButton(
           padding: EdgeInsets.zero,
-          child: const Icon(
-            semanticLabel: '关闭',
+          child: Icon(
+            semanticLabel: t.common.buttonClose,
             CupertinoIcons.xmark,
             color: AppColors.onPrimary,
             size: 22,

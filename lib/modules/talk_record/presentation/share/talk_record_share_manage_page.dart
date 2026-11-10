@@ -417,9 +417,9 @@ class _SendCardButton extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final sending = state.cardSendPhase == TalkRecordCardSendPhase.sending;
-    return SizedBox(
+    return ConstrainedBox(
       // C-F2：主操作 ≥48pt 高、primaryDark 实底 + 白字 w600。
-      height: 48,
+      constraints: const BoxConstraints(minHeight: 48),
       child: CupertinoButton(
         key: const ValueKey('talk_record_share_send_card'),
         minimumSize: const Size.fromHeight(48),

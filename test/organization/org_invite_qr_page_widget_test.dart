@@ -143,4 +143,21 @@ void main() {
     // OrgStateView 的 403 专用文案（permissionDenied ≠ 系统错误）。
     expect(find.textContaining('无权查看'), findsOneWidget);
   });
+
+  testWidgets('邀请关闭409展示专用状态，不给出盲目重试', (tester) async {
+    HttpClient.adapterForTest = _RoutingAdapter(
+      (path) => path.endsWith('/invite_code')
+          ? {'code': 409, 'msg': 'invite disabled'}
+          : _ok(null),
+    );
+    await _pumpPage(tester);
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const ValueKey('org-invite-qr')), findsNothing);
+    expect(
+      find.text(t.organization.inviteQr.inviteDisabledPending),
+      findsOneWidget,
+    );
+    expect(find.text('重试'), findsNothing);
+  });
 }

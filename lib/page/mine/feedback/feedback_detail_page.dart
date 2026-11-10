@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:imboy/component/ui/cell_pressable.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -158,7 +159,7 @@ class _FeedbackDetailPageState extends ConsumerState<FeedbackDetailPage> {
                       Expanded(
                         child: Material(
                           color: Colors.transparent,
-                          child: GestureDetector(
+                          child: CellPressable(
                             onTap: () {
                               zoomInPhotoViewGallery(
                                 context,
@@ -185,12 +186,14 @@ class _FeedbackDetailPageState extends ConsumerState<FeedbackDetailPage> {
                                     size: 20,
                                   ),
                                   AppSpacing.horizontalSmall,
-                                  Text(
-                                    t.chat.viewAttachments,
-                                    style: context.textStyle(
-                                      FontSizeType.normal,
-                                      fontWeight: FontWeight.w500,
-                                      color: colorScheme.secondary,
+                                  Flexible(
+                                    child: Text(
+                                      t.chat.viewAttachments,
+                                      style: context.textStyle(
+                                        FontSizeType.normal,
+                                        fontWeight: FontWeight.w500,
+                                        color: colorScheme.secondary,
+                                      ),
                                     ),
                                   ),
                                 ],
@@ -224,20 +227,24 @@ class _FeedbackDetailPageState extends ConsumerState<FeedbackDetailPage> {
                           size: 20,
                         ),
                         AppSpacing.horizontalSmall,
-                        Text(
-                          t.chat.rating,
-                          style: context.textStyle(
-                            FontSizeType.medium,
-                            fontWeight: FontWeight.w600,
-                            color: colorScheme.onSurface,
+                        Flexible(
+                          child: Text(
+                            t.chat.rating,
+                            style: context.textStyle(
+                              FontSizeType.medium,
+                              fontWeight: FontWeight.w600,
+                              color: colorScheme.onSurface,
+                            ),
                           ),
                         ),
                         AppSpacing.horizontalMedium,
-                        Text(
-                          '${widget.model.rating} ${widget.model.ratingDesc}',
-                          style: context.textStyle(
-                            FontSizeType.normal,
-                            color: colorScheme.onSurface.withAlpha(179),
+                        Flexible(
+                          child: Text(
+                            '${widget.model.rating} ${widget.model.ratingDesc}',
+                            style: context.textStyle(
+                              FontSizeType.normal,
+                              color: colorScheme.onSurface.withAlpha(179),
+                            ),
                           ),
                         ),
                       ],
@@ -284,12 +291,14 @@ class _FeedbackDetailPageState extends ConsumerState<FeedbackDetailPage> {
                         size: 20,
                       ),
                       AppSpacing.horizontalSmall,
-                      Text(
-                        t.common.feedbackContent,
-                        style: context.textStyle(
-                          FontSizeType.medium,
-                          fontWeight: FontWeight.w600,
-                          color: colorScheme.onSurface,
+                      Expanded(
+                        child: Text(
+                          t.common.feedbackContent,
+                          style: context.textStyle(
+                            FontSizeType.medium,
+                            fontWeight: FontWeight.w600,
+                            color: colorScheme.onSurface,
+                          ),
                         ),
                       ),
                     ],
@@ -334,12 +343,14 @@ class _FeedbackDetailPageState extends ConsumerState<FeedbackDetailPage> {
                         size: 20,
                       ),
                       AppSpacing.horizontalSmall,
-                      Text(
-                        t.common.officialReply,
-                        style: context.textStyle(
-                          FontSizeType.medium,
-                          fontWeight: FontWeight.w600,
-                          color: colorScheme.onSurface,
+                      Expanded(
+                        child: Text(
+                          t.common.officialReply,
+                          style: context.textStyle(
+                            FontSizeType.medium,
+                            fontWeight: FontWeight.w600,
+                            color: colorScheme.onSurface,
+                          ),
                         ),
                       ),
                     ],
@@ -350,7 +361,9 @@ class _FeedbackDetailPageState extends ConsumerState<FeedbackDetailPage> {
                   Container(
                     constraints: BoxConstraints(
                       minHeight: 120,
-                      maxHeight: MediaQuery.of(context).size.height * 0.4,
+                      maxHeight: (MediaQuery.of(context).size.height * 0.4)
+                          .clamp(120.0, double.infinity)
+                          .toDouble(),
                     ),
                     child: AsyncStateView(
                       isLoading: state.isLoading,
@@ -412,30 +425,34 @@ class _FeedbackDetailPageState extends ConsumerState<FeedbackDetailPage> {
                 ),
               ),
               AppSpacing.horizontalSmall,
-              Text(
-                '${t.chat.repliedAt} ${DateTimeHelper.lastTimeFmt(replyModel.createdAt)}',
-                style: context.textStyle(
-                  FontSizeType.normal,
-                  fontWeight: FontWeight.w500,
-                  color: colorScheme.onSurface,
+              Expanded(
+                child: Text(
+                  '${t.chat.repliedAt} ${DateTimeHelper.lastTimeFmt(replyModel.createdAt)}',
+                  style: context.textStyle(
+                    FontSizeType.normal,
+                    fontWeight: FontWeight.w500,
+                    color: colorScheme.onSurface,
+                  ),
                 ),
               ),
-              const Spacer(),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(
-                  color: _getReplyStatusColor(
-                    context,
-                    replyModel.status,
-                  ).withAlpha(51),
-                  borderRadius: AppRadius.borderRadiusSmall,
-                ),
-                child: Text(
-                  replyModel.statusDesc,
-                  style: context.textStyle(
-                    FontSizeType.small,
-                    fontWeight: FontWeight.w500,
-                    color: _getReplyStatusColor(context, replyModel.status),
+              AppSpacing.horizontalSmall,
+              Flexible(
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: _getReplyStatusColor(
+                      context,
+                      replyModel.status,
+                    ).withAlpha(51),
+                    borderRadius: AppRadius.borderRadiusSmall,
+                  ),
+                  child: Text(
+                    replyModel.statusDesc,
+                    style: context.textStyle(
+                      FontSizeType.small,
+                      fontWeight: FontWeight.w500,
+                      color: _getReplyStatusColor(context, replyModel.status),
+                    ),
                   ),
                 ),
               ),

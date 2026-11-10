@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart' show Theme;
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:imboy/component/ui/app_loading.dart';
@@ -46,7 +47,7 @@ class _BindEmailPageState extends ConsumerState<BindEmailPage> {
     final currentEmail = UserRepoLocal.to.current.email;
     final hasBound = currentEmail.isNotEmpty;
     final asyncState = ref.watch(bindEmailProvider);
-    final brightness = MediaQuery.platformBrightnessOf(context);
+    final brightness = Theme.of(context).brightness;
 
     return IosPageTemplate(
       title: hasBound ? t.account.changeEmail : t.account.bindEmail,
@@ -110,64 +111,68 @@ class _BindEmailPageState extends ConsumerState<BindEmailPage> {
             ),
             children: [
               CupertinoListTile.notched(
-                title: Row(
+                title: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    SizedBox(
-                      width: 80,
-                      child: Text(
-                        t.account.email,
-                        style: context.textStyle(FontSizeType.body),
+                    Text(
+                      t.account.email,
+                      maxLines: 2,
+                      style: context.textStyle(
+                        FontSizeType.footnote,
+                        color: AppColors.iosGray,
                       ),
                     ),
-                    Expanded(
-                      child: CupertinoTextField(
-                        controller: ref
-                            .read(bindEmailProvider.notifier)
-                            .emailCtl,
-                        placeholder: t.common.enterEmailAddress,
-                        keyboardType: TextInputType.emailAddress,
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 0,
-                          vertical: AppSpacing.medium,
-                        ),
-                        decoration: null,
-                        style: context.textStyle(FontSizeType.body),
+                    AppSpacing.verticalTiny,
+                    CupertinoTextField(
+                      controller: ref
+                          .read(bindEmailProvider.notifier)
+                          .emailCtl,
+                      placeholder: t.common.enterEmailAddress,
+                      keyboardType: TextInputType.emailAddress,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 0,
+                        vertical: AppSpacing.medium,
                       ),
+                      decoration: null,
+                      style: context.textStyle(FontSizeType.body),
                     ),
                   ],
                 ),
               ),
               CupertinoListTile.notched(
-                title: Row(
+                title: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    SizedBox(
-                      width: 80,
-                      child: Text(
-                        t.common.verificationCode,
-                        style: context.textStyle(FontSizeType.body),
+                    Text(
+                      t.common.verificationCode,
+                      maxLines: 2,
+                      style: context.textStyle(
+                        FontSizeType.footnote,
+                        color: AppColors.iosGray,
                       ),
                     ),
-                    Expanded(
-                      child: CupertinoTextField(
-                        controller: ref
-                            .read(bindEmailProvider.notifier)
-                            .codeCtl,
-                        placeholder: '000000',
-                        keyboardType: TextInputType.number,
-                        inputFormatters: [
-                          FilteringTextInputFormatter.digitsOnly,
-                          LengthLimitingTextInputFormatter(6),
-                        ],
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 0,
-                          vertical: AppSpacing.medium,
-                        ),
-                        decoration: null,
-                        style: context.textStyle(FontSizeType.body),
+                    AppSpacing.verticalTiny,
+                    CupertinoTextField(
+                      controller: ref
+                          .read(bindEmailProvider.notifier)
+                          .codeCtl,
+                      placeholder: '000000',
+                      keyboardType: TextInputType.number,
+                      inputFormatters: [
+                        FilteringTextInputFormatter.digitsOnly,
+                        LengthLimitingTextInputFormatter(6),
+                      ],
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 0,
+                        vertical: AppSpacing.medium,
                       ),
+                      decoration: null,
+                      style: context.textStyle(FontSizeType.body),
                     ),
-                    AppSpacing.horizontalSmall,
-                    _buildCodeButton(context, ref, asyncState),
+                    Align(
+                      alignment: AlignmentDirectional.centerEnd,
+                      child: _buildCodeButton(context, ref, asyncState),
+                    ),
                   ],
                 ),
               ),
@@ -228,7 +233,7 @@ class _BindEmailPageState extends ConsumerState<BindEmailPage> {
         horizontal: AppSpacing.medium,
         vertical: 0,
       ),
-      color: AppColors.getIosBlue(MediaQuery.platformBrightnessOf(context)),
+      color: AppColors.getIosBlue(Theme.of(context).brightness),
       disabledColor: AppColors.iosGray.withValues(alpha: 0.3),
       borderRadius: BorderRadius.circular(16),
       onPressed: canSend

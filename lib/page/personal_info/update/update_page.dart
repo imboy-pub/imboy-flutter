@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:imboy/component/ui/common_bar.dart';
@@ -57,72 +58,51 @@ class UpdatePage extends ConsumerWidget {
           : AppColors.lightPageBackground,
       appBar: GlassAppBar(
         automaticallyImplyLeading: true,
-        titleWidget: Row(
-          children: [
-            Expanded(child: Text(title, textAlign: TextAlign.center)),
-            Container(
-              height: AppSpacing.regular * 4,
-              decoration: BoxDecoration(
-                color: state.valueChanged
-                    ? AppColors.primary
-                    : (isDark ? AppColors.iosGray3Dark : AppColors.lightBorder),
-                borderRadius: BorderRadius.circular(AppSpacing.regular * 2),
-              ),
-              child: Material(
-                color: AppColors.transparent,
-                child: GestureDetector(
-                  onTap: state.valueChanged
-                      ? () async {
-                          if (field == "input") {
-                            String trimmedText = controller.text.trim();
-                            if (trimmedText.isEmpty) {
-                              ref
-                                  .read(updatePageProvider.notifier)
-                                  .valueOnChange(value, false);
-                            } else {
-                              bool res = await callback(trimmedText);
-                              if (res && context.mounted) {
-                                Navigator.of(context).pop();
-                              }
-                            }
-                          } else if (field == "text") {
-                            String trimmedText = controller.text.trim();
-                            bool res = await callback(trimmedText);
-                            if (res && context.mounted) {
-                              Navigator.of(context).pop();
-                            }
-                          } else if (field == "gender") {
-                            bool res = await callback(state.value);
-                            if (res && context.mounted) {
-                              Navigator.of(context).pop();
-                            }
-                          }
+        title: title,
+        rightDMActions: [
+          CupertinoButton(
+            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.medium),
+            minimumSize: const Size(44, 44),
+            onPressed: state.valueChanged
+                ? () async {
+                    if (field == "input") {
+                      String trimmedText = controller.text.trim();
+                      if (trimmedText.isEmpty) {
+                        ref
+                            .read(updatePageProvider.notifier)
+                            .valueOnChange(value, false);
+                      } else {
+                        bool res = await callback(trimmedText);
+                        if (res && context.mounted) {
+                          Navigator.of(context).pop();
                         }
-                      : null,
-                  child: Container(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: AppSpacing.regular * 2,
-                    ),
-                    alignment: Alignment.center,
-                    child: Text(
-                      t.common.buttonAccomplish,
-                      style: ThemeManager.instance.getTextStyle(
-                        FontSizeType.small,
-                        fontWeight: FontWeight.w600,
-                        color: state.valueChanged
-                            ? AppColors.onPrimary
-                            : AppColors.getTextColor(
-                                Theme.of(context).brightness,
-                                isSecondary: true,
-                              ),
-                      ),
-                    ),
-                  ),
-                ),
+                      }
+                    } else if (field == "text") {
+                      String trimmedText = controller.text.trim();
+                      bool res = await callback(trimmedText);
+                      if (res && context.mounted) {
+                        Navigator.of(context).pop();
+                      }
+                    } else if (field == "gender") {
+                      bool res = await callback(state.value);
+                      if (res && context.mounted) {
+                        Navigator.of(context).pop();
+                      }
+                    }
+                  }
+                : null,
+            child: Text(
+              t.common.buttonAccomplish,
+              style: context.textStyle(
+                FontSizeType.body,
+                fontWeight: FontWeight.w600,
+                color: state.valueChanged
+                    ? AppColors.getIosBlue(Theme.of(context).brightness)
+                    : AppColors.iosGray,
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
       body: SingleChildScrollView(
         physics: const BouncingScrollPhysics(),

@@ -209,7 +209,25 @@ jobs:
       # 之外新增 1 条 analyzer 问题即 FAIL；基线内减少仅提示收紧。
       # ----------------------------------------------------------------
       - name: Formatting of tracked first-party Dart files
-        run: git ls-files -z '*.dart' ':!plugin/' | xargs -0 dart format --output=none --set-exit-if-changed
+        if: ${{ !cancelled() }}
+        id: dart-format
+        run: |
+          if git ls-files -z '*.dart' ':!plugin/' | xargs -0 dart format --output=none --set-exit-if-changed; then
+            exit 0
+          fi
+          # Keep the gate failing; publish the SDK's exact correction for review.
+          git ls-files -z '*.dart' ':!plugin/' | xargs -0 dart format || true
+          git diff --binary -- '*.dart' ':!plugin/' > "$RUNNER_TEMP/dart-format.patch"
+          exit 1
+
+      - name: Upload formatting correction
+        if: failure() && steps.dart-format.outcome == 'failure'
+        uses: actions/upload-artifact@v7
+        with:
+          name: dart-format-patch
+          path: ${{ runner.temp }}/dart-format.patch
+          if-no-files-found: error
+          retention-days: 7
 
       - name: Analyze lib (existing zero-issue E2EE gate)
         run: dart analyze lib

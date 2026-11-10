@@ -9,6 +9,7 @@ import 'package:imboy/component/helper/app_clock.dart';
 import 'package:imboy/component/helper/boundary_refresh.dart';
 import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/component/ui/async_state_view.dart';
+import 'package:imboy/component/ui/cell_pressable.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/service/group_schedule_service.dart';
@@ -230,7 +231,7 @@ class _GroupSchedulePageState extends ConsumerState<GroupSchedulePage>
     final isCancelled = state == GroupScheduleTimeState.cancelled;
     final title = _toText(schedule['title']);
 
-    return GestureDetector(
+    return CellPressable(
       onTap: () => _openScheduleDetail(scheduleId),
       child: Opacity(
         opacity: isCancelled ? 0.6 : 1,

@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:imboy/component/ui/cell_pressable.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/component/ui/common_bar.dart';
@@ -221,46 +222,48 @@ class PrivacySettingsPage extends ConsumerWidget {
     required bool value,
     required ValueChanged<bool> onChanged,
   }) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.regular,
-        vertical: AppSpacing.medium,
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: context.textStyle(
-                    FontSizeType.medium,
-                    fontWeight: FontWeight.w400,
-                    color: AppColors.getTextColor(Theme.of(context).brightness),
-                  ),
-                ),
-                const SizedBox(height: AppSpacing.tiny),
-                Text(
-                  subtitle,
-                  style: context.textStyle(
-                    FontSizeType.footnote,
-                    color: AppColors.getTextColor(
-                      Theme.of(context).brightness,
-                      isSecondary: true,
+    return MergeSemantics(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppSpacing.regular,
+          vertical: AppSpacing.medium,
+        ),
+        child: Row(
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: context.textStyle(
+                      FontSizeType.medium,
+                      fontWeight: FontWeight.w400,
+                      color: AppColors.getTextColor(Theme.of(context).brightness),
                     ),
                   ),
-                ),
-              ],
+                  const SizedBox(height: AppSpacing.tiny),
+                  Text(
+                    subtitle,
+                    style: context.textStyle(
+                      FontSizeType.footnote,
+                      color: AppColors.getTextColor(
+                        Theme.of(context).brightness,
+                        isSecondary: true,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ),
-          const SizedBox(width: AppSpacing.regular),
-          Switch(
-            value: value,
-            onChanged: onChanged,
-            activeThumbColor: Theme.of(context).primaryColor,
-          ),
-        ],
+            const SizedBox(width: AppSpacing.regular),
+            Switch(
+              value: value,
+              onChanged: onChanged,
+              activeThumbColor: Theme.of(context).primaryColor,
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -276,7 +279,7 @@ class PrivacySettingsPage extends ConsumerWidget {
   }) {
     return Material(
       color: AppColors.transparent,
-      child: GestureDetector(
+      child: CellPressable(
         onTap: onTap,
         child: Padding(
           padding: const EdgeInsets.symmetric(

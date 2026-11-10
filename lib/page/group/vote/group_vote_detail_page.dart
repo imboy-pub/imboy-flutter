@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:imboy/component/helper/func.dart' show iPrint;
 import 'package:imboy/component/ui/app_loading.dart';
+import 'package:imboy/component/ui/cell_pressable.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/nodata_view.dart';
 import 'package:imboy/i18n/strings.g.dart';
@@ -259,30 +260,29 @@ class _GroupVoteDetailPageState extends ConsumerState<GroupVoteDetailPage> {
     final accent = AppColors.getIosBlue(brightness);
     final optionText = _toText(option['option_text']);
 
-    return Semantics(
-      selected: selected,
-      enabled: canEdit,
-      button: canEdit,
-      label:
-          '$optionText ${(percent * 100).toInt()}%，'
-          '${context.t.groupVote.voteCount(count: voteCount)}',
-      child: GestureDetector(
-        behavior: HitTestBehavior.opaque,
-        onTap: canEdit
-            ? () {
-                setState(() {
-                  if (multiple) {
-                    if (selected) {
-                      _selectedOptionIds.remove(optionId);
-                    } else {
-                      _selectedOptionIds.add(optionId);
-                    }
+    return CellPressable(
+      onTap: canEdit
+          ? () {
+              setState(() {
+                if (multiple) {
+                  if (selected) {
+                    _selectedOptionIds.remove(optionId);
                   } else {
-                    _selectedOptionIds = {optionId};
+                    _selectedOptionIds.add(optionId);
                   }
-                });
-              }
-            : null,
+                } else {
+                  _selectedOptionIds = {optionId};
+                }
+              });
+            }
+          : null,
+      child: Semantics(
+        selected: selected,
+        enabled: canEdit,
+        excludeSemantics: true,
+        label:
+            '$optionText ${(percent * 100).toInt()}%，'
+            '${context.t.groupVote.voteCount(count: voteCount)}',
         child: Padding(
           padding: const EdgeInsets.symmetric(
             horizontal: AppSpacing.regular,
@@ -649,7 +649,6 @@ class _GroupVoteDetailPageState extends ConsumerState<GroupVoteDetailPage> {
         const SizedBox(height: AppSpacing.small),
         Center(
           child: CupertinoButton(
-            minimumSize: Size.zero,
             padding: const EdgeInsets.symmetric(
               horizontal: AppSpacing.regular,
               vertical: AppSpacing.small,

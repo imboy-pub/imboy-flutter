@@ -1,20 +1,24 @@
 /// MomentAtPickerPage 多选行的无障碍与交互契约。
 ///
-/// 这是朋友圈「提醒谁看」的选人页，之前零 widget 测试。本文件只钉两条与
-/// 本轮整改直接相关的不变量：
+/// 覆盖朋友圈「提醒谁看」及可见性选人页与本轮整改相关的契约：
 ///   1. 行声明 selected 状态 —— 多选页里读屏用户光听到名字不知道选没选
 ///   2. 不用 Material Ripple（DESIGN.md §13.2 禁止用在 Cupertino 列表行）
+///   3. 每个好友行一个键盘停靠点，Enter / Space 各切换一次
+///   4. 矮窗口和大字下可滚动到最后一个可见性选项
 ///
 /// 页面 initState 走 `ContactRepo().findFriend()` 直连 SQLite，
 /// 用 SqliteService.setDbForTest 注入 ffi 内存库真跑（不是 mock）。
 library;
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 import 'package:imboy/config/const.dart';
+import 'package:imboy/component/ui/cell_pressable.dart';
+import 'package:imboy/page/moment/moment_friend_picker/moment_friend_picker_page.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/moment/moment_friend_picker/moment_at_picker_page.dart';
 import 'package:imboy/service/sqlite.dart';
@@ -85,10 +89,15 @@ void main() {
     await db.close();
   });
 
-  Future<void> pumpPage(WidgetTester tester) async {
+  Future<void> pumpPage(
+    WidgetTester tester, {
+    Widget page = const MomentAtPickerPage(),
+    Size size = const Size(390, 844),
+    double textScale = 1,
+  }) async {
     // AzListView 内部是 Stack + 悬浮 IndexBar，给个真机尺寸的有界视口
     tester.view.devicePixelRatio = 1.0;
-    tester.view.physicalSize = const Size(390, 844);
+    tester.view.physicalSize = size;
     addTearDown(() {
       tester.view.resetDevicePixelRatio();
       tester.view.resetPhysicalSize();
@@ -97,7 +106,15 @@ void main() {
     await tester.pumpWidget(
       ProviderScope(
         child: TranslationProvider(
-          child: const MaterialApp(home: MomentAtPickerPage()),
+          child: MaterialApp(
+            home: page,
+            builder: (context, child) => MediaQuery(
+              data: MediaQuery.of(context).copyWith(
+                textScaler: TextScaler.linear(textScale),
+              ),
+              child: child!,
+            ),
+          ),
         ),
       ),
     );
@@ -123,7 +140,7 @@ void main() {
       findsNothing,
       reason: 'Cupertino 列表行禁止用 Material Ripple（DESIGN.md 13.2）',
     );
-    // 行改用 GestureDetector 承接点击
+    // CellPressable 底层触摸手势仍可用。
     expect(
       find.ancestor(
         of: find.text('张三'),
@@ -135,6 +152,7 @@ void main() {
 
   testWidgets('多选行声明 selected 状态，选中后翻转', (tester) async {
     final handle = tester.ensureSemantics();
+    addTearDown(handle.dispose);
     await pumpPage(tester);
 
     final name = find.text('张三');
@@ -166,7 +184,57 @@ void main() {
       isTrue,
       reason: '选中后未声明 selected，读屏用户不知道自己选没选',
     );
+  });
 
-    handle.dispose();
+  testWidgets('好友行只有一个键盘停靠点，Space 和 Enter 各切换一次', (tester) async {
+    final handle = tester.ensureSemantics();
+    addTearDown(handle.dispose);
+    await pumpPage(tester);
+    final name = find.text('张三').first;
+    final row = find.ancestor(of: name, matching: find.byType(CellPressable)).first;
+    expect(row, findsOneWidget);
+    Focus.of(tester.element(name)).requestFocus();
+    await tester.pump();
+
+    await tester.sendKeyEvent(LogicalKeyboardKey.space);
+    await tester.pump();
+    expect(
+      tester.getSemantics(name).flagsCollection.isSelected.toBoolOrNull(),
+      isTrue,
+    );
+    await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+    await tester.pump();
+    expect(
+      tester.getSemantics(name).flagsCollection.isSelected.toBoolOrNull(),
+      isFalse,
+    );
+
+    await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+    await tester.pump();
+    final checkboxContext = tester.element(find.byType(Checkbox));
+    expect(
+      Focus.of(checkboxContext).hasFocus,
+      isFalse,
+      reason: '装饰复选框不应产生第二个键盘停靠点',
+    );
+    await tester.pumpWidget(const SizedBox.shrink());
+    await tester.pump();
+  });
+
+  testWidgets('可见性选项在矮窗口和大字下可滚动到最后一项', (tester) async {
+    await pumpPage(
+      tester,
+      page: const MomentFriendPickerPage(),
+      size: const Size(320, 280),
+      textScale: 1.6,
+    );
+    expect(tester.takeException(), isNull);
+    final lastOption = find.text(t.discovery.momentsVisibilityExclude);
+    await tester.ensureVisible(lastOption);
+    await tester.pump();
+    expect(tester.getBottomRight(lastOption).dy, lessThanOrEqualTo(280));
+    expect(tester.takeException(), isNull);
+    await tester.pumpWidget(const SizedBox.shrink());
+    await tester.pump();
   });
 }

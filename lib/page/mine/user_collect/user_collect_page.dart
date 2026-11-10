@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:imboy/component/ui/cell_pressable.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
 
 import 'package:flutter/cupertino.dart';
@@ -18,6 +19,7 @@ import 'package:imboy/service/account_preferences.dart';
 
 import 'user_collect_detail_page.dart';
 import 'user_collect_provider.dart';
+import 'widgets/collect_selection_bar.dart';
 
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/theme/default/app_colors.dart';
@@ -197,7 +199,7 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
       items.add(
         Padding(
           padding: const EdgeInsets.only(top: 6, right: 6),
-          child: GestureDetector(
+          child: CellPressable(
             onTap: () => _searchByTag(context, tag, tag),
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -220,12 +222,14 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
                     color: AppColors.getIosBlue(Theme.of(context).brightness),
                   ),
                   AppSpacing.horizontalTiny,
-                  Text(
-                    tag,
-                    style: context.textStyle(
-                      FontSizeType.caption2,
-                      color: AppColors.getIosBlue(Theme.of(context).brightness),
-                      fontWeight: FontWeight.w500,
+                  Flexible(
+                    child: Text(
+                      tag,
+                      style: context.textStyle(
+                        FontSizeType.caption2,
+                        color: AppColors.getIosBlue(Theme.of(context).brightness),
+                        fontWeight: FontWeight.w500,
+                      ),
                     ),
                   ),
                 ],
@@ -472,7 +476,7 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
             : AppColors.lightSurface,
         borderRadius: AppRadius.borderRadiusCell,
       ),
-      child: GestureDetector(
+      child: CellPressable(
         onLongPress: () => _enterMultiSelect(obj),
         onTap: () async {
           if (_multiSelect) {
@@ -869,7 +873,15 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
 
         // 多选工具
         if (_multiSelect)
-          SliverToBoxAdapter(child: _buildMultiSelectBar(context)),
+          SliverToBoxAdapter(
+            child: CollectSelectionBar(
+              count: _selectedIds.length,
+              onSelectAll: _selectAllCurrent,
+              onTag: _batchTag,
+              onDelete: _batchDelete,
+              onCancel: _exitMultiSelect,
+            ),
+          ),
 
         // 列表
         SliverPadding(
@@ -917,54 +929,6 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
     );
   }
 
-  Widget _buildMultiSelectBar(BuildContext context) {
-    final brightness = Theme.of(context).brightness;
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-      decoration: BoxDecoration(
-        color: Theme.of(context).cardColor,
-        borderRadius: BorderRadius.circular(14),
-      ),
-      child: Row(
-        children: [
-          Padding(
-            padding: const EdgeInsets.only(left: 8),
-            child: Text(
-              '${t.main.selected}: ${_selectedIds.length}',
-              style: const TextStyle(fontWeight: FontWeight.w600),
-            ),
-          ),
-          const Spacer(),
-          CupertinoButton(
-            padding: const EdgeInsets.symmetric(horizontal: 8),
-            onPressed: _selectAllCurrent,
-            child: const Icon(CupertinoIcons.square_list, size: 20),
-          ),
-          CupertinoButton(
-            padding: const EdgeInsets.symmetric(horizontal: 8),
-            onPressed: _batchTag,
-            child: const Icon(CupertinoIcons.tag, size: 20),
-          ),
-          CupertinoButton(
-            padding: const EdgeInsets.symmetric(horizontal: 8),
-            onPressed: _batchDelete,
-            child: Icon(
-              CupertinoIcons.delete,
-              color: AppColors.getIosRed(brightness),
-              size: 20,
-              semanticLabel: t.common.buttonDelete,
-            ),
-          ),
-          CupertinoButton(
-            padding: const EdgeInsets.symmetric(horizontal: 8),
-            onPressed: _exitMultiSelect,
-            child: const Icon(CupertinoIcons.xmark_circle, size: 20),
-          ),
-        ],
-      ),
-    );
-  }
 
   Widget _buildKindList(BuildContext context) {
     final currentState = ref.read(userCollectProvider);

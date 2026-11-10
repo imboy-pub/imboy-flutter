@@ -73,6 +73,7 @@ class WalletAmountField extends StatelessWidget {
         children: [
           Text(
             label,
+          textAlign: TextAlign.center,
             style: context.textStyle(
               FontSizeType.footnote,
               color: AppColors.getTextColor(
@@ -150,7 +151,7 @@ class WalletBalanceHint extends StatelessWidget {
   }
 }
 
-/// 页面级主按钮：满宽、50pt 高、medium 圆角，颜色由调用方指定语义。
+/// 页面级主按钮：满宽、最小50pt高，长文案自然增长。
 class WalletPrimaryButton extends StatelessWidget {
   const WalletPrimaryButton({
     super.key,
@@ -169,7 +170,10 @@ class WalletPrimaryButton extends StatelessWidget {
       width: double.infinity,
       child: CupertinoButton(
         minimumSize: const Size(0, 50),
-        padding: EdgeInsets.zero,
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppSpacing.regular,
+          vertical: AppSpacing.medium,
+        ),
         color: color,
         borderRadius: AppRadius.borderRadiusMedium,
         onPressed: onPressed,

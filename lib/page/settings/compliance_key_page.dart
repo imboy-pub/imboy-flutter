@@ -6,8 +6,10 @@
 library;
 
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart' show SelectableText;
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/ios_settings_ui.dart';
+import 'package:imboy/component/ui/resource_page_layout.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/service/compliance_key_service.dart';
 import 'package:imboy/theme/default/app_colors.dart';
@@ -90,6 +92,7 @@ class _ComplianceKeyPageState extends State<ComplianceKeyPage> {
     final key = _key;
     final pin = _pin;
     return IosPageTemplate(
+      contentMaxWidth: ResourcePageLayout.maxWidth,
       title: t.main.complianceKeyInfoTitle,
       actions: [
         CupertinoButton(
@@ -102,7 +105,7 @@ class _ComplianceKeyPageState extends State<ComplianceKeyPage> {
           ),
         ),
       ],
-      child: _isLoading
+      body: _isLoading
           ? const Center(child: CupertinoActivityIndicator())
           : ListView(
               padding: const EdgeInsets.symmetric(vertical: 8),
@@ -175,7 +178,10 @@ class _ComplianceKeyPageState extends State<ComplianceKeyPage> {
                   child: Text(
                     t.main.complianceKeyInfoHint,
                     style: TextStyle(
-                      color: AppColors.alipaySimTextGrey,
+                      color: AppColors.getTextColor(
+            CupertinoTheme.brightnessOf(context),
+            isSecondary: true,
+          ),
                       fontSize: FontSizeType.small.size,
                     ),
                   ),
@@ -188,13 +194,17 @@ class _ComplianceKeyPageState extends State<ComplianceKeyPage> {
   Widget _infoTile(String title, String value) {
     return ImBoySettingsTile(
       title: Text(title),
-      subtitle: Text(
-        value,
+      // CupertinoListTile sets a one-line subtitle style; fingerprints must wrap.
+      subtitle: DefaultTextStyle(
         style: TextStyle(
-          color: AppColors.alipaySimTextGrey,
+          color: AppColors.getTextColor(
+            CupertinoTheme.brightnessOf(context),
+            isSecondary: true,
+          ),
           fontSize: FontSizeType.small.size,
           fontFamily: 'monospace',
         ),
+        child: SelectableText(value),
       ),
     );
   }

@@ -20,12 +20,15 @@ import 'package:imboy/config/router/routes/talk_record_routes.dart';
 import 'package:imboy/modules/talk_record/presentation/talk_record_entry_context.dart';
 import 'package:imboy/modules/talk_record/presentation/talk_record_entry_tiles.dart';
 import 'package:imboy/modules/talk_record/presentation/talk_record_list_page.dart';
+import 'package:imboy/modules/talk_record/presentation/detail/talk_record_detail_page.dart';
 import 'package:imboy/modules/talk_record/presentation/talk_record_providers.dart';
 import 'package:imboy/modules/talk_record/presentation/talk_record_services.dart';
 import 'package:imboy/store/model/talk_record/talk_record_capabilities_model.dart';
 import 'package:imboy/store/model/talk_record/talk_record_enums.dart';
 import 'package:imboy/store/model/talk_record/talk_record_model.dart';
 import 'package:imboy/store/model/talk_record/talk_record_cursor_page.dart';
+
+import 'talk_record_detail_test_helpers.dart' show T16Harness, harnessScope;
 
 /// 记录服务调用与响应的 fixture。
 class FakeListService implements TalkRecordListService {
@@ -159,6 +162,46 @@ Future<void> pumpList(
 void main() {
   setUpAll(() async {
     await LocaleSettings.setLocale(AppLocale.zhCn);
+  });
+
+  testWidgets('已同步记录行打开真实详情路由，本机草稿保留在列表', (tester) async {
+    final harness = T16Harness();
+    final record = harness.service.entries.first.record;
+    final service = FakeListService(
+      records: [record, _record(id: '102', title: '本机草稿', media: 'local_only')],
+    );
+    final router = GoRouter(
+      initialLocation: kTalkRecordListPath,
+      routes: talkRecordRoutes(),
+    );
+    addTearDown(router.dispose);
+    await tester.pumpWidget(
+      harnessScope(
+        harness,
+        child: ProviderScope(
+          overrides: [
+            talkRecordPendingAccountProvider.overrideWithValue(
+              const TalkRecordAccount('http://127.0.0.1', ''),
+            ),
+            talkRecordListServiceProvider.overrideWithValue(service),
+          ],
+          child: MaterialApp.router(routerConfig: router),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('talk_record_row_102')));
+    await tester.pumpAndSettle();
+    expect(router.state.path, kTalkRecordListPath);
+
+    await tester.tap(find.byKey(ValueKey('talk_record_row_${record.id}')));
+    await tester.pumpAndSettle();
+    expect(router.state.path, '$kTalkRecordDetailPath/${record.id}');
+    expect(find.byType(TalkRecordDetailPage), findsOneWidget);
+    expect(
+      find.byKey(const ValueKey('talk_record_overview_card')),
+      findsOneWidget,
+    );
   });
 
   group('空间上下文矩阵', () {

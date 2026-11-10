@@ -1,4 +1,5 @@
 import 'package:azlistview/azlistview.dart';
+import 'package:imboy/component/ui/cell_pressable.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:imboy/theme/default/font_types.dart';
 import 'package:flutter/cupertino.dart';
@@ -90,16 +91,15 @@ class _SelectFriendPageState extends ConsumerState<SelectFriendPage> {
 
     return Column(
       children: [
-        SizedBox(
-          height: _itemHeight.toDouble(),
+        ConstrainedBox(
+          constraints: BoxConstraints(minHeight: _itemHeight.toDouble()),
           // 多选页必须声明 selected：读屏用户听到名字但不知道自己选没选。
           // 名字由 Text 自带语义提供，不重复设 label。
           child: Semantics(
             button: true,
             selected: model.selected,
-            child: GestureDetector(
+            child: CellPressable(
               // 不用 InkWell：DESIGN.md §13.2 禁止 Cupertino 列表行用 Ripple
-              behavior: HitTestBehavior.opaque,
               onTap: () {
                 setState(() {
                   model.selected = !model.selected;
@@ -130,8 +130,14 @@ class _SelectFriendPageState extends ConsumerState<SelectFriendPage> {
                   Expanded(
                     child: Container(
                       alignment: Alignment.centerLeft,
-                      padding: const EdgeInsets.only(right: 30),
-                      height: _itemHeight.toDouble(),
+                      padding: const EdgeInsets.only(
+                        right: 30,
+                        top: AppSpacing.small,
+                        bottom: AppSpacing.small,
+                      ),
+                      constraints: BoxConstraints(
+                        minHeight: _itemHeight.toDouble(),
+                      ),
                       decoration: const BoxDecoration(
                         border: Border(top: BorderSide(width: 0.2)),
                       ),

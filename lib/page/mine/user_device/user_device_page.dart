@@ -201,26 +201,35 @@ class _UserDevicePageState extends ConsumerState<UserDevicePage> {
           ],
         ],
       ),
-      subtitle: Row(
+      subtitle: Wrap(
+        spacing: AppSpacing.small,
+        runSpacing: AppSpacing.tiny,
+        crossAxisAlignment: WrapCrossAlignment.center,
         children: [
-          Container(
-            width: 6,
-            height: 6,
-            decoration: BoxDecoration(
-              color: model.online ? AppColors.iosGreen : AppColors.iosGray,
-              shape: BoxShape.circle,
-            ),
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 6,
+                height: 6,
+                decoration: BoxDecoration(
+                  color: model.online ? AppColors.iosGreen : AppColors.iosGray,
+                  shape: BoxShape.circle,
+                ),
+              ),
+              const SizedBox(width: 6),
+              Flexible(
+                child: Text(
+                  model.online ? t.chat.online : t.chat.offline,
+                  style: context.textStyle(
+                    FontSizeType.small,
+                    color: AppColors.iosGray,
+                  ),
+                ),
+              ),
+            ],
           ),
-          const SizedBox(width: 6),
-          Text(
-            model.online ? t.chat.online : t.chat.offline,
-            style: context.textStyle(
-              FontSizeType.small,
-              color: AppColors.iosGray,
-            ),
-          ),
-          if (model.lastActiveAt > 0) ...[
-            AppSpacing.horizontalSmall,
+          if (model.lastActiveAt > 0)
             Text(
               DateTimeHelper.lastTimeFmt(model.lastActiveAt),
               style: context.textStyle(
@@ -228,7 +237,6 @@ class _UserDevicePageState extends ConsumerState<UserDevicePage> {
                 color: AppColors.iosGray,
               ),
             ),
-          ],
         ],
       ),
     );

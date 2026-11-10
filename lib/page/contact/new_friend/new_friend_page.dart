@@ -64,7 +64,11 @@ class _NewFriendPageState extends ConsumerState<NewFriendPage> {
       actions: [
         CupertinoButton(
           padding: EdgeInsets.zero,
-          child: const Icon(CupertinoIcons.person_add, size: 22),
+          child: Icon(
+            CupertinoIcons.person_add,
+            size: 22,
+            semanticLabel: t.common.addFriend,
+          ),
           // 统一走 go_router：原生 push 的页面不在 go_router 栈内，
           // 页内 context.push 会「没反应」（混用排查批次修复）
           onPressed: () => context.push('/contact/add_friend'),

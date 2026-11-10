@@ -9,6 +9,7 @@ import 'package:imboy/config/env.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/chat/widget/chat_input.dart';
 import 'package:imboy/page/chat/widget/chat_input_types.dart';
+import 'package:imboy/page/chat/widget/quick_reply_manage_page.dart';
 import 'package:imboy/service/account_local_task_registry.dart';
 import 'package:imboy/service/storage.dart';
 
@@ -38,6 +39,33 @@ void main() {
   tearDownAll(() async {
     IMBoyCacheManager.debugLogEnabled = true;
     await StorageService.to.remove(Keys.currentUid);
+  });
+
+  testWidgets('empty defaults still allow adding the first quick reply', (
+    tester,
+  ) async {
+    const storageKey = 'quick_replies:tsid_uid_101';
+    await StorageService.to.remove(storageKey);
+    addTearDown(() => StorageService.to.remove(storageKey));
+    await tester.pumpWidget(
+      TranslationProvider(
+        child: MaterialApp(home: const QuickReplyManagePage(defaults: [])),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(find.text(t.chat.quickReplyEmpty), findsOneWidget);
+
+    await tester.tap(find.byIcon(CupertinoIcons.add));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byType(CupertinoTextField), 'First reply');
+    await tester.tap(find.text(t.common.buttonConfirm));
+    await tester.pumpAndSettle();
+
+    expect(find.text('First reply'), findsOneWidget);
+    expect(find.text(t.chat.quickReplyEmpty), findsNothing);
+    expect(StorageService.to.getString(storageKey), '["First reply"]');
+    await tester.pumpWidget(const SizedBox.shrink());
+    await tester.pumpAndSettle();
   });
 
   test(

@@ -131,8 +131,12 @@ class _FeedbackPageState extends ConsumerState<FeedbackPage> {
       actions: [
         CupertinoButton(
           padding: EdgeInsets.zero,
-          onPressed: _showFeedbackEditor,
-          child: const Icon(CupertinoIcons.add, size: 22),
+          onPressed: _isSubmittingFeedback ? null : _showFeedbackEditor,
+          child: Icon(
+            CupertinoIcons.add,
+            size: 22,
+            semanticLabel: t.common.newFeedback,
+          ),
         ),
       ],
       slivers: [
@@ -151,49 +155,58 @@ class _FeedbackPageState extends ConsumerState<FeedbackPage> {
                 color: AppColors.getIosBlue(brightness).withValues(alpha: 0.1),
                 borderRadius: AppRadius.borderRadiusCell,
               ),
-              child: Row(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Icon(
-                    CupertinoIcons.heart_circle,
-                    color: AppColors.getIosBlue(brightness),
-                    size: 32,
-                  ),
-                  AppSpacing.horizontalMedium,
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          t.common.feedback,
-                          style: context.textStyle(
-                            FontSizeType.subheadline,
-                            fontWeight: FontWeight.w600,
-                          ),
+                  Row(
+                    children: [
+                      Icon(
+                        CupertinoIcons.heart_circle,
+                        color: AppColors.getIosBlue(brightness),
+                        size: 32,
+                      ),
+                      AppSpacing.horizontalMedium,
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              t.common.feedback,
+                              style: context.textStyle(
+                                FontSizeType.subheadline,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              t.common.feedbackSlogan,
+                              style: context.textStyle(
+                                FontSizeType.footnote,
+                                color: AppColors.iosGray,
+                              ),
+                            ),
+                          ],
                         ),
-                        const SizedBox(height: 2),
-                        Text(
-                          t.common.feedbackSlogan,
-                          style: context.textStyle(
-                            FontSizeType.footnote,
-                            color: AppColors.iosGray,
-                          ),
-                        ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
-                  CupertinoButton(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: AppSpacing.regular,
-                    ),
-                    color: AppColors.getIosBlue(brightness),
-                    borderRadius: BorderRadius.circular(20),
-                    onPressed: _showFeedbackEditor,
-                    child: Text(
-                      t.common.newFeedback,
-                      style: context.textStyle(
-                        FontSizeType.footnote,
-                        color: AppColors.lightSurface,
-                        fontWeight: FontWeight.w600,
+                  AppSpacing.verticalSmall,
+                  Align(
+                    alignment: AlignmentDirectional.centerEnd,
+                    child: CupertinoButton(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: AppSpacing.regular,
+                      ),
+                      color: AppColors.getIosBlue(brightness),
+                      borderRadius: BorderRadius.circular(20),
+                      onPressed: _isSubmittingFeedback ? null : _showFeedbackEditor,
+                      child: Text(
+                        t.common.newFeedback,
+                        style: context.textStyle(
+                          FontSizeType.footnote,
+                          color: AppColors.lightSurface,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
                     ),
                   ),
@@ -204,14 +217,8 @@ class _FeedbackPageState extends ConsumerState<FeedbackPage> {
         ),
 
         // 历史列表 Section：加载 / 错误(可重试) / 空 / 数据 四态收敛为三态组件
-        SliverFillRemaining(
-          child: AsyncStateView(
-            isLoading: state.isLoading,
-            error: state.error,
-            isEmpty: state.itemList.isEmpty,
-            onRetry: _loadFeedbackList,
-            emptyText: t.common.noHistory,
-            emptyIcon: CupertinoIcons.envelope,
+        if (!state.isLoading && state.error == null && state.itemList.isNotEmpty)
+          SliverToBoxAdapter(
             child: ImBoySettingsSection(
               header: Text(t.common.feedbackHistory.toUpperCase()),
               children: state.itemList.asMap().entries.map((entry) {
@@ -223,8 +230,19 @@ class _FeedbackPageState extends ConsumerState<FeedbackPage> {
                 );
               }).toList(),
             ),
+          )
+        else
+          SliverFillRemaining(
+            child: AsyncStateView(
+              isLoading: state.isLoading,
+              error: state.error,
+              isEmpty: state.itemList.isEmpty,
+              onRetry: _loadFeedbackList,
+              emptyText: t.common.noHistory,
+              emptyIcon: CupertinoIcons.envelope,
+              child: const SizedBox.shrink(),
+            ),
           ),
-        ),
       ],
     );
   }
@@ -261,7 +279,10 @@ class _FeedbackPageState extends ConsumerState<FeedbackPage> {
           overflow: TextOverflow.ellipsis,
           style: context.textStyle(FontSizeType.medium),
         ),
-        subtitle: Row(
+        subtitle: Wrap(
+          spacing: AppSpacing.small,
+          runSpacing: AppSpacing.tiny,
+          crossAxisAlignment: WrapCrossAlignment.center,
           children: [
             Text(
               DateTimeHelper.lastTimeFmt(model.createdAt),
@@ -270,7 +291,6 @@ class _FeedbackPageState extends ConsumerState<FeedbackPage> {
                 color: AppColors.iosGray,
               ),
             ),
-            AppSpacing.horizontalSmall,
             Container(
               width: 4,
               height: 4,
@@ -279,7 +299,6 @@ class _FeedbackPageState extends ConsumerState<FeedbackPage> {
                 shape: BoxShape.circle,
               ),
             ),
-            AppSpacing.horizontalSmall,
             Text(
               model.statusDesc,
               style: context.textStyle(

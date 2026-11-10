@@ -22,6 +22,8 @@ import 'package:imboy/theme/default/font_types.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:imboy/component/helper/func.dart';
+import 'package:imboy/component/ui/cell_pressable.dart';
+import 'package:imboy/component/ui/nodata_view.dart';
 import 'package:imboy/component/ui/app_loading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lpinyin/lpinyin.dart';
@@ -139,6 +141,7 @@ class _MomentFriendPickerPageState
   List<_PickerTagEntry> _tags = const [];
 
   bool _loadingFriends = true;
+  bool _loadFriendsFailed = false;
   bool _loadingTags = true;
 
   /// 是否已发起过好友+标签加载（名单模式首次进入时才置位，避免重复拉取）。
@@ -174,6 +177,11 @@ class _MomentFriendPickerPageState
   }
 
   Future<void> _loadFriends() async {
+    if (!mounted) return;
+    setState(() {
+      _loadingFriends = true;
+      _loadFriendsFailed = false;
+    });
     try {
       final list = await ContactRepo().findFriend();
       // 归一化拼音首字母，复用 select_friend.dart 的模式。
@@ -197,7 +205,10 @@ class _MomentFriendPickerPageState
       });
     } on Exception {
       if (!mounted) return;
-      setState(() => _loadingFriends = false);
+      setState(() {
+        _loadingFriends = false;
+        _loadFriendsFailed = true;
+      });
     }
   }
 
@@ -351,16 +362,41 @@ class _MomentFriendPickerPageState
       ),
       body: Column(
         children: [
-          _buildVisibilitySection(),
-          const Divider(height: 1),
-          if (_needsFriendList) ...[
-            _buildSearchBar(),
-            _buildTagsRow(),
-            const Divider(height: 1),
-            Expanded(child: _buildFriendList()),
-            _buildSelectedBar(count),
-          ] else
-            const Spacer(),
+          Expanded(
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                final header = Column(
+                  children: [
+                    _buildVisibilitySection(),
+                    if (_needsFriendList) ...[
+                      const Divider(height: 1),
+                      _buildSearchBar(),
+                      _buildTagsRow(),
+                    ],
+                  ],
+                );
+                if (!_needsFriendList) {
+                  return SingleChildScrollView(child: header);
+                }
+                if (constraints.maxHeight <= 0) {
+                  return const SizedBox.shrink();
+                }
+                return Column(
+                  children: [
+                    ConstrainedBox(
+                      constraints: BoxConstraints(
+                        maxHeight: constraints.maxHeight * 0.6,
+                      ),
+                      child: SingleChildScrollView(child: header),
+                    ),
+                    const Divider(height: 1),
+                    Expanded(child: _buildFriendList()),
+                  ],
+                );
+              },
+            ),
+          ),
+          if (_needsFriendList) _buildSelectedBar(count),
         ],
       ),
     );
@@ -384,27 +420,31 @@ class _MomentFriendPickerPageState
 
   Widget _buildVisibilityRow({required int code, required String label}) {
     final selected = _visibility == code;
-    return GestureDetector(
-      onTap: () => _onVisibilitySelected(code),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        child: Row(
-          children: [
-            Icon(
-              selected
-                  ? CupertinoIcons.checkmark_circle_fill
-                  : CupertinoIcons.circle,
-              size: 20,
-              color: selected ? AppColors.primary : AppColors.iosGray3,
-            ),
-            AppSpacing.horizontalMedium,
-            Expanded(
-              child: Text(
-                label,
-                style: context.textStyle(FontSizeType.subheadline),
+    return Semantics(
+      selected: selected,
+      inMutuallyExclusiveGroup: true,
+      child: CellPressable(
+        onTap: () => _onVisibilitySelected(code),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          child: Row(
+            children: [
+              Icon(
+                selected
+                    ? CupertinoIcons.checkmark_circle_fill
+                    : CupertinoIcons.circle,
+                size: 20,
+                color: selected ? AppColors.primary : AppColors.iosGray3,
               ),
-            ),
-          ],
+              AppSpacing.horizontalMedium,
+              Expanded(
+                child: Text(
+                  label,
+                  style: context.textStyle(FontSizeType.subheadline),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -434,14 +474,16 @@ class _MomentFriendPickerPageState
       );
     }
     if (_tags.isEmpty) return const SizedBox.shrink();
-    return SizedBox(
-      height: 44,
-      child: ListView.separated(
-        scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-        itemCount: _tags.length,
-        separatorBuilder: (_, _) => AppSpacing.horizontalSmall,
-        itemBuilder: (context, i) => _buildTagChip(_tags[i]),
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+      child: Row(
+        children: [
+          for (var index = 0; index < _tags.length; index++) ...[
+            if (index > 0) AppSpacing.horizontalSmall,
+            _buildTagChip(_tags[index]),
+          ],
+        ],
       ),
     );
   }
@@ -463,40 +505,45 @@ class _MomentFriendPickerPageState
         ? theme.colorScheme.onPrimary
         : theme.colorScheme.onSurface;
 
-    return GestureDetector(
-      onTap: entry.loading ? null : () => _onTagTap(entry),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-        decoration: BoxDecoration(color: bg),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            if (entry.loading)
-              SizedBox(
-                width: 12,
-                height: 12,
-                child: CupertinoActivityIndicator(),
-              )
-            else
-              Icon(
-                selected
-                    ? CupertinoIcons.checkmark_circle
-                    : partial
-                    ? CupertinoIcons.minus_circle
-                    : CupertinoIcons.circle,
-                size: 14,
-                color: fg,
+    return Semantics(
+      selected: selected,
+      child: CellPressable(
+        onTap: entry.loading ? null : () => _onTagTap(entry),
+        child: Container(
+          constraints: const BoxConstraints(minHeight: 44),
+          alignment: Alignment.center,
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+          decoration: BoxDecoration(color: bg),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (entry.loading)
+                SizedBox(
+                  width: 12,
+                  height: 12,
+                  child: CupertinoActivityIndicator(),
+                )
+              else
+                Icon(
+                  selected
+                      ? CupertinoIcons.checkmark_circle
+                      : partial
+                      ? CupertinoIcons.minus_circle
+                      : CupertinoIcons.circle,
+                  size: 14,
+                  color: fg,
+                ),
+              AppSpacing.horizontalTiny,
+              Text(
+                entry.tag.name,
+                style: context.textStyle(
+                  FontSizeType.footnote,
+                  color: fg,
+                  fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
+                ),
               ),
-            AppSpacing.horizontalTiny,
-            Text(
-              entry.tag.name,
-              style: context.textStyle(
-                FontSizeType.footnote,
-                color: fg,
-                fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
-              ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -506,15 +553,19 @@ class _MomentFriendPickerPageState
     if (_loadingFriends) {
       return const Center(child: CupertinoActivityIndicator());
     }
-    if (_friends.isEmpty) {
-      return Center(
-        child: Text(
-          t.momentFriendPicker.emptyFriends,
-          style: const TextStyle(color: AppColors.iosGray),
-        ),
+    if (_loadFriendsFailed) {
+      return NoDataView(
+        text: t.common.loadError,
+        icon: CupertinoIcons.exclamationmark_circle,
+        onTop: _loadFriends,
       );
     }
-    // 搜索模式下不展示 A-Z 悬停标签（列表已被截断，悬停无意义）。
+    if (_friends.isEmpty) {
+      return NoDataView(text: t.momentFriendPicker.emptyFriends);
+    }
+    if (_keyword.isNotEmpty && _displayFriends.isEmpty) {
+      return NoDataView(text: t.common.searchNoResults);
+    }
     if (_keyword.isNotEmpty) {
       return ListView.builder(
         itemCount: _displayFriends.length,
@@ -563,27 +614,36 @@ class _MomentFriendPickerPageState
   Widget _buildFriendRow(ContactModel c) {
     final uid = c.peerId.toString();
     final checked = _activePicked.contains(uid);
-    return GestureDetector(
-      onTap: () => _onFriendToggle(c),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        child: Row(
-          children: [
-            Avatar(imgUri: c.avatar, width: 40, height: 40),
-            AppSpacing.horizontalMedium,
-            Expanded(
-              child: Text(
-                c.title,
-                style: context.textStyle(FontSizeType.subheadline),
-                overflow: TextOverflow.ellipsis,
+    return Semantics(
+      selected: checked,
+      child: CellPressable(
+        onTap: () => _onFriendToggle(c),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          child: Row(
+            children: [
+              Avatar(imgUri: c.avatar, width: 40, height: 40),
+              AppSpacing.horizontalMedium,
+              Expanded(
+                child: Text(
+                  c.title,
+                  style: context.textStyle(FontSizeType.subheadline),
+                  overflow: TextOverflow.ellipsis,
+                ),
               ),
-            ),
-            Checkbox(
-              value: checked,
-              onChanged: (_) => _onFriendToggle(c),
-              visualDensity: VisualDensity.compact,
-            ),
-          ],
+              ExcludeSemantics(
+                child: ExcludeFocus(
+                  child: IgnorePointer(
+                    child: Checkbox(
+                      value: checked,
+                      onChanged: (_) {},
+                      visualDensity: VisualDensity.compact,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -594,8 +654,8 @@ class _MomentFriendPickerPageState
     return SafeArea(
       top: false,
       child: Container(
-        height: 44,
-        padding: const EdgeInsets.symmetric(horizontal: 16),
+        constraints: const BoxConstraints(minHeight: 44),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         alignment: Alignment.centerLeft,
         decoration: BoxDecoration(
           color: Theme.of(context).colorScheme.surfaceContainerHighest,

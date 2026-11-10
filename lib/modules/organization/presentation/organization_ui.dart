@@ -41,38 +41,38 @@ class OrgStateView extends StatelessWidget {
       return const Center(child: CircularProgressIndicator());
     }
     if (permissionDenied) {
-      return Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Icon(Icons.lock_outline, size: 40),
-            const SizedBox(height: AppSpacing.small),
-            const Text('无权查看（该操作仅限 owner / admin）'),
-            const SizedBox(height: AppSpacing.regular),
-            TextButton(onPressed: onRetry, child: const Text('返回刷新')),
-          ],
+      return _statusView([
+        const Icon(Icons.lock_outline, size: 40),
+        const SizedBox(height: AppSpacing.small),
+        const Text(
+          '无权查看（该操作仅限 owner / admin）',
+          textAlign: TextAlign.center,
         ),
-      );
+        const SizedBox(height: AppSpacing.regular),
+        TextButton(onPressed: onRetry, child: const Text('返回刷新')),
+      ]);
     }
     if (error != null) {
-      return Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Icon(Icons.cloud_off, size: 40),
-            const SizedBox(height: AppSpacing.small),
-            Text('加载失败：$error', textAlign: TextAlign.center),
-            const SizedBox(height: AppSpacing.regular),
-            TextButton(onPressed: onRetry, child: const Text('重试')),
-          ],
-        ),
-      );
+      return _statusView([
+        const Icon(Icons.cloud_off, size: 40),
+        const SizedBox(height: AppSpacing.small),
+        Text('加载失败：$error', textAlign: TextAlign.center),
+        const SizedBox(height: AppSpacing.regular),
+        TextButton(onPressed: onRetry, child: const Text('重试')),
+      ]);
     }
     if (empty) {
-      return Center(child: Text(emptyText));
+      return _statusView([Text(emptyText, textAlign: TextAlign.center)]);
     }
     return child ?? const SizedBox.shrink();
   }
+
+  Widget _statusView(List<Widget> children) => Center(
+    child: SingleChildScrollView(
+      padding: const EdgeInsets.all(AppSpacing.regular),
+      child: Column(mainAxisSize: MainAxisSize.min, children: children),
+    ),
+  );
 }
 
 /// 危险操作二次确认弹窗（行点击为第一步，本弹窗为第二步）。

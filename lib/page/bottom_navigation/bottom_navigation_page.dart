@@ -43,14 +43,20 @@ int resolveInitialIndex(
   Map<String, String> queryParameters,
   int tabCount, {
   int fallback = 0,
+  int? restoredIndex,
 }) {
+  if (restoredIndex != null) return normalizeIndex(restoredIndex, tabCount);
   final raw = queryParameters['index'];
   final index = raw == null ? fallback : (int.tryParse(raw) ?? 0);
   return normalizeIndex(index, tabCount);
 }
 
 class BottomNavigationPage extends ConsumerStatefulWidget {
-  const BottomNavigationPage({super.key});
+  const BottomNavigationPage({super.key, this.restoredIndex});
+
+  /// A live resize restores the active destination instead of replaying a
+  /// previously consumed URL query. Ordinary entry still honors that query.
+  final int? restoredIndex;
 
   @override
   ConsumerState<BottomNavigationPage> createState() =>
@@ -97,10 +103,10 @@ class _BottomNavigationPageState extends ConsumerState<BottomNavigationPage> {
   @override
   void initState() {
     super.initState();
-    // PageController 初始为 0，真正的 initialIndex 在 didChangeDependencies 中
-    // 根据 GoRouterState 的 query 参数计算并跳转（GoRouterState.of 依赖
-    // InheritedWidget，不能在 initState 中调用）
-    pageController = PageController(initialPage: 0);
+    // 普通入口在 didChangeDependencies 解析路由初值；跨断点先恢复控制器，
+    // 避免恢复帧短暂显示消息页。GoRouterState.of 依赖 InheritedWidget，
+    // 仍不能在 initState 中读取。
+    pageController = PageController(initialPage: widget.restoredIndex ?? 0);
 
     _localeSubscription = LocaleSettings.getLocaleStream().listen((_) {
       if (mounted) {
@@ -119,7 +125,10 @@ class _BottomNavigationPageState extends ConsumerState<BottomNavigationPage> {
     if (_initialIndexApplied) return;
     _initialIndexApplied = true;
 
-    int initialIndex = _normalizeIndex(ref.read(bottomNavigationProvider));
+    final navigationBeforeRestore = ref.read(bottomNavigationProvider);
+    int initialIndex = _normalizeIndex(
+      widget.restoredIndex ?? navigationBeforeRestore,
+    );
 
     try {
       final routerState = GoRouterState.of(context);
@@ -127,6 +136,7 @@ class _BottomNavigationPageState extends ConsumerState<BottomNavigationPage> {
         routerState.uri.queryParameters,
         _buildPageList().length,
         fallback: initialIndex,
+        restoredIndex: widget.restoredIndex,
       );
     } catch (e) {
       // 非 GoRouter 上下文时使用默认值
@@ -134,10 +144,18 @@ class _BottomNavigationPageState extends ConsumerState<BottomNavigationPage> {
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
+      final currentIndex = ref.read(bottomNavigationProvider);
+      if (widget.restoredIndex != null &&
+          currentIndex != navigationBeforeRestore &&
+          currentIndex != initialIndex) {
+        return;
+      }
       if (pageController.hasClients) {
         pageController.jumpToPage(initialIndex);
       }
-      ref.read(bottomNavigationProvider.notifier).changeIndex(initialIndex);
+      if (widget.restoredIndex == null || currentIndex != initialIndex) {
+        ref.read(bottomNavigationProvider.notifier).changeIndex(initialIndex);
+      }
       _maybeShowE2EERecoveryGuide();
     });
   }

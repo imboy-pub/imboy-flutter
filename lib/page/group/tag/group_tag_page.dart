@@ -204,6 +204,7 @@ class _GroupTagPageState extends ConsumerState<GroupTagPage> {
           },
           child: Icon(
             CupertinoIcons.delete,
+            semanticLabel: t.groupTag.removeTitle,
             size: 20,
             color: AppColors.getIosRed(Theme.of(context).brightness),
           ),

@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:imboy/component/ui/cell_pressable.dart';
 
 import 'package:imboy/component/ui/avatar.dart';
 import 'package:imboy/component/ui/common_bar.dart';
@@ -117,14 +118,13 @@ class _TransferOwnerPageState extends State<TransferOwnerPage> {
     final isSelected = uid == _selectedUid;
     return Column(
       children: [
-        SizedBox(
-          height: _itemHeight.toDouble(),
+        ConstrainedBox(
+          constraints: BoxConstraints(minHeight: _itemHeight.toDouble()),
           child: Semantics(
             button: true,
             selected: isSelected,
-            child: GestureDetector(
+            child: CellPressable(
               // 不用 InkWell：DESIGN.md §13.2 禁止 Cupertino 列表行用 Ripple
-              behavior: HitTestBehavior.opaque,
               onTap: () => setState(() => _selectedUid = uid),
               child: Row(
                 children: [
@@ -147,7 +147,12 @@ class _TransferOwnerPageState extends State<TransferOwnerPage> {
                   Expanded(
                     child: Container(
                       alignment: Alignment.centerLeft,
-                      height: _itemHeight.toDouble(),
+                      constraints: BoxConstraints(
+                        minHeight: _itemHeight.toDouble(),
+                      ),
+                      padding: const EdgeInsets.symmetric(
+                        vertical: AppSpacing.small,
+                      ),
                       decoration: BoxDecoration(
                         borderRadius: AppRadius.borderRadiusMedium,
                         border: Border(

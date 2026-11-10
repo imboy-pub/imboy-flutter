@@ -557,6 +557,7 @@ class _OrgJoinCodeDialogState extends State<_OrgJoinCodeDialog> {
     final theme = Theme.of(context);
     final isConfirm = _stage == _OrgJoinStage.confirm;
     return AlertDialog(
+      scrollable: true,
       title: Text(
         isConfirm
             ? t.organization.picker.joinConfirmTitle

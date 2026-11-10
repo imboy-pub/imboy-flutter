@@ -12,8 +12,11 @@
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/semantics.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:go_router/go_router.dart';
 import 'package:imboy/component/helper/app_clock.dart';
 import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/i18n/strings.g.dart';
@@ -180,6 +183,54 @@ void main() {
   tearDown(() => GroupTaskService.resetInstance());
 
   group('GroupTaskPage —— 列表渲染 / List rendering', () {
+    testWidgets('keyboard completion stays in list; Enter opens its detail', (
+      tester,
+    ) async {
+      final semantics = tester.ensureSemantics();
+      addTearDown(semantics.dispose);
+      final fake = FakeGroupTaskService(tasksToReturn: const [
+        {'task_id': 'task_abc_1', 'id': 1001, 'title': '键盘待办', 'status': 1},
+      ]);
+      GroupTaskService.testInstance = fake;
+      String? openedTask;
+      final router = GoRouter(routes: [
+        GoRoute(
+          path: '/',
+          builder: (_, _) => const GroupTaskPage(groupId: '200'),
+        ),
+        GoRoute(
+          path: '/group/200/task/:id',
+          builder: (_, state) {
+            openedTask = state.pathParameters['id'];
+            return const Scaffold(body: Text('task-detail'));
+          },
+        ),
+      ]);
+      addTearDown(router.dispose);
+      await tester.pumpWidget(TranslationProvider(
+        child: ProviderScope(child: MaterialApp.router(routerConfig: router)),
+      ));
+      await tester.pumpAndSettle();
+      final completion = find.bySemanticsLabel('${t.groupTask.submitTask}: 键盘待办');
+      final data = tester.getSemantics(completion).getSemanticsData();
+      expect(data.hasFlag(SemanticsFlag.isButton), isTrue);
+      expect(data.hasFlag(SemanticsFlag.isSelected), isFalse);
+      Focus.of(tester.element(find.byIcon(CupertinoIcons.checkmark_seal)))
+          .requestFocus();
+      await tester.pump();
+      await tester.sendKeyEvent(LogicalKeyboardKey.space);
+      await tester.pumpAndSettle();
+      expect(fake.submitCallCount, 1);
+      expect(openedTask, isNull);
+
+      Focus.of(tester.element(find.text('键盘待办'))).requestFocus();
+      await tester.pump();
+      await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+      await tester.pumpAndSettle();
+      expect(openedTask, '1001');
+      expect(find.text('task-detail'), findsOneWidget);
+    });
+
     testWidgets('显示作业标题列表 / displays task titles', (tester) async {
       final fake = FakeGroupTaskService(
         tasksToReturn: List<Map<String, dynamic>>.from(_kFakeTasks),

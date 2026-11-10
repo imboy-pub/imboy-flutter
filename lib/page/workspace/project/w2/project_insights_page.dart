@@ -37,6 +37,7 @@ class ProjectInsightsPage extends ConsumerWidget {
         appBar: AppBar(
           title: Text(t.workspace.projectInsightsEntry),
           bottom: TabBar(
+            isScrollable: true,
             tabs: [
               Tab(
                 key: const ValueKey('project-insights-tab-pinned'),
@@ -108,6 +109,11 @@ Widget _tabBody(
       padding: AppSpacing.allRegular,
       children: [
         ...items,
+        if (error != null)
+          WorkspaceInlineError(
+            message: projectW2ViewMessage(context, error),
+            onRetry: onRetry,
+          ),
         if (loading)
           const Center(
             child: SizedBox(
@@ -151,8 +157,11 @@ class _PinnedTabState extends ConsumerState<_PinnedTab> {
       loading: pageAsyncs.any((a) => a.isLoading),
       error: firstError,
       itemCount: posts.length,
-      onRetry: () =>
-          ref.invalidate(projectPinnedPageProvider((widget.projectId, 1))),
+      onRetry: () {
+        for (var page = 1; page <= _pages; page++) {
+          ref.invalidate(projectPinnedPageProvider((widget.projectId, page)));
+        }
+      },
       emptyTitle: t.workspace.projectInsightsPinnedEmpty,
       emptySubtitle: t.workspace.projectChannelEmptySubtitle,
       items: [
@@ -220,8 +229,11 @@ class _ActivityTabState extends ConsumerState<_ActivityTab> {
       loading: pageAsyncs.any((a) => a.isLoading),
       error: firstError,
       itemCount: events.length,
-      onRetry: () =>
-          ref.invalidate(projectActivityPageProvider((widget.projectId, 1))),
+      onRetry: () {
+        for (var page = 1; page <= _pages; page++) {
+          ref.invalidate(projectActivityPageProvider((widget.projectId, page)));
+        }
+      },
       emptyTitle: t.workspace.projectInsightsActivityEmpty,
       emptySubtitle: t.workspace.projectChannelEmptySubtitle,
       items: [

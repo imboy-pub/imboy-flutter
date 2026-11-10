@@ -62,6 +62,7 @@ class _EnterpriseDirectoryPageState extends State<EnterpriseDirectoryPage> {
 
   /// 唯一的取数动作：带 cursor 的一页（首拉 cursor 为空）。
   Future<void> _loadMore() async {
+    if (_busy) return;
     setState(() {
       _busy = true;
       _error = null;
@@ -131,7 +132,7 @@ class _EnterpriseDirectoryPageState extends State<EnterpriseDirectoryPage> {
 
   Widget _buildList() {
     final EnterpriseErrorUiState? error = _error;
-    if (error != null) {
+    if (error != null && _items.isEmpty) {
       return SingleChildScrollView(
         child: EnterpriseErrorView(state: error, onRetry: _loadMore),
       );
@@ -158,7 +159,11 @@ class _EnterpriseDirectoryPageState extends State<EnterpriseDirectoryPage> {
   }
 
   Widget _footer() {
-    if (_busy && _items.isEmpty) {
+    final error = _error;
+    if (error != null) {
+      return EnterpriseErrorView(state: error, onRetry: _loadMore);
+    }
+    if (_busy) {
       return const Padding(
         padding: EdgeInsets.all(AppSpacing.large),
         child: Center(child: CircularProgressIndicator()),

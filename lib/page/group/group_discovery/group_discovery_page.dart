@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:imboy/component/ui/cell_pressable.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:imboy/component/search.dart';
@@ -142,58 +143,73 @@ class _GroupDiscoveryPageState extends ConsumerState<GroupDiscoveryPage> {
       ...state.categories,
     ];
     final selectedId = state.categoryId ?? '0';
-    return SizedBox(
-      height: 44,
-      child: ListView.separated(
-        scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.regular),
-        itemCount: all.length,
-        separatorBuilder: (_, _) => AppSpacing.horizontalSmall,
-        itemBuilder: (context, index) {
-          final cat = all[index];
-          final selected = cat.id == selectedId;
-          return CupertinoButton(
-            padding: EdgeInsets.zero,
-            onPressed: () =>
-                notifier.selectCategory(cat.id == '0' ? null : cat.id),
-            child: Container(
-              padding: const EdgeInsets.symmetric(
-                horizontal: AppSpacing.medium,
-                vertical: AppSpacing.small,
-              ),
-              decoration: BoxDecoration(
-                // 选中态用品牌蓝（DESIGN.md 双蓝策略：激活态归 brand，
-                // 原用 iosBlue 与系统语义色混用）；文字 onPrimary 白，
-                // 原选中态为蓝底深字，对比度不足（WCAG AA）。
-                color: selected
-                    ? AppColors.primary
-                    : (brightness == Brightness.dark
-                          ? AppColors.darkSurface
-                          : AppColors.lightSurface),
-                borderRadius: AppRadius.button,
-                border: selected
-                    ? null
-                    : Border.all(
-                        color: AppColors.getIosSeparator(brightness)
-                            .withValues(alpha: 0.3),
-                        width: 0.33,
-                      ),
-              ),
-              child: Text(
-                cat.name,
-                style: context.textStyle(
-                  FontSizeType.footnote,
-                  color: selected
-                      ? AppColors.onPrimary
-                      : (brightness == Brightness.dark
-                            ? AppColors.darkTextPrimary
-                            : AppColors.lightTextPrimary),
-                  fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
-                ),
-              ),
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.regular),
+      child: Row(
+        children: [
+          for (var index = 0; index < all.length; index++) ...[
+            if (index > 0) AppSpacing.horizontalSmall,
+            _buildCategoryButton(
+              all[index],
+              all[index].id == selectedId,
+              brightness,
+              notifier,
             ),
-          );
-        },
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCategoryButton(
+    GroupDiscoveryCategory cat,
+    bool selected,
+    Brightness brightness,
+    GroupDiscoveryNotifier notifier,
+  ) {
+    return Semantics(
+      selected: selected,
+      child: CupertinoButton(
+        padding: EdgeInsets.zero,
+        onPressed: () =>
+            notifier.selectCategory(cat.id == '0' ? null : cat.id),
+        child: Container(
+          padding: const EdgeInsets.symmetric(
+            horizontal: AppSpacing.medium,
+            vertical: AppSpacing.small,
+          ),
+          decoration: BoxDecoration(
+            // 选中态用品牌蓝（DESIGN.md 双蓝策略：激活态归 brand，
+            // 原用 iosBlue 与系统语义色混用）；文字 onPrimary 白，
+            // 原选中态为蓝底深字，对比度不足（WCAG AA）。
+            color: selected
+                ? AppColors.primary
+                : (brightness == Brightness.dark
+                      ? AppColors.darkSurface
+                      : AppColors.lightSurface),
+            borderRadius: AppRadius.button,
+            border: selected
+                ? null
+                : Border.all(
+                    color: AppColors.getIosSeparator(brightness)
+                        .withValues(alpha: 0.3),
+                    width: 0.33,
+                  ),
+          ),
+          child: Text(
+            cat.name,
+            style: context.textStyle(
+              FontSizeType.footnote,
+              color: selected
+                  ? AppColors.onPrimary
+                  : (brightness == Brightness.dark
+                        ? AppColors.darkTextPrimary
+                        : AppColors.lightTextPrimary),
+              fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
+            ),
+          ),
+        ),
       ),
     );
   }
@@ -262,7 +278,7 @@ class _GroupCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = brightness == Brightness.dark;
-    return GestureDetector(
+    return CellPressable(
       onTap: () => _openDetail(context),
       child: Container(
         margin: const EdgeInsets.symmetric(

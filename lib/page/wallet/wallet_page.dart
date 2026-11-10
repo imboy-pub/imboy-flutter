@@ -8,6 +8,7 @@ import 'package:imboy/component/helper/datetime.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:imboy/component/ui/ios_settings_ui.dart';
+import 'package:imboy/component/ui/resource_page_layout.dart';
 import 'package:imboy/config/payment_config.dart';
 import 'package:imboy/service/payment_launcher.dart';
 import 'package:imboy/theme/default/app_colors.dart';
@@ -217,6 +218,7 @@ class _WalletPageState extends ConsumerState<WalletPage> {
     final balanceText = '¥ ${balanceYuan.toStringAsFixed(2)}';
 
     return IosPageTemplate(
+      contentMaxWidth: ResourcePageLayout.maxWidth,
       title: t.account.wallet,
       useLargeTitle: false,
       // 触底加载流水依赖滚动监听：controller 必须挂到模板的
@@ -226,7 +228,11 @@ class _WalletPageState extends ConsumerState<WalletPage> {
       actions: [
         CupertinoButton(
           padding: EdgeInsets.zero,
-          child: const Icon(CupertinoIcons.add_circled, size: 22),
+          child: Icon(
+            CupertinoIcons.add_circled,
+            size: 22,
+            semanticLabel: t.account.rechargeTitle,
+          ),
           onPressed: () => _showTopupDialog(context),
         ),
         CupertinoButton(

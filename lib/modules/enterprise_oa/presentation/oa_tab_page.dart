@@ -33,7 +33,6 @@ import 'package:imboy/modules/enterprise_oa/domain/oa_tab_state.dart';
 import 'package:imboy/modules/enterprise_oa/domain/oa_webview_policy.dart';
 import 'package:imboy/modules/enterprise_oa/enterprise_oa_runtime_config.dart';
 import 'package:imboy/modules/enterprise_oa/presentation/oa_webview_container.dart';
-import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_sizes.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:imboy/theme/default/font_types.dart';
@@ -528,6 +527,31 @@ class _OaTabPageState extends State<OaTabPage>
   }
 }
 
+/// 状态内容在宽窗保持可读列宽，在矮窗和大字下保留滚动恢复入口。
+class _OaStateContent extends StatelessWidget {
+  const _OaStateContent({required this.children});
+
+  final List<Widget> children;
+
+  @override
+  Widget build(BuildContext context) {
+    return SafeArea(
+      child: Center(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(AppSpacing.large),
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 480),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: children,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 /// loading 态：居中进度指示 + 签发/倒计时说明。
 class _OaLoadingView extends StatelessWidget {
   const _OaLoadingView({required this.issuingSso, this.countdownRemaining});
@@ -541,33 +565,30 @@ class _OaLoadingView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final int? remaining = countdownRemaining;
-    return Center(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          const CircularProgressIndicator(),
-          SizedBox(height: AppSpacing.regular),
+    return _OaStateContent(
+      children: [
+        const CircularProgressIndicator(),
+        SizedBox(height: AppSpacing.regular),
+        Text(
+          issuingSso
+              ? t.enterpriseOa.ssoIssuing
+              : t.enterpriseOa.statusLoading,
+          style: context.textStyle(
+            FontSizeType.footnote,
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+          ),
+        ),
+        if (remaining != null) ...[
+          SizedBox(height: AppSpacing.tiny),
           Text(
-            issuingSso
-                ? t.enterpriseOa.ssoIssuing
-                : t.enterpriseOa.statusLoading,
+            t.enterpriseOa.ssoCountdown(seconds: '$remaining'),
             style: context.textStyle(
-              FontSizeType.footnote,
-              color: AppColors.slateText,
+              FontSizeType.tiny,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
             ),
           ),
-          if (remaining != null) ...[
-            SizedBox(height: AppSpacing.tiny),
-            Text(
-              t.enterpriseOa.ssoCountdown(seconds: '$remaining'),
-              style: context.textStyle(
-                FontSizeType.tiny,
-                color: AppColors.slateMuted,
-              ),
-            ),
-          ],
         ],
-      ),
+      ],
     );
   }
 }
@@ -580,29 +601,23 @@ class _OaWebViewSlot extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(AppSpacing.large),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              CupertinoIcons.briefcase,
-              size: AppSizes.iconSizeXLarge,
-              color: AppColors.slateMuted,
-            ),
-            SizedBox(height: AppSpacing.medium),
-            Text(
-              t.enterpriseOa.webviewSlotHint,
-              textAlign: TextAlign.center,
-              style: context.textStyle(
-                FontSizeType.footnote,
-                color: AppColors.slateText,
-              ),
-            ),
-          ],
+    return _OaStateContent(
+      children: [
+        Icon(
+          CupertinoIcons.briefcase,
+          size: AppSizes.iconSizeXLarge,
+          color: Theme.of(context).colorScheme.onSurfaceVariant,
         ),
-      ),
+        SizedBox(height: AppSpacing.medium),
+        Text(
+          t.enterpriseOa.webviewSlotHint,
+          textAlign: TextAlign.center,
+          style: context.textStyle(
+            FontSizeType.footnote,
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+          ),
+        ),
+      ],
     );
   }
 }
@@ -630,51 +645,45 @@ class _OaStatusMessageView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(AppSpacing.large),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              iconData,
-              size: AppSizes.iconSizeXLarge,
-              color: AppColors.slateMuted,
-            ),
-            SizedBox(height: AppSpacing.medium),
-            Text(
-              title,
-              textAlign: TextAlign.center,
-              style: context.textStyle(
-                FontSizeType.body,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-            SizedBox(height: AppSpacing.small),
-            Text(
-              hint,
-              textAlign: TextAlign.center,
-              style: context.textStyle(
-                FontSizeType.footnote,
-                color: AppColors.slateText,
-              ),
-            ),
-            if (detail != null) ...[
-              SizedBox(height: AppSpacing.tiny),
-              Text(
-                detail!,
-                textAlign: TextAlign.center,
-                style: context.textStyle(
-                  FontSizeType.tiny,
-                  color: AppColors.slateMuted,
-                ),
-              ),
-            ],
-            SizedBox(height: AppSpacing.regular),
-            FilledButton(onPressed: onAction, child: Text(actionLabel)),
-          ],
+    return _OaStateContent(
+      children: [
+        Icon(
+          iconData,
+          size: AppSizes.iconSizeXLarge,
+          color: Theme.of(context).colorScheme.onSurfaceVariant,
         ),
-      ),
+        SizedBox(height: AppSpacing.medium),
+        Text(
+          title,
+          textAlign: TextAlign.center,
+          style: context.textStyle(
+            FontSizeType.body,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        SizedBox(height: AppSpacing.small),
+        Text(
+          hint,
+          textAlign: TextAlign.center,
+          style: context.textStyle(
+            FontSizeType.footnote,
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+          ),
+        ),
+        if (detail != null) ...[
+          SizedBox(height: AppSpacing.tiny),
+          Text(
+            detail!,
+            textAlign: TextAlign.center,
+            style: context.textStyle(
+              FontSizeType.tiny,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
+          ),
+        ],
+        SizedBox(height: AppSpacing.regular),
+        FilledButton(onPressed: onAction, child: Text(actionLabel)),
+      ],
     );
   }
 }

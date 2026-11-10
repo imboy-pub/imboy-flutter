@@ -11,17 +11,55 @@ Widget _wrap(Widget child, {Brightness brightness = Brightness.light}) {
   );
 }
 
-ColoredBox _findColoredBox(WidgetTester tester) {
-  return tester.widget<ColoredBox>(
+Color? _feedbackColor(WidgetTester tester) {
+  final box = tester.widget<DecoratedBox>(
     find.descendant(
       of: find.byType(CellPressable),
-      matching: find.byType(ColoredBox),
+      matching: find.byWidgetPredicate(
+        (widget) =>
+            widget is DecoratedBox &&
+            widget.position == DecorationPosition.foreground,
+      ),
     ),
   );
+  return (box.decoration as BoxDecoration).color;
 }
 
 void main() {
   group('CellPressable', () {
+    for (final brightness in Brightness.values) {
+      testWidgets('focus feedback paints above opaque $brightness cells', (
+        tester,
+      ) async {
+        final surface = brightness == Brightness.dark
+            ? Colors.black
+            : Colors.white;
+        final highlight = brightness == Brightness.dark
+            ? Colors.white.withValues(alpha: 0.06)
+            : Colors.black.withValues(alpha: 0.04);
+        await tester.pumpWidget(
+          _wrap(
+            CellPressable(
+              onTap: () {},
+              child: ColoredBox(
+                color: surface,
+                child: const SizedBox(width: 120, height: 48),
+              ),
+            ),
+            brightness: brightness,
+          ),
+        );
+        await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+        await tester.pump();
+        expect(
+          find.byType(CellPressable),
+          paints
+            ..rect(color: surface)
+            ..rect(color: highlight),
+        );
+      });
+    }
+
     testWidgets('键盘聚焦有反馈，Enter 和 Space 各执行一次并可移出焦点', (tester) async {
       var calls = 0;
       await tester.pumpWidget(
@@ -43,14 +81,14 @@ void main() {
             true,
         isTrue,
       );
-      expect(_findColoredBox(tester).color, isNot(Colors.transparent));
+      expect(_feedbackColor(tester), isNot(Colors.transparent));
       await tester.sendKeyEvent(LogicalKeyboardKey.enter);
       expect(calls, 1);
       await tester.sendKeyEvent(LogicalKeyboardKey.space);
       expect(calls, 2);
       await tester.sendKeyEvent(LogicalKeyboardKey.tab);
       await tester.pump();
-      expect(_findColoredBox(tester).color, Colors.transparent);
+      expect(_feedbackColor(tester), Colors.transparent);
       expect(
         tester
                 .getSemantics(find.text('下一项'))
@@ -79,7 +117,7 @@ void main() {
       await tester.sendKeyEvent(LogicalKeyboardKey.space);
       await tester.pump();
       expect(calls, 0);
-      expect(_findColoredBox(tester).color, Colors.transparent);
+      expect(_feedbackColor(tester), Colors.transparent);
     });
 
     testWidgets('只有长按动作时键盘仍能执行该动作，只读行不拦截 Tab', (tester) async {
@@ -110,7 +148,7 @@ void main() {
 
       expect(find.text('hello'), findsOneWidget);
       // idle 状态：高亮色透明
-      expect(_findColoredBox(tester).color, Colors.transparent);
+      expect(_feedbackColor(tester), Colors.transparent);
     });
 
     testWidgets('invokes onTap on tap up', (tester) async {
@@ -153,14 +191,14 @@ void main() {
         await tester.pump();
         // pressed 状态：4% 黑（亮色主题）
         expect(
-          _findColoredBox(tester).color,
+          _feedbackColor(tester),
           Colors.black.withValues(alpha: 0.04),
         );
 
         // 松开：onTapUp
         await gesture.up();
         await tester.pumpAndSettle();
-        expect(_findColoredBox(tester).color, Colors.transparent);
+        expect(_feedbackColor(tester), Colors.transparent);
       },
     );
 
@@ -182,7 +220,7 @@ void main() {
       );
       await tester.pump();
       expect(
-        _findColoredBox(tester).color,
+        _feedbackColor(tester),
         Colors.white.withValues(alpha: 0.06),
       );
 
@@ -206,7 +244,7 @@ void main() {
       final gesture = await tester.startGesture(cellCenter);
       await tester.pump();
       expect(
-        _findColoredBox(tester).color,
+        _feedbackColor(tester),
         Colors.black.withValues(alpha: 0.04),
       );
 
@@ -214,7 +252,7 @@ void main() {
       await gesture.moveBy(const Offset(0, 200));
       await tester.pump();
       // 预期高亮被清除
-      expect(_findColoredBox(tester).color, Colors.transparent);
+      expect(_feedbackColor(tester), Colors.transparent);
 
       await gesture.up();
       await tester.pumpAndSettle();
@@ -243,7 +281,7 @@ void main() {
       );
       await tester.pump();
       // 验证：高亮仍为 transparent（不触发 _setPressed(true)）
-      expect(_findColoredBox(tester).color, Colors.transparent);
+      expect(_feedbackColor(tester), Colors.transparent);
 
       await gesture.up();
       await tester.pumpAndSettle();
@@ -293,7 +331,7 @@ void main() {
         await tester.pump();
         // 按下立即高亮
         expect(
-          _findColoredBox(tester).color,
+          _feedbackColor(tester),
           Colors.black.withValues(alpha: 0.04),
         );
 
@@ -301,14 +339,14 @@ void main() {
         await tester.pump(const Duration(milliseconds: 600));
         // 长按触发期间仍然高亮
         expect(
-          _findColoredBox(tester).color,
+          _feedbackColor(tester),
           Colors.black.withValues(alpha: 0.04),
         );
 
         // 抬起：onLongPressEnd 清除高亮
         await gesture.up();
         await tester.pumpAndSettle();
-        expect(_findColoredBox(tester).color, Colors.transparent);
+        expect(_feedbackColor(tester), Colors.transparent);
       },
     );
 
@@ -330,7 +368,7 @@ void main() {
       );
       await tester.pump();
       expect(
-        _findColoredBox(tester).color,
+        _feedbackColor(tester),
         Colors.black.withValues(alpha: 0.04),
       );
 

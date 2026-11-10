@@ -219,4 +219,43 @@ void main() {
     );
     expect(tester.takeException(), isNull);
   });
+
+  testWidgets('矮窗大字下错误可滚动重试并恢复原组织队列', (tester) async {
+    final adapter = _RecordingAdapter([
+      (
+        '/sessions/queue',
+        [
+          (503, {'code': 503, 'msg': 'temporarily unavailable'}),
+          (200, _queuePage()),
+        ],
+      ),
+    ]);
+    uxInstallStub(adapter);
+    await pumpUxCombo(
+      tester,
+      const Scaffold(
+        body: CsQueueView(orgId: _orgId, workspaceId: _workspaceId),
+      ),
+      UxCombo(const Size(320, 200), textScale: 2),
+    );
+    final retry = find.widgetWithText(OutlinedButton, '重试');
+    expect(retry, findsOneWidget);
+    expect(tester.takeException(), isNull);
+    await tester.ensureVisible(retry);
+    await tester.pump();
+    await tester.tap(retry);
+    await settleUx(tester);
+    expect(find.text('王**'), findsOneWidget);
+    expect(retry, findsNothing);
+    expect(adapter.requests, hasLength(2));
+    expect(
+      adapter.requests.every(
+        (request) =>
+            request.method == 'GET' &&
+            request.path.endsWith('/organizations/$_orgId/sessions/queue'),
+      ),
+      isTrue,
+    );
+    expect(tester.takeException(), isNull);
+  });
 }

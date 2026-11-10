@@ -563,7 +563,8 @@ class _CsWorkspacePageState extends State<CsWorkspacePage>
     if (orgId == null || _contexts.isEmpty) {
       // fail-closed 诚实空态：无「active assignment + enabled seat」上下文
       //（普通用户 / seat disabled / 无组织），不猜不垫。
-      return Center(
+      return SingleChildScrollView(
+        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.regular),
         child: CsListEmptyView(
           icon: CupertinoIcons.person_crop_circle_badge_xmark,
           title: context.t.customerService.noSeatTitle,

@@ -135,7 +135,9 @@ class _GroupAlbumPhotoDetailPageState
     final confirm = await showCupertinoDialog<bool>(
       context: context,
       builder: (context) => CupertinoAlertDialog(
-        title: Text(t.common.groupAlbumPhotoDeleteTitle),
+        title: Flexible(
+                      child: Text(t.common.groupAlbumPhotoDeleteTitle, textAlign: TextAlign.center),
+                    ),
         content: Text(t.common.groupAlbumPhotoDeleteConfirm),
         actions: [
           CupertinoDialogAction(
@@ -306,7 +308,9 @@ class _GroupAlbumPhotoDetailPageState
                   children: [
                     const Icon(CupertinoIcons.forward, size: 18),
                     AppSpacing.horizontalSmall,
-                    Text(t.common.groupAlbumPhotoOpenExternal),
+                    Flexible(
+                      child: Text(t.common.groupAlbumPhotoOpenExternal, textAlign: TextAlign.center),
+                    ),
                   ],
                 ),
               ),
@@ -328,7 +332,9 @@ class _GroupAlbumPhotoDetailPageState
                         ? const CupertinoActivityIndicator()
                         : const Icon(CupertinoIcons.photo_fill, size: 18),
                     AppSpacing.horizontalSmall,
-                    Text(t.group.groupAlbumPhotoSetCover),
+                    Flexible(
+                      child: Text(t.group.groupAlbumPhotoSetCover, textAlign: TextAlign.center),
+                    ),
                   ],
                 ),
               ),

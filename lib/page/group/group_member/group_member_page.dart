@@ -4,6 +4,7 @@ import 'dart:async';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:imboy/component/ui/cell_pressable.dart';
 import 'package:flutter/services.dart';
 import 'package:imboy/component/ui/app_loading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -22,6 +23,7 @@ import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_radius.dart';
 import 'package:imboy/theme/default/font_types.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
+import 'package:imboy/theme/default/app_sizes.dart';
 import 'package:imboy/service/event_bus.dart';
 import 'package:imboy/service/events/common_events.dart';
 import 'package:easy_refresh/easy_refresh.dart';
@@ -303,7 +305,7 @@ class _GroupMemberPageState extends ConsumerState<GroupMemberPage> {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
-    return GestureDetector(
+    return CellPressable(
       onTap: () async {
         HapticFeedback.selectionClick();
         final result = await context.push<bool>(
@@ -481,16 +483,21 @@ class _GroupMemberPageState extends ConsumerState<GroupMemberPage> {
 
   /// 分段控件标签
   Widget _segmentLabel(String text, bool selected) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 6),
-      child: Text(
-        text,
-        style: context.textStyle(
-          FontSizeType.caption2,
-          fontWeight: selected ? FontWeight.w600 : FontWeight.normal,
-          color: selected
-              ? AppColors.getIosBlue(Theme.of(context).brightness)
-              : Theme.of(context).colorScheme.onSurfaceVariant,
+    return ConstrainedBox(
+      constraints: const BoxConstraints(minHeight: AppSizes.touchTarget),
+      child: Center(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 6),
+          child: Text(
+            text,
+            style: context.textStyle(
+              FontSizeType.caption2,
+              fontWeight: selected ? FontWeight.w600 : FontWeight.normal,
+              color: selected
+                  ? AppColors.getIosBlue(Theme.of(context).brightness)
+                  : Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
+          ),
         ),
       ),
     );

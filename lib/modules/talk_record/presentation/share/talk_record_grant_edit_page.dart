@@ -142,8 +142,29 @@ class _TalkRecordGrantEditPageState
       case TalkRecordSharePhase.loading:
         body = const ShimmerList();
       case TalkRecordSharePhase.noAccess:
-      case TalkRecordSharePhase.failed:
         body = const _NoAccessHint();
+      case TalkRecordSharePhase.failed:
+        body = Center(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(AppSpacing.regular),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  t.talkRecord.loadFailedTitle,
+                  textAlign: TextAlign.center,
+                ),
+                CupertinoButton(
+                  key: const ValueKey('talk_record_grant_edit_retry'),
+                  onPressed: () => ref
+                      .read(talkRecordShareCenterProvider.notifier)
+                      .reload(),
+                  child: Text(t.talkRecord.loadFailedAction),
+                ),
+              ],
+            ),
+          ),
+        );
       case TalkRecordSharePhase.ready:
         body = _buildForm(context, center);
     }
@@ -249,7 +270,7 @@ class _TalkRecordGrantEditPageState
   }
 }
 
-/// 无管理权限时的如实提示（非 owner 门控/加载失败共用）。
+/// 无管理权限时的如实提示（非 owner 门控）。
 class _NoAccessHint extends StatelessWidget {
   const _NoAccessHint();
 

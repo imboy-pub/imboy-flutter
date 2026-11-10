@@ -9,13 +9,24 @@
 //   flutter test test/component/ui/ios_settings_ui_test.dart
 
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:imboy/component/ui/flat_list_tile.dart';
 import 'package:imboy/component/ui/ios_settings_ui.dart';
 
 double? _titleFontSize(WidgetTester tester, String title) {
   final widgets = tester.widgetList<Text>(find.text(title));
   if (widgets.isEmpty) return null;
   return widgets.first.style?.fontSize;
+}
+
+double _contrast(Color foreground, Color background) {
+  final painted = Color.alphaBlend(foreground, background).computeLuminance();
+  final backdrop = background.computeLuminance();
+  return painted > backdrop
+      ? (painted + 0.05) / (backdrop + 0.05)
+      : (backdrop + 0.05) / (painted + 0.05);
 }
 
 void main() {
@@ -173,4 +184,94 @@ void main() {
       expect(find.text('流水记录'), findsOneWidget);
     });
   });
+
+  for (final brightness in Brightness.values) {
+    testWidgets('设置分组说明在 $brightness 背景上的对比度至少 4.5', (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: ThemeData(brightness: brightness),
+          home: const IosPageTemplate(
+            title: '设置',
+            child: ImBoySettingsSection(
+              header: Text('通知设置说明'),
+              footer: Text('关闭后仍可在消息列表查看新消息'),
+              children: [ImBoySettingsTile(title: Text('接收通知'))],
+            ),
+          ),
+        ),
+      );
+      final scaffold = tester.widget<Scaffold>(find.byType(Scaffold));
+      final backdrop = scaffold.backgroundColor!;
+      for (final label in ['通知设置说明', '关闭后仍可在消息列表查看新消息']) {
+        final foreground = tester.widget<Text>(find.text(label)).style!.color!;
+        expect(_contrast(foreground, backdrop), greaterThanOrEqualTo(4.5));
+      }
+      expect(tester.takeException(), isNull);
+    });
+
+    for (final flat in [false, true]) {
+      final label = flat ? 'FlatListTile' : 'ImBoyListTile';
+      testWidgets('$label 在 $brightness 的两倍字号下容纳内容并支持键盘激活', (
+        tester,
+      ) async {
+        tester.view.physicalSize = const Size(320, 480);
+        tester.view.devicePixelRatio = 1;
+        addTearDown(tester.view.reset);
+        var activations = 0;
+        const tileKey = ValueKey('adaptive-settings-row');
+        const title = Text('消息提醒');
+        const subtitle = Text('接收通知\n及时回复');
+        final tile = flat
+            ? FlatListTile(
+                key: tileKey,
+                height: 44,
+                leading: const Icon(Icons.notifications_outlined),
+                title: title,
+                subtitle: subtitle,
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () => activations++,
+              )
+            : ImBoyListTile(
+                key: tileKey,
+                height: 44,
+                leading: const Icon(Icons.notifications_outlined),
+                title: title,
+                subtitle: subtitle,
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () => activations++,
+              );
+        await tester.pumpWidget(
+          MaterialApp(
+            theme: ThemeData(brightness: brightness),
+            builder: (context, child) => MediaQuery(
+              data: MediaQuery.of(context)
+                  .copyWith(textScaler: const TextScaler.linear(2)),
+              child: child!,
+            ),
+            home: Scaffold(body: ListView(children: [tile])),
+          ),
+        );
+        final row = tester.getRect(find.byKey(tileKey));
+        expect(row.height, greaterThan(44));
+        for (final text in ['消息提醒', '接收通知\n及时回复']) {
+          final finder = find.text(text);
+          final paragraph = tester.renderObject<RenderParagraph>(finder);
+          expect(paragraph.didExceedMaxLines, isFalse);
+          final bounds = tester.getRect(finder);
+          expect(row.inflate(0.01).contains(bounds.topLeft), isTrue);
+          expect(row.inflate(0.01).contains(bounds.bottomRight), isTrue);
+        }
+        expect(tester.takeException(), isNull);
+        await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+        await tester.pump();
+        await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+        await tester.pump();
+        expect(activations, 1);
+        await tester.sendKeyEvent(LogicalKeyboardKey.space);
+        await tester.pump();
+        expect(activations, 2);
+        expect(tester.takeException(), isNull);
+      });
+    }
+  }
 }

@@ -95,7 +95,7 @@ class ChannelOrderDetailPage extends ConsumerWidget {
         child: async.when(
           loading: () => const ShimmerList(),
           error: (_, _) => NoDataView(
-            text: t.channel.noOrders,
+            text: t.common.loadError,
             icon: CupertinoIcons.doc_plaintext,
             onTop: () => ref.invalidate(channelOrderDetailProvider(orderNo)),
           ),

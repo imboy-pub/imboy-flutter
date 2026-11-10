@@ -64,71 +64,88 @@ class _AppealPageState extends State<AppealPage> {
     }
   }
 
-  Future<void> _submitAppeal(Map<String, dynamic> action) async {
+  Future<bool> _submitAppeal(Map<String, dynamic> action) async {
     final reason = _reasonController.text.trim();
-    if (reason.isEmpty) return;
+    if (reason.isEmpty || _submitting) return false;
     setState(() => _submitting = true);
-    final ok = await _api.create(
-      actionId: (action['id'] as num? ?? 0).toInt(),
-      reason: reason,
-    );
-    if (!mounted) return;
-    setState(() => _submitting = false);
-    if (ok) {
+    try {
+      final ok = await _api.create(
+        actionId: (action['id'] as num? ?? 0).toInt(),
+        reason: reason,
+      );
+      if (!mounted) return false;
+      if (!ok) {
+        _showToast(t.appeal.submitFailed);
+        return false;
+      }
       _reasonController.clear();
       await _load();
-    } else {
-      _showToast(t.appeal.submitFailed);
+      return true;
+    } on Exception {
+      if (mounted) _showToast(t.appeal.submitFailed);
+      return false;
+    } finally {
+      if (mounted) setState(() => _submitting = false);
     }
   }
 
   void _showAppealDialog(Map<String, dynamic> action) {
+    if (_submitting) return;
+    var submitting = false;
     showCupertinoModalPopup<void>(
       context: context,
       builder: (BuildContext dialogContext) {
-        return CupertinoAlertDialog(
-          title: Text(t.appeal.dialogTitle),
-          content: Column(
-            children: [
-              const SizedBox(height: AppSpacing.small),
-              Text(
-                action['reason']?.toString() ?? '',
-                style: context.textStyle(
-                  FontSizeType.footnote,
-                  color: AppColors.iosGray,
+        return StatefulBuilder(
+          builder: (context, setDialogState) => CupertinoAlertDialog(
+            title: Text(t.appeal.dialogTitle),
+            content: Column(
+              children: [
+                const SizedBox(height: AppSpacing.small),
+                Text(
+                  action['reason']?.toString() ?? '',
+                  style: context.textStyle(
+                    FontSizeType.footnote,
+                    color: AppColors.iosGray,
+                  ),
                 ),
+                const SizedBox(height: AppSpacing.small),
+                CupertinoTextField(
+                  controller: _reasonController,
+                  placeholder: t.appeal.reasonPlaceholder,
+                  maxLines: 3,
+                  maxLength: 1000,
+                  readOnly: submitting,
+                  onChanged: (_) => setDialogState(() {}),
+                ),
+              ],
+            ),
+            actions: [
+              CupertinoDialogAction(
+                onPressed: submitting
+                    ? null
+                    : () => Navigator.pop(dialogContext),
+                child: Text(t.common.cancel),
               ),
-              const SizedBox(height: AppSpacing.small),
-              CupertinoTextField(
-                controller: _reasonController,
-                placeholder: t.appeal.reasonPlaceholder,
-                maxLines: 3,
-                maxLength: 1000,
+              CupertinoDialogAction(
+                isDefaultAction: !submitting,
+                onPressed: submitting || _reasonController.text.trim().isEmpty
+                    ? null
+                    : () async {
+                        setDialogState(() => submitting = true);
+                        final saved = await _submitAppeal(action);
+                        if (!context.mounted || !dialogContext.mounted) return;
+                        if (saved) {
+                          Navigator.pop(dialogContext);
+                        } else {
+                          setDialogState(() => submitting = false);
+                        }
+                      },
+                child: submitting
+                    ? const CupertinoActivityIndicator()
+                    : Text(t.appeal.submit),
               ),
             ],
           ),
-          actions: [
-            CupertinoDialogAction(
-              isDestructiveAction: true,
-              onPressed: _submitting
-                  ? null
-                  : () => Navigator.pop(dialogContext),
-              child: Text(t.common.cancel),
-            ),
-            CupertinoDialogAction(
-              isDefaultAction: _submitting ? false : true,
-              onPressed: _submitting
-                  ? null
-                  : () async {
-                      final navigator = Navigator.of(dialogContext);
-                      await _submitAppeal(action);
-                      navigator.pop();
-                    },
-              child: _submitting
-                  ? const CupertinoActivityIndicator()
-                  : Text(t.appeal.submit),
-            ),
-          ],
         );
       },
     );
@@ -233,7 +250,9 @@ class _AppealPageState extends State<AppealPage> {
                 ? null
                 : CupertinoButton(
                     padding: EdgeInsets.zero,
-                    onPressed: () => _showAppealDialog(action),
+                    onPressed: _submitting
+                        ? null
+                        : () => _showAppealDialog(action),
                     child: Text(t.appeal.submit),
                   ),
           ),

@@ -98,6 +98,28 @@ void main() {
   });
 
   group('PinCodeVerificationPage layout', () {
+    testWidgets('清空任一密码输入同步清空待提交状态', (tester) async {
+      await _pump(tester);
+      final container = ProviderScope.containerOf(
+        tester.element(find.byType(PinCodeVerificationPage)),
+      );
+      for (var index = 0; index < 2; index++) {
+        final input = find.descendant(
+          of: find.byType(PasswordTextField).at(index),
+          matching: find.byType(TextField),
+        );
+        await tester.enterText(input, 'example-password');
+        await tester.pump();
+        var state = container.read(passportProvider);
+        expect(index == 0 ? state.newPwd : state.retypePwd, 'example-password');
+        await tester.enterText(input, '');
+        await tester.pump();
+        state = container.read(passportProvider);
+        expect(index == 0 ? state.newPwd : state.retypePwd, isEmpty);
+      }
+      await _unmount(tester);
+    });
+
     testWidgets('renders PassportTitle (品牌锚点 + Hero relay)', (tester) async {
       await _pump(tester);
 

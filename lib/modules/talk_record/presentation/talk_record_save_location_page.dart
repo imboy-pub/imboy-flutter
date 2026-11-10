@@ -13,6 +13,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import 'package:imboy/component/ui/cell_pressable.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/store/model/talk_record/talk_record_capabilities_model.dart'
     show TalkRecordCreationContextModel;
@@ -281,10 +282,7 @@ class _LocationTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final brightness = Theme.of(context).brightness;
-    return GestureDetector(
-      behavior: HitTestBehavior.opaque,
-      onTap: onTap,
-      child: Container(
+    final tile = Container(
         // 触达 ≥44pt。
         constraints: const BoxConstraints(minHeight: 44),
         padding: EdgeInsets.fromLTRB(
@@ -342,7 +340,10 @@ class _LocationTile extends StatelessWidget {
               ),
           ],
         ),
-      ),
+    );
+    return CellPressable(
+      onTap: onTap,
+      child: Semantics(selected: selected, child: tile),
     );
   }
 }

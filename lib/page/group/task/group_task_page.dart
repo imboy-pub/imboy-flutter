@@ -7,6 +7,7 @@ import 'package:imboy/component/helper/app_clock.dart';
 import 'package:imboy/component/helper/boundary_refresh.dart';
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/ui/app_loading.dart';
+import 'package:imboy/component/ui/cell_pressable.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/nodata_view.dart';
 import 'package:imboy/i18n/strings.g.dart';
@@ -272,7 +273,7 @@ class _GroupTaskPageState extends ConsumerState<GroupTaskPage>
     if (_error != null) {
       return NoDataView(
         key: const Key('group_task_error'),
-        text: t.common.tipFailed,
+        text: t.common.loadError,
         icon: CupertinoIcons.exclamationmark_circle,
         onTop: _loadTasks,
       );
@@ -319,8 +320,7 @@ class _GroupTaskPageState extends ConsumerState<GroupTaskPage>
         : null;
     final creatorName = _creatorNames[_toText(task['creator_id'])] ?? '';
 
-    return GestureDetector(
-      behavior: HitTestBehavior.opaque,
+    return CellPressable(
       onTap: () async {
         if (taskId.isEmpty) {
           AppLoading.showToast(t.groupTask.taskIdMissing);
@@ -349,7 +349,7 @@ class _GroupTaskPageState extends ConsumerState<GroupTaskPage>
         child: Row(
           children: [
             // 完成状态勾选（iOS 风格）
-            GestureDetector(
+            CellPressable(
               onTap: isDone
                   ? null
                   : () async {
@@ -372,17 +372,23 @@ class _GroupTaskPageState extends ConsumerState<GroupTaskPage>
                       );
                       if (mounted) _loadTasks();
                     },
-              behavior: HitTestBehavior.opaque,
-              child: SizedBox.square(
-                dimension: AppSpacing.xxxLarge,
-                child: Icon(
-                  isDone
-                      ? CupertinoIcons.checkmark_seal_fill
-                      : CupertinoIcons.checkmark_seal,
-                  size: 26,
-                  color: isDone
-                      ? AppColors.getIosGreen(Theme.of(context).brightness)
-                      : AppColors.iosGray3,
+              child: Semantics(
+                label:
+                    '${isDone ? t.groupTask.completed : t.groupTask.submitTask}: '
+                    '${task['title'] ?? ''}',
+                selected: isDone,
+                enabled: !isDone,
+                child: SizedBox.square(
+                  dimension: AppSpacing.xxxLarge,
+                  child: Icon(
+                    isDone
+                        ? CupertinoIcons.checkmark_seal_fill
+                        : CupertinoIcons.checkmark_seal,
+                    size: 26,
+                    color: isDone
+                        ? AppColors.getIosGreen(Theme.of(context).brightness)
+                        : AppColors.iosGray3,
+                  ),
                 ),
               ),
             ),

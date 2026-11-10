@@ -214,9 +214,9 @@ void main() {
           );
           for (var i = 0; i < _kSampleItems.length; i++) {
             final label = _kSampleItems[i].label;
-            final data = tester
-                .getSemantics(find.byTooltip(label))
-                .getSemanticsData();
+            final button = find.bySemanticsLabel(label);
+            expect(button, findsOneWidget);
+            final data = tester.getSemantics(button).getSemanticsData();
             expect(data.label, label);
             expect(data.flagsCollection.isButton, isTrue);
             expect(
