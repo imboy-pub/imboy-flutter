@@ -65,10 +65,9 @@ void main() {
         expect(panelBounds.left, 0);
         final qr = find.byType(QrImageView);
         expect(qr, findsOneWidget);
-        final frame = find.ancestor(
-          of: qr,
-          matching: find.byType(Container),
-        ).first;
+        final frame = find
+            .ancestor(of: qr, matching: find.byType(Container))
+            .first;
         await tester.ensureVisible(frame);
         await tester.pumpAndSettle();
         expect(tester.getSize(frame), const Size(256, 256));

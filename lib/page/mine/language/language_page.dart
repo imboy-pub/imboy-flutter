@@ -233,7 +233,8 @@ class LanguagePage extends ConsumerWidget {
           for (var item in state.languageList)
             MergeSemantics(
               child: Semantics(
-                selected: !state.followSystem &&
+                selected:
+                    !state.followSystem &&
                     state.currentLocale == localeIdMap[item.id],
                 inMutuallyExclusiveGroup: true,
                 child: ImBoySettingsTile(
@@ -247,8 +248,9 @@ class LanguagePage extends ConsumerWidget {
                           color: AppColors.getIosBlue(brightness),
                         )
                       : const SizedBox.shrink(),
-                  onTap: () =>
-                      ref.read(languageProvider.notifier).changeLanguage(item.id),
+                  onTap: () => ref
+                      .read(languageProvider.notifier)
+                      .changeLanguage(item.id),
                 ),
               ),
             ),

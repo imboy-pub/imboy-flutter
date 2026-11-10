@@ -197,9 +197,11 @@ void main() {
     );
     await tester.drag(scroll, const Offset(0, -300));
     await tester.pumpAndSettle();
-    final position = tester.state<ScrollableState>(
-      find.descendant(of: scroll, matching: find.byType(Scrollable)).first,
-    ).position;
+    final position = tester
+        .state<ScrollableState>(
+          find.descendant(of: scroll, matching: find.byType(Scrollable)).first,
+        )
+        .position;
     expect(position.pixels, greaterThan(0));
     expect(action.hitTestable(), findsOneWidget);
   });

@@ -47,11 +47,15 @@ void groupAlbumPhotoAccessibilityTests() {
     });
   });
 
-  testWidgets('photo tile is named and opens with Tab and Enter', (tester) async {
+  testWidgets('photo tile is named and opens with Tab and Enter', (
+    tester,
+  ) async {
     final handle = tester.ensureSemantics();
     addTearDown(handle.dispose);
     GroupAlbumService.instanceForTest = _FakeGroupAlbumService(
-      photos: const [{'id': '101', 'thumbnail_url': ''}],
+      photos: const [
+        {'id': '101', 'thumbnail_url': ''},
+      ],
       photoDetails: const {},
     );
     String? openedPhoto;
@@ -59,9 +63,8 @@ void groupAlbumPhotoAccessibilityTests() {
       routes: [
         GoRoute(
           path: '/',
-          builder: (_, _) => const GroupAlbumPhotoPage(
-            groupId: 'g1', albumId: 'a1',
-          ),
+          builder: (_, _) =>
+              const GroupAlbumPhotoPage(groupId: 'g1', albumId: 'a1'),
         ),
         GoRoute(
           path: '/group/:groupId/album/:albumId/photo/:photoId',
@@ -77,8 +80,11 @@ void groupAlbumPhotoAccessibilityTests() {
       ProviderScope(child: MaterialApp.router(routerConfig: router)),
     );
     await tester.pumpAndSettle();
-    final photo = find.bySemanticsLabel('${t.group.groupAlbumPhotoDetailTitle} 1');
-    expect(tester.getSemantics(photo).getSemanticsData().hasFlag(SemanticsFlag.isButton), isTrue);
+    final photo = find.bySemanticsLabel(
+      '${t.group.groupAlbumPhotoDetailTitle} 1',
+    );
+    final photoData = tester.getSemantics(photo).getSemanticsData();
+    expect(photoData.flagsCollection.isButton, isTrue);
     await tester.sendKeyEvent(LogicalKeyboardKey.tab);
     await tester.pump();
     await tester.sendKeyEvent(LogicalKeyboardKey.enter);
@@ -87,50 +93,68 @@ void groupAlbumPhotoAccessibilityTests() {
     expect(find.text('opened-photo'), findsOneWidget);
   });
 
-  testWidgets('delete has an independent named target; selection respects reduced motion', (tester) async {
-    final handle = tester.ensureSemantics();
-    addTearDown(handle.dispose);
-    final fake = _FakeGroupAlbumService(
-      photos: const [{'id': '101', 'uploader_id': _currentUid, 'thumbnail_url': ''}],
-      photoDetails: const {},
-    );
-    GroupAlbumService.instanceForTest = fake;
-    await tester.pumpWidget(
-      ProviderScope(
-        child: MaterialApp(
-          builder: (context, child) => MediaQuery(
-            data: MediaQuery.of(context).copyWith(disableAnimations: true),
-            child: child!,
+  testWidgets(
+    'delete has an independent named target; selection respects reduced motion',
+    (tester) async {
+      final handle = tester.ensureSemantics();
+      addTearDown(handle.dispose);
+      final fake = _FakeGroupAlbumService(
+        photos: const [
+          {'id': '101', 'uploader_id': _currentUid, 'thumbnail_url': ''},
+        ],
+        photoDetails: const {},
+      );
+      GroupAlbumService.instanceForTest = fake;
+      await tester.pumpWidget(
+        ProviderScope(
+          child: MaterialApp(
+            builder: (context, child) => MediaQuery(
+              data: MediaQuery.of(context).copyWith(disableAnimations: true),
+              child: child!,
+            ),
+            home: const GroupAlbumPhotoPage(groupId: 'g1', albumId: 'a1'),
           ),
-          home: const GroupAlbumPhotoPage(groupId: 'g1', albumId: 'a1'),
         ),
-      ),
-    );
-    await tester.pumpAndSettle();
-    final delete = find.byKey(const Key('group_album_photo_delete_0'));
-    expect(tester.getSize(delete).width, greaterThanOrEqualTo(44));
-    expect(tester.getSize(delete).height, greaterThanOrEqualTo(44));
-    final namedDelete = find.bySemanticsLabel(t.common.groupAlbumPhotoDeleteTitle);
-    expect(tester.getSemantics(namedDelete).getSemanticsData().hasFlag(SemanticsFlag.isButton), isTrue);
-    Focus.of(tester.element(find.byIcon(CupertinoIcons.delete))).requestFocus();
-    await tester.pump();
-    await tester.sendKeyEvent(LogicalKeyboardKey.space);
-    await tester.pumpAndSettle();
-    expect(find.byType(CupertinoAlertDialog), findsOneWidget);
-    expect(fake.deleteCalls, isEmpty);
-    await tester.tap(find.text(t.common.cancel));
-    await tester.pumpAndSettle();
+      );
+      await tester.pumpAndSettle();
+      final delete = find.byKey(const Key('group_album_photo_delete_0'));
+      expect(tester.getSize(delete).width, greaterThanOrEqualTo(44));
+      expect(tester.getSize(delete).height, greaterThanOrEqualTo(44));
+      final namedDelete = find.bySemanticsLabel(
+        t.common.groupAlbumPhotoDeleteTitle,
+      );
+      final deleteData = tester.getSemantics(namedDelete).getSemanticsData();
+      expect(deleteData.flagsCollection.isButton, isTrue);
+      Focus.of(tester.element(find.byIcon(CupertinoIcons.delete)))
+          .requestFocus();
+      await tester.pump();
+      await tester.sendKeyEvent(LogicalKeyboardKey.space);
+      await tester.pumpAndSettle();
+      expect(find.byType(CupertinoAlertDialog), findsOneWidget);
+      expect(fake.deleteCalls, isEmpty);
+      await tester.tap(find.text(t.common.cancel));
+      await tester.pumpAndSettle();
 
-    final cell = find.byKey(const Key('group_album_photo_cell_0'));
-    await tester.longPress(cell);
-    await tester.pumpAndSettle();
-    final selected = find.bySemanticsLabel('${t.group.groupAlbumPhotoDetailTitle} 1');
-    expect(tester.getSemantics(selected).getSemanticsData().hasFlag(SemanticsFlag.isSelected), isTrue);
-    final animations = tester.widgetList<AnimatedOpacity>(
-      find.descendant(of: cell, matching: find.byType(AnimatedOpacity)),
-    );
-    expect(animations, isNotEmpty);
-    expect(animations.every((animation) => animation.duration == Duration.zero), isTrue);
-    expect(find.byKey(const Key('group_album_photo_delete_0')), findsNothing);
-  });
+      final cell = find.byKey(const Key('group_album_photo_cell_0'));
+      await tester.longPress(cell);
+      await tester.pumpAndSettle();
+      final selected = find.bySemanticsLabel(
+        '${t.group.groupAlbumPhotoDetailTitle} 1',
+      );
+      final selectedData = tester.getSemantics(selected).getSemanticsData();
+      expect(
+        selectedData.flagsCollection.isSelected.toBoolOrNull() ?? false,
+        isTrue,
+      );
+      final animations = tester.widgetList<AnimatedOpacity>(
+        find.descendant(of: cell, matching: find.byType(AnimatedOpacity)),
+      );
+      expect(animations, isNotEmpty);
+      expect(
+        animations.every((animation) => animation.duration == Duration.zero),
+        isTrue,
+      );
+      expect(find.byKey(const Key('group_album_photo_delete_0')), findsNothing);
+    },
+  );
 }

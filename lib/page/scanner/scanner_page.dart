@@ -401,27 +401,29 @@ class _ScannerPageState extends ConsumerState<ScannerPage>
                         children: [
                           ValueListenableBuilder(
                             valueListenable: controller,
-                            builder: (context, MobileScannerState state, child) {
-                              final isTorchOn = state.torchState == TorchState.on;
-                              return IconButton(
-                                color: AppColors.onPrimary,
-                                icon: Icon(
-                                  isTorchOn
-                                      ? CupertinoIcons.lightbulb_fill
-                                      : CupertinoIcons.lightbulb_slash,
-                                  color: isTorchOn
-                                      ? AppColors.iosYellow
-                                      : AppColors.onPrimary.withValues(
-                                          alpha: 0.5,
-                                        ),
-                                ),
-                                iconSize: 32.0,
-                                tooltip: isTorchOn
-                                    ? t.common.turnOffFlashlight
-                                    : t.common.turnOnFlashlight,
-                                onPressed: () => controller.toggleTorch(),
-                              );
-                            },
+                            builder:
+                                (context, MobileScannerState state, child) {
+                                  final isTorchOn =
+                                      state.torchState == TorchState.on;
+                                  return IconButton(
+                                    color: AppColors.onPrimary,
+                                    icon: Icon(
+                                      isTorchOn
+                                          ? CupertinoIcons.lightbulb_fill
+                                          : CupertinoIcons.lightbulb_slash,
+                                      color: isTorchOn
+                                          ? AppColors.iosYellow
+                                          : AppColors.onPrimary.withValues(
+                                              alpha: 0.5,
+                                            ),
+                                    ),
+                                    iconSize: 32.0,
+                                    tooltip: isTorchOn
+                                        ? t.common.turnOffFlashlight
+                                        : t.common.turnOnFlashlight,
+                                    onPressed: () => controller.toggleTorch(),
+                                  );
+                                },
                           ),
                           IconButton(
                             color: AppColors.onPrimary,
@@ -487,9 +489,8 @@ class _ScannerPageState extends ConsumerState<ScannerPage>
                                   .pickSingle(context, MediaType.image);
                               if (media == null) return;
                               if (!mounted) return;
-                              BarcodeCapture? res = await controller.analyzeImage(
-                                media.path,
-                              );
+                              BarcodeCapture? res = await controller
+                                  .analyzeImage(media.path);
                               if (kDebugMode) {}
                               if (!context.mounted) return;
                               if (res == null) {

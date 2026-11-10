@@ -257,8 +257,11 @@ class _WithdrawPageState extends ConsumerState<WithdrawPage> {
                             const Icon(CupertinoIcons.money_dollar, size: 20),
                             AppSpacing.horizontalSmall,
                             Flexible(
-                            child: Text(t.common.withdrawAlipay, textAlign: TextAlign.center),
-                          ),
+                              child: Text(
+                                t.common.withdrawAlipay,
+                                textAlign: TextAlign.center,
+                              ),
+                            ),
                           ],
                         ),
                         selected: _selectedMethod == 'alipay',
@@ -278,8 +281,11 @@ class _WithdrawPageState extends ConsumerState<WithdrawPage> {
                             const Icon(CupertinoIcons.chat_bubble, size: 20),
                             AppSpacing.horizontalSmall,
                             Flexible(
-                            child: Text(t.common.withdrawWechat, textAlign: TextAlign.center),
-                          ),
+                              child: Text(
+                                t.common.withdrawWechat,
+                                textAlign: TextAlign.center,
+                              ),
+                            ),
                           ],
                         ),
                         selected: _selectedMethod == 'wechat',

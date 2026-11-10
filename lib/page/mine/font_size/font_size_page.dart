@@ -279,9 +279,9 @@ class FontSizePage extends ConsumerWidget {
               max: (options.length - 1).toDouble(),
               divisions: options.length - 1,
               value: state.sliderValue,
-              semanticFormatterCallback: (value) => options[
-                value.round().clamp(0, options.length - 1)
-              ].localizedName,
+              semanticFormatterCallback: (value) =>
+                  options[value.round().clamp(0, options.length - 1)]
+                      .localizedName,
               onChanged: (value) =>
                   ref.read(fontSizeProvider.notifier).updatePreview(value),
               onChangeEnd: (value) async {

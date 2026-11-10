@@ -156,9 +156,7 @@ class _BindMobilePageState extends ConsumerState<BindMobilePage> {
                     ),
                     AppSpacing.verticalTiny,
                     CupertinoTextField(
-                      controller: ref
-                          .read(bindMobileProvider.notifier)
-                          .codeCtl,
+                      controller: ref.read(bindMobileProvider.notifier).codeCtl,
                       placeholder: '000000',
                       keyboardType: TextInputType.number,
                       inputFormatters: [

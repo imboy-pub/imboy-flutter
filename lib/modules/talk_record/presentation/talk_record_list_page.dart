@@ -38,7 +38,7 @@ import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:imboy/theme/default/font_types.dart';
 
 import 'package:imboy/config/router/routes/talk_record_routes.dart'
-    show kTalkRecordPreparePath;
+    show kTalkRecordDetailPath, kTalkRecordPreparePath;
 import 'package:imboy/modules/talk_record/presentation/talk_record_entry_context.dart';
 import 'package:imboy/modules/talk_record/presentation/talk_record_providers.dart';
 import 'package:imboy/modules/talk_record/presentation/talk_record_recording_bar.dart';
@@ -322,22 +322,22 @@ class _Segment extends StatelessWidget {
         : AppColors.lightTextPrimary;
 
     final segment = Container(
-        constraints: const BoxConstraints(minHeight: 44),
-        decoration: BoxDecoration(
-          color: selected ? selectedColor : null,
-          borderRadius: BorderRadius.circular(8),
+      constraints: const BoxConstraints(minHeight: 44),
+      decoration: BoxDecoration(
+        color: selected ? selectedColor : null,
+        borderRadius: BorderRadius.circular(8),
+      ),
+      alignment: Alignment.center,
+      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.small),
+      child: Text(
+        label,
+        textAlign: TextAlign.center,
+        style: context.textStyle(
+          FontSizeType.normal,
+          fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
+          color: selected ? AppColors.onPrimary : unselectedFg,
         ),
-        alignment: Alignment.center,
-        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.small),
-        child: Text(
-          label,
-          textAlign: TextAlign.center,
-          style: context.textStyle(
-            FontSizeType.normal,
-            fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
-            color: selected ? AppColors.onPrimary : unselectedFg,
-          ),
-        ),
+      ),
     );
     return CellPressable(
       onTap: onTap,

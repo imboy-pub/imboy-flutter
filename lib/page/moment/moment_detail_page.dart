@@ -471,10 +471,7 @@ class _MomentDetailPageState extends State<MomentDetailPage> {
       );
     }
     if (post == null) {
-      return MomentDetailStateView(
-        loadFailed: _loadError,
-        onRetry: _loadAll,
-      );
+      return MomentDetailStateView(loadFailed: _loadError, onRetry: _loadAll);
     }
 
     final brightness = Theme.of(context).brightness;

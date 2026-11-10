@@ -168,7 +168,10 @@ void main() {
     final harness = T16Harness();
     final record = harness.service.entries.first.record;
     final service = FakeListService(
-      records: [record, _record(id: '102', title: '本机草稿', media: 'local_only')],
+      records: [
+        record,
+        _record(id: '102', title: '本机草稿', media: 'local_only'),
+      ],
     );
     final router = GoRouter(
       initialLocation: kTalkRecordListPath,

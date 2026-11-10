@@ -60,8 +60,7 @@ class _PersonalNavigationLayoutState
   int? _mobileRestoredIndex;
   _NavigationRestore? _pending;
 
-  Object _snapshot(ChatShellLayout layout) =>
-      layout == ChatShellLayout.mobile
+  Object _snapshot(ChatShellLayout layout) => layout == ChatShellLayout.mobile
       ? ref.read(bottomNavigationProvider)
       : ref.read(webShellProvider);
 

@@ -541,10 +541,7 @@ class _OaStateContent extends StatelessWidget {
           padding: const EdgeInsets.all(AppSpacing.large),
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 480),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: children,
-            ),
+            child: Column(mainAxisSize: MainAxisSize.min, children: children),
           ),
         ),
       ),
@@ -570,9 +567,7 @@ class _OaLoadingView extends StatelessWidget {
         const CircularProgressIndicator(),
         SizedBox(height: AppSpacing.regular),
         Text(
-          issuingSso
-              ? t.enterpriseOa.ssoIssuing
-              : t.enterpriseOa.statusLoading,
+          issuingSso ? t.enterpriseOa.ssoIssuing : t.enterpriseOa.statusLoading,
           style: context.textStyle(
             FontSizeType.footnote,
             color: Theme.of(context).colorScheme.onSurfaceVariant,

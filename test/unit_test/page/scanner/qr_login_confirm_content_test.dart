@@ -193,9 +193,8 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           builder: (context, child) => MediaQuery(
-            data: MediaQuery.of(context).copyWith(
-              textScaler: const TextScaler.linear(2),
-            ),
+            data: MediaQuery.of(context)
+                .copyWith(textScaler: const TextScaler.linear(2)),
             child: child!,
           ),
           home: build(
@@ -232,10 +231,12 @@ void main() {
         ),
       );
       final card = tester.widget<Container>(
-        find.ancestor(
-          of: find.textContaining('Dark device'),
-          matching: find.byType(Container),
-        ).first,
+        find
+            .ancestor(
+              of: find.textContaining('Dark device'),
+              matching: find.byType(Container),
+            )
+            .first,
       );
       expect(
         (card.decoration! as BoxDecoration).color,

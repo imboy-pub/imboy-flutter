@@ -7,7 +7,6 @@ import 'package:cross_file/cross_file.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:file_picker_platform_interface/file_picker_platform_interface.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/semantics.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/component/ui/app_loading.dart';
@@ -77,9 +76,8 @@ void main() {
         child: TranslationProvider(
           child: MaterialApp(
             builder: (context, child) => MediaQuery(
-              data: MediaQuery.of(context).copyWith(
-                textScaler: const TextScaler.linear(2),
-              ),
+              data: MediaQuery.of(context)
+                  .copyWith(textScaler: const TextScaler.linear(2)),
               child: AppLoading.init()(context, child),
             ),
             home: const GroupFilePage(groupId: 'g1'),
@@ -89,19 +87,20 @@ void main() {
     );
     await tester.pumpAndSettle();
     final filters = find.byWidgetPredicate(
-      (widget) => widget is SingleChildScrollView &&
+      (widget) =>
+          widget is SingleChildScrollView &&
           widget.scrollDirection == Axis.horizontal,
     );
     expect(tester.getSize(filters).height, greaterThan(44));
     final label = '${t.chat.groupFileCategoryImage} (1)';
     await tester.ensureVisible(find.text(label));
-    expect(tester.getSemantics(find.text(label)).getSemanticsData()
-        .hasFlag(SemanticsFlag.isSelected), isFalse);
+    final initial = tester.getSemantics(find.text(label)).getSemanticsData();
+    expect(initial.flagsCollection.isSelected.toBoolOrNull() ?? false, isFalse);
     await tester.tap(find.text(label));
     await tester.pumpAndSettle();
     final selected = tester.getSemantics(find.text(label)).getSemanticsData();
-    expect(selected.hasFlag(SemanticsFlag.isButton), isTrue);
-    expect(selected.hasFlag(SemanticsFlag.isSelected), isTrue);
+    expect(selected.flagsCollection.isButton, isTrue);
+    expect(selected.flagsCollection.isSelected.toBoolOrNull() ?? false, isTrue);
     expect(find.text('图片B'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });

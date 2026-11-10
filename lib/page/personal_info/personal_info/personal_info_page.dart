@@ -150,7 +150,10 @@ class _PersonalInfoPageState extends ConsumerState<PersonalInfoPage> {
                           shape: BoxShape.circle,
                           color: AppColors.primary.withValues(alpha: 0.1),
                           image: DecorationImage(
-                            image: avatarImageProvider(currentUserAvatar, w: 192),
+                            image: avatarImageProvider(
+                              currentUserAvatar,
+                              w: 192,
+                            ),
                             fit: BoxFit.cover,
                           ),
                         ),

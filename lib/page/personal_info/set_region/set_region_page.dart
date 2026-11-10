@@ -382,7 +382,9 @@ class _SubRegionPageState extends ConsumerState<_SubRegionPage> {
                     title: Text(
                       title,
                       style: TextStyle(
-                        fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+                        fontWeight: isSelected
+                            ? FontWeight.w600
+                            : FontWeight.w400,
                       ),
                     ),
                     trailing: hasChildren

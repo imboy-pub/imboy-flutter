@@ -12,9 +12,7 @@ void main() {
     '请完整阅读这些说明，再继续处理当前设备上的聊天记录。',
   ];
   for (final brightness in Brightness.values) {
-    testWidgets('设置说明卡 $brightness：两倍字号完整换行且正文对比度至少4.5', (
-      tester,
-    ) async {
+    testWidgets('设置说明卡 $brightness：两倍字号完整换行且正文对比度至少4.5', (tester) async {
       tester.view.physicalSize = const Size(320, 480);
       tester.view.devicePixelRatio = 1;
       addTearDown(tester.view.reset);

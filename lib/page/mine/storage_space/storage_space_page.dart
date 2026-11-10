@@ -413,10 +413,7 @@ class _StorageSpacePageState extends ConsumerState<StorageSpacePage> {
           ),
           if (action != null) ...[
             AppSpacing.verticalMedium,
-            Align(
-              alignment: AlignmentDirectional.centerEnd,
-              child: action,
-            ),
+            Align(alignment: AlignmentDirectional.centerEnd, child: action),
           ],
         ],
       ),

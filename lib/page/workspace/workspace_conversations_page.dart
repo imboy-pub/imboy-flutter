@@ -360,13 +360,9 @@ class _MessageRow extends StatelessWidget {
             BadgeWidget(
               key: ValueKey('workspace-unread-${group.groupId}'),
               showBadge: row.unreadCount > 0,
-              semanticLabel: t.common.unreadCount(
-                count: '${row.unreadCount}',
-              ),
+              semanticLabel: t.common.unreadCount(count: '${row.unreadCount}'),
               content: Text(
-                row.unreadCount > 99
-                    ? '99+'
-                    : '${row.unreadCount}',
+                row.unreadCount > 99 ? '99+' : '${row.unreadCount}',
                 style: context
                     .textStyle(
                       FontSizeType.caption2,

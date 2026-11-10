@@ -277,8 +277,8 @@ class LogoutAccountPage extends ConsumerWidget {
                 onTap: state.isLoading
                     ? null
                     : () => ref
-                        .read(logoutAccountProvider.notifier)
-                        .changeValue(state.selectedValue),
+                          .read(logoutAccountProvider.notifier)
+                          .changeValue(state.selectedValue),
               ),
             ],
           ),

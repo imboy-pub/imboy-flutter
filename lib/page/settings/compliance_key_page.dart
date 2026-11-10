@@ -179,9 +179,9 @@ class _ComplianceKeyPageState extends State<ComplianceKeyPage> {
                     t.main.complianceKeyInfoHint,
                     style: TextStyle(
                       color: AppColors.getTextColor(
-            CupertinoTheme.brightnessOf(context),
-            isSecondary: true,
-          ),
+                        CupertinoTheme.brightnessOf(context),
+                        isSecondary: true,
+                      ),
                       fontSize: FontSizeType.small.size,
                     ),
                   ),

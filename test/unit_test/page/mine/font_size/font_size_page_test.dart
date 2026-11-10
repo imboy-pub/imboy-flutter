@@ -67,9 +67,8 @@ Future<void> _pumpFont(
         child: MaterialApp.router(
           routerConfig: _stubRouter(),
           builder: (context, child) => MediaQuery(
-            data: MediaQuery.of(context).copyWith(
-              textScaler: TextScaler.linear(textScale),
-            ),
+            data: MediaQuery.of(context)
+                .copyWith(textScaler: TextScaler.linear(textScale)),
             child: child!,
           ),
         ),
@@ -178,9 +177,15 @@ void main() {
     slider.onChanged!(slider.max);
     await tester.pump();
 
-    expect(tester.widget<Text>(title).style!.fontSize, greaterThan(initialSize));
+    expect(
+      tester.widget<Text>(title).style!.fontSize,
+      greaterThan(initialSize),
+    );
     expect(container.read(fontSizeProvider).previewOption, target);
-    expect(container.read(fontSizeProvider).currentOption, FontSizeOption.normal);
+    expect(
+      container.read(fontSizeProvider).currentOption,
+      FontSizeOption.normal,
+    );
     expect(
       tester.widget<Slider>(find.byType(Slider)).semanticFormatterCallback!(
         slider.max,

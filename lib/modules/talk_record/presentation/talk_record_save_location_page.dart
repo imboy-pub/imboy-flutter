@@ -283,63 +283,63 @@ class _LocationTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final brightness = Theme.of(context).brightness;
     final tile = Container(
-        // 触达 ≥44pt。
-        constraints: const BoxConstraints(minHeight: 44),
-        padding: EdgeInsets.fromLTRB(
-          indent ? AppSpacing.xLarge : AppSpacing.medium,
-          AppSpacing.small,
-          AppSpacing.medium,
-          AppSpacing.small,
-        ),
-        decoration: BoxDecoration(
-          color: brightness == Brightness.dark
-              ? AppColors.darkSurface
-              : AppColors.lightSurface,
-          borderRadius: BorderRadius.circular(8),
-        ),
-        margin: const EdgeInsets.only(bottom: AppSpacing.small),
-        child: Row(
-          children: [
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
+      // 触达 ≥44pt。
+      constraints: const BoxConstraints(minHeight: 44),
+      padding: EdgeInsets.fromLTRB(
+        indent ? AppSpacing.xLarge : AppSpacing.medium,
+        AppSpacing.small,
+        AppSpacing.medium,
+        AppSpacing.small,
+      ),
+      decoration: BoxDecoration(
+        color: brightness == Brightness.dark
+            ? AppColors.darkSurface
+            : AppColors.lightSurface,
+        borderRadius: BorderRadius.circular(8),
+      ),
+      margin: const EdgeInsets.only(bottom: AppSpacing.small),
+      child: Row(
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  title,
+                  // C-F3：长名可换行。
+                  style: context.textStyle(
+                    FontSizeType.medium,
+                    fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
+                    color: brightness == Brightness.dark
+                        ? AppColors.darkTextPrimary
+                        : AppColors.lightTextPrimary,
+                  ),
+                ),
+                if (subtitle != null && subtitle!.isNotEmpty) ...[
+                  const SizedBox(height: 2),
                   Text(
-                    title,
-                    // C-F3：长名可换行。
+                    subtitle!,
+                    // C-F3：期限说明可换行。
                     style: context.textStyle(
-                      FontSizeType.medium,
-                      fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
+                      FontSizeType.small,
                       color: brightness == Brightness.dark
-                          ? AppColors.darkTextPrimary
-                          : AppColors.lightTextPrimary,
+                          ? AppColors.darkTextSecondary
+                          : AppColors.lightTextSecondary,
                     ),
                   ),
-                  if (subtitle != null && subtitle!.isNotEmpty) ...[
-                    const SizedBox(height: 2),
-                    Text(
-                      subtitle!,
-                      // C-F3：期限说明可换行。
-                      style: context.textStyle(
-                        FontSizeType.small,
-                        color: brightness == Brightness.dark
-                            ? AppColors.darkTextSecondary
-                            : AppColors.lightTextSecondary,
-                      ),
-                    ),
-                  ],
                 ],
-              ),
+              ],
             ),
-            if (selected)
-              Icon(
-                CupertinoIcons.check_mark,
-                size: AppSpacing.xLarge,
-                color: AppColors.primaryDark,
-              ),
-          ],
-        ),
+          ),
+          if (selected)
+            Icon(
+              CupertinoIcons.check_mark,
+              size: AppSpacing.xLarge,
+              color: AppColors.primaryDark,
+            ),
+        ],
+      ),
     );
     return CellPressable(
       onTap: onTap,

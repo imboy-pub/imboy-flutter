@@ -301,7 +301,9 @@ class _PinCodeVerificationPageState
                                           });
                                         },
                                         onChanged: (String? val) {
-                                          notifier.setRetypePwd(val?.trim() ?? '');
+                                          notifier.setRetypePwd(
+                                            val?.trim() ?? '',
+                                          );
                                         },
                                       );
                                     },

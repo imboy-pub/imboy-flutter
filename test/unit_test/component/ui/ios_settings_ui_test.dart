@@ -211,9 +211,7 @@ void main() {
 
     for (final flat in [false, true]) {
       final label = flat ? 'FlatListTile' : 'ImBoyListTile';
-      testWidgets('$label 在 $brightness 的两倍字号下容纳内容并支持键盘激活', (
-        tester,
-      ) async {
+      testWidgets('$label 在 $brightness 的两倍字号下容纳内容并支持键盘激活', (tester) async {
         tester.view.physicalSize = const Size(320, 480);
         tester.view.devicePixelRatio = 1;
         addTearDown(tester.view.reset);

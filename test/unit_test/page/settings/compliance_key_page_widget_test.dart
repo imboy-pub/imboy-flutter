@@ -79,9 +79,7 @@ void main() {
   });
 
   for (final brightness in Brightness.values) {
-    testWidgets('合规密钥 $brightness / 2倍字号：指纹完整可选择，说明可滚动到达', (
-      tester,
-    ) async {
+    testWidgets('合规密钥 $brightness / 2倍字号：指纹完整可选择，说明可滚动到达', (tester) async {
       var fetches = 0;
       ComplianceKeyService.debugFetcher = () async {
         fetches++;
@@ -109,10 +107,12 @@ void main() {
               widget.data?.replaceAll(' ', '') == fingerprint,
         ),
       );
-      final scrollable = find.descendant(
-        of: find.byType(ListView),
-        matching: find.byType(Scrollable),
-      ).first;
+      final scrollable = find
+          .descendant(
+            of: find.byType(ListView),
+            matching: find.byType(Scrollable),
+          )
+          .first;
       await tester.scrollUntilVisible(
         displayedFingerprint,
         150,
@@ -137,10 +137,12 @@ void main() {
         ),
       );
       expect(boxes.length, greaterThan(1), reason: '指纹应自然换行，不能藏在单行横向视口内');
-      final tile = find.ancestor(
-        of: displayedFingerprint,
-        matching: find.byType(ImBoySettingsTile),
-      ).first;
+      final tile = find
+          .ancestor(
+            of: displayedFingerprint,
+            matching: find.byType(ImBoySettingsTile),
+          )
+          .first;
       final tileBounds = tester.getRect(tile).inflate(0.01);
       final textBounds = tester.getRect(displayedFingerprint);
       expect(tileBounds.contains(textBounds.topLeft), isTrue);

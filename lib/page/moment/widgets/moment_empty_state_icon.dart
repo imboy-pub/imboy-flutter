@@ -6,7 +6,11 @@ class MomentEmptyStateIcon extends StatefulWidget {
   final IconData icon;
   final double size;
 
-  const MomentEmptyStateIcon({super.key, required this.icon, required this.size});
+  const MomentEmptyStateIcon({
+    super.key,
+    required this.icon,
+    required this.size,
+  });
 
   @override
   State<MomentEmptyStateIcon> createState() => _MomentEmptyStateIconState();

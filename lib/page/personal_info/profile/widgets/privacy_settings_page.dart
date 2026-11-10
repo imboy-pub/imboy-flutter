@@ -239,7 +239,9 @@ class PrivacySettingsPage extends ConsumerWidget {
                     style: context.textStyle(
                       FontSizeType.medium,
                       fontWeight: FontWeight.w400,
-                      color: AppColors.getTextColor(Theme.of(context).brightness),
+                      color: AppColors.getTextColor(
+                        Theme.of(context).brightness,
+                      ),
                     ),
                   ),
                   const SizedBox(height: AppSpacing.tiny),

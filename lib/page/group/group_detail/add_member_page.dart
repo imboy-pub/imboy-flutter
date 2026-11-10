@@ -323,7 +323,9 @@ class AddMemberPageState extends ConsumerState<AddMemberPage> {
                       const SizedBox(width: AppSpacing.small),
                       Expanded(
                         child: Text(
-                          t.main.selectedCount(count: '${state.selects.length}'),
+                          t.main.selectedCount(
+                            count: '${state.selects.length}',
+                          ),
                           style: TextStyle(
                             color: Theme.of(context).colorScheme.primary,
                             fontWeight: FontWeight.w500,

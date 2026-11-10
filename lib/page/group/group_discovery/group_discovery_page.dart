@@ -172,8 +172,7 @@ class _GroupDiscoveryPageState extends ConsumerState<GroupDiscoveryPage> {
       selected: selected,
       child: CupertinoButton(
         padding: EdgeInsets.zero,
-        onPressed: () =>
-            notifier.selectCategory(cat.id == '0' ? null : cat.id),
+        onPressed: () => notifier.selectCategory(cat.id == '0' ? null : cat.id),
         child: Container(
           padding: const EdgeInsets.symmetric(
             horizontal: AppSpacing.medium,

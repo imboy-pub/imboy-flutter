@@ -150,15 +150,11 @@ class _TalkRecordGrantEditPageState
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text(
-                  t.talkRecord.loadFailedTitle,
-                  textAlign: TextAlign.center,
-                ),
+                Text(t.talkRecord.loadFailedTitle, textAlign: TextAlign.center),
                 CupertinoButton(
                   key: const ValueKey('talk_record_grant_edit_retry'),
-                  onPressed: () => ref
-                      .read(talkRecordShareCenterProvider.notifier)
-                      .reload(),
+                  onPressed: () =>
+                      ref.read(talkRecordShareCenterProvider.notifier).reload(),
                   child: Text(t.talkRecord.loadFailedAction),
                 ),
               ],

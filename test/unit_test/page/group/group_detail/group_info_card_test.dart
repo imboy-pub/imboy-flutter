@@ -136,10 +136,9 @@ void main() {
     expect(find.byIcon(CupertinoIcons.chevron_up), findsOneWidget);
     expect(editTaps, 1);
 
-    final introAction = find.ancestor(
-      of: find.text(intro),
-      matching: find.byType(CellPressable),
-    ).first;
+    final introAction = find
+        .ancestor(of: find.text(intro), matching: find.byType(CellPressable))
+        .first;
     expect(tester.getSize(introAction).height, greaterThanOrEqualTo(44));
 
     await tester.sendKeyDownEvent(LogicalKeyboardKey.shiftLeft);

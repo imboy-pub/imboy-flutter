@@ -44,10 +44,7 @@ class OrgStateView extends StatelessWidget {
       return _statusView([
         const Icon(Icons.lock_outline, size: 40),
         const SizedBox(height: AppSpacing.small),
-        const Text(
-          '无权查看（该操作仅限 owner / admin）',
-          textAlign: TextAlign.center,
-        ),
+        const Text('无权查看（该操作仅限 owner / admin）', textAlign: TextAlign.center),
         const SizedBox(height: AppSpacing.regular),
         TextButton(onPressed: onRetry, child: const Text('返回刷新')),
       ]);

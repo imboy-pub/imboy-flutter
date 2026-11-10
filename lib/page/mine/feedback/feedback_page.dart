@@ -199,7 +199,9 @@ class _FeedbackPageState extends ConsumerState<FeedbackPage> {
                       ),
                       color: AppColors.getIosBlue(brightness),
                       borderRadius: BorderRadius.circular(20),
-                      onPressed: _isSubmittingFeedback ? null : _showFeedbackEditor,
+                      onPressed: _isSubmittingFeedback
+                          ? null
+                          : _showFeedbackEditor,
                       child: Text(
                         t.common.newFeedback,
                         style: context.textStyle(
@@ -217,7 +219,9 @@ class _FeedbackPageState extends ConsumerState<FeedbackPage> {
         ),
 
         // 历史列表 Section：加载 / 错误(可重试) / 空 / 数据 四态收敛为三态组件
-        if (!state.isLoading && state.error == null && state.itemList.isNotEmpty)
+        if (!state.isLoading &&
+            state.error == null &&
+            state.itemList.isNotEmpty)
           SliverToBoxAdapter(
             child: ImBoySettingsSection(
               header: Text(t.common.feedbackHistory.toUpperCase()),

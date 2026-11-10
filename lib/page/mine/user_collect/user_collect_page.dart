@@ -227,7 +227,9 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
                       tag,
                       style: context.textStyle(
                         FontSizeType.caption2,
-                        color: AppColors.getIosBlue(Theme.of(context).brightness),
+                        color: AppColors.getIosBlue(
+                          Theme.of(context).brightness,
+                        ),
                         fontWeight: FontWeight.w500,
                       ),
                     ),
@@ -928,7 +930,6 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
       ),
     );
   }
-
 
   Widget _buildKindList(BuildContext context) {
     final currentState = ref.read(userCollectProvider);

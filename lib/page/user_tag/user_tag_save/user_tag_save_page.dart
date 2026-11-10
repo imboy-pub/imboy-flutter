@@ -40,8 +40,8 @@ class _UserTagSavePageState extends ConsumerState<UserTagSavePage> {
     _textController.addListener(() {
       setState(() {
         final value = _textController.text.trim();
-        _valueChanged = value.isNotEmpty &&
-            value != (widget.tag?.name ?? '').trim();
+        _valueChanged =
+            value.isNotEmpty && value != (widget.tag?.name ?? '').trim();
       });
     });
   }
@@ -68,7 +68,10 @@ class _UserTagSavePageState extends ConsumerState<UserTagSavePage> {
           onPressed: () {
             Navigator.of(context).pop();
           },
-          child: Icon(CupertinoIcons.xmark, semanticLabel: t.common.buttonClose),
+          child: Icon(
+            CupertinoIcons.xmark,
+            semanticLabel: t.common.buttonClose,
+          ),
         ),
         title: widget.tag == null
             ? t.common.addTag

@@ -208,9 +208,8 @@ class WorkspaceInlineError extends StatelessWidget {
       children: [
         Text(
           message,
-          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-            color: Theme.of(context).colorScheme.error,
-          ),
+          style: Theme.of(context).textTheme.bodySmall
+              ?.copyWith(color: Theme.of(context).colorScheme.error),
         ),
         TextButton(
           key: const ValueKey('workspace-inline-error-retry'),

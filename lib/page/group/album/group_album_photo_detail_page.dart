@@ -136,8 +136,11 @@ class _GroupAlbumPhotoDetailPageState
       context: context,
       builder: (context) => CupertinoAlertDialog(
         title: Flexible(
-                      child: Text(t.common.groupAlbumPhotoDeleteTitle, textAlign: TextAlign.center),
-                    ),
+          child: Text(
+            t.common.groupAlbumPhotoDeleteTitle,
+            textAlign: TextAlign.center,
+          ),
+        ),
         content: Text(t.common.groupAlbumPhotoDeleteConfirm),
         actions: [
           CupertinoDialogAction(
@@ -309,7 +312,10 @@ class _GroupAlbumPhotoDetailPageState
                     const Icon(CupertinoIcons.forward, size: 18),
                     AppSpacing.horizontalSmall,
                     Flexible(
-                      child: Text(t.common.groupAlbumPhotoOpenExternal, textAlign: TextAlign.center),
+                      child: Text(
+                        t.common.groupAlbumPhotoOpenExternal,
+                        textAlign: TextAlign.center,
+                      ),
                     ),
                   ],
                 ),
@@ -333,7 +339,10 @@ class _GroupAlbumPhotoDetailPageState
                         : const Icon(CupertinoIcons.photo_fill, size: 18),
                     AppSpacing.horizontalSmall,
                     Flexible(
-                      child: Text(t.group.groupAlbumPhotoSetCover, textAlign: TextAlign.center),
+                      child: Text(
+                        t.group.groupAlbumPhotoSetCover,
+                        textAlign: TextAlign.center,
+                      ),
                     ),
                   ],
                 ),

@@ -109,9 +109,8 @@ void main() {
           child: MaterialApp(
             home: page,
             builder: (context, child) => MediaQuery(
-              data: MediaQuery.of(context).copyWith(
-                textScaler: TextScaler.linear(textScale),
-              ),
+              data: MediaQuery.of(context)
+                  .copyWith(textScaler: TextScaler.linear(textScale)),
               child: child!,
             ),
           ),
@@ -191,7 +190,9 @@ void main() {
     addTearDown(handle.dispose);
     await pumpPage(tester);
     final name = find.text('张三').first;
-    final row = find.ancestor(of: name, matching: find.byType(CellPressable)).first;
+    final row = find
+        .ancestor(of: name, matching: find.byType(CellPressable))
+        .first;
     expect(row, findsOneWidget);
     Focus.of(tester.element(name)).requestFocus();
     await tester.pump();

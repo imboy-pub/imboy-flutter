@@ -438,7 +438,10 @@ class _FeedbackDetailPageState extends ConsumerState<FeedbackDetailPage> {
               AppSpacing.horizontalSmall,
               Flexible(
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 4,
+                  ),
                   decoration: BoxDecoration(
                     color: _getReplyStatusColor(
                       context,

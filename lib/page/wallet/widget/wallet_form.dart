@@ -73,7 +73,7 @@ class WalletAmountField extends StatelessWidget {
         children: [
           Text(
             label,
-          textAlign: TextAlign.center,
+            textAlign: TextAlign.center,
             style: context.textStyle(
               FontSizeType.footnote,
               color: AppColors.getTextColor(

@@ -63,7 +63,11 @@ class _ContactTagListPageState extends ConsumerState<ContactTagListPage> {
       actions: [
         CupertinoButton(
           padding: EdgeInsets.zero,
-          child: Icon(CupertinoIcons.add, size: 22, semanticLabel: t.common.addTag),
+          child: Icon(
+            CupertinoIcons.add,
+            size: 22,
+            semanticLabel: t.common.addTag,
+          ),
           onPressed: () => _showAddTagSheet(context),
         ),
       ],

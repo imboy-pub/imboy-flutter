@@ -124,9 +124,7 @@ class _BindEmailPageState extends ConsumerState<BindEmailPage> {
                     ),
                     AppSpacing.verticalTiny,
                     CupertinoTextField(
-                      controller: ref
-                          .read(bindEmailProvider.notifier)
-                          .emailCtl,
+                      controller: ref.read(bindEmailProvider.notifier).emailCtl,
                       placeholder: t.common.enterEmailAddress,
                       keyboardType: TextInputType.emailAddress,
                       padding: const EdgeInsets.symmetric(
@@ -153,9 +151,7 @@ class _BindEmailPageState extends ConsumerState<BindEmailPage> {
                     ),
                     AppSpacing.verticalTiny,
                     CupertinoTextField(
-                      controller: ref
-                          .read(bindEmailProvider.notifier)
-                          .codeCtl,
+                      controller: ref.read(bindEmailProvider.notifier).codeCtl,
                       placeholder: '000000',
                       keyboardType: TextInputType.number,
                       inputFormatters: [

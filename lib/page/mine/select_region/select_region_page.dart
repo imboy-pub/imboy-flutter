@@ -161,8 +161,12 @@ class _SelectRegionPageState extends ConsumerState<SelectRegionPage> {
             child: ImBoySettingsSection(
               children: _displayList
                   .map(
-                    (model) =>
-                        _buildListItem(context, widget.parent, model, brightness),
+                    (model) => _buildListItem(
+                      context,
+                      widget.parent,
+                      model,
+                      brightness,
+                    ),
                   )
                   .toList(),
             ),

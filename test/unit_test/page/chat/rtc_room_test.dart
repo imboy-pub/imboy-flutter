@@ -128,9 +128,9 @@ void main() {
     expect(find.byIcon(CupertinoIcons.arrow_2_circlepath), findsOneWidget);
     expect(find.byIcon(CupertinoIcons.phone_down_fill), findsOneWidget);
     expect(
-      tester.widget<CupertinoPageScaffold>(
-        find.byType(CupertinoPageScaffold),
-      ).backgroundColor,
+      tester
+          .widget<CupertinoPageScaffold>(find.byType(CupertinoPageScaffold))
+          .backgroundColor,
       CallTokens.bgDeep,
       reason: 'White call content needs its media backdrop in light mode',
     );

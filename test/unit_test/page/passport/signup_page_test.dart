@@ -224,9 +224,7 @@ void main() {
 
   for (final mobile in [false, true]) {
     final type = mobile ? 'mobile' : 'email';
-    testWidgets('320短屏两倍字号：$type 下一步可滚动到达并进入注册继续页', (
-      tester,
-    ) async {
+    testWidgets('320短屏两倍字号：$type 下一步可滚动到达并进入注册继续页', (tester) async {
       final notifier = _FakePassportNotifier();
       await _pump(
         tester,

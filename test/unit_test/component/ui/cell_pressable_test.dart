@@ -190,10 +190,7 @@ void main() {
         );
         await tester.pump();
         // pressed 状态：4% 黑（亮色主题）
-        expect(
-          _feedbackColor(tester),
-          Colors.black.withValues(alpha: 0.04),
-        );
+        expect(_feedbackColor(tester), Colors.black.withValues(alpha: 0.04));
 
         // 松开：onTapUp
         await gesture.up();
@@ -219,10 +216,7 @@ void main() {
         tester.getCenter(find.byType(CellPressable)),
       );
       await tester.pump();
-      expect(
-        _feedbackColor(tester),
-        Colors.white.withValues(alpha: 0.06),
-      );
+      expect(_feedbackColor(tester), Colors.white.withValues(alpha: 0.06));
 
       await gesture.up();
       await tester.pumpAndSettle();
@@ -243,10 +237,7 @@ void main() {
       final cellCenter = tester.getCenter(find.byType(CellPressable));
       final gesture = await tester.startGesture(cellCenter);
       await tester.pump();
-      expect(
-        _feedbackColor(tester),
-        Colors.black.withValues(alpha: 0.04),
-      );
+      expect(_feedbackColor(tester), Colors.black.withValues(alpha: 0.04));
 
       // 拖出 cell 区域（>kTouchSlop）→ 触发 onTapCancel
       await gesture.moveBy(const Offset(0, 200));
@@ -330,18 +321,12 @@ void main() {
         );
         await tester.pump();
         // 按下立即高亮
-        expect(
-          _feedbackColor(tester),
-          Colors.black.withValues(alpha: 0.04),
-        );
+        expect(_feedbackColor(tester), Colors.black.withValues(alpha: 0.04));
 
         // 等待长按阈值（>500ms）
         await tester.pump(const Duration(milliseconds: 600));
         // 长按触发期间仍然高亮
-        expect(
-          _feedbackColor(tester),
-          Colors.black.withValues(alpha: 0.04),
-        );
+        expect(_feedbackColor(tester), Colors.black.withValues(alpha: 0.04));
 
         // 抬起：onLongPressEnd 清除高亮
         await gesture.up();
@@ -367,10 +352,7 @@ void main() {
         tester.getCenter(find.byType(CellPressable)),
       );
       await tester.pump();
-      expect(
-        _feedbackColor(tester),
-        Colors.black.withValues(alpha: 0.04),
-      );
+      expect(_feedbackColor(tester), Colors.black.withValues(alpha: 0.04));
 
       // 长按触发回调
       await tester.pump(const Duration(milliseconds: 600));
