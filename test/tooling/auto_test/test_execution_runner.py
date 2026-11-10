@@ -127,7 +127,9 @@ class RunnerTest(unittest.TestCase):
         self.assertEqual(len(selected), len(set(selected)))
         self.assertEqual(len(matrix), 4)
         browser = next(worker for worker in matrix if worker['platform'] == 'web')
-        self.assertEqual(browser['os'], 'ubuntu-latest')
+        self.assertEqual(browser['os'], 'ubuntu-24.04')
+        self.assertTrue(all(worker['os'] == 'ubuntu-24.04'
+                            for worker in matrix if worker['platform'] == 'linux'))
         self.assertEqual(browser['coverage'], '')
         self.assertTrue(all(worker['coverage'] == ('--coverage' if worker['platform'] == 'linux' else '')
                             for worker in matrix))

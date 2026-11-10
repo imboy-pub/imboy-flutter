@@ -33,7 +33,7 @@ permissions:
 jobs:
   plan:
     name: Specialist plan (no devices or credentials required)
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v7
       - name: Validate ownership and produce declared instances
@@ -126,7 +126,7 @@ jobs:
     name: Specialist Summary
     if: always()
     needs: [plan, execute]
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v7
       - uses: actions/download-artifact@v8

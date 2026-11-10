@@ -52,6 +52,15 @@ part 'talk_record_no_ffmpeg_scan_helpers.dart';
 /// 合同常量（DESIGN §6）：AAC-LC mono，目标 16kHz。
 const TalkRecordEncoderSettings kContractEncoder = TalkRecordEncoderSettings();
 
+/// 刻意超过旧固定等待的名义 120ms，覆盖慢封段。
+class _SlowSegmentEngine extends FakeTalkRecordEngine {
+  @override
+  Future<int?> stopSegment() async {
+    await Future<void>.delayed(const Duration(milliseconds: 200));
+    return super.stopSegment();
+  }
+}
+
 /// 合法 AAC-LC ADTS 段字节（确定性 payload；freqIdx/channels 可参数化，
 /// 供 NC-2 构造漂移段：44100Hz→freqIdx 4，立体声→channels 2）。
 Uint8List adtsSegmentBytes({
@@ -442,33 +451,31 @@ packages:
   late FinalDirectCapture fd;
   late TalkRecordLocalBinding binding;
 
-  /// 冲刷真实 IO（封段/manifest 是多段真实文件 IO 链）。
-  ///
-  /// 墙钟用 [FakeClock] 冻结：recorder 每 300ms 真实时间自检墙钟轴并
-  /// stop→start 自愈滚动——真实 sleep 会触发额外滚动。settle 只给事件
-  /// 循环回合，不推进逻辑墙钟，段数由显式 tick 精确决定。
-  Future<void> settleIo({int turns = 24}) async {
-    for (var i = 0; i < turns; i++) {
-      await Future<void>.delayed(const Duration(milliseconds: 5));
-    }
-    await pumpEventQueue();
-  }
-
-  /// 真实 recorder 录 N 段（每段双轴推进一次；段间 settle 等滚动封段完成）。
+  /// 真实 recorder 录 N 段；前段封存且下一段已启动后才推进双轴。
   Future<TalkRecordManifest> recordSegments(List<int> tickMsPerSegment) async {
     await recorder.start(
       recordLocalId: 'record-client',
       clientRecordingId: 'record-client',
     );
-    await settleIo();
     for (var i = 0; i < tickMsPerSegment.length; i++) {
+      // 先订阅，避免错过滚动完成事件。单看 segmentCount 不足以证明
+      // 下一段已启动：封段后创建目录的 await 期间也可能收到 ticker 快照。
+      final rolledOver = i + 1 < tickMsPerSegment.length
+          ? recorder.snapshots
+                .firstWhere(
+                  (snapshot) =>
+                      snapshot.segmentCount == i + 1 &&
+                      engine.events
+                              .where((event) => event.startsWith('start:'))
+                              .length ==
+                          i + 2,
+                )
+                .timeout(const Duration(seconds: 5))
+          : null;
       clock.advanceMs(tickMsPerSegment[i]);
       engine.tick(tickMsPerSegment[i]);
-      if (i + 1 < tickMsPerSegment.length) {
-        await settleIo();
-      }
+      if (rolledOver != null) await rolledOver;
     }
-    await settleIo();
     final result = await recorder.end();
     return result.manifest;
   }
@@ -517,7 +524,7 @@ packages:
 
   setUp(() async {
     baseDir = Directory.systemTemp.createTempSync('talk_ffmpeg_gate_');
-    engine = FakeTalkRecordEngine();
+    engine = _SlowSegmentEngine();
     clock = FakeClock();
     keys = MemoryTalkRecordKeyStore();
     api = MinimalUploadApi();

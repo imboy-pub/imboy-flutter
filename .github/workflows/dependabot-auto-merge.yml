@@ -22,7 +22,7 @@ permissions:
 jobs:
   auto-merge:
     name: Triage & auto-merge dependabot PR
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     # 人工跟进只补标签；本次任务不自动批准或启用自动合并。
     # Maintainer pushes only label; this job does not approve or enable auto-merge.
     if: github.event.pull_request.user.login == 'dependabot[bot]'
