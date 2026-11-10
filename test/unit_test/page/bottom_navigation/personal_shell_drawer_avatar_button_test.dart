@@ -113,37 +113,40 @@ void main() {
 
   testWidgets('无头像：首字母居中，触控盒 ≥ 48pt，空间语义与点击回调保留', (tester) async {
     final semantics = tester.ensureSemantics();
-    addTearDown(semantics.dispose);
-    var taps = 0;
-    await _pump(
-      tester,
-      user: UserModel(uid: '1', account: 'synthetic', nickname: '合成用户'),
-      onTap: () => taps++,
-    );
+    try {
+      var taps = 0;
+      await _pump(
+        tester,
+        user: UserModel(uid: '1', account: 'synthetic', nickname: '合成用户'),
+        onTap: () => taps++,
+      );
 
-    final button = tester.getRect(find.byKey(key));
-    expect(button.width, greaterThanOrEqualTo(AppSizes.touchTarget));
-    expect(button.height, greaterThanOrEqualTo(AppSizes.touchTarget));
-    expect(
-      find.bySemanticsLabel(t.organization.experienceUi.switchSpace),
-      findsOneWidget,
-    );
+      final button = tester.getRect(find.byKey(key));
+      expect(button.width, greaterThanOrEqualTo(AppSizes.touchTarget));
+      expect(button.height, greaterThanOrEqualTo(AppSizes.touchTarget));
+      expect(
+        find.bySemanticsLabel(t.organization.experienceUi.switchSpace),
+        findsOneWidget,
+      );
 
-    final fallback = find.byType(AvatarFallbackContent);
-    expect(fallback, findsOneWidget);
-    expect(find.text('合'), findsOneWidget);
-    final box = tester.getRect(
-      find.ancestor(of: fallback, matching: find.byType(Container)).first,
-    );
-    expect(box.width, AppSizes.avatarSizeSmall);
-    expect(box.height, AppSizes.avatarSizeSmall);
-    final letter = tester.getRect(find.text('合'));
-    expect(letter.center.dx, moreOrLessEquals(box.center.dx, epsilon: 1.0));
-    expect(letter.center.dy, moreOrLessEquals(box.center.dy, epsilon: 1.0));
+      final fallback = find.byType(AvatarFallbackContent);
+      expect(fallback, findsOneWidget);
+      expect(find.text('合'), findsOneWidget);
+      final box = tester.getRect(
+        find.ancestor(of: fallback, matching: find.byType(Container)).first,
+      );
+      expect(box.width, AppSizes.avatarSizeSmall);
+      expect(box.height, AppSizes.avatarSizeSmall);
+      final letter = tester.getRect(find.text('合'));
+      expect(letter.center.dx, moreOrLessEquals(box.center.dx, epsilon: 1.0));
+      expect(letter.center.dy, moreOrLessEquals(box.center.dy, epsilon: 1.0));
 
-    await tester.tap(find.byKey(key));
-    expect(taps, 1);
-    expect(tester.takeException(), isNull);
+      await tester.tap(find.byKey(key));
+      expect(taps, 1);
+      expect(tester.takeException(), isNull);
+    } finally {
+      semantics.dispose();
+    }
   });
 
   // 有头像态走远端图加载（测试环境无网络会留下重试 Timer），不在此覆盖；

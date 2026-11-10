@@ -442,33 +442,34 @@ packages:
   late FinalDirectCapture fd;
   late TalkRecordLocalBinding binding;
 
-  /// 冲刷真实 IO（封段/manifest 是多段真实文件 IO 链）。
-  ///
-  /// 墙钟用 [FakeClock] 冻结：recorder 每 300ms 真实时间自检墙钟轴并
-  /// stop→start 自愈滚动——真实 sleep 会触发额外滚动。settle 只给事件
-  /// 循环回合，不推进逻辑墙钟，段数由显式 tick 精确决定。
-  Future<void> settleIo({int turns = 24}) async {
-    for (var i = 0; i < turns; i++) {
-      await Future<void>.delayed(const Duration(milliseconds: 5));
-    }
-    await pumpEventQueue();
-  }
-
-  /// 真实 recorder 录 N 段（每段双轴推进一次；段间 settle 等滚动封段完成）。
+  /// 每段同时推进墙钟与引擎；等封段和下一段启动完成后再推进。
+  /// 固定 sleep 无法保证真实文件 IO 已完成，提前 tick 会被 startSegment 清零。
   Future<TalkRecordManifest> recordSegments(List<int> tickMsPerSegment) async {
     await recorder.start(
       recordLocalId: 'record-client',
       clientRecordingId: 'record-client',
     );
-    await settleIo();
     for (var i = 0; i < tickMsPerSegment.length; i++) {
+      // 先订阅再 tick，避免漏掉快速完成的轮转。心跳也可能在封段中发快照，
+      // 因此同时核对下一段的 start 轨迹，不能只等待 segmentCount 增加。
+      final nextSegment = i + 1;
+      final rolled = nextSegment < tickMsPerSegment.length
+          ? recorder.snapshots
+                .firstWhere(
+                  (snapshot) =>
+                      snapshot.phase == TalkRecordRecorderPhase.recording &&
+                      snapshot.segmentCount == nextSegment &&
+                      engine.events
+                              .where((e) => e.startsWith('start:'))
+                              .length ==
+                          nextSegment + 1,
+                )
+                .timeout(const Duration(seconds: 5))
+          : null;
       clock.advanceMs(tickMsPerSegment[i]);
       engine.tick(tickMsPerSegment[i]);
-      if (i + 1 < tickMsPerSegment.length) {
-        await settleIo();
-      }
+      if (rolled != null) await rolled;
     }
-    await settleIo();
     final result = await recorder.end();
     return result.manifest;
   }
