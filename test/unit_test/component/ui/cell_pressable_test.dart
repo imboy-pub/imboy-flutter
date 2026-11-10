@@ -101,6 +101,80 @@ void main() {
       );
     });
 
+    testWidgets('嵌套按钮各有命名焦点，Tab 可达且 Enter 不触发父操作', (tester) async {
+      final semantics = tester.ensureSemantics();
+      try {
+        var parentCalls = 0;
+        var childCalls = 0;
+        await tester.pumpWidget(
+          _wrap(
+            CellPressable(
+              onTap: () => parentCalls++,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Text('动态详情'),
+                  CellPressable(
+                    onTap: () => childCalls++,
+                    child: Semantics(
+                      label: '更多操作',
+                      child: const SizedBox(
+                        width: 44,
+                        height: 44,
+                        child: Icon(Icons.more_horiz),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+
+        final parent = find.bySemanticsLabel('动态详情');
+        final child = find.bySemanticsLabel('更多操作');
+        expect(parent, findsOneWidget);
+        expect(child, findsOneWidget);
+        expect(tester.getSemantics(parent).flagsCollection.isButton, isTrue);
+        expect(tester.getSemantics(child).flagsCollection.isButton, isTrue);
+        expect(
+          tester.getSemantics(parent).id,
+          isNot(tester.getSemantics(child).id),
+        );
+
+        await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+        await tester.pump();
+        expect(
+          tester.getSemantics(parent).flagsCollection.isFocused.toBoolOrNull(),
+          isTrue,
+        );
+        expect(
+          tester.getSemantics(child).flagsCollection.isFocused.toBoolOrNull(),
+          isFalse,
+        );
+        await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+        expect(parentCalls, 1);
+        expect(childCalls, 0);
+
+        await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+        await tester.pump();
+        expect(
+          tester.getSemantics(parent).flagsCollection.isFocused.toBoolOrNull(),
+          isFalse,
+        );
+        expect(
+          tester.getSemantics(child).flagsCollection.isFocused.toBoolOrNull(),
+          isTrue,
+        );
+        await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+        expect(childCalls, 1);
+        expect(parentCalls, 1);
+        expect(tester.takeException(), isNull);
+      } finally {
+        semantics.dispose();
+      }
+    });
+
     testWidgets('回调撤下后键盘不能继续执行，焦点反馈消失', (tester) async {
       var calls = 0;
       Widget view(bool enabled) => _wrap(

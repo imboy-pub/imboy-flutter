@@ -83,9 +83,14 @@ void main() {
           final before = tester.getSemantics(more).getSemanticsData();
           expect(before.label, t.discovery.momentActionMore);
           expect(before.flagsCollection.isButton, isTrue);
-          Focus.of(tester.element(find.byIcon(CupertinoIcons.ellipsis)))
-              .requestFocus();
-          await tester.pump();
+          final moreFocus = Focus.of(
+            tester.element(find.byIcon(CupertinoIcons.ellipsis)),
+          );
+          for (var step = 0; step < 16 && !moreFocus.hasPrimaryFocus; step++) {
+            await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+            await tester.pump();
+          }
+          expect(moreFocus.hasPrimaryFocus, isTrue);
           expect(
             tester.getSemantics(more).flagsCollection.isFocused.toBoolOrNull(),
             isTrue,

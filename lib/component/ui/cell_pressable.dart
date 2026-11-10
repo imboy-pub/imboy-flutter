@@ -77,46 +77,51 @@ class _CellPressableState extends State<CellPressable> {
     final hasLongPress = widget.onLongPress != null;
 
     final enabled = hasTap || hasLongPress;
-    return FocusableActionDetector(
-      enabled: enabled,
-      shortcuts: const {
-        SingleActivator(LogicalKeyboardKey.enter): ActivateIntent(),
-        SingleActivator(LogicalKeyboardKey.space): ActivateIntent(),
-      },
-      actions: {
-        ActivateIntent: CallbackAction<ActivateIntent>(
-          onInvoke: (_) {
-            (widget.onTap ?? widget.onLongPress)?.call();
-            return null;
-          },
-        ),
-      },
-      onShowFocusHighlight: (visible) {
-        if (_focusVisible == visible) return;
-        setState(() => _focusVisible = visible);
-      },
-      child: Semantics(
-        button: enabled ? true : null,
-        child: GestureDetector(
-          behavior: HitTestBehavior.opaque,
-          onTap: widget.onTap,
-          onTapDown: hasTap ? (_) => _setPressed(true) : null,
-          onTapCancel: hasTap ? () => _setPressed(false) : null,
-          onTapUp: hasTap ? (_) => _setPressed(false) : null,
-          onLongPress: widget.onLongPress,
-          onLongPressDown: hasLongPress ? (_) => _setPressed(true) : null,
-          onLongPressCancel: hasLongPress ? () => _setPressed(false) : null,
-          onLongPressUp: hasLongPress ? () => _setPressed(false) : null,
-          child: DecoratedBox(
-            // Paint above opaque cell backgrounds so pointer and keyboard
-            // feedback remains visible without changing the child's layout.
-            position: DecorationPosition.foreground,
-            decoration: BoxDecoration(
-              color: enabled && (_pressed || _focusVisible)
-                  ? highlightColor
-                  : AppColors.transparent,
+    return Semantics(
+      // Keep this control's focus, actions, and child label together when
+      // another CellPressable surrounds it. Read-only cells need no boundary.
+      container: enabled,
+      child: FocusableActionDetector(
+        enabled: enabled,
+        shortcuts: const {
+          SingleActivator(LogicalKeyboardKey.enter): ActivateIntent(),
+          SingleActivator(LogicalKeyboardKey.space): ActivateIntent(),
+        },
+        actions: {
+          ActivateIntent: CallbackAction<ActivateIntent>(
+            onInvoke: (_) {
+              (widget.onTap ?? widget.onLongPress)?.call();
+              return null;
+            },
+          ),
+        },
+        onShowFocusHighlight: (visible) {
+          if (_focusVisible == visible) return;
+          setState(() => _focusVisible = visible);
+        },
+        child: Semantics(
+          button: enabled ? true : null,
+          child: GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTap: widget.onTap,
+            onTapDown: hasTap ? (_) => _setPressed(true) : null,
+            onTapCancel: hasTap ? () => _setPressed(false) : null,
+            onTapUp: hasTap ? (_) => _setPressed(false) : null,
+            onLongPress: widget.onLongPress,
+            onLongPressDown: hasLongPress ? (_) => _setPressed(true) : null,
+            onLongPressCancel: hasLongPress ? () => _setPressed(false) : null,
+            onLongPressUp: hasLongPress ? () => _setPressed(false) : null,
+            child: DecoratedBox(
+              // Paint above opaque cell backgrounds so pointer and keyboard
+              // feedback remains visible without changing the child's layout.
+              position: DecorationPosition.foreground,
+              decoration: BoxDecoration(
+                color: enabled && (_pressed || _focusVisible)
+                    ? highlightColor
+                    : AppColors.transparent,
+              ),
+              child: widget.child,
             ),
-            child: widget.child,
           ),
         ),
       ),
