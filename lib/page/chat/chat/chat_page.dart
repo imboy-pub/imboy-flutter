@@ -59,12 +59,15 @@ import 'package:imboy/service/message_type_normalizer.dart';
 import 'package:imboy/modules/messaging/domain/message_status.dart'
     as domain_msg;
 
-// 多选消息（chat_multi_select_v1 / W2-E）
+// 多选消息（chat_multi_select_v1 / W2-E；Central Wiring §12 接线）
 import 'package:imboy/app_core/feature_flags/app_feature_registry.dart';
 import 'package:imboy/app_core/feature_flags/feature_keys.dart';
 import 'package:imboy/modules/messaging/domain/selection/message_selection.dart';
 import 'package:imboy/modules/messaging/domain/selection/message_selectability.dart';
 import 'package:imboy/page/chat/widget/message_multi_select_action_bar.dart';
+import 'package:imboy/modules/messaging/presentation/export/chat_export_flow.dart';
+
+import 'bundle_forward_dispatcher.dart';
 
 // CustomMessageBuilder 需要显式导入（与 flutter_chat_core 冲突）
 import 'package:imboy/component/chat/message.dart'
@@ -1731,6 +1734,50 @@ class ChatPageState extends ConsumerState<ChatPage>
   bool get _multiSelectFlagEnabled =>
       AppFeatureRegistry.isRolloutFlagEnabled(FeatureKeys.chatMultiSelectV1);
 
+  /// 合并转发按钮动作策略（§12.5）：委托 Central Wiring 纯函数。
+  bool get _bundleActionAllowed => bundleActionAllowedFor(
+    _multiSelectSortedMessages().map(messageSelectionTraitsOf),
+  );
+
+  /// 导出按钮动作策略（§12.5）：委托 Central Wiring 纯函数。
+  bool get _exportActionAllowed => exportActionAllowedFor(
+    _multiSelectSortedMessages().map(messageSelectionTraitsOf),
+  );
+
+  /// 逐条转发（action bar → 批量 SendToPage / W2-F）。
+  void _forwardEachSelected(List<Message> messages) {
+    if (messages.isEmpty) return;
+    _messageActionHandler.forwardMessages(context, messages);
+  }
+
+  /// 合并转发（action bar → bundle 发送编排 / Central Wiring）。
+  void _forwardBundleSelected(List<Message> messages) {
+    if (messages.isEmpty) return;
+    unawaited(
+      BundleForwardDispatcher.forwardAsHistoryBundle(
+        context,
+        messages: messages,
+        sourceChatType: _chatType,
+        title: widget.peerTitle,
+      ),
+    );
+  }
+
+  /// 导出并系统分享（action bar → runChatExportFlow / W3-J）。
+  void _exportSelected(List<Message> messages) {
+    if (messages.isEmpty) return;
+    unawaited(
+      runChatExportFlow(
+        context,
+        conversationUk3: _conversationUk3,
+        conversationTitle: widget.peerTitle,
+        messages: messages,
+        chatType: widget.type,
+        toId: widget.peerId,
+      ),
+    );
+  }
+
   /// 长按菜单「多选」→ 进入多选并选中被长按的消息（W1-A enter 契约）。
   void _enterMultiSelect(Message message) {
     if (_conversationUk3.isEmpty) return;
@@ -2069,8 +2116,14 @@ class ChatPageState extends ConsumerState<ChatPage>
                 onClearSelection: () => ref
                     .read(messageSelectionProvider(_conversationUk3).notifier)
                     .clear(),
-                // typed callbacks（逐条转发/合并转发/导出）由 Central
-                // Wiring 接真实实现（计划 §12）；本波为 null → 按钮禁用占位。
+                // typed callbacks（Central Wiring §12）：按动作策略分别
+                // enable/disable（§12.5）——flag 关闭或类型矩阵不允许时
+                // 传 null → 按钮禁用占位。
+                onForwardEach: _forwardEachSelected,
+                onForwardBundle: _bundleActionAllowed
+                    ? _forwardBundleSelected
+                    : null,
+                onExport: _exportActionAllowed ? _exportSelected : null,
               )
             else ...[
               // 输入状态指示器

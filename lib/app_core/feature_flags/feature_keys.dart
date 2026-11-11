@@ -56,4 +56,14 @@ class FeatureKeys {
   // replaceSnapshotForTest({'chat_export_share_v1': true}) 可开启）。
   // 直接用 isEnabled() 对本键恒 false。
   static const chatExportShareV1 = 'chat_export_share_v1';
+  // 聊天记录合并转发（bundle）v1 灰度开关（RUN chat-multi-20261111 §4.1、
+  // §12 Central Wiring 第 4 步）。
+  //
+  // 同 [chatMultiSelectV1] 机制：**rollout flag**，不进
+  // compiledProductFeatures 编译清单，判定必须走
+  // [AppFeatureRegistry.isRolloutFlagEnabled]（本地默认 false，fail-closed；
+  // 服务端 snapshot 下发 true 或测试 replaceSnapshotForTest 可开启）。
+  // 接收侧渲染不由此键门控（旧客户端 unsupported fallback 已由 COMP-01
+  // fixture 保障；bundle 消息只可能在发送侧 flag 开启后产生）。
+  static const chatHistoryBundleV1 = 'chat_history_bundle_v1';
 }

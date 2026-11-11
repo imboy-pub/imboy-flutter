@@ -165,7 +165,8 @@ class SendToNotifier extends Notifier<SendToState> {
   /// 更新 `uri`+`file_hash256`），位置是 object_key 字符串（整体替换）。
   /// 上传侧 `handleVideoUpload`/`handleLocationSelection` 的写入形状是
   /// 这里的唯一真值源。
-  @visibleForTesting
+  /// Central Wiring bundle 发送编排（bundle_forward_dispatcher）同样使用
+  /// 本重写器；两处共用一份字段形状真值，不复制实现。
   static Map<String, dynamic> applyForwardedAttachment(
     Map<String, dynamic> base,
     ForwardedAttachment forwarded,
@@ -193,7 +194,6 @@ class SendToNotifier extends Notifier<SendToState> {
   /// 多图转发：用逐图重封装结果整体改写 `images[]`（纯函数）。
   /// 元素形状由 [AttachmentForward.reSealImages] 保证（uri / file_hash256 /
   /// size / descriptor 已替换，明文项原样）。
-  @visibleForTesting
   static Map<String, dynamic> applyForwardedImages(
     Map<String, dynamic> base,
     List<Map<String, dynamic>> images,

@@ -55,6 +55,8 @@ abstract final class BundleSanitizer {
     'protected_header',
     'attachment_descriptor',
     'content_key',
+    'header_hash',
+    'ciphertext',
     'burn_read_at',
     'auto_id',
     'topic_id',

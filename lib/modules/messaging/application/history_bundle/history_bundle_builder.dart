@@ -319,6 +319,16 @@ abstract final class HistoryBundleBuilder {
     return HistoryBundleBuildErrorCode.rejectedUnsupportedType;
   }
 
+  /// 类型准入（仅类型桶维度，不含状态/焚毁/E2EE 失败）。
+  ///
+  /// Central Wiring 多选 action bar 的合并转发按钮可用性策略用（计划 §12.5：
+  /// 按动作策略分别 enable/disable，而非统一 selectable）。类型判定与
+  /// [_admit] 同源（同一归一表与集合）；状态维度由调用方按 traits 自查。
+  static bool isTypeBundleAdmissible(String? rawType) {
+    final type = _normalizeType(rawType);
+    return _kSnapshotTypes.contains(type) || _kAttachmentTypes.contains(type);
+  }
+
   /// trim + 协议别称归一（null 视为不可合并类型，返回原 null 语义由
   /// 调用方兜底为 unsupported）。
   static String _normalizeType(String? raw) {
