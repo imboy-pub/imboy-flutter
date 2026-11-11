@@ -8,6 +8,7 @@ import 'package:imboy/app_core/feature_flags/app_feature_registry.dart';
 import 'package:imboy/app_core/feature_flags/feature_keys.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/component/ui/desktop_navigation_rail.dart';
+import 'package:imboy/component/ui/glass_bottom_bar.dart';
 import 'package:imboy/page/web_shell/web_nav_rail.dart';
 import 'package:imboy/modules/enterprise_oa/public.dart';
 import 'package:imboy/modules/organization/public.dart';
@@ -367,15 +368,23 @@ class _EnterpriseShellPageState extends ConsumerState<EnterpriseShellPage> {
       ),
       bottomNavigationBar: useRail
           ? null
-          : NavigationBar(
+          : GlassBottomNavigationBar(
               key: const ValueKey('enterprise-shell-bottom-nav'),
-              selectedIndex: index,
-              onDestinationSelected: select,
-              destinations: [
+              currentIndex: index,
+              onTap: select,
+              items: [
                 for (var i = 0; i < labels.length; i++)
-                  NavigationDestination(
-                    icon: _navigationIcon(destinations[i], icons[i]),
+                  GlassBottomBarItem(
+                    icon: icons[i],
+                    activeIcon: _activeIcon(destinations[i]),
                     label: labels[i],
+                    tabKey: ValueKey(
+                      'enterprise-shell-nav-${destinations[i].name}',
+                    ),
+                    iconBuilder: (selected) => _navigationIcon(
+                      destinations[i],
+                      selected ? _activeIcon(destinations[i]) : icons[i],
+                    ),
                   ),
               ],
             ),

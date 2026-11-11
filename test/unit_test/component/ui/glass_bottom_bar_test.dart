@@ -24,10 +24,19 @@ Future<void> _pump(
   double? height,
   double? blur,
   Brightness brightness = Brightness.light,
+  double bottomInset = 0,
+  double textScale = 1,
 }) async {
   await tester.pumpWidget(
     MaterialApp(
       theme: ThemeData(brightness: brightness),
+      builder: (context, child) => MediaQuery(
+        data: MediaQuery.of(context).copyWith(
+          padding: EdgeInsets.only(bottom: bottomInset),
+          textScaler: TextScaler.linear(textScale),
+        ),
+        child: child!,
+      ),
       home: Scaffold(
         bottomNavigationBar: GlassBottomNavigationBar(
           currentIndex: currentIndex,
@@ -47,6 +56,49 @@ GlassBottomBarItem _item(String label, IconData icon) {
 }
 
 void main() {
+  for (final brightness in Brightness.values) {
+    testWidgets('窄屏大字号与底部安全区保持四项完整可达 $brightness', (tester) async {
+      tester.view.devicePixelRatio = 1;
+      tester.view.physicalSize = const Size(320, 800);
+      addTearDown(tester.view.reset);
+      final labels = ['消息', '通讯录', '工作台', '我'];
+      final items = [
+        for (final label in labels) _item(label, Icons.circle_outlined),
+      ];
+      await _pump(
+        tester,
+        currentIndex: 0,
+        items: items,
+        height: 50,
+        brightness: brightness,
+        textScale: 2.5,
+      );
+      final bar = find.byType(GlassBottomNavigationBar);
+      final withoutInset = tester.getSize(bar).height;
+      expect(withoutInset, greaterThan(50));
+      var selected = -1;
+      await _pump(
+        tester,
+        currentIndex: 0,
+        items: items,
+        height: 50,
+        brightness: brightness,
+        textScale: 2.5,
+        bottomInset: 34,
+        onTap: (index) => selected = index,
+      );
+      expect(tester.getSize(bar).height, closeTo(withoutInset + 34, 0.1));
+      final safeBottom = tester.getRect(bar).bottom - 34;
+      for (var i = 0; i < labels.length; i++) {
+        final label = find.text(labels[i]);
+        expect(tester.getRect(label).bottom, lessThanOrEqualTo(safeBottom));
+        await tester.tap(label);
+        expect(selected, i);
+      }
+      expect(tester.takeException(), isNull);
+    });
+  }
+
   group('GlassBottomNavigationBar items rendering', () {
     testWidgets('renders all items with labels', (tester) async {
       await _pump(
@@ -142,7 +194,10 @@ void main() {
       );
 
       final selectedLabel = tester.widget<Text>(find.text('消息'));
-      expect(selectedLabel.style?.color, AppColors.primary);
+      expect(
+        selectedLabel.style?.color,
+        Theme.of(tester.element(find.text('消息'))).colorScheme.primary,
+      );
       expect(selectedLabel.style?.fontWeight, FontWeight.w600);
       expect(selectedLabel.style?.fontSize, 10);
     });

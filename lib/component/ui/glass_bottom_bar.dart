@@ -2,9 +2,11 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:imboy/theme/default/app_colors.dart';
+import 'package:imboy/theme/default/app_sizes.dart';
+import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:imboy/theme/default/font_types.dart';
 
-/// iOS 风格毛玻璃底部导航栏 - iOS 17 Premium 风格
+/// 个人与企业共用的移动端底栏，统一主题、触达与底部安全区。
 class GlassBottomNavigationBar extends StatelessWidget {
   final int currentIndex;
   final void Function(int) onTap;
@@ -37,69 +39,100 @@ class GlassBottomNavigationBar extends StatelessWidget {
       child: BackdropFilter(
         filter: ImageFilter.blur(sigmaX: blur, sigmaY: blur),
         child: Container(
-          height: height + MediaQuery.of(context).padding.bottom,
           decoration: BoxDecoration(
             color: backgroundColor,
             border: Border(top: BorderSide(color: separatorColor, width: 0.33)),
           ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: items.asMap().entries.map((entry) {
-              final index = entry.key;
-              final item = entry.value;
-              final isSelected = currentIndex == index;
+          child: SafeArea(
+            top: false,
+            child: IntrinsicHeight(
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: items.asMap().entries.map((entry) {
+                  final index = entry.key;
+                  final item = entry.value;
+                  final isSelected = currentIndex == index;
 
-              return Expanded(
-                key: item.tabKey,
-                // 不设 label：标签 Text 已提供，避免双标签重复读屏。
-                child: Semantics(
-                  button: true,
-                  selected: isSelected,
-                  child: GestureDetector(
-                    behavior: HitTestBehavior.opaque,
-                    onTap: () => onTap(index),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        // 图标
-                        SizedBox(
-                          height: 28,
-                          child: item.iconBuilder != null
-                              ? item.iconBuilder!(isSelected)
-                              : Icon(
-                                  isSelected
-                                      ? (item.activeIcon ?? item.icon)
-                                      : item.icon,
-                                  color: isSelected
-                                      ? AppColors.primary
-                                      : AppColors.iosGray,
-                                  size: 26,
+                  return Expanded(
+                    key: item.tabKey,
+                    // 不设 label：标签 Text 已提供，避免双标签重复读屏。
+                    child: Semantics(
+                      button: true,
+                      selected: isSelected,
+                      child: GestureDetector(
+                        behavior: HitTestBehavior.opaque,
+                        onTap: () => onTap(index),
+                        child: ConstrainedBox(
+                          constraints: BoxConstraints(minHeight: height),
+                          child: Padding(
+                            padding: const EdgeInsets.all(AppSpacing.tiny),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                // 图标
+                                SizedBox(
+                                  height:
+                                      AppSizes.iconSizeMedium + AppSpacing.tiny,
+                                  child: item.iconBuilder != null
+                                      ? IconTheme(
+                                          data: IconThemeData(
+                                            size: AppSizes.iconSizeMedium,
+                                            color: isSelected
+                                                ? theme.colorScheme.primary
+                                                : theme
+                                                      .colorScheme
+                                                      .onSurfaceVariant,
+                                          ),
+                                          child: item.iconBuilder!(isSelected),
+                                        )
+                                      : Icon(
+                                          isSelected
+                                              ? (item.activeIcon ?? item.icon)
+                                              : item.icon,
+                                          color: isSelected
+                                              ? theme.colorScheme.primary
+                                              : theme
+                                                    .colorScheme
+                                                    .onSurfaceVariant,
+                                          size: AppSizes.iconSizeMedium,
+                                        ),
                                 ),
+                                const SizedBox(height: AppSpacing.tiny / 2),
+                                // 标签
+                                Text(
+                                  item.label,
+                                  style: context
+                                      .textStyle(
+                                        FontSizeType.tiny,
+                                        fontWeight: isSelected
+                                            ? FontWeight.w600
+                                            : FontWeight.w500,
+                                        color: isSelected
+                                            ? theme.colorScheme.primary
+                                            : theme
+                                                  .colorScheme
+                                                  .onSurfaceVariant,
+                                      )
+                                      .copyWith(
+                                        height: 1.2,
+                                        letterSpacing: -0.2,
+                                      ),
+                                  maxLines: 2,
+                                  textAlign: TextAlign.center,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ],
+                            ),
+                          ),
                         ),
-                        const SizedBox(height: 1),
-                        // 标签
-                        Text(
-                          item.label,
-                          style: context
-                              .textStyle(
-                                FontSizeType.tiny,
-                                fontWeight: isSelected
-                                    ? FontWeight.w600
-                                    : FontWeight.w500,
-                                color: isSelected
-                                    ? AppColors.primary
-                                    : AppColors.iosGray,
-                              )
-                              .copyWith(height: 1.2, letterSpacing: -0.2),
-                          maxLines: 1,
-                          overflow: TextOverflow.clip,
-                        ),
-                      ],
+                      ),
                     ),
-                  ),
-                ),
-              );
-            }).toList(),
+                  );
+                }).toList(),
+              ),
+            ),
           ),
         ),
       ),

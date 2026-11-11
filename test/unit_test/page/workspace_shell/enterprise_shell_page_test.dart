@@ -12,6 +12,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/web_shell/web_nav_rail.dart';
+import 'package:imboy/component/ui/glass_bottom_bar.dart';
 import 'package:imboy/modules/enterprise_oa/public.dart';
 import 'package:imboy/modules/organization/public.dart';
 import 'package:imboy/page/mine/mine/mine_page.dart';
@@ -35,11 +36,10 @@ import 'package:imboy/store/repository/user_repo_local.dart';
 import 'enterprise_shell_test_fixtures.dart';
 
 List<String> _labels(WidgetTester tester) => tester
-    .widget<NavigationBar>(
+    .widget<GlassBottomNavigationBar>(
       find.byKey(const ValueKey('enterprise-shell-bottom-nav')),
     )
-    .destinations
-    .cast<NavigationDestination>()
+    .items
     .map((item) => item.label)
     .toList();
 
@@ -294,7 +294,11 @@ void main() {
     );
     await tester.pumpAndSettle();
     expect(
-      tester.widget<NavigationBar>(find.byType(NavigationBar)).selectedIndex,
+      tester
+          .widget<GlassBottomNavigationBar>(
+            find.byType(GlassBottomNavigationBar),
+          )
+          .currentIndex,
       1,
     );
     final shell =

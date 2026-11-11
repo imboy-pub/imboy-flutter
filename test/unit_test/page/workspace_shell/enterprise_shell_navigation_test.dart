@@ -4,6 +4,7 @@ library;
 import 'package:flutter/material.dart';
 import 'package:imboy/page/web_shell/web_nav_rail.dart';
 import 'package:imboy/component/ui/desktop_navigation_rail.dart';
+import 'package:imboy/component/ui/glass_bottom_bar.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/service/storage.dart';
 import 'package:imboy/store/model/group_model.dart';
@@ -17,6 +18,50 @@ import 'enterprise_shell_test_fixtures.dart';
 
 void main() {
   registerEnterpriseShellFixture();
+  for (final brightness in Brightness.values) {
+    testWidgets('企业手机复用个人底栏并保留角标和选中图标 $brightness', (tester) async {
+      final api = EnterpriseOaApi();
+      await pumpEnterpriseShell(
+        tester,
+        api,
+        brightness: brightness,
+        size: const Size(360, 800),
+        conversations: [
+          WorkspaceConversationModel(
+            group: GroupModel.fromJson({'id': '200', 'name': '合成群'}),
+            memberStartSeq: 1,
+            unreadCount: 7,
+          ),
+        ],
+      );
+      api.completeFirst([]);
+      await tester.pumpAndSettle();
+      final nav = find.byKey(const ValueKey('enterprise-shell-bottom-nav'));
+      final bar = tester.widget<GlassBottomNavigationBar>(nav);
+      expect(bar.items.map((item) => item.label), ['消息', '通讯录', '工作台', '我']);
+      final messages = find.byKey(
+        const ValueKey('enterprise-shell-nav-messages'),
+      );
+      expect(
+        find.descendant(of: messages, matching: find.text('7')),
+        findsOneWidget,
+      );
+      expect(
+        find.descendant(
+          of: messages,
+          matching: find.byIcon(bar.items.first.activeIcon!),
+        ),
+        findsOneWidget,
+      );
+      await tester.tap(
+        find.byKey(const ValueKey('enterprise-shell-nav-contacts')),
+      );
+      await tester.pumpAndSettle();
+      expect(tester.widget<GlassBottomNavigationBar>(nav).currentIndex, 1);
+      expect(tester.takeException(), isNull);
+    });
+  }
+
   testWidgets(
     '移动平板继续使用原导航布局',
     (tester) async {

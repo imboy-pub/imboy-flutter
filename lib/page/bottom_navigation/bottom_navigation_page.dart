@@ -1,6 +1,7 @@
 import 'package:imboy/app_core/feature_flags/feature_revision_provider.dart';
 import 'package:imboy/app_core/feature_flags/feature_keys.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
+import 'package:imboy/theme/default/app_sizes.dart';
 
 import 'dart:async';
 
@@ -444,8 +445,10 @@ class _BottomNavigationPageState extends ConsumerState<BottomNavigationPage> {
   ) {
     Widget icon = Icon(
       isSelected ? item.activeIcon : item.icon,
-      size: 26,
-      color: isSelected ? AppColors.primary : AppColors.iosGray,
+      size: AppSizes.iconSizeMedium,
+      color: isSelected
+          ? Theme.of(context).colorScheme.primary
+          : Theme.of(context).colorScheme.onSurfaceVariant,
     );
 
     if (item.isStatusItem) {
@@ -480,7 +483,7 @@ class _BottomNavigationPageState extends ConsumerState<BottomNavigationPage> {
               )
               .copyWith(fontFeatures: [FontFeature.tabularFigures()]),
         ),
-        color: AppColors.iosRed,
+        color: AppColors.getIosRed(Theme.of(context).brightness),
         padding: AppSpacing.allTiny,
         child: icon,
       );
