@@ -76,7 +76,8 @@ void main() {
         currentIndex: 0,
         onTap: (_) {},
       );
-      expect(rail, isA<StatelessWidget>());
+      // Barrel 契约只约束公共类型可构造，不约束 Stateful/Stateless 实现细节。
+      expect(rail, isA<Widget>());
     });
 
     test('exports WebMiddlePanel', () {
@@ -86,7 +87,8 @@ void main() {
         currentTab: 0,
         tabs: const [SizedBox(), SizedBox()],
       );
-      expect(panel, isA<StatelessWidget>());
+      // 中栏可为状态组件以保留切换动效，barrel 只验证公共 API。
+      expect(panel, isA<Widget>());
     });
 
     test('exports WebMainPanel', () {

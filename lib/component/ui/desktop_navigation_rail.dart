@@ -114,11 +114,11 @@ class DesktopNavigationRail extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    final reduceMotion = MediaQuery.disableAnimationsOf(context);
     final duration = AppDuration.respectReducedMotion(
-      reduceMotion,
+      MediaQuery.disableAnimationsOf(context),
       AppDuration.slow,
     );
+
     return DesktopNavigationScope(
       expanded: expanded,
       child: AnimatedContainer(
@@ -136,13 +136,14 @@ class DesktopNavigationRail extends StatelessWidget {
         child: SafeArea(
           child: LayoutBuilder(
             builder: (context, constraints) {
-              // 极矮窗口无法同时固定空间入口、“我”和收起按钮；此时仅让
+              // 极矮窗口无法同时固定空间入口、“我”和收起按钮；此时让
               // 目的地与收起按钮进入滚动区，空间入口仍固定且所有操作可达。
               final pinFooter =
                   pinLastItemToBottom &&
                   constraints.maxHeight >=
                       AppSizes.drawerWidth + AppSizes.buttonHeightXLarge;
               final primaryCount = pinFooter ? items.length - 1 : items.length;
+
               return Column(
                 children: [
                   AppSpacing.verticalSmall,
@@ -258,6 +259,9 @@ class _DesktopNavigationTile extends StatefulWidget {
 }
 
 class _DesktopNavigationTileState extends State<_DesktopNavigationTile> {
+  // 展开内容至少需要：40pt 图标槽 + 间距 + 可读文字/角标区域。
+  static const double _expandedContentThreshold = 96;
+
   bool _hovered = false;
 
   Widget _glyph(BuildContext context, Color iconColor) {
@@ -291,13 +295,60 @@ class _DesktopNavigationTileState extends State<_DesktopNavigationTile> {
     );
   }
 
+  Widget _expandedContent(BuildContext context, Color iconColor) {
+    final scheme = Theme.of(context).colorScheme;
+    return Row(
+      children: [
+        SizedBox(
+          width: AppSizes.buttonHeightMedium,
+          height: AppSizes.buttonHeightMedium,
+          child: Center(child: _glyph(context, iconColor)),
+        ),
+        AppSpacing.horizontalSmall,
+        Expanded(
+          child: Text(
+            widget.item.label,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: context.textStyle(
+              FontSizeType.medium,
+              color: widget.selected ? scheme.primary : scheme.onSurface,
+              fontWeight: widget.selected ? FontWeight.w600 : FontWeight.w500,
+            ),
+          ),
+        ),
+        if (widget.item.badgeCount > 0) ...[
+          AppSpacing.horizontalSmall,
+          _RailBadge(count: widget.item.badgeCount),
+        ],
+        AppSpacing.horizontalSmall,
+      ],
+    );
+  }
+
+  Widget _collapsedContent(BuildContext context, Color iconColor) {
+    return Center(
+      child: Stack(
+        clipBehavior: Clip.none,
+        children: [
+          _glyph(context, iconColor),
+          if (widget.item.badgeCount > 0)
+            Positioned(
+              top: -AppSpacing.small,
+              right: -AppSpacing.medium,
+              child: _RailBadge(count: widget.item.badgeCount),
+            ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
-    final reduceMotion = MediaQuery.disableAnimationsOf(context);
     final duration = AppDuration.respectReducedMotion(
-      reduceMotion,
+      MediaQuery.disableAnimationsOf(context),
       AppDuration.normal,
     );
     final iconColor = widget.selected
@@ -311,51 +362,6 @@ class _DesktopNavigationTileState extends State<_DesktopNavigationTile> {
         : _hovered
         ? scheme.surfaceContainerHighest
         : AppColors.transparent;
-
-    final content = widget.expanded
-        ? Row(
-            children: [
-              SizedBox(
-                width: AppSizes.buttonHeightMedium,
-                height: AppSizes.buttonHeightMedium,
-                child: Center(child: _glyph(context, iconColor)),
-              ),
-              AppSpacing.horizontalSmall,
-              Expanded(
-                child: Text(
-                  widget.item.label,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: context.textStyle(
-                    FontSizeType.medium,
-                    color: widget.selected ? scheme.primary : scheme.onSurface,
-                    fontWeight: widget.selected
-                        ? FontWeight.w600
-                        : FontWeight.w500,
-                  ),
-                ),
-              ),
-              if (widget.item.badgeCount > 0) ...[
-                AppSpacing.horizontalSmall,
-                _RailBadge(count: widget.item.badgeCount),
-              ],
-              AppSpacing.horizontalSmall,
-            ],
-          )
-        : Center(
-            child: Stack(
-              clipBehavior: Clip.none,
-              children: [
-                _glyph(context, iconColor),
-                if (widget.item.badgeCount > 0)
-                  Positioned(
-                    top: -AppSpacing.small,
-                    right: -AppSpacing.medium,
-                    child: _RailBadge(count: widget.item.badgeCount),
-                  ),
-              ],
-            ),
-          );
 
     return Tooltip(
       message: widget.item.label,
@@ -371,29 +377,39 @@ class _DesktopNavigationTileState extends State<_DesktopNavigationTile> {
           onExit: (_) => setState(() => _hovered = false),
           child: ClipRRect(
             borderRadius: AppRadius.borderRadiusMedium,
-            child: CellPressable(
+            child: Semantics(
+              key: widget.item.controlKey,
+              label: widget.item.label,
+              button: true,
+              selected: widget.selected,
               onTap: widget.onTap,
-              child: Semantics(
-                key: widget.item.controlKey,
-                label: widget.item.label,
-                selected: widget.selected,
-                child: AnimatedContainer(
-                  duration: duration,
-                  curve: Curves.easeOutCubic,
-                  height: AppSizes.buttonHeightLarge,
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                    color: background,
-                    borderRadius: AppRadius.borderRadiusMedium,
-                  ),
-                  child: AnimatedSwitcher(
-                    duration: duration,
-                    switchInCurve: Curves.easeOutCubic,
-                    switchOutCurve: Curves.easeInCubic,
-                    child: KeyedSubtree(
-                      key: ValueKey<bool>(widget.expanded),
-                      child: content,
-                    ),
+              child: ExcludeSemantics(
+                child: CellPressable(
+                  onTap: widget.onTap,
+                  child: LayoutBuilder(
+                    builder: (context, constraints) {
+                      // expanded 在动画首帧会先于 rail 宽度变大；若立即渲染
+                      // 展开 Row，72pt 旧宽度会产生 0.5px RenderFlex overflow。
+                      // 以真实可用宽度决定内容形态，收起时立即移除宽布局，
+                      // 展开时待空间足够再显示文案。
+                      final showExpanded =
+                          widget.expanded &&
+                          constraints.maxWidth >= _expandedContentThreshold;
+
+                      return AnimatedContainer(
+                        duration: duration,
+                        curve: Curves.easeOutCubic,
+                        height: AppSizes.buttonHeightLarge,
+                        width: double.infinity,
+                        decoration: BoxDecoration(
+                          color: background,
+                          borderRadius: AppRadius.borderRadiusMedium,
+                        ),
+                        child: showExpanded
+                            ? _expandedContent(context, iconColor)
+                            : _collapsedContent(context, iconColor),
+                      );
+                    },
                   ),
                 ),
               ),
@@ -458,6 +474,9 @@ class _RailCollapseButton extends StatefulWidget {
 }
 
 class _RailCollapseButtonState extends State<_RailCollapseButton> {
+  // 24pt 图标 + 8pt 间距 + 最小文字区域，再加展开态 12pt×2 内边距。
+  static const double _expandedControlThreshold = 72;
+
   bool _hovered = false;
   bool _focused = false;
   bool _primaryPointerDown = false;
@@ -470,9 +489,8 @@ class _RailCollapseButtonState extends State<_RailCollapseButton> {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    final reduceMotion = MediaQuery.disableAnimationsOf(context);
     final duration = AppDuration.respectReducedMotion(
-      reduceMotion,
+      MediaQuery.disableAnimationsOf(context),
       AppDuration.normal,
     );
 
@@ -515,56 +533,64 @@ class _RailCollapseButtonState extends State<_RailCollapseButton> {
               _primaryPointerDown = false;
               if (shouldActivate) _activate();
             },
-            child: AnimatedContainer(
-              duration: duration,
-              curve: Curves.easeOutCubic,
-              height: AppSizes.touchTarget,
-              width: double.infinity,
-              padding: EdgeInsets.symmetric(
-                horizontal: widget.expanded
-                    ? AppSpacing.medium
-                    : AppSpacing.none,
-              ),
-              decoration: BoxDecoration(
-                color: _hovered
-                    ? scheme.surfaceContainerHighest
-                    : AppColors.transparent,
-                borderRadius: AppRadius.borderRadiusMedium,
-                border: _focused
-                    ? Border.all(color: scheme.primary, width: 1.5)
-                    : null,
-              ),
-              child: Row(
-                mainAxisAlignment: widget.expanded
-                    ? MainAxisAlignment.start
-                    : MainAxisAlignment.center,
-                children: [
-                  AnimatedRotation(
-                    duration: duration,
-                    turns: widget.expanded ? 0 : 0.5,
-                    child: Icon(
-                      Icons.keyboard_double_arrow_left_rounded,
-                      size: AppSizes.iconSizeMedium,
-                      color: scheme.onSurfaceVariant,
-                    ),
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                // 与导航项相同，展开布尔值会先于父 rail 宽度动画生效。
+                // 只有实际空间足够时才加入文字与水平内边距。
+                final showLabel =
+                    widget.expanded &&
+                    constraints.maxWidth >= _expandedControlThreshold;
+
+                return AnimatedContainer(
+                  duration: duration,
+                  curve: Curves.easeOutCubic,
+                  height: AppSizes.touchTarget,
+                  width: double.infinity,
+                  padding: EdgeInsets.symmetric(
+                    horizontal: showLabel ? AppSpacing.medium : AppSpacing.none,
                   ),
-                  if (widget.expanded) ...[
-                    AppSpacing.horizontalSmall,
-                    Expanded(
-                      child: Text(
-                        widget.label,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: context.textStyle(
-                          FontSizeType.small,
+                  decoration: BoxDecoration(
+                    color: _hovered
+                        ? scheme.surfaceContainerHighest
+                        : AppColors.transparent,
+                    borderRadius: AppRadius.borderRadiusMedium,
+                    border: _focused
+                        ? Border.all(color: scheme.primary, width: 1.5)
+                        : null,
+                  ),
+                  child: Row(
+                    mainAxisAlignment: showLabel
+                        ? MainAxisAlignment.start
+                        : MainAxisAlignment.center,
+                    children: [
+                      AnimatedRotation(
+                        duration: duration,
+                        turns: widget.expanded ? 0 : 0.5,
+                        child: Icon(
+                          Icons.keyboard_double_arrow_left_rounded,
+                          size: AppSizes.iconSizeMedium,
                           color: scheme.onSurfaceVariant,
-                          fontWeight: FontWeight.w500,
                         ),
                       ),
-                    ),
-                  ],
-                ],
-              ),
+                      if (showLabel) ...[
+                        AppSpacing.horizontalSmall,
+                        Expanded(
+                          child: Text(
+                            widget.label,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: context.textStyle(
+                              FontSizeType.small,
+                              color: scheme.onSurfaceVariant,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                );
+              },
             ),
           ),
         ),
