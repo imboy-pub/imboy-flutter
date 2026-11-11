@@ -1,8 +1,23 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:imboy/component/ui/desktop_navigation_rail.dart';
 import 'package:imboy/page/bottom_navigation/bottom_navigation_page.dart';
 
 void main() {
+  test('Web 无论宿主平台均使用共享导航，原生平台只放行桌面系统', () {
+    for (final platform in TargetPlatform.values) {
+      expect(usesDesktopNavigation(platform: platform, isWeb: true), isTrue);
+      expect(
+        usesDesktopNavigation(platform: platform, isWeb: false),
+        [
+          TargetPlatform.macOS,
+          TargetPlatform.windows,
+          TargetPlatform.linux,
+        ].contains(platform),
+      );
+    }
+  });
+
   group('shouldUseCollapsibleDesktopNavigation', () {
     test('600–900pt 在 macOS / Windows / Linux 与 Web 启用', () {
       for (final platform in [

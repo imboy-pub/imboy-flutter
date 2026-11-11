@@ -52,6 +52,35 @@ Future<void> _pump(
 }
 
 void main() {
+  testWidgets('跨宽窄断点调整展开宽度，保留收起状态和当前目的地', (tester) async {
+    await _pump(tester);
+    final rail = find.byKey(const ValueKey('desktop-navigation-rail'));
+    for (final (width, expected) in [
+      (750.0, 144.0),
+      (1000.0, 176.0),
+      (899.0, 144.0),
+      (900.0, 176.0),
+    ]) {
+      tester.view.physicalSize = Size(width, 720);
+      await tester.pumpAndSettle();
+      expect(tester.getSize(rail).width, expected);
+      expect(
+        tester
+            .widget<DesktopNavigationRail>(find.byType(DesktopNavigationRail))
+            .selectedIndex,
+        0,
+      );
+      expect(tester.takeException(), isNull);
+    }
+    await tester.tap(
+      find.byKey(const ValueKey('desktop-navigation-collapse-toggle')),
+    );
+    await tester.pumpAndSettle();
+    tester.view.physicalSize = const Size(750, 720);
+    await tester.pumpAndSettle();
+    expect(tester.getSize(rail).width, 72);
+  });
+
   testWidgets('展开态 176px 显示文案，收起态 72px 仅保留图标与 Tooltip', (tester) async {
     final changes = <bool>[];
     await _pump(tester, onExpandedChanged: changes.add);

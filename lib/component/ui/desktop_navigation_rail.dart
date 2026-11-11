@@ -23,6 +23,19 @@ const double kCompactDesktopNavigationExpandedWidth = 144;
 const String kDesktopNavigationExpandedPreferenceKey =
     'desktop_navigation_expanded';
 
+/// 桌面原生与 Web 使用相同导航；移动系统的原生平板保留触控布局。
+bool usesDesktopNavigation({
+  required TargetPlatform platform,
+  required bool isWeb,
+}) =>
+    isWeb ||
+    switch (platform) {
+      TargetPlatform.macOS ||
+      TargetPlatform.windows ||
+      TargetPlatform.linux => true,
+      _ => false,
+    };
+
 Color _desktopNavigationRailBackground(Brightness brightness) {
   return brightness == Brightness.dark
       ? AppColors.darkSurfaceGroupedTertiary
@@ -273,8 +286,9 @@ class _DesktopNavigationTileState extends State<_DesktopNavigationTile> {
     final scheme = Theme.of(context).colorScheme;
     return Row(
       children: [
+        AppSpacing.horizontalSmall,
         SizedBox(
-          width: AppSizes.buttonHeightMedium,
+          width: AppSizes.avatarSizeSmall,
           height: AppSizes.buttonHeightMedium,
           child: Center(child: _glyph(context, iconColor)),
         ),
@@ -285,14 +299,14 @@ class _DesktopNavigationTileState extends State<_DesktopNavigationTile> {
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: context.textStyle(
-              FontSizeType.medium,
+              FontSizeType.small,
               color: widget.selected ? scheme.primary : scheme.onSurface,
-              fontWeight: widget.selected ? FontWeight.w600 : FontWeight.w500,
+              fontWeight: widget.selected ? FontWeight.w600 : FontWeight.w400,
             ),
           ),
         ),
         if (widget.item.badgeCount > 0) ...[
-          AppSpacing.horizontalSmall,
+          AppSpacing.horizontalTiny,
           _RailBadge(count: widget.item.badgeCount),
         ],
         AppSpacing.horizontalSmall,

@@ -65,14 +65,14 @@ List<WebNavItem> buildWebNavItems({
       badgeCount: contactBadgeCount,
     ),
     WebNavItem(
-      icon: CupertinoIcons.speaker_2,
-      activeIcon: CupertinoIcons.speaker_2,
+      icon: CupertinoIcons.antenna_radiowaves_left_right,
+      activeIcon: CupertinoIcons.antenna_radiowaves_left_right,
       label: channelLabel,
       badgeCount: channelBadgeCount,
     ),
     WebNavItem(
-      icon: CupertinoIcons.person,
-      activeIcon: CupertinoIcons.person_fill,
+      icon: CupertinoIcons.person_circle,
+      activeIcon: CupertinoIcons.person_circle_fill,
       label: mineLabel,
       // mine tab 不显示 unread badge：连接状态等其他指示器走 NavRail 外的 layer
     ),

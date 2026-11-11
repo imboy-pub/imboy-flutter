@@ -7,6 +7,8 @@ import 'package:go_router/go_router.dart';
 import 'package:imboy/app_core/feature_flags/app_feature_registry.dart';
 import 'package:imboy/app_core/feature_flags/feature_keys.dart';
 import 'package:imboy/i18n/strings.g.dart';
+import 'package:imboy/component/ui/desktop_navigation_rail.dart';
+import 'package:imboy/page/web_shell/web_nav_rail.dart';
 import 'package:imboy/modules/enterprise_oa/public.dart';
 import 'package:imboy/modules/organization/public.dart';
 import 'package:imboy/modules/organization/presentation/organization_entry_provider.dart';
@@ -196,6 +198,15 @@ class _EnterpriseShellPageState extends ConsumerState<EnterpriseShellPage> {
         EnterpriseShellDestination.mine => CupertinoIcons.person_circle,
       };
 
+  IconData _activeIcon(EnterpriseShellDestination destination) =>
+      switch (destination) {
+        EnterpriseShellDestination.messages => CupertinoIcons.chat_bubble_fill,
+        EnterpriseShellDestination.contacts => CupertinoIcons.person_2_fill,
+        EnterpriseShellDestination.workbench =>
+          CupertinoIcons.square_grid_2x2_fill,
+        EnterpriseShellDestination.mine => CupertinoIcons.person_circle_fill,
+      };
+
   /// 通讯录 Tab 右上角「邀请同事」入口（APP-M02）。
   Widget _inviteColleaguesAction() {
     final orgName =
@@ -309,7 +320,33 @@ class _EnterpriseShellPageState extends ConsumerState<EnterpriseShellPage> {
     return Scaffold(
       body: Row(
         children: [
-          if (useRail)
+          if (useRail &&
+              usesDesktopNavigation(
+                platform: defaultTargetPlatform,
+                isWeb: kIsWeb,
+              ))
+            WebNavRail(
+              key: const ValueKey('enterprise-shell-rail'),
+              leading: spaceSwitcher,
+              items: [
+                for (var i = 0; i < destinations.length; i++)
+                  WebNavItem(
+                    icon: icons[i],
+                    activeIcon: _activeIcon(destinations[i]),
+                    label: labels[i],
+                    badgeCount:
+                        destinations[i] == EnterpriseShellDestination.messages
+                        ? _messageUnreadCount()
+                        : 0,
+                    controlKey: ValueKey(
+                      'enterprise-shell-nav-${destinations[i].name}',
+                    ),
+                  ),
+              ],
+              currentIndex: index,
+              onTap: select,
+            )
+          else if (useRail)
             NavigationRail(
               key: const ValueKey('enterprise-shell-rail'),
               leading: spaceSwitcher,
@@ -350,16 +387,7 @@ class _EnterpriseShellPageState extends ConsumerState<EnterpriseShellPage> {
     IconData icon,
   ) {
     if (destination != EnterpriseShellDestination.messages) return Icon(icon);
-    final workspace = ref.watch(currentWorkspaceProvider)?.id ?? '';
-    final rows = workspace.isEmpty
-        ? null
-        : ref.watch(workspaceConversationsProvider(workspace));
-    final count = rows == null || rows.isLoading || rows.hasError
-        ? 0
-        : (rows.asData?.value ?? []).fold<int>(
-            0,
-            (total, row) => total + row.unreadCount,
-          );
+    final count = _messageUnreadCount();
     return BadgeWidget(
       showBadge: count > 0,
       semanticLabel: context.t.common.unreadCount(count: '$count'),
@@ -372,6 +400,19 @@ class _EnterpriseShellPageState extends ConsumerState<EnterpriseShellPage> {
       ),
       child: Icon(icon),
     );
+  }
+
+  int _messageUnreadCount() {
+    final workspace = ref.watch(currentWorkspaceProvider)?.id ?? '';
+    final rows = workspace.isEmpty
+        ? null
+        : ref.watch(workspaceConversationsProvider(workspace));
+    return rows == null || rows.isLoading || rows.hasError
+        ? 0
+        : (rows.asData?.value ?? []).fold<int>(
+            0,
+            (total, row) => total + row.unreadCount,
+          );
   }
 
   Widget _page(

@@ -134,7 +134,7 @@ class _SpaceSwitcherButtonState extends ConsumerState<SpaceSwitcherButton> {
         height: AppSizes.touchTarget,
         padding: const EdgeInsets.symmetric(horizontal: AppSpacing.small),
         decoration: BoxDecoration(
-          color: scheme.surfaceContainerHighest,
+          color: scheme.surface,
           borderRadius: AppRadius.borderRadiusMedium,
         ),
         child: LayoutBuilder(

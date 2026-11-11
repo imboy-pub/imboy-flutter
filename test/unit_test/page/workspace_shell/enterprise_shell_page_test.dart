@@ -11,6 +11,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/i18n/strings.g.dart';
+import 'package:imboy/page/web_shell/web_nav_rail.dart';
 import 'package:imboy/modules/enterprise_oa/public.dart';
 import 'package:imboy/modules/organization/public.dart';
 import 'package:imboy/page/mine/mine/mine_page.dart';
@@ -633,15 +634,10 @@ void main() {
     addTearDown(() => debugDefaultTargetPlatformOverride = null);
     final api = EnterpriseOaApi();
     await pumpEnterpriseShell(tester, api, size: const Size(1440, 900));
-    final rail = tester.widget<NavigationRail>(
+    final rail = tester.widget<WebNavRail>(
       find.byKey(const ValueKey('enterprise-shell-rail')),
     );
-    expect(rail.destinations.map((item) => (item.label as Text).data), [
-      '消息',
-      '通讯录',
-      '工作台',
-      '我',
-    ]);
+    expect(rail.items.map((item) => item.label), ['消息', '通讯录', '工作台', '我']);
     expect(api.calls, isNotEmpty); // macOS 桥齐备，须照常拉取
     expect(tester.takeException(), isNull);
     debugDefaultTargetPlatformOverride = null;

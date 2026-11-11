@@ -2,6 +2,12 @@
 library;
 
 import 'package:flutter/material.dart';
+import 'package:imboy/page/web_shell/web_nav_rail.dart';
+import 'package:imboy/component/ui/desktop_navigation_rail.dart';
+import 'package:imboy/theme/default/app_colors.dart';
+import 'package:imboy/service/storage.dart';
+import 'package:imboy/store/model/group_model.dart';
+import 'package:imboy/store/model/workspace_conversation_model.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:imboy/page/workspace_shell/workspace_drawer_menu.dart';
@@ -11,6 +17,127 @@ import 'enterprise_shell_test_fixtures.dart';
 
 void main() {
   registerEnterpriseShellFixture();
+  testWidgets(
+    '移动平板继续使用原导航布局',
+    (tester) async {
+      final api = EnterpriseOaApi();
+      await pumpEnterpriseShell(tester, api, size: const Size(750, 900));
+      api.completeFirst([]);
+      await tester.pumpAndSettle();
+      expect(find.byType(WebNavRail), findsNothing);
+      final rail = tester.widget<NavigationRail>(
+        find.byKey(const ValueKey('enterprise-shell-rail')),
+      );
+      expect(rail.destinations, hasLength(4));
+      expect(tester.takeException(), isNull);
+    },
+    variant: TargetPlatformVariant({
+      TargetPlatform.android,
+      TargetPlatform.iOS,
+    }),
+  );
+
+  testWidgets(
+    '各桌面平台使用共享导航与紧凑宽度规则',
+    (tester) async {
+      final api = EnterpriseOaApi();
+      await pumpEnterpriseShell(tester, api, size: const Size(750, 900));
+      if (api.calls.isNotEmpty) api.completeFirst([]);
+      await tester.pumpAndSettle();
+      final rail = find.byKey(const ValueKey('desktop-navigation-rail'));
+      expect(
+        tester.getSize(rail).width,
+        kCompactDesktopNavigationExpandedWidth,
+      );
+      expect(find.byType(NavigationRail), findsNothing);
+      tester.view.physicalSize = const Size(1440, 900);
+      await tester.pumpAndSettle();
+      expect(tester.getSize(rail).width, kDesktopNavigationExpandedWidth);
+      expect(tester.takeException(), isNull);
+    },
+    variant: TargetPlatformVariant({
+      TargetPlatform.macOS,
+      TargetPlatform.windows,
+      TargetPlatform.linux,
+    }),
+  );
+
+  for (final brightness in Brightness.values) {
+    testWidgets('企业桌面复用主题、展开偏好和角标，收起后仍可导航 $brightness', (tester) async {
+      final api = EnterpriseOaApi();
+      await pumpEnterpriseShell(
+        tester,
+        api,
+        brightness: brightness,
+        size: const Size(1440, 900),
+        conversations: [
+          WorkspaceConversationModel(
+            group: GroupModel.fromJson({'id': '200', 'name': '合成群'}),
+            memberStartSeq: 1,
+            unreadCount: 7,
+          ),
+        ],
+      );
+      api.completeFirst([]);
+      await tester.pumpAndSettle();
+      final rail = find.byKey(const ValueKey('enterprise-shell-rail'));
+      final surface = find.byKey(const ValueKey('desktop-navigation-rail'));
+      final mine = find.byKey(const ValueKey('enterprise-shell-nav-mine'));
+      final messages = find.byKey(
+        const ValueKey('enterprise-shell-nav-messages'),
+      );
+      expect(tester.getSize(surface).width, kDesktopNavigationExpandedWidth);
+      final decoration =
+          tester.widget<AnimatedContainer>(surface).decoration!
+              as BoxDecoration;
+      expect(
+        decoration.color,
+        brightness == Brightness.dark
+            ? AppColors.darkSurfaceGroupedTertiary
+            : AppColors.lightAppBarBackground,
+      );
+      expect(tester.widget<WebNavRail>(rail).items.first.badgeCount, 7);
+      expect(
+        find.descendant(of: messages, matching: find.text('7')),
+        findsOneWidget,
+      );
+      expect(
+        find.descendant(
+          of: find.byKey(const ValueKey('desktop-navigation-primary-scroll')),
+          matching: mine,
+        ),
+        findsNothing,
+      );
+      await tester.tap(
+        find.byKey(const ValueKey('desktop-navigation-collapse-toggle')),
+      );
+      for (var frame = 0; frame < 30; frame++) {
+        await tester.pump(const Duration(milliseconds: 16));
+        expect(tester.takeException(), isNull);
+      }
+      expect(tester.getSize(surface).width, kDesktopNavigationCollapsedWidth);
+      expect(
+        StorageService.to.getBool(kDesktopNavigationExpandedPreferenceKey),
+        isFalse,
+      );
+      expect(
+        find.descendant(of: messages, matching: find.text('7')),
+        findsOneWidget,
+      );
+      await tester.tap(mine);
+      await tester.pumpAndSettle();
+      expect(tester.widget<WebNavRail>(rail).currentIndex, 3);
+      await tester.tap(
+        find.byKey(const ValueKey('desktop-navigation-collapse-toggle')),
+      );
+      for (var frame = 0; frame < 30; frame++) {
+        await tester.pump(const Duration(milliseconds: 16));
+        expect(tester.takeException(), isNull);
+      }
+      expect(tester.getSize(surface).width, kDesktopNavigationExpandedWidth);
+    }, variant: TargetPlatformVariant.only(TargetPlatform.macOS));
+  }
+
   for (final width in [750.0, 1440.0]) {
     testWidgets('$width 宽侧栏空间入口跨四个 tab 保留且消息头不重复', (tester) async {
       final api = EnterpriseOaApi();
@@ -61,8 +188,8 @@ void main() {
       await tester.tapAt(Offset(width - 20, 300));
       await tester.pumpAndSettle();
       expect(find.byType(WorkspaceDrawerMenu), findsNothing);
-      expect(tester.widget<NavigationRail>(rail).selectedIndex, 3);
+      expect(tester.widget<WebNavRail>(rail).currentIndex, 3);
       expect(tester.takeException(), isNull);
-    });
+    }, variant: TargetPlatformVariant.only(TargetPlatform.macOS));
   }
 }

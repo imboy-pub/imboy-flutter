@@ -68,15 +68,7 @@ bool shouldUseCollapsibleDesktopNavigation({
   final inRailRange =
       width >= AppBreakpoints.mobile && width < AppBreakpoints.wide;
   if (!inRailRange) return false;
-  if (isWeb) return true;
-  return switch (platform) {
-    TargetPlatform.macOS ||
-    TargetPlatform.windows ||
-    TargetPlatform.linux => true,
-    TargetPlatform.android ||
-    TargetPlatform.iOS ||
-    TargetPlatform.fuchsia => false,
-  };
+  return usesDesktopNavigation(platform: platform, isWeb: isWeb);
 }
 
 class BottomNavigationPage extends ConsumerStatefulWidget {
@@ -367,7 +359,6 @@ class _BottomNavigationPageState extends ConsumerState<BottomNavigationPage> {
                     .toList(growable: false),
                 currentIndex: bottomBarIndex,
                 onTap: selectDestination,
-                expandedWidth: kCompactDesktopNavigationExpandedWidth,
               )
             else if (isRailLayout)
               NavigationRail(

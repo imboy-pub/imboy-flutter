@@ -70,8 +70,8 @@ void main() {
         channelLabel: 'H',
         mineLabel: 'I',
       );
-      expect(items[2].icon, CupertinoIcons.speaker_2);
-      expect(items[2].activeIcon, CupertinoIcons.speaker_2);
+      expect(items[2].icon, CupertinoIcons.antenna_radiowaves_left_right);
+      expect(items[2].activeIcon, CupertinoIcons.antenna_radiowaves_left_right);
     });
 
     test('Tab 3 我的：person_outline / person', () {
@@ -81,8 +81,8 @@ void main() {
         channelLabel: 'H',
         mineLabel: 'I',
       );
-      expect(items[3].icon, CupertinoIcons.person);
-      expect(items[3].activeIcon, CupertinoIcons.person_fill);
+      expect(items[3].icon, CupertinoIcons.person_circle);
+      expect(items[3].activeIcon, CupertinoIcons.person_circle_fill);
     });
   });
 

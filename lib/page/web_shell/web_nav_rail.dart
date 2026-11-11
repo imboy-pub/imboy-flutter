@@ -11,6 +11,7 @@ import 'package:flutter/material.dart';
 import 'package:imboy/component/ui/desktop_navigation_rail.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/service/storage.dart';
+import 'package:imboy/theme/default/app_breakpoints.dart';
 
 /// 单个导航项数据载体（不可变）。
 class WebNavItem {
@@ -71,8 +72,8 @@ class WebNavRail extends StatefulWidget {
   /// 收起宽度。保留原 API 名称，默认 72px。
   final double width;
 
-  /// 展开宽度。常规桌面默认 176px，紧凑窗口可传 144px。
-  final double expandedWidth;
+  /// 展开宽度。不传时按窗口自动选择 144px（<900pt）或 176px。
+  final double? expandedWidth;
 
   /// 独立于业务 tab 的全局入口（例如当前空间）。
   final Widget? leading;
@@ -95,7 +96,7 @@ class WebNavRail extends StatefulWidget {
     required this.currentIndex,
     required this.onTap,
     this.width = kDesktopNavigationCollapsedWidth,
-    this.expandedWidth = kDesktopNavigationExpandedWidth,
+    this.expandedWidth,
     this.leading,
     this.initiallyExpanded = true,
     this.persistExpandedState = true,
@@ -180,7 +181,11 @@ class _WebNavRailState extends State<WebNavRail> {
       expandLabel: t.common.expandFull,
       leading: widget.leading,
       collapsedWidth: widget.width,
-      expandedWidth: widget.expandedWidth,
+      expandedWidth:
+          widget.expandedWidth ??
+          (MediaQuery.sizeOf(context).width < AppBreakpoints.wide
+              ? kCompactDesktopNavigationExpandedWidth
+              : kDesktopNavigationExpandedWidth),
       pinLastItemToBottom: widget.pinLastItemToBottom,
     );
   }

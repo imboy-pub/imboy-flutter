@@ -229,6 +229,8 @@ Future<ProviderContainer> pumpEnterpriseShell(
   String? emptyMode,
   List<GroupModel> groups = const [],
   String orgRole = 'member',
+  Brightness brightness = Brightness.light,
+  List<WorkspaceConversationModel>? conversations,
 }) async {
   tester.view.physicalSize = size;
   tester.view.devicePixelRatio = 1;
@@ -240,6 +242,9 @@ Future<ProviderContainer> pumpEnterpriseShell(
       ),
       workspaceShellProvider.overrideWith(EnterpriseShellFake.new),
       workspaceApiProvider.overrideWithValue(EnterpriseWorkspaceApi()),
+      if (conversations != null)
+        workspaceConversationsProvider('100')
+            .overrideWith((ref) async => conversations),
       organizationApiProvider.overrideWithValue(_OrgApi(orgRole)),
       workspaceGroupsProvider('100').overrideWith((ref) async => groups),
       oaWorkbenchApiProvider.overrideWithValue(api),
@@ -272,6 +277,7 @@ Future<ProviderContainer> pumpEnterpriseShell(
       child: UncontrolledProviderScope(
         container: container,
         child: MaterialApp(
+          theme: ThemeData(brightness: brightness),
           home: emptyMode == null
               ? const WorkspaceShellPage()
               : const WorkspaceShellBootstrap(),
