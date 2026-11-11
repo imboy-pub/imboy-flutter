@@ -44,7 +44,8 @@ class MessageInboxChannelStatusSliver extends StatelessWidget {
             isLoading: isLoading,
             isEmpty: false,
             error: error,
-            errorText: t.chat.inbox.channelLoadFailed,
+            // 聚合消息页不向用户暴露“频道数据源”这一实现细节。
+            errorText: t.common.networkException,
             onRetry: onRetry,
             child: const SizedBox.shrink(),
           ),
@@ -71,7 +72,7 @@ class MessageInboxChannelStatusSliver extends StatelessWidget {
               Semantics(
                 liveRegion: true,
                 child: Text(
-                  t.chat.inbox.channelLoadFailed,
+                  t.common.networkException,
                   style: context.textStyle(
                     FontSizeType.normal,
                     fontWeight: FontWeight.w400,

@@ -400,7 +400,8 @@ void main() {
         conversations: [_conversation(51, 'Available chat')],
       );
       expect(find.text('Available chat'), findsOneWidget);
-      expect(find.text(t.chat.inbox.channelLoadFailed), findsOneWidget);
+      expect(find.text(t.common.networkException), findsOneWidget);
+      expect(find.text(t.chat.inbox.channelLoadFailed), findsNothing);
       expect(find.text(t.common.buttonRetry), findsOneWidget);
       await _finish(tester);
     },
@@ -431,9 +432,7 @@ void main() {
       expect(noticeRect.right, lessThanOrEqualTo(width));
       expect(find.text(t.common.buttonRetry).hitTestable(), findsOneWidget);
       if (width > 1000) {
-        final errorRect = tester.getRect(
-          find.text(t.chat.inbox.channelLoadFailed),
-        );
+        final errorRect = tester.getRect(find.text(t.common.networkException));
         final retryRect = tester.getRect(
           find.byKey(const ValueKey('message-inbox-channel-retry')),
         );
@@ -456,7 +455,8 @@ void main() {
           conversations: [],
         );
         expect(find.byType(NoDataView), findsOneWidget);
-        expect(find.text(t.chat.inbox.channelLoadFailed), findsOneWidget);
+        expect(find.text(t.common.networkException), findsOneWidget);
+        expect(find.text(t.chat.inbox.channelLoadFailed), findsNothing);
         expect(find.text(t.common.noConversationMessages), findsNothing);
         expect(
           find.byKey(const ValueKey('message-inbox-channel-notice')),
@@ -504,13 +504,13 @@ void main() {
       );
       await tester.pumpAndSettle();
       expect(tester.widget<CupertinoButton>(retry).onPressed, isNotNull);
-      expect(find.text(t.chat.inbox.channelLoadFailed), findsOneWidget);
+      expect(find.text(t.common.networkException), findsOneWidget);
 
       await tester.tap(retry);
       await tester.pumpAndSettle();
       expect(harness.channels.builds, channelBuilds + 2);
       expect(preferences.builds, preferenceBuilds + 2);
-      expect(find.text(t.chat.inbox.channelLoadFailed), findsNothing);
+      expect(find.text(t.common.networkException), findsNothing);
       expect(find.text('Chat during retry'), findsOneWidget);
       expect(tester.takeException(), isNull);
       await _finish(tester);
@@ -545,7 +545,7 @@ void main() {
       pending.complete([_channel(9050, 'Recovered channel')]);
       await tester.pumpAndSettle();
       expect(find.text('Recovered channel'), findsOneWidget);
-      expect(find.text(t.chat.inbox.channelLoadFailed), findsNothing);
+      expect(find.text(t.common.networkException), findsNothing);
       expect(tester.takeException(), isNull);
       await _finish(tester);
     },
