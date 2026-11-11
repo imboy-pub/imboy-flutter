@@ -790,7 +790,7 @@ def build_invocation(root: Path, instance: dict, env: dict, output_dir: Path,
             raise ValueError('HOST_INTEGRATION_WRAPPER_REQUIRED: execution_runner creates an in-project test wrapper')
         command = ['flutter', 'test', target, '--machine', '--concurrency=1', '--no-pub']
         if runner in DEVICE_RUNNERS:
-            command.extend(['-d', device_id_for(instance, env), '--no-test-assets'])
+            command.extend(['-d', device_id_for(instance, env), '--no-test-assets', '--no-uninstall'])
         if instance.get('flavor'):
             command.extend(['--flavor', str(instance['flavor'])])
         if instance.get('test_name'):

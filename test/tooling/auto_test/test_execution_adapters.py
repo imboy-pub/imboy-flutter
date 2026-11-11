@@ -133,6 +133,7 @@ class AdapterEnvironmentTests(unittest.TestCase):
                 invocation = adapters.build_invocation(ROOT, item, {'IMBOY_REAL_CAMERA_SMOKE': 'true'}, Path(tmp), DEVICES)
                 self.assertIn('--no-pub', invocation['command'])
                 self.assertIn('--dart-define=IMBOY_REAL_CAMERA_SMOKE=true', invocation['command'])
+                self.assertEqual(runner == 'flutter-device', '--no-uninstall' in invocation['command'])
 
 
 class AcceptancePreparationTests(unittest.TestCase):
