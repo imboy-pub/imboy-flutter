@@ -285,9 +285,9 @@ Widget messageMsgWidget(BuildContext context, Message msg, {Color? txtColor}) {
             w: MediaQuery.of(context).size.width,
           ),
           placeholderBuilder: (context) => ShimmerBox(
-            baseColor: Colors.grey[300]!,
-            highlightColor: Colors.grey[100]!,
-            child: Container(color: Colors.white),
+            child: Container(
+              color: AppColors.getShimmerBase(Theme.of(context).brightness),
+            ),
           ),
           errorBuilder: (context, error, stacktrace) =>
               const Icon(CupertinoIcons.exclamationmark_circle),

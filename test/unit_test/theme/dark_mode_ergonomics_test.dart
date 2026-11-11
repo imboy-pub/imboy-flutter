@@ -110,5 +110,16 @@ void main() {
         greaterThanOrEqualTo(4.5),
       );
     });
+
+    test('暗色骨架屏 Shimmer 扫光色采用低明度深灰，消除加载媒体时的白闪眩光', () {
+      final baseDark = AppColors.getShimmerBase(Brightness.dark);
+      final highlightDark = AppColors.getShimmerHighlight(Brightness.dark);
+      expect(baseDark.computeLuminance(), lessThan(0.05));
+      expect(highlightDark.computeLuminance(), lessThan(0.08));
+      expect(
+        highlightDark.computeLuminance(),
+        greaterThan(baseDark.computeLuminance()),
+      );
+    });
   });
 }

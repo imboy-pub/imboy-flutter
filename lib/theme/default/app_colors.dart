@@ -67,10 +67,17 @@ class AppColors {
   /// 录像态指示红（录像按钮填充与录制中闪烁点）。
   static const Color cameraRecordingRed = Color(0xFFFF3B30);
 
-  // ============ 组件辅助色（shimmer / tag，保原值零视觉变更） ============
+  // ============ 组件辅助色（shimmer / tag，明暗自适应） ============
   static const Color shimmerBase = Color(0xFFE0E0E0);
   static const Color shimmerHighlight = Color(0xFFF5F5F5);
+  static const Color shimmerBaseDark = Color(0xFF242426);
+  static const Color shimmerHighlightDark = Color(0xFF323236);
   static const Color tagBackground = Color(0xFFF8F8F8);
+
+  static Color getShimmerBase(Brightness b) =>
+      b == Brightness.dark ? shimmerBaseDark : shimmerBase;
+  static Color getShimmerHighlight(Brightness b) =>
+      b == Brightness.dark ? shimmerHighlightDark : shimmerHighlight;
 
   // ============ 钱包卡片渐变色 ============
   static const Color walletCardGradientLightEnd = Color(0xFF1E40AF);
