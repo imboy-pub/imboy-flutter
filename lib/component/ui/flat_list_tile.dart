@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:imboy/component/ui/cell_pressable.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
+import 'package:imboy/theme/default/app_sizes.dart';
 import 'package:imboy/theme/default/font_types.dart';
 
 /// 极简列表项 (Minimalist & Flat List Tile)
@@ -45,7 +46,7 @@ class FlatListTile extends StatelessWidget {
       onTap: onTap,
       onLongPress: onLongPress,
       child: Container(
-        height: height,
+        constraints: BoxConstraints(minHeight: height ?? AppSizes.touchTarget),
         padding:
             padding ??
             const EdgeInsets.symmetric(

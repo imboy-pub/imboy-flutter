@@ -739,6 +739,7 @@ class _CsSessionPageState extends State<CsSessionPage>
                   ),
                 ),
                 IconButton(
+                  color: AppColors.primary,
                   onPressed: canWrite && !_busy && !_actions.busy
                       ? _send
                       : null,
@@ -747,10 +748,7 @@ class _CsSessionPageState extends State<CsSessionPage>
                       : context.t.chat.send,
                   icon: _sending
                       ? const CircularProgressIndicator()
-                      : const Icon(
-                          CupertinoIcons.paperplane_fill,
-                          color: AppColors.primary,
-                        ),
+                      : const Icon(CupertinoIcons.paperplane_fill),
                 ),
               ],
             ),

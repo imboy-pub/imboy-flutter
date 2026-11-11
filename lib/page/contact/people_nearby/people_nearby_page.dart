@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:imboy/component/ui/app_loading.dart';
 import 'package:go_router/go_router.dart';
 import 'package:imboy/component/ui/avatar.dart';
+import 'package:imboy/component/ui/cell_pressable.dart';
 import 'package:imboy/component/ui/ios_settings_ui.dart';
 import 'package:imboy/store/model/people_model.dart';
 
@@ -60,6 +61,10 @@ class _PeopleNearbyPageState extends ConsumerState<PeopleNearbyPage>
   }
 
   void _rotateCompass() {
+    if (MediaQuery.disableAnimationsOf(context)) {
+      _animationController.reset();
+      return;
+    }
     setState(() => _isRotating = !_isRotating);
     if (_isRotating) {
       _animationController.forward(from: 0);
@@ -239,12 +244,10 @@ class _PeopleNearbyPageState extends ConsumerState<PeopleNearbyPage>
         child: Column(
           children: [
             // 点击大指南针即可刷新下方"附近的人"列表（旋转动画反馈）
-            Semantics(
-              button: true,
-              label: t.discovery.findNearbyPeople,
-              child: GestureDetector(
-                behavior: HitTestBehavior.opaque,
-                onTap: _refreshNearby,
+            CellPressable(
+              onTap: _refreshNearby,
+              child: Semantics(
+                label: t.discovery.findNearbyPeople,
                 child: AnimatedBuilder(
                   animation: _animationController,
                   builder: (context, child) => Transform.rotate(
@@ -324,12 +327,10 @@ class _PeopleNearbyPageState extends ConsumerState<PeopleNearbyPage>
   Widget _buildEmptyState(BuildContext context) {
     // 空状态指南针同样可点击 + 旋转动画：点它即重新搜索附近的人。
     return Center(
-      child: Semantics(
-        button: true,
-        label: t.discovery.findNearbyPeople,
-        child: GestureDetector(
-          behavior: HitTestBehavior.opaque,
-          onTap: _refreshNearby,
+      child: CellPressable(
+        onTap: _refreshNearby,
+        child: Semantics(
+          label: t.discovery.findNearbyPeople,
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [

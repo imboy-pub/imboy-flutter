@@ -328,8 +328,9 @@ iosAccelerate    = Cubic(0.4, 0.0, 1.0, 1.0)       // 离开动画
 ### 6.4 点击反馈规则
 
 - **禁用 Material Ripple** 在 Cell / ListTile 中
-- 用 `opacity 0.4` 的短暂闪烁（100ms）替代
-- 参考 `CupertinoButton` 的 pressed 状态
+- 普通按钮复用 `CupertinoButton` 的按下透明度反馈。
+- 自定义整行入口复用 `CellPressable`：浅色 4% 黑、深色 6% 白的即时前景反馈；反馈必须覆盖不透明的行背景，不能被子卡片遮住。
+- 桌面入口支持 Tab / Shift+Tab 聚焦、Enter / Space 激活；焦点反馈与触摸反馈使用相同的可见层。
 
 ---
 
@@ -490,8 +491,13 @@ Layout:
 - 面板使用浅色中性表面／暗色对应表面，正文、次级文字与分隔线采用主题 token。当前空间为内缩圆角的轻蓝选中行，同时保留勾选与切换中反馈；身份区适度突出，普通功能行用常规字重。
 - `compact` 内容复用同一身份区、空间列表与功能组；传统 Drawer 保留兼容呈现，不因弹层形态分叉权限、路由或数据加载逻辑。个人资料、名片、企业二维码、企业工具、创建/加入、设置与退出入口继续遵守原有角色和功能判断。
 - 退出作为独立的低强调危险操作，文字使用 `AppColors.getDestructiveText`，保留原确认流程。缓存播种、成员资格真源、会话代防护及两阶段原子切换不因视觉调整改变。
+- 空间列表刷新失败时保留缓存和其他菜单入口，并在原面板显示可重试提示；重试期间保留已有空间、显示忙碌状态并禁止重复请求，成功后清除旧错误。
 
 The application shell owns the space switcher. Rails expose it globally; compact message headers keep a small identity-aware trigger. Anchored desktop panels and mobile sheets share the existing menu actions, use neutral theme surfaces, and close only their own presentation. Personal profiles, permissions, destructive confirmation and atomic space switching retain their contracts.
+
+Failed space-list refreshes retain cached spaces and offer an inline retry. Keep
+the retry busy until completion, prevent duplicate requests, and clear the error
+after a successful refresh.
 
 ### 8.9 消息筛选条 | Message Filter Bar（2026-10）
 
@@ -499,12 +505,18 @@ The application shell owns the space switcher. Rails expose it globally; compact
 （`lib/page/workspace_shell/workspace_message_toolbar.dart`）：
 
 ```
-- 高 48pt，surface 背景，底部 0.33pt separator
+- 最小高 48pt，文字放大或翻译变长时自然增高，surface 背景，底部 0.33pt separator
 - 档位：筛选(当前筛选名 + chevron_down) | 日程 | 待办，档间 0.5pt 竖 hairline
 - 选中档 brand 蓝（图标+文字 w600），未选中档文字主色/图标 iosGray
-- 点筛选档弹出 topLeft 锚定气泡菜单（见 8.10）：九档筛选 + 「编辑」动作，
-  全部/未读行尾计数胶囊（PopoverCountBadge：灰底胶囊、Footnote w600）
+- 文字允许换行而不缩小系统字号；每项至少 48pt 热区，同一具名按钮提供选中与焦点状态
+- 点筛选档弹出 topLeft 锚定气泡菜单（见 8.10）：视图段为全部/日程/待办，
+  筛选段只显示 kVisibleWorkspaceMessageFilters 的真实可用项；未实现的筛选与编辑不展示。
+  全部/未读及日程/待办有数据时显示计数胶囊（PopoverCountBadge：灰底胶囊、Footnote w600）
 ```
+
+The enterprise message toolbar keeps a 48pt minimum target and grows with wrapped
+labels at larger text sizes. Each named control exposes its current selection and
+keyboard focus. Its menu lists only available views and filters.
 
 #### 个人消息统一列表（2026-11）
 
@@ -542,6 +554,14 @@ Channel failures use a compact, wrapping notice when chat rows remain visible an
 - 宽度自适应：最长文案单行实测 + 固定元素，封顶 0.618 屏宽
 - 动作必须先 pop 菜单再执行（防止 pop 反手弹掉刚 push 的页面）
 ```
+
+- 普通动作菜单与空间内容弹层共用安全区、键盘避让和上下择位边界；内容超高时在面板内滚动，最后一项也能到达。长标题自然换行，不以两行省略隐藏操作名称。
+- 当前筛选项保留选中语义；普通动作不标记为“未选中”。名称、按钮角色与键盘焦点归属同一节点，Escape 关闭当前菜单。
+- 普通菜单与内容弹层都遵循减少动态效果设置；正常模式保留既有转场，减少动画时即时呈现。
+
+Both menu forms share safe-area and keyboard bounds, open into available space,
+and scroll when necessary. Preserve full action names, expose selection only for
+selectable entries, and respect reduced motion without changing navigation order.
 
 ---
 
@@ -703,6 +723,7 @@ CONTRACT-FREEZE-T02 冻结项（C-F1~C-F4），**后续修改必须维持这些�
   禁止首屏全屏转菊花
 - 下拉刷新：CupertinoSliverRefreshControl（已有数据时保留旧内容，
   不清空成骨架屏）
+- 下一页失败：保留已加载行，在列表尾部说明失败并重试同一页；成功前不能跳过失败页继续加载。网络失败不得显示为“无权限”或“暂无内容”。
 - 小区域/按钮内：CupertinoActivityIndicator（12–20pt）；
   按钮忙碌 = 禁用 + 换执行文案（如「上传中」），不只变灰
 - 可量化长任务：3pt LinearProgressIndicator + 真实进度文案（§8.16）；
@@ -833,6 +854,10 @@ CONTRACT-FREEZE-T02 冻结项（C-F1~C-F4），**后续修改必须维持这些�
 - 尊重系统字号设置（`MediaQuery.textScaleFactor`）
 - 布局不能因字号放大而截断或溢出
 - 使用现有 `FontScaleCalculator`
+- 列表行和文案按钮以最小高度约束触点，允许内容自然增高；长标题、表单标签和横排动作按可用宽度换行。
+- 表单 Tab 复用 `LoginFormTabs` 的动态测高；不得用固定表单高度容纳可缩放文字。
+- 阅读、设置和钱包表单复用 680pt 内容宽度。媒体画布、聊天分栏和以窗口宽度计算网格的页面单独适配，不能全局强制限宽。
+- `IosPageTemplate.child` 由模板负责滚动；独立 `ListView` / `CustomScrollView` 放入 `body` / `slivers`，避免同轴无界高度。短窗口状态页的说明和恢复动作须可滚动到达。
 
 ### 11.3 Reduce Motion
 
@@ -845,11 +870,14 @@ CONTRACT-FREEZE-T02 冻结项（C-F1~C-F4），**后续修改必须维持这些�
 - 所有 IconButton 必须有 `semanticLabel`
 - 聊天气泡 `Semantics(label: "来自张三的消息: xxx，14点23分")`
 - 未读红点 `semanticLabel: "5 条未读"`
+- 名称、角色和选中状态应落在同一个可聚焦操作节点；回归从具名语义节点验证，不能把 Tooltip 的布局容器当成操作节点。
+- 一个操作只声明一次按钮角色。`CellPressable`、`CupertinoButton` 和 Material 按钮已提供角色，调用方的 `Semantics` 只补充名称、选中或状态信息；否则当前 Flutter 会把重复角色拆成不同节点。停用的自定义行仍需保留角色及 `enabled: false`；完整替代子树语义的 `excludeSemantics: true` 节点自行提供角色与动作。
+- 同一动作的名称只保留一个来源：可见文字已提供完整名称时，不在可合并的父节点复制相同 `label`；需要显式上下文名称时，优先用 `Text.semanticsLabel` 将可见按钮文案和必要上下文组合为一个名称，并保留在按钮自身的语义边界内。只排除文字的重复语义，不排除按钮本身的角色、焦点与动作。回归应检查最终节点的精确名称，不能用宽泛匹配掩盖重复朗读。
 
 ### 11.5 触达区域
 
 - 最小 44×44pt（iOS）/ 48×48dp（Android）
-- 使用 `InkWell` / `GestureDetector` 的 `behavior: HitTestBehavior.opaque`
+- 自定义行优先复用 `CellPressable`，纯图标动作使用具名 Cupertino 按钮；保留媒体长按、拖动和缩放等专属手势。
 
 ---
 
@@ -997,6 +1025,14 @@ Scaffold(
 - [ ] VoiceOver 标签完整
 - [ ] 动画 duration ≤ 400ms（除引导）
 - [ ] 测试过 Android 真机（项目规则要求）
+
+逐页源码审查与处置记录见 [UI/UX 页面审查台账](docs/design/uiux-page-review.csv)，独立条件及来源证据见 [UI/UX 检查项台账](docs/design/uiux-review-checkpoints.csv)。
+
+- 页面清单按去重的承载文件统计：221 个文件，另单列 4 个既有文件中的页面类；纯导出、不可达的 SearchDelegate、不同 URL、地区层级及同页状态不增加页面文件数。当前仓库不能据此宣称有 500 个独立页面。
+- 检查项共 563 项：399 项既有逐页发现、30 项导航交互、25 项共享组件、64 项补充入口及 45 项页面状态。既有复合描述未拆句计数；新增入口原有 72 项，经保守去重移除 8 项。7 条旧发现的后续处置并入原记录，不再次计数。
+- 台账分别记录直接修改、共享组件改善、保留实现、已确认未修及待验证项，保留基准提交/源码哈希与实现源码哈希。记录数量不代表自动化通过数量；源码审查、widget 渲染与原生设备视觉验收不能互相代替。
+
+The inventory counts unique page-host files, not platform variants or UI states. Source-review records include retained implementations and open findings; they are not runtime or device passes.
 
 ---
 

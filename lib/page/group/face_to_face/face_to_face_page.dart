@@ -166,7 +166,7 @@ class _FaceToFacePageState extends ConsumerState<FaceToFacePage> {
 
         return Container(
           width: boxSize,
-          height: boxSize,
+          constraints: BoxConstraints(minHeight: boxSize),
           margin: const EdgeInsets.symmetric(horizontal: AppSpacing.small),
           decoration: BoxDecoration(
             color: hasValue

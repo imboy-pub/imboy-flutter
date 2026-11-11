@@ -75,6 +75,7 @@ class _WorkspaceDrawerMenuState extends ConsumerState<WorkspaceDrawerMenu> {
   /// 企业列表：打开时缓存播种即时渲染 + mine() 刷新真源（指针非真源）。
   List<Organization> _orgs = const [];
   bool _loading = false;
+  bool _loadFailed = false;
 
   /// 正在切换的目标（[_kPersonalTarget] 或企业 id）：行内 spinner 的
   /// 唯一真源；null=无进行中切换。
@@ -125,15 +126,21 @@ class _WorkspaceDrawerMenuState extends ConsumerState<WorkspaceDrawerMenu> {
 
   Future<void> _refresh() async {
     final account = _account;
-    if (account.isEmpty) return;
+    if (account.isEmpty || _loading) return;
     setState(() => _loading = true);
     try {
       final orgs = await _api.allMine();
       if (!mounted || account != _resolveAccount()) return;
       OrganizationCache.forAccount(account).replaceMineOrgs(orgs);
-      setState(() => _orgs = orgs);
+      setState(() {
+        _orgs = orgs;
+        _loadFailed = false;
+      });
     } on Object {
-      // 列表拉取失败：保留缓存播种（抽屉其余功能不受影响），下次打开重试。
+      // 保留缓存及菜单入口，在原面板内提供明确的重试路径。
+      if (mounted && account == _resolveAccount()) {
+        setState(() => _loadFailed = true);
+      }
     } finally {
       if (mounted) setState(() => _loading = false);
     }
@@ -347,7 +354,8 @@ class _WorkspaceDrawerMenuState extends ConsumerState<WorkspaceDrawerMenu> {
               switching: _switchingTarget == org.id,
               onTap: switching ? null : () => unawaited(_switchTo(org)),
             ),
-          if (_loading && _orgs.isEmpty)
+          if (_loadFailed) _refreshError(context),
+          if (_loading && _orgs.isEmpty && !_loadFailed)
             const Padding(
               padding: EdgeInsetsDirectional.symmetric(
                 vertical: AppSpacing.medium,
@@ -361,6 +369,42 @@ class _WorkspaceDrawerMenuState extends ConsumerState<WorkspaceDrawerMenu> {
               ),
             ),
         ],
+      ),
+    );
+  }
+
+  Widget _refreshError(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsetsDirectional.only(start: AppSpacing.medium),
+      child: Semantics(
+        liveRegion: true,
+        child: Row(
+          children: [
+            Expanded(
+              child: Text(
+                t.common.loadError,
+                style: context.textStyle(
+                  FontSizeType.small,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
+              ),
+            ),
+            CupertinoButton(
+              key: const ValueKey('drawer-space-retry'),
+              minimumSize: const Size.square(AppSpacing.xxxLarge),
+              padding: const EdgeInsets.all(AppSpacing.small),
+              onPressed: _loading ? null : () => unawaited(_refresh()),
+              child: Semantics(
+                label: _loading ? t.common.retrying : t.common.buttonRetry,
+                child: ExcludeSemantics(
+                  child: _loading
+                      ? const CupertinoActivityIndicator()
+                      : Text(t.common.buttonRetry),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

@@ -9,6 +9,29 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/page/error/init_error_page.dart';
 
 void main() {
+  testWidgets('短窗口长错误仍可滚动到真实重试动作', (tester) async {
+    tester.view.devicePixelRatio = 1;
+    tester.view.physicalSize = const Size(320, 240);
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    var retries = 0;
+    await tester.pumpWidget(
+      InitErrorPage(
+        error: StateError(List.filled(20, 'Storage unavailable').join('\n')),
+        onRetry: () async {
+          retries++;
+        },
+      ),
+    );
+    expect(tester.takeException(), isNull);
+    await tester.ensureVisible(find.byType(FilledButton));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('重试'));
+    await tester.pumpAndSettle();
+    expect(retries, 1);
+    expect(tester.takeException(), isNull);
+  });
+
   testWidgets('渲染标题、错误详情与重试按钮', (tester) async {
     await tester.pumpWidget(
       InitErrorPage(error: StateError('db corrupted'), onRetry: () async {}),

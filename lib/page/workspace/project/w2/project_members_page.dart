@@ -296,7 +296,15 @@ class _ProjectMembersPageState extends ConsumerState<ProjectMembersPage> {
                 onTransfer: () => _transfer(widget.projectId, m),
               ),
           ],
-          if (!hasLoading && loadedPages.isNotEmpty && totalPage > _pages) ...[
+          if (firstError != null)
+            WorkspaceInlineError(
+              message: projectW2ViewMessage(context, firstError),
+              onRetry: () => _invalidatePages(widget.projectId),
+            ),
+          if (!hasLoading &&
+              firstError == null &&
+              loadedPages.isNotEmpty &&
+              totalPage > _pages) ...[
             AppSpacing.verticalSmall,
             ProjectW2LoadMoreButton(
               onPressed: () => setState(() => _pages += 1),

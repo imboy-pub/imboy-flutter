@@ -327,6 +327,9 @@ class _LoginPageState extends ConsumerState<LoginPage>
                       : CupertinoIcons.eye_slash,
                   size: 20,
                   color: AppColors.iosGray,
+                  semanticLabel: state.loginPwdObscure
+                      ? t.common.showPassword
+                      : t.common.hidePassword,
                 ),
                 onPressed: () => notifier.toggleLoginPwdObscure(),
               ),

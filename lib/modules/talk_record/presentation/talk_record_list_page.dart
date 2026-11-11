@@ -26,6 +26,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import 'package:imboy/component/ui/cell_pressable.dart';
 import 'package:imboy/component/ui/ios_settings_ui.dart';
 import 'package:imboy/component/ui/shimmer_list.dart';
 import 'package:imboy/i18n/strings.g.dart';
@@ -37,7 +38,7 @@ import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:imboy/theme/default/font_types.dart';
 
 import 'package:imboy/config/router/routes/talk_record_routes.dart'
-    show kTalkRecordPreparePath;
+    show kTalkRecordDetailPath, kTalkRecordPreparePath;
 import 'package:imboy/modules/talk_record/presentation/talk_record_entry_context.dart';
 import 'package:imboy/modules/talk_record/presentation/talk_record_providers.dart';
 import 'package:imboy/modules/talk_record/presentation/talk_record_recording_bar.dart';
@@ -267,7 +268,7 @@ class _FilterSegments extends StatelessWidget {
     // P2：轨道容器 —— surface 底 + 2pt 内边距 + radius 10，分段块浮动其上，
     // 取代原先实心色块贴边拼接的生硬观感；选中配色仍遵守 C-F1 不动。
     return Container(
-      height: AppSpacing.xxxLarge,
+      constraints: const BoxConstraints(minHeight: AppSpacing.xxxLarge),
       padding: const EdgeInsets.all(2),
       decoration: BoxDecoration(
         color: brightness == Brightness.dark
@@ -320,27 +321,27 @@ class _Segment extends StatelessWidget {
         ? AppColors.darkTextPrimary
         : AppColors.lightTextPrimary;
 
-    return GestureDetector(
-      onTap: onTap,
-      behavior: HitTestBehavior.opaque,
-      child: Container(
-        decoration: BoxDecoration(
-          color: selected ? selectedColor : null,
-          borderRadius: BorderRadius.circular(8),
-        ),
-        alignment: Alignment.center,
-        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.small),
-        child: Text(
-          label,
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-          style: context.textStyle(
-            FontSizeType.normal,
-            fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
-            color: selected ? AppColors.onPrimary : unselectedFg,
-          ),
+    final segment = Container(
+      constraints: const BoxConstraints(minHeight: 44),
+      decoration: BoxDecoration(
+        color: selected ? selectedColor : null,
+        borderRadius: BorderRadius.circular(8),
+      ),
+      alignment: Alignment.center,
+      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.small),
+      child: Text(
+        label,
+        textAlign: TextAlign.center,
+        style: context.textStyle(
+          FontSizeType.normal,
+          fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
+          color: selected ? AppColors.onPrimary : unselectedFg,
         ),
       ),
+    );
+    return CellPressable(
+      onTap: onTap,
+      child: Semantics(selected: selected, child: segment),
     );
   }
 }
@@ -360,7 +361,7 @@ class _RecordRow extends StatelessWidget {
     final status = talkRecordStatusText(record);
     final isLocalDraft = talkRecordIsLocalDraft(record);
 
-    return Container(
+    final content = Container(
       color: brightness == Brightness.dark
           ? AppColors.darkSurface
           : AppColors.lightSurface,
@@ -368,8 +369,7 @@ class _RecordRow extends StatelessWidget {
         horizontal: AppSpacing.regular,
         vertical: AppSpacing.medium,
       ),
-      // C-F4/触达：整行 ≥44pt（内容高度自然超出，无 onTap——详情页由
-      // T12 交付，记录列表不渲染每行箭头占位）。
+      // 仅已同步记录打开详情；本机草稿由待上传/恢复入口承接。
       constraints: const BoxConstraints(minHeight: AppSpacing.xLarge + 24),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -451,6 +451,15 @@ class _RecordRow extends StatelessWidget {
           ),
         ],
       ),
+    );
+    return CellPressable(
+      key: ValueKey('talk_record_row_${record.id}'),
+      onTap: isLocalDraft || record.id.isEmpty
+          ? null
+          : () => context.push(
+              '$kTalkRecordDetailPath/${Uri.encodeComponent(record.id)}',
+            ),
+      child: content,
     );
   }
 }
@@ -616,10 +625,12 @@ class _CreateButton extends StatelessWidget {
         AppSpacing.regular,
         AppSpacing.small,
       ),
-      child: SizedBox(
-        width: double.infinity,
+      child: ConstrainedBox(
         // 主操作 ≥48pt（UI-SPEC §1）。
-        height: AppSpacing.xxxLarge,
+        constraints: const BoxConstraints(
+          minWidth: double.infinity,
+          minHeight: AppSpacing.xxxLarge,
+        ),
         child: CupertinoButton(
           key: const ValueKey('talk_record_create_button'),
           // §8.4：Primary Button 圆角 14pt。

@@ -23,6 +23,8 @@
 /// 分类为 product_defect 则保留 RED 用例。
 library;
 
+import 'dart:ui' show SemanticsAction;
+
 import 'package:flutter/cupertino.dart' show CupertinoIcons;
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -199,6 +201,7 @@ void main() {
       reason: '危险动作必须经确认 Dialog（orgConfirmDangerAction）',
     );
     expect(find.text('取消'), findsOneWidget);
+    _expectDialogActionSemantics(tester, '确认移除，移除成员');
     // 取消 → 弹层消失，不执行移除。
     await tester.tap(find.text('取消'));
     await settleUx(tester);
@@ -317,6 +320,7 @@ void main() {
     await tester.tap(archiveTile);
     await settleUx(tester);
     expect(find.text('确认归档'), findsOneWidget, reason: '归档属危险动作，必须弹确认 Dialog');
+    _expectDialogActionSemantics(tester, '确认归档，归档企业');
     expect(
       find.descendant(
         of: find.byType(AlertDialog),
@@ -329,4 +333,14 @@ void main() {
     await settleUx(tester);
     expect(find.text('确认归档'), findsNothing);
   });
+}
+
+void _expectDialogActionSemantics(WidgetTester tester, String label) {
+  final action = find.bySemanticsLabel(label);
+  expect(action, findsOneWidget);
+  final data = tester.getSemantics(action).getSemanticsData();
+  expect(data.label, label);
+  expect(data.flagsCollection.isButton, isTrue);
+  expect(data.flagsCollection.isEnabled.toBoolOrNull(), isTrue);
+  expect(data.hasAction(SemanticsAction.tap), isTrue);
 }

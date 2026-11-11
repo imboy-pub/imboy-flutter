@@ -60,6 +60,7 @@ class _OrgJoinScannerPageState extends State<OrgJoinScannerPage> {
   Future<void> _start() async {
     if (_started || !mounted) return;
     final status = await Permission.camera.request();
+    if (!mounted) return;
     if (!status.isGranted) {
       if (mounted) {
         setState(() {
@@ -85,6 +86,8 @@ class _OrgJoinScannerPageState extends State<OrgJoinScannerPage> {
       if (mounted) {
         setState(() {
           _started = true;
+          _startFailed = false;
+          _permissionDenied = false;
         });
       }
     } on MobileScannerException catch (e) {

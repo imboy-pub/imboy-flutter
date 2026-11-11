@@ -814,8 +814,6 @@ class _HumanDirectoryBrowserPageState
             Expanded(
               child: Text(
                 error,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
                 style: theme.textTheme.bodySmall?.copyWith(
                   color: theme.colorScheme.error,
                 ),
@@ -867,6 +865,7 @@ class _HumanDirectoryBrowserPageState
           loading: s.loading,
           error: s.error,
           emptyText: t.organization.directory.emptySearch,
+          showEmptyText: s.items.isEmpty,
           onRetry: () => c.retrySection(HumanDirectorySectionKind.search),
         ),
       ],

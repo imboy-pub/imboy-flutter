@@ -143,6 +143,7 @@ class _EnterpriseGroupPageState extends State<EnterpriseGroupPage> {
 
   /// 统一写操作守卫：busy 标记 + 错误归一 + 成功后刷新。
   Future<void> _guard(Future<void> Function() action) async {
+    if (_busy || !mounted) return;
     setState(() {
       _busy = true;
       _error = null;
@@ -296,6 +297,7 @@ class _EnterpriseGroupPageState extends State<EnterpriseGroupPage> {
                     ),
                   )
                 : PopupMenuButton<EnterpriseGroupRole>(
+                    enabled: !_busy && !detail.isArchived,
                     onSelected: (EnterpriseGroupRole r) => _setRole(m, r),
                     itemBuilder: (_) => EnterpriseGroupRole.assignableRoles
                         .map(

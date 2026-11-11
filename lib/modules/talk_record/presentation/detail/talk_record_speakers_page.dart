@@ -16,6 +16,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'package:imboy/component/ui/cell_pressable.dart';
 import 'package:imboy/component/ui/ios_settings_ui.dart';
 import 'package:imboy/component/ui/shimmer_list.dart';
 import 'package:imboy/i18n/strings.g.dart';
@@ -451,8 +452,7 @@ class _RowAction extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final brightness = Theme.of(context).brightness;
-    return GestureDetector(
-      behavior: HitTestBehavior.opaque,
+    return CellPressable(
       onTap: onTap,
       child: ConstrainedBox(
         // C-F4：行内动作触达 ≥44pt。
@@ -474,12 +474,14 @@ class _RowAction extends StatelessWidget {
                 color: AppColors.primaryDark,
               ),
               const SizedBox(width: AppSpacing.tiny + 2),
-              Text(
-                label,
-                style: context.textStyle(
-                  FontSizeType.footnote,
-                  fontWeight: FontWeight.w600,
-                  color: AppColors.primaryDark,
+              Flexible(
+                child: Text(
+                  label,
+                  style: context.textStyle(
+                    FontSizeType.footnote,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.primaryDark,
+                  ),
                 ),
               ),
             ],

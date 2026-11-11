@@ -182,6 +182,68 @@ void main() {
   });
 
   group('QrLoginConfirmContent — 触达可访问性', () {
+    testWidgets('short viewport and large text keep both actions reachable', (
+      tester,
+    ) async {
+      tester.view.physicalSize = const Size(320, 480);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+      var confirmed = 0;
+      var cancelled = 0;
+      await tester.pumpWidget(
+        MaterialApp(
+          builder: (context, child) => MediaQuery(
+            data: MediaQuery.of(context)
+                .copyWith(textScaler: const TextScaler.linear(2)),
+            child: child!,
+          ),
+          home: build(
+            const QrLoginConfirmAwaitingConfirm(
+              deviceInfo: QrLoginDeviceInfo(
+                deviceName: 'A long desktop device name for confirmation',
+                platform: 'macOS',
+              ),
+            ),
+            onConfirm: () => confirmed++,
+            onCancel: () => cancelled++,
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(tester.takeException(), isNull);
+      await tester.ensureVisible(find.text('确认登录'));
+      await tester.tap(find.text('确认登录'));
+      await tester.ensureVisible(find.text('取消'));
+      await tester.tap(find.text('取消'));
+      expect(confirmed, 1);
+      expect(cancelled, 1);
+    });
+
+    testWidgets('device card uses the dark grouped surface', (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: ThemeData.dark(),
+          home: build(
+            const QrLoginConfirmAwaitingConfirm(
+              deviceInfo: QrLoginDeviceInfo(deviceName: 'Dark device'),
+            ),
+          ),
+        ),
+      );
+      final card = tester.widget<Container>(
+        find
+            .ancestor(
+              of: find.textContaining('Dark device'),
+              matching: find.byType(Container),
+            )
+            .first,
+      );
+      expect(
+        (card.decoration! as BoxDecoration).color,
+        AppColors.getSurfaceGrouped(Brightness.dark),
+      );
+    });
+
     testWidgets('确认按钮 minHeight ≥ 44pt（iOS HIG / Material a11y）', (
       tester,
     ) async {

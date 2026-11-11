@@ -4,6 +4,8 @@ import 'package:flutter/services.dart' show Clipboard, ClipboardData;
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/component/ui/ios_settings_ui.dart';
+import 'package:imboy/page/settings/widget/settings_notice_card.dart';
+import 'package:imboy/component/ui/resource_page_layout.dart';
 import 'package:imboy/service/e2ee_crypto_service.dart';
 import 'package:imboy/service/e2ee_backup_setup_service.dart';
 import 'package:imboy/i18n/strings.g.dart';
@@ -68,6 +70,7 @@ class _E2EEBackupExportPageState extends State<E2EEBackupExportPage> {
   @override
   Widget build(BuildContext context) {
     return IosPageTemplate(
+      contentMaxWidth: ResourcePageLayout.maxWidth,
       title: t.common.e2eeBackupExportTitle,
       child: Padding(
         padding: const EdgeInsets.all(AppSpacing.regular),
@@ -98,51 +101,15 @@ class _E2EEBackupExportPageState extends State<E2EEBackupExportPage> {
     );
   }
 
-  Widget _buildWarningCard() {
-    return Card(
-      color: AppColors.iosOrange.withValues(alpha: 0.1),
-      child: Padding(
-        padding: const EdgeInsets.all(AppSpacing.regular),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                const Icon(
-                  CupertinoIcons.exclamationmark_triangle_fill,
-                  color: AppColors.iosOrange,
-                ),
-                const SizedBox(width: AppSpacing.small),
-                Text(
-                  t.common.e2eeImportantNote,
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.iosOrange,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: AppSpacing.small),
-            Text(
-              t.common.e2eeBackupPwdCantRecover,
-              style: context.textStyle(
-                FontSizeType.footnote,
-                color: AppColors.iosOrange,
-              ),
-            ),
-            const SizedBox(height: AppSpacing.tiny),
-            Text(
-              t.common.e2eeBackupStoreMultipleNote,
-              style: context.textStyle(
-                FontSizeType.footnote,
-                color: AppColors.iosOrange,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
+  Widget _buildWarningCard() => SettingsNoticeCard(
+    title: t.common.e2eeImportantNote,
+    icon: CupertinoIcons.exclamationmark_triangle_fill,
+    accent: AppColors.iosOrange,
+    paragraphs: [
+      t.common.e2eeBackupPwdCantRecover,
+      t.common.e2eeBackupStoreMultipleNote,
+    ],
+  );
 
   Widget _buildPasswordSection() {
     return TextField(

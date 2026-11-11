@@ -2,8 +2,10 @@ import 'package:flutter/services.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:imboy/component/ui/common_bar.dart';
+import 'package:imboy/component/ui/cell_pressable.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
+import 'package:imboy/theme/default/app_sizes.dart';
 import 'package:imboy/theme/default/font_types.dart';
 
 /// iOS 风格页面模板
@@ -119,15 +121,18 @@ class IosPageTemplate extends StatelessWidget {
     return Scaffold(
       backgroundColor: bgColor,
       appBar: navBar,
-      body: contentMaxWidth == null
-          ? pageBody
-          : Align(
-              alignment: Alignment.topCenter,
-              child: ConstrainedBox(
-                constraints: BoxConstraints(maxWidth: contentMaxWidth!),
-                child: pageBody,
+      body: SafeArea(
+        top: false,
+        child: contentMaxWidth == null
+            ? pageBody
+            : Align(
+                alignment: Alignment.topCenter,
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(maxWidth: contentMaxWidth!),
+                  child: pageBody,
+                ),
               ),
-            ),
+      ),
       bottomNavigationBar: bottomWidget,
     );
   }
@@ -139,6 +144,7 @@ class IosPageTemplate extends StatelessWidget {
     if (slivers != null) {
       return CustomScrollView(
         controller: controller,
+        keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
         physics: const BouncingScrollPhysics(
           parent: AlwaysScrollableScrollPhysics(),
         ),
@@ -146,6 +152,7 @@ class IosPageTemplate extends StatelessWidget {
       );
     }
     return SingleChildScrollView(
+      keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
       physics: const BouncingScrollPhysics(
         parent: AlwaysScrollableScrollPhysics(),
       ),
@@ -188,8 +195,8 @@ class ImBoySettingsSection extends StatelessWidget {
     final isDark = theme.brightness == Brightness.dark;
 
     final headerColor = isDark
-        ? AppColors.darkTextSecondary.withValues(alpha: 0.5)
-        : AppColors.lightTextSecondary.withValues(alpha: 0.5);
+        ? AppColors.darkTextSecondary
+        : AppColors.lightTextSecondary;
     final headerStyle = context
         .textStyle(
           FontSizeType.footnote,
@@ -265,7 +272,7 @@ class ImBoySettingsTile extends StatelessWidget {
           FontSizeType.body,
           fontWeight: FontWeight.w400,
           color: destructive
-              ? AppColors.getIosRed(theme.brightness)
+              ? AppColors.getDestructiveText(theme.brightness)
               : (isDark
                     ? AppColors.darkTextPrimary
                     : AppColors.lightTextPrimary),
@@ -275,8 +282,8 @@ class ImBoySettingsTile extends StatelessWidget {
     final subtitleStyle = context.textStyle(
       FontSizeType.subheadline,
       color: isDark
-          ? AppColors.darkTextSecondary.withValues(alpha: 0.6)
-          : AppColors.lightTextSecondary.withValues(alpha: 0.6),
+          ? AppColors.darkTextSecondary
+          : AppColors.lightTextSecondary,
     );
 
     return CupertinoListTile.notched(
@@ -355,12 +362,11 @@ class ImBoyListTile extends StatelessWidget {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
 
-    return GestureDetector(
+    return CellPressable(
       onTap: onTap,
       onLongPress: onLongPress,
-      behavior: HitTestBehavior.opaque,
       child: Container(
-        height: height,
+        constraints: BoxConstraints(minHeight: height ?? AppSizes.touchTarget),
         color:
             backgroundColor ??
             (isDark ? AppColors.darkSurface : AppColors.lightSurface),

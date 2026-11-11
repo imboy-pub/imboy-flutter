@@ -160,7 +160,7 @@ class _GroupListState extends State<_GroupList> {
                 // W05/F10：创建日常入口（常驻，不只在空态出现）。
                 CupertinoButton(
                   padding: EdgeInsets.zero,
-                  minimumSize: const Size(34, 34),
+                  minimumSize: const Size(44, 44),
                   onPressed: widget.onCreateGroup,
                   child: Icon(
                     CupertinoIcons.add_circled,

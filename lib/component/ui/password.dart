@@ -1,5 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:imboy/component/ui/cell_pressable.dart';
+import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_radius.dart';
 import 'package:imboy/theme/default/app_sizes.dart';
@@ -68,20 +70,22 @@ class PasswordTextField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // 使用 Design Token 定义默认值
-    final effectiveIconColor = iconColor ?? AppColors.lightTextSecondary;
+    final brightness = Theme.of(context).brightness;
+    final effectiveIconColor =
+        iconColor ?? AppColors.getTextSecondary(brightness);
     final effectiveCursorColor = cursorColor ?? AppColors.primary;
     final effectiveStyle =
         style ??
         context.textStyle(
           FontSizeType.medium,
           fontWeight: FontWeight.w500,
-          color: AppColors.lightTextPrimary,
+          color: AppColors.getTextColor(brightness),
         );
     final effectiveHintStyle =
         hintStyle ??
         context.textStyle(
           FontSizeType.medium,
-          color: AppColors.lightTextSecondary,
+          color: AppColors.getTextSecondary(brightness),
         );
 
     return TextField(
@@ -94,7 +98,9 @@ class PasswordTextField extends StatelessWidget {
       decoration: InputDecoration(
         // 背景色和边框 - 符合设计规范
         filled: true,
-        fillColor: AppColors.lightSurfaceContainer,
+        fillColor: brightness == Brightness.dark
+            ? AppColors.darkSurfaceContainer
+            : AppColors.lightSurfaceContainer,
 
         // 圆角边框 - 符合设计规范
         border: OutlineInputBorder(
@@ -137,11 +143,13 @@ class PasswordTextField extends StatelessWidget {
         ),
 
         // 后缀图标 - 显示/隐藏密码
-        suffixIcon: GestureDetector(
-          behavior: HitTestBehavior.opaque,
+        suffixIcon: CellPressable(
           onTap: onTap,
           child: Icon(
             obscureText ? CupertinoIcons.eye : CupertinoIcons.eye_slash,
+            semanticLabel: obscureText
+                ? t.common.showPassword
+                : t.common.hidePassword,
             color: effectiveIconColor,
             size: AppSizes.iconSizeSmall,
           ),

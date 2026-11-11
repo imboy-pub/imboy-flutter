@@ -19,6 +19,7 @@ import 'package:imboy/page/scanner/qr_login_confirm_rules.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
+import 'package:imboy/theme/default/app_sizes.dart';
 
 /// QR 登录确认页展示组件。
 ///
@@ -54,7 +55,17 @@ class QrLoginConfirmContent extends StatelessWidget {
       child: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: AppSpacing.regular),
-          child: Center(child: _buildBody(context)),
+          child: Center(
+            child: SingleChildScrollView(
+              padding: AppSpacing.pageVertical,
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(
+                  maxWidth: AppSizes.dialogMaxWidth,
+                ),
+                child: _buildBody(context),
+              ),
+            ),
+          ),
         ),
       ),
     );
@@ -135,6 +146,7 @@ class QrLoginConfirmContent extends StatelessWidget {
         AppSpacing.verticalXLarge,
         Text(
           t.passport.qrWebLoginTitle,
+          textAlign: TextAlign.center,
           style: context.textStyle(
             FontSizeType.title,
             fontWeight: FontWeight.w600,
@@ -143,9 +155,10 @@ class QrLoginConfirmContent extends StatelessWidget {
         AppSpacing.verticalSmall,
         Text(
           t.passport.qrWebLoginDesc,
+          textAlign: TextAlign.center,
           style: context.textStyle(
             FontSizeType.normal,
-            color: AppColors.lightTextSecondary,
+            color: AppColors.getTextSecondary(Theme.of(context).brightness),
           ),
         ),
         if (deviceInfo != null) ...[
@@ -221,7 +234,11 @@ class QrLoginConfirmContent extends StatelessWidget {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Icon(icon, size: 80, color: AppColors.lightTextSecondary),
+        Icon(
+          icon,
+          size: 80,
+          color: AppColors.getTextSecondary(Theme.of(context).brightness),
+        ),
         AppSpacing.verticalXLarge,
         Text(
           message,
@@ -270,7 +287,7 @@ class _DeviceInfoCard extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.all(AppSpacing.regular),
       decoration: BoxDecoration(
-        color: AppColors.lightPageBackground,
+        color: AppColors.getSurfaceGrouped(Theme.of(context).brightness),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Column(

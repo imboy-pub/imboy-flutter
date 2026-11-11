@@ -16,6 +16,7 @@ import 'package:flutter/services.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/component/ui/ios_settings_ui.dart';
+import 'package:imboy/component/ui/resource_page_layout.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/service/e2ee_service.dart'
     show E2eeDeviceSetAnomalyEvent, SafetyNumberTrustInvalidatedEvent;
@@ -170,6 +171,7 @@ class _SafetyNumberPageState extends State<SafetyNumberPage> {
         ? const <String>[]
         : SafetyNumberFormat.formatGroups(result.number);
     return IosPageTemplate(
+      contentMaxWidth: ResourcePageLayout.maxWidth,
       title: t.main.safetyNumberTitle,
       actions: [
         CupertinoButton(
@@ -257,8 +259,8 @@ class _SafetyNumberPageState extends State<SafetyNumberPage> {
                       ],
                     ),
                   ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
+                  Wrap(
+                    alignment: WrapAlignment.center,
                     children: [
                       CupertinoButton(
                         onPressed: _copy,

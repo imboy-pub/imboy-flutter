@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:azlistview/azlistview.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:imboy/component/ui/cell_pressable.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/component/ui/app_loading.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
@@ -114,20 +115,19 @@ class AddMemberPageState extends ConsumerState<AddMemberPage> {
       // 已是群成员的行不可选，用 enabled: false 让读屏读出"已停用"，
       // 否则用户会一直点一个永远没反应的行。
       // 名字由 Text 自带语义提供，此处不重复设 label（避免双标签重复朗读）。
-      child: Semantics(
-        button: true,
-        enabled: !isMember,
-        selected: isSelected,
-        child: GestureDetector(
-          // 不用 InkWell：DESIGN.md §13.2 禁止 Cupertino 列表行用 Material Ripple
-          behavior: HitTestBehavior.opaque,
-          onTap: isMember
-              ? null
-              : () {
-                  ref
-                      .read(addMemberProvider.notifier)
-                      .toggleSelection(model, widget.groupId);
-                },
+      child: CellPressable(
+        // 不用 InkWell：DESIGN.md §13.2 禁止 Cupertino 列表行用 Material Ripple
+        onTap: isMember
+            ? null
+            : () {
+                ref
+                    .read(addMemberProvider.notifier)
+                    .toggleSelection(model, widget.groupId);
+              },
+        child: Semantics(
+          button: isMember ? true : null,
+          enabled: !isMember,
+          selected: isSelected,
           child: Padding(
             padding: const EdgeInsets.symmetric(
               horizontal: AppSpacing.regular,
@@ -321,11 +321,15 @@ class AddMemberPageState extends ConsumerState<AddMemberPage> {
                         color: Theme.of(context).colorScheme.primary,
                       ),
                       const SizedBox(width: AppSpacing.small),
-                      Text(
-                        t.main.selectedCount(count: '${state.selects.length}'),
-                        style: TextStyle(
-                          color: Theme.of(context).colorScheme.primary,
-                          fontWeight: FontWeight.w500,
+                      Expanded(
+                        child: Text(
+                          t.main.selectedCount(
+                            count: '${state.selects.length}',
+                          ),
+                          style: TextStyle(
+                            color: Theme.of(context).colorScheme.primary,
+                            fontWeight: FontWeight.w500,
+                          ),
                         ),
                       ),
                     ],

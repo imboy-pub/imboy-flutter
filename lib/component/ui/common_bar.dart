@@ -2,6 +2,7 @@ import 'dart:ui';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:imboy/component/ui/cell_pressable.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_radius.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
@@ -104,40 +105,36 @@ class GlassAppBar extends StatelessWidget implements PreferredSizeWidget {
                 horizontal: AppSpacing.regular,
                 vertical: AppSpacing.small,
               ),
-              child: Row(
-                children: [
-                  // Leading widget
-                  if (leading != null) ...[
-                    leading!,
-                    const SizedBox(width: AppSpacing.medium),
-                  ] else if (automaticallyImplyLeading &&
-                      Navigator.canPop(context)) ...[
-                    _buildDefaultLeading(context),
-                    const SizedBox(width: AppSpacing.medium),
-                  ] else if (automaticallyImplyLeading) ...[
-                    const SizedBox(width: AppSpacing.medium),
-                  ],
-                  // Title
-                  Expanded(
-                    child:
-                        titleWidget ??
-                        Text(
-                          title ?? '',
-                          style: context.textStyle(
-                            FontSizeType.body,
-                            fontWeight: FontWeight.w600,
-                            color: textColor,
-                          ),
-                          textAlign: TextAlign.center,
-                          overflow: TextOverflow.ellipsis,
+              child: NavigationToolbar(
+                centerMiddle: true,
+                middleSpacing: AppSpacing.medium,
+                leading: leading != null
+                    ? SizedBox(width: leadingWidth, child: leading)
+                    : automaticallyImplyLeading && Navigator.canPop(context)
+                    ? _buildDefaultLeading(context)
+                    : null,
+                middle: Semantics(
+                  header: true,
+                  child:
+                      titleWidget ??
+                      Text(
+                        title ?? '',
+                        style: context.textStyle(
+                          FontSizeType.body,
+                          fontWeight: FontWeight.w600,
+                          color: textColor,
                         ),
-                  ),
-                  // Actions
-                  if (rightDMActions != null)
-                    ...rightDMActions!
-                  else
-                    const SizedBox(width: 48),
-                ],
+                        textAlign: TextAlign.center,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                ),
+                trailing: rightDMActions == null
+                    ? null
+                    : Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: rightDMActions!,
+                      ),
               ),
             ),
           ),
@@ -170,28 +167,21 @@ class GlassBackButton extends StatelessWidget {
     // DESIGN.md §1 双蓝策略：Nav 文字/图标按钮用 iOS 系统蓝 #007AFF，
     // 品牌蓝 #2474E5 保留给 Tab 选中 / 主按钮 / 发送气泡等识别位置。
     final navBlue = AppColors.getIosBlue(Theme.of(context).brightness);
-    return Semantics(
-      button: true,
-      label: MaterialLocalizations.of(context).backButtonTooltip,
-      child: GestureDetector(
-        // HitTestBehavior.opaque + 44×44 SizedBox：命中区域撑到 iOS HIG/WCAG
-        // 2.5.5 要求的最小 44×44pt，视觉上仍保持 36×36 的圆角背景不变。
-        behavior: HitTestBehavior.opaque,
-        onTap: () {
-          if (onPressed != null) {
-            onPressed!();
-            return;
-          }
-          // 同步 pop：GestureDetector.onTap 在手势分发期间触发，不在 Navigator
-          // 的 _flushHistoryUpdates 重入窗口内，因此可直接 pop。canPop() 守卫保证：
-          // popTime 超过栈深度时安全停止；快速连续点击时首次 pop 后 canPop() 变
-          // false，后续点击 no-op，不会过弹。此前用 addPostFrameCallback 延迟 pop
-          // 会在 widget 测试的 pumpAndSettle 窗口内不产生可见导航，致返回测试全失败。
-          final nav = Navigator.of(context);
-          for (int i = 0; i < popTime && nav.canPop(); i++) {
-            nav.pop();
-          }
-        },
+    return CellPressable(
+      onTap: () {
+        if (onPressed != null) {
+          onPressed!();
+          return;
+        }
+        // Keep the existing synchronous, bounded pop behavior for pointer and
+        // keyboard activation, including repeated activation at the root.
+        final nav = Navigator.of(context);
+        for (int i = 0; i < popTime && nav.canPop(); i++) {
+          nav.pop();
+        }
+      },
+      child: Semantics(
+        label: MaterialLocalizations.of(context).backButtonTooltip,
         child: SizedBox(
           width: 44,
           height: 44,

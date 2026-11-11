@@ -114,7 +114,6 @@ class _GroupTagPageState extends ConsumerState<GroupTagPage> {
         rightDMActions: [
           // 纯图标按钮须显式 Semantics，CupertinoButton 无 tooltip 参数。
           Semantics(
-            button: true,
             label: t.groupTag.addTag,
             child: CupertinoButton(
               padding: EdgeInsets.zero,
@@ -204,6 +203,7 @@ class _GroupTagPageState extends ConsumerState<GroupTagPage> {
           },
           child: Icon(
             CupertinoIcons.delete,
+            semanticLabel: t.groupTag.removeTitle,
             size: 20,
             color: AppColors.getIosRed(Theme.of(context).brightness),
           ),

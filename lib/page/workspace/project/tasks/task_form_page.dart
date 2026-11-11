@@ -283,6 +283,7 @@ class _TaskFormPageState extends ConsumerState<TaskFormPage> {
     ];
     return DropdownButtonFormField<EntityId>(
       key: const ValueKey('task-assignee-dropdown'),
+      isExpanded: true,
       initialValue: _assigneeId,
       items: items,
       decoration: const InputDecoration(border: OutlineInputBorder()),

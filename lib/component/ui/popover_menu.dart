@@ -49,7 +49,7 @@ class PopoverMenuEntry {
   final bool showDot;
 }
 
-/// 弹出锚定于 [anchor]（全局坐标）下方的气泡菜单并阻塞至关闭。
+/// 弹出锚定于 [anchor]（全局坐标）的气泡菜单；下方空间不足时向上展开。
 ///
 /// 文案在弹出时快照（菜单是瞬时浮层）；动作捕获页面级 context，
 /// 由本函数先 pop 再执行（顺序反了会把刚 push 的页面反手弹掉）。
@@ -66,6 +66,7 @@ Future<void> showPopoverMenu(
       entries: entries,
       side: side,
       showArrow: showArrow,
+      reduceMotion: MediaQuery.disableAnimationsOf(context),
     ),
   );
 }
@@ -117,14 +118,20 @@ class _PopoverMenuRoute extends PopupRoute<void> {
   String? get barrierLabel => t.common.buttonCancel;
 
   @override
-  Duration get transitionDuration => contentBuilder == null
-      ? const Duration(milliseconds: 180)
-      : AppDuration.respectReducedMotion(reduceMotion, AppDuration.normal);
+  Duration get transitionDuration => AppDuration.respectReducedMotion(
+    reduceMotion,
+    contentBuilder == null
+        ? const Duration(milliseconds: 180)
+        : AppDuration.normal,
+  );
 
   @override
-  Duration get reverseTransitionDuration => contentBuilder == null
-      ? const Duration(milliseconds: 120)
-      : AppDuration.respectReducedMotion(reduceMotion, AppDuration.fast);
+  Duration get reverseTransitionDuration => AppDuration.respectReducedMotion(
+    reduceMotion,
+    contentBuilder == null
+        ? const Duration(milliseconds: 120)
+        : AppDuration.fast,
+  );
 
   @override
   Widget buildPage(
@@ -132,26 +139,7 @@ class _PopoverMenuRoute extends PopupRoute<void> {
     Animation<double> animation,
     Animation<double> secondaryAnimation,
   ) {
-    if (contentBuilder != null) return _buildContent(context);
-    final size = MediaQuery.of(context).size;
-    final alignRight = side == PopoverMenuSide.topRight;
-    return Align(
-      alignment: alignRight ? Alignment.topRight : Alignment.topLeft,
-      child: Padding(
-        // 右/左缘与锚点对齐、顶部距锚点底部 6pt（有箭头时给缺口留位）。
-        // anchor 是全局坐标，route 页层同样从屏幕原点铺满。
-        padding: EdgeInsets.only(
-          top: anchor.bottom + 6,
-          right: alignRight ? size.width - anchor.right : 0,
-          left: alignRight ? 0 : anchor.left,
-        ),
-        child: _PopoverMenuPanel(
-          entries: entries,
-          showArrow: showArrow,
-          arrowInset: 18,
-        ),
-      ),
-    );
+    return _buildContent(context);
   }
 
   Widget _buildContent(BuildContext context) {
@@ -160,7 +148,9 @@ class _PopoverMenuRoute extends PopupRoute<void> {
     final maxRight =
         media.size.width - media.padding.right - AppSpacing.regular;
     final width = math.min(
-      AppSizes.dialogWidthMedium,
+      contentBuilder == null
+          ? _PopoverMenuPanel.panelWidth(context, entries)
+          : AppSizes.dialogWidthMedium,
       math.max(0.0, maxRight - minLeft),
     );
     final preferredLeft = side == PopoverMenuSide.topRight
@@ -174,22 +164,17 @@ class _PopoverMenuRoute extends PopupRoute<void> {
         media.size.height -
         math.max(media.padding.bottom, media.viewInsets.bottom) -
         AppSpacing.regular;
-    final below = math.max(0.0, maxBottom - anchor.bottom - AppSpacing.small);
-    final above = math.max(0.0, anchor.top - AppSpacing.small - minTop);
+    final belowTop = math.max(minTop, anchor.bottom + AppSpacing.small);
+    final aboveBottom = math.min(maxBottom, anchor.top - AppSpacing.small);
+    final below = math.max(0.0, maxBottom - belowTop);
+    final above = math.max(0.0, aboveBottom - minTop);
     final openAbove = above > below;
     return Stack(
       children: [
         Positioned(
           left: left,
-          top: openAbove
-              ? null
-              : math.max(minTop, anchor.bottom + AppSpacing.small),
-          bottom: openAbove
-              ? math.max(
-                  media.size.height - maxBottom,
-                  media.size.height - anchor.top + AppSpacing.small,
-                )
-              : null,
+          top: openAbove ? null : belowTop,
+          bottom: openAbove ? media.size.height - aboveBottom : null,
           width: width,
           child: ConstrainedBox(
             constraints: BoxConstraints(maxHeight: openAbove ? above : below),
@@ -201,7 +186,14 @@ class _PopoverMenuRoute extends PopupRoute<void> {
               },
               child: Focus(
                 autofocus: true,
-                child: Builder(builder: contentBuilder!),
+                child: contentBuilder == null
+                    ? _PopoverMenuPanel(
+                        entries: entries,
+                        showArrow: showArrow,
+                        arrowInset: 18,
+                        openAbove: openAbove,
+                      )
+                    : Builder(builder: contentBuilder!),
               ),
             ),
           ),
@@ -243,11 +235,13 @@ class _PopoverMenuPanel extends StatelessWidget {
     required this.entries,
     required this.showArrow,
     required this.arrowInset,
+    required this.openAbove,
   });
 
   final List<PopoverMenuEntry> entries;
   final bool showArrow;
   final double arrowInset;
+  final bool openAbove;
 
   // 宽度自适应上限：最长文案撑多宽面板就多宽，封顶 0.618 屏宽
   // （同 _AddMenuPanel 的取值依据：换行优于省略号）。
@@ -261,7 +255,6 @@ class _PopoverMenuPanel extends StatelessWidget {
       children.add(_menuItem(context, entries[i]));
     }
     final panel = Container(
-      width: _panelWidth(context),
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surface,
         borderRadius: AppRadius.borderRadiusLarge,
@@ -273,17 +266,20 @@ class _PopoverMenuPanel extends StatelessWidget {
           ),
         ],
       ),
-      child: Column(mainAxisSize: MainAxisSize.min, children: children),
+      clipBehavior: Clip.antiAlias,
+      child: SingleChildScrollView(
+        child: Column(mainAxisSize: MainAxisSize.min, children: children),
+      ),
     );
     if (!showArrow) return panel;
-    // 顶部箭头缺口：45° 旋转方块，与面板同色、同投影色（被面板压住的
-    // 半边藏在面板后面，只露出上半个菱形）。
+    // 箭头朝向锚点：面板向上展开时放到底部，只露出朝向锚点的半个菱形。
     return Stack(
       clipBehavior: Clip.none,
       children: [
         panel,
         Positioned(
-          top: -5,
+          top: openAbove ? null : -5,
+          bottom: openAbove ? -5 : null,
           right: arrowInset,
           child: Transform.rotate(
             angle: math.pi / 4,
@@ -301,7 +297,10 @@ class _PopoverMenuPanel extends StatelessWidget {
     );
   }
 
-  double _panelWidth(BuildContext context) {
+  static double panelWidth(
+    BuildContext context,
+    List<PopoverMenuEntry> entries,
+  ) {
     // 菜单项内固定宽：水平内边距 16×2 + 图标区 24 + 图标文字间距 12。
     const rowFixedWidth = AppSpacing.regular * 2 + 24.0 + AppSpacing.medium;
     final style = context.textStyle(
@@ -332,54 +331,57 @@ class _PopoverMenuPanel extends StatelessWidget {
 
   Widget _menuItem(BuildContext context, PopoverMenuEntry entry) {
     final tint = entry.foreground ?? Theme.of(context).colorScheme.onSurface;
-    return CupertinoButton(
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.regular,
-        vertical: AppSpacing.medium,
-      ),
-      // iOS HIG：可点击元素最小触达 44pt（DESIGN.md §13.2 Hard Rule 1）。
-      minimumSize: const Size(0, 44),
-      pressedOpacity: 0.55,
-      onPressed: () {
-        HapticFeedback.lightImpact();
-        // 先关菜单再执行动作（MessageActionMenu 踩过的真机坑）。
-        Navigator.of(context).pop();
-        entry.action();
-      },
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SizedBox(width: 24, height: 24, child: entry.icon),
-          AppSpacing.horizontalMedium,
-          Expanded(
-            child: Text(
-              entry.title,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-              style: context
-                  .textStyle(FontSizeType.medium, color: tint)
-                  .copyWith(
-                    fontWeight: entry.selected ? FontWeight.w600 : null,
-                  ),
-            ),
-          ),
-          if (entry.trailing != null) ...[
-            AppSpacing.horizontalSmall,
-            entry.trailing!,
-          ],
-          if (entry.showDot) ...[
-            AppSpacing.horizontalSmall,
-            Container(
-              width: 8,
-              height: 8,
-              margin: const EdgeInsets.only(top: 6),
-              decoration: const BoxDecoration(
-                color: AppColors.iosRed,
-                shape: BoxShape.circle,
+    return Semantics(
+      container: true,
+      // 普通动作没有选中态，仅为当前筛选项标明 selected。
+      selected: entry.selected ? true : null,
+      child: CupertinoButton(
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppSpacing.regular,
+          vertical: AppSpacing.medium,
+        ),
+        // iOS HIG：可点击元素最小触达 44pt（DESIGN.md §13.2 Hard Rule 1）。
+        minimumSize: const Size(0, 44),
+        pressedOpacity: 0.55,
+        onPressed: () {
+          HapticFeedback.lightImpact();
+          // 先关菜单再执行动作（MessageActionMenu 踩过的真机坑）。
+          Navigator.of(context).pop();
+          entry.action();
+        },
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SizedBox(width: 24, height: 24, child: entry.icon),
+            AppSpacing.horizontalMedium,
+            Expanded(
+              child: Text(
+                entry.title,
+                style: context
+                    .textStyle(FontSizeType.medium, color: tint)
+                    .copyWith(
+                      fontWeight: entry.selected ? FontWeight.w600 : null,
+                    ),
               ),
             ),
+            if (entry.trailing != null) ...[
+              AppSpacing.horizontalSmall,
+              entry.trailing!,
+            ],
+            if (entry.showDot) ...[
+              AppSpacing.horizontalSmall,
+              Container(
+                width: 8,
+                height: 8,
+                margin: const EdgeInsets.only(top: 6),
+                decoration: const BoxDecoration(
+                  color: AppColors.iosRed,
+                  shape: BoxShape.circle,
+                ),
+              ),
+            ],
           ],
-        ],
+        ),
       ),
     );
   }

@@ -4,6 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'package:imboy/component/ui/nodata_view.dart';
 import 'package:imboy/component/ui/ios_settings_ui.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/theme/default/app_colors.dart';
@@ -131,7 +132,11 @@ class _SetRegionPageState extends ConsumerState<SetRegionPage> {
                 trailing: state.hasChanged
                     ? CupertinoButton(
                         padding: EdgeInsets.zero,
-                        child: const Icon(CupertinoIcons.refresh, size: 20),
+                        child: Icon(
+                          CupertinoIcons.refresh,
+                          size: 20,
+                          semanticLabel: t.common.reset,
+                        ),
                         onPressed: () => ref
                             .read(setRegionProvider.notifier)
                             .revertToInitial(),
@@ -143,48 +148,57 @@ class _SetRegionPageState extends ConsumerState<SetRegionPage> {
         ),
 
         // 地区列表 Section
-        SliverPadding(
-          padding: const EdgeInsets.only(bottom: 40),
-          sliver: SliverToBoxAdapter(
-            child: ImBoySettingsSection(
-              header: Text(t.account.region.toUpperCase()),
-              children: state.regionList.map((region) {
-                String title = '';
-                List<dynamic> children = [];
-                if (region is String) {
-                  title = region;
-                } else if (region is Map) {
-                  title = region['title'] as String? ?? '';
-                  children = region['children'] as List<dynamic>? ?? [];
-                }
+        if (state.regionList.isEmpty)
+          SliverFillRemaining(
+            hasScrollBody: false,
+            child: NoDataView(text: t.common.searchNoResults),
+          )
+        else
+          SliverPadding(
+            padding: const EdgeInsets.only(bottom: 40),
+            sliver: SliverToBoxAdapter(
+              child: ImBoySettingsSection(
+                header: Text(t.account.region.toUpperCase()),
+                children: state.regionList.map((region) {
+                  String title = '';
+                  List<dynamic> children = [];
+                  if (region is String) {
+                    title = region;
+                  } else if (region is Map) {
+                    title = region['title'] as String? ?? '';
+                    children = region['children'] as List<dynamic>? ?? [];
+                  }
 
-                final hasChildren = children.isNotEmpty;
-                final isSelected = selectedPath.contains(title);
+                  final hasChildren = children.isNotEmpty;
+                  final isSelected = selectedPath.contains(title);
 
-                return ImBoySettingsTile(
-                  title: Text(
-                    title,
-                    style: TextStyle(
-                      fontWeight: isSelected
-                          ? FontWeight.w600
-                          : FontWeight.w400,
+                  return Semantics(
+                    selected: !hasChildren && isSelected,
+                    child: ImBoySettingsTile(
+                      title: Text(
+                        title,
+                        style: TextStyle(
+                          fontWeight: isSelected
+                              ? FontWeight.w600
+                              : FontWeight.w400,
+                        ),
+                      ),
+                      trailing: hasChildren
+                          ? const CupertinoListTileChevron()
+                          : (isSelected
+                                ? Icon(
+                                    CupertinoIcons.check_mark,
+                                    color: AppColors.getIosBlue(brightness),
+                                    size: 18,
+                                  )
+                                : const SizedBox.shrink()),
+                      onTap: () => _handleSelection(context, title, children),
                     ),
-                  ),
-                  trailing: hasChildren
-                      ? const CupertinoListTileChevron()
-                      : (isSelected
-                            ? Icon(
-                                CupertinoIcons.check_mark,
-                                color: AppColors.getIosBlue(brightness),
-                                size: 18,
-                              )
-                            : const SizedBox.shrink()),
-                  onTap: () => _handleSelection(context, title, children),
-                );
-              }).toList(),
+                  );
+                }).toList(),
+              ),
             ),
           ),
-        ),
       ],
     );
   }
@@ -339,68 +353,79 @@ class _SubRegionPageState extends ConsumerState<_SubRegionPage> {
             level: state.regionPath.length,
           ),
         ),
-        SliverToBoxAdapter(
-          child: ImBoySettingsSection(
-            children: _displayList.map((item) {
-              String title = '';
-              List<dynamic> children = [];
-              if (item is String) {
-                title = item;
-              } else if (item is Map) {
-                title = item['title'] as String? ?? '';
-                children = item['children'] as List<dynamic>? ?? [];
-              }
+        if (_displayList.isEmpty)
+          SliverFillRemaining(
+            hasScrollBody: false,
+            child: NoDataView(text: t.common.searchNoResults),
+          )
+        else
+          SliverToBoxAdapter(
+            child: ImBoySettingsSection(
+              children: _displayList.map((item) {
+                String title = '';
+                List<dynamic> children = [];
+                if (item is String) {
+                  title = item;
+                } else if (item is Map) {
+                  title = item['title'] as String? ?? '';
+                  children = item['children'] as List<dynamic>? ?? [];
+                }
 
-              final hasChildren = children.isNotEmpty;
-              final isSelected = ref
-                  .read(setRegionProvider.notifier)
-                  .isRegionSelected(title);
+                final hasChildren = children.isNotEmpty;
+                final isSelected = ref
+                    .read(setRegionProvider.notifier)
+                    .isRegionSelected(title);
 
-              return ImBoySettingsTile(
-                title: Text(
-                  title,
-                  style: TextStyle(
-                    fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
-                  ),
-                ),
-                trailing: hasChildren
-                    ? const CupertinoListTileChevron()
-                    : (isSelected
-                          ? Icon(
-                              CupertinoIcons.check_mark,
-                              color: AppColors.getIosBlue(brightness),
-                              size: 18,
-                            )
-                          : const SizedBox.shrink()),
-                onTap: () {
-                  if (hasChildren) {
-                    Navigator.push(
-                      context,
-                      CupertinoPageRoute<dynamic>(
-                        builder: (_) => _SubRegionPage(
-                          title: title,
-                          children: children,
-                          onSave: widget.onSave,
-                        ),
+                return Semantics(
+                  selected: !hasChildren && isSelected,
+                  child: ImBoySettingsTile(
+                    title: Text(
+                      title,
+                      style: TextStyle(
+                        fontWeight: isSelected
+                            ? FontWeight.w600
+                            : FontWeight.w400,
                       ),
-                    );
-                  } else {
-                    // 假设简单的二级逻辑，实际可扩展
-                    final path = List<String>.from(state.regionPath);
-                    // 逻辑：如果当前标题已在路径中，截断；否则追加
-                    final idx = path.indexOf(widget.title);
-                    final newPath = idx >= 0
-                        ? (path.sublist(0, idx + 1)..add(title))
-                        : [widget.title, title];
-                    ref
-                        .read(setRegionProvider.notifier)
-                        .updateSelection(newPath);
-                  }
-                },
-              );
-            }).toList(),
+                    ),
+                    trailing: hasChildren
+                        ? const CupertinoListTileChevron()
+                        : (isSelected
+                              ? Icon(
+                                  CupertinoIcons.check_mark,
+                                  color: AppColors.getIosBlue(brightness),
+                                  size: 18,
+                                )
+                              : const SizedBox.shrink()),
+                    onTap: () {
+                      if (hasChildren) {
+                        Navigator.push(
+                          context,
+                          CupertinoPageRoute<dynamic>(
+                            builder: (_) => _SubRegionPage(
+                              title: title,
+                              children: children,
+                              onSave: widget.onSave,
+                            ),
+                          ),
+                        );
+                      } else {
+                        // 假设简单的二级逻辑，实际可扩展
+                        final path = List<String>.from(state.regionPath);
+                        // 逻辑：如果当前标题已在路径中，截断；否则追加
+                        final idx = path.indexOf(widget.title);
+                        final newPath = idx >= 0
+                            ? (path.sublist(0, idx + 1)..add(title))
+                            : [widget.title, title];
+                        ref
+                            .read(setRegionProvider.notifier)
+                            .updateSelection(newPath);
+                      }
+                    },
+                  ),
+                );
+              }).toList(),
+            ),
           ),
-        ),
       ],
     );
   }

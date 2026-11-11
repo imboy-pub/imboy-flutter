@@ -360,7 +360,12 @@ class _UserDeviceDetailPageState extends ConsumerState<UserDeviceDetailPage> {
           children: [
             const Icon(CupertinoIcons.delete),
             AppSpacing.horizontalSmall,
-            Text(t.common.deleteThisDevice),
+            Flexible(
+              child: Text(
+                t.common.deleteThisDevice,
+                textAlign: TextAlign.center,
+              ),
+            ),
           ],
         ),
       ),
@@ -409,7 +414,12 @@ class _UserDeviceDetailPageState extends ConsumerState<UserDeviceDetailPage> {
           children: [
             const Icon(CupertinoIcons.clear_circled),
             AppSpacing.horizontalSmall,
-            Text(t.common.forceDeviceOffline),
+            Flexible(
+              child: Text(
+                t.common.forceDeviceOffline,
+                textAlign: TextAlign.center,
+              ),
+            ),
           ],
         ),
       ),

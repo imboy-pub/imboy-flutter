@@ -28,6 +28,7 @@ import 'package:imboy/page/channel/channel_share_payload.dart';
 import 'package:imboy/store/model/model_parse_utils.dart';
 import 'package:imboy/store/repository/contact_repo_sqlite.dart';
 import 'package:imboy/theme/default/app_colors.dart';
+import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:imboy/theme/default/font_types.dart';
 import 'package:imboy/component/ui/app_loading.dart';
 
@@ -94,6 +95,8 @@ class _ChannelSubscriberPageState extends ConsumerState<ChannelSubscriberPage>
   List<SubscriberInfo> _subscribers = [];
   bool _isLoading = true;
   bool _isLoadingMore = false;
+  bool _loadMoreFailed = false;
+  int _loadGeneration = 0;
   String? _error;
   String? _searchKeyword;
   bool _hasMore = true;
@@ -121,16 +124,12 @@ class _ChannelSubscriberPageState extends ConsumerState<ChannelSubscriberPage>
     }
   }
 
-  Future<void> _loadSubscribers({bool refresh = false}) async {
-    if (refresh) {
-      setState(() {
-        _subscribers = [];
-        _hasMore = true;
-      });
-    }
-
+  Future<void> _loadSubscribers() async {
+    final generation = ++_loadGeneration;
     setState(() {
       _isLoading = true;
+      _isLoadingMore = false;
+      _loadMoreFailed = false;
       _error = null;
     });
 
@@ -141,7 +140,7 @@ class _ChannelSubscriberPageState extends ConsumerState<ChannelSubscriberPage>
         limit: _pageSize,
       );
 
-      if (mounted) {
+      if (mounted && generation == _loadGeneration) {
         setState(() {
           _subscribers = result.map((e) => SubscriberInfo.fromJson(e)).toList();
           _isLoading = false;
@@ -150,7 +149,7 @@ class _ChannelSubscriberPageState extends ConsumerState<ChannelSubscriberPage>
       }
     } catch (e) {
       iPrint('加载订阅者列表失败: $e');
-      if (mounted) {
+      if (mounted && generation == _loadGeneration) {
         setState(() {
           // 全局 t：避免 initState 首帧同步抛错时 context.t 触发框架断言
           _error = t.common.loadError;
@@ -160,16 +159,26 @@ class _ChannelSubscriberPageState extends ConsumerState<ChannelSubscriberPage>
     }
   }
 
-  Future<void> _loadMoreSubscribers() async {
-    if (_isLoadingMore || !_hasMore || _isLoading) return;
-    _isLoadingMore = true;
+  Future<void> _loadMoreSubscribers({bool retry = false}) async {
+    if (_isLoadingMore ||
+        !_hasMore ||
+        _isLoading ||
+        _error != null ||
+        (_loadMoreFailed && !retry)) {
+      return;
+    }
+    final generation = _loadGeneration;
+    setState(() {
+      _isLoadingMore = true;
+      _loadMoreFailed = false;
+    });
     try {
       final more = await _api.getSubscribers(
         channelId: widget.channelId,
         cursor: _subscribers.length,
         limit: _pageSize,
       );
-      if (mounted) {
+      if (mounted && generation == _loadGeneration) {
         setState(() {
           _subscribers = [
             ..._subscribers,
@@ -179,9 +188,13 @@ class _ChannelSubscriberPageState extends ConsumerState<ChannelSubscriberPage>
         });
       }
     } catch (e) {
-      // load-more 失败静默保留现有列表，用户滚动可重试；首屏错误已由 _error 呈现。
+      if (mounted && generation == _loadGeneration) {
+        setState(() => _loadMoreFailed = true);
+      }
     } finally {
-      _isLoadingMore = false;
+      if (mounted && generation == _loadGeneration) {
+        setState(() => _isLoadingMore = false);
+      }
     }
   }
 
@@ -216,7 +229,7 @@ class _ChannelSubscriberPageState extends ConsumerState<ChannelSubscriberPage>
         if (!mounted) return;
         if (success) {
           AppLoading.showToast(t.channel.removeSubscriberSuccess);
-          unawaited(_loadSubscribers(refresh: true));
+          unawaited(_loadSubscribers());
         }
         // 失败提示已由 ChannelApi.removeSubscriber 透传服务端 msg
         //（AppLoading.showError），此处不再 SnackBar 兜底，避免双提示。
@@ -264,7 +277,7 @@ class _ChannelSubscriberPageState extends ConsumerState<ChannelSubscriberPage>
         setState(() {
           _searchKeyword = value.isEmpty ? null : value;
         });
-        unawaited(_loadSubscribers(refresh: true));
+        unawaited(_loadSubscribers());
       }
     });
   }
@@ -312,7 +325,7 @@ class _ChannelSubscriberPageState extends ConsumerState<ChannelSubscriberPage>
       //（AppLoading.showError），仅成功时弹 SnackBar，避免双提示。
       if (ok) {
         AppLoading.showToast(t.channel.inviteSuccess);
-        unawaited(_loadSubscribers(refresh: true));
+        unawaited(_loadSubscribers());
       }
     } catch (e) {
       iPrint('[ChannelSubscriber] 邀请失败: $e');
@@ -416,7 +429,7 @@ class _ChannelSubscriberPageState extends ConsumerState<ChannelSubscriberPage>
               icon: const Icon(CupertinoIcons.xmark_circle_fill, size: 22),
               onPressed: () {
                 setState(() => _searchKeyword = null);
-                _loadSubscribers(refresh: true);
+                _loadSubscribers();
               },
               tooltip: t.common.clear,
             ),
@@ -444,16 +457,16 @@ class _ChannelSubscriberPageState extends ConsumerState<ChannelSubscriberPage>
   Widget _buildBody() {
     final t = context.t;
 
-    if (_isLoading) {
+    if (_isLoading && _subscribers.isEmpty) {
       // 列表页首屏用骨架屏而非转圈，与频道列表/消息流一致。
       return const ShimmerList(itemCount: 6);
     }
 
-    if (_error != null) {
+    if (_error != null && _subscribers.isEmpty) {
       return NoDataView(
         icon: CupertinoIcons.exclamationmark_circle,
         text: _error!,
-        onTop: () => _loadSubscribers(refresh: true),
+        onTop: _loadSubscribers,
       );
     }
 
@@ -474,22 +487,37 @@ class _ChannelSubscriberPageState extends ConsumerState<ChannelSubscriberPage>
       );
     }
 
+    final errorRows = _error == null ? 0 : 1;
     return RefreshIndicator(
-      onRefresh: () => _loadSubscribers(refresh: true),
+      onRefresh: _loadSubscribers,
       child: ListView.builder(
         controller: _scrollController,
-        itemCount: _subscribers.length + (_hasMore ? 1 : 0),
+        physics: const AlwaysScrollableScrollPhysics(),
+        itemCount:
+            _subscribers.length + errorRows + (_hasMore || _isLoading ? 1 : 0),
         itemBuilder: (context, index) {
-          if (index == _subscribers.length) {
-            return const Center(
+          if (errorRows == 1 && index == 0) {
+            return _buildRetry(_loadSubscribers);
+          }
+          final rowIndex = index - errorRows;
+          if (rowIndex == _subscribers.length) {
+            if (_loadMoreFailed) {
+              return _buildRetry(() => _loadMoreSubscribers(retry: true));
+            }
+            return Center(
               child: Padding(
-                padding: EdgeInsets.all(16),
-                child: CupertinoActivityIndicator(),
+                padding: AppSpacing.allRegular,
+                child: _isLoadingMore || _isLoading
+                    ? const CupertinoActivityIndicator()
+                    : CupertinoButton(
+                        onPressed: _error == null ? _loadMoreSubscribers : null,
+                        child: Text(t.common.loadMore),
+                      ),
               ),
             );
           }
 
-          final subscriber = _subscribers[index];
+          final subscriber = _subscribers[rowIndex];
 
           return ListTile(
             leading: Avatar(
@@ -539,6 +567,22 @@ class _ChannelSubscriberPageState extends ConsumerState<ChannelSubscriberPage>
             ),
           );
         },
+      ),
+    );
+  }
+
+  Widget _buildRetry(VoidCallback onRetry) {
+    return Padding(
+      padding: AppSpacing.allRegular,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(context.t.common.loadError, textAlign: TextAlign.center),
+          CupertinoButton(
+            onPressed: onRetry,
+            child: Text(context.t.common.buttonRetry),
+          ),
+        ],
       ),
     );
   }

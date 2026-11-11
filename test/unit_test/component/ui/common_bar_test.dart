@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 
@@ -98,6 +99,37 @@ void main() {
     });
 
     group('返回按钮交互测试', () {
+      testWidgets('返回按钮可通过 Tab、Enter 和 Space 操作', (tester) async {
+        var calls = 0;
+        final semantics = tester.ensureSemantics();
+        try {
+          await tester.pumpWidget(
+            MaterialApp(
+              home: Scaffold(
+                appBar: GlassAppBar(
+                  title: 'Keyboard',
+                  leading: GlassBackButton(onPressed: () => calls++),
+                ),
+              ),
+            ),
+          );
+          await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+          await tester.pump();
+          final data = tester
+              .getSemantics(find.bySemanticsLabel('Back'))
+              .getSemanticsData();
+          expect(data.label, 'Back');
+          expect(data.flagsCollection.isButton, isTrue);
+          expect(data.flagsCollection.isFocused.toBoolOrNull(), isTrue);
+          expect(tester.getSize(find.byType(GlassBackButton)).width, 44);
+          await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+          await tester.sendKeyEvent(LogicalKeyboardKey.space);
+          expect(calls, 2);
+        } finally {
+          semantics.dispose();
+        }
+      });
+
       testWidgets('点击返回按钮执行导航返回', (WidgetTester tester) async {
         await tester.pumpWidget(
           MaterialApp(
@@ -203,6 +235,27 @@ void main() {
     });
 
     group('UI 属性测试', () {
+      testWidgets('左右动作不等宽时短标题保持居中', (tester) async {
+        await tester.pumpWidget(
+          MaterialApp(
+            home: Scaffold(
+              appBar: GlassAppBar(
+                title: 'Messages',
+                leading: GlassBackButton(onPressed: () {}),
+                rightDMActions: [
+                  TextButton(onPressed: () {}, child: const Text('Save draft')),
+                ],
+              ),
+            ),
+          ),
+        );
+        expect(
+          tester.getCenter(find.text('Messages')).dx,
+          tester.getCenter(find.byType(GlassAppBar)).dx,
+        );
+        expect(tester.takeException(), isNull);
+      });
+
       testWidgets('显示标题文本', (WidgetTester tester) async {
         await tester.pumpWidget(
           const MaterialApp(
@@ -253,15 +306,17 @@ void main() {
         expect(find.byIcon(Icons.more_vert), findsOneWidget);
       });
 
-      testWidgets('当没有 rightDMActions 时保留空间', (WidgetTester tester) async {
+      testWidgets('没有两侧动作时标题仍居中', (WidgetTester tester) async {
         await tester.pumpWidget(
           const MaterialApp(
             home: Scaffold(appBar: GlassAppBar(title: 'Test')),
           ),
         );
 
-        // 验证：右侧应该有一个 SizedBox 占位
-        expect(find.byType(SizedBox), findsAtLeastNWidgets(1));
+        expect(
+          tester.getCenter(find.text('Test')).dx,
+          tester.getCenter(find.byType(GlassAppBar)).dx,
+        );
       });
     });
 

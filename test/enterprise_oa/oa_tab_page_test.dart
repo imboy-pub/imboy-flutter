@@ -35,11 +35,19 @@ void main() {
     expect(find.byType(CircularProgressIndicator), findsNothing);
   });
 
-  testWidgets('error 态：标题/提示/重试按钮，点击后回 loading', (tester) async {
+  testWidgets('error 态：矮窗大字下可滚动重试，点击后回 loading', (tester) async {
+    tester.view.physicalSize = const Size(320, 260);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
     var retryCount = 0;
     await tester.pumpWidget(
-      host(
-        OaTabPage(
+      MaterialApp(
+        builder: (context, child) => MediaQuery(
+          data: MediaQuery.of(context)
+              .copyWith(textScaler: const TextScaler.linear(2)),
+          child: child!,
+        ),
+        home: OaTabPage(
           machine: OaTabStateMachine(initial: OaTabStatus.error),
           onRetry: () => retryCount++,
         ),
@@ -50,7 +58,10 @@ void main() {
     expect(find.text(t.enterpriseOa.statusErrorTitle), findsOneWidget);
     expect(find.text(t.enterpriseOa.statusErrorHint), findsOneWidget);
     expect(find.text(t.enterpriseOa.actionRetry), findsOneWidget);
+    expect(tester.takeException(), isNull);
 
+    await tester.ensureVisible(find.text(t.enterpriseOa.actionRetry));
+    await tester.pump();
     await tester.tap(find.text(t.enterpriseOa.actionRetry));
     // 固定 pump：loading 态的 CircularProgressIndicator 会持续调度帧，
     // pumpAndSettle 会超时；AnimatedSwitcher 时长 200ms。
@@ -58,6 +69,7 @@ void main() {
 
     expect(retryCount, 1);
     expect(find.byType(CircularProgressIndicator), findsOneWidget);
+    expect(tester.takeException(), isNull);
   });
 
   testWidgets('sessionExpired 态：提示重新单点登录', (tester) async {

@@ -287,7 +287,7 @@ class _OaLoginPageState extends State<OaLoginPage> {
         middle: Text(t.enterpriseOa.inboundTitle),
       ),
       child: SafeArea(
-        child: Padding(
+        child: SingleChildScrollView(
           padding: AppSpacing.allRegular,
           child: Column(
             children: [

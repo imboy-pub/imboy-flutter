@@ -383,10 +383,12 @@ class _TalkRecordPreparePageState extends ConsumerState<TalkRecordPreparePage> {
                     ),
                   ),
                 ),
-              SizedBox(
-                width: double.infinity,
+              ConstrainedBox(
                 // 主操作 ≥48pt。
-                height: AppSpacing.xxxLarge,
+                constraints: const BoxConstraints(
+                  minWidth: double.infinity,
+                  minHeight: AppSpacing.xxxLarge,
+                ),
                 child: CupertinoButton(
                   key: const ValueKey('talk_record_start_button'),
                   borderRadius: BorderRadius.circular(10),

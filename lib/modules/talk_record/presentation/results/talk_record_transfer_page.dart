@@ -332,10 +332,10 @@ class _SubmitButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
+    return ConstrainedBox(
       // C-F2：主操作 ≥48 + primaryDark 实底白字；破坏性语义在二次确认
       // 对话框以 destructive 呈现（对齐 UI-SPEC「二次确认」）。
-      height: 48,
+      constraints: const BoxConstraints(minHeight: 48),
       child: CupertinoButton(
         key: const ValueKey('talk_record_transfer_submit'),
         minimumSize: const Size.fromHeight(48),

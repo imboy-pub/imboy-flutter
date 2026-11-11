@@ -234,10 +234,10 @@ class CsListErrorView extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = context.t.customerService;
     return Center(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xLarge),
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.all(AppSpacing.xLarge),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
           children: [
             const Icon(
               CupertinoIcons.wifi_exclamationmark,
@@ -247,6 +247,7 @@ class CsListErrorView extends StatelessWidget {
             const SizedBox(height: AppSpacing.medium),
             Text(
               t.loadFailedTitle,
+              textAlign: TextAlign.center,
               style: context.textStyle(FontSizeType.subheadline),
             ),
             if (detail.isNotEmpty) ...[
@@ -294,7 +295,11 @@ class CsListEmptyView extends StatelessWidget {
         children: [
           Icon(icon, size: 40, color: AppColors.iosGray3),
           const SizedBox(height: AppSpacing.medium),
-          Text(title, style: context.textStyle(FontSizeType.subheadline)),
+          Text(
+            title,
+            textAlign: TextAlign.center,
+            style: context.textStyle(FontSizeType.subheadline),
+          ),
           const SizedBox(height: AppSpacing.tiny),
           Text(
             hint,

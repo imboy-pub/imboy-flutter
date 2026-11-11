@@ -212,32 +212,47 @@ class LanguagePage extends ConsumerWidget {
         children: [
           // 「跟随系统」置顶：它是新装默认，也是唯一走 i18n 文案的一项
           // （下面的语言名是 endonym，恒显自身语言）。
-          ImBoySettingsTile(
-            title: Text(t.main.followSystem),
-            trailing: state.followSystem
-                ? Icon(
-                    CupertinoIcons.check_mark,
-                    size: 18,
-                    color: AppColors.getIosBlue(brightness),
-                  )
-                : const SizedBox.shrink(),
-            onTap: () =>
-                ref.read(languageProvider.notifier).useSystemLanguage(),
+          MergeSemantics(
+            child: Semantics(
+              selected: state.followSystem,
+              inMutuallyExclusiveGroup: true,
+              child: ImBoySettingsTile(
+                title: Text(t.main.followSystem),
+                trailing: state.followSystem
+                    ? Icon(
+                        CupertinoIcons.check_mark,
+                        size: 18,
+                        color: AppColors.getIosBlue(brightness),
+                      )
+                    : const SizedBox.shrink(),
+                onTap: () =>
+                    ref.read(languageProvider.notifier).useSystemLanguage(),
+              ),
+            ),
           ),
           for (var item in state.languageList)
-            ImBoySettingsTile(
-              title: Text(item.title),
-              trailing:
-                  !state.followSystem &&
-                      state.currentLocale == localeIdMap[item.id]
-                  ? Icon(
-                      CupertinoIcons.check_mark,
-                      size: 18,
-                      color: AppColors.getIosBlue(brightness),
-                    )
-                  : const SizedBox.shrink(),
-              onTap: () =>
-                  ref.read(languageProvider.notifier).changeLanguage(item.id),
+            MergeSemantics(
+              child: Semantics(
+                selected:
+                    !state.followSystem &&
+                    state.currentLocale == localeIdMap[item.id],
+                inMutuallyExclusiveGroup: true,
+                child: ImBoySettingsTile(
+                  title: Text(item.title),
+                  trailing:
+                      !state.followSystem &&
+                          state.currentLocale == localeIdMap[item.id]
+                      ? Icon(
+                          CupertinoIcons.check_mark,
+                          size: 18,
+                          color: AppColors.getIosBlue(brightness),
+                        )
+                      : const SizedBox.shrink(),
+                  onTap: () => ref
+                      .read(languageProvider.notifier)
+                      .changeLanguage(item.id),
+                ),
+              ),
             ),
         ],
       ),

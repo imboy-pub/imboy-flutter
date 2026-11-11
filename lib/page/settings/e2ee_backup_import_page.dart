@@ -8,6 +8,9 @@ import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/ios_settings_ui.dart';
+import 'package:imboy/component/ui/cell_pressable.dart';
+import 'package:imboy/page/settings/widget/settings_notice_card.dart';
+import 'package:imboy/component/ui/resource_page_layout.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/service/e2ee_local_backup_service.dart';
 import 'package:imboy/service/e2ee_backup_restore_state.dart';
@@ -139,6 +142,7 @@ class _E2EEBackupImportPageState extends State<E2EEBackupImportPage> {
   @override
   Widget build(BuildContext context) {
     return IosPageTemplate(
+      contentMaxWidth: ResourcePageLayout.maxWidth,
       title: t.common.e2eeBackupImportTitle,
       child: Padding(
         padding: const EdgeInsets.all(AppSpacing.regular),
@@ -170,48 +174,15 @@ class _E2EEBackupImportPageState extends State<E2EEBackupImportPage> {
     );
   }
 
-  Widget _buildWarningCard() {
-    return Card(
-      color: AppColors.iosOrange.withValues(alpha: 0.1),
-      child: Padding(
-        padding: const EdgeInsets.all(AppSpacing.regular),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                const Icon(CupertinoIcons.info, color: AppColors.iosOrange),
-                const SizedBox(width: AppSpacing.small),
-                Text(
-                  t.common.e2eeBackupImportGuide,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.iosOrange,
-                  ),
-                ),
-              ],
-            ),
-            AppSpacing.verticalSmall,
-            Text(
-              t.common.e2eeBackupImportReplaceKey,
-              style: context.textStyle(
-                FontSizeType.footnote,
-                color: AppColors.iosOrange,
-              ),
-            ),
-            AppSpacing.verticalTiny,
-            Text(
-              t.common.e2eeBackupImportTrustedSource,
-              style: context.textStyle(
-                FontSizeType.footnote,
-                color: AppColors.iosOrange,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
+  Widget _buildWarningCard() => SettingsNoticeCard(
+    title: t.common.e2eeBackupImportGuide,
+    icon: CupertinoIcons.info,
+    accent: AppColors.iosOrange,
+    paragraphs: [
+      t.common.e2eeBackupImportReplaceKey,
+      t.common.e2eeBackupImportTrustedSource,
+    ],
+  );
 
   Widget _buildCloudRestoreCard() {
     return Card(
@@ -286,7 +257,7 @@ class _E2EEBackupImportPageState extends State<E2EEBackupImportPage> {
               style: const TextStyle(fontWeight: FontWeight.bold),
             ),
             AppSpacing.verticalMedium,
-            GestureDetector(
+            CellPressable(
               onTap: _selectFile,
               child: Container(
                 width: double.infinity,

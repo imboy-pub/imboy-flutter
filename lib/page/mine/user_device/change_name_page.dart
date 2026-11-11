@@ -42,7 +42,8 @@ class _ChangeNamePageState extends ConsumerState<ChangeNamePage> {
     textController.text = widget.value;
     // 监听输入变化
     textController.addListener(() {
-      final changed = textController.text.trim() != widget.value;
+      final value = textController.text.trim();
+      final changed = value.isNotEmpty && value != widget.value.trim();
       if (changed != valueChanged) {
         setState(() {
           valueChanged = changed;
@@ -66,7 +67,7 @@ class _ChangeNamePageState extends ConsumerState<ChangeNamePage> {
       setState(() => valueChanged = false);
       return;
     }
-    if (_isSubmitting) return;
+    if (_isSubmitting || !valueChanged) return;
     setState(() => _isSubmitting = true);
     try {
       // 注：成功/失败的提示由 callback 自行通过 AppLoading 处理；这里仅兜底捕获
@@ -95,7 +96,7 @@ class _ChangeNamePageState extends ConsumerState<ChangeNamePage> {
         rightDMActions: [
           CupertinoButton(
             padding: const EdgeInsets.symmetric(horizontal: 12),
-            onPressed: _isSubmitting
+            onPressed: _isSubmitting || !valueChanged
                 ? null
                 : () => _submit(textController.text),
             child: _isSubmitting

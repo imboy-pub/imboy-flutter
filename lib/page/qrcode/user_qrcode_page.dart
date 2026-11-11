@@ -242,7 +242,8 @@ class UserQrCodePage extends ConsumerWidget {
       padding: EdgeInsets.zero,
       onPressed: onTap,
       child: Container(
-        height: 52,
+        constraints: const BoxConstraints(minHeight: AppSpacing.xxxLarge),
+        padding: const EdgeInsets.all(AppSpacing.small),
         decoration: BoxDecoration(
           color: AppColors.primary.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(14),
@@ -252,12 +253,14 @@ class UserQrCodePage extends ConsumerWidget {
           children: [
             Icon(icon, size: 20, color: AppColors.primary),
             AppSpacing.horizontalSmall,
-            Text(
-              text,
-              style: context.textStyle(
-                FontSizeType.subheadline,
-                fontWeight: FontWeight.w600,
-                color: AppColors.primary,
+            Flexible(
+              child: Text(
+                text,
+                style: context.textStyle(
+                  FontSizeType.subheadline,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.primary,
+                ),
               ),
             ),
           ],

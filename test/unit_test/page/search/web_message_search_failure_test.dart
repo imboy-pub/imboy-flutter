@@ -59,6 +59,151 @@ Future<void> waitForHistoryWrites(WidgetTester tester, Finder page) async {
 }
 
 void main() {
+  for (final type in ['C2C', 'C2G']) {
+    testWidgets('点击会话搜索结果保留 $type 类型和 peerId', (tester) async {
+      resetWebSearchHistoryQueueForTest();
+      SharedPreferences.setMockInitialValues({Keys.currentUid: '100'});
+      await StorageService.init();
+      String? arrivedPeer;
+      String? arrivedType;
+      final router = GoRouter(
+        routes: [
+          GoRoute(
+            path: '/',
+            builder: (_, _) => WebSearchPage(
+              initialQuery: 'conversation',
+              messageSearchForTest: (_) async => [],
+              otherSearchForTest: (_) async => [
+                SearchItem(
+                  type: SearchItemType.conversation,
+                  id: '300',
+                  title: '目标会话',
+                  metadata: {'type': type},
+                ),
+              ],
+            ),
+          ),
+          GoRoute(
+            path: '/chat/:peerId',
+            builder: (_, state) {
+              arrivedPeer = state.pathParameters['peerId'];
+              arrivedType = state.uri.queryParameters['type'];
+              return const Scaffold(body: Text('已打开会话'));
+            },
+          ),
+        ],
+      );
+      addTearDown(router.dispose);
+      await tester.pumpWidget(
+        ProviderScope(child: MaterialApp.router(routerConfig: router)),
+      );
+      await tester.pumpAndSettle();
+      await waitForHistoryWrites(tester, find.byType(WebSearchPage));
+      await tester.tap(resultTitle('目标会话'));
+      await tester.pumpAndSettle();
+      expect(find.text('已打开会话'), findsOneWidget);
+      expect(arrivedPeer, '300');
+      expect(arrivedType, type);
+      expect(tester.takeException(), isNull);
+      await tester.pumpWidget(const SizedBox.shrink());
+    });
+  }
+
+  testWidgets('全局失败在矮窗口可重试，成功后清除旧错误并保留查询', (tester) async {
+    resetWebSearchHistoryQueueForTest();
+    SharedPreferences.setMockInitialValues({Keys.currentUid: '100'});
+    await StorageService.init();
+    tester.view.physicalSize = const Size(360, 300);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    final queries = <String>[];
+    var recover = false;
+    await tester.pumpWidget(
+      ProviderScope(
+        child: MaterialApp(
+          builder: (context, child) => MediaQuery(
+            data: MediaQuery.of(context)
+                .copyWith(textScaler: const TextScaler.linear(2)),
+            child: child!,
+          ),
+          home: WebSearchPage(
+            initialQuery: 'first query',
+            messageSearchForTest: (_) async => [],
+            otherSearchForTest: (query) async {
+              queries.add(query);
+              if (!recover) throw Exception('temporary search failure');
+              return [
+                SearchItem(
+                  type: SearchItemType.contact,
+                  id: '200',
+                  title: 'Recovered $query',
+                ),
+              ];
+            },
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(find.text(t.common.searchError), findsOneWidget);
+    expect(
+      tester.widget<TextField>(find.byType(TextField)).controller!.text,
+      'first query',
+    );
+    expect(tester.takeException(), isNull);
+    recover = true;
+    await tester.ensureVisible(find.text(t.common.buttonRetry));
+    await tester.tap(find.text(t.common.buttonRetry));
+    await tester.pumpAndSettle();
+    expect(queries, ['first query', 'first query']);
+    expect(resultTitle('Recovered first query'), findsOneWidget);
+    expect(find.text(t.common.searchError), findsNothing);
+    expect(tester.takeException(), isNull);
+    await waitForHistoryWrites(tester, find.byType(WebSearchPage));
+    await tester.pumpWidget(const SizedBox.shrink());
+  });
+
+  testWidgets('失败后清空再输入新词不会继续显示旧错误', (tester) async {
+    resetWebSearchHistoryQueueForTest();
+    SharedPreferences.setMockInitialValues({Keys.currentUid: '100'});
+    await StorageService.init();
+    final queries = <String>[];
+    await tester.pumpWidget(
+      ProviderScope(
+        child: MaterialApp(
+          home: WebSearchPage(
+            initialQuery: 'failed query',
+            messageSearchForTest: (_) async => [],
+            otherSearchForTest: (query) async {
+              queries.add(query);
+              if (query == 'failed query') throw Exception('temporary failure');
+              return [
+                SearchItem(
+                  type: SearchItemType.contact,
+                  id: '200',
+                  title: 'Found $query',
+                ),
+              ];
+            },
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(find.text(t.common.searchError), findsOneWidget);
+    await tester.enterText(find.byType(TextField), '');
+    await tester.pumpAndSettle();
+    expect(find.text(t.common.searchError), findsNothing);
+    await tester.enterText(find.byType(TextField), 'fresh query');
+    await tester.pump(const Duration(milliseconds: 350));
+    await tester.pumpAndSettle();
+    expect(queries, ['failed query', 'fresh query']);
+    expect(resultTitle('Found fresh query'), findsOneWidget);
+    expect(find.text(t.common.searchError), findsNothing);
+    await waitForHistoryWrites(tester, find.byType(WebSearchPage));
+    await tester.pumpWidget(const SizedBox.shrink());
+  });
+
   // 每例退出前 drain，再在下一例重建 Future；已完成的旧 Future 仍属于旧
   // FakeAsync zone。reset 保留 pending 检查，不能丢弃未完成写入。
   for (final navigate in [false, true]) {

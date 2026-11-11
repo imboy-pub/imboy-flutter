@@ -63,7 +63,11 @@ class _ContactTagListPageState extends ConsumerState<ContactTagListPage> {
       actions: [
         CupertinoButton(
           padding: EdgeInsets.zero,
-          child: const Icon(CupertinoIcons.add, size: 22),
+          child: Icon(
+            CupertinoIcons.add,
+            size: 22,
+            semanticLabel: t.common.addTag,
+          ),
           onPressed: () => _showAddTagSheet(context),
         ),
       ],
@@ -87,7 +91,13 @@ class _ContactTagListPageState extends ConsumerState<ContactTagListPage> {
             child: Center(child: CupertinoActivityIndicator()),
           )
         else if (listState.items.isEmpty)
-          SliverFillRemaining(child: NoDataView(text: t.common.noData))
+          SliverFillRemaining(
+            child: NoDataView(
+              text: _searchController.text.trim().isNotEmpty
+                  ? t.common.searchNoResults
+                  : t.common.noData,
+            ),
+          )
         else
           SliverPadding(
             padding: const EdgeInsets.only(bottom: 40),

@@ -236,7 +236,6 @@ class _OrganizationHomePageState extends State<OrganizationHomePage> {
         title: Text(t.organization.home.tabOrg),
         actions: [
           Semantics(
-            button: true,
             label: t.organization.directory.title,
             child: IconButton(
               key: const ValueKey('organization-home-directory-entry'),
@@ -246,7 +245,6 @@ class _OrganizationHomePageState extends State<OrganizationHomePage> {
             ),
           ),
           Semantics(
-            button: true,
             label: t.organization.home.myInvitations,
             child: IconButton(
               tooltip: t.organization.home.myInvitations,
@@ -259,7 +257,6 @@ class _OrganizationHomePageState extends State<OrganizationHomePage> {
             ),
           ),
           Semantics(
-            button: true,
             label: t.organization.home.createOrg,
             child: IconButton(
               icon: const Icon(CupertinoIcons.add),

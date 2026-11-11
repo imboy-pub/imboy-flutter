@@ -236,16 +236,21 @@ class _SplashPageState extends ConsumerState<SplashPage>
                 disableAnim: disableAnim,
               ),
             ),
-            Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  _buildLogo(logoSize: logoSize, disableAnim: disableAnim),
-                  const SizedBox(height: 28),
-                  _buildWordmark(context, disableAnim: disableAnim),
-                  const SizedBox(height: 14),
-                  _buildSlogan(context, disableAnim: disableAnim),
-                ],
+            SafeArea(
+              child: Center(
+                child: SingleChildScrollView(
+                  padding: AppSpacing.allRegular,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      _buildLogo(logoSize: logoSize, disableAnim: disableAnim),
+                      const SizedBox(height: 28),
+                      _buildWordmark(context, disableAnim: disableAnim),
+                      const SizedBox(height: 14),
+                      _buildSlogan(context, disableAnim: disableAnim),
+                    ],
+                  ),
+                ),
               ),
             ),
             if (kDebugMode)

@@ -39509,8 +39509,8 @@
       "route_or_entry": "TalkRecordGrantEditPage",
       "route_registered": true,
       "source": "generated:lib_page",
-      "control": "text_field",
-      "action": "触发第 1 处 text_field 交互入口",
+      "control": "button",
+      "action": "触发第 1 处 button 交互入口",
       "expected_oracle": "expect(<控件可观察状态>)",
       "details": "GENERATED_ORACLE_PLACEHOLDER; lib page static extraction",
       "platforms": [
@@ -39532,8 +39532,31 @@
       "route_or_entry": "TalkRecordGrantEditPage",
       "route_registered": true,
       "source": "generated:lib_page",
+      "control": "text_field",
+      "action": "触发第 2 处 text_field 交互入口",
+      "expected_oracle": "expect(<控件可观察状态>)",
+      "details": "GENERATED_ORACLE_PLACEHOLDER; lib page static extraction",
+      "platforms": [
+        "android",
+        "macos"
+      ],
+      "requirements": [
+        "device.android",
+        "device.macos"
+      ],
+      "fixture": "pending:authorized-isolated",
+      "test_target": null,
+      "disposition": "required",
+      "exclusion_code": null
+    },
+    {
+      "function_id": "fn:talk_record:talk_record_grant_edit_page:003",
+      "page": "lib/modules/talk_record/presentation/share/talk_record_grant_edit_page.dart",
+      "route_or_entry": "TalkRecordGrantEditPage",
+      "route_registered": true,
+      "source": "generated:lib_page",
       "control": "button",
-      "action": "触发第 2 处 button 交互入口",
+      "action": "触发第 3 处 button 交互入口",
       "expected_oracle": "expect(<控件可观察状态>)",
       "details": "GENERATED_ORACLE_PLACEHOLDER; lib page static extraction",
       "platforms": [
@@ -39672,6 +39695,29 @@
       "source": "generated:lib_page",
       "control": "button",
       "action": "触发第 6 处 button 交互入口",
+      "expected_oracle": "expect(<控件可观察状态>)",
+      "details": "GENERATED_ORACLE_PLACEHOLDER; lib page static extraction",
+      "platforms": [
+        "android",
+        "macos"
+      ],
+      "requirements": [
+        "device.android",
+        "device.macos"
+      ],
+      "fixture": "pending:authorized-isolated",
+      "test_target": null,
+      "disposition": "required",
+      "exclusion_code": null
+    },
+    {
+      "function_id": "fn:talk_record:talk_record_list_page:007",
+      "page": "lib/modules/talk_record/presentation/talk_record_list_page.dart",
+      "route_or_entry": "TalkRecordListPage",
+      "route_registered": true,
+      "source": "generated:lib_page",
+      "control": "button",
+      "action": "触发第 7 处 button 交互入口",
       "expected_oracle": "expect(<控件可观察状态>)",
       "details": "GENERATED_ORACLE_PLACEHOLDER; lib page static extraction",
       "platforms": [
@@ -46473,52 +46519,6 @@
       "exclusion_code": null
     },
     {
-      "function_id": "fn:workspace:workspace_conversations_page:004",
-      "page": "lib/page/workspace/workspace_conversations_page.dart",
-      "route_or_entry": "in_page_control",
-      "route_registered": false,
-      "source": "generated:lib_page",
-      "control": "button",
-      "action": "触发第 4 处 button 交互入口",
-      "expected_oracle": "expect(<控件可观察状态>)",
-      "details": "GENERATED_ORACLE_PLACEHOLDER; lib page static extraction",
-      "platforms": [
-        "android",
-        "macos"
-      ],
-      "requirements": [
-        "device.android",
-        "device.macos"
-      ],
-      "fixture": "pending:authorized-isolated",
-      "test_target": null,
-      "disposition": "required",
-      "exclusion_code": null
-    },
-    {
-      "function_id": "fn:workspace:workspace_conversations_page:005",
-      "page": "lib/page/workspace/workspace_conversations_page.dart",
-      "route_or_entry": "in_page_control",
-      "route_registered": false,
-      "source": "generated:lib_page",
-      "control": "button",
-      "action": "触发第 5 处 button 交互入口",
-      "expected_oracle": "expect(<控件可观察状态>)",
-      "details": "GENERATED_ORACLE_PLACEHOLDER; lib page static extraction",
-      "platforms": [
-        "android",
-        "macos"
-      ],
-      "requirements": [
-        "device.android",
-        "device.macos"
-      ],
-      "fixture": "pending:authorized-isolated",
-      "test_target": null,
-      "disposition": "required",
-      "exclusion_code": null
-    },
-    {
       "function_id": "fn:workspace:workspace_create_page:001",
       "page": "lib/page/workspace/workspace_create_page.dart",
       "route_or_entry": "WorkspaceCreatePage",
@@ -49149,7 +49149,7 @@
     {
       "page": "lib/modules/talk_record/presentation/share/talk_record_grant_edit_page.dart",
       "module": "talk_record",
-      "function_count": 2,
+      "function_count": 3,
       "route_registered": true,
       "has_ledger": false,
       "ledger_generated": false
@@ -49165,7 +49165,7 @@
     {
       "page": "lib/modules/talk_record/presentation/talk_record_list_page.dart",
       "module": "talk_record",
-      "function_count": 6,
+      "function_count": 7,
       "route_registered": true,
       "has_ledger": false,
       "ledger_generated": false
@@ -50461,7 +50461,7 @@
     {
       "page": "lib/page/workspace/workspace_conversations_page.dart",
       "module": "workspace",
-      "function_count": 5,
+      "function_count": 3,
       "route_registered": false,
       "has_ledger": false,
       "ledger_generated": false

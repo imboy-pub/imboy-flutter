@@ -317,7 +317,6 @@ class _ChannelMessageFeedState extends ConsumerState<ChannelMessageFeed> {
               // 按钮控制「标签 / 全部·精华」两组高级筛选的展开与收起。
               Semantics(
                 label: '${context.t.contact.tags}/${context.t.channel.essence}',
-                button: true,
                 child: CupertinoButton(
                   key: const Key('mc_filter_toggle'),
                   padding: EdgeInsets.zero,

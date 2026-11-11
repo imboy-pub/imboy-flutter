@@ -281,7 +281,12 @@ class _ProjectMilestonesPageState extends ConsumerState<ProjectMilestonesPage> {
                   onReach: () => _reach(ms),
                 ),
             ],
-            if (!hasLoading && mayHaveMore) ...[
+            if (firstError != null)
+              WorkspaceInlineError(
+                message: projectW2ViewMessage(context, firstError),
+                onRetry: _invalidatePages,
+              ),
+            if (!hasLoading && firstError == null && mayHaveMore) ...[
               AppSpacing.verticalSmall,
               ProjectW2LoadMoreButton(
                 onPressed: () => setState(() => _pages += 1),

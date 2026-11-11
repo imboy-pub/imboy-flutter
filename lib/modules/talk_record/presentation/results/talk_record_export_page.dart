@@ -392,9 +392,9 @@ class _DownloadArea extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        SizedBox(
+        ConstrainedBox(
           // C-F2：主操作 ≥48。
-          height: 48,
+          constraints: const BoxConstraints(minHeight: 48),
           child: CupertinoButton(
             key: const ValueKey('talk_record_export_download'),
             minimumSize: const Size.fromHeight(48),
@@ -458,9 +458,9 @@ class _GenerateButton extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return SizedBox(
+    return ConstrainedBox(
       // C-F2：主操作 ≥48 + primaryDark 实底白字。
-      height: 48,
+      constraints: const BoxConstraints(minHeight: 48),
       child: CupertinoButton(
         key: const ValueKey('talk_record_export_generate'),
         minimumSize: const Size.fromHeight(48),

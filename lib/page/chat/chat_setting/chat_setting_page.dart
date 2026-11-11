@@ -23,6 +23,7 @@ import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:imboy/service/group_notice_config.dart';
 import 'package:imboy/service/storage.dart';
 import 'package:imboy/theme/default/font_types.dart';
+import 'package:imboy/utils/conversation_uk3_generator.dart';
 
 import 'chat_setting_provider.dart';
 
@@ -522,17 +523,24 @@ class _ChatSettingPageState extends ConsumerState<ChatSettingPage> {
         icon: CupertinoIcons.search,
         isFirst: true,
         onTap: () {
+          if (!_isCurrent) return;
           // 统一走 go_router（/search_chat 路由已注册，extra 传参对齐）：
           // 原生 push 时 SearchChatPage 内 _goToChat 会失灵
           context.push(
             '/search_chat',
             extra: {
               'type': widget.type,
-              'peerId': widget.options?['peer_id'] as String,
-              'peerTitle': widget.options?['peerTitle'] as String,
-              'peerAvatar': widget.options?['peerAvatar'] as String,
-              'peerSign': widget.options?['peerSign'] as String? ?? '',
-              'conversationUk3': widget.options?['conversationUk3'] as String,
+              'peerId': widget.peerId,
+              'peerTitle': widget.options?['peerTitle']?.toString() ?? '',
+              'peerAvatar': widget.options?['peerAvatar']?.toString() ?? '',
+              'peerSign': widget.options?['peerSign']?.toString() ?? '',
+              'conversationUk3':
+                  widget.options?['conversationUk3']?.toString() ??
+                  ConversationUk3Generator.generateSmart(
+                    type: widget.type,
+                    currentUserId: _ownerUid,
+                    peerId: widget.peerId,
+                  ),
             },
           );
         },
@@ -610,8 +618,9 @@ class _ChatSettingPageState extends ConsumerState<ChatSettingPage> {
       backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: GlassAppBar(
         backgroundColor: Theme.of(context).colorScheme.surface,
-        leading: GestureDetector(
-          onTap: () {
+        leading: CupertinoButton(
+          padding: EdgeInsets.zero,
+          onPressed: () {
             Navigator.pop(context, backDoRefresh);
           },
           child: Container(
@@ -622,6 +631,7 @@ class _ChatSettingPageState extends ConsumerState<ChatSettingPage> {
               CupertinoIcons.back,
               color: Theme.of(context).colorScheme.primary,
               size: 22,
+              semanticLabel: t.common.buttonBack,
             ),
           ),
         ),

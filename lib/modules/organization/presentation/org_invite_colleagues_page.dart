@@ -470,7 +470,6 @@ class _OrgInviteColleaguesPageState extends State<OrgInviteColleaguesPage> {
       onPressed: _openMoreSheet,
       child: Semantics(
         label: context.t.organization.common.moreActions,
-        button: true,
         child: Icon(
           CupertinoIcons.ellipsis,
           size: 20,
@@ -593,19 +592,19 @@ class _OrgInviteColleaguesPageState extends State<OrgInviteColleaguesPage> {
           color: AppColors.primaryAlpha10,
           borderRadius: BorderRadius.circular(AppRadius.cell),
         ),
-        child: Row(
+        child: OverflowBar(
+          spacing: AppSpacing.small,
+          overflowSpacing: AppSpacing.tiny,
+          overflowAlignment: OverflowBarAlignment.end,
           children: [
-            Expanded(
-              child: Text(
-                text,
-                style: context.textStyle(
-                  FontSizeType.footnote,
-                  color: AppColors.primary,
-                ),
+            Text(
+              text,
+              style: context.textStyle(
+                FontSizeType.footnote,
+                color: AppColors.primary,
               ),
             ),
-            if (actionLabel != null || busy) ...[
-              const SizedBox(width: AppSpacing.small),
+            if (actionLabel != null || busy)
               busy
                   ? const SizedBox(
                       width: 18,
@@ -615,7 +614,7 @@ class _OrgInviteColleaguesPageState extends State<OrgInviteColleaguesPage> {
                   : CupertinoButton(
                       key: const ValueKey('org-invite-banner-action'),
                       padding: EdgeInsets.zero,
-                      minimumSize: Size.zero,
+                      minimumSize: const Size(44, 44),
                       onPressed: onAction,
                       child: Text(
                         actionLabel!,
@@ -626,7 +625,6 @@ class _OrgInviteColleaguesPageState extends State<OrgInviteColleaguesPage> {
                         ),
                       ),
                     ),
-            ],
           ],
         ),
       ),
@@ -665,8 +663,10 @@ class _OrgInviteColleaguesPageState extends State<OrgInviteColleaguesPage> {
       return ListView(
         physics: const AlwaysScrollableScrollPhysics(),
         children: [
-          SizedBox(
-            height: MediaQuery.sizeOf(context).height * 0.5,
+          ConstrainedBox(
+            constraints: BoxConstraints(
+              minHeight: MediaQuery.sizeOf(context).height * 0.5,
+            ),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -832,8 +832,6 @@ class _OrgInviteColleaguesPageState extends State<OrgInviteColleaguesPage> {
       title: Text(title, maxLines: 1, overflow: TextOverflow.ellipsis),
       subtitle: Text(
         subtitle,
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
         style: context.textStyle(
           FontSizeType.footnote,
           color: AppColors.iosGray,

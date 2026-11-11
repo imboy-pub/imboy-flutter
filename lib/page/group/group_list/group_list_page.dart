@@ -209,8 +209,10 @@ class _GroupListPageState extends ConsumerState<GroupListPage> {
                   // T19 热区冻结值 48：与频道列表分段（AppSpacing.xxxLarge
                   // 同款）统一，替代旧 37px 高的 vertical-6 Padding。
                   for (final attr in const ['all', 'join', 'manager', 'owner'])
-                    attr: SizedBox(
-                      height: AppSpacing.xxxLarge,
+                    attr: ConstrainedBox(
+                      constraints: const BoxConstraints(
+                        minHeight: AppSpacing.xxxLarge,
+                      ),
                       child: Center(
                         child: Text(
                           _attrLabel(attr),

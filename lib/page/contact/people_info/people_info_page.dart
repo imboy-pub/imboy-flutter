@@ -49,6 +49,7 @@ class _PeopleInfoPageState extends ConsumerState<PeopleInfoPage> {
     super.initState();
     // 初始化数据（仅注册一次，避免 build 内重复注册回调）
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
       ref.read(peopleInfoProvider.notifier).initData(widget.id, widget.scene);
     });
     // 订阅状态变更：仅处理当前页面 peer 的事件，避免串台
@@ -83,7 +84,6 @@ class _PeopleInfoPageState extends ConsumerState<PeopleInfoPage> {
           ? null
           : [
               Semantics(
-                button: true,
                 label: t.common.contactSetting,
                 child: CupertinoButton(
                   padding: EdgeInsets.zero,
@@ -379,11 +379,13 @@ class _PeopleInfoPageState extends ConsumerState<PeopleInfoPage> {
           peerSource: state.source,
           peerRemark: state.remark,
           peerTag: state.tag,
-          onRemarkChanged: (r) =>
-              ref.read(peopleInfoProvider.notifier).updateRemark(r),
+          onRemarkChanged: (r) {
+            if (mounted) ref.read(peopleInfoProvider.notifier).updateRemark(r);
+          },
         ),
       ),
     ).then((v) {
+      if (!mounted) return;
       if (v != null && v.isNotEmpty) {
         ref.read(peopleInfoProvider.notifier).updateRemark(v);
       }

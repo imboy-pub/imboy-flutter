@@ -80,7 +80,6 @@ class _SpaceSwitcherButtonState extends ConsumerState<SpaceSwitcherButton> {
     return Semantics(
       label: label,
       value: space,
-      button: true,
       child: Tooltip(
         message: '$label · $space',
         excludeFromSemantics: true,

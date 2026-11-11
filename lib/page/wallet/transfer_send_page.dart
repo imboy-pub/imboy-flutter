@@ -1,5 +1,6 @@
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:flutter/material.dart';
+import 'package:imboy/component/ui/resource_page_layout.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:imboy/component/ui/app_loading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -163,56 +164,59 @@ class _TransferSendPageState extends ConsumerState<TransferSendPage> {
         title: t.common.transferSend,
         automaticallyImplyLeading: true,
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(AppSpacing.regular),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              // 金额 hero 卡片
-              WalletAmountField(
-                controller: _amountController,
-                label: t.common.transferAmountLabel,
-                accent: AppColors.primary,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return t.common.enterAmount;
-                  }
-                  final amountFen = parseYuanToFen(value);
-                  if (amountFen == null || amountFen < 1) {
-                    return t.common.transferMinAmountError;
-                  }
-                  return null;
-                },
-              ),
-              AppSpacing.verticalRegular,
+      body: ResourcePageLayout(
+        child: SingleChildScrollView(
+          keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+          padding: const EdgeInsets.all(AppSpacing.regular),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                // 金额 hero 卡片
+                WalletAmountField(
+                  controller: _amountController,
+                  label: t.common.transferAmountLabel,
+                  accent: AppColors.primary,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return t.common.enterAmount;
+                    }
+                    final amountFen = parseYuanToFen(value);
+                    if (amountFen == null || amountFen < 1) {
+                      return t.common.transferMinAmountError;
+                    }
+                    return null;
+                  },
+                ),
+                AppSpacing.verticalRegular,
 
-              // 备注
-              WalletFieldCard(
-                child: TextFormField(
-                  enableSuggestions: false,
-                  autocorrect: false,
-                  controller: _remarkController,
-                  decoration: walletInputDecoration(
-                    hint: t.common.transferRemarkLabel,
+                // 备注
+                WalletFieldCard(
+                  child: TextFormField(
+                    enableSuggestions: false,
+                    autocorrect: false,
+                    controller: _remarkController,
+                    decoration: walletInputDecoration(
+                      hint: t.common.transferRemarkLabel,
+                    ),
                   ),
                 ),
-              ),
-              AppSpacing.verticalSmall,
+                AppSpacing.verticalSmall,
 
-              WalletBalanceHint(balanceYuan: balanceYuan),
-              const SizedBox(height: 40),
+                WalletBalanceHint(balanceYuan: balanceYuan),
+                const SizedBox(height: 40),
 
-              WalletPrimaryButton(
-                label: t.common.transferConfirm,
-                color: AppColors.primary,
-                onPressed: () {
-                  FocusScope.of(context).unfocus();
-                  _handleSend(walletState.balance);
-                },
-              ),
-            ],
+                WalletPrimaryButton(
+                  label: t.common.transferConfirm,
+                  color: AppColors.primary,
+                  onPressed: () {
+                    FocusScope.of(context).unfocus();
+                    _handleSend(walletState.balance);
+                  },
+                ),
+              ],
+            ),
           ),
         ),
       ),

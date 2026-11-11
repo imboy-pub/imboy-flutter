@@ -261,7 +261,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
             children: [
               const Icon(CupertinoIcons.share, size: 18),
               AppSpacing.horizontalMedium,
-              Text(t.common.profileShareProfile),
+              Expanded(child: Text(t.common.profileShareProfile)),
             ],
           ),
         ),
@@ -271,7 +271,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
             children: [
               const Icon(CupertinoIcons.cloud_download, size: 18),
               AppSpacing.horizontalMedium,
-              Text(t.chat.profileExportProfile),
+              Expanded(child: Text(t.chat.profileExportProfile)),
             ],
           ),
         ),

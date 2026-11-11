@@ -134,7 +134,6 @@ class ProfileIdentityHeader extends StatelessWidget {
     onPressed: state.avatar.isEmpty ? null : onPreviewAvatar,
     child: Semantics(
       label: context.t.account.avatar,
-      button: true,
       child: Stack(
         children: [
           Avatar(

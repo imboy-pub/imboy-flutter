@@ -39,7 +39,9 @@ class _UserTagSavePageState extends ConsumerState<UserTagSavePage> {
     _textController.text = widget.tag?.name ?? '';
     _textController.addListener(() {
       setState(() {
-        _valueChanged = _textController.text.trim() != (widget.tag?.name ?? '');
+        final value = _textController.text.trim();
+        _valueChanged =
+            value.isNotEmpty && value != (widget.tag?.name ?? '').trim();
       });
     });
   }
@@ -60,11 +62,16 @@ class _UserTagSavePageState extends ConsumerState<UserTagSavePage> {
       resizeToAvoidBottomInset: true,
       appBar: GlassAppBar(
         automaticallyImplyLeading: true,
-        leading: GestureDetector(
-          onTap: () {
+        leading: CupertinoButton(
+          padding: EdgeInsets.zero,
+          minimumSize: const Size(44, 44),
+          onPressed: () {
             Navigator.of(context).pop();
           },
-          child: const Icon(CupertinoIcons.xmark),
+          child: Icon(
+            CupertinoIcons.xmark,
+            semanticLabel: t.common.buttonClose,
+          ),
         ),
         title: widget.tag == null
             ? t.common.addTag
@@ -120,9 +127,9 @@ class _UserTagSavePageState extends ConsumerState<UserTagSavePage> {
                     ),
                     border: InputBorder.none,
                   ),
-                  readOnly: false,
+                  readOnly: _isSaving,
                   onFieldSubmitted: (val) async {
-                    FocusScope.of(context).requestFocus(FocusNode());
+                    FocusScope.of(context).unfocus();
                     if (val == '') {
                       setState(() {
                         _valueChanged = false;
@@ -144,7 +151,7 @@ class _UserTagSavePageState extends ConsumerState<UserTagSavePage> {
                   RoundedCupertinoButton(
                     text: t.common.buttonAccomplish,
                     highlighted: _valueChanged && !_isSaving,
-                    onPressed: _isSaving
+                    onPressed: _isSaving || !_valueChanged
                         ? null
                         : () async {
                             FocusScope.of(context).unfocus();

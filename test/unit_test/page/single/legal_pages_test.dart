@@ -22,10 +22,17 @@ void main() {
   // 读该 asset，法务文本的唯一真相源在那里。
 
   group('NetworkFailureGuidancePage 渲染', () {
-    testWidgets('NF-1 渲染不崩溃且含排查步骤卡片', (tester) async {
+    testWidgets('NF-1 渲染不崩溃且含完整排查步骤', (tester) async {
       await _pump(tester, const NetworkFailureGuidancePage());
       expect(find.byType(NetworkFailureGuidancePage), findsOneWidget);
-      expect(find.byType(Card), findsOneWidget);
+      expect(find.text(t.error.suggestCheckNetwork), findsOneWidget);
+      for (final step in [
+        t.error.networkTroubleshootingStep1,
+        t.error.networkTroubleshootingStep2,
+        t.error.networkTroubleshootingStep3,
+      ]) {
+        expect(find.textContaining(step), findsOneWidget);
+      }
       expect(tester.takeException(), isNull);
     });
 

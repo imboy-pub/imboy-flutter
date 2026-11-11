@@ -244,7 +244,6 @@ class _PeopleInfoMorePageState extends ConsumerState<PeopleInfoMorePage> {
                 // 右侧：失败态给重试入口，否则数字徽章 / 空态占位
                 if (failed) ...[
                   Semantics(
-                    button: true,
                     label: t.common.buttonRetry,
                     child: Icon(
                       CupertinoIcons.arrow_clockwise,

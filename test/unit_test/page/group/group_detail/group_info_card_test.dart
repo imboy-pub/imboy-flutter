@@ -6,9 +6,11 @@ library;
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:imboy/component/ui/avatar.dart' show SmartGroupAvatar;
+import 'package:imboy/component/ui/cell_pressable.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/group/group_detail/widgets/group_info_card.dart';
 import 'package:imboy/store/model/group_model.dart';
@@ -106,5 +108,47 @@ void main() {
     await tester.pump();
     expect(find.text(t.main.unnamed), findsOneWidget);
     expect(find.text('7001'), findsNothing);
+  });
+
+  testWidgets('键盘在整卡和简介间切换，展开不会触发外层编辑', (tester) async {
+    var editTaps = 0;
+    const intro = '这是一个很长很长的群简介用于键盘折叠展开行为验证';
+    await tester.pumpWidget(
+      _wrap(
+        GroupInfoCard(
+          group: _group(introduction: intro),
+          onTap: () => editTaps++,
+        ),
+      ),
+    );
+    await tester.pump();
+
+    await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+    await tester.pump();
+    await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+    await tester.pump();
+    expect(editTaps, 1);
+
+    await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+    await tester.pump();
+    await tester.sendKeyEvent(LogicalKeyboardKey.space);
+    await tester.pump();
+    expect(find.byIcon(CupertinoIcons.chevron_up), findsOneWidget);
+    expect(editTaps, 1);
+
+    final introAction = find
+        .ancestor(of: find.text(intro), matching: find.byType(CellPressable))
+        .first;
+    expect(tester.getSize(introAction).height, greaterThanOrEqualTo(44));
+
+    await tester.sendKeyDownEvent(LogicalKeyboardKey.shiftLeft);
+    await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+    await tester.sendKeyUpEvent(LogicalKeyboardKey.shiftLeft);
+    await tester.pump();
+    await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+    await tester.pump();
+    expect(editTaps, 2);
+    await tester.pumpWidget(const SizedBox.shrink());
+    await tester.pump();
   });
 }

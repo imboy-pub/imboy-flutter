@@ -11,11 +11,45 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/modules/talk_record/presentation/share/talk_record_share_fixture_service.dart';
 import 'package:imboy/modules/talk_record/presentation/share/talk_record_share_service.dart';
 import 'package:imboy/theme/default/app_colors.dart';
+import 'package:imboy/i18n/strings.g.dart';
+import 'package:imboy/store/api/talk_record_api.dart' show TalkRecordFetched;
+import 'package:imboy/store/model/talk_record/talk_record_model.dart';
 
 import 'talk_record_share_test_helpers.dart';
 
+class _RecoverableShareService extends FixtureTalkRecordShareService {
+  _RecoverableShareService()
+    : super(TalkRecordShareFixtureScenarios.ownerZeroGrants().entries);
+
+  bool failing = true;
+
+  @override
+  Future<TalkRecordFetched<TalkRecordModel>> record(String id) {
+    if (failing) return Future.error(StateError('temporary failure'));
+    return super.record(id);
+  }
+}
+
 void main() {
   setUp(useZhCn);
+
+  testWidgets('网络失败不伪装成无权限，重试后恢复授权表单', (tester) async {
+    final service = _RecoverableShareService();
+    await pumpGrantEditHome(tester, T18Harness(service: service));
+    expect(find.text(t.talkRecord.loadFailedTitle), findsOneWidget);
+    expect(find.text(t.talkRecord.shareEditorCannotManageAcl), findsNothing);
+
+    service.failing = false;
+    await tester.tap(
+      find.byKey(const ValueKey('talk_record_grant_edit_retry')),
+    );
+    await tester.pumpAndSettle();
+    expect(
+      find.byKey(const ValueKey('talk_record_grant_edit_save')),
+      findsOneWidget,
+    );
+    expect(find.text(t.talkRecord.loadFailedTitle), findsNothing);
+  });
 
   group('新建授权（候选选择）', () {
     testWidgets('候选列表渲染；未选人时保存禁用', (tester) async {

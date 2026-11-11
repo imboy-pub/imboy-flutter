@@ -42,9 +42,11 @@ GoRouter _stubRouter() {
 Future<void> _pumpFont(
   WidgetTester tester, {
   FontSizeOption option = FontSizeOption.normal,
+  Size size = const Size(390, 1200),
+  double textScale = 1,
 }) async {
   tester.view.devicePixelRatio = 1.0;
-  tester.view.physicalSize = const Size(390, 1200);
+  tester.view.physicalSize = size;
   addTearDown(() {
     tester.view.resetDevicePixelRatio();
     tester.view.resetPhysicalSize();
@@ -62,7 +64,14 @@ Future<void> _pumpFont(
         fontSizeProvider.overrideWith(() => _StateOverrideNotifier(state)),
       ],
       child: TranslationProvider(
-        child: MaterialApp.router(routerConfig: _stubRouter()),
+        child: MaterialApp.router(
+          routerConfig: _stubRouter(),
+          builder: (context, child) => MediaQuery(
+            data: MediaQuery.of(context)
+                .copyWith(textScaler: TextScaler.linear(textScale)),
+            child: child!,
+          ),
+        ),
       ),
     ),
   );
@@ -139,6 +148,51 @@ void main() {
 
       await _unmount(tester);
     });
+  });
+
+  testWidgets('窄屏大字下预览说明和推荐提示可换行', (tester) async {
+    await _pumpFont(
+      tester,
+      option: FontSizeOption.large,
+      size: const Size(320, 1000),
+      textScale: 1.6,
+    );
+    expect(find.text('当前：大 120%'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+    await _unmount(tester);
+  });
+
+  testWidgets('拖动预览立即改变文字大小，松手前不修改已应用档位', (tester) async {
+    await _pumpFont(tester);
+    final title = find.text(t.main.thisIsTitleText);
+    final initialSize = tester.widget<Text>(title).style!.fontSize!;
+    final container = ProviderScope.containerOf(
+      tester.element(title),
+      listen: false,
+    );
+    final slider = tester.widget<Slider>(find.byType(Slider));
+    final target = FontSizeOption.values.last;
+
+    // onChanged represents the drag phase; onChangeEnd persists separately.
+    slider.onChanged!(slider.max);
+    await tester.pump();
+
+    expect(
+      tester.widget<Text>(title).style!.fontSize,
+      greaterThan(initialSize),
+    );
+    expect(container.read(fontSizeProvider).previewOption, target);
+    expect(
+      container.read(fontSizeProvider).currentOption,
+      FontSizeOption.normal,
+    );
+    expect(
+      tester.widget<Slider>(find.byType(Slider)).semanticFormatterCallback!(
+        slider.max,
+      ),
+      target.localizedName,
+    );
+    await _unmount(tester);
   });
 
   group('FontSizePage state binding', () {

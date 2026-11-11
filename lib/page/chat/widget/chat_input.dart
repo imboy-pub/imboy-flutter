@@ -1039,7 +1039,6 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
         // 否则读屏用户听到的是静态名词，不知道现在按下是切语音还是切键盘。
         final isVoice = inputType == InputType.voice;
         return Semantics(
-          button: true,
           label: isVoice
               ? t.chat.switchToKeyboardInput
               : t.chat.switchToVoiceInput,
@@ -1093,7 +1092,6 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
         // 同 _buildLeftButton：切换按钮的标签跟随当前态
         final isEmoji = inputType == InputType.emoji;
         return Semantics(
-          button: true,
           label: isEmoji ? t.chat.switchToKeyboardInput : t.common.expression,
           child: CupertinoButton(
             padding: EdgeInsets.zero,
@@ -1125,7 +1123,6 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
           child: sendButtonVisible
               ? const SizedBox.shrink(key: ValueKey('empty_extra'))
               : Semantics(
-                  button: true,
                   label: t.chat.extraItems,
                   child: CupertinoButton(
                     padding: EdgeInsets.zero,

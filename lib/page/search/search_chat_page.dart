@@ -323,35 +323,37 @@ class _SearchChatPageState extends ConsumerState<_SearchChatBody> {
     Brightness b,
   ) {
     return Container(
-      height: 44,
+      constraints: const BoxConstraints(minHeight: 44),
       margin: const EdgeInsets.symmetric(vertical: 4),
-      child: ListView(
+      child: SingleChildScrollView(
         scrollDirection: Axis.horizontal,
         padding: const EdgeInsets.symmetric(horizontal: 16),
-        children: [
-          _buildFilterChip(
-            t.common.allTypes,
-            state.selectedMessageType == 'all',
-            () => _applyFilter('all'),
-            b,
-          ),
-          AppSpacing.horizontalSmall,
-          // 口径统一为「类型名」：t.chat.imageMessage 的值是消息预览标识
-          // "[图片]"，带方括号的预览文案不该出现在筛选标签上。
-          _buildFilterChip(
-            t.main.text,
-            state.selectedMessageType == MessageType.text,
-            () => _applyFilter(MessageType.text),
-            b,
-          ),
-          AppSpacing.horizontalSmall,
-          _buildFilterChip(
-            t.chat.image,
-            state.selectedMessageType == MessageType.image,
-            () => _applyFilter(MessageType.image),
-            b,
-          ),
-        ],
+        child: Row(
+          children: [
+            _buildFilterChip(
+              t.common.allTypes,
+              state.selectedMessageType == 'all',
+              () => _applyFilter('all'),
+              b,
+            ),
+            AppSpacing.horizontalSmall,
+            // 口径统一为「类型名」：t.chat.imageMessage 的值是消息预览标识
+            // "[图片]"，带方括号的预览文案不该出现在筛选标签上。
+            _buildFilterChip(
+              t.main.text,
+              state.selectedMessageType == MessageType.text,
+              () => _applyFilter(MessageType.text),
+              b,
+            ),
+            AppSpacing.horizontalSmall,
+            _buildFilterChip(
+              t.chat.image,
+              state.selectedMessageType == MessageType.image,
+              () => _applyFilter(MessageType.image),
+              b,
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -387,10 +389,7 @@ class _SearchChatPageState extends ConsumerState<_SearchChatBody> {
 
   Widget _buildSearchContent(SearchDataState state, Brightness b) {
     if (state.isLoading && state.searchResults.isEmpty) {
-      return const Padding(
-        padding: EdgeInsets.only(top: 100),
-        child: CupertinoActivityIndicator(),
-      );
+      return const Center(child: CupertinoActivityIndicator());
     }
     if (state.currentQuery.isEmpty) return _buildHistoryList(state, b);
     if (state.errorMessage.isNotEmpty) {
@@ -409,67 +408,54 @@ class _SearchChatPageState extends ConsumerState<_SearchChatBody> {
 
   Widget _buildHistoryList(SearchDataState state, Brightness b) {
     if (state.searchHistory.isEmpty) return const SizedBox.shrink();
-    return ImBoySettingsSection(
-      header: Text(t.common.searchHistory.toUpperCase()),
-      children: state.searchHistory
-          .map(
-            (query) => ImBoySettingsTile(
-              title: Text(query),
-              leading: const Icon(
-                CupertinoIcons.clock,
-                color: AppColors.iosGray,
-                size: 18,
-              ),
-              onTap: () {
-                _searchC.text = query;
-                performSearch(query: query);
-              },
-            ),
-          )
-          .toList(),
+    return ListView(
+      children: [
+        ImBoySettingsSection(
+          header: Text(t.common.searchHistory.toUpperCase()),
+          children: state.searchHistory
+              .map(
+                (query) => ImBoySettingsTile(
+                  title: Text(query),
+                  leading: const Icon(
+                    CupertinoIcons.clock,
+                    color: AppColors.iosGray,
+                    size: 18,
+                  ),
+                  onTap: () {
+                    _searchC.text = query;
+                    performSearch(query: query);
+                  },
+                ),
+              )
+              .toList(),
+        ),
+      ],
     );
   }
 
   /// 构建搜索出错视图（区别于"无结果"，可点击重试）
   Widget _buildErrorResults(String errorMessage, String query) {
-    return Padding(
-      padding: const EdgeInsets.only(top: 100),
-      child: _searchDisabled
-          ? NoDataView(
-              text: t.common.searchDisabledTitle,
-              description: errorMessage,
-              icon: CupertinoIcons.lock,
-              iconSize: 64,
-            )
-          : NoDataView(
-              text: t.common.searchError,
-              description: errorMessage,
-              icon: CupertinoIcons.exclamationmark_circle,
-              iconSize: 64,
-              onTop: () => performSearch(query: query),
-            ),
-    );
+    return _searchDisabled
+        ? NoDataView(
+            text: t.common.searchDisabledTitle,
+            description: errorMessage,
+            icon: CupertinoIcons.lock,
+            iconSize: 64,
+          )
+        : NoDataView(
+            text: t.common.searchError,
+            description: errorMessage,
+            icon: CupertinoIcons.exclamationmark_circle,
+            iconSize: 64,
+            onTop: () => performSearch(query: query),
+          );
   }
 
   Widget _buildEmptyResults(String q) {
-    return Padding(
-      padding: const EdgeInsets.only(top: 100),
-      child: Center(
-        child: Column(
-          children: [
-            const Icon(
-              CupertinoIcons.search,
-              size: 60,
-              color: AppColors.iosGray3,
-            ),
-            AppSpacing.verticalRegular,
-            Text(
-              t.common.searchNoResults,
-              style: const TextStyle(color: AppColors.iosGray),
-            ),
-          ],
-        ),
-      ),
+    return NoDataView(
+      text: t.common.searchNoResults,
+      icon: CupertinoIcons.search,
+      iconSize: 60,
     );
   }
 

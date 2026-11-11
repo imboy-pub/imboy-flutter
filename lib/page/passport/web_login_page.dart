@@ -26,6 +26,7 @@ import 'package:imboy/theme/default/font_types.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:imboy/page/passport/passport_notifier.dart';
 import 'package:imboy/page/passport/passport_state.dart';
+import 'package:imboy/page/passport/widget/web_login_layout.dart';
 import 'package:imboy/page/passport/qr_login_response_rules.dart';
 import 'package:imboy/page/passport/qr_login_polling_rules.dart';
 import 'package:imboy/page/passport/qr_sse_session.dart';
@@ -446,123 +447,14 @@ class _WebLoginPageState extends ConsumerState<WebLoginPage> {
 
     return Scaffold(
       backgroundColor: AppColors.darkBackground, // WhatsApp Web 深色背景
-      body: Row(
-        children: [
-          // 左侧说明区域
-          Expanded(flex: 3, child: _buildLeftSection(context)),
-          // 右侧登录区域
-          Expanded(
-            flex: 2,
-            child: _buildRightSection(
-              context,
-              qrState,
-              passportState,
-              passportNotifier,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  /// 左侧说明区域
-  Widget _buildLeftSection(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(60),
-      child: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.center,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // Logo
-            Row(
-              children: [
-                const Icon(
-                  CupertinoIcons.chat_bubble,
-                  size: 48,
-                  color: AppColors.primary,
-                ),
-                AppSpacing.horizontalRegular,
-                Text(
-                  'ImBoy Web',
-                  style: context.textStyle(
-                    FontSizeType.extraLargeTitle,
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.darkTextPrimary,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 60),
-            // 功能说明
-            _buildFeatureItem(
-              CupertinoIcons.device_phone_portrait,
-              t.chat.webFeatureMultiDevice,
-              t.chat.webFeatureMultiDeviceDesc,
-            ),
-            AppSpacing.verticalXXLarge,
-            _buildFeatureItem(
-              CupertinoIcons.lock,
-              t.chat.webFeatureE2EE,
-              t.chat.webFeatureE2EEDesc,
-            ),
-            AppSpacing.verticalXXLarge,
-            _buildFeatureItem(
-              CupertinoIcons.bell,
-              t.common.webFeatureNotification,
-              t.common.webFeatureNotificationDesc,
-            ),
-            AppSpacing.verticalXXLarge,
-            _buildFeatureItem(
-              CupertinoIcons.paperclip,
-              t.chat.webFeatureFileTransfer,
-              t.chat.webFeatureFileTransferDesc,
-            ),
-          ],
+      body: WebLoginLayout(
+        child: _buildRightSection(
+          context,
+          qrState,
+          passportState,
+          passportNotifier,
         ),
       ),
-    );
-  }
-
-  Widget _buildFeatureItem(IconData icon, String title, String desc) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Container(
-          width: 48,
-          height: 48,
-          decoration: BoxDecoration(
-            color: AppColors.primary.withAlpha(51), // 0.2 * 255 ≈ 51
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: Icon(icon, color: AppColors.primary),
-        ),
-        AppSpacing.horizontalLarge,
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                title,
-                style: context.textStyle(
-                  FontSizeType.large,
-                  fontWeight: FontWeight.w600,
-                  color: AppColors.darkTextPrimary,
-                ),
-              ),
-              AppSpacing.verticalTiny,
-              Text(
-                desc,
-                style: context.textStyle(
-                  FontSizeType.normal,
-                  color: AppColors.darkTextSecondary,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
     );
   }
 
@@ -573,61 +465,49 @@ class _WebLoginPageState extends ConsumerState<WebLoginPage> {
     PassportState passportState,
     PassportNotifier passportNotifier,
   ) {
-    return Container(
-      padding: const EdgeInsets.all(40),
-      decoration: const BoxDecoration(
-        color: AppColors.darkSurfaceContainer,
-        borderRadius: BorderRadius.only(
-          topLeft: Radius.circular(16),
-          bottomLeft: Radius.circular(16),
-        ),
-      ),
-      child: SingleChildScrollView(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            if (!_showPasswordLogin) ...[
-              // QR 码登录
-              _buildQRLoginSection(qrState),
-              AppSpacing.verticalXLarge,
-              // 切换到密码登录
-              CupertinoButton(
-                onPressed: () {
-                  // 停止二维码轮询
-                  ref.read(qRLoginProvider.notifier)._stopPolling();
-                  setState(() => _showPasswordLogin = true);
-                },
-                child: Text(
-                  t.account.webSwitchToPassword,
-                  style: context.textStyle(
-                    FontSizeType.normal,
-                    color: AppColors.primary,
-                  ),
-                ),
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        if (!_showPasswordLogin) ...[
+          // QR 码登录
+          _buildQRLoginSection(qrState),
+          AppSpacing.verticalXLarge,
+          // 切换到密码登录
+          CupertinoButton(
+            onPressed: () {
+              // 停止二维码轮询
+              ref.read(qRLoginProvider.notifier)._stopPolling();
+              setState(() => _showPasswordLogin = true);
+            },
+            child: Text(
+              t.account.webSwitchToPassword,
+              style: context.textStyle(
+                FontSizeType.normal,
+                color: AppColors.primary,
               ),
-            ] else ...[
-              // 账号密码登录
-              _buildPasswordLoginSection(passportState, passportNotifier),
-              AppSpacing.verticalXLarge,
-              // 切换回 QR 码登录
-              CupertinoButton(
-                onPressed: () {
-                  setState(() => _showPasswordLogin = false);
-                  ref.read(qRLoginProvider.notifier).generateQRCode();
-                },
-                child: Text(
-                  t.main.webSwitchToQR,
-                  style: context.textStyle(
-                    FontSizeType.normal,
-                    color: AppColors.primary,
-                  ),
-                ),
+            ),
+          ),
+        ] else ...[
+          // 账号密码登录
+          _buildPasswordLoginSection(passportState, passportNotifier),
+          AppSpacing.verticalXLarge,
+          // 切换回 QR 码登录
+          CupertinoButton(
+            onPressed: () {
+              setState(() => _showPasswordLogin = false);
+              ref.read(qRLoginProvider.notifier).generateQRCode();
+            },
+            child: Text(
+              t.main.webSwitchToQR,
+              style: context.textStyle(
+                FontSizeType.normal,
+                color: AppColors.primary,
               ),
-            ],
-          ],
-        ),
-      ),
+            ),
+          ),
+        ],
+      ],
     );
   }
 
@@ -662,7 +542,11 @@ class _WebLoginPageState extends ConsumerState<WebLoginPage> {
             color: AppColors.lightSurface,
             borderRadius: BorderRadius.circular(16),
           ),
-          child: _buildQRContent(qrState),
+          child: qrState.status == QRLoginStatus.waiting
+              ? _buildQRContent(qrState)
+              : Center(
+                  child: SingleChildScrollView(child: _buildQRContent(qrState)),
+                ),
         ),
         AppSpacing.verticalRegular,
         // 状态文字
@@ -680,7 +564,9 @@ class _WebLoginPageState extends ConsumerState<WebLoginPage> {
               children: [
                 const Icon(CupertinoIcons.arrow_clockwise),
                 const SizedBox(width: 8),
-                Text(t.main.webQRRefresh),
+                Flexible(
+                  child: Text(t.main.webQRRefresh, textAlign: TextAlign.center),
+                ),
               ],
             ),
           ),

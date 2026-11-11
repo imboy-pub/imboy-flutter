@@ -135,6 +135,7 @@ class _EnterpriseHomePageState extends State<EnterpriseHomePage> {
           physics: const AlwaysScrollableScrollPhysics(),
           padding: const EdgeInsets.symmetric(vertical: AppSpacing.small),
           children: [
+            if (_loading) const LinearProgressIndicator(),
             if (_org != null)
               ListTile(
                 leading: const Icon(CupertinoIcons.briefcase),
@@ -152,6 +153,10 @@ class _EnterpriseHomePageState extends State<EnterpriseHomePage> {
                 leading: const Icon(CupertinoIcons.exclamationmark_circle),
                 title: const Text('加载失败'),
                 subtitle: Text(_error!),
+                trailing: TextButton(
+                  onPressed: _loading ? null : _refresh,
+                  child: const Text('重试'),
+                ),
               ),
             const Divider(),
             const ListTile(title: Text('业务身份')),
