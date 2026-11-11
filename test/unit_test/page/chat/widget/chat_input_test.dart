@@ -13,6 +13,7 @@ import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/chat/widget/chat_input.dart';
 import 'package:imboy/page/chat/widget/chat_input_types.dart';
 import 'package:imboy/service/storage.dart';
+import 'package:imboy/theme/default/app_colors.dart';
 
 /// ChatInput widget 契约测试
 ///
@@ -58,7 +59,12 @@ Future<void> _pump(
 /// 按聊天类型渲染非禁言态输入行（用于验证工具区按钮可见性）。
 /// 默认 text 模式不构建 emoji 面板；C2G 的群成员加载错误被 provider 吞掉，
 /// 因此单次 pump 即可安全断言同步渲染的工具按钮。
-Future<void> _pumpType(WidgetTester tester, String type) async {
+Future<void> _pumpType(
+  WidgetTester tester,
+  String type, {
+  Brightness brightness = Brightness.light,
+  double textScale = 1,
+}) async {
   final composerHeight = ValueNotifier<double>(52);
   addTearDown(composerHeight.dispose);
 
@@ -66,6 +72,12 @@ Future<void> _pumpType(WidgetTester tester, String type) async {
     ProviderScope(
       child: TranslationProvider(
         child: MaterialApp(
+          theme: ThemeData(brightness: brightness),
+          builder: (context, child) => MediaQuery(
+            data: MediaQuery.of(context)
+                .copyWith(textScaler: TextScaler.linear(textScale)),
+            child: child!,
+          ),
           home: Scaffold(
             body: ChatInput(
               type: type,
@@ -98,6 +110,95 @@ void main() {
     IMBoyCacheManager.debugLogEnabled = true;
     await StorageService.to.remove(Keys.currentUid);
   });
+
+  testWidgets('输入栏与 App 主题同步，系统设置相反也不出现浅色底板', (tester) async {
+    addTearDown(tester.platformDispatcher.clearPlatformBrightnessTestValue);
+    for (final brightness in [
+      Brightness.dark,
+      Brightness.light,
+      Brightness.dark,
+    ]) {
+      tester.platformDispatcher.platformBrightnessTestValue =
+          brightness == Brightness.dark ? Brightness.light : Brightness.dark;
+      await _pumpType(tester, 'C2C', brightness: brightness);
+      await tester.pumpAndSettle();
+      final surface = tester.widget<Container>(
+        find.byKey(const Key('chat_composer_surface')),
+      );
+      expect(
+        surface.color,
+        brightness == Brightness.dark
+            ? AppColors.darkSurface
+            : AppColors.lightSurfaceGrouped,
+      );
+      final fieldSurface = tester.widget<Container>(
+        find.byKey(const Key('chat_composer_field_surface')),
+      );
+      expect(
+        (fieldSurface.decoration! as BoxDecoration).color,
+        brightness == Brightness.dark
+            ? AppColors.darkSurfaceGroupedTertiary
+            : AppColors.lightSurface,
+      );
+      final field = tester.widget<CupertinoTextField>(
+        find.byKey(const Key('chat_message_input')),
+      );
+      expect(field.keyboardAppearance, brightness);
+      expect(
+        field.style!.color,
+        Theme.of(tester.element(find.byType(ChatInput))).colorScheme.onSurface,
+      );
+      expect(tester.takeException(), isNull);
+    }
+    await _unmount(tester);
+  });
+
+  for (final (brightness, type) in [
+    for (final b in Brightness.values)
+      for (final type in ['C2C', 'C2G']) (b, type),
+  ]) {
+    testWidgets('窄屏放大文字时多行输入、快捷回复和发送保持可达 $brightness $type', (tester) async {
+      tester.view.devicePixelRatio = 1;
+      tester.view.physicalSize = const Size(320, 900);
+      addTearDown(tester.view.reset);
+      await _pumpType(tester, type, brightness: brightness, textScale: 1.6);
+      await tester.pumpAndSettle();
+      tester
+          .state<ChatInputState>(find.byType(ChatInput))
+          .textController
+          .clear();
+      await tester.pump(const Duration(milliseconds: 350));
+      final input = find.byKey(const Key('chat_message_input'));
+      await tester.tap(input);
+      await tester.pumpAndSettle();
+      expect(
+        find.byKey(const Key('quick_reply_manage_button')).hitTestable(),
+        findsOneWidget,
+      );
+      expect(
+        tester.getSize(find.byKey(const Key('chat_quick_replies'))).height,
+        greaterThanOrEqualTo(44),
+      );
+      final fieldSurface = find.byKey(const Key('chat_composer_field_surface'));
+      final singleHeight = tester.getSize(fieldSurface).height;
+      await tester.enterText(input, '第一行\n第二行\n第三行\n第四行\n第五行\n第六行');
+      await tester.pump(const Duration(milliseconds: 350));
+      await tester.pump(const Duration(milliseconds: 350));
+      expect(tester.getSize(fieldSurface).height, greaterThan(singleHeight));
+      expect(
+        find.byKey(const ValueKey('send_button')).hitTestable(),
+        findsOneWidget,
+      );
+      expect(find.byKey(const Key('chat_quick_replies')), findsNothing);
+      expect(tester.takeException(), isNull);
+      tester
+          .state<ChatInputState>(find.byType(ChatInput))
+          .textController
+          .clear();
+      await tester.pump(const Duration(milliseconds: 350));
+      await _unmount(tester);
+    });
+  }
 
   group('ChatInput construction contract', () {
     test('default values', () {

@@ -739,6 +739,8 @@ CONTRACT-FREEZE-T02 冻结项（C-F1~C-F4），**后续修改必须维持这些�
 
 ---
 
+聊天输入栏与快捷回复统一读取当前页面 `Theme`，不得按系统明暗状态独立取色。输入栏浅色用 surfaceGrouped、深色用 darkSurface；输入框分别用 lightSurface 与 darkSurfaceGroupedTertiary。工具图标为 24pt、触达至少 44pt，焦点与激活工具使用 iOS 蓝；发送按钮使用 primaryDark 底白色箭头。多行输入自然增高，快捷回复使用中性底色与可随文字放大的高度，管理入口固定可达。
+
 ## 9. 聊天气泡规范 | Chat Bubbles
 
 **这是 IM App 的核心组件，必须像素级对齐 iMessage 观感。**
