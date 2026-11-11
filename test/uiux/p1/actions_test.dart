@@ -23,6 +23,7 @@ import 'dart:ui' show SemanticsAction;
 import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart' show LogicalKeyboardKey;
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:imboy/component/http/http_client.dart';
@@ -305,5 +306,74 @@ void main() {
     await tester.tap(pending);
     await tester.pump();
     expect(calls, 0, reason: '进行中点击不得重复触发回调');
+  });
+
+  testWidgets('圆形订阅动作 pending 后恢复具名焦点与 Enter 操作', (tester) async {
+    final semantics = tester.ensureSemantics();
+    try {
+      var calls = 0;
+      var manageCalls = 0;
+      final channel = _channel(managed: true, subscribed: false);
+      void subscribe() => calls++;
+      void manage() => manageCalls++;
+
+      await pumpT12Header(
+        tester,
+        channel: channel,
+        onManageTap: manage,
+        onActionTap: subscribe,
+        isActionPending: true,
+      );
+      final headerState = tester.state(find.byType(ChannelHeaderBar));
+      expect(find.byType(FilledButton), findsNothing);
+      final pending = _expectAction(
+        tester,
+        t.channel.subscribe,
+        enabled: false,
+      );
+      expect(
+        tester
+            .widget<CupertinoButton>(
+              find.descendant(
+                of: pending,
+                matching: find.byType(CupertinoButton),
+              ),
+            )
+            .onPressed,
+        isNull,
+      );
+      await tester.tap(pending);
+      await tester.pump();
+      expect(calls, 0, reason: '进行中的圆形订阅按钮不得重复调用订阅');
+      expect(manageCalls, 0);
+
+      await pumpT12Header(
+        tester,
+        channel: channel,
+        onManageTap: manage,
+        onActionTap: subscribe,
+      );
+      expect(tester.state(find.byType(ChannelHeaderBar)), same(headerState));
+      final enabled = _expectAction(tester, t.channel.subscribe, enabled: true);
+      final subscribeFocus = Focus.of(
+        tester.element(find.text(t.channel.subscribe)),
+      );
+      for (var step = 0; step < 8 && !subscribeFocus.hasPrimaryFocus; step++) {
+        await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+        await tester.pump();
+      }
+      expect(subscribeFocus.hasPrimaryFocus, isTrue);
+      expect(
+        tester.getSemantics(enabled).flagsCollection.isFocused.toBoolOrNull(),
+        isTrue,
+      );
+      await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+      await tester.pumpAndSettle();
+      expect(calls, 1);
+      expect(manageCalls, 0);
+      expect(tester.takeException(), isNull);
+    } finally {
+      semantics.dispose();
+    }
   });
 }

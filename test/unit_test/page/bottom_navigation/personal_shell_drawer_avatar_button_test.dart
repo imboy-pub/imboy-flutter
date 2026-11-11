@@ -161,48 +161,44 @@ void main() {
 
   for (final inRail in [false, true]) {
     final label = inRail ? '侧栏 Popover' : '手机 Sheet';
-    testWidgets(
-      '$label 具名键盘入口保留作用域，设置先关闭弹层再入栈',
-      (tester) async {
-        final router = await _pumpMenu(tester, inRail: inRail);
-        await tester.sendKeyEvent(LogicalKeyboardKey.tab);
-        await tester.pump();
-        final opener = tester.getSemantics(
-          find.bySemanticsLabel(t.organization.experienceUi.switchSpace),
-        );
-        expect(opener.flagsCollection.isButton, isTrue);
-        expect(opener.flagsCollection.isFocused.toBoolOrNull(), isTrue);
-        expect(opener.value, t.organization.experienceUi.personalSpace);
-        await tester.sendKeyEvent(LogicalKeyboardKey.enter);
-        await tester.pumpAndSettle();
-        expect(
-          find.byKey(
-            ValueKey(inRail ? 'space-switcher-popover' : 'space-switcher-sheet'),
-          ),
-          findsOneWidget,
-        );
-        final menu = find.byType(WorkspaceDrawerMenu);
-        expect(tester.widget<WorkspaceDrawerMenu>(menu).compact, isTrue);
-        expect(find.byType(Drawer), findsNothing);
-        expect(find.text('弹层作用域用户'), findsOneWidget);
-        expect(Theme.of(tester.element(menu)).brightness, Brightness.dark);
-        await tester.ensureVisible(find.text(t.main.setting));
-        await tester.tap(find.text(t.main.setting));
-        await tester.pumpAndSettle();
-        expect(
-          find.byType(WorkspaceDrawerMenu, skipOffstage: false),
-          findsNothing,
-        );
-        expect(find.text('settings destination'), findsOneWidget);
-        expect(router.canPop(), isTrue);
-        router.pop();
-        await tester.pumpAndSettle();
-        expect(find.byKey(const ValueKey('menu-opener')), findsOneWidget);
-        expect(router.canPop(), isFalse);
-        expect(tester.takeException(), isNull);
-      },
-      semanticsEnabled: true,
-    );
+    testWidgets('$label 具名键盘入口保留作用域，设置先关闭弹层再入栈', (tester) async {
+      final router = await _pumpMenu(tester, inRail: inRail);
+      await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+      await tester.pump();
+      final opener = tester.getSemantics(
+        find.bySemanticsLabel(t.organization.experienceUi.switchSpace),
+      );
+      expect(opener.flagsCollection.isButton, isTrue);
+      expect(opener.flagsCollection.isFocused.toBoolOrNull(), isTrue);
+      expect(opener.value, t.organization.experienceUi.personalSpace);
+      await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+      await tester.pumpAndSettle();
+      expect(
+        find.byKey(
+          ValueKey(inRail ? 'space-switcher-popover' : 'space-switcher-sheet'),
+        ),
+        findsOneWidget,
+      );
+      final menu = find.byType(WorkspaceDrawerMenu);
+      expect(tester.widget<WorkspaceDrawerMenu>(menu).compact, isTrue);
+      expect(find.byType(Drawer), findsNothing);
+      expect(find.text('弹层作用域用户'), findsOneWidget);
+      expect(Theme.of(tester.element(menu)).brightness, Brightness.dark);
+      await tester.ensureVisible(find.text(t.main.setting));
+      await tester.tap(find.text(t.main.setting));
+      await tester.pumpAndSettle();
+      expect(
+        find.byType(WorkspaceDrawerMenu, skipOffstage: false),
+        findsNothing,
+      );
+      expect(find.text('settings destination'), findsOneWidget);
+      expect(router.canPop(), isTrue);
+      router.pop();
+      await tester.pumpAndSettle();
+      expect(find.byKey(const ValueKey('menu-opener')), findsOneWidget);
+      expect(router.canPop(), isFalse);
+      expect(tester.takeException(), isNull);
+    }, semanticsEnabled: true);
 
     testWidgets('$label 延迟关闭只移除自己的路由，不弹走后开的页面', (tester) async {
       final router = await _pumpMenu(tester, inRail: inRail);

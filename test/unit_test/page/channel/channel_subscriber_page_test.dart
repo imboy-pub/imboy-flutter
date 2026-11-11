@@ -64,8 +64,9 @@ void main() {
       cursors.add(cursor);
       if (cursor == 0) return List.generate(30, _subscriber);
       moreAttempts++;
-      if (moreAttempts == 1)
+      if (moreAttempts == 1) {
         throw StateError('channel_subscribers_request_failed');
+      }
       return retry.future;
     });
 

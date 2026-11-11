@@ -629,6 +629,7 @@ class _ChannelHeaderBarState extends ConsumerState<ChannelHeaderBar> {
     return Semantics(
       container: true,
       enabled: !disabled,
+      blockUserActions: disabled,
       child: CupertinoButton(
         padding: EdgeInsets.zero,
         onPressed: disabled ? null : onTap,
