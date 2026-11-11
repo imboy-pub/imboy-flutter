@@ -23,9 +23,8 @@ import 'package:imboy/store/model/group_model.dart';
 /// - 二维码 URL 的 tk 签名（md5("${exp}_${solidifiedKey}")）不可从渲染层
 ///   观测：qr_flutter 4.1.0 的 QrImageView 将 data 存为私有字段 `_data`，
 ///   无公开 getter，测试无法提取二维码内容字符串。
-/// - UserQrCodePage 在 build 中同步读取 UserRepoLocal.to.current
-///   （StorageService 单例，测试环境未初始化即抛错），且无 override 注入点，
-///   故跳过整页渲染；其 QR 卡片结构与本文件两页一致。
+/// - 个人码使用合成账号初始化存储，渲染与导出覆盖见
+///   user_qrcode_page_test.dart。
 void main() {
   const sevenDaysMs = 7 * 86400 * 1000;
   const channelAvatar = 'u1/qr_fixture/channel_avatar.png';

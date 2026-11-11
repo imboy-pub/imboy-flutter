@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:go_router/go_router.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
@@ -7,6 +9,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/component/ui/avatar.dart' show Avatar;
 import 'package:imboy/theme/default/app_colors.dart';
+import 'package:imboy/theme/default/app_radius.dart';
+import 'package:imboy/theme/default/app_sizes.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:imboy/page/qrcode/qrcode_url.dart';
@@ -16,7 +20,7 @@ import 'package:imboy/component/ui/ios_settings_ui.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/i18n/strings.g.dart';
 
-/// 个人二维码页面 - 极致 iOS 17 Premium 风格重构
+/// 个人二维码名片：屏幕与导出共用紧凑、可扫描的固定白色卡片。
 class UserQrCodePage extends ConsumerWidget {
   UserQrCodePage({super.key});
 
@@ -25,14 +29,13 @@ class UserQrCodePage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final user = UserRepoLocal.to.current;
-    final brightness = Theme.of(context).brightness;
-    final isDark = brightness == Brightness.dark;
     String qrcodeData = buildUserQrcodeUrl(UserRepoLocal.to.currentUid);
     String filename = "${UserRepoLocal.to.currentUid}_qrcode";
 
     return IosPageTemplate(
       title: t.account.myQrcode,
       useLargeTitle: false,
+      contentMaxWidth: 400,
       actions: [
         CupertinoButton(
           padding: EdgeInsets.zero,
@@ -45,7 +48,10 @@ class UserQrCodePage extends ConsumerWidget {
         ),
       ],
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppSpacing.regular,
+          vertical: AppSpacing.xLarge,
+        ),
         child: Column(
           children: [
             // 二维码卡片
@@ -53,11 +59,14 @@ class UserQrCodePage extends ConsumerWidget {
               key: globalKey,
               child: _buildQrCard(
                 context,
-                isDark,
                 avatar: user.avatar,
                 header: Row(
                   children: [
-                    Avatar(imgUri: user.avatar, width: 60, height: 60),
+                    Avatar(
+                      imgUri: user.avatar,
+                      width: AppSizes.avatarSizeLarge,
+                      height: AppSizes.avatarSizeLarge,
+                    ),
                     AppSpacing.horizontalRegular,
                     Expanded(
                       child: Column(
@@ -67,7 +76,7 @@ class UserQrCodePage extends ConsumerWidget {
                             user.nickname,
                             style: context
                                 .textStyle(
-                                  FontSizeType.large,
+                                  FontSizeType.extraLarge,
                                   fontWeight: FontWeight.bold,
                                   // 意图：分享卡白底黑字固定外观，刻意不随主题切换
                                   color: AppColors.lightTextPrimary,
@@ -93,7 +102,7 @@ class UserQrCodePage extends ConsumerWidget {
               ),
             ),
 
-            AppSpacing.verticalXXXLarge,
+            AppSpacing.verticalRegular,
 
             // 快速操作
             _buildActionButtons(context, globalKey, filename),
@@ -104,8 +113,7 @@ class UserQrCodePage extends ConsumerWidget {
   }
 
   Widget _buildQrCard(
-    BuildContext context,
-    bool isDark, {
+    BuildContext context, {
     required Widget header,
     required String qrcodeData,
     required String footerText,
@@ -123,77 +131,69 @@ class UserQrCodePage extends ConsumerWidget {
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
-        // 意图：二维码分享卡始终为白底黑字（导出/分享为固定外观的图片），
-        // 分享二维码为固定外观（白底黑字），刻意不随明暗主题切换。
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(24),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.1),
-            blurRadius: 20,
-            offset: const Offset(0, 10),
-          ),
-        ],
+        // 导出内容保持固定白底黑字，确保明暗主题下扫描与分享一致。
+        color: AppColors.lightSurface,
+        borderRadius: AppRadius.borderRadiusLarge,
       ),
       child: Column(
         children: [
-          Padding(padding: AppSpacing.allXLarge, child: header),
-          Container(
-            height: 0.33,
-            margin: const EdgeInsets.symmetric(horizontal: 24),
-            color: Colors.black12,
-          ),
+          Padding(padding: AppSpacing.allRegular, child: header),
           Padding(
-            padding: AppSpacing.allXXLarge,
+            padding: AppSpacing.allRegular,
             child: Column(
               children: [
-                Stack(
-                  alignment: Alignment.center,
-                  children: [
-                    QrImageView(
-                      data: qrcodeData,
-                      version: QrVersions.auto,
-                      errorCorrectionLevel: QrErrorCorrectLevel.H,
-                      size: 220,
-                      gapless: true,
-                      eyeStyle: const QrEyeStyle(
-                        eyeShape: QrEyeShape.square,
-                        color: Colors.black,
-                      ),
-                      dataModuleStyle: const QrDataModuleStyle(
-                        dataModuleShape: QrDataModuleShape.square,
-                        color: Colors.black,
-                      ),
-                      embeddedImage: embeddedImageProvider,
-                      embeddedImageStyle: const QrEmbeddedImageStyle(
-                        size: Size.square(40),
-                      ),
-                    ),
-                    Container(
-                      width: 44,
-                      height: 44,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      padding: const EdgeInsets.all(2),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(6),
-                        child: Image(
-                          image: embeddedImageProvider,
-                          fit: BoxFit.cover,
+                LayoutBuilder(
+                  builder: (context, constraints) {
+                    final size = math.min(220.0, constraints.maxWidth);
+                    return Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        QrImageView(
+                          key: const ValueKey('user-qrcode-image'),
+                          data: qrcodeData,
+                          version: QrVersions.auto,
+                          errorCorrectionLevel: QrErrorCorrectLevel.H,
+                          size: size,
+                          padding: const EdgeInsets.all(AppSpacing.regular),
+                          backgroundColor: AppColors.lightSurface,
+                          gapless: true,
+                          eyeStyle: const QrEyeStyle(
+                            eyeShape: QrEyeShape.square,
+                            color: AppColors.lightTextPrimary,
+                          ),
+                          dataModuleStyle: const QrDataModuleStyle(
+                            dataModuleShape: QrDataModuleShape.square,
+                            color: AppColors.lightTextPrimary,
+                          ),
                         ),
-                      ),
-                    ),
-                  ],
+                        Container(
+                          width: size / 5,
+                          height: size / 5,
+                          decoration: BoxDecoration(
+                            color: AppColors.lightSurface,
+                            borderRadius: AppRadius.borderRadiusSmall,
+                          ),
+                          padding: const EdgeInsets.all(AppSpacing.tiny / 2),
+                          child: ClipRRect(
+                            borderRadius: AppRadius.borderRadiusSmall,
+                            child: Image(
+                              image: embeddedImageProvider,
+                              fit: BoxFit.cover,
+                            ),
+                          ),
+                        ),
+                      ],
+                    );
+                  },
                 ),
-                AppSpacing.verticalXLarge,
+                AppSpacing.verticalSmall,
                 Text(
                   footerText,
+                  textAlign: TextAlign.center,
                   style: context.textStyle(
                     FontSizeType.normal,
-                    color: AppColors.iosGray,
-                    fontWeight: FontWeight.w500,
+                    color: AppColors.lightTextSecondary,
+                    fontWeight: FontWeight.w400,
                   ),
                 ),
               ],
@@ -209,26 +209,30 @@ class UserQrCodePage extends ConsumerWidget {
     GlobalKey key,
     String filename,
   ) {
-    return Row(
-      children: [
-        Expanded(
-          child: _buildPremiumBtn(
-            context,
-            CupertinoIcons.arrow_down_doc,
-            t.common.saveQrCode,
-            () => _saveQrCode(context, key, filename),
+    return IntrinsicHeight(
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Expanded(
+            child: _buildPremiumBtn(
+              context,
+              CupertinoIcons.arrow_down_doc,
+              t.common.saveQrCode,
+              () => _saveQrCode(context, key, filename),
+              primary: true,
+            ),
           ),
-        ),
-        AppSpacing.horizontalRegular,
-        Expanded(
-          child: _buildPremiumBtn(
-            context,
-            CupertinoIcons.share,
-            t.common.share,
-            () => _shareQrCode(context, key),
+          AppSpacing.horizontalRegular,
+          Expanded(
+            child: _buildPremiumBtn(
+              context,
+              CupertinoIcons.share,
+              t.common.share,
+              () => _shareQrCode(context, key),
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
@@ -236,35 +240,37 @@ class UserQrCodePage extends ConsumerWidget {
     BuildContext context,
     IconData icon,
     String text,
-    VoidCallback onTap,
-  ) {
+    VoidCallback onTap, {
+    bool primary = false,
+  }) {
+    final foreground = primary
+        ? AppColors.onPrimary
+        : AppColors.getIosBlue(Theme.of(context).brightness);
     return CupertinoButton(
-      padding: EdgeInsets.zero,
+      minimumSize: const Size(44, AppSpacing.xxxLarge),
+      padding: AppSpacing.allSmall,
+      borderRadius: AppRadius.borderRadiusRegular,
+      color: primary
+          ? AppColors.primaryDark
+          : Theme.of(context).colorScheme.surface,
       onPressed: onTap,
-      child: Container(
-        constraints: const BoxConstraints(minHeight: AppSpacing.xxxLarge),
-        padding: const EdgeInsets.all(AppSpacing.small),
-        decoration: BoxDecoration(
-          color: AppColors.primary.withValues(alpha: 0.1),
-          borderRadius: BorderRadius.circular(14),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(icon, size: 20, color: AppColors.primary),
-            AppSpacing.horizontalSmall,
-            Flexible(
-              child: Text(
-                text,
-                style: context.textStyle(
-                  FontSizeType.subheadline,
-                  fontWeight: FontWeight.w600,
-                  color: AppColors.primary,
-                ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(icon, size: AppSizes.iconSizeSmall, color: foreground),
+          AppSpacing.horizontalSmall,
+          Flexible(
+            child: Text(
+              text,
+              textAlign: TextAlign.center,
+              style: context.textStyle(
+                FontSizeType.footnote,
+                fontWeight: FontWeight.w600,
+                color: foreground,
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
