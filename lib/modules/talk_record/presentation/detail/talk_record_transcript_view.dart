@@ -722,54 +722,56 @@ class _DegradedView extends StatelessWidget {
 
     return Center(
       key: ValueKey('talk_record_transcript_degraded_${mode.name}'),
-      child: Padding(
-        padding: const EdgeInsets.all(AppSpacing.xLarge),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              mode == TalkRecordTranscriptMode.failed
-                  ? CupertinoIcons.exclamationmark_triangle
-                  : CupertinoIcons.waveform,
-              size: 44,
-              color: mode == TalkRecordTranscriptMode.failed
-                  ? AppColors.getIosOrange(brightness)
-                  : AppColors.getIosBlue(brightness).withValues(alpha: 0.5),
-            ),
-            const SizedBox(height: AppSpacing.medium),
-            Text(
-              title,
-              textAlign: TextAlign.center,
-              style: context.textStyle(
-                FontSizeType.medium,
-                fontWeight: FontWeight.w600,
-                color: brightness == Brightness.dark
-                    ? AppColors.darkTextPrimary
-                    : AppColors.lightTextPrimary,
+      child: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(AppSpacing.xLarge),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                mode == TalkRecordTranscriptMode.failed
+                    ? CupertinoIcons.exclamationmark_triangle
+                    : CupertinoIcons.waveform,
+                size: 44,
+                color: mode == TalkRecordTranscriptMode.failed
+                    ? AppColors.getIosOrange(brightness)
+                    : AppColors.getIosBlue(brightness).withValues(alpha: 0.5),
               ),
-            ),
-            const SizedBox(height: AppSpacing.small),
-            // C-F3：降级说明可换行，不单行截断。
-            Text(
-              body,
-              textAlign: TextAlign.center,
-              maxLines: null,
-              style: context.textStyle(
-                FontSizeType.normal,
-                color: brightness == Brightness.dark
-                    ? AppColors.darkTextSecondary
-                    : AppColors.lightTextSecondary,
-              ),
-            ),
-            if (mode == TalkRecordTranscriptMode.failed && canEdit) ...[
               const SizedBox(height: AppSpacing.medium),
-              CupertinoButton(
-                key: const ValueKey('talk_record_transcript_retry'),
-                onPressed: onRetry,
-                child: Text(t.talkRecord.detailTranscribeRetry),
+              Text(
+                title,
+                textAlign: TextAlign.center,
+                style: context.textStyle(
+                  FontSizeType.medium,
+                  fontWeight: FontWeight.w600,
+                  color: brightness == Brightness.dark
+                      ? AppColors.darkTextPrimary
+                      : AppColors.lightTextPrimary,
+                ),
               ),
+              const SizedBox(height: AppSpacing.small),
+              // C-F3：降级说明可换行，不单行截断。
+              Text(
+                body,
+                textAlign: TextAlign.center,
+                maxLines: null,
+                style: context.textStyle(
+                  FontSizeType.normal,
+                  color: brightness == Brightness.dark
+                      ? AppColors.darkTextSecondary
+                      : AppColors.lightTextSecondary,
+                ),
+              ),
+              if (mode == TalkRecordTranscriptMode.failed && canEdit) ...[
+                const SizedBox(height: AppSpacing.medium),
+                CupertinoButton(
+                  key: const ValueKey('talk_record_transcript_retry'),
+                  onPressed: onRetry,
+                  child: Text(t.talkRecord.detailTranscribeRetry),
+                ),
+              ],
             ],
-          ],
+          ),
         ),
       ),
     );

@@ -101,7 +101,7 @@ class TalkRecordPlayerBar extends ConsumerWidget {
                     CupertinoButton(
                       key: const ValueKey('talk_record_playback_retry'),
                       padding: EdgeInsets.zero,
-                      minimumSize: Size(44, 32),
+                      minimumSize: Size(44, 44),
                       onPressed: () =>
                           ref.read(talkRecordPlayerProvider.notifier).play(),
                       child: Text(t.talkRecord.loadFailedAction),
@@ -109,15 +109,6 @@ class TalkRecordPlayerBar extends ConsumerWidget {
                   ],
                 ),
               ),
-            // 进度条：触达区整条 ≥44pt，视觉轨道 4pt。
-            _ProgressTrack(
-              progress: progress,
-              enabled: !disabled,
-              positionMs: player.positionMs,
-              durationMs: duration,
-              onScrub: (ms) =>
-                  ref.read(talkRecordPlayerProvider.notifier).scrubTo(ms),
-            ),
             Row(
               children: [
                 _PlayButton(
@@ -127,7 +118,19 @@ class TalkRecordPlayerBar extends ConsumerWidget {
                       ref.read(talkRecordPlayerProvider.notifier).toggle(),
                 ),
                 const SizedBox(width: AppSpacing.medium),
-                Expanded(child: _TimeLabel(positionMs: player.positionMs)),
+                _TimeLabel(positionMs: player.positionMs),
+                AppSpacing.horizontalSmall,
+                Expanded(
+                  child: _ProgressTrack(
+                    progress: progress,
+                    enabled: !disabled,
+                    positionMs: player.positionMs,
+                    durationMs: duration,
+                    onScrub: (ms) =>
+                        ref.read(talkRecordPlayerProvider.notifier).scrubTo(ms),
+                  ),
+                ),
+                AppSpacing.horizontalSmall,
                 Text(
                   talkRecordFormatDuration(duration),
                   style: context.textStyle(

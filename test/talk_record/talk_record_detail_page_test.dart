@@ -16,6 +16,7 @@ import 'package:imboy/modules/talk_record/presentation/detail/talk_record_playba
 import 'package:imboy/modules/talk_record/presentation/talk_record_ui_helpers.dart';
 import 'package:imboy/modules/talk_record/talk_record_error.dart';
 import 'package:imboy/theme/default/app_colors.dart';
+import 'package:imboy/store/model/talk_record/talk_record_model.dart';
 
 import 'talk_record_detail_test_helpers.dart';
 
@@ -28,6 +29,107 @@ void main() {
     await tester.tap(find.text(t.talkRecord.tabTranscript));
     await tester.pumpAndSettle();
   }
+
+  for (final brightness in Brightness.values) {
+    testWidgets('简洁布局保留编辑和校对操作 $brightness', (tester) async {
+      tester.view.devicePixelRatio = 1;
+      tester.view.physicalSize = const Size(360, 800);
+      addTearDown(tester.view.reset);
+      final harness = T16Harness();
+      await pumpDetailPage(
+        tester,
+        harness,
+        brightness: brightness,
+        textScale: 1.5,
+      );
+      await tester.pumpAndSettle();
+      expect(
+        find.byKey(const ValueKey('talk_record_speakers_entry')),
+        findsNothing,
+      );
+      expect(find.text(t.talkRecord.notesEmpty), findsNothing);
+      expect(find.text(t.talkRecord.summarySectionTitle), findsOneWidget);
+      expect(
+        find.byKey(const ValueKey('talk_record_summary_draft_badge')),
+        findsOneWidget,
+      );
+      final play = tester.getCenter(
+        find.byKey(const ValueKey('talk_record_player_play')),
+      );
+      final progress = tester.getCenter(
+        find.byKey(const ValueKey('talk_record_player_progress')),
+      );
+      expect(play.dy, progress.dy);
+      final edit = find.byKey(const ValueKey('talk_record_notes_edit'));
+      await tester.ensureVisible(edit);
+      await tester.tap(edit);
+      await tester.pumpAndSettle();
+      expect(
+        find.byKey(const ValueKey('talk_record_notes_field')),
+        findsOneWidget,
+      );
+      expect(find.text(t.talkRecord.notesSharedHint), findsOneWidget);
+      await openTranscriptTab(tester);
+      expect(
+        find.byKey(const ValueKey('talk_record_speakers_entry')),
+        findsOneWidget,
+      );
+      expect(tester.takeException(), isNull);
+    });
+  }
+
+  testWidgets('合成中只保留处理状态，不堆叠摘要空态和 AI 草稿标签', (tester) async {
+    final service = TalkRecordFixtureScenarios.recordOnly(caps: kOwnerCaps);
+    final entry = service.entries.single;
+    entry.record = TalkRecordModel.fromJson({
+      ...entry.record.toJson(),
+      'media_status': 'assembling',
+      'capabilities_for_actor': kOwnerCaps,
+    });
+    await pumpDetailPage(tester, T16Harness(service: service));
+    await tester.pumpAndSettle();
+    expect(find.text(t.talkRecord.statusAssembling), findsOneWidget);
+    expect(find.text(t.talkRecord.summaryNoSource), findsNothing);
+    expect(
+      find.byKey(const ValueKey('talk_record_summary_draft_badge')),
+      findsNothing,
+    );
+    expect(
+      find.byKey(const ValueKey('talk_record_notes_edit')),
+      findsOneWidget,
+    );
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('音频处理中仍保留独立的摘要失败提示', (tester) async {
+    final service = TalkRecordFixtureScenarios.recordOnly(caps: kOwnerCaps);
+    final entry = service.entries.single;
+    entry.record = TalkRecordModel.fromJson({
+      ...entry.record.toJson(),
+      'capabilities_for_actor': kOwnerCaps,
+      'media_status': 'assembling',
+      'summary_status': 'failed',
+    });
+    await pumpDetailPage(tester, T16Harness(service: service));
+    await tester.pumpAndSettle();
+    expect(find.text(t.talkRecord.summaryFailed), findsOneWidget);
+  });
+
+  testWidgets('已有共享笔记对读者保留内容和只读说明', (tester) async {
+    final service = TalkRecordFixtureScenarios.transcribedWithSummary(
+      caps: kViewerCaps,
+    );
+    final entry = service.entries.single;
+    entry.record = TalkRecordModel.fromJson({
+      ...entry.record.toJson(),
+      'notes': '合成共享笔记',
+    });
+    await pumpDetailPage(tester, T16Harness(service: service));
+    await tester.pumpAndSettle();
+    expect(find.text('合成共享笔记'), findsOneWidget);
+    expect(find.text(t.talkRecord.notesReadonlyHint), findsOneWidget);
+    expect(find.byKey(const ValueKey('talk_record_notes_edit')), findsNothing);
+  });
 
   group('角色矩阵（UI-SPEC §3）', () {
     testWidgets('viewer：读者徽章；笔记只读；无更多管理入口；无校对入口', (tester) async {
@@ -46,7 +148,11 @@ void main() {
         find.byKey(const ValueKey('talk_record_notes_edit')),
         findsNothing,
       );
-      expect(find.text(t.talkRecord.notesReadonlyHint), findsOneWidget);
+      expect(find.text(t.talkRecord.notesReadonlyHint), findsNothing);
+      expect(
+        find.byKey(const ValueKey('talk_record_notes_card')),
+        findsNothing,
+      );
       // 无分享/导出/删除能力 → 更多入口整体隐藏。
       expect(
         find.byKey(const ValueKey('talk_record_more_entry')),
@@ -78,7 +184,7 @@ void main() {
         find.byKey(const ValueKey('talk_record_more_entry')),
         findsNothing,
       );
-      expect(find.text(t.talkRecord.roleEditorHint), findsOneWidget);
+      expect(find.text(t.talkRecord.roleEditorHint), findsNothing);
     });
 
     testWidgets('editor + allow_export：仅出现导出入口', (tester) async {
@@ -476,6 +582,11 @@ void main() {
       await pumpDetailPage(tester, harness);
       await tester.pumpAndSettle();
 
+      expect(
+        find.byKey(const ValueKey('talk_record_speakers_entry')),
+        findsNothing,
+      );
+      await openTranscriptTab(tester);
       expect(
         tester
             .getSize(find.byKey(const ValueKey('talk_record_speakers_entry')))

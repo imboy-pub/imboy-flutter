@@ -181,11 +181,24 @@ ProviderScope harnessScope(T16Harness harness, {required Widget child}) {
 }
 
 /// 直接 pump 详情页（无路由导航的场景）。
-Future<void> pumpDetailPage(WidgetTester tester, T16Harness harness) {
+Future<void> pumpDetailPage(
+  WidgetTester tester,
+  T16Harness harness, {
+  Brightness brightness = Brightness.light,
+  double textScale = 1,
+}) {
   return tester.pumpWidget(
     harnessScope(
       harness,
-      child: MaterialApp(home: TalkRecordDetailPage(recordId: '1001')),
+      child: MaterialApp(
+        theme: ThemeData(brightness: brightness),
+        builder: (context, child) => MediaQuery(
+          data: MediaQuery.of(context)
+              .copyWith(textScaler: TextScaler.linear(textScale)),
+          child: child!,
+        ),
+        home: TalkRecordDetailPage(recordId: '1001'),
+      ),
     ),
   );
 }

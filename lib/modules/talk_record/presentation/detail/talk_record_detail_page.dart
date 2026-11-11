@@ -22,6 +22,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:imboy/component/ui/cell_pressable.dart';
+import 'package:imboy/component/ui/resource_page_layout.dart';
 import 'package:imboy/component/ui/ios_settings_ui.dart';
 import 'package:imboy/component/ui/shimmer_list.dart';
 import 'package:imboy/i18n/strings.g.dart';
@@ -126,11 +127,21 @@ class _TalkRecordDetailPageState extends ConsumerState<TalkRecordDetailPage> {
       actions: record == null || !hasAnyAction
           ? null
           : [_MoreEntry(record: record)],
+      contentMaxWidth: ResourcePageLayout.maxWidth,
       body: _buildBody(detail),
-      bottomWidget: TalkRecordPlayerBar(
-        returnEntryVisible: _anchorMismatch && _tab == _DetailTab.transcript,
-        onReturnToPlayback: () =>
-            _transcriptKey.currentState?.jumpToPlayingSegment(),
+      bottomWidget: Align(
+        heightFactor: 1,
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(
+            maxWidth: ResourcePageLayout.maxWidth,
+          ),
+          child: TalkRecordPlayerBar(
+            returnEntryVisible:
+                _anchorMismatch && _tab == _DetailTab.transcript,
+            onReturnToPlayback: () =>
+                _transcriptKey.currentState?.jumpToPlayingSegment(),
+          ),
+        ),
       ),
     );
   }
@@ -156,6 +167,11 @@ class _TalkRecordDetailPageState extends ConsumerState<TalkRecordDetailPage> {
         if (canEdit && record.mediaStatus == TalkRecordMediaStatus.available)
           TalkRecordAiProcessingPanel(key: _aiKey, recordId: record.id),
         _TabBar(current: _tab, onSelect: (tab) => setState(() => _tab = tab)),
+        if (_tab == _DetailTab.transcript)
+          Padding(
+            padding: AppSpacing.pageHorizontal,
+            child: _SpeakersEntry(recordId: record.id),
+          ),
         Expanded(
           child: _tab == _DetailTab.transcript
               ? TalkRecordTranscriptView(
@@ -235,7 +251,7 @@ class _TalkRecordDetailPageState extends ConsumerState<TalkRecordDetailPage> {
 }
 
 // ---------------------------------------------------------------------------
-// 概述卡（可见范围 + 角色 + 时长/状态 + 重点 + 发言人入口）
+// 轻量概述（可见范围、角色、时长/状态与参与者）
 // ---------------------------------------------------------------------------
 
 class _OverviewCard extends StatelessWidget {
@@ -257,13 +273,9 @@ class _OverviewCard extends StatelessWidget {
     return Container(
       key: const ValueKey('talk_record_overview_card'),
       width: double.infinity,
-      margin: const EdgeInsets.all(AppSpacing.regular),
-      padding: const EdgeInsets.all(AppSpacing.regular),
-      decoration: BoxDecoration(
-        color: brightness == Brightness.dark
-            ? AppColors.darkSurface
-            : AppColors.lightSurface,
-        borderRadius: BorderRadius.circular(10),
+      margin: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.regular,
+        vertical: AppSpacing.small,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -274,13 +286,12 @@ class _OverviewCard extends StatelessWidget {
             runSpacing: 4,
             crossAxisAlignment: WrapCrossAlignment.center,
             children: [
-              _Pill(
+              _MetadataLabel(
                 key: const ValueKey('talk_record_role_badge'),
                 text: _roleText,
-                color: AppColors.primaryDark,
-                bold: true,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
-              _Pill(
+              _MetadataLabel(
                 key: const ValueKey('talk_record_visibility_badge'),
                 text: talkRecordVisibilityText(record),
                 color: brightness == Brightness.dark
@@ -288,12 +299,18 @@ class _OverviewCard extends StatelessWidget {
                     : AppColors.lightTextSecondary,
               ),
               if (status != null)
-                _Pill(
+                _MetadataLabel(
                   key: const ValueKey('talk_record_status_badge'),
                   text: status,
-                  color: AppColors.getIosOrange(brightness),
+                  color:
+                      record.mediaStatus ==
+                              TalkRecordMediaStatus.retryableFailed ||
+                          record.transcriptStatus ==
+                              TalkRecordProcessingStatus.failed
+                      ? AppColors.getIosOrange(brightness)
+                      : Theme.of(context).colorScheme.onSurfaceVariant,
                 ),
-              _Pill(
+              _MetadataLabel(
                 key: const ValueKey('talk_record_duration_badge'),
                 text:
                     '${t.talkRecord.durationLabel} '
@@ -304,52 +321,25 @@ class _OverviewCard extends StatelessWidget {
               ),
             ],
           ),
-          if (role != TalkRecordActorRole.viewer)
-            Padding(
-              padding: const EdgeInsets.only(top: AppSpacing.tiny),
-              // C-F3：编辑提示可换行。
+          Align(
+            alignment: AlignmentDirectional.centerEnd,
+            child: CupertinoButton(
+              key: const ValueKey('talk_record_participants_entry'),
+              padding: EdgeInsets.zero,
+              onPressed: () => Navigator.of(context).push(
+                CupertinoPageRoute<void>(
+                  builder: (_) =>
+                      TalkRecordParticipantsPage(recordId: record.id),
+                ),
+              ),
               child: Text(
-                t.talkRecord.roleEditorHint,
-                maxLines: null,
+                t.talkRecord.collabParticipantsLabel,
                 style: context.textStyle(
-                  FontSizeType.caption2,
-                  color: brightness == Brightness.dark
-                      ? AppColors.darkTextSecondary
-                      : AppColors.lightTextSecondary,
+                  FontSizeType.footnote,
+                  color: AppColors.getIosBlue(brightness),
                 ),
               ),
             ),
-          const SizedBox(height: AppSpacing.small),
-          Row(
-            children: [
-              Expanded(child: _SpeakersEntry(recordId: record.id)),
-              const SizedBox(width: AppSpacing.medium),
-              Expanded(
-                child: CupertinoButton(
-                  key: const ValueKey('talk_record_participants_entry'),
-                  padding: EdgeInsets.zero,
-                  onPressed: () => Navigator.of(context).push(
-                    CupertinoPageRoute<void>(
-                      builder: (_) =>
-                          TalkRecordParticipantsPage(recordId: record.id),
-                    ),
-                  ),
-                  child: Row(
-                    children: [
-                      const Icon(CupertinoIcons.person_2),
-                      const SizedBox(width: AppSpacing.medium),
-                      Expanded(
-                        child: Text(
-                          t.talkRecord.collabParticipantsLabel,
-                          style: context.textStyle(FontSizeType.body),
-                        ),
-                      ),
-                      const Icon(CupertinoIcons.chevron_right),
-                    ],
-                  ),
-                ),
-              ),
-            ],
           ),
         ],
       ),
@@ -383,8 +373,8 @@ class _SpeakersEntry extends StatelessWidget {
               child: Text(
                 t.talkRecord.speakersEntry,
                 style: context.textStyle(
-                  FontSizeType.body,
-                  fontWeight: FontWeight.w600,
+                  FontSizeType.footnote,
+                  fontWeight: FontWeight.w400,
                   color: brightness == Brightness.dark
                       ? AppColors.darkTextPrimary
                       : AppColors.lightTextPrimary,
@@ -405,40 +395,17 @@ class _SpeakersEntry extends StatelessWidget {
   }
 }
 
-class _Pill extends StatelessWidget {
-  const _Pill({
-    super.key,
-    required this.text,
-    required this.color,
-    this.bold = false,
-  });
+class _MetadataLabel extends StatelessWidget {
+  const _MetadataLabel({super.key, required this.text, required this.color});
 
   final String text;
   final Color color;
-  final bool bold;
 
   @override
   Widget build(BuildContext context) {
-    final brightness = Theme.of(context).brightness;
-    return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.small,
-        vertical: 2,
-      ),
-      decoration: BoxDecoration(
-        color: color.withValues(
-          alpha: brightness == Brightness.dark ? 0.24 : 0.08,
-        ),
-        borderRadius: BorderRadius.circular(6),
-      ),
-      child: Text(
-        text,
-        style: context.textStyle(
-          FontSizeType.small,
-          fontWeight: bold ? FontWeight.w600 : FontWeight.w400,
-          color: color,
-        ),
-      ),
+    return Text(
+      text,
+      style: context.textStyle(FontSizeType.footnote, color: color),
     );
   }
 }
@@ -458,28 +425,34 @@ class _TabBar extends StatelessWidget {
     return Padding(
       key: const ValueKey('talk_record_detail_tabs'),
       padding: const EdgeInsets.symmetric(horizontal: AppSpacing.regular),
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(minHeight: AppSpacing.xxxLarge),
-        child: Row(
-          children: [
-            for (final (i, tab) in [
-              _DetailTab.summary,
-              _DetailTab.transcript,
-            ].indexed)
-              Expanded(
-                child: _TabSegment(
-                  label: tab == _DetailTab.summary
-                      ? t.talkRecord.tabSummary
-                      : t.talkRecord.tabTranscript,
-                  selected: current == tab,
-                  borderRadius: BorderRadius.horizontal(
-                    left: i == 0 ? const Radius.circular(8) : Radius.zero,
-                    right: i == 1 ? const Radius.circular(8) : Radius.zero,
+      child: Align(
+        alignment: AlignmentDirectional.centerStart,
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(
+            maxWidth: ResourcePageLayout.maxWidth / 2,
+            minHeight: AppSpacing.xxxLarge,
+          ),
+          child: Row(
+            children: [
+              for (final (i, tab) in [
+                _DetailTab.summary,
+                _DetailTab.transcript,
+              ].indexed)
+                Expanded(
+                  child: _TabSegment(
+                    label: tab == _DetailTab.summary
+                        ? t.talkRecord.tabSummary
+                        : t.talkRecord.tabTranscript,
+                    selected: current == tab,
+                    borderRadius: BorderRadius.horizontal(
+                      left: i == 0 ? const Radius.circular(8) : Radius.zero,
+                      right: i == 1 ? const Radius.circular(8) : Radius.zero,
+                    ),
+                    onTap: () => onSelect(tab),
                   ),
-                  onTap: () => onSelect(tab),
                 ),
-              ),
-          ],
+            ],
+          ),
         ),
       ),
     );

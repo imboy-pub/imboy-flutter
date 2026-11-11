@@ -25,6 +25,8 @@ void main() {
   Future<void> openSpeakersPage(WidgetTester tester, T16Harness harness) async {
     await pumpDetailRouter(tester, harness);
     await tester.pumpAndSettle();
+    await tester.tap(find.text(t.talkRecord.tabTranscript));
+    await tester.pumpAndSettle();
     await tester.tap(find.byKey(const ValueKey('talk_record_speakers_entry')));
     await tester.pumpAndSettle();
     expect(find.text(t.talkRecord.speakersTitle), findsOneWidget);

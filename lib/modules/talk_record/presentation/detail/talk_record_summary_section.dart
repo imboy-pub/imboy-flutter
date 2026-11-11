@@ -128,7 +128,16 @@ class _SummaryBlock extends StatelessWidget {
   Widget build(BuildContext context) {
     final brightness = Theme.of(context).brightness;
     final s = summary;
-    final body = switch (_mode(record, s)) {
+    if ((s == null || !s.hasContent) &&
+        record.summaryStatus != TalkRecordProcessingStatus.failed &&
+        record.summaryStatus != TalkRecordProcessingStatus.unavailable &&
+        (record.mediaStatus == TalkRecordMediaStatus.assembling ||
+            record.mediaStatus == TalkRecordMediaStatus.uploading ||
+            record.mediaStatus == TalkRecordMediaStatus.verifying)) {
+      return const SizedBox.shrink();
+    }
+    final mode = _mode(record, s);
+    final body = switch (mode) {
       _SummaryMode.staleBannerContent => _content(context, s!),
       _SummaryMode.content => _content(context, s!),
       _SummaryMode.queued => _hint(
@@ -173,24 +182,11 @@ class _SummaryBlock extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              Text(
-                t.talkRecord.summarySectionTitle,
-                style: context.textStyle(
-                  FontSizeType.medium,
-                  fontWeight: FontWeight.w600,
-                  color: brightness == Brightness.dark
-                      ? AppColors.darkTextPrimary
-                      : AppColors.lightTextPrimary,
-                ),
-              ),
-              const SizedBox(width: AppSpacing.small),
-              // AI 草稿标注：不因状态不同而消失（确认后除外——V1 未做确认流）。
-              _DraftBadge(),
-            ],
-          ),
-          const SizedBox(height: AppSpacing.small),
+          if (mode == _SummaryMode.content ||
+              mode == _SummaryMode.staleBannerContent) ...[
+            _DraftBadge(),
+            const SizedBox(height: AppSpacing.small),
+          ],
           body,
         ],
       ),
@@ -353,7 +349,9 @@ class _DraftBadge extends StatelessWidget {
         t.talkRecord.summaryDraftBadge,
         style: context.textStyle(
           FontSizeType.caption2,
-          color: AppColors.primaryDark,
+          color: brightness == Brightness.dark
+              ? AppColors.getIosBlue(brightness)
+              : AppColors.primaryDark,
         ),
       ),
     );
@@ -531,6 +529,36 @@ class _NotesCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final brightness = Theme.of(context).brightness;
+    if (!editing &&
+        controller.text.isEmpty &&
+        notesPhase == TalkRecordNotesPhase.idle) {
+      if (!canEdit) return const SizedBox.shrink();
+      return Align(
+        alignment: AlignmentDirectional.centerStart,
+        child: CupertinoButton(
+          key: const ValueKey('talk_record_notes_edit'),
+          padding: EdgeInsets.zero,
+          onPressed: onEdit,
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(CupertinoIcons.add, size: AppSpacing.regular),
+              AppSpacing.horizontalSmall,
+              Flexible(
+                child: Text(
+                  t.talkRecord.notesTitle,
+                  style: context.textStyle(
+                    FontSizeType.footnote,
+                    color: AppColors.getIosBlue(brightness),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
     return Container(
       key: const ValueKey('talk_record_notes_card'),
       width: double.infinity,
