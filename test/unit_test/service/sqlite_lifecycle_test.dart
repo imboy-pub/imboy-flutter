@@ -432,6 +432,46 @@ void main() {
     },
   );
 
+  test(
+    'missing retained database key enters cooldown without creating a key',
+    () async {
+      var attempts = 0;
+      SqliteService.setInitializerForTest((
+        account,
+        environment,
+        generation,
+      ) async {
+        attempts++;
+        await DbEncryptionKeyService.getOrCreateKey(
+          account,
+          allowCreate: false,
+        );
+        throw StateError('Missing key must stop initialization');
+      });
+
+      expect(await SqliteService.to.db, isNull);
+      expect(await SqliteService.to.db, isNull);
+      expect(attempts, 1);
+      await expectLater(
+        SqliteService.to.transaction<void>((_) async {}),
+        throwsA(predicate((error) => error.toString().contains('需恢复原密钥'))),
+      );
+      expect(secure, isEmpty);
+      expect(
+        events.where((event) => event.startsWith('secure-write:')),
+        isEmpty,
+      );
+      expect(nativeCalls, isEmpty);
+
+      await SqliteService.to.close();
+      final opened = database();
+      SqliteService.setInitializerForTest(
+        (account, environment, generation) async => opened,
+      );
+      expect(await SqliteService.to.db, same(opened));
+    },
+  );
+
   test('logout closes the database before production key purge', () async {
     secure[keyName] = 'synthetic-existing-key';
     final opened = database(blockClose: true);

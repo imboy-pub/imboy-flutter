@@ -3,6 +3,12 @@ import 'dart:math';
 import 'package:imboy/service/storage_secure.dart';
 import 'package:synchronized/synchronized.dart';
 
+/// 已有数据库缺少原密钥；必须保留原库，不能生成替代密钥。
+class DatabaseEncryptionKeyUnavailable extends StateError {
+  DatabaseEncryptionKeyUnavailable()
+    : super('Encryption key unavailable for existing database');
+}
+
 /// 数据库加密密钥管理服务
 ///
 /// 专门管理 SQLCipher 数据库的加密密钥。
@@ -43,7 +49,7 @@ class DbEncryptionKeyService {
           return existing;
         }
         if (!allowCreate) {
-          throw StateError('Encryption key unavailable for existing database');
+          throw DatabaseEncryptionKeyUnavailable();
         }
 
         final newKey = _generateKey();

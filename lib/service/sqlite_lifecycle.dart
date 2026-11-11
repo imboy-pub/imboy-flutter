@@ -90,17 +90,23 @@ extension _SqliteLifecycle on SqliteService {
       if (_initRetryScope == scope &&
           retryAfter != null &&
           DateTime.now().isBefore(retryAfter)) {
-        _lastDbNullReason = 'init 失败冷却中（至 $retryAfter）';
+        _lastDbNullReason ??= 'init 失败冷却中（至 $retryAfter）';
         return null;
       }
       final initializer = SqliteService._initializerForTest;
-      final result = initializer == null
-          ? await _initDatabase(scope)
-          : await initializer(
-              scope.session.uid,
-              scope.environment,
-              scope.session.generation,
-            );
+      Database? result;
+      try {
+        result = initializer == null
+            ? await _initDatabase(scope)
+            : await initializer(
+                scope.session.uid,
+                scope.environment,
+                scope.session.generation,
+              );
+      } on DatabaseEncryptionKeyUnavailable {
+        _lastDbNullReason = '已有数据库的加密密钥不可用，原库已保留；需恢复原密钥';
+        AppLogger.error('[sqlite] $_lastDbNullReason');
+      }
       if (!_isCurrentSqliteScope(scope)) {
         if (result != null) {
           SqliteService._db = result;
