@@ -759,6 +759,25 @@ class _Translations$chat$ko_KR extends Translations$chat$zh_CN {
 	@override String get multiSelectForwardEach => '개별 전달';
 	@override String get multiSelectForwardBundle => '묶어서 전달';
 	@override String get multiSelectExport => '내보내기';
+	@override String get exportE2eeConfirmTitle => '암호화된 대화 내보내기';
+	@override String get exportE2eeConfirmBody => '내보낸 내용은 암호화 환경을 벗어납니다. 파일을 받은 사람은 누구나 내용을 읽을 수 있습니다.';
+	@override String get exportConfirmOk => '그래도 내보내기';
+	@override String get exportConfirmCancel => '취소';
+	@override String get exportShared => '공유됨';
+	@override String get exportFailed => '내보내기 실패';
+	@override String get exportNothingToExport => '내보낼 메시지가 없습니다';
+	@override String get exportPlaceholderImage => '[사진]';
+	@override String get exportPlaceholderVoice => '[음성]';
+	@override String get exportPlaceholderVideo => '[동영상]';
+	@override String get exportPlaceholderFile => '[파일]';
+	@override String get exportPlaceholderLocation => '[위치]';
+	@override String get exportPlaceholderExpression => '[스티커]';
+	@override String get exportPlaceholderMessage => '[메시지]';
+	@override String get exportLabelConversation => '대화';
+	@override String get exportLabelExportedAt => '내보낸 시간';
+	@override String get exportLabelCount => '건수';
+	@override String get exportHtmlTitle => 'IMBoy 채팅 기록';
+	@override String get exportHtmlLang => 'ko-KR';
 }
 
 // Path: common
@@ -4111,6 +4130,25 @@ extension on TranslationsKoKr {
 			'chat.multiSelectForwardEach' => '개별 전달',
 			'chat.multiSelectForwardBundle' => '묶어서 전달',
 			'chat.multiSelectExport' => '내보내기',
+			'chat.exportE2eeConfirmTitle' => '암호화된 대화 내보내기',
+			'chat.exportE2eeConfirmBody' => '내보낸 내용은 암호화 환경을 벗어납니다. 파일을 받은 사람은 누구나 내용을 읽을 수 있습니다.',
+			'chat.exportConfirmOk' => '그래도 내보내기',
+			'chat.exportConfirmCancel' => '취소',
+			'chat.exportShared' => '공유됨',
+			'chat.exportFailed' => '내보내기 실패',
+			'chat.exportNothingToExport' => '내보낼 메시지가 없습니다',
+			'chat.exportPlaceholderImage' => '[사진]',
+			'chat.exportPlaceholderVoice' => '[음성]',
+			'chat.exportPlaceholderVideo' => '[동영상]',
+			'chat.exportPlaceholderFile' => '[파일]',
+			'chat.exportPlaceholderLocation' => '[위치]',
+			'chat.exportPlaceholderExpression' => '[스티커]',
+			'chat.exportPlaceholderMessage' => '[메시지]',
+			'chat.exportLabelConversation' => '대화',
+			'chat.exportLabelExportedAt' => '내보낸 시간',
+			'chat.exportLabelCount' => '건수',
+			'chat.exportHtmlTitle' => 'IMBoy 채팅 기록',
+			'chat.exportHtmlLang' => 'ko-KR',
 			'common.about' => '정보',
 			'common.aboutApp' => '앱 정보',
 			'common.accept' => '수락',
@@ -4470,6 +4508,8 @@ extension on TranslationsKoKr {
 			'common.groupAnnouncementDeleteFailed' => '공지 삭제 실패',
 			'common.groupAnnouncementDeleteSuccess' => '공지가 삭제되었습니다',
 			'common.privacyClearChatHistory' => '채팅 기록 삭제',
+			_ => null,
+		} ?? switch (path) {
 			'common.privacyClearChatHistoryConfirm' => '모든 채팅 기록을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.',
 			'common.privacyLogoutAccountConfirm' => '계정을 탈퇴할까요? 계정과 모든 데이터가 영구 삭제되며 되돌릴 수 없습니다.',
 			'common.privacySettings' => '개인정보 설정',
@@ -4489,8 +4529,6 @@ extension on TranslationsKoKr {
 			'common.clearChatRecordsDesc' => '모든 채팅 기록을 삭제합니다. 이 작업은 되돌릴 수 없습니다',
 			'common.deleteAccountAction' => '계정 탈퇴',
 			'common.deleteAccountActionDesc' => '계정과 모든 데이터를 영구 삭제합니다. 되돌릴 수 없습니다.',
-			_ => null,
-		} ?? switch (path) {
 			'common.chatHistoryCleared' => '채팅 기록이 삭제되었습니다',
 			'common.chatDeleteMessage' => '메시지 삭제',
 			'common.chatCopy' => '복사',
@@ -4984,6 +5022,8 @@ extension on TranslationsKoKr {
 			'common.f2fSecretCode' => '암호',
 			'common.hoursAgo' => '시간 전',
 			'common.initConfigDecryptFailed' => '설정 복호화 실패: 앱과 서버의 보안 키가 일치하지 않습니다. 앱을 업데이트하거나 관리자에게 문의해 주세요',
+			_ => null,
+		} ?? switch (path) {
 			'common.justNow' => '방금',
 			'common.me' => '나',
 			'common.minimize' => '최소화',
@@ -5003,8 +5043,6 @@ extension on TranslationsKoKr {
 			'common.redPacketCurrentLucky' => '현재: 랜덤 복주머니',
 			'common.redPacketCurrentNormal' => '현재: 일반 복주머니',
 			'common.redPacketDialogSubtitle' => '좋은 일이 가득하길, 복 많이 받으세요',
-			_ => null,
-		} ?? switch (path) {
 			'common.redPacketDialogTitle' => '복주머니가 도착했습니다',
 			'common.redPacketFetchError' => '복주머니 상세 조회 오류',
 			'common.redPacketFetchFailed' => '복주머니 상세를 불러오지 못했습니다',
@@ -5498,6 +5536,8 @@ extension on TranslationsKoKr {
 			'main.deleting' => '삭제 중...',
 			'main.publish' => '게시',
 			'main.privacyPolicy' => '개인정보 처리방침',
+			_ => null,
+		} ?? switch (path) {
 			'main.termsOfService' => '서비스 이용약관',
 			'main.saving' => _root.common.loading,
 			'main.systemDefault' => '시스템 기본값',
@@ -5517,8 +5557,6 @@ extension on TranslationsKoKr {
 			'main.selectFromAlbum' => '앨범에서 선택',
 			'main.volumeUp' => '볼륨 높이기',
 			'main.volumeDown' => '볼륨 낮추기',
-			_ => null,
-		} ?? switch (path) {
 			'main.fastRewind' => ({required Object seconds}) => '${seconds}초 되감기',
 			'main.pleaseTryAgain' => '다시 시도해 주세요',
 			'main.secret' => '비공개',
@@ -6012,6 +6050,8 @@ extension on TranslationsKoKr {
 			'organization.experienceUi.switchSpace' => '스페이스 전환',
 			'organization.experienceUi.personalSpace' => '개인 스페이스',
 			'organization.experienceUi.enterpriseSpaces' => '기업 스페이스',
+			_ => null,
+		} ?? switch (path) {
 			'organization.experienceUi.currentSpace' => '현재 스페이스',
 			'organization.experienceUi.enterpriseInfo' => '기업 정보',
 			'organization.experienceUi.collaborationSpace' => '협업 스페이스',
@@ -6031,8 +6071,6 @@ extension on TranslationsKoKr {
 			'passport.hintVerifyCode' => '인증 코드를 입력해 주세요',
 			'passport.getVerifyCode' => '인증 코드 받기',
 			'passport.oneKeyLogin' => '원클릭 로그인',
-			_ => null,
-		} ?? switch (path) {
 			'passport.qrCodeExpired' => 'QR코드가 만료되었습니다. 다시 스캔해 주세요',
 			'passport.qrCodeUsed' => '이 QR코드는 이미 사용되었습니다',
 			'passport.qrConnecting' => '연결 중...',

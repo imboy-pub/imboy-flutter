@@ -249,3 +249,24 @@ multiSelectDeselectAll: Deseleziona tutto
 multiSelectForwardEach: Inoltra separatamente
 multiSelectForwardBundle: Inoltra insieme
 multiSelectExport: Esporta
+
+# Esportazione chat / condivisione di sistema (chat_export_share_v1).
+exportE2eeConfirmTitle: "Esporta conversazione crittografata"
+exportE2eeConfirmBody: "Il contenuto esportato uscirà dall'ambiente crittografato. Chiunque ottenga il file potrà leggerlo."
+exportConfirmOk: "Esporta comunque"
+exportConfirmCancel: "Annulla"
+exportShared: "Condiviso"
+exportFailed: "Esportazione non riuscita"
+exportNothingToExport: "Nessun messaggio da esportare"
+exportPlaceholderImage: "[Immagine]"
+exportPlaceholderVoice: "[Messaggio vocale]"
+exportPlaceholderVideo: "[Video]"
+exportPlaceholderFile: "[File]"
+exportPlaceholderLocation: "[Posizione]"
+exportPlaceholderExpression: "[Sticker]"
+exportPlaceholderMessage: "[Messaggio]"
+exportLabelConversation: "Conversazione"
+exportLabelExportedAt: "Esportato il"
+exportLabelCount: "Numero"
+exportHtmlTitle: "Cronologia chat IMBoy"
+exportHtmlLang: "it-IT"

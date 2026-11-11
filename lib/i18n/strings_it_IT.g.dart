@@ -759,6 +759,25 @@ class _Translations$chat$it_IT extends Translations$chat$zh_CN {
 	@override String get multiSelectForwardEach => 'Inoltra separatamente';
 	@override String get multiSelectForwardBundle => 'Inoltra insieme';
 	@override String get multiSelectExport => 'Esporta';
+	@override String get exportE2eeConfirmTitle => 'Esporta conversazione crittografata';
+	@override String get exportE2eeConfirmBody => 'Il contenuto esportato uscirà dall\'ambiente crittografato. Chiunque ottenga il file potrà leggerlo.';
+	@override String get exportConfirmOk => 'Esporta comunque';
+	@override String get exportConfirmCancel => 'Annulla';
+	@override String get exportShared => 'Condiviso';
+	@override String get exportFailed => 'Esportazione non riuscita';
+	@override String get exportNothingToExport => 'Nessun messaggio da esportare';
+	@override String get exportPlaceholderImage => '[Immagine]';
+	@override String get exportPlaceholderVoice => '[Messaggio vocale]';
+	@override String get exportPlaceholderVideo => '[Video]';
+	@override String get exportPlaceholderFile => '[File]';
+	@override String get exportPlaceholderLocation => '[Posizione]';
+	@override String get exportPlaceholderExpression => '[Sticker]';
+	@override String get exportPlaceholderMessage => '[Messaggio]';
+	@override String get exportLabelConversation => 'Conversazione';
+	@override String get exportLabelExportedAt => 'Esportato il';
+	@override String get exportLabelCount => 'Numero';
+	@override String get exportHtmlTitle => 'Cronologia chat IMBoy';
+	@override String get exportHtmlLang => 'it-IT';
 }
 
 // Path: common
@@ -4114,6 +4133,25 @@ extension on TranslationsItIt {
 			'chat.multiSelectForwardEach' => 'Inoltra separatamente',
 			'chat.multiSelectForwardBundle' => 'Inoltra insieme',
 			'chat.multiSelectExport' => 'Esporta',
+			'chat.exportE2eeConfirmTitle' => 'Esporta conversazione crittografata',
+			'chat.exportE2eeConfirmBody' => 'Il contenuto esportato uscirà dall\'ambiente crittografato. Chiunque ottenga il file potrà leggerlo.',
+			'chat.exportConfirmOk' => 'Esporta comunque',
+			'chat.exportConfirmCancel' => 'Annulla',
+			'chat.exportShared' => 'Condiviso',
+			'chat.exportFailed' => 'Esportazione non riuscita',
+			'chat.exportNothingToExport' => 'Nessun messaggio da esportare',
+			'chat.exportPlaceholderImage' => '[Immagine]',
+			'chat.exportPlaceholderVoice' => '[Messaggio vocale]',
+			'chat.exportPlaceholderVideo' => '[Video]',
+			'chat.exportPlaceholderFile' => '[File]',
+			'chat.exportPlaceholderLocation' => '[Posizione]',
+			'chat.exportPlaceholderExpression' => '[Sticker]',
+			'chat.exportPlaceholderMessage' => '[Messaggio]',
+			'chat.exportLabelConversation' => 'Conversazione',
+			'chat.exportLabelExportedAt' => 'Esportato il',
+			'chat.exportLabelCount' => 'Numero',
+			'chat.exportHtmlTitle' => 'Cronologia chat IMBoy',
+			'chat.exportHtmlLang' => 'it-IT',
 			'common.about' => 'Informazioni',
 			'common.aboutApp' => 'Informazioni sull\'app',
 			'common.accept' => 'Accetta',
@@ -4473,6 +4511,8 @@ extension on TranslationsItIt {
 			'common.groupAnnouncementDeleteFailed' => 'Eliminazione annuncio fallita',
 			'common.groupAnnouncementDeleteSuccess' => 'Annuncio eliminato',
 			'common.privacyClearChatHistory' => 'Cancella cronologia delle chat',
+			_ => null,
+		} ?? switch (path) {
 			'common.privacyClearChatHistoryConfirm' => 'Sei sicuro di voler cancellare tutta la cronologia delle chat? Questa azione non può essere annullata.',
 			'common.privacyLogoutAccountConfirm' => 'Sei sicuro di voler disattivare l\'account? Questa azione eliminerà permanentemente il tuo account e tutti i dati e non può essere annullata.',
 			'common.privacySettings' => 'Impostazioni privacy',
@@ -4492,8 +4532,6 @@ extension on TranslationsItIt {
 			'common.clearChatRecordsDesc' => 'Cancella tutta la cronologia delle chat, questa azione non può essere annullata',
 			'common.deleteAccountAction' => 'Disattiva account',
 			'common.deleteAccountActionDesc' => 'Elimina permanentemente l\'account e tutti i dati, questa azione non può essere annullata',
-			_ => null,
-		} ?? switch (path) {
 			'common.chatHistoryCleared' => 'Cronologia delle chat cancellata',
 			'common.chatDeleteMessage' => 'Elimina messaggio',
 			'common.chatCopy' => 'Copia',
@@ -4987,6 +5025,8 @@ extension on TranslationsItIt {
 			'common.f2fSecretCode' => 'Codice segreto',
 			'common.hoursAgo' => 'ore fa',
 			'common.initConfigDecryptFailed' => 'Decifratura della configurazione non riuscita: la chiave di sicurezza dell\'app non corrisponde a quella del server, aggiorna l\'app o contatta l\'amministratore',
+			_ => null,
+		} ?? switch (path) {
 			'common.justNow' => 'Proprio ora',
 			'common.me' => 'Io',
 			'common.minimize' => 'Riduci a icona',
@@ -5006,8 +5046,6 @@ extension on TranslationsItIt {
 			'common.redPacketCurrentLucky' => 'Attuale: busta fortunata',
 			'common.redPacketCurrentNormal' => 'Attuale: busta normale',
 			'common.redPacketDialogSubtitle' => 'Buona fortuna e tanta prosperità',
-			_ => null,
-		} ?? switch (path) {
 			'common.redPacketDialogTitle' => 'Ti ho inviato una busta rossa',
 			'common.redPacketFetchError' => 'Errore nel recupero dei dettagli della busta',
 			'common.redPacketFetchFailed' => 'Impossibile recuperare i dettagli della busta',
@@ -5501,6 +5539,8 @@ extension on TranslationsItIt {
 			'main.deleting' => 'Eliminazione in corso...',
 			'main.publish' => 'Pubblica',
 			'main.privacyPolicy' => 'Informativa sulla privacy',
+			_ => null,
+		} ?? switch (path) {
 			'main.termsOfService' => 'Termini di servizio',
 			'main.saving' => _root.common.loading,
 			'main.systemDefault' => 'Predefinito di sistema',
@@ -5520,8 +5560,6 @@ extension on TranslationsItIt {
 			'main.selectFromAlbum' => 'Seleziona dalla galleria',
 			'main.volumeUp' => 'Volume su',
 			'main.volumeDown' => 'Volume giù',
-			_ => null,
-		} ?? switch (path) {
 			'main.fastRewind' => ({required Object seconds}) => 'Indietro veloce ${seconds} secondi',
 			'main.pleaseTryAgain' => 'Riprova',
 			'main.secret' => 'Segreto',
@@ -6015,6 +6053,8 @@ extension on TranslationsItIt {
 			'organization.experienceUi.switchSpace' => 'Cambia spazio',
 			'organization.experienceUi.personalSpace' => 'Spazio personale',
 			'organization.experienceUi.enterpriseSpaces' => 'Spazi aziendali',
+			_ => null,
+		} ?? switch (path) {
 			'organization.experienceUi.currentSpace' => 'Spazio attuale',
 			'organization.experienceUi.enterpriseInfo' => 'Informazioni aziendali',
 			'organization.experienceUi.collaborationSpace' => 'Spazi di collaborazione',
@@ -6034,8 +6074,6 @@ extension on TranslationsItIt {
 			'passport.hintVerifyCode' => 'Inserisci codice di verifica',
 			'passport.getVerifyCode' => 'Ottieni codice',
 			'passport.oneKeyLogin' => 'Accesso rapido',
-			_ => null,
-		} ?? switch (path) {
 			'passport.qrCodeExpired' => 'Codice QR scaduto, scansiona di nuovo',
 			'passport.qrCodeUsed' => 'Questo codice QR è già stato usato',
 			'passport.qrConnecting' => 'Connessione in corso...',

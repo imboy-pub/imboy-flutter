@@ -248,3 +248,24 @@ multiSelectDeselectAll: 全不選
 multiSelectForwardEach: 逐條轉發
 multiSelectForwardBundle: 合併轉發
 multiSelectExport: 匯出
+
+# 聊天導出/系統分享（chat_export_share_v1）。
+exportE2eeConfirmTitle: "導出加密會話"
+exportE2eeConfirmBody: "導出的內容將離開加密環境，任何獲得該檔案的人都能讀取。"
+exportConfirmOk: "仍要導出"
+exportConfirmCancel: "取消"
+exportShared: "已分享"
+exportFailed: "導出失敗"
+exportNothingToExport: "沒有可導出的消息"
+exportPlaceholderImage: "[圖片]"
+exportPlaceholderVoice: "[語音]"
+exportPlaceholderVideo: "[影片]"
+exportPlaceholderFile: "[檔案]"
+exportPlaceholderLocation: "[位置]"
+exportPlaceholderExpression: "[表情]"
+exportPlaceholderMessage: "[消息]"
+exportLabelConversation: "會話"
+exportLabelExportedAt: "導出時間"
+exportLabelCount: "條數"
+exportHtmlTitle: "IMBoy 聊天記錄"
+exportHtmlLang: "zh-Hant"

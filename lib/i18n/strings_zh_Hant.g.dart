@@ -759,6 +759,25 @@ class Translations$chat$zh_Hant extends Translations$chat$zh_CN {
 	@override String get multiSelectForwardEach => '逐條轉發';
 	@override String get multiSelectForwardBundle => '合併轉發';
 	@override String get multiSelectExport => '匯出';
+	@override String get exportE2eeConfirmTitle => '導出加密會話';
+	@override String get exportE2eeConfirmBody => '導出的內容將離開加密環境，任何獲得該檔案的人都能讀取。';
+	@override String get exportConfirmOk => '仍要導出';
+	@override String get exportConfirmCancel => '取消';
+	@override String get exportShared => '已分享';
+	@override String get exportFailed => '導出失敗';
+	@override String get exportNothingToExport => '沒有可導出的消息';
+	@override String get exportPlaceholderImage => '[圖片]';
+	@override String get exportPlaceholderVoice => '[語音]';
+	@override String get exportPlaceholderVideo => '[影片]';
+	@override String get exportPlaceholderFile => '[檔案]';
+	@override String get exportPlaceholderLocation => '[位置]';
+	@override String get exportPlaceholderExpression => '[表情]';
+	@override String get exportPlaceholderMessage => '[消息]';
+	@override String get exportLabelConversation => '會話';
+	@override String get exportLabelExportedAt => '導出時間';
+	@override String get exportLabelCount => '條數';
+	@override String get exportHtmlTitle => 'IMBoy 聊天記錄';
+	@override String get exportHtmlLang => 'zh-Hant';
 }
 
 // Path: common
@@ -4111,6 +4130,25 @@ extension on TranslationsZhHant {
 			'chat.multiSelectForwardEach' => '逐條轉發',
 			'chat.multiSelectForwardBundle' => '合併轉發',
 			'chat.multiSelectExport' => '匯出',
+			'chat.exportE2eeConfirmTitle' => '導出加密會話',
+			'chat.exportE2eeConfirmBody' => '導出的內容將離開加密環境，任何獲得該檔案的人都能讀取。',
+			'chat.exportConfirmOk' => '仍要導出',
+			'chat.exportConfirmCancel' => '取消',
+			'chat.exportShared' => '已分享',
+			'chat.exportFailed' => '導出失敗',
+			'chat.exportNothingToExport' => '沒有可導出的消息',
+			'chat.exportPlaceholderImage' => '[圖片]',
+			'chat.exportPlaceholderVoice' => '[語音]',
+			'chat.exportPlaceholderVideo' => '[影片]',
+			'chat.exportPlaceholderFile' => '[檔案]',
+			'chat.exportPlaceholderLocation' => '[位置]',
+			'chat.exportPlaceholderExpression' => '[表情]',
+			'chat.exportPlaceholderMessage' => '[消息]',
+			'chat.exportLabelConversation' => '會話',
+			'chat.exportLabelExportedAt' => '導出時間',
+			'chat.exportLabelCount' => '條數',
+			'chat.exportHtmlTitle' => 'IMBoy 聊天記錄',
+			'chat.exportHtmlLang' => 'zh-Hant',
 			'common.about' => '關於',
 			'common.aboutApp' => '關於應用',
 			'common.accept' => '同意',
@@ -4470,6 +4508,8 @@ extension on TranslationsZhHant {
 			'common.groupAnnouncementPublishFailed' => '公告發布失敗',
 			'common.groupAnnouncementPublishSuccess' => '公告已釋出',
 			'common.groupAnnouncementDeleteFailed' => '公告刪除失敗',
+			_ => null,
+		} ?? switch (path) {
 			'common.groupAnnouncementDeleteSuccess' => '公告已刪除',
 			'common.privacyClearChatHistory' => '清除聊天記錄',
 			'common.privacyClearChatHistoryConfirm' => '確定要清除所有聊天記錄嗎？此操作不可恢復。',
@@ -4489,8 +4529,6 @@ extension on TranslationsZhHant {
 			'common.dataSettings' => '資料設定',
 			'common.clearChatRecords' => '清除聊天記錄',
 			'common.clearChatRecordsDesc' => '清除所有聊天記錄，此操作不可恢復',
-			_ => null,
-		} ?? switch (path) {
 			'common.deleteAccountAction' => '註銷帳號',
 			'common.deleteAccountActionDesc' => '永久刪除帳號和所有資料，此操作不可恢復',
 			'common.chatHistoryCleared' => '聊天記錄已清除',
@@ -4984,6 +5022,8 @@ extension on TranslationsZhHant {
 			'common.enterAmount' => '請輸入金額',
 			'common.expandFull' => '展開',
 			'common.hoursAgo' => '小時前',
+			_ => null,
+		} ?? switch (path) {
 			'common.justNow' => '剛剛',
 			'common.me' => '本人',
 			'common.minimize' => '縮到最小',
@@ -5003,8 +5043,6 @@ extension on TranslationsZhHant {
 			'common.redPacketCurrentLucky' => '目前為：拼手氣紅包',
 			'common.redPacketCurrentNormal' => '目前為：普通紅包',
 			'common.redPacketDialogSubtitle' => '大吉大利，恭喜發財',
-			_ => null,
-		} ?? switch (path) {
 			'common.redPacketDialogTitle' => '送你一個紅包',
 			'common.redPacketFetchError' => '取得紅包詳情時發生異常',
 			'common.redPacketFetchFailed' => '取得紅包詳情失敗',
@@ -5498,6 +5536,8 @@ extension on TranslationsZhHant {
 			'main.deleting' => '刪除中...',
 			'main.publish' => '發布',
 			'main.privacyPolicy' => '隱私政策',
+			_ => null,
+		} ?? switch (path) {
 			'main.termsOfService' => '服務條款',
 			'main.saving' => _root.common.loading,
 			'main.systemDefault' => '系統預設',
@@ -5517,8 +5557,6 @@ extension on TranslationsZhHant {
 			'main.selectFromAlbum' => '從相簿選擇',
 			'main.volumeUp' => '調高音量',
 			'main.volumeDown' => '音量減少',
-			_ => null,
-		} ?? switch (path) {
 			'main.fastRewind' => ({required Object seconds}) => '倒轉 ${seconds} 秒',
 			'main.pleaseTryAgain' => '請重試',
 			'main.secret' => '保守祕密',
@@ -6012,6 +6050,8 @@ extension on TranslationsZhHant {
 			'organization.experienceUi.switchSpace' => '切換空間',
 			'organization.experienceUi.personalSpace' => '個人空間',
 			'organization.experienceUi.enterpriseSpaces' => '企業空間',
+			_ => null,
+		} ?? switch (path) {
 			'organization.experienceUi.currentSpace' => '目前空間',
 			'organization.experienceUi.enterpriseInfo' => '企業資料',
 			'organization.experienceUi.collaborationSpace' => '協作空間',
@@ -6031,8 +6071,6 @@ extension on TranslationsZhHant {
 			'passport.hintVerifyCode' => '請輸入驗證碼',
 			'passport.getVerifyCode' => '獲取驗證碼',
 			'passport.oneKeyLogin' => '一鍵登入',
-			_ => null,
-		} ?? switch (path) {
 			'passport.qrCodeExpired' => '二維碼已過期，請重新掃碼',
 			'passport.qrCodeUsed' => '此二維碼已使用',
 			'passport.qrLoginCancelled' => '登入已取消',

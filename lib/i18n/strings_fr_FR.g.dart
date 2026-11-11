@@ -759,6 +759,25 @@ class _Translations$chat$fr_FR extends Translations$chat$zh_CN {
 	@override String get multiSelectForwardEach => 'Transférer séparément';
 	@override String get multiSelectForwardBundle => 'Transférer ensemble';
 	@override String get multiSelectExport => 'Exporter';
+	@override String get exportE2eeConfirmTitle => 'Exporter la conversation chiffrée';
+	@override String get exportE2eeConfirmBody => 'Le contenu exporté quittera l\'environnement chiffré. Toute personne obtenant le fichier pourra le lire.';
+	@override String get exportConfirmOk => 'Exporter quand même';
+	@override String get exportConfirmCancel => 'Annuler';
+	@override String get exportShared => 'Partagé';
+	@override String get exportFailed => 'Échec de l\'export';
+	@override String get exportNothingToExport => 'Aucun message à exporter';
+	@override String get exportPlaceholderImage => '[Image]';
+	@override String get exportPlaceholderVoice => '[Message vocal]';
+	@override String get exportPlaceholderVideo => '[Vidéo]';
+	@override String get exportPlaceholderFile => '[Fichier]';
+	@override String get exportPlaceholderLocation => '[Position]';
+	@override String get exportPlaceholderExpression => '[Sticker]';
+	@override String get exportPlaceholderMessage => '[Message]';
+	@override String get exportLabelConversation => 'Conversation';
+	@override String get exportLabelExportedAt => 'Exporté le';
+	@override String get exportLabelCount => 'Nombre';
+	@override String get exportHtmlTitle => 'Historique de chat IMBoy';
+	@override String get exportHtmlLang => 'fr-FR';
 }
 
 // Path: common
@@ -4114,6 +4133,25 @@ extension on TranslationsFrFr {
 			'chat.multiSelectForwardEach' => 'Transférer séparément',
 			'chat.multiSelectForwardBundle' => 'Transférer ensemble',
 			'chat.multiSelectExport' => 'Exporter',
+			'chat.exportE2eeConfirmTitle' => 'Exporter la conversation chiffrée',
+			'chat.exportE2eeConfirmBody' => 'Le contenu exporté quittera l\'environnement chiffré. Toute personne obtenant le fichier pourra le lire.',
+			'chat.exportConfirmOk' => 'Exporter quand même',
+			'chat.exportConfirmCancel' => 'Annuler',
+			'chat.exportShared' => 'Partagé',
+			'chat.exportFailed' => 'Échec de l\'export',
+			'chat.exportNothingToExport' => 'Aucun message à exporter',
+			'chat.exportPlaceholderImage' => '[Image]',
+			'chat.exportPlaceholderVoice' => '[Message vocal]',
+			'chat.exportPlaceholderVideo' => '[Vidéo]',
+			'chat.exportPlaceholderFile' => '[Fichier]',
+			'chat.exportPlaceholderLocation' => '[Position]',
+			'chat.exportPlaceholderExpression' => '[Sticker]',
+			'chat.exportPlaceholderMessage' => '[Message]',
+			'chat.exportLabelConversation' => 'Conversation',
+			'chat.exportLabelExportedAt' => 'Exporté le',
+			'chat.exportLabelCount' => 'Nombre',
+			'chat.exportHtmlTitle' => 'Historique de chat IMBoy',
+			'chat.exportHtmlLang' => 'fr-FR',
 			'common.about' => 'À propos',
 			'common.aboutApp' => 'À propos de l\'application',
 			'common.accept' => 'Accepter',
@@ -4473,6 +4511,8 @@ extension on TranslationsFrFr {
 			'common.groupAnnouncementDeleteFailed' => 'Suppression de l\'annonce impossible',
 			'common.groupAnnouncementDeleteSuccess' => 'Annonce supprimée',
 			'common.privacyClearChatHistory' => 'Effacer l\'historique de conversation',
+			_ => null,
+		} ?? switch (path) {
 			'common.privacyClearChatHistoryConfirm' => 'Confirmer l\'effacement de tout l\'historique de conversation ? Cette action est irréversible.',
 			'common.privacyLogoutAccountConfirm' => 'Confirmer la suppression du compte ? Cette action supprimera définitivement votre compte et toutes vos données, et ne peut pas être annulée.',
 			'common.privacySettings' => 'Paramètres de confidentialité',
@@ -4492,8 +4532,6 @@ extension on TranslationsFrFr {
 			'common.clearChatRecordsDesc' => 'Effacer tous les enregistrements de conversation. Cette action est irréversible.',
 			'common.deleteAccountAction' => 'Supprimer le compte',
 			'common.deleteAccountActionDesc' => 'Supprimer définitivement le compte et toutes les données. Cette action est irréversible.',
-			_ => null,
-		} ?? switch (path) {
 			'common.chatHistoryCleared' => 'Historique de conversation effacé.',
 			'common.chatDeleteMessage' => 'Supprimer le message',
 			'common.chatCopy' => 'Copier',
@@ -4987,6 +5025,8 @@ extension on TranslationsFrFr {
 			'common.f2fSecretCode' => 'Code secret',
 			'common.hoursAgo' => 'h',
 			'common.initConfigDecryptFailed' => 'Échec du déchiffrement de la configuration : la clé de sécurité de l\'application et celle du serveur ne correspondent pas. Mettez à jour l\'application ou contactez l\'administrateur',
+			_ => null,
+		} ?? switch (path) {
 			'common.justNow' => 'À l\'instant',
 			'common.me' => 'Moi',
 			'common.minimize' => 'Réduire',
@@ -5006,8 +5046,6 @@ extension on TranslationsFrFr {
 			'common.redPacketCurrentLucky' => 'Actuel : hongbao à montant aléatoire',
 			'common.redPacketCurrentNormal' => 'Actuel : hongbao à montant fixe',
 			'common.redPacketDialogSubtitle' => 'Bonne fortune et grande prospérité !',
-			_ => null,
-		} ?? switch (path) {
 			'common.redPacketDialogTitle' => 'Un hongbao pour vous',
 			'common.redPacketFetchError' => 'Anomalie lors de la récupération des détails du hongbao',
 			'common.redPacketFetchFailed' => 'Échec de la récupération des détails du hongbao',
@@ -5501,6 +5539,8 @@ extension on TranslationsFrFr {
 			'main.deleting' => 'Suppression en cours...',
 			'main.publish' => 'Publier',
 			'main.privacyPolicy' => 'Politique de confidentialité',
+			_ => null,
+		} ?? switch (path) {
 			'main.termsOfService' => 'Conditions d\'utilisation',
 			'main.saving' => _root.common.loading,
 			'main.systemDefault' => 'Par défaut du système',
@@ -5520,8 +5560,6 @@ extension on TranslationsFrFr {
 			'main.selectFromAlbum' => 'Sélectionner depuis l\'album',
 			'main.volumeUp' => 'Augmenter le volume',
 			'main.volumeDown' => 'Baisser le volume',
-			_ => null,
-		} ?? switch (path) {
 			'main.fastRewind' => ({required Object seconds}) => 'Retour rapide de ${seconds} secondes',
 			'main.pleaseTryAgain' => 'Réessayez.',
 			'main.secret' => 'Confidentiel',
@@ -6015,6 +6053,8 @@ extension on TranslationsFrFr {
 			'organization.experienceUi.switchSpace' => 'Changer d\'espace',
 			'organization.experienceUi.personalSpace' => 'Espace personnel',
 			'organization.experienceUi.enterpriseSpaces' => 'Espaces d\'entreprise',
+			_ => null,
+		} ?? switch (path) {
 			'organization.experienceUi.currentSpace' => 'Espace actuel',
 			'organization.experienceUi.enterpriseInfo' => 'Informations sur l\'entreprise',
 			'organization.experienceUi.collaborationSpace' => 'Espaces de collaboration',
@@ -6034,8 +6074,6 @@ extension on TranslationsFrFr {
 			'passport.hintVerifyCode' => 'Veuillez entrer le code de vérification',
 			'passport.getVerifyCode' => 'Obtenir le code',
 			'passport.oneKeyLogin' => 'Connexion en un clic',
-			_ => null,
-		} ?? switch (path) {
 			'passport.qrCodeExpired' => 'QR code expiré, veuillez le scanner à nouveau',
 			'passport.qrCodeUsed' => 'Ce QR code a déjà été utilisé',
 			'passport.qrConnecting' => 'Connexion...',

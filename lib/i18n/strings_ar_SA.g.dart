@@ -759,6 +759,25 @@ class _Translations$chat$ar_SA extends Translations$chat$zh_CN {
 	@override String get multiSelectExport => 'تصدير';
 	@override String get multiSelectForwardEach => 'إعادة توجيه فردي';
 	@override String get multiSelectForwardBundle => 'إعادة توجيه مجمعة';
+	@override String get exportE2eeConfirmTitle => 'تصدير المحادثة المشفرة';
+	@override String get exportE2eeConfirmBody => 'سيتجاوز المحتوى المُصدَّر البيئة المشفرة. أي شخص يحصل على الملف سيتمكن من قراءته.';
+	@override String get exportConfirmOk => 'تصدير على أي حال';
+	@override String get exportConfirmCancel => 'إلغاء';
+	@override String get exportShared => 'تمت المشاركة';
+	@override String get exportFailed => 'فشل التصدير';
+	@override String get exportNothingToExport => 'لا توجد رسائل للتصدير';
+	@override String get exportPlaceholderImage => '[صورة]';
+	@override String get exportPlaceholderVoice => '[رسالة صوتية]';
+	@override String get exportPlaceholderVideo => '[فيديو]';
+	@override String get exportPlaceholderFile => '[ملف]';
+	@override String get exportPlaceholderLocation => '[موقع]';
+	@override String get exportPlaceholderExpression => '[ملصق]';
+	@override String get exportPlaceholderMessage => '[رسالة]';
+	@override String get exportLabelConversation => 'المحادثة';
+	@override String get exportLabelExportedAt => 'وقت التصدير';
+	@override String get exportLabelCount => 'العدد';
+	@override String get exportHtmlTitle => 'سجل محادثات IMBoy';
+	@override String get exportHtmlLang => 'ar-SA';
 }
 
 // Path: common
@@ -4123,6 +4142,25 @@ extension on TranslationsArSa {
 			'chat.multiSelectExport' => 'تصدير',
 			'chat.multiSelectForwardEach' => 'إعادة توجيه فردي',
 			'chat.multiSelectForwardBundle' => 'إعادة توجيه مجمعة',
+			'chat.exportE2eeConfirmTitle' => 'تصدير المحادثة المشفرة',
+			'chat.exportE2eeConfirmBody' => 'سيتجاوز المحتوى المُصدَّر البيئة المشفرة. أي شخص يحصل على الملف سيتمكن من قراءته.',
+			'chat.exportConfirmOk' => 'تصدير على أي حال',
+			'chat.exportConfirmCancel' => 'إلغاء',
+			'chat.exportShared' => 'تمت المشاركة',
+			'chat.exportFailed' => 'فشل التصدير',
+			'chat.exportNothingToExport' => 'لا توجد رسائل للتصدير',
+			'chat.exportPlaceholderImage' => '[صورة]',
+			'chat.exportPlaceholderVoice' => '[رسالة صوتية]',
+			'chat.exportPlaceholderVideo' => '[فيديو]',
+			'chat.exportPlaceholderFile' => '[ملف]',
+			'chat.exportPlaceholderLocation' => '[موقع]',
+			'chat.exportPlaceholderExpression' => '[ملصق]',
+			'chat.exportPlaceholderMessage' => '[رسالة]',
+			'chat.exportLabelConversation' => 'المحادثة',
+			'chat.exportLabelExportedAt' => 'وقت التصدير',
+			'chat.exportLabelCount' => 'العدد',
+			'chat.exportHtmlTitle' => 'سجل محادثات IMBoy',
+			'chat.exportHtmlLang' => 'ar-SA',
 			'common.about' => 'حول',
 			'common.aboutApp' => 'حول التطبيق',
 			'common.accept' => 'قبول',
@@ -4482,6 +4520,8 @@ extension on TranslationsArSa {
 			'common.groupAnnouncementDeleteFailed' => 'تعذّر حذف الإعلان',
 			'common.groupAnnouncementDeleteSuccess' => 'تم حذف الإعلان',
 			'common.privacyClearChatHistory' => 'مسح سجل الدردشة',
+			_ => null,
+		} ?? switch (path) {
 			'common.privacyClearChatHistoryConfirm' => 'هل أنت متأكد من مسح جميع سجلات الدردشة؟ هذا الإجراء لا يمكن التراجع عنه.',
 			'common.privacyLogoutAccountConfirm' => 'هل أنت متأكد من إلغاء الحساب؟ سيتم حذف حسابك وجميع بياناتك بشكل دائم، ولا يمكن التراجع عن هذا الإجراء.',
 			'common.privacySettings' => 'إعدادات الخصوصية',
@@ -4501,8 +4541,6 @@ extension on TranslationsArSa {
 			'common.clearChatRecordsDesc' => 'مسح جميع سجلات الدردشة، هذا الإجراء لا يمكن التراجع عنه',
 			'common.deleteAccountAction' => 'إلغاء الحساب',
 			'common.deleteAccountActionDesc' => 'حذف الحساب وجميع البيانات بشكل دائم، هذا الإجراء لا يمكن التراجع عنه',
-			_ => null,
-		} ?? switch (path) {
 			'common.chatHistoryCleared' => 'تم مسح سجل الدردشة',
 			'common.chatDeleteMessage' => 'حذف الرسالة',
 			'common.chatCopy' => 'نسخ',
@@ -4996,6 +5034,8 @@ extension on TranslationsArSa {
 			'common.complianceKeyChangedTitle' => 'تم تغيير مفتاح تدقيق الامتثال',
 			'common.complianceKeyChangedActionConfirm' => 'تأكيد التدوير',
 			'common.complianceKeyChangedActionKeep' => 'تأكيد لاحقاً',
+			_ => null,
+		} ?? switch (path) {
 			'common.complianceKeyChangedBody' => 'المفتاح العام لتدقيق الامتثال الصادر من الخادم لا يطابق القيمة المثبتة محلياً. إذا كان هذا تدويراً مقصوداً للمفتاح من المسؤول، فانقر على «تأكيد التدوير»؛ وإلا فلا تُكمل إرسال الرسائل المشفّرة، واتصل بالمسؤول للتحقق.',
 			'common.e2eeErrPeerNotOnboarded' => 'لم يسجّل الطرف الآخر الدخول على أي جهاز بعد، فلا يمكن الإرسال المشفّر مؤقتاً؛ انتظر تسجيل دخوله ثم أعد المحاولة',
 			'common.e2eeRecoveryKeyTitle' => 'مفتاح الاستعادة',
@@ -5015,8 +5055,6 @@ extension on TranslationsArSa {
 			'common.voiceSttConverting' => 'جارٍ التعرف على الصوت...',
 			'common.voiceSttNotConfigured' => 'ميزة التحويل إلى نص غير مهيأة بعد',
 			'common.voiceSttPreviewTitle' => 'معاينة تحويل الصوت إلى نص',
-			_ => null,
-		} ?? switch (path) {
 			'common.redPacketBrand' => 'مغلف IMBoy الأحمر',
 			'common.redPacketDialogTitle' => 'أرسلنا لك مغلفاً أحمر',
 			'common.redPacketDialogSubtitle' => 'أطيب التمنيات، وكل عام وأنتم بخير',
@@ -5510,6 +5548,8 @@ extension on TranslationsArSa {
 			'main.deleting' => 'جارٍ الحذف...',
 			'main.publish' => 'نشر',
 			'main.privacyPolicy' => 'سياسة الخصوصية',
+			_ => null,
+		} ?? switch (path) {
 			'main.termsOfService' => 'شروط الخدمة',
 			'main.saving' => _root.common.loading,
 			'main.systemDefault' => 'الافتراضي للنظام',
@@ -5529,8 +5569,6 @@ extension on TranslationsArSa {
 			'main.selectFromAlbum' => 'اختيار من الألبوم',
 			'main.volumeUp' => 'زيادة الصوت',
 			'main.volumeDown' => 'خفض الصوت',
-			_ => null,
-		} ?? switch (path) {
 			'main.fastRewind' => ({required Object seconds}) => 'ترجيع سريع ${seconds} ثانية',
 			'main.pleaseTryAgain' => 'يرجى المحاولة مرة أخرى',
 			'main.secret' => 'سري',
@@ -6024,6 +6062,8 @@ extension on TranslationsArSa {
 			'organization.experienceUi.switchSpace' => 'تبديل المساحة',
 			'organization.experienceUi.personalSpace' => 'المساحة الشخصية',
 			'organization.experienceUi.enterpriseSpaces' => 'مساحات المؤسسة',
+			_ => null,
+		} ?? switch (path) {
 			'organization.experienceUi.currentSpace' => 'المساحة الحالية',
 			'organization.experienceUi.enterpriseInfo' => 'بيانات المؤسسة',
 			'organization.experienceUi.collaborationSpace' => 'مساحات التعاون',
@@ -6043,8 +6083,6 @@ extension on TranslationsArSa {
 			'passport.hintVerifyCode' => 'أدخل رمز التحقق',
 			'passport.getVerifyCode' => 'احصل على الرمز',
 			'passport.oneKeyLogin' => 'تسجيل الدخول بنقرة واحدة',
-			_ => null,
-		} ?? switch (path) {
 			'passport.qrCodeExpired' => 'انتهت صلاحية رمز QR، امسحه ضوئياً من جديد',
 			'passport.qrCodeUsed' => 'تم استخدام رمز QR هذا بالفعل',
 			'passport.qrLoginCancelled' => 'تم إلغاء تسجيل الدخول',

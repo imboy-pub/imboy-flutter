@@ -759,6 +759,25 @@ class _Translations$chat$ja_JP extends Translations$chat$zh_CN {
 	@override String get multiSelectForwardEach => '個別に転送';
 	@override String get multiSelectForwardBundle => 'まとめて転送';
 	@override String get multiSelectExport => '書き出し';
+	@override String get exportE2eeConfirmTitle => '暗号化された会話を書き出す';
+	@override String get exportE2eeConfirmBody => '書き出した内容は暗号化環境の外に出ます。ファイルを入手した人は誰でも読み取れます。';
+	@override String get exportConfirmOk => 'それでも書き出す';
+	@override String get exportConfirmCancel => 'キャンセル';
+	@override String get exportShared => '共有しました';
+	@override String get exportFailed => '書き出しに失敗しました';
+	@override String get exportNothingToExport => '書き出せるメッセージがありません';
+	@override String get exportPlaceholderImage => '[画像]';
+	@override String get exportPlaceholderVoice => '[音声]';
+	@override String get exportPlaceholderVideo => '[動画]';
+	@override String get exportPlaceholderFile => '[ファイル]';
+	@override String get exportPlaceholderLocation => '[位置]';
+	@override String get exportPlaceholderExpression => '[スタンプ]';
+	@override String get exportPlaceholderMessage => '[メッセージ]';
+	@override String get exportLabelConversation => '会話';
+	@override String get exportLabelExportedAt => '書き出し日時';
+	@override String get exportLabelCount => '件数';
+	@override String get exportHtmlTitle => 'IMBoy チャット履歴';
+	@override String get exportHtmlLang => 'ja-JP';
 }
 
 // Path: common
@@ -4111,6 +4130,25 @@ extension on TranslationsJaJp {
 			'chat.multiSelectForwardEach' => '個別に転送',
 			'chat.multiSelectForwardBundle' => 'まとめて転送',
 			'chat.multiSelectExport' => '書き出し',
+			'chat.exportE2eeConfirmTitle' => '暗号化された会話を書き出す',
+			'chat.exportE2eeConfirmBody' => '書き出した内容は暗号化環境の外に出ます。ファイルを入手した人は誰でも読み取れます。',
+			'chat.exportConfirmOk' => 'それでも書き出す',
+			'chat.exportConfirmCancel' => 'キャンセル',
+			'chat.exportShared' => '共有しました',
+			'chat.exportFailed' => '書き出しに失敗しました',
+			'chat.exportNothingToExport' => '書き出せるメッセージがありません',
+			'chat.exportPlaceholderImage' => '[画像]',
+			'chat.exportPlaceholderVoice' => '[音声]',
+			'chat.exportPlaceholderVideo' => '[動画]',
+			'chat.exportPlaceholderFile' => '[ファイル]',
+			'chat.exportPlaceholderLocation' => '[位置]',
+			'chat.exportPlaceholderExpression' => '[スタンプ]',
+			'chat.exportPlaceholderMessage' => '[メッセージ]',
+			'chat.exportLabelConversation' => '会話',
+			'chat.exportLabelExportedAt' => '書き出し日時',
+			'chat.exportLabelCount' => '件数',
+			'chat.exportHtmlTitle' => 'IMBoy チャット履歴',
+			'chat.exportHtmlLang' => 'ja-JP',
 			'common.about' => '概要',
 			'common.aboutApp' => 'このアプリについて',
 			'common.accept' => '承認',
@@ -4470,6 +4508,8 @@ extension on TranslationsJaJp {
 			'common.groupAnnouncementDeleteFailed' => 'お知らせの削除に失敗しました',
 			'common.groupAnnouncementDeleteSuccess' => 'お知らせを削除しました',
 			'common.privacyClearChatHistory' => 'チャット履歴を消去',
+			_ => null,
+		} ?? switch (path) {
 			'common.privacyClearChatHistoryConfirm' => 'すべてのチャット履歴を消去してもよろしいですか？この操作は取り消せません。',
 			'common.privacyLogoutAccountConfirm' => 'アカウントを削除してもよろしいですか？この操作によりアカウントとすべてのデータが永久に削除され、復元することはできません。',
 			'common.privacySettings' => 'プライバシー設定',
@@ -4489,8 +4529,6 @@ extension on TranslationsJaJp {
 			'common.clearChatRecordsDesc' => 'すべてのチャット履歴を消去します。この操作は取り消せません',
 			'common.deleteAccountAction' => 'アカウントを削除',
 			'common.deleteAccountActionDesc' => 'アカウントとすべてのデータを完全に削除します。この操作は取り消せません',
-			_ => null,
-		} ?? switch (path) {
 			'common.chatHistoryCleared' => 'チャット履歴を消去しました',
 			'common.chatDeleteMessage' => 'メッセージを削除',
 			'common.chatCopy' => 'コピー',
@@ -4984,6 +5022,8 @@ extension on TranslationsJaJp {
 			'common.transferMinAmountError' => '送金の最低金額は0.01元です',
 			'common.transferPending' => '相手の確認待ち',
 			'common.transferReceiving' => '受取処理中...',
+			_ => null,
+		} ?? switch (path) {
 			'common.transferRefunded' => '返金されました',
 			'common.transferRemarkLabel' => '送金メモ',
 			'common.transferTapToReceive' => 'タップして受け取る',
@@ -5003,8 +5043,6 @@ extension on TranslationsJaJp {
 			'common.redPacketDialogTitle' => 'お年玉を贈ります',
 			'common.redPacketFetchError' => 'お年玉の詳細取得でエラーが発生しました',
 			'common.redPacketFetchFailed' => 'お年玉の詳細を取得できませんでした',
-			_ => null,
-		} ?? switch (path) {
 			'common.redPacketGreetingLabel' => 'メッセージ / 祝いの言葉',
 			'common.redPacketNotFound' => 'お年玉が存在しないか、削除されました',
 			'common.redPacketReceiverLabel' => ({required Object uid}) => 'ユーザー：${uid}',
@@ -5498,6 +5536,8 @@ extension on TranslationsJaJp {
 			'main.deleting' => '削除中...',
 			'main.publish' => '公開',
 			'main.privacyPolicy' => 'プライバシーポリシー',
+			_ => null,
+		} ?? switch (path) {
 			'main.termsOfService' => '利用規約',
 			'main.saving' => _root.common.loading,
 			'main.systemDefault' => 'システムデフォルト',
@@ -5517,8 +5557,6 @@ extension on TranslationsJaJp {
 			'main.selectFromAlbum' => 'アルバムから選択',
 			'main.volumeUp' => '音量を上げる',
 			'main.volumeDown' => '音量を下げる',
-			_ => null,
-		} ?? switch (path) {
 			'main.fastRewind' => ({required Object seconds}) => '巻き戻し ${seconds}秒',
 			'main.pleaseTryAgain' => 'もう一度お試しください',
 			'main.secret' => '秘密',
@@ -6012,6 +6050,8 @@ extension on TranslationsJaJp {
 			'organization.experienceUi.switchSpace' => 'スペースを切り替え',
 			'organization.experienceUi.personalSpace' => '個人スペース',
 			'organization.experienceUi.enterpriseSpaces' => '企業スペース',
+			_ => null,
+		} ?? switch (path) {
 			'organization.experienceUi.currentSpace' => '現在のスペース',
 			'organization.experienceUi.enterpriseInfo' => '企業情報',
 			'organization.experienceUi.collaborationSpace' => 'コラボレーションスペース',
@@ -6031,8 +6071,6 @@ extension on TranslationsJaJp {
 			'passport.hintVerifyCode' => '認証コードを入力してください',
 			'passport.getVerifyCode' => '認証コードを取得',
 			'passport.oneKeyLogin' => 'ワンタップログイン',
-			_ => null,
-		} ?? switch (path) {
 			'passport.qrCodeExpired' => 'QRコードの有効期限が切れました。もう一度スキャンしてください',
 			'passport.qrCodeUsed' => 'このQRコードは使用済みです',
 			'passport.qrConnecting' => '接続中...',

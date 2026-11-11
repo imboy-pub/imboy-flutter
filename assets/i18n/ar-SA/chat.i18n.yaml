@@ -249,3 +249,24 @@ multiSelectDeselectAll: إلغاء التحديد الكل
 multiSelectExport: تصدير
 multiSelectForwardEach: إعادة توجيه فردي
 multiSelectForwardBundle: إعادة توجيه مجمعة
+
+# تصدير الدردشة / مشاركة النظام (chat_export_share_v1).
+exportE2eeConfirmTitle: "تصدير المحادثة المشفرة"
+exportE2eeConfirmBody: "سيتجاوز المحتوى المُصدَّر البيئة المشفرة. أي شخص يحصل على الملف سيتمكن من قراءته."
+exportConfirmOk: "تصدير على أي حال"
+exportConfirmCancel: "إلغاء"
+exportShared: "تمت المشاركة"
+exportFailed: "فشل التصدير"
+exportNothingToExport: "لا توجد رسائل للتصدير"
+exportPlaceholderImage: "[صورة]"
+exportPlaceholderVoice: "[رسالة صوتية]"
+exportPlaceholderVideo: "[فيديو]"
+exportPlaceholderFile: "[ملف]"
+exportPlaceholderLocation: "[موقع]"
+exportPlaceholderExpression: "[ملصق]"
+exportPlaceholderMessage: "[رسالة]"
+exportLabelConversation: "المحادثة"
+exportLabelExportedAt: "وقت التصدير"
+exportLabelCount: "العدد"
+exportHtmlTitle: "سجل محادثات IMBoy"
+exportHtmlLang: "ar-SA"

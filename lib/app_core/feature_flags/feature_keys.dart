@@ -46,4 +46,14 @@ class FeatureKeys {
   // 注意：直接用 isEnabled('chat_multi_select_v1') 会因未进编译清单恒为
   // false —— snapshot 覆盖也无效，这是两者的关键区别。
   static const chatMultiSelectV1 = 'chat_multi_select_v1';
+
+  // 聊天导出/系统分享 v1 灰度开关（RUN chat-multi-20261111 §4.1、§11 W3-J）。
+  //
+  // 同 [chatMultiSelectV1] 机制：**rollout flag**，不进 compiledProductFeatures
+  // 编译清单，判定必须走
+  // [AppFeatureRegistry.isRolloutFlagEnabled]（本地默认 false，fail-closed；
+  // 服务端 /api/v1/app-features snapshot 下发 true 或测试
+  // replaceSnapshotForTest({'chat_export_share_v1': true}) 可开启）。
+  // 直接用 isEnabled() 对本键恒 false。
+  static const chatExportShareV1 = 'chat_export_share_v1';
 }

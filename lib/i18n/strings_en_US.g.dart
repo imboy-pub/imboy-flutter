@@ -825,6 +825,25 @@ class _Translations$chat$en_US extends Translations$chat$zh_CN {
 	@override String get multiSelectForwardEach => 'Forward separately';
 	@override String get multiSelectForwardBundle => 'Forward together';
 	@override String get multiSelectExport => 'Export';
+	@override String get exportE2eeConfirmTitle => 'Export encrypted conversation';
+	@override String get exportE2eeConfirmBody => 'The exported content will leave the encrypted environment. Anyone who obtains the file can read it.';
+	@override String get exportConfirmOk => 'Export anyway';
+	@override String get exportConfirmCancel => 'Cancel';
+	@override String get exportShared => 'Shared';
+	@override String get exportFailed => 'Export failed';
+	@override String get exportNothingToExport => 'No messages to export';
+	@override String get exportPlaceholderImage => '[Image]';
+	@override String get exportPlaceholderVoice => '[Voice]';
+	@override String get exportPlaceholderVideo => '[Video]';
+	@override String get exportPlaceholderFile => '[File]';
+	@override String get exportPlaceholderLocation => '[Location]';
+	@override String get exportPlaceholderExpression => '[Sticker]';
+	@override String get exportPlaceholderMessage => '[Message]';
+	@override String get exportLabelConversation => 'Conversation';
+	@override String get exportLabelExportedAt => 'Exported at';
+	@override String get exportLabelCount => 'Messages';
+	@override String get exportHtmlTitle => 'IMBoy Chat History';
+	@override String get exportHtmlLang => 'en-US';
 }
 
 // Path: common
@@ -4802,6 +4821,25 @@ extension on TranslationsEnUs {
 			'chat.multiSelectForwardEach' => 'Forward separately',
 			'chat.multiSelectForwardBundle' => 'Forward together',
 			'chat.multiSelectExport' => 'Export',
+			'chat.exportE2eeConfirmTitle' => 'Export encrypted conversation',
+			'chat.exportE2eeConfirmBody' => 'The exported content will leave the encrypted environment. Anyone who obtains the file can read it.',
+			'chat.exportConfirmOk' => 'Export anyway',
+			'chat.exportConfirmCancel' => 'Cancel',
+			'chat.exportShared' => 'Shared',
+			'chat.exportFailed' => 'Export failed',
+			'chat.exportNothingToExport' => 'No messages to export',
+			'chat.exportPlaceholderImage' => '[Image]',
+			'chat.exportPlaceholderVoice' => '[Voice]',
+			'chat.exportPlaceholderVideo' => '[Video]',
+			'chat.exportPlaceholderFile' => '[File]',
+			'chat.exportPlaceholderLocation' => '[Location]',
+			'chat.exportPlaceholderExpression' => '[Sticker]',
+			'chat.exportPlaceholderMessage' => '[Message]',
+			'chat.exportLabelConversation' => 'Conversation',
+			'chat.exportLabelExportedAt' => 'Exported at',
+			'chat.exportLabelCount' => 'Messages',
+			'chat.exportHtmlTitle' => 'IMBoy Chat History',
+			'chat.exportHtmlLang' => 'en-US',
 			'common.about' => 'About',
 			'common.aboutApp' => 'About App',
 			'common.accept' => 'Accept',
@@ -5106,6 +5144,8 @@ extension on TranslationsEnUs {
 			'common.version' => 'Version',
 			'common.videoCall' => 'Video call',
 			'common.viewAllGroupMember' => 'View all group members',
+			_ => null,
+		} ?? switch (path) {
 			'common.voiceCall' => 'Voice call',
 			'common.groupCall' => 'Group call',
 			'common.callDisconnected' => 'Call disconnected',
@@ -5125,8 +5165,6 @@ extension on TranslationsEnUs {
 			'common.getVerificationCode' => 'Get verification code',
 			'common.confirmChange' => 'Confirm change',
 			'common.verificationCodeSentToEmail' => 'Verification code will be sent to this email. Please verify within the validity period.',
-			_ => null,
-		} ?? switch (path) {
 			'common.verificationCodeSentToMobile' => 'Verification code will be sent to this phone. Please verify within the validity period.',
 			'common.sendFailed' => 'Failed to send',
 			'common.forceOffline' => 'Offline',
@@ -5620,6 +5658,8 @@ extension on TranslationsEnUs {
 			'common.withdrawAccountEmpty' => 'Please enter your withdrawal account',
 			'common.withdrawMethod' => 'Withdrawal Method',
 			'common.withdrawAmountLabel' => 'Withdrawal Amount',
+			_ => null,
+		} ?? switch (path) {
 			'common.withdrawAlipay' => 'Alipay',
 			'common.withdrawWechat' => 'WeChat',
 			'common.walletBalanceLabel' => ({required Object balance}) => 'Wallet Balance ￥${balance}',
@@ -5639,8 +5679,6 @@ extension on TranslationsEnUs {
 			'common.showPassword' => 'Show password',
 			'common.hidePassword' => 'Hide password',
 			'common.turnOnFlashlight' => 'Turn on flashlight',
-			_ => null,
-		} ?? switch (path) {
 			'common.turnOffFlashlight' => 'Turn off flashlight',
 			'common.pauseScan' => 'Pause scanning',
 			'common.resumeScan' => 'Resume scanning',
@@ -6134,6 +6172,8 @@ extension on TranslationsEnUs {
 			'group.transferredButLeaveFailed' => 'Ownership transferred, but leaving failed. Please retry leaving.',
 			'group.noEligibleSuccessor' => 'No member available to transfer to',
 			'groupCategory.title' => 'Group Categories',
+			_ => null,
+		} ?? switch (path) {
 			'groupCategory.createCategory' => 'Create Category',
 			'groupCategory.categoryName' => 'Category Name',
 			'groupCategory.noCategory' => 'No categories yet',
@@ -6153,8 +6193,6 @@ extension on TranslationsEnUs {
 			'groupDiscovery.emptyTitle' => 'No public groups yet, come back later',
 			'groupDiscovery.searchEmpty' => 'No matching public groups',
 			'groupList.attrAll' => 'All',
-			_ => null,
-		} ?? switch (path) {
 			'groupList.attrOwner' => 'Created by me',
 			'groupList.attrManager' => 'I manage',
 			'groupList.attrJoin' => 'I joined',
@@ -6648,6 +6686,8 @@ extension on TranslationsEnUs {
 			'organization.picker.joinOrgIdInvalid' => 'Enter a valid enterprise ID (numeric)',
 			'organization.picker.joinCodeLabel' => 'Enterprise invite code',
 			'organization.picker.joinSubmit' => 'Join',
+			_ => null,
+		} ?? switch (path) {
 			'organization.picker.joinInvalidCode' => 'The enterprise invite code is invalid or revoked',
 			'organization.picker.joinExpiredCode' => 'The enterprise invite code has expired',
 			'organization.picker.joinFailed' => ({required Object msg}) => 'Join failed: ${msg}',
@@ -6667,8 +6707,6 @@ extension on TranslationsEnUs {
 			'organization.inviteColleagues.tabPossible' => 'Possible colleagues',
 			'organization.inviteColleagues.wechatInvite' => 'Invite via WeChat',
 			'organization.inviteColleagues.wechatInviteHint' => 'Send the invite code to WeChat friends; they join via imboy',
-			_ => null,
-		} ?? switch (path) {
 			'organization.inviteColleagues.faceToFace' => 'Invite face to face',
 			'organization.inviteColleagues.faceToFaceHint' => 'Colleagues scan the QR code or enter the invite code',
 			'organization.inviteColleagues.fromWechatGroup' => 'Add from WeChat groups',
@@ -7162,6 +7200,8 @@ extension on TranslationsEnUs {
 			'talkRecord.exportGenerating' => 'Generating…',
 			'talkRecord.exportQueuedTitle' => 'Export queued',
 			'talkRecord.exportQueuedBody' => 'Request submitted; being queued does not mean the file is ready. Refresh later.',
+			_ => null,
+		} ?? switch (path) {
 			'talkRecord.exportRefreshState' => 'Refresh status',
 			'talkRecord.exportReadyTitle' => 'Export ready',
 			'talkRecord.exportReadyBody' => 'The file is ready to download; the link is short-lived and must be regenerated after expiry.',
@@ -7181,8 +7221,6 @@ extension on TranslationsEnUs {
 			'talkRecord.transferScopeHint' => 'Transferring changes only the managing owner; the note\'s organization and workspace stay unchanged.',
 			'talkRecord.transferCreatedByHint' => 'The creator record stays unchanged; this action is independent of sharing permissions.',
 			'talkRecord.transferCandidateSectionTitle' => 'Choose the new owner',
-			_ => null,
-		} ?? switch (path) {
 			'talkRecord.transferCandidateEmpty' => 'No eligible colleague candidates',
 			'talkRecord.transferCandidateHint' => 'Candidates are colleagues in this organization who meet the workspace policy; eligibility is decided by the server.',
 			'talkRecord.transferKeepSectionTitle' => 'Original owner access',

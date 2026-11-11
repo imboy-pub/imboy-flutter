@@ -249,3 +249,24 @@ multiSelectDeselectAll: Снять выделение
 multiSelectForwardEach: Переслать по отдельности
 multiSelectForwardBundle: Переслать вместе
 multiSelectExport: Экспортировать
+
+# Экспорт чата / системный обмен (chat_export_share_v1).
+exportE2eeConfirmTitle: "Экспортировать зашифрованный чат"
+exportE2eeConfirmBody: "Экспортированное содержимое покинет зашифрованную среду. Любой, кто получит файл, сможет его прочитать."
+exportConfirmOk: "Всё равно экспортировать"
+exportConfirmCancel: "Отмена"
+exportShared: "Отправлено"
+exportFailed: "Ошибка экспорта"
+exportNothingToExport: "Нет сообщений для экспорта"
+exportPlaceholderImage: "[Изображение]"
+exportPlaceholderVoice: "[Голосовое сообщение]"
+exportPlaceholderVideo: "[Видео]"
+exportPlaceholderFile: "[Файл]"
+exportPlaceholderLocation: "[Локация]"
+exportPlaceholderExpression: "[Стикер]"
+exportPlaceholderMessage: "[Сообщение]"
+exportLabelConversation: "Чат"
+exportLabelExportedAt: "Время экспорта"
+exportLabelCount: "Количество"
+exportHtmlTitle: "История чата IMBoy"
+exportHtmlLang: "ru-RU"

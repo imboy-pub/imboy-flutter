@@ -2189,6 +2189,63 @@ class Translations$chat$zh_CN {
 
 	/// zh-CN: '导出'
 	String get multiSelectExport => '导出';
+
+	/// zh-CN: '导出加密会话'
+	String get exportE2eeConfirmTitle => '导出加密会话';
+
+	/// zh-CN: '导出的内容将离开加密环境，任何获得该文件的人都能读取。'
+	String get exportE2eeConfirmBody => '导出的内容将离开加密环境，任何获得该文件的人都能读取。';
+
+	/// zh-CN: '仍要导出'
+	String get exportConfirmOk => '仍要导出';
+
+	/// zh-CN: '取消'
+	String get exportConfirmCancel => '取消';
+
+	/// zh-CN: '已分享'
+	String get exportShared => '已分享';
+
+	/// zh-CN: '导出失败'
+	String get exportFailed => '导出失败';
+
+	/// zh-CN: '没有可导出的消息'
+	String get exportNothingToExport => '没有可导出的消息';
+
+	/// zh-CN: '[图片]'
+	String get exportPlaceholderImage => '[图片]';
+
+	/// zh-CN: '[语音]'
+	String get exportPlaceholderVoice => '[语音]';
+
+	/// zh-CN: '[视频]'
+	String get exportPlaceholderVideo => '[视频]';
+
+	/// zh-CN: '[文件]'
+	String get exportPlaceholderFile => '[文件]';
+
+	/// zh-CN: '[位置]'
+	String get exportPlaceholderLocation => '[位置]';
+
+	/// zh-CN: '[表情]'
+	String get exportPlaceholderExpression => '[表情]';
+
+	/// zh-CN: '[消息]'
+	String get exportPlaceholderMessage => '[消息]';
+
+	/// zh-CN: '会话'
+	String get exportLabelConversation => '会话';
+
+	/// zh-CN: '导出时间'
+	String get exportLabelExportedAt => '导出时间';
+
+	/// zh-CN: '条数'
+	String get exportLabelCount => '条数';
+
+	/// zh-CN: 'IMBoy 聊天记录'
+	String get exportHtmlTitle => 'IMBoy 聊天记录';
+
+	/// zh-CN: 'zh-CN'
+	String get exportHtmlLang => 'zh-CN';
 }
 
 // Path: common
@@ -11828,6 +11885,25 @@ extension on Translations {
 			'chat.multiSelectForwardEach' => '逐条转发',
 			'chat.multiSelectForwardBundle' => '合并转发',
 			'chat.multiSelectExport' => '导出',
+			'chat.exportE2eeConfirmTitle' => '导出加密会话',
+			'chat.exportE2eeConfirmBody' => '导出的内容将离开加密环境，任何获得该文件的人都能读取。',
+			'chat.exportConfirmOk' => '仍要导出',
+			'chat.exportConfirmCancel' => '取消',
+			'chat.exportShared' => '已分享',
+			'chat.exportFailed' => '导出失败',
+			'chat.exportNothingToExport' => '没有可导出的消息',
+			'chat.exportPlaceholderImage' => '[图片]',
+			'chat.exportPlaceholderVoice' => '[语音]',
+			'chat.exportPlaceholderVideo' => '[视频]',
+			'chat.exportPlaceholderFile' => '[文件]',
+			'chat.exportPlaceholderLocation' => '[位置]',
+			'chat.exportPlaceholderExpression' => '[表情]',
+			'chat.exportPlaceholderMessage' => '[消息]',
+			'chat.exportLabelConversation' => '会话',
+			'chat.exportLabelExportedAt' => '导出时间',
+			'chat.exportLabelCount' => '条数',
+			'chat.exportHtmlTitle' => 'IMBoy 聊天记录',
+			'chat.exportHtmlLang' => 'zh-CN',
 			'common.about' => '关于',
 			'common.aboutApp' => '关于应用',
 			'common.accept' => '接受',
@@ -12130,6 +12206,8 @@ extension on Translations {
 			'common.titleContact' => '联系人',
 			'common.today' => '今天',
 			'common.unknown' => '未知',
+			_ => null,
+		} ?? switch (path) {
 			'common.unknownMessage' => '未知消息',
 			'common.updateLog' => '更新日志',
 			'common.updateNow' => '立即更新',
@@ -12149,8 +12227,6 @@ extension on Translations {
 			'common.voiceInputNotImplemented' => '语音输入功能暂无实现',
 			'common.waitingDownload' => '等待下载',
 			'common.waitingPeerAccept' => '等待对方接受邀请...',
-			_ => null,
-		} ?? switch (path) {
 			'common.warning' => '警告:',
 			'common.webpageLoading' => '网页加载中...',
 			'common.yesterday' => '昨天',
@@ -12644,6 +12720,8 @@ extension on Translations {
 			'common.e2eeBackupCloudRestoreHint' => ({required Object version}) => '检测到云端备份（版本 ${version}）',
 			'common.e2eeBackupCloudRestoreBtn' => '从云端恢复',
 			'common.e2eeBackupCloudRestoreConfirmNote' => '恢复后将覆盖本设备当前的 E2EE 密钥',
+			_ => null,
+		} ?? switch (path) {
 			'common.e2eeBackupCloudPwdHint' => '请输入备份口令',
 			'common.e2eeBackupErrNoCloudBackup' => '云端暂无备份',
 			'common.e2eeBackupErrCloudPwd' => '口令错误或备份损坏',
@@ -12663,8 +12741,6 @@ extension on Translations {
 			'common.e2eeBackupErrUrlTooLarge' => '文件过大（超过 10MB 上限）',
 			'common.passwordEncryptFailed' => '密码加密失败',
 			'common.initConfigTimeout' => '配置获取超时：请检查网络连接或服务端状态',
-			_ => null,
-		} ?? switch (path) {
 			'common.initConfigNetworkError' => ({required Object code}) => '网络故障或服务故障 (HTTP ${code})',
 			'common.initConfigProtocolError' => '服务故障协议有误',
 			'common.initConfigFetchFailed' => '配置获取失败，请检查网络连接',
@@ -13158,6 +13234,8 @@ extension on Translations {
 			'group.groupAlbumPhotoCount' => ({required Object count}) => '${count} 张图片',
 			'group.groupAlbumPhotoIdMissing' => '图片ID缺失，无法查看详情',
 			'group.groupAlbumPhotoListTitle' => '相册图片',
+			_ => null,
+		} ?? switch (path) {
 			'group.groupAlbumPhotoSelectedCount' => ({required Object count}) => '已选择 ${count} 项',
 			'group.groupAlbumPhotoEmpty' => '暂无图片',
 			'group.groupAlbumPhotoUrlMissing' => '图片地址缺失，无法打开',
@@ -13177,8 +13255,6 @@ extension on Translations {
 			'group.sureToTransferAndLeave' => '转让后你将退出本群并失去群主权限，确定继续吗？',
 			'group.transferredButLeaveFailed' => '已转让群主，但退出失败，请重试退出',
 			'group.noEligibleSuccessor' => '暂无可转让的成员',
-			_ => null,
-		} ?? switch (path) {
 			'groupCategory.title' => '群分组',
 			'groupCategory.createCategory' => '创建分组',
 			'groupCategory.categoryName' => '分组名称',
@@ -13672,6 +13748,8 @@ extension on Translations {
 			'organization.departments.casConflictHint' => '部门已被并发修改，已刷新为最新部门树，请重试操作',
 			'organization.departments.expandNode' => ({required Object name}) => '展开「${name}」',
 			'organization.departments.collapseNode' => ({required Object name}) => '收起「${name}」',
+			_ => null,
+		} ?? switch (path) {
 			'organization.departments.removeMemberUid' => ({required Object userId}) => '移除成员 ${userId}',
 			'organization.departments.removeMemberConfirm' => ({required Object userId, required Object name}) => '将把成员 ${userId} 移出「${name}」。其企业成员资格与在其他部门的身份不受影响（兼职模型）。',
 			'organization.departments.removeMemberFailed' => '移除部门成员失败',
@@ -13691,8 +13769,6 @@ extension on Translations {
 			'organization.picker.joinOrgIdHint' => '向企业管理员获取（数字 ID）',
 			'organization.picker.joinOrgIdInvalid' => '请输入有效的企业 ID（数字）',
 			'organization.picker.joinCodeLabel' => '企业邀请码',
-			_ => null,
-		} ?? switch (path) {
 			'organization.picker.joinSubmit' => '加入',
 			'organization.picker.joinInvalidCode' => '企业邀请码无效或已失效',
 			'organization.picker.joinExpiredCode' => '企业邀请码已过期',
@@ -14186,6 +14262,8 @@ extension on Translations {
 			'talkRecord.grantEditConflict' => '授权已被他人更新，请返回刷新名单后重试；你的设置已保留。',
 			'talkRecord.grantEditSaveFailed' => '保存失败，请稍后重试；你的设置已保留。',
 			'talkRecord.invalidTitle' => '暂时无法查看',
+			_ => null,
+		} ?? switch (path) {
 			'talkRecord.invalidBody' => '该内容当前无法查看，可能不存在或你没有查看权限。',
 			'talkRecord.invalidBack' => '返回',
 			'talkRecord.resultBack' => '返回',
@@ -14205,8 +14283,6 @@ extension on Translations {
 			'talkRecord.exportGenerate' => '生成导出',
 			'talkRecord.exportGenerating' => '生成中…',
 			'talkRecord.exportQueuedTitle' => '导出排队中',
-			_ => null,
-		} ?? switch (path) {
 			'talkRecord.exportQueuedBody' => '已提交生成请求；排队不代表已生成完成，可稍后刷新状态。',
 			'talkRecord.exportRefreshState' => '刷新状态',
 			'talkRecord.exportReadyTitle' => '导出已就绪',

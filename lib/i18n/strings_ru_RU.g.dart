@@ -759,6 +759,25 @@ class _Translations$chat$ru_RU extends Translations$chat$zh_CN {
 	@override String get multiSelectForwardEach => 'Переслать по отдельности';
 	@override String get multiSelectForwardBundle => 'Переслать вместе';
 	@override String get multiSelectExport => 'Экспортировать';
+	@override String get exportE2eeConfirmTitle => 'Экспортировать зашифрованный чат';
+	@override String get exportE2eeConfirmBody => 'Экспортированное содержимое покинет зашифрованную среду. Любой, кто получит файл, сможет его прочитать.';
+	@override String get exportConfirmOk => 'Всё равно экспортировать';
+	@override String get exportConfirmCancel => 'Отмена';
+	@override String get exportShared => 'Отправлено';
+	@override String get exportFailed => 'Ошибка экспорта';
+	@override String get exportNothingToExport => 'Нет сообщений для экспорта';
+	@override String get exportPlaceholderImage => '[Изображение]';
+	@override String get exportPlaceholderVoice => '[Голосовое сообщение]';
+	@override String get exportPlaceholderVideo => '[Видео]';
+	@override String get exportPlaceholderFile => '[Файл]';
+	@override String get exportPlaceholderLocation => '[Локация]';
+	@override String get exportPlaceholderExpression => '[Стикер]';
+	@override String get exportPlaceholderMessage => '[Сообщение]';
+	@override String get exportLabelConversation => 'Чат';
+	@override String get exportLabelExportedAt => 'Время экспорта';
+	@override String get exportLabelCount => 'Количество';
+	@override String get exportHtmlTitle => 'История чата IMBoy';
+	@override String get exportHtmlLang => 'ru-RU';
 }
 
 // Path: common
@@ -4120,6 +4139,25 @@ extension on TranslationsRuRu {
 			'chat.multiSelectForwardEach' => 'Переслать по отдельности',
 			'chat.multiSelectForwardBundle' => 'Переслать вместе',
 			'chat.multiSelectExport' => 'Экспортировать',
+			'chat.exportE2eeConfirmTitle' => 'Экспортировать зашифрованный чат',
+			'chat.exportE2eeConfirmBody' => 'Экспортированное содержимое покинет зашифрованную среду. Любой, кто получит файл, сможет его прочитать.',
+			'chat.exportConfirmOk' => 'Всё равно экспортировать',
+			'chat.exportConfirmCancel' => 'Отмена',
+			'chat.exportShared' => 'Отправлено',
+			'chat.exportFailed' => 'Ошибка экспорта',
+			'chat.exportNothingToExport' => 'Нет сообщений для экспорта',
+			'chat.exportPlaceholderImage' => '[Изображение]',
+			'chat.exportPlaceholderVoice' => '[Голосовое сообщение]',
+			'chat.exportPlaceholderVideo' => '[Видео]',
+			'chat.exportPlaceholderFile' => '[Файл]',
+			'chat.exportPlaceholderLocation' => '[Локация]',
+			'chat.exportPlaceholderExpression' => '[Стикер]',
+			'chat.exportPlaceholderMessage' => '[Сообщение]',
+			'chat.exportLabelConversation' => 'Чат',
+			'chat.exportLabelExportedAt' => 'Время экспорта',
+			'chat.exportLabelCount' => 'Количество',
+			'chat.exportHtmlTitle' => 'История чата IMBoy',
+			'chat.exportHtmlLang' => 'ru-RU',
 			'common.about' => 'О приложении',
 			'common.aboutApp' => 'О приложении',
 			'common.accept' => 'Принять',
@@ -4479,6 +4517,8 @@ extension on TranslationsRuRu {
 			'common.groupAnnouncementDeleteFailed' => 'Не удалось удалить объявление',
 			'common.groupAnnouncementDeleteSuccess' => 'Объявление удалено',
 			'common.privacyClearChatHistory' => 'Очистить историю чата',
+			_ => null,
+		} ?? switch (path) {
 			'common.privacyClearChatHistoryConfirm' => 'Вы уверены, что хотите очистить всю историю чата? Это действие нельзя отменить.',
 			'common.privacyLogoutAccountConfirm' => 'Удалить аккаунт? Это действие окончательно удалит аккаунт и все данные. Его нельзя отменить.',
 			'common.privacySettings' => 'Настройки конфиденциальности',
@@ -4498,8 +4538,6 @@ extension on TranslationsRuRu {
 			'common.clearChatRecordsDesc' => 'Очистить все записи чата, это действие нельзя отменить',
 			'common.deleteAccountAction' => 'Удалить аккаунт',
 			'common.deleteAccountActionDesc' => 'Окончательно удалить аккаунт и все данные. Это действие нельзя отменить.',
-			_ => null,
-		} ?? switch (path) {
 			'common.chatHistoryCleared' => 'История чата очищена',
 			'common.chatDeleteMessage' => 'Удалить сообщение',
 			'common.chatCopy' => 'Копировать',
@@ -4993,6 +5031,8 @@ extension on TranslationsRuRu {
 			'common.f2fSecretCode' => 'Секретный код',
 			'common.hoursAgo' => 'ч. назад',
 			'common.minutesAgo' => 'мин. назад',
+			_ => null,
+		} ?? switch (path) {
 			'common.initConfigDecryptFailed' => 'Не удалось расшифровать конфигурацию: ключ безопасности приложения не совпадает с серверным. Обновите приложение или обратитесь к администратору',
 			'common.justNow' => 'Только что',
 			'common.me' => 'Я',
@@ -5012,8 +5052,6 @@ extension on TranslationsRuRu {
 			'common.redPacketCurrentLucky' => 'Тип: конверт на удачу',
 			'common.redPacketCurrentNormal' => 'Тип: обычный конверт',
 			'common.redPacketDialogSubtitle' => 'Удачи и благополучия!',
-			_ => null,
-		} ?? switch (path) {
 			'common.redPacketDialogTitle' => 'Красный конверт для вас',
 			'common.redPacketFetchError' => 'Ошибка загрузки деталей конверта',
 			'common.redPacketFetchFailed' => 'Не удалось загрузить детали конверта',
@@ -5507,6 +5545,8 @@ extension on TranslationsRuRu {
 			'main.deleting' => 'Удаление...',
 			'main.publish' => 'Опубликовать',
 			'main.privacyPolicy' => 'Политика конфиденциальности',
+			_ => null,
+		} ?? switch (path) {
 			'main.termsOfService' => 'Условия использования',
 			'main.saving' => _root.common.loading,
 			'main.systemDefault' => 'По умолчанию системы',
@@ -5526,8 +5566,6 @@ extension on TranslationsRuRu {
 			'main.selectFromAlbum' => 'Выбрать из альбома',
 			'main.volumeUp' => 'Увеличить громкость',
 			'main.volumeDown' => 'Уменьшить громкость',
-			_ => null,
-		} ?? switch (path) {
 			'main.fastRewind' => ({required Object seconds}) => 'Быстрая перемотка назад ${seconds} сек',
 			'main.pleaseTryAgain' => 'Пожалуйста, попробуйте снова',
 			'main.secret' => 'Конфиденциально',
@@ -6021,6 +6059,8 @@ extension on TranslationsRuRu {
 			'organization.experienceUi.switchSpace' => 'Переключить пространство',
 			'organization.experienceUi.personalSpace' => 'Личное пространство',
 			'organization.experienceUi.enterpriseSpaces' => 'Корпоративные пространства',
+			_ => null,
+		} ?? switch (path) {
 			'organization.experienceUi.currentSpace' => 'Текущее пространство',
 			'organization.experienceUi.enterpriseInfo' => 'Данные организации',
 			'organization.experienceUi.collaborationSpace' => 'Пространства для совместной работы',
@@ -6040,8 +6080,6 @@ extension on TranslationsRuRu {
 			'passport.hintVerifyCode' => 'Введите код подтверждения',
 			'passport.getVerifyCode' => 'Получить код',
 			'passport.oneKeyLogin' => 'Быстрый вход',
-			_ => null,
-		} ?? switch (path) {
 			'passport.qrCodeExpired' => 'Срок действия QR-кода истёк, отсканируйте заново',
 			'passport.qrCodeUsed' => 'Этот QR-код уже использован',
 			'passport.qrConnecting' => 'Подключение...',

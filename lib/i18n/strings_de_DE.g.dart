@@ -759,6 +759,25 @@ class _Translations$chat$de_DE extends Translations$chat$zh_CN {
 	@override String get multiSelectForwardEach => 'Einzeln weiterleiten';
 	@override String get multiSelectForwardBundle => 'Zusammengefasst weiterleiten';
 	@override String get multiSelectExport => 'Exportieren';
+	@override String get exportE2eeConfirmTitle => 'Verschlüsselten Chat exportieren';
+	@override String get exportE2eeConfirmBody => 'Die exportierten Inhalte verlassen die verschlüsselte Umgebung. Jeder, der die Datei erhält, kann sie lesen.';
+	@override String get exportConfirmOk => 'Trotzdem exportieren';
+	@override String get exportConfirmCancel => 'Abbrechen';
+	@override String get exportShared => 'Geteilt';
+	@override String get exportFailed => 'Export fehlgeschlagen';
+	@override String get exportNothingToExport => 'Keine Nachrichten zum Exportieren';
+	@override String get exportPlaceholderImage => '[Bild]';
+	@override String get exportPlaceholderVoice => '[Sprachnachricht]';
+	@override String get exportPlaceholderVideo => '[Video]';
+	@override String get exportPlaceholderFile => '[Datei]';
+	@override String get exportPlaceholderLocation => '[Standort]';
+	@override String get exportPlaceholderExpression => '[Sticker]';
+	@override String get exportPlaceholderMessage => '[Nachricht]';
+	@override String get exportLabelConversation => 'Chat';
+	@override String get exportLabelExportedAt => 'Exportiert am';
+	@override String get exportLabelCount => 'Anzahl';
+	@override String get exportHtmlTitle => 'IMBoy-Chatverlauf';
+	@override String get exportHtmlLang => 'de-DE';
 }
 
 // Path: common
@@ -4114,6 +4133,25 @@ extension on TranslationsDeDe {
 			'chat.multiSelectForwardEach' => 'Einzeln weiterleiten',
 			'chat.multiSelectForwardBundle' => 'Zusammengefasst weiterleiten',
 			'chat.multiSelectExport' => 'Exportieren',
+			'chat.exportE2eeConfirmTitle' => 'Verschlüsselten Chat exportieren',
+			'chat.exportE2eeConfirmBody' => 'Die exportierten Inhalte verlassen die verschlüsselte Umgebung. Jeder, der die Datei erhält, kann sie lesen.',
+			'chat.exportConfirmOk' => 'Trotzdem exportieren',
+			'chat.exportConfirmCancel' => 'Abbrechen',
+			'chat.exportShared' => 'Geteilt',
+			'chat.exportFailed' => 'Export fehlgeschlagen',
+			'chat.exportNothingToExport' => 'Keine Nachrichten zum Exportieren',
+			'chat.exportPlaceholderImage' => '[Bild]',
+			'chat.exportPlaceholderVoice' => '[Sprachnachricht]',
+			'chat.exportPlaceholderVideo' => '[Video]',
+			'chat.exportPlaceholderFile' => '[Datei]',
+			'chat.exportPlaceholderLocation' => '[Standort]',
+			'chat.exportPlaceholderExpression' => '[Sticker]',
+			'chat.exportPlaceholderMessage' => '[Nachricht]',
+			'chat.exportLabelConversation' => 'Chat',
+			'chat.exportLabelExportedAt' => 'Exportiert am',
+			'chat.exportLabelCount' => 'Anzahl',
+			'chat.exportHtmlTitle' => 'IMBoy-Chatverlauf',
+			'chat.exportHtmlLang' => 'de-DE',
 			'common.about' => 'Über',
 			'common.aboutApp' => 'Über die App',
 			'common.accept' => 'Akzeptieren',
@@ -4473,6 +4511,8 @@ extension on TranslationsDeDe {
 			'common.groupAnnouncementDeleteFailed' => 'Ankündigung konnte nicht gelöscht werden',
 			'common.groupAnnouncementDeleteSuccess' => 'Ankündigung gelöscht',
 			'common.privacyClearChatHistory' => 'Chat-Verlauf löschen',
+			_ => null,
+		} ?? switch (path) {
 			'common.privacyClearChatHistoryConfirm' => 'Wirklich gesamten Chat-Verlauf löschen? Diese Aktion kann nicht rückgängig gemacht werden.',
 			'common.privacyLogoutAccountConfirm' => 'Konto wirklich löschen? Diese Aktion wird Ihr Konto und alle Daten dauerhaft löschen und kann nicht rückgängig gemacht werden.',
 			'common.privacySettings' => 'Datenschutz-Einstellungen',
@@ -4492,8 +4532,6 @@ extension on TranslationsDeDe {
 			'common.clearChatRecordsDesc' => 'Alle Chat-Verläufe löschen, diese Aktion kann nicht rückgängig gemacht werden',
 			'common.deleteAccountAction' => 'Konto löschen',
 			'common.deleteAccountActionDesc' => 'Konto und alle Daten dauerhaft löschen, diese Aktion kann nicht rückgängig gemacht werden',
-			_ => null,
-		} ?? switch (path) {
 			'common.chatHistoryCleared' => 'Chat-Verlauf gelöscht',
 			'common.chatDeleteMessage' => 'Nachricht löschen',
 			'common.chatCopy' => 'Kopieren',
@@ -4987,6 +5025,8 @@ extension on TranslationsDeDe {
 			'common.transferAccepted' => 'Empfangen',
 			'common.transferAmountLabel' => 'Überweisungsbetrag',
 			'common.transferConfirm' => 'Überweisung bestätigen',
+			_ => null,
+		} ?? switch (path) {
 			'common.transferDefaultRemark' => 'Überweisung an Freund',
 			'common.transferMinAmountError' => 'Mindestbetrag für Überweisungen: 0.01 Yuan',
 			'common.transferPending' => 'Warten auf Bestätigung der Gegenseite',
@@ -5006,8 +5046,6 @@ extension on TranslationsDeDe {
 			'common.redPacketCurrentLucky' => 'Aktuell: Zufallsbetrag',
 			'common.redPacketCurrentNormal' => 'Aktuell: Festbetrag',
 			'common.redPacketDialogSubtitle' => 'Viel Glück und großen Reichtum',
-			_ => null,
-		} ?? switch (path) {
 			'common.redPacketDialogTitle' => 'Ein Geschenk für Sie',
 			'common.redPacketFetchError' => 'Fehler beim Laden der Geschenk-Details',
 			'common.redPacketFetchFailed' => 'Geschenk-Details konnten nicht geladen werden',
@@ -5501,6 +5539,8 @@ extension on TranslationsDeDe {
 			'main.deleting' => 'Wird gelöscht...',
 			'main.publish' => 'Veröffentlichen',
 			'main.privacyPolicy' => 'Datenschutzrichtlinie',
+			_ => null,
+		} ?? switch (path) {
 			'main.termsOfService' => 'Nutzungsbedingungen',
 			'main.saving' => _root.common.loading,
 			'main.systemDefault' => 'Systemstandard',
@@ -5520,8 +5560,6 @@ extension on TranslationsDeDe {
 			'main.selectFromAlbum' => 'Aus Album auswählen',
 			'main.volumeUp' => 'Lautstärke erhöhen',
 			'main.volumeDown' => 'Lautstärke verringern',
-			_ => null,
-		} ?? switch (path) {
 			'main.fastRewind' => ({required Object seconds}) => 'Schnell zurück ${seconds} Sekunden',
 			'main.pleaseTryAgain' => 'Bitte versuchen Sie es erneut',
 			'main.secret' => 'Geheim',
@@ -6015,6 +6053,8 @@ extension on TranslationsDeDe {
 			'organization.experienceUi.switchSpace' => 'Space wechseln',
 			'organization.experienceUi.personalSpace' => 'Persönlicher Space',
 			'organization.experienceUi.enterpriseSpaces' => 'Unternehmens-Spaces',
+			_ => null,
+		} ?? switch (path) {
 			'organization.experienceUi.currentSpace' => 'Aktueller Space',
 			'organization.experienceUi.enterpriseInfo' => 'Unternehmensinfo',
 			'organization.experienceUi.collaborationSpace' => 'Kollaborations-Spaces',
@@ -6034,8 +6074,6 @@ extension on TranslationsDeDe {
 			'passport.hintVerifyCode' => 'Bitte Bestätigungscode eingeben',
 			'passport.getVerifyCode' => 'Code anfordern',
 			'passport.oneKeyLogin' => 'Schnellanmeldung',
-			_ => null,
-		} ?? switch (path) {
 			'passport.qrCodeExpired' => 'QR-Code abgelaufen, bitte neu scannen',
 			'passport.qrCodeUsed' => 'Dieser QR-Code wurde bereits verwendet',
 			'passport.qrConnecting' => 'Verbindung wird hergestellt...',

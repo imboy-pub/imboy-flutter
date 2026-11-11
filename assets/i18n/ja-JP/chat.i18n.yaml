@@ -250,3 +250,24 @@ multiSelectDeselectAll: 全選択解除
 multiSelectForwardEach: 個別に転送
 multiSelectForwardBundle: まとめて転送
 multiSelectExport: 書き出し
+
+# チャット書き出し／システム共有（chat_export_share_v1）。
+exportE2eeConfirmTitle: "暗号化された会話を書き出す"
+exportE2eeConfirmBody: "書き出した内容は暗号化環境の外に出ます。ファイルを入手した人は誰でも読み取れます。"
+exportConfirmOk: "それでも書き出す"
+exportConfirmCancel: "キャンセル"
+exportShared: "共有しました"
+exportFailed: "書き出しに失敗しました"
+exportNothingToExport: "書き出せるメッセージがありません"
+exportPlaceholderImage: "[画像]"
+exportPlaceholderVoice: "[音声]"
+exportPlaceholderVideo: "[動画]"
+exportPlaceholderFile: "[ファイル]"
+exportPlaceholderLocation: "[位置]"
+exportPlaceholderExpression: "[スタンプ]"
+exportPlaceholderMessage: "[メッセージ]"
+exportLabelConversation: "会話"
+exportLabelExportedAt: "書き出し日時"
+exportLabelCount: "件数"
+exportHtmlTitle: "IMBoy チャット履歴"
+exportHtmlLang: "ja-JP"
