@@ -426,8 +426,9 @@ class _ConversationPageState extends ConsumerState<ConversationPage> {
                 placeholderStyle: ThemeManager.instance.getTextStyle(
                   FontSizeType.medium,
                   fontWeight: FontWeight.w400,
-                  color: AppColors.getTextSecondary(brightness)
-                      .withValues(alpha: 0.75),
+                  color: brightness == Brightness.dark
+                      ? AppColors.darkTextSecondary
+                      : AppColors.lightTextSecondary.withValues(alpha: 0.75),
                 ),
                 padding: const EdgeInsets.symmetric(vertical: AppSpacing.small),
                 prefixInsets: const EdgeInsetsDirectional.only(
@@ -438,8 +439,9 @@ class _ConversationPageState extends ConsumerState<ConversationPage> {
                   start: AppSpacing.small,
                   end: AppSpacing.medium,
                 ),
-                itemColor: AppColors.getTextSecondary(brightness)
-                    .withValues(alpha: 0.75),
+                itemColor: brightness == Brightness.dark
+                    ? AppColors.darkTextSecondary
+                    : AppColors.lightTextSecondary.withValues(alpha: 0.75),
                 borderRadius: AppRadius.borderRadiusMedium,
                 backgroundColor: brightness == Brightness.dark
                     ? AppColors.darkSurfaceGroupedTertiary

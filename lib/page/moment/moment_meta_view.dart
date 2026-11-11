@@ -6,6 +6,7 @@
 library;
 
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/moment/moment_utils.dart';
@@ -69,6 +70,7 @@ class MomentAtSummary extends StatelessWidget {
   Widget build(BuildContext context) {
     final names = momentAtNames(item);
     if (names.isEmpty) return const SizedBox.shrink();
+    final linkColor = AppColors.getWechatBlue(Theme.of(context).brightness);
     final text = names.length == 1
         ? t.discovery.momentAtReminded(name: names.first)
         : t.discovery.momentAtRemindedMore(
@@ -78,17 +80,14 @@ class MomentAtSummary extends StatelessWidget {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        const Icon(CupertinoIcons.at, size: 13, color: AppColors.wechatBlue),
+        Icon(CupertinoIcons.at, size: 13, color: linkColor),
         AppSpacing.horizontalTiny,
         Flexible(
           child: Text(
             text,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: context.textStyle(
-              FontSizeType.footnote,
-              color: AppColors.wechatBlue,
-            ),
+            style: context.textStyle(FontSizeType.footnote, color: linkColor),
           ),
         ),
       ],

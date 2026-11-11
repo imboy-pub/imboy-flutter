@@ -105,6 +105,7 @@ Text
 ```
 Brand / Primary
   brand               #3D8BF0   品牌蓝（暗色版，+12% 明度）
+  sentBubbleDark      #1D5EC2   暗色发送气泡（柔化明度，白字对比度 ≥5.4:1，防夜间眩光）
   brandContainer      #1A3A6B
 
 iOS System Semantic (Dark)
@@ -121,17 +122,18 @@ iOS System Semantic (Dark)
   iosGray6            #1C1C1E   暗色分组列表页背景
 
 Surface
-  surface             #1C1C1E   卡片、接收气泡
-  surfaceGrouped      #000000   暗色分组列表页背景（纯黑，OLED 友好）
-  surfaceElevated     #2C2C2E   Sheet、Dialog 表面
+  background          #121214   暗色底层画布（非 OLED 默认，消除纯黑断层眩光）
+  surface             #1C1C1E   卡片、列表、接收气泡基底
+  surfaceGrouped      #1C1C1E   暗色分组列表页背景（OLED 模式为 #000000）
+  surfaceElevated     #2C2C2E   分组内卡片、Sheet、Dialog、输入框抬升表面
   separator           #545458   (opacity 0.65)
   separatorOpaque     #38383A
 
 Text
-  label               #FFFFFF   主文本
-  labelSecondary      #EBEBF5   (opacity 0.60)
-  labelTertiary       #EBEBF5   (opacity 0.30)
-  labelPlaceholder    #EBEBF5   (opacity 0.30)
+  label               #F2F2F7   主文本（柔白，消除 #FFFFFF 散光光晕 Halation）
+  labelSecondary      #98989F   次文本（等效 #EBEBF5 @ 60% alpha 合成色，拉开主次层级）
+  labelTertiary       #636366   三级文本 / 禁用态
+  labelPlaceholder    #636366   占位文本
 ```
 
 ### 2.4 企业深蓝（Enterprise Navy，2026-10）
@@ -833,21 +835,21 @@ CONTRACT-FREEZE-T02 冻结项（C-F1~C-F4），**后续修改必须维持这些�
 | 浅色 | 暗色 |
 |------|------|
 | `surface` `#FFFFFF` | `surface` `#1C1C1E` |
-| `surfaceGrouped` `#F2F2F7` | `surfaceGrouped` `#000000`（OLED）或 `#1C1C1E` |
-| `surfaceElevated` `#FFFFFF` | `surfaceElevated` `#2C2C2E` |
-| `label` `#000000` | `label` `#FFFFFF` |
-| `brand` `#2474E5` | `brand` `#3D8BF0`（+12% 明度） |
+| `surfaceGrouped` `#F2F2F7` | `surfaceGrouped` `#1C1C1E`（OLED 模式为 `#000000`） |
+| `surfaceElevated` `#FFFFFF` | `surfaceElevated` `#2C2C2E`（`darkSurfaceGroupedTertiary`） |
+| `label` `#000000` | `label` `#F2F2F7`（柔白，防散光光晕） |
+| `labelSecondary` `#3C3C43` | `labelSecondary` `#98989F`（拉开主次层级，WCAG AA 达标） |
+| `brand` `#2474E5` | `brand` `#3D8BF0`（图标/强调）；发送气泡 `#1D5EC2`（防眩光） |
 | `iosBlue` `#007AFF` | `iosBlue` `#0A84FF` |
-| `separator` `#C6C6C8` | `separator` `#545458` |
+| `separator` `#C6C6C8` | `separator` `#38383A` / `#545458` |
 
 ### 10.3 暗色专有规则
 
-- 避免纯白文字 `#FFFFFF` 在纯黑背景 `#000000` 上的高对比度刺眼 → 用 `#EBEBF5` (opacity 0.95) 作为正文
-- 气泡接收背景不要用 `#000000`，最低 `#1C1C1E`，否则气泡与背景融合
-- 分隔线在暗色下必须提亮到 `#38383A` 或 `#545458`
-- OLED 模式仅页面背景为纯黑，Cell/气泡仍用 `#1C1C1E`
-
-> 现有 `AppColors.oledBackground = #000000` / `oledReceivedMessageBackground = #1A1A1A` 基本对齐此规范，轻微调优即可。
+- **防光晕（Anti-Halation）**：禁止在暗底上大面积使用纯白 `#FFFFFF` 文字 → 统一使用 `darkTextPrimary`（`#F2F2F7`）作为主文本，次要文本使用 `darkTextSecondary`（`#98989F`），建立清晰的视觉退让层次。
+- **消除纯黑断层（Elevation over Pitch Black）**：非 OLED 默认暗色画布采用 `#121214` / `#1C1C1E` 阶梯，分组内卡片采用 `#2C2C2E`，避免 `#000000` 纯黑与亮色块产生强烈瞳孔缩放疲劳与 OLED 滚动拖影（Black Smearing）。
+- **聊天气泡柔和对比**：暗色聊天背景使用 `#1C1C1E`，接收气泡微抬升至 `#262629`，发送气泡使用沉稳深蓝 `#1D5EC2` + `#F5F7FA` 柔白字（对比度 5.45:1），消除夜间大面积亮蓝气泡刺眼问题。
+- **中性色温一致**：暗色容器表面统一采用 Apple HIG 中性暗灰阶（`#1C1C1E` → `#242426` → `#2C2C2E`），不混用高饱和冷蓝灰。
+- OLED 模式仅页面背景为纯黑 `#000000`，Cell/气泡仍用 `#1A1A1A`~`#1C1C1E`。
 
 ---
 

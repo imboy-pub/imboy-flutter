@@ -85,16 +85,20 @@ GetMaterialApp(
 ### 暗色主题关键色
 | 常量 | 值 |
 |------|-----|
-| darkSurface | `#121212` |
-| darkSurfaceContainer | `#1E1E1E` |
+| darkBackground | `#121214` |
+| darkSurface | `#1C1C1E` |
+| darkSurfaceContainer | `#242426` |
+| darkSurfaceContainerHighest | `#2C2C2E` |
 | darkSurfaceGrouped | `#1C1C1E` |
 | darkSurfaceGroupedOled | `#000000` |
-| darkTextPrimary | `#F0F0F0` |
-| darkTextSecondary | `#D0D0D0` |
-| darkBorder | `#606060` |
-| darkError | `#FF6B6B` |
-| darkSentMessageBackground | `#4CD964` |
-| darkReceivedMessageBackground | `#2A2A2A` |
+| darkSurfaceGroupedTertiary | `#2C2C2E` |
+| darkTextPrimary | `#F2F2F7` |
+| darkTextSecondary | `#98989F` |
+| darkTextDisabled | `#636366` |
+| darkBorder / darkDivider | `#38383A` |
+| darkError | `#FF453A` |
+| darkSentMessageBackground | `#1D5EC2` |
+| darkReceivedMessageBackground | `#262629` |
 
 ### iOS 语义色（2026-04-10 新增，零破坏）
 `iosRed / iosGreen / iosOrange / iosYellow` + 暗色变体；

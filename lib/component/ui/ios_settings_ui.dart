@@ -406,9 +406,7 @@ class ImBoyListTile extends StatelessWidget {
                             FontSizeType.normal,
                             fontWeight: FontWeight.w400,
                             color: isDark
-                                ? AppColors.darkTextSecondary.withValues(
-                                    alpha: 0.7,
-                                  )
+                                ? AppColors.darkTextSecondary
                                 : AppColors.lightTextSecondary.withValues(
                                     alpha: 0.7,
                                   ),

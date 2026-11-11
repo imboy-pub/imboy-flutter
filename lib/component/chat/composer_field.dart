@@ -193,11 +193,13 @@ class ComposerFieldState extends State<ComposerField> {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final isFocused = _focusNode.hasFocus;
-    // 聚焦微交互：失焦用略凹陷的分组灰底，聚焦提亮到 surface（清爽、有"激活"感）。
+    // 聚焦微交互：失焦用柔和的分组灰底（暗色避免纯黑黑洞感），聚焦提亮一档表面。
     final restFill = isDark
-        ? AppColors.darkBackground
+        ? AppColors.darkSurfaceContainer
         : AppColors.lightSurfaceGrouped;
-    final focusFill = isDark ? AppColors.darkSurface : AppColors.lightSurface;
+    final focusFill = isDark
+        ? AppColors.darkSurfaceGroupedTertiary
+        : AppColors.lightSurface;
     final fillColor = isFocused ? focusFill : restFill;
     // 聚焦态：品牌蓝高亮描边(1.5)；失焦态：近乎无边框（凹陷底色已界定边界）。
     final borderColor = isFocused

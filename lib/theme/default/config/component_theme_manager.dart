@@ -63,8 +63,8 @@ class ComponentThemeManager {
         ? AppColors.darkTextPrimary
         : AppColors.lightTextPrimary;
     final hintColor = isDark
-        ? AppColors.darkTextSecondary.withValues(alpha: 0.4)
-        : AppColors.lightTextSecondary.withValues(alpha: 0.4);
+        ? AppColors.darkTextSecondary.withValues(alpha: 0.65)
+        : AppColors.lightTextSecondary.withValues(alpha: 0.45);
 
     return InputDecorationTheme(
       filled: true,

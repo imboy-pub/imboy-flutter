@@ -212,11 +212,9 @@ class _ConversationItemState extends ConsumerState<ConversationItem> {
         .textStyle(
           FontSizeType.normal,
           fontWeight: FontWeight.w400,
-          color:
-              (isDark
-                      ? AppColors.darkTextSecondary
-                      : AppColors.lightTextSecondary)
-                  .withValues(alpha: 0.75),
+          color: isDark
+              ? AppColors.darkTextSecondary
+              : AppColors.lightTextSecondary.withValues(alpha: 0.75),
         )
         .copyWith(height: 1.4);
 

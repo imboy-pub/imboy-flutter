@@ -630,7 +630,7 @@ class _MomentDetailPageState extends State<MomentDetailPage> {
                         style: context.textStyle(
                           FontSizeType.body,
                           fontWeight: FontWeight.w600,
-                          color: AppColors.wechatBlue,
+                          color: AppColors.getWechatBlue(brightness),
                         ),
                       ),
                     ),
@@ -1098,7 +1098,8 @@ class _MomentDetailLikersRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final brightness = Theme.of(context).brightness;
+    final isDark = brightness == Brightness.dark;
     final label = buildLikersLabel(likers, totalCount, translations: context.t);
     if (label.isEmpty) return const SizedBox.shrink();
     return Container(
@@ -1119,7 +1120,7 @@ class _MomentDetailLikersRow extends StatelessWidget {
               label,
               style: context.textStyle(
                 FontSizeType.footnote,
-                color: AppColors.wechatBlue,
+                color: AppColors.getWechatBlue(brightness),
               ),
             ),
           ),
@@ -1193,7 +1194,7 @@ class _AnimatedHeartState extends State<_AnimatedHeart>
       child: Icon(
         CupertinoIcons.heart_fill,
         size: widget.size,
-        color: AppColors.wechatBlue,
+        color: AppColors.getWechatBlue(Theme.of(context).brightness),
       ),
     );
   }

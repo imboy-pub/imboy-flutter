@@ -437,7 +437,7 @@ class _ChannelCommentPageState extends ConsumerState<ChannelCommentPage> {
                         controller: _inputController,
                         backgroundColor:
                             Theme.of(context).brightness == Brightness.dark
-                            ? AppColors.darkBackground
+                            ? AppColors.darkSurfaceContainer
                             : AppColors.lightSurfaceGrouped,
                         maxLength: 500,
                       )

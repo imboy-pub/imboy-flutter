@@ -66,9 +66,13 @@ class AppTheme {
         onSecondary: Colors.white,
         surface: AppColors.lightSurface,
         onSurface: AppColors.lightTextPrimary,
+        onSurfaceVariant: AppColors.lightTextSecondary,
         error: AppColors.lightError,
         onError: Colors.white,
         outline: AppColors.iosSeparator,
+        outlineVariant: AppColors.lightDivider,
+        surfaceContainerLow: AppColors.lightSurfaceContainerLow,
+        surfaceContainer: AppColors.lightSurfaceContainer,
         surfaceContainerHighest: AppColors.lightSurfaceGrouped,
       ),
       appBarTheme: ComponentThemeManager.getAppBarTheme(isDark: false),
@@ -114,10 +118,14 @@ class AppTheme {
         onSecondary: Colors.white,
         surface: AppColors.darkSurface,
         onSurface: AppColors.darkTextPrimary,
+        onSurfaceVariant: AppColors.darkTextSecondary,
         error: AppColors.darkError,
         onError: Colors.white,
         outline: AppColors.iosSeparatorDark,
-        surfaceContainerHighest: AppColors.darkSurfaceGrouped,
+        outlineVariant: AppColors.darkDivider,
+        surfaceContainerLow: AppColors.darkSurface,
+        surfaceContainer: AppColors.darkSurfaceContainer,
+        surfaceContainerHighest: AppColors.darkSurfaceContainerHighest,
       ),
       appBarTheme: ComponentThemeManager.getAppBarTheme(isDark: true),
       elevatedButtonTheme: ComponentThemeManager.getElevatedButtonTheme(
@@ -136,7 +144,7 @@ class AppTheme {
       cupertinoOverrideTheme: CupertinoThemeData(
         primaryColor: AppColors.primary,
         brightness: Brightness.dark,
-        scaffoldBackgroundColor: AppColors.darkBackground,
+        scaffoldBackgroundColor: AppColors.darkSurfaceGrouped,
       ),
       pageTransitionsTheme: const PageTransitionsTheme(
         builders: {

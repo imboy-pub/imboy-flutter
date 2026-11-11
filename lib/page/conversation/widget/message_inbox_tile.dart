@@ -201,7 +201,9 @@ class _MessageInboxTileState extends State<MessageInboxTile> {
         .textStyle(
           FontSizeType.small,
           fontWeight: FontWeight.w400,
-          color: AppColors.getTextSecondary(brightness).withValues(alpha: 0.75),
+          color: brightness == Brightness.dark
+              ? AppColors.darkTextSecondary
+              : AppColors.lightTextSecondary.withValues(alpha: 0.75),
         )
         .copyWith(fontFeatures: const [FontFeature.tabularFigures()]),
   );

@@ -625,7 +625,7 @@ class _ChannelPublishBarState extends ConsumerState<ChannelPublishBar> {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final surfaceGrouped = isDark
-        ? AppColors.darkBackground
+        ? AppColors.darkSurface
         : AppColors.lightSurfaceGrouped;
     final separator = isDark
         ? AppColors.iosTertiaryLabel

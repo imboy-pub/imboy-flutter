@@ -514,7 +514,6 @@ class _MomentCard extends StatelessWidget {
         : const <String, dynamic>{};
     final media = normalizeMedia(item['media']);
     final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
     final likeCount = parseModelInt(stats['like_count']);
     final commentCount = parseModelInt(stats['comment_count']);
     final likers = parseRecentLikers(item);
@@ -563,9 +562,7 @@ class _MomentCard extends StatelessWidget {
                             style: context.textStyle(
                               FontSizeType.medium,
                               fontWeight: FontWeight.w600,
-                              color: isDark
-                                  ? AppColors.darkTextPrimary
-                                  : AppColors.wechatBlue,
+                              color: AppColors.getWechatBlue(theme.brightness),
                             ),
                           ),
                         ),
@@ -838,10 +835,10 @@ class _AnimatedHeartState extends State<_AnimatedHeart>
   Widget build(BuildContext context) {
     return ScaleTransition(
       scale: _scale,
-      child: const Icon(
+      child: Icon(
         CupertinoIcons.heart_fill,
         size: 14,
-        color: AppColors.wechatBlue,
+        color: AppColors.getWechatBlue(Theme.of(context).brightness),
       ),
     );
   }
@@ -868,6 +865,8 @@ class _MomentLikersRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final brightness = Theme.of(context).brightness;
+    final linkColor = AppColors.getWechatBlue(brightness);
     final label = buildLikersLabel(likers, totalCount, translations: context.t);
     final hasLikes = label.isNotEmpty;
     final hasPreview = comments.isNotEmpty;
@@ -883,7 +882,7 @@ class _MomentLikersRow extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
         decoration: BoxDecoration(
-          color: Theme.of(context).brightness == Brightness.dark
+          color: brightness == Brightness.dark
               ? AppColors.darkSurfaceGroupedTertiary
               : AppColors.lightSurfaceGrouped,
           borderRadius: AppRadius.borderRadiusMedium,
@@ -903,7 +902,7 @@ class _MomentLikersRow extends StatelessWidget {
                       overflow: TextOverflow.ellipsis,
                       style: context.textStyle(
                         FontSizeType.footnote,
-                        color: AppColors.wechatBlue,
+                        color: linkColor,
                       ),
                     ),
                   ),
@@ -912,22 +911,18 @@ class _MomentLikersRow extends StatelessWidget {
             if (hasLikes && (hasPreview || showCountRow))
               AppSpacing.verticalTiny,
             if (hasPreview)
-              ...comments.map((c) => _buildCommentLine(context, c)),
+              ...comments.map((c) => _buildCommentLine(context, c, linkColor)),
             if (hasPreview && showCountRow) AppSpacing.verticalTiny,
             if (showCountRow)
               Row(
                 children: [
-                  const Icon(
-                    CupertinoIcons.chat_bubble,
-                    size: 14,
-                    color: AppColors.wechatBlue,
-                  ),
+                  Icon(CupertinoIcons.chat_bubble, size: 14, color: linkColor),
                   const SizedBox(width: 6),
                   Text(
                     '$commentCount',
                     style: context.textStyle(
                       FontSizeType.footnote,
-                      color: AppColors.wechatBlue,
+                      color: linkColor,
                     ),
                   ),
                 ],
@@ -939,7 +934,11 @@ class _MomentLikersRow extends StatelessWidget {
   }
 
   /// 单条评论预览行：蓝色名字段 + 分隔符 + 正文色内容，最多 2 行省略。
-  Widget _buildCommentLine(BuildContext context, Map<String, dynamic> comment) {
+  Widget _buildCommentLine(
+    BuildContext context,
+    Map<String, dynamic> comment,
+    Color linkColor,
+  ) {
     final displayName = resolveMomentDisplayName(
       remark: parseModelString(comment['user_remark']),
       nickname: parseModelString(comment['user_nickname']),
@@ -970,7 +969,7 @@ class _MomentLikersRow extends StatelessWidget {
               text: '$nameSegment${t.chat.momentsReplySeparator}',
               style: context.textStyle(
                 FontSizeType.footnote,
-                color: AppColors.wechatBlue,
+                color: linkColor,
                 fontWeight: FontWeight.w500,
               ),
             ),

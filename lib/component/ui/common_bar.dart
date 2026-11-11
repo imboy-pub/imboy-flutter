@@ -81,13 +81,13 @@ class GlassAppBar extends StatelessWidget implements PreferredSizeWidget {
 
     // Border color to "catch the light"
     final borderColor = isDark
-        ? AppColors.overlayWhite10
+        ? AppColors.iosSeparatorDark.withValues(alpha: 0.65)
         : AppColors.overlayWhite50; // glass light-mode highlight
 
     // Text color
     final textColor = isDark
-        ? Colors.white.withValues(alpha: 0.95)
-        : Colors.black87;
+        ? AppColors.darkTextPrimary
+        : AppColors.lightTextPrimary;
 
     return ClipRRect(
       child: BackdropFilter(
@@ -96,7 +96,7 @@ class GlassAppBar extends StatelessWidget implements PreferredSizeWidget {
           height: height + MediaQuery.of(context).padding.top,
           decoration: BoxDecoration(
             color: glassBackgroundColor,
-            border: Border(bottom: BorderSide(color: borderColor, width: 0.5)),
+            border: Border(bottom: BorderSide(color: borderColor, width: 0.33)),
           ),
           child: SafeArea(
             bottom: false,

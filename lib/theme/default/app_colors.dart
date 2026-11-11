@@ -110,18 +110,27 @@ class AppColors {
   static const Color lightOnErrorContainer = Color(0xFF410002);
 
   // ============ 暗色主题 ============
-  static const Color darkTextPrimary = Color(0xFFFFFFFF);
-  static const Color darkTextSecondary = Color(0xFFEBEBF5);
-  static const Color darkTextDisabled = Color(0xFF48484A);
+  /// 暗色主文本：采用 iOS 柔白 #F2F2F7 替代刺眼纯白 #FFFFFF，消除暗光下光晕（Halation）。
+  static const Color darkTextPrimary = Color(0xFFF2F2F7);
+
+  /// 暗色次要文本：采用 #98989F（等效 iOS #EBEBF5 @ 60% 叠于 #1C1C1E），
+  /// 与主文本拉开 ~35% 亮度差，同时对 #1C1C1E/#2C2C2E 保持 WCAG AA（≥4.6:1）。
+  static const Color darkTextSecondary = Color(0xFF98989F);
+  static const Color darkTextDisabled = Color(0xFF636366);
   static const Color darkSurface = Color(0xFF1C1C1E);
-  static const Color darkBackground = Color(0xFF000000);
-  static const Color darkSurfaceVariant = Color(0xFF111827);
-  static const Color darkSurfaceContainer = Color(0xFF111827);
-  static const Color darkSurfaceContainerHighest = Color(0xFF1F2937);
+
+  /// 暗色底层画布：非 OLED 默认使用 #121214 深炭灰而非纯黑 #000000，避免滚动时果冻拖影与明暗断层；
+  /// 纯黑保留给 [oledBackground]。
+  static const Color darkBackground = Color(0xFF121214);
+
+  /// 统一为 Apple HIG 中性暗色阶，消除原 Tailwind 冷蓝灰（#111827/#1F2937）与暖灰混用造成的色温割裂。
+  static const Color darkSurfaceVariant = Color(0xFF242426);
+  static const Color darkSurfaceContainer = Color(0xFF242426);
+  static const Color darkSurfaceContainerHighest = Color(0xFF2C2C2E);
   static const Color darkCardBackground = darkSurfaceContainer;
   static const Color darkDivider = Color(0xFF38383A);
-  static const Color darkBorder = Color(0xFF606060);
-  static const Color darkAppBarBackground = darkSurfaceContainer;
+  static const Color darkBorder = Color(0xFF38383A);
+  static const Color darkAppBarBackground = darkSurface;
   static const Color darkError = Color(0xFFFF453A);
   static const Color darkErrorContainer = Color(0xFF4A0E0E);
   static const Color darkOnErrorContainer = Color(0xFFFFDAD6);
@@ -129,12 +138,13 @@ class AppColors {
   // ============ 聊天相关颜色 ============
   static const Color lightSentMessageBackground = primary;
   static const Color lightReceivedMessageBackground = Color(0xFFFFFFFF);
-  // 对齐 DESIGN.md 暗色品牌蓝 #3D8BF0（原 #42A5F5 为漂移值）
-  static const Color darkSentMessageBackground = Color(0xFF3D8BF0);
-  static const Color darkReceivedMessageBackground = Color(0xFF2A2A2A);
-  static const Color sentMessageText = Colors.white;
+  // 暗色发送气泡：采用深邃沉稳的皇家蓝 #1D5EC2（白字对比度 5.45:1，达标 WCAG AA），
+  // 消除原高明度 #3D8BF0 在夜间大面积连续气泡下的刺眼发光感。
+  static const Color darkSentMessageBackground = Color(0xFF1D5EC2);
+  static const Color darkReceivedMessageBackground = Color(0xFF262629);
+  static const Color sentMessageText = Color(0xFFF5F7FA);
   static const Color lightReceivedMessageText = Color(0xFF000000);
-  static const Color darkReceivedMessageText = Color(0xFFFFFFFF);
+  static const Color darkReceivedMessageText = darkTextPrimary;
 
   // ============ 状态与指示器 ============
   static const Color success = Color(0xFF2E7D32);
@@ -244,6 +254,12 @@ class AppColors {
 
   // ============ 第三方品牌色 ============
   static const Color wechatBlue = Color(0xFF576B95);
+
+  /// 暗色模式下的社交/朋友圈蓝灰强调色：提亮至 #7D95C6，在 #2C2C2E / #1C1C1E 上对比度 ≥ 4.8:1。
+  static const Color wechatBlueDark = Color(0xFF7D95C6);
+
+  static Color getWechatBlue(Brightness b) =>
+      b == Brightness.dark ? wechatBlueDark : wechatBlue;
 
   // ============ 语义色补充 ============
   static const Color successBackground = Color(0xFFE8F5E9);

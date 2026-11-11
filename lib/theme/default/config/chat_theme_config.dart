@@ -121,11 +121,12 @@ class ChatThemeConfig {
     bool isEyeCareMode = false,
     BuildContext? context,
   }) {
-    // 根据OLED模式和护眼模式动态调整颜色
-    final backgroundColor = AppColors.getDarkBackground(
-      isOLEDMode,
-      Brightness.dark,
-    );
+    // 根据OLED模式和护眼模式动态调整颜色：
+    // 普通暗色聊天画布使用 darkSurface (#1C1C1E)，接收气泡使用 #262629 微抬升，
+    // 消除原纯黑 (#000000) 画布与高亮气泡之间的强烈对比疲劳；OLED 模式仍用纯黑。
+    final backgroundColor = isOLEDMode
+        ? AppColors.oledBackground
+        : AppColors.darkSurface;
     final surfaceColor = AppColors.getDarkSurface(isOLEDMode, Brightness.dark);
     final containerColor = AppColors.getDarkSurfaceContainer(
       isOLEDMode,
@@ -133,7 +134,7 @@ class ChatThemeConfig {
     );
     final textColor = isEyeCareMode
         ? AppColors.getEyeCareTextColor(isEyeCareMode, Brightness.dark)
-        : Colors.white;
+        : AppColors.darkTextPrimary;
 
     return ChatTheme(
       colors: ChatColors(
