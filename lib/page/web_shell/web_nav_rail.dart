@@ -1,42 +1,44 @@
-/// Phase 1.1.e — Web Shell 左侧导航条（72px NavigationRail）
+/// Web Shell 左侧导航条。
 ///
-/// Telegram Web 风格的桌面侧导航：固定宽度，顶部 4 个 Tab 图标 + 角标，
-/// 选中态以 primary 着色，hover 高亮 surfaceContainerHighest。
-///
-/// 设计原则（与 [WebWelcomePanel] 1.1.d 一致）：
-/// - **无 i18n 依赖**：label 通过参数注入，由调用方（后续 1.1.h WebShellPage）传入 slang 文案
-/// - **无业务依赖**：纯 Material widget，不引入 Riverpod 监听
-/// - **回调驱动**：[WebNavItem] 列表 + currentIndex + onTap 形成完整 props
-/// - **响应主题**：用 ColorScheme 取色，亮暗模式自动适配
+/// 桌面端实际渲染复用 [DesktopNavigationRail]：macOS、Windows、Linux 与 Web
+/// 使用同一套展开/收起、hover、选中态、角标和键盘交互。此文件保留 Web Shell
+/// 既有 API，并负责导航展开偏好的本地持久化。
 library;
 
-import 'package:flutter/material.dart';
-import 'package:imboy/component/ui/cell_pressable.dart';
-import 'package:imboy/theme/default/app_radius.dart';
-import 'package:imboy/theme/default/app_sizes.dart';
-import 'package:imboy/theme/default/app_spacing.dart';
-import 'package:imboy/theme/default/font_types.dart';
-import 'package:imboy/theme/default/app_colors.dart';
+import 'dart:async';
 
-/// 单个导航项数据载体（不可变）
+import 'package:flutter/material.dart';
+import 'package:imboy/component/ui/desktop_navigation_rail.dart';
+import 'package:imboy/i18n/strings.g.dart';
+import 'package:imboy/service/storage.dart';
+
+/// 单个导航项数据载体（不可变）。
 class WebNavItem {
-  /// 未选中态图标
+  /// 未选中态图标。
   final IconData icon;
 
-  /// 选中态图标（高亮版本，通常是 filled 变体）
+  /// 选中态图标（通常是 filled 变体）。
   final IconData activeIcon;
 
-  /// 文字标签（i18n 化的字符串，由调用方传入）
+  /// 文字标签（由调用方注入已解析的 i18n 文案）。
   final String label;
 
-  /// 角标计数（0 = 不显示，> 99 显示 "99+"）
+  /// 角标计数（0 = 不显示，> 99 显示 "99+"）。
   final int badgeCount;
+
+  /// 在线/连接状态点，与未读数字角标语义区分。
+  final Color? statusColor;
+
+  /// 展开/收起状态下保持稳定的自动化入口。
+  final Key? controlKey;
 
   const WebNavItem({
     required this.icon,
     required this.activeIcon,
     required this.label,
     this.badgeCount = 0,
+    this.statusColor,
+    this.controlKey,
   });
 
   @override
@@ -46,36 +48,65 @@ class WebNavItem {
           other.icon == icon &&
           other.activeIcon == activeIcon &&
           other.label == label &&
-          other.badgeCount == badgeCount;
+          other.badgeCount == badgeCount &&
+          other.statusColor == statusColor &&
+          other.controlKey == controlKey;
 
   @override
-  int get hashCode => Object.hash(icon, activeIcon, label, badgeCount);
+  int get hashCode => Object.hash(
+    icon,
+    activeIcon,
+    label,
+    badgeCount,
+    statusColor,
+    controlKey,
+  );
 }
 
-/// Web Shell 左侧导航条
-class WebNavRail extends StatelessWidget {
-  /// 导航项（必须 >= 2 个）
+/// Web Shell 及紧凑桌面个人壳共用的可折叠导航条。
+class WebNavRail extends StatefulWidget {
+  /// 导航项（必须 >= 2 个）。
   final List<WebNavItem> items;
 
-  /// 当前选中索引（必须在 [0, items.length) 范围内）
+  /// 当前选中索引（必须在 [0, items.length) 范围内）。
   final int currentIndex;
 
-  /// 切换回调
+  /// 切换回调。
   final ValueChanged<int> onTap;
 
-  /// 导航条宽度（默认 72px，对齐 Telegram Web）
+  /// 收起宽度。保留原 API 名称，默认 72px。
   final double width;
+
+  /// 展开宽度。常规桌面默认 176px，紧凑窗口可传 144px。
+  final double expandedWidth;
 
   /// 独立于业务 tab 的全局入口（例如当前空间）。
   final Widget? leading;
+
+  /// 无已保存偏好时的初始展开状态。
+  final bool initiallyExpanded;
+
+  /// 是否把展开状态写入本地偏好。
+  final bool persistExpandedState;
+
+  /// 最后一个目的地固定在底部（默认用于“我”）。
+  final bool pinLastItemToBottom;
+
+  /// 展开状态变化回调，供宿主测试或扩展埋点使用。
+  final ValueChanged<bool>? onExpandedChanged;
 
   const WebNavRail({
     super.key,
     required this.items,
     required this.currentIndex,
     required this.onTap,
-    this.width = 72,
+    this.width = kDesktopNavigationCollapsedWidth,
+    this.expandedWidth = kDesktopNavigationExpandedWidth,
     this.leading,
+    this.initiallyExpanded = true,
+    this.persistExpandedState = true,
+    this.pinLastItemToBottom = true,
+    this.onExpandedChanged,
   }) : assert(items.length >= 2, 'WebNavRail 至少需要 2 个 items'),
        assert(
          currentIndex >= 0 && currentIndex < items.length,
@@ -83,129 +114,80 @@ class WebNavRail extends StatelessWidget {
        );
 
   @override
-  Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    return Container(
-      width: width,
-      color: colorScheme.surfaceContainer,
-      child: SafeArea(
-        child: Column(
-          children: [
-            AppSpacing.verticalMedium,
-            if (leading != null) ...[leading!, AppSpacing.verticalMedium],
-            Expanded(
-              child: SingleChildScrollView(
-                primary: false,
-                child: Column(
-                  children: [
-                    for (var i = 0; i < items.length; i++)
-                      _WebNavRailItem(
-                        item: items[i],
-                        isSelected: i == currentIndex,
-                        onTap: () => onTap(i),
-                      ),
-                  ],
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
+  State<WebNavRail> createState() => _WebNavRailState();
 }
 
-class _WebNavRailItem extends StatelessWidget {
-  final WebNavItem item;
-  final bool isSelected;
-  final VoidCallback onTap;
+class _WebNavRailState extends State<WebNavRail> {
+  late bool _expanded;
 
-  const _WebNavRailItem({
-    required this.item,
-    required this.isSelected,
-    required this.onTap,
-  });
+  @override
+  void initState() {
+    super.initState();
+    _expanded = widget.initiallyExpanded;
+    if (widget.persistExpandedState) {
+      try {
+        _expanded =
+            StorageService.to.getBool(
+              kDesktopNavigationExpandedPreferenceKey,
+            ) ??
+            _expanded;
+      } on Object {
+        // 纯 widget 测试可能未初始化 StorageService；使用构造默认值即可。
+      }
+    }
+  }
+
+  @override
+  void didUpdateWidget(covariant WebNavRail oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (!widget.persistExpandedState &&
+        oldWidget.initiallyExpanded != widget.initiallyExpanded) {
+      _expanded = widget.initiallyExpanded;
+    }
+  }
+
+  void _toggleExpanded() {
+    final next = !_expanded;
+    setState(() => _expanded = next);
+    widget.onExpandedChanged?.call(next);
+    if (!widget.persistExpandedState) return;
+    try {
+      unawaited(
+        StorageService.to.setBool(
+          kDesktopNavigationExpandedPreferenceKey,
+          next,
+        ),
+      );
+    } on Object {
+      // 本地偏好失败不应阻断当前会话内的导航交互。
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final iconColor = isSelected
-        ? colorScheme.primary
-        : colorScheme.onSurfaceVariant;
-
-    return Tooltip(
-      message: item.label,
-      excludeFromSemantics: true,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(
-          vertical: AppSpacing.tiny,
-          horizontal: AppSpacing.small,
-        ),
-        child: ClipRRect(
-          borderRadius: AppRadius.borderRadiusMedium,
-          child: CellPressable(
-            onTap: onTap,
-            child: Semantics(
+    return DesktopNavigationRail(
+      items: widget.items
+          .map(
+            (item) => DesktopNavigationItem(
+              icon: item.icon,
+              activeIcon: item.activeIcon,
               label: item.label,
-              selected: isSelected,
-              child: Container(
-                width: AppSizes.buttonHeightXLarge,
-                height: AppSizes.buttonHeightXLarge,
-                decoration: BoxDecoration(
-                  color: isSelected
-                      ? colorScheme.primary.withAlpha(31) // ≈ 0.12 alpha
-                      : AppColors.transparent,
-                  borderRadius: AppRadius.borderRadiusMedium,
-                ),
-                child: Stack(
-                  alignment: Alignment.center,
-                  children: [
-                    Icon(
-                      isSelected ? item.activeIcon : item.icon,
-                      color: iconColor,
-                      size: 26,
-                    ),
-                    if (item.badgeCount > 0)
-                      Positioned(
-                        top: 6,
-                        right: 6,
-                        child: _Badge(count: item.badgeCount),
-                      ),
-                  ],
-                ),
-              ),
+              badgeCount: item.badgeCount,
+              statusColor: item.statusColor,
+              controlKey: item.controlKey,
             ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _Badge extends StatelessWidget {
-  final int count;
-
-  const _Badge({required this.count});
-
-  @override
-  Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final text = count > 99 ? '99+' : count.toString();
-    return Container(
-      constraints: const BoxConstraints(minWidth: 16, minHeight: 16),
-      padding: const EdgeInsets.symmetric(horizontal: 4),
-      decoration: BoxDecoration(color: colorScheme.error),
-      child: Text(
-        text,
-        textAlign: TextAlign.center,
-        style: context
-            .textStyle(
-              FontSizeType.tiny,
-              color: colorScheme.onError,
-              fontWeight: FontWeight.w600,
-            )
-            .copyWith(height: 1.2),
-      ),
+          )
+          .toList(growable: false),
+      selectedIndex: widget.currentIndex,
+      onSelected: widget.onTap,
+      expanded: _expanded,
+      onToggleExpanded: _toggleExpanded,
+      collapseLabel: t.common.collapse,
+      expandLabel: t.common.expandFull,
+      leading: widget.leading,
+      collapsedWidth: widget.width,
+      expandedWidth: widget.expandedWidth,
+      pinLastItemToBottom: widget.pinLastItemToBottom,
     );
   }
 }
