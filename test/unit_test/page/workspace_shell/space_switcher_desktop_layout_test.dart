@@ -25,10 +25,7 @@ Future<void> _pump(WidgetTester tester, {required bool expanded}) async {
                 width: expanded ? 176 : 72,
                 child: DesktopNavigationScope(
                   expanded: expanded,
-                  child: SpaceSwitcherButton(
-                    inRail: true,
-                    onTap: () {},
-                  ),
+                  child: SpaceSwitcherButton(inRail: true, onTap: () {}),
                 ),
               ),
             ),
@@ -40,9 +37,7 @@ Future<void> _pump(WidgetTester tester, {required bool expanded}) async {
 }
 
 void main() {
-  testWidgets('展开态横向展示当前空间，收起态隐藏文案但保留完整语义', (
-    tester,
-  ) async {
+  testWidgets('展开态横向展示当前空间，收起态隐藏文案但保留完整语义', (tester) async {
     final semantics = tester.ensureSemantics();
     try {
       await _pump(tester, expanded: true);

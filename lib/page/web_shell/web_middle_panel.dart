@@ -45,7 +45,10 @@ class _WebMiddlePanelState extends State<WebMiddlePanel> {
     if (oldWidget.currentTab == widget.currentTab) return;
 
     _opacity = 0.96;
-    _offset = Offset(oldWidget.currentTab < widget.currentTab ? 0.012 : -0.012, 0);
+    _offset = Offset(
+      oldWidget.currentTab < widget.currentTab ? 0.012 : -0.012,
+      0,
+    );
     final ticket = ++_transitionTicket;
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted || ticket != _transitionTicket) return;
@@ -76,10 +79,7 @@ class _WebMiddlePanelState extends State<WebMiddlePanel> {
           duration: transitionDuration,
           curve: Curves.easeOutCubic,
           opacity: _opacity,
-          child: IndexedStack(
-            index: widget.currentTab,
-            children: widget.tabs,
-          ),
+          child: IndexedStack(index: widget.currentTab, children: widget.tabs),
         ),
       );
     } else {

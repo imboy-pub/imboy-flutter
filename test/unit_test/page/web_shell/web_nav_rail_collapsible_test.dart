@@ -19,11 +19,7 @@ const _items = [
     activeIcon: Icons.campaign,
     label: 'Channels',
   ),
-  WebNavItem(
-    icon: Icons.person_outline,
-    activeIcon: Icons.person,
-    label: 'Me',
-  ),
+  WebNavItem(icon: Icons.person_outline, activeIcon: Icons.person, label: 'Me'),
 ];
 
 Future<void> _pump(
@@ -56,9 +52,7 @@ Future<void> _pump(
 }
 
 void main() {
-  testWidgets('展开态 176px 显示文案，收起态 72px 仅保留图标与 Tooltip', (
-    tester,
-  ) async {
+  testWidgets('展开态 176px 显示文案，收起态 72px 仅保留图标与 Tooltip', (tester) async {
     final changes = <bool>[];
     await _pump(tester, onExpandedChanged: changes.add);
 

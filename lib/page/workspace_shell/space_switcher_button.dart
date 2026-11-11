@@ -80,8 +80,7 @@ class _SpaceSwitcherButtonState extends ConsumerState<SpaceSwitcherButton> {
         ? context.t.organization.experienceUi.personalSpace
         : context.t.organization.experienceUi.enterpriseSpaces;
     final desktopScope = DesktopNavigationScope.maybeOf(context);
-    final railExpanded =
-        widget.inRail && (desktopScope?.expanded ?? false);
+    final railExpanded = widget.inRail && (desktopScope?.expanded ?? false);
     // iPad/Android 平板与企业旧壳仍使用 Material NavigationRail；没有共享
     // scope 时保留原先“图标 + 空间名”纵向布局，避免桌面改动外溢到移动端。
     final legacyRail = widget.inRail && desktopScope == null;

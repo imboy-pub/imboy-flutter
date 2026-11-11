@@ -151,10 +151,7 @@ class DesktopNavigationRail extends StatelessWidget {
                       padding: const EdgeInsets.symmetric(
                         horizontal: AppSpacing.small,
                       ),
-                      child: SizedBox(
-                        width: double.infinity,
-                        child: leading!,
-                      ),
+                      child: SizedBox(width: double.infinity, child: leading!),
                     ),
                     AppSpacing.verticalSmall,
                     _RailDivider(expanded: expanded),
@@ -162,9 +159,7 @@ class DesktopNavigationRail extends StatelessWidget {
                   ],
                   Expanded(
                     child: SingleChildScrollView(
-                      key: const ValueKey(
-                        'desktop-navigation-primary-scroll',
-                      ),
+                      key: const ValueKey('desktop-navigation-primary-scroll'),
                       primary: false,
                       padding: EdgeInsets.zero,
                       child: Column(
@@ -259,8 +254,7 @@ class _DesktopNavigationTile extends StatefulWidget {
   final VoidCallback onTap;
 
   @override
-  State<_DesktopNavigationTile> createState() =>
-      _DesktopNavigationTileState();
+  State<_DesktopNavigationTile> createState() => _DesktopNavigationTileState();
 }
 
 class _DesktopNavigationTileState extends State<_DesktopNavigationTile> {

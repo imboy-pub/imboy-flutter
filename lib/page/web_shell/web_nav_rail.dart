@@ -53,14 +53,8 @@ class WebNavItem {
           other.controlKey == controlKey;
 
   @override
-  int get hashCode => Object.hash(
-    icon,
-    activeIcon,
-    label,
-    badgeCount,
-    statusColor,
-    controlKey,
-  );
+  int get hashCode =>
+      Object.hash(icon, activeIcon, label, badgeCount, statusColor, controlKey);
 }
 
 /// Web Shell 及紧凑桌面个人壳共用的可折叠导航条。

@@ -269,12 +269,11 @@ class _BottomNavigationPageState extends ConsumerState<BottomNavigationPage> {
     // 保留既有 Material NavigationRail。
     final isRailLayout =
         width >= AppBreakpoints.mobile && width < AppBreakpoints.wide;
-    final useCollapsibleDesktopRail =
-        shouldUseCollapsibleDesktopNavigation(
-          width: width,
-          platform: defaultTargetPlatform,
-          isWeb: kIsWeb,
-        );
+    final useCollapsibleDesktopRail = shouldUseCollapsibleDesktopNavigation(
+      width: width,
+      platform: defaultTargetPlatform,
+      isWeb: kIsWeb,
+    );
     final pageList = _buildPageList(useRail: isRailLayout);
 
     ref.listen(bottomNavigationProvider, (_, index) {
@@ -393,11 +392,7 @@ class _BottomNavigationPageState extends ConsumerState<BottomNavigationPage> {
                 ),
                 destinations: navigationItems.map((item) {
                   return NavigationRailDestination(
-                    icon: _buildNavigationIcon(
-                      item,
-                      false,
-                      socketStatus,
-                    ),
+                    icon: _buildNavigationIcon(item, false, socketStatus),
                     selectedIcon: _buildNavigationIcon(
                       item,
                       true,
@@ -442,11 +437,8 @@ class _BottomNavigationPageState extends ConsumerState<BottomNavigationPage> {
                     activeIcon: item.activeIcon,
                     label: item.label,
                     tabKey: item.tabKey,
-                    iconBuilder: (isSelected) => _buildNavigationIcon(
-                      item,
-                      isSelected,
-                      socketStatus,
-                    ),
+                    iconBuilder: (isSelected) =>
+                        _buildNavigationIcon(item, isSelected, socketStatus),
                   );
                 }).toList(),
               ),

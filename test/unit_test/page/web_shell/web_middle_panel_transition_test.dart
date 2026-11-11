@@ -38,9 +38,9 @@ void main() {
   testWidgets('切换时保持 IndexedStack 子页状态并执行轻量淡入位移', (tester) async {
     await tester.pumpWidget(_host(0));
     final aBefore = tester.widget<Text>(find.textContaining('A:')).data;
-    final bBefore = tester.widget<Text>(
-      find.textContaining('B:', skipOffstage: false),
-    ).data;
+    final bBefore = tester
+        .widget<Text>(find.textContaining('B:', skipOffstage: false))
+        .data;
 
     await tester.pumpWidget(_host(1));
 
@@ -56,7 +56,10 @@ void main() {
     expect(opacity.opacity, 0.96);
     expect(slide.offset.dx, greaterThan(0));
     expect(find.byType(IndexedStack), findsOneWidget);
-    expect(tester.widget<Text>(find.textContaining('A:', skipOffstage: false)).data, aBefore);
+    expect(
+      tester.widget<Text>(find.textContaining('A:', skipOffstage: false)).data,
+      aBefore,
+    );
     expect(tester.widget<Text>(find.textContaining('B:')).data, bBefore);
 
     await tester.pumpAndSettle();
