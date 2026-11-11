@@ -97,6 +97,25 @@ void main() {
       );
     });
 
+    test(
+      'session token retains base64 characters through URL encoding',
+      () async {
+        final notifier = container.read(qRLoginProvider.notifier);
+        final fake = FakeSseClient();
+        notifier.sseClientBuilderForTesting = () => fake;
+        container.listen<dynamic>(qRLoginProvider, (_, _) {});
+
+        notifier.startSseSession('synthetic+session/token==');
+        await Future<void>.delayed(Duration.zero);
+
+        expect(
+          Uri.parse(fake.lastUrl!).queryParameters['session_token'],
+          'synthetic+session/token==',
+        );
+        notifier.dispose();
+      },
+    );
+
     test('重复调 startSseSession → 旧 session 被 close', () async {
       final notifier = container.read(qRLoginProvider.notifier);
       final fakeOld = FakeSseClient();

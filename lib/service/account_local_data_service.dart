@@ -13,6 +13,7 @@ import 'package:imboy/modules/organization/public.dart'
     show CurrentOrganizationStore, OrganizationCache;
 import 'package:imboy/service/asset_url_resolver.dart';
 import 'package:imboy/service/account_local_files.dart';
+import 'package:imboy/service/account_database_inventory.dart';
 import 'package:imboy/service/account_local_task_registry.dart';
 import 'package:imboy/service/account_media_cache_store.dart';
 import 'package:imboy/service/database_snapshot_service.dart';
@@ -28,16 +29,37 @@ import 'package:imboy/service/olm_session_service.dart';
 import 'package:imboy/service/pending_chat_actions.dart';
 import 'package:imboy/service/server_ack_receipts.dart';
 import 'package:imboy/service/sqlite.dart';
+import 'package:imboy/service/sqflite_init.dart' show initSqfliteFactory;
 import 'package:imboy/service/storage.dart';
 import 'package:imboy/service/storage_secure.dart';
 import 'package:imboy/service/websocket_message_queue.dart';
 
 part 'account_local_data_ownership.dart';
+part 'account_local_data_inventory.dart';
+
+/// Startup must finish this read before any account data can be published.
+class AccountStorageInventoryUnavailableException implements Exception {
+  const AccountStorageInventoryUnavailableException();
+}
 
 /// Removes a proven account identity from this installation. The caller owns
 /// the login/cleanup lock and removes its history record only after success.
 /// No remote account, server data, or user-exported file is deleted here.
 class AccountLocalDataService {
+  /// Capture before startup publishes any account data. Failure stops startup;
+  /// the existing initialization error page can retry without creating data.
+  static Future<void> captureInitialOwnership({
+    AccountLocalDataService? inventoryService,
+  }) => _captureInitialAccountStorage(inventoryService);
+
+  /// This is evidence about the immutable startup inventory, never a fresh read
+  /// after login has overwritten ownership metadata or created account data.
+  static bool wasStorageUnusedAtStartup(LoginAccountIdentity identity) =>
+      _initialAccountStorageInventory?.wasUnused(identity) ?? false;
+
+  @visibleForTesting
+  static void resetInitialOwnershipForTest() => _resetInitialAccountStorage();
+
   AccountLocalDataService({
     Future<Directory> Function()? databaseDirectory,
     Future<Directory> Function()? supportDirectory,
@@ -206,19 +228,7 @@ class AccountLocalDataService {
       if (key == 'db_cipher_key_$uid') return true;
       if (key.startsWith(uploadPrefix) || key.startsWith(aiPrefix)) return true;
       if (!clearLastSessionData) return false;
-      // The legacy purge includes all accounts' DB/upload/AI keys. Explicitly
-      // exclude those scoped families before using its session-secret catalog.
-      if (key.startsWith('db_cipher_key_') ||
-          key.startsWith('talk_record_ai_v1_') ||
-          (key.startsWith('utk_') && key.contains(':'))) {
-        return false;
-      }
-      return E2eeSecretInventory.matchesSecretKey(key) ||
-          const {
-            'secure_token',
-            'secure_refresh_token',
-            'oa_inbound_login_attempt',
-          }.contains(key);
+      return _isLegacySessionSecret(key);
     }
 
     final keys = secure.keys.where(ownsSecret).toList();
@@ -399,6 +409,23 @@ class AccountLocalDataService {
         'need_set_password',
       }.contains(key);
 
+  static bool _isLegacySessionSecret(String key) {
+    // These families have their own account selectors above. The backup
+    // passphrase also has an explicit owner even though its key is global.
+    if (key == kE2eeBackupPassphraseSecureKey ||
+        key.startsWith('db_cipher_key_') ||
+        key.startsWith('talk_record_ai_v1_') ||
+        (key.startsWith('utk_') && key.contains(':'))) {
+      return false;
+    }
+    return E2eeSecretInventory.matchesSecretKey(key) ||
+        const {
+          'secure_token',
+          'secure_refresh_token',
+          'oa_inbound_login_attempt',
+        }.contains(key);
+  }
+
   static Future<void> _deletePath(String path) async {
     final type = await FileSystemEntity.type(path, followLinks: false);
     switch (type) {
@@ -423,11 +450,7 @@ class AccountLocalDataService {
     String uid,
     String selectedEnvironment,
   ) async {
-    final accountDatabase = RegExp(
-      '^([A-Za-z0-9_-]+)_${RegExp.escape(uid)}\\.db'
-      r'(?:(?:\.(?:pre_restore\.bak|restoring\.tmp))?(?:-wal|-shm|-journal)?'
-      r'|\.restore\..+)$',
-    );
+    final accountDatabase = _accountDatabaseArtifactPattern(uid);
     if (await databases.exists()) {
       await for (final entry in databases.list(followLinks: false)) {
         final match = accountDatabase.firstMatch(p.basename(entry.path));

@@ -37,6 +37,7 @@ import 'package:imboy/component/upload/resumable_attachment_uploader.dart';
 import 'package:imboy/service/message_retry.dart';
 import 'package:imboy/service/message_webrtc.dart';
 import 'package:imboy/service/storage.dart';
+import 'package:imboy/service/account_local_data_service.dart';
 import 'package:imboy/service/storage_secure.dart';
 import 'package:imboy/service/websocket.dart';
 import 'package:imboy/service/network_monitor.dart';
@@ -206,6 +207,8 @@ class AppInitializer {
 
     // 初始化存储 - 必须在使用前先初始化
     await StorageService.init();
+    // Freeze legacy storage evidence before environment setup or any writer.
+    await AccountLocalDataService.captureInitialOwnership();
 
     // 【重要】先设置环境变量，确保数据库路径正确
     await _setupEnvironment(env, false);

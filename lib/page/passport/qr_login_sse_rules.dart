@@ -1,9 +1,9 @@
 /// QR 登录 SSE 帧解析 + 降级决策（PR-4α 纯函数）。
 ///
 /// 锚定后端 `imboy/src/api/qr_login_sse_handler.erl` 的输出格式：
-///   - 每帧形如 `data: {"status":"...","token":"..."}\n\n`
+///   - confirmed 帧附 `token`、旧格式 `uid` 和精确字符串 `uid_str`
 ///   - status ∈ {waiting, scanned, confirmed, expired, cancelled}
-///   - 仅 confirmed 时附 token
+///   - 仅 confirmed 时附 token 和对应的权威 uid
 ///
 /// 复用 PR-3 sealed `QrStatusEvent`（同 web_login_page Notifier 决策语义），
 /// 让 SSE 路径与轮询路径共用 `derivePollingDecision`，避免双套状态机漂移。
@@ -44,30 +44,9 @@ QrStatusEvent parseSseFrame(String rawFrame) {
   } catch (_) {
     return const QrStatusStopPolling();
   }
-  if (decoded is! Map) return const QrStatusStopPolling();
-
-  final status = decoded['status'];
-  if (status is! String) return QrStatusUnknown(status?.toString());
-
-  switch (status) {
-    case 'waiting':
-      return const QrStatusWaiting();
-    case 'scanned':
-      return const QrStatusScanned();
-    case 'expired':
-      return const QrStatusExpired();
-    case 'cancelled':
-      return const QrStatusCancelled();
-    case 'confirmed':
-      final token = decoded['token'];
-      if (token is String && token.trim().isNotEmpty) {
-        return QrStatusConfirmed(token);
-      }
-      // confirmed 但 token 缺失：协议违反，由 derivePollingDecision 升级处理
-      return const QrStatusUnknown('confirmed');
-    default:
-      return QrStatusUnknown(status);
-  }
+  // SSE 和轮询共享同一字段合同，尤其不能在 SSE 路径丢弃权威 uid。
+  // 缺少有效 uid 仍由 loginAfterQr 在任何会话写入前拒绝。
+  return parseQrStatusResponse(ok: true, code: 0, payload: decoded);
 }
 
 // ---------------------------------------------------------------------------

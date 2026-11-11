@@ -17,6 +17,7 @@ import 'package:imboy/config/env.dart';
 import 'package:imboy/config/init.dart' show currentEnv;
 import 'package:imboy/service/login_account_history_service.dart';
 import 'package:imboy/service/account_local_files.dart';
+import 'package:imboy/service/account_local_data_service.dart';
 import 'package:imboy/service/account_local_task_registry.dart';
 import 'package:imboy/service/sqlite.dart';
 import 'package:imboy/service/storage.dart';
@@ -82,6 +83,13 @@ void main() {
   late int databaseCalls;
   String? failingSecretKey;
 
+  LoginAccountIdentity identityFor(String uid) => LoginAccountIdentity(
+    uid: uid,
+    environment: currentEnv,
+    endpoint: Env().apiBaseUrl,
+    aliases: const <String>{},
+  );
+
   Map<String, dynamic> syntheticLogin() => {
     'uid': 'synthetic-new-login',
     'token': 'synthetic-access-token',
@@ -108,17 +116,11 @@ void main() {
     PathProviderPlatform.instance = paths;
     SharedPreferences.setMockInitialValues({
       Keys.loginHistoryAccount: [selectedAccount, otherAccount],
-      'draft_v2:$selectedUid:C2C:peer': 'selected draft',
-      'draft_v2:$otherUid:C2C:peer': 'retained draft',
     });
     await StorageService.init();
     repo.clearAuthTransitionFailureForTest();
     SqliteService.setDbForTest(null);
-    secure = {
-      'db_cipher_key_$selectedUid': 'selected synthetic key',
-      'db_cipher_key_$otherUid': 'retained synthetic key',
-      'secure_token': 'retained last session token',
-    };
+    secure = {};
     secureCalls = [];
     databaseCalls = 0;
     failingSecretKey = null;
@@ -159,25 +161,52 @@ void main() {
           }
           return null;
         });
+    AccountLocalDataService.resetInitialOwnershipForTest();
+    await AccountLocalDataService.captureInitialOwnership(
+      inventoryService: AccountLocalDataService(),
+    );
     await history.rememberLogin(
       account: selectedAccount,
       profile: {'user_id': selectedUid},
       environment: currentEnv,
       endpoint: Env().apiBaseUrl,
+      storageWasUnusedAtStartup:
+          AccountLocalDataService.wasStorageUnusedAtStartup(
+            identityFor(selectedUid),
+          ),
     );
     final other = await history.rememberLogin(
       account: otherAccount,
       profile: {'user_id': otherUid},
       environment: currentEnv,
       endpoint: Env().apiBaseUrl,
+      storageWasUnusedAtStartup:
+          AccountLocalDataService.wasStorageUnusedAtStartup(
+            identityFor(otherUid),
+          ),
     );
     await StorageService.setMap(Keys.currentUser, {
       'user_id': otherUid,
       LoginAccountHistoryService.localProfileKey: other.toJson(),
     });
+    for (final (uid, label) in [
+      (selectedUid, 'selected'),
+      (otherUid, 'retained'),
+    ]) {
+      await StorageService.to.setString(
+        'draft_v2:$uid:C2C:peer',
+        '$label draft',
+      );
+      secure['db_cipher_key_$uid'] = '$label synthetic key';
+    }
+    secure['secure_token'] = 'retained last session token';
+    paths.supportReads = 0;
+    databaseCalls = 0;
+    secureCalls.clear();
   });
 
   tearDown(() async {
+    AccountLocalDataService.resetInitialOwnershipForTest();
     PathProviderPlatform.instance = previousPaths;
     SqliteService.setDbForTest(null);
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
@@ -611,7 +640,11 @@ void main() {
     },
   );
 
-  for (final scenario in ['alias reassignment', 'registry recovery']) {
+  for (final scenario in [
+    'alias reassignment',
+    'registry recovery',
+    'legacy valid registry',
+  ]) {
     test('cleanup rejects $scenario before touching shared account data', () async {
       const remoteEndpoint = 'https://retained.example.test/api';
       expect(remoteEndpoint, isNot(Env().apiBaseUrl));
@@ -677,7 +710,7 @@ void main() {
           environment: currentEnv,
           endpoint: remoteEndpoint,
         );
-      } else {
+      } else if (scenario == 'registry recovery') {
         await StorageService.to.setString(
           LoginAccountHistoryService.storageKey,
           '{',
@@ -687,6 +720,29 @@ void main() {
           profile: {'user_id': selectedUid},
           environment: currentEnv,
           endpoint: Env().apiBaseUrl,
+        );
+      } else {
+        // Persist the valid v1 output produced by #55 after the remote owner's
+        // last alias moves to another UID. Its shared data still exists. The
+        // latest saved profile deliberately belongs to an unrelated UID.
+        await StorageService.to.setString(
+          LoginAccountHistoryService.storageKey,
+          jsonEncode({
+            'version': 1,
+            'accounts': [
+              for (final (uid, endpoint, alias) in [
+                (selectedUid, Env().apiBaseUrl, selectedAccount),
+                (otherUid, Env().apiBaseUrl, otherAccount),
+                ('history-reassigned', remoteEndpoint, 'remote-only-alias'),
+              ])
+                {
+                  'uid': uid,
+                  'environment': currentEnv,
+                  'endpoint': endpoint,
+                  'aliases': [alias],
+                },
+            ],
+          }),
         );
       }
       for (var attempt = 0; attempt < 2; attempt++) {

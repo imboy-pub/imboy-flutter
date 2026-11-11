@@ -29,12 +29,16 @@ class LoginAccountIdentity {
     required this.environment,
     required this.endpoint,
     required this.aliases,
+    this.storageOwnershipVerified = false,
   });
 
   final String uid;
   final String environment;
   final String endpoint;
   final Set<String> aliases;
+  // Only a pre-service-start empty-storage inventory can establish this proof.
+  // Valid legacy JSON and successful authentication alone cannot establish it.
+  final bool storageOwnershipVerified;
 
   bool sameAccount(LoginAccountIdentity other) =>
       uid == other.uid &&
@@ -46,6 +50,7 @@ class LoginAccountIdentity {
     'environment': environment,
     'endpoint': endpoint,
     'aliases': aliases.toList(),
+    if (storageOwnershipVerified) 'storageOwnershipVerified': true,
   };
 
   static LoginAccountIdentity? fromJson(Object? raw) {
@@ -60,6 +65,8 @@ class LoginAccountIdentity {
         environment.isEmpty ||
         endpoint is! String ||
         endpoint.isEmpty ||
+        (raw.containsKey('storageOwnershipVerified') &&
+            raw['storageOwnershipVerified'] is! bool) ||
         aliases is! List ||
         aliases.any((a) => a is! String)) {
       return null;
@@ -69,6 +76,7 @@ class LoginAccountIdentity {
       environment: environment,
       endpoint: endpoint,
       aliases: aliases.cast<String>().where((a) => a.isNotEmpty).toSet(),
+      storageOwnershipVerified: raw['storageOwnershipVerified'] == true,
     );
   }
 }
@@ -129,6 +137,7 @@ class LoginAccountHistoryService {
     required Map<String, dynamic> profile,
     required String environment,
     required String endpoint,
+    bool storageWasUnusedAtStartup = false,
   }) async {
     final uid = (profile['user_id'] ?? profile['uid'])?.toString() ?? '';
     if (uid.isEmpty || environment.isEmpty || endpoint.isEmpty) {
@@ -154,20 +163,26 @@ class LoginAccountHistoryService {
             (profile[key] as String).trim().isNotEmpty)
           (profile[key] as String).trim(),
     };
+    var verified =
+        storageWasUnusedAtStartup && document[_ownershipIncompleteKey] != true;
+    final updated = <LoginAccountIdentity>[];
+    for (final previous in accounts) {
+      if (previous.uid == uid &&
+          previous.environment == environment &&
+          previous.endpoint == endpoint) {
+        aliases.addAll(previous.aliases);
+        verified = verified || previous.storageOwnershipVerified;
+      } else {
+        updated.add(previous);
+      }
+    }
     final identity = LoginAccountIdentity(
       uid: uid,
       environment: environment,
       endpoint: endpoint,
       aliases: aliases,
+      storageOwnershipVerified: verified,
     );
-    final updated = <LoginAccountIdentity>[];
-    for (final previous in accounts) {
-      if (previous.sameAccount(identity)) {
-        aliases.addAll(previous.aliases);
-      } else {
-        updated.add(previous);
-      }
-    }
     // Renamed/reassigned aliases follow the latest authenticated owner, only
     // within the same deployment.
     final result = <LoginAccountIdentity>[identity];
@@ -184,6 +199,7 @@ class LoginAccountHistoryService {
           environment: previous.environment,
           endpoint: previous.endpoint,
           aliases: retainedAliases,
+          storageOwnershipVerified: previous.storageOwnershipVerified,
         ),
       );
     }
@@ -244,6 +260,14 @@ class LoginAccountHistoryService {
           account.uid == identity.uid && !account.sameAccount(identity),
     )) {
       throw const LoginAccountSharedDataException();
+    }
+    // #55 could silently lose owners while leaving valid version-1 JSON.
+    // Use the persisted owner's proof, never a caller's stale identity object.
+    if (!accounts.any(
+      (account) =>
+          account.sameAccount(identity) && account.storageOwnershipVerified,
+    )) {
+      throw const AccountLocalDataOwnershipException();
     }
   }
 
