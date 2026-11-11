@@ -56,41 +56,37 @@ Future<void> _pump(
 
 void main() {
   for (final (brightness, expectedBackground) in [
-    (Brightness.light, AppColors.lightSurfaceGrouped),
+    (Brightness.light, AppColors.lightAppBarBackground),
     (Brightness.dark, AppColors.darkSurfaceGroupedTertiary),
   ]) {
-    testWidgets(
-      '导航轨使用明确背景和留白分组，不绘制描边或横向分隔线 $brightness',
-      (tester) async {
-        await _pump(tester, brightness: brightness);
+    testWidgets('导航轨使用明确背景和留白分组，不绘制描边或横向分隔线 $brightness', (tester) async {
+      await _pump(tester, brightness: brightness);
 
-        final railFinder = find.byKey(
-          const ValueKey('desktop-navigation-rail'),
-        );
-        final rail = tester.widget<AnimatedContainer>(railFinder);
-        final decoration = rail.decoration! as BoxDecoration;
+      final railFinder = find.byKey(const ValueKey('desktop-navigation-rail'));
+      final rail = tester.widget<AnimatedContainer>(railFinder);
+      final decoration = rail.decoration! as BoxDecoration;
 
-        expect(decoration.color, expectedBackground);
-        expect(decoration.border, isNull);
+      expect(decoration.color, expectedBackground);
+      expect(decoration.color, isNot(AppColors.getSurfaceGrouped(brightness)));
+      expect(decoration.border, isNull);
 
-        final animatedContainers = tester.widgetList<AnimatedContainer>(
-          find.descendant(
-            of: railFinder,
-            matching: find.byType(AnimatedContainer),
-          ),
-        );
-        final hairlines = animatedContainers.where((widget) {
-          final constraints = widget.constraints;
-          return constraints != null &&
-              constraints.minHeight == 0.5 &&
-              constraints.maxHeight == 0.5;
-        });
+      final animatedContainers = tester.widgetList<AnimatedContainer>(
+        find.descendant(
+          of: railFinder,
+          matching: find.byType(AnimatedContainer),
+        ),
+      );
+      final hairlines = animatedContainers.where((widget) {
+        final constraints = widget.constraints;
+        return constraints != null &&
+            constraints.minHeight == 0.5 &&
+            constraints.maxHeight == 0.5;
+      });
 
-        expect(hairlines, isEmpty);
-        expect(find.byKey(const ValueKey('space-switcher')), findsOneWidget);
-        expect(find.byTooltip('Me'), findsOneWidget);
-        expect(tester.takeException(), isNull);
-      },
-    );
+      expect(hairlines, isEmpty);
+      expect(find.byKey(const ValueKey('space-switcher')), findsOneWidget);
+      expect(find.byTooltip('Me'), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    });
   }
 }

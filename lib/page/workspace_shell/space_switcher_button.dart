@@ -137,29 +137,37 @@ class _SpaceSwitcherButtonState extends ConsumerState<SpaceSwitcherButton> {
           color: scheme.surfaceContainerHighest,
           borderRadius: AppRadius.borderRadiusMedium,
         ),
-        child: Row(
-          children: [
-            avatar,
-            AppSpacing.horizontalSmall,
-            Expanded(
-              child: Text(
-                space,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: context.textStyle(
-                  FontSizeType.small,
-                  color: scheme.onSurface,
-                  fontWeight: FontWeight.w600,
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            // 导航宽度仍在动画中时，先保留头像，避免展开内容挤出窄轨。
+            if (constraints.maxWidth < AppSizes.touchTarget * 2) {
+              return Center(child: avatar);
+            }
+            return Row(
+              children: [
+                avatar,
+                AppSpacing.horizontalSmall,
+                Expanded(
+                  child: Text(
+                    space,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: context.textStyle(
+                      FontSizeType.small,
+                      color: scheme.onSurface,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
                 ),
-              ),
-            ),
-            AppSpacing.horizontalTiny,
-            Icon(
-              CupertinoIcons.chevron_down,
-              size: AppSizes.iconSizeXSmall,
-              color: scheme.onSurfaceVariant,
-            ),
-          ],
+                AppSpacing.horizontalTiny,
+                Icon(
+                  CupertinoIcons.chevron_down,
+                  size: AppSizes.iconSizeXSmall,
+                  color: scheme.onSurfaceVariant,
+                ),
+              ],
+            );
+          },
         ),
       );
     } else if (legacyRail) {

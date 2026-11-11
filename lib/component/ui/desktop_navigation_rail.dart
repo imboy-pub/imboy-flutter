@@ -26,7 +26,7 @@ const String kDesktopNavigationExpandedPreferenceKey =
 Color _desktopNavigationRailBackground(Brightness brightness) {
   return brightness == Brightness.dark
       ? AppColors.darkSurfaceGroupedTertiary
-      : AppColors.lightSurfaceGrouped;
+      : AppColors.lightAppBarBackground;
 }
 
 /// Desktop/Web 左侧导航的布局上下文。
