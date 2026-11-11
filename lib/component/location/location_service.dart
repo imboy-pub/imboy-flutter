@@ -9,6 +9,21 @@ import 'package:geolocator/geolocator.dart';
 
 import 'package:imboy/component/location/amap_helper.dart';
 
+/// 业务层使用的位置，不包含地图 SDK 类型。
+class ImboyLocation {
+  const ImboyLocation({
+    required this.latitude,
+    required this.longitude,
+    this.address = '',
+    this.adCode = '',
+  });
+
+  final double latitude;
+  final double longitude;
+  final String address;
+  final String adCode;
+}
+
 /// 跨平台定位服务
 ///
 /// 根据平台自动选择最优的定位方案：
@@ -18,10 +33,9 @@ import 'package:imboy/component/location/amap_helper.dart';
 /// 使用示例：
 /// ```dart
 /// final LocationService locationService = LocationService();
-/// AMapPosition? position = await locationService.getCurrentPosition();
+/// ImboyLocation? position = await locationService.getCurrentPosition();
 /// if (position != null) {
-///   print('纬度: ${position.latLng.latitude}');
-///   print('经度: ${position.latLng.longitude}');
+///   // 使用 position.latitude 和 position.longitude。
 /// }
 /// ```
 class LocationService {
@@ -32,7 +46,7 @@ class LocationService {
 
   /// 获取当前位置（一次性定位）
   ///
-  /// 返回 [AMapPosition] 对象，包含经纬度和可能的地址信息
+  /// 返回 [ImboyLocation] 对象，包含经纬度和可能的地址信息
   /// 失败时返回 null
   ///
   /// 平台策略：
@@ -44,7 +58,23 @@ class LocationService {
   /// 「附近的人」半径 500km，用几分钟前的坐标与实时坐标结果无差别，
   /// 却能省掉高德失败(约1s) + geolocator 超时(4s) 共约 5s 的等待。
   /// 发送位置 / 面对面建群 / 朋友圈定位**不要**传 true，它们需要实时坐标。
-  Future<AMapPosition?> getCurrentPosition({
+  Future<ImboyLocation?> getCurrentPosition({
+    bool preferLastKnown = false,
+  }) async {
+    final position = await _getCurrentPosition(
+      preferLastKnown: preferLastKnown,
+    );
+    return position == null ? null : _toLocation(position);
+  }
+
+  ImboyLocation _toLocation(AMapPosition position) => ImboyLocation(
+    latitude: position.latLng.latitude,
+    longitude: position.latLng.longitude,
+    address: position.address,
+    adCode: position.adCode,
+  );
+
+  Future<AMapPosition?> _getCurrentPosition({
     bool preferLastKnown = false,
   }) async {
     if (LocalExternalServicesPolicy.suppressed) return null;
@@ -152,7 +182,11 @@ class LocationService {
   /// - macOS/Web: 使用 geolocator 定位流
   ///
   /// 返回 null 表示平台不支持流式定位
-  Stream<AMapPosition>? getPositionStream() {
+  Stream<ImboyLocation>? getPositionStream() {
+    return _getPositionStream()?.map(_toLocation);
+  }
+
+  Stream<AMapPosition>? _getPositionStream() {
     if (LocalExternalServicesPolicy.suppressed) return null;
     if (kIsWeb || Platform.isMacOS) {
       return _getPositionStreamGeolocator();
@@ -195,7 +229,7 @@ class LocationService {
   /// 计算两个位置之间的距离（单位：米）
   ///
   /// 使用 Haversine 公式计算球面距离
-  double distanceBetween(LatLng start, LatLng end) {
+  double distanceBetween(ImboyLocation start, ImboyLocation end) {
     return Geolocator.distanceBetween(
       start.latitude,
       start.longitude,

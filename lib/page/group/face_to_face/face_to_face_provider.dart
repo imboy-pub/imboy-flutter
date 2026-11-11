@@ -2,7 +2,6 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/http/http_response.dart';
 import 'package:imboy/component/location/location_service.dart';
-import 'package:imboy/component/location/amap_helper.dart';
 import 'package:imboy/component/ui/numeric_keypad.dart';
 import 'package:imboy/store/model/people_model.dart';
 import 'package:imboy/store/api/group_api.dart';
@@ -74,9 +73,9 @@ class FaceToFaceNotifier extends _$FaceToFaceNotifier {
     }
 
     try {
-      AMapPosition? l = await LocationService().getCurrentPosition();
-      final lon = '${l?.latLng.longitude}';
-      final lat = '${l?.latLng.latitude}';
+      ImboyLocation? l = await LocationService().getCurrentPosition();
+      final lon = '${l?.longitude}';
+      final lat = '${l?.latitude}';
 
       state = state.copyWith(longitude: lon, latitude: lat);
 

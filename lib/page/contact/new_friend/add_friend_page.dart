@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:imboy/component/location/location_capabilities.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/component/ui/ios_settings_ui.dart';
@@ -72,14 +73,15 @@ class _AddFriendPageState extends ConsumerState<AddFriendPage> {
           // 功能列表 Section
           ImBoySettingsSection(
             children: [
-              _buildFeatureTile(
-                context,
-                icon: CupertinoIcons.location_fill,
-                color: AppColors.iosBlue,
-                title: t.discovery.peopleNearby,
-                subtitle: t.common.nearbyPeopleTips,
-                onTap: () => context.push('/contact/people_nearby'),
-              ),
+              if (LocationCapabilities.supportsNearbyPeople)
+                _buildFeatureTile(
+                  context,
+                  icon: CupertinoIcons.location_fill,
+                  color: AppColors.iosBlue,
+                  title: t.discovery.peopleNearby,
+                  subtitle: t.common.nearbyPeopleTips,
+                  onTap: () => context.push('/contact/people_nearby'),
+                ),
               _buildFeatureTile(
                 context,
                 icon: CupertinoIcons.group_solid,

@@ -237,7 +237,7 @@ class _ExtraItemsState extends ConsumerState<ExtraItems> {
             // 定位（尤其是高德失败降级到 geolocator 时）可能要等几秒，
             // 之前点击后界面毫无反应，像按钮坏了；先给一个 loading 反馈。
             AppLoading.show(status: t.common.loading);
-            AMapPosition? l = await LocationService().getCurrentPosition();
+            ImboyLocation? l = await LocationService().getCurrentPosition();
             await AppLoading.dismiss();
             if (!context.mounted) return;
             if (l == null) {
@@ -249,8 +249,8 @@ class _ExtraItemsState extends ConsumerState<ExtraItems> {
               final result = await context.push<Map<String, dynamic>>(
                 '/map_location_picker',
                 extra: {
-                  "lat": double.parse(l.latLng.latitude.toString()),
-                  "lng": double.parse(l.latLng.longitude.toString()),
+                  "lat": l.latitude,
+                  "lng": l.longitude,
                   "citycode": AMapApi.getCityNameByGaoDe(l.adCode),
                   "isMapImage": true,
                 },
