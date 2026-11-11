@@ -743,6 +743,15 @@ class Translations$chat$zh_Hant extends Translations$chat$zh_CN {
 	@override String get voiceCallPlaceholder => '[語音通話]';
 	@override String get notFriendCannotSend => '非好友關係，無法發送訊息';
 	@override late final Translations$chat$inbox$zh_Hant inbox = Translations$chat$inbox$zh_Hant.internal(_root);
+	@override String get multiSelect => '多選';
+	@override String multiSelectCount({required Object count}) => '已選 ${count} 條';
+	@override String multiSelectLimit({required Object count}) => '最多選擇 ${count} 條訊息';
+	@override String get multiSelectUnavailable => '該訊息不支援多選';
+	@override String get multiSelectCancel => '取消';
+	@override String get multiSelectDeselectAll => '全不選';
+	@override String get multiSelectForwardEach => '逐條轉發';
+	@override String get multiSelectForwardBundle => '合併轉發';
+	@override String get multiSelectExport => '匯出';
 }
 
 // Path: common
@@ -4079,6 +4088,15 @@ extension on TranslationsZhHant {
 			'chat.inbox.undo' => '復原',
 			'chat.inbox.openChannels' => '前往頻道',
 			'chat.inbox.channelEmptyDescription' => '在頻道頁更新訂閱清單，也可以恢復已隱藏的頻道。',
+			'chat.multiSelect' => '多選',
+			'chat.multiSelectCount' => ({required Object count}) => '已選 ${count} 條',
+			'chat.multiSelectLimit' => ({required Object count}) => '最多選擇 ${count} 條訊息',
+			'chat.multiSelectUnavailable' => '該訊息不支援多選',
+			'chat.multiSelectCancel' => '取消',
+			'chat.multiSelectDeselectAll' => '全不選',
+			'chat.multiSelectForwardEach' => '逐條轉發',
+			'chat.multiSelectForwardBundle' => '合併轉發',
+			'chat.multiSelectExport' => '匯出',
 			'common.about' => '關於',
 			'common.aboutApp' => '關於應用',
 			'common.accept' => '同意',
@@ -4464,6 +4482,8 @@ extension on TranslationsZhHant {
 			'common.chatCopy' => '複製',
 			'common.chatSaveImage' => '儲存圖片',
 			'common.chatDeleteLocalOnly' => '僅刪除本地',
+			_ => null,
+		} ?? switch (path) {
 			'common.chatDeleteFailed' => '刪除失敗',
 			'common.chatNetworkErrorDeleteLocal' => '網路連接失敗，是否僅刪除本地訊息？',
 			'common.chatDeleteConfirm' => '確定要刪除這則訊息嗎？此操作無法撤銷。',
@@ -4473,8 +4493,6 @@ extension on TranslationsZhHant {
 			'common.cameraShootFailed' => '拍攝失敗',
 			'common.cameraCapture' => '拍攝',
 			'common.cameraModePhoto' => '照片',
-			_ => null,
-		} ?? switch (path) {
 			'common.cameraModeVideo' => '影片',
 			'common.cameraRetake' => '重拍',
 			'common.cameraUse' => '使用',
@@ -4978,6 +4996,8 @@ extension on TranslationsZhHant {
 			'common.redPacketNotFound' => '紅包不存在或已被刪除',
 			'common.redPacketReceiverLabel' => ({required Object uid}) => '使用者：${uid}',
 			'common.redPacketSingleAmount' => '單個金額',
+			_ => null,
+		} ?? switch (path) {
 			'common.redPacketStuffLucky' => '塞錢發紅包',
 			'common.redPacketStuffNormal' => '放入錢包傳送',
 			'common.redPacketSwitchToLucky' => '改為拼手氣紅包',
@@ -4987,8 +5007,6 @@ extension on TranslationsZhHant {
 			'common.switchCamera' => '切換鏡頭',
 			'common.timeDaysShort' => ({required Object count}) => '${count}d',
 			'common.timeHoursShort' => ({required Object count}) => '${count}h',
-			_ => null,
-		} ?? switch (path) {
 			'common.timeMinutesShort' => ({required Object count}) => '${count}m',
 			'common.timeNowShort' => 'now',
 			'common.transferAccepted' => '已收款',
@@ -5492,6 +5510,8 @@ extension on TranslationsZhHant {
 			'main.deletingInProgressPleaseWait' => '正在刪除中，請稍候...',
 			'main.collecting' => '加入收藏中...',
 			'main.user' => '使用者',
+			_ => null,
+		} ?? switch (path) {
 			'main.recommended' => '推薦',
 			'main.larger' => '放大',
 			'main.fillIn' => '填寫',
@@ -5501,8 +5521,6 @@ extension on TranslationsZhHant {
 			'main.mySentTab' => '我發出的',
 			'main.reject' => '拒絕',
 			'main.myOrders' => '我的訂單',
-			_ => null,
-		} ?? switch (path) {
 			'main.purchaseUnlockHint' => '購買後可解鎖頻道歷史訊息與後續更新內容。',
 			'main.payingDots' => '付款中...',
 			'main.purchaseAndUnlock' => '立即購買並解鎖',
@@ -6006,6 +6024,8 @@ extension on TranslationsZhHant {
 			'passport.qrLoginCancelledByMe' => '已取消登入',
 			'passport.qrConnecting' => '連線中...',
 			'passport.qrWebLoginTitle' => 'Web 端登入確認',
+			_ => null,
+		} ?? switch (path) {
 			'passport.qrWebLoginDesc' => '請確認是否在 Web 端登入此帳號',
 			'passport.qrLoginAction' => '確認登入',
 			'passport.qrLoginSuccess' => '登入成功',
@@ -6015,8 +6035,6 @@ extension on TranslationsZhHant {
 			'passport.oneKeyNoSimCard' => '目前網路環境不支援，或手機沒有綁定電話卡',
 			'passport.cannotGetScreenSize' => '無法取得螢幕尺寸',
 			'passport.oneKeyFailedRetry' => '一鍵登入失敗，請檢查網路後重試',
-			_ => null,
-		} ?? switch (path) {
 			'splash.slogan' => '暢所欲言，自在溝通',
 			'talkRecord.uploadProgressRegister' => '準備上傳',
 			'talkRecord.uploadProgressUpload' => '上傳音訊',

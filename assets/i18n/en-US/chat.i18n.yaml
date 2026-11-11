@@ -227,3 +227,14 @@ inbox:
   undo: "Undo"
   openChannels: "Open Channels"
   channelEmptyDescription: "Update subscriptions or restore hidden channels from the Channels page."
+
+# Multi-select messages (chat_multi_select_v1).
+multiSelect: Select
+multiSelectCount: "$count selected"
+multiSelectLimit: "You can select up to $count messages"
+multiSelectUnavailable: This message cannot be selected
+multiSelectCancel: Cancel
+multiSelectDeselectAll: Deselect all
+multiSelectForwardEach: Forward separately
+multiSelectForwardBundle: Forward together
+multiSelectExport: Export

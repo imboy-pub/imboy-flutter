@@ -59,6 +59,13 @@ import 'package:imboy/service/message_type_normalizer.dart';
 import 'package:imboy/modules/messaging/domain/message_status.dart'
     as domain_msg;
 
+// 多选消息（chat_multi_select_v1 / W2-E）
+import 'package:imboy/app_core/feature_flags/app_feature_registry.dart';
+import 'package:imboy/app_core/feature_flags/feature_keys.dart';
+import 'package:imboy/modules/messaging/domain/selection/message_selection.dart';
+import 'package:imboy/modules/messaging/domain/selection/message_selectability.dart';
+import 'package:imboy/page/chat/widget/message_multi_select_action_bar.dart';
+
 // CustomMessageBuilder 需要显式导入（与 flutter_chat_core 冲突）
 import 'package:imboy/component/chat/message.dart'
     show CustomMessageBuilder, confirmOpenFile;
@@ -1391,6 +1398,14 @@ class ChatPageState extends ConsumerState<ChatPage>
     required int index,
     required TapUpDetails details,
   }) {
+    // 多选模式：点消息 = 切换勾选，不再触发文件打开/卡片跳转/恢复引导。
+    // flag 关闭时 selection 恒为 inactive，本分支永不命中（零行为变化）。
+    if (_conversationUk3.isNotEmpty &&
+        ref.read(messageSelectionProvider(_conversationUk3)).active) {
+      _toggleMultiSelect(message);
+      return;
+    }
+
     // 取消引用状态
     if (quoteMessage?.id == message.id) {
       updateQuoteMessage(null);
@@ -1709,6 +1724,84 @@ class ChatPageState extends ConsumerState<ChatPage>
     }
   }
 
+  // ===== 多选模式（chat_multi_select_v1 / W2-E）=====
+
+  /// 多选灰度开关（rollout flag）：默认 false（fail-closed）；
+  /// 测试经 AppFeatureRegistry.replaceSnapshotForTest 开启。
+  bool get _multiSelectFlagEnabled =>
+      AppFeatureRegistry.isRolloutFlagEnabled(FeatureKeys.chatMultiSelectV1);
+
+  /// 长按菜单「多选」→ 进入多选并选中被长按的消息（W1-A enter 契约）。
+  void _enterMultiSelect(Message message) {
+    if (_conversationUk3.isEmpty) return;
+    final reason = ref
+        .read(messageSelectionProvider(_conversationUk3).notifier)
+        .enter(message.id, messageSelectionTraitsOf(message));
+    if (reason == null) return;
+    // enter 被拒：不进入多选并按 reason 反馈。菜单入口只在可选时提供，
+    // 实际可达的只有上限与状态并发变化两类。
+    AppLoading.showToast(
+      reason == MessageSelectionReason.limitExceeded
+          ? t.chat.multiSelectLimit(
+              count: MessageSelectionNotifier.maxSelectionCount,
+            )
+          : t.chat.multiSelectUnavailable,
+    );
+  }
+
+  /// 多选模式下点消息 = 切换勾选（不再打开文件/卡片/恢复引导）。
+  void _toggleMultiSelect(Message message) {
+    toggleMessageSelectionWithFeedback(ref, _conversationUk3, message);
+  }
+
+  /// 退出多选（返回键优先走这里，而非离开会话页）。
+  void _exitMultiSelect() {
+    if (_conversationUk3.isEmpty) return;
+    ref.read(messageSelectionProvider(_conversationUk3).notifier).exit();
+  }
+
+  /// 消息列表变化（收到/发送/删除/翻页）后对账多选集合：
+  /// 移除已不存在的选中项。reconcile 后选中可能为空但保持 active ——
+  /// 是否自动退出由 UI 决定，v1 保留 active 让用户手动退出（W1-A handoff）。
+  void _reconcileMultiSelection() {
+    if (!mounted || _conversationUk3.isEmpty) return;
+    if (!ref.read(messageSelectionProvider(_conversationUk3)).active) return;
+    final ids =
+        ref
+            .read(chatProvider.notifier)
+            .chatService
+            ?.messages
+            .map((m) => m.id)
+            .toSet() ??
+        const <String>{};
+    ref
+        .read(messageSelectionProvider(_conversationUk3).notifier)
+        .reconcile(ids);
+  }
+
+  /// 多选已选消息，按冻结合同 §4.3 排序：createdAt 旧→新，同时间按当前
+  /// 列表稳定序。selectedIds 只是插入序集合（不保序 createdAt），W1-B
+  /// 批量转发依赖这里输出确定顺序。
+  List<Message> _multiSelectSortedMessages() {
+    final selection = ref.read(messageSelectionProvider(_conversationUk3));
+    final messages =
+        ref.read(chatProvider.notifier).chatService?.messages ??
+        const <Message>[];
+    final picked = <int, Message>{};
+    for (var i = 0; i < messages.length; i++) {
+      if (selection.contains(messages[i].id)) picked[i] = messages[i];
+    }
+    final entries = picked.entries.toList()
+      ..sort((a, b) {
+        final ca = a.value.createdAt?.millisecondsSinceEpoch ?? 0;
+        final cb = b.value.createdAt?.millisecondsSinceEpoch ?? 0;
+        if (ca != cb) return ca.compareTo(cb);
+        // Dart List.sort 非稳定排序：同时间用原列表下标补稳定序。
+        return a.key.compareTo(b.key);
+      });
+    return entries.map((e) => e.value).toList(growable: false);
+  }
+
   // 消息长按事件
   void _onMessageLongPress(
     BuildContext c1,
@@ -1733,6 +1826,17 @@ class ChatPageState extends ConsumerState<ChatPage>
     // E2EE 解密失败占位行（text 仅为「[加密消息]」占位）：长按菜单只保留
     // 删除/举报，防止占位串被复制/转发为真实文本（与 _onMessageTap 对称）。
     final isE2EEFailedPlaceholder = message.metadata?['_e2ee_failed'] == true;
+
+    // 多选入口（chat_multi_select_v1）：flag 开启且该消息可选（W1-A 白名单
+    // + 状态判定）才提供；null 时菜单完全不渲染该按钮 —— 关闭开关零 UI 变化。
+    // E2EE 失败占位行由 evaluateMessageSelectability 以 e2ee_failed 拒绝。
+    VoidCallback? onMultiSelect;
+    if (_multiSelectFlagEnabled &&
+        _conversationUk3.isNotEmpty &&
+        evaluateMessageSelectability(messageSelectionTraitsOf(message))
+            .selectable) {
+      onMultiSelect = () => _enterMultiSelect(message);
+    }
 
     showMessageActionMenu(
       context: c1,
@@ -1772,6 +1876,7 @@ class ChatPageState extends ConsumerState<ChatPage>
           ? () => collectMessage(message)
           : null,
       onRetry: caps.canRetry ? () => _onMessageRetry(message.id) : null,
+      onMultiSelect: onMultiSelect,
     );
   }
 
@@ -1794,6 +1899,21 @@ class ChatPageState extends ConsumerState<ChatPage>
       chatProvider.select((s) => s.composerHeight <= 52),
     );
     final bool connected = ref.watch(chatProvider.select((s) => s.connected));
+
+    // 多选模式状态（chat_multi_select_v1）：flag 关闭时 provider 恒为初始
+    // inactive 态（没有任何入口能激活），下面所有多选 UI 分支都不触发 ——
+    // 关闭开关零 UI 变化。autoDispose family 由本页 watch 保活（只 read
+    // 不 listen 会在间隙被销毁丢状态）。
+    final MessageSelectionState multiSelectState = _conversationUk3.isEmpty
+        ? MessageSelectionState()
+        : ref.watch(messageSelectionProvider(_conversationUk3));
+    final bool multiSelectActive = multiSelectState.active;
+    // 消息列表镜像变化（收/发/删/翻页关键路径 syncMessagesToState）→
+    // 对账选中集合，删除失效 ID。
+    ref.listen(chatProvider.select((s) => s.messages), (previous, next) {
+      _reconcileMultiSelection();
+    });
+
     final themeNotifier = ref.read(themeProvider.notifier);
     final galleryVisible = ref.watch(
       imageGalleryProvider.select((s) => s.isImageViewVisible),
@@ -1815,10 +1935,16 @@ class ChatPageState extends ConsumerState<ChatPage>
       ),
     ];
     return AppBackScope<void>(
-      canPop: !galleryVisible && composerCollapsed,
+      canPop: !galleryVisible && composerCollapsed && !multiSelectActive,
       edgeGestureEnabled: !galleryVisible,
       onPopInvokedWithResult: (didPop, _) async {
-        if (didPop || galleryVisible || composerCollapsed) return;
+        if (didPop) return;
+        // 多选激活时返回键优先退出多选，而不是离开会话页。
+        if (multiSelectActive) {
+          _exitMultiSelect();
+          return;
+        }
+        if (galleryVisible || composerCollapsed) return;
         await popChatAfterHidingPanels(
           context,
           () => _chatInputKey.currentState?.hideAllPanel(),
@@ -1934,66 +2060,80 @@ class ChatPageState extends ConsumerState<ChatPage>
                 ),
               ),
             ),
-            // 输入状态指示器
-            TypingIndicatorWidget(
-              conversationUk3: _conversationUk3,
-              peerId: widget.peerId,
-              peerTitle: widget.peerTitle,
-            ),
-            ChatInputHeightListener(
-              composerHeight: composerHeightNotifier,
-              child: ChatInput(
-                key: _chatInputKey,
-                composerHeight: composerHeightNotifier,
-                type: _chatType,
+            // 多选模式：输入区让位给操作栏（同时隐藏 TypingIndicator 与
+            // ChatInput，避免键盘/引用面板与多选并发出现在屏上）。
+            if (multiSelectActive)
+              MessageMultiSelectActionBar(
+                selectedMessages: _multiSelectSortedMessages(),
+                onCancel: _exitMultiSelect,
+                onClearSelection: () => ref
+                    .read(messageSelectionProvider(_conversationUk3).notifier)
+                    .clear(),
+                // typed callbacks（逐条转发/合并转发/导出）由 Central
+                // Wiring 接真实实现（计划 §12）；本波为 null → 按钮禁用占位。
+              )
+            else ...[
+              // 输入状态指示器
+              TypingIndicatorWidget(
+                conversationUk3: _conversationUk3,
                 peerId: widget.peerId,
-                onSendPressed: _handleSendPressed,
-                onTextChanged: _handleInputChanged,
-                isMuted: _isMuted,
-                muteMessage: _muteMessage,
-                onMentionsChanged: _chatType == MessageFlowType.c2g
-                    ? (mentionIds) {
-                        _currentMentionIds = mentionIds;
-                      }
-                    : null,
-                voiceWidget: VoiceWidget(
-                  startRecord: () {},
-                  stopRecord: _handleVoiceSelection,
-                  onConvertToText: (text) {
-                    _handleSendPressed(text);
-                  },
-                  height: 46,
-                  margin: EdgeInsets.zero,
-                ),
-                extraWidget: ExtraItems(
+                peerTitle: widget.peerTitle,
+              ),
+              ChatInputHeightListener(
+                composerHeight: composerHeightNotifier,
+                child: ChatInput(
+                  key: _chatInputKey,
+                  composerHeight: composerHeightNotifier,
                   type: _chatType,
-                  handleImageSelection: _handleImageSelection,
-                  handleFileSelection: _handleFileSelection,
-                  handlePickerSelection: _handlePickerSelection,
-                  handleLocationSelection: _handleLocationSelection,
-                  handleVisitCardSelection: _handleVisitCardSelection,
-                  handleCollectSelection: _handleCollectSelection,
-                  handleRedPacketSelection: handleRedPacketSelection,
-                  handleTransferSelection: handleTransferSelection,
-                  options: {
-                    "to": widget.peerId,
-                    "title": widget.peerTitle,
-                    "avatar": widget.peerAvatar,
-                    "sign": widget.peerSign,
-                  },
-                ),
-                quoteTipsWidget: QuoteTipsWidget(
-                  title: resolveQuoteAuthorName(
-                    quoteAuthorId: quoteMessage?.authorId,
-                    currentUid: UserRepoLocal.to.currentUid,
-                    myNickname: UserRepoLocal.to.current.nickname,
-                    peerTitle: widget.peerTitle,
+                  peerId: widget.peerId,
+                  onSendPressed: _handleSendPressed,
+                  onTextChanged: _handleInputChanged,
+                  isMuted: _isMuted,
+                  muteMessage: _muteMessage,
+                  onMentionsChanged: _chatType == MessageFlowType.c2g
+                      ? (mentionIds) {
+                          _currentMentionIds = mentionIds;
+                        }
+                      : null,
+                  voiceWidget: VoiceWidget(
+                    startRecord: () {},
+                    stopRecord: _handleVoiceSelection,
+                    onConvertToText: (text) {
+                      _handleSendPressed(text);
+                    },
+                    height: 46,
+                    margin: EdgeInsets.zero,
                   ),
-                  message: quoteMessage,
-                  close: () => updateQuoteMessage(null),
+                  extraWidget: ExtraItems(
+                    type: _chatType,
+                    handleImageSelection: _handleImageSelection,
+                    handleFileSelection: _handleFileSelection,
+                    handlePickerSelection: _handlePickerSelection,
+                    handleLocationSelection: _handleLocationSelection,
+                    handleVisitCardSelection: _handleVisitCardSelection,
+                    handleCollectSelection: _handleCollectSelection,
+                    handleRedPacketSelection: handleRedPacketSelection,
+                    handleTransferSelection: handleTransferSelection,
+                    options: {
+                      "to": widget.peerId,
+                      "title": widget.peerTitle,
+                      "avatar": widget.peerAvatar,
+                      "sign": widget.peerSign,
+                    },
+                  ),
+                  quoteTipsWidget: QuoteTipsWidget(
+                    title: resolveQuoteAuthorName(
+                      quoteAuthorId: quoteMessage?.authorId,
+                      currentUid: UserRepoLocal.to.currentUid,
+                      myNickname: UserRepoLocal.to.current.nickname,
+                      peerTitle: widget.peerTitle,
+                    ),
+                    message: quoteMessage,
+                    close: () => updateQuoteMessage(null),
+                  ),
                 ),
               ),
-            ),
+            ],
           ],
         ),
       ),
@@ -2438,6 +2578,8 @@ class ChatPageState extends ConsumerState<ChatPage>
               index: index,
               animation: animation,
               currentUser: currentUser,
+              // 多选 UI 归属会话（chat_multi_select_v1）：空串 = 不渲染勾选框。
+              conversationUk3: _conversationUk3,
               targetMsgId: _locationTargetId ?? widget.msgId,
               targetMessageKey: _targetMessageKey,
               burnTicker: _burnTicker,

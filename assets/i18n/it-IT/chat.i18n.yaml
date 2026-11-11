@@ -231,3 +231,14 @@ inbox:
   undo: "Annulla"
   openChannels: "Apri Canali"
   channelEmptyDescription: "Aggiorna le iscrizioni o ripristina i canali nascosti dalla pagina Canali."
+
+# Selezione multipla dei messaggi (chat_multi_select_v1).
+multiSelect: Seleziona
+multiSelectCount: "$count selezionati"
+multiSelectLimit: "Puoi selezionare al massimo $count messaggi"
+multiSelectUnavailable: Questo messaggio non può essere selezionato
+multiSelectCancel: Annulla
+multiSelectDeselectAll: Deseleziona tutto
+multiSelectForwardEach: Inoltra separatamente
+multiSelectForwardBundle: Inoltra insieme
+multiSelectExport: Esporta

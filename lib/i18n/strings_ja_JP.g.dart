@@ -743,6 +743,15 @@ class _Translations$chat$ja_JP extends Translations$chat$zh_CN {
 	@override String get voiceCallPlaceholder => '[音声通話]';
 	@override String get notFriendCannotSend => '友達ではないため送信できません';
 	@override late final _Translations$chat$inbox$ja_JP inbox = _Translations$chat$inbox$ja_JP._(_root);
+	@override String get multiSelect => '選択';
+	@override String multiSelectCount({required Object count}) => '${count}件選択中';
+	@override String multiSelectLimit({required Object count}) => '選択できるのは${count}件までです';
+	@override String get multiSelectUnavailable => 'このメッセージは選択できません';
+	@override String get multiSelectCancel => 'キャンセル';
+	@override String get multiSelectDeselectAll => '全選択解除';
+	@override String get multiSelectForwardEach => '個別に転送';
+	@override String get multiSelectForwardBundle => 'まとめて転送';
+	@override String get multiSelectExport => '書き出し';
 }
 
 // Path: common
@@ -4079,6 +4088,15 @@ extension on TranslationsJaJp {
 			'chat.inbox.undo' => '元に戻す',
 			'chat.inbox.openChannels' => 'チャンネルを開く',
 			'chat.inbox.channelEmptyDescription' => 'チャンネル画面で登録一覧の更新や非表示チャンネルの復元ができます。',
+			'chat.multiSelect' => '選択',
+			'chat.multiSelectCount' => ({required Object count}) => '${count}件選択中',
+			'chat.multiSelectLimit' => ({required Object count}) => '選択できるのは${count}件までです',
+			'chat.multiSelectUnavailable' => 'このメッセージは選択できません',
+			'chat.multiSelectCancel' => 'キャンセル',
+			'chat.multiSelectDeselectAll' => '全選択解除',
+			'chat.multiSelectForwardEach' => '個別に転送',
+			'chat.multiSelectForwardBundle' => 'まとめて転送',
+			'chat.multiSelectExport' => '書き出し',
 			'common.about' => '概要',
 			'common.aboutApp' => 'このアプリについて',
 			'common.accept' => '承認',
@@ -4464,6 +4482,8 @@ extension on TranslationsJaJp {
 			'common.chatDeleteLocalOnly' => 'ローカルのみ削除',
 			'common.chatDeleteFailed' => '削除に失敗しました',
 			'common.chatNetworkErrorDeleteLocal' => 'ネットワーク接続に失敗しました。ローカルメッセージのみ削除しますか？',
+			_ => null,
+		} ?? switch (path) {
 			'common.chatDeleteConfirm' => 'このメッセージを削除してもよろしいですか？この操作は取り消せません。',
 			'common.chatDeleteOnlyLocal' => '自分のみ削除、相手には表示されます',
 			'common.chatDeleteAll' => 'すべてのユーザーのチャットから削除、取り消せません',
@@ -4473,8 +4493,6 @@ extension on TranslationsJaJp {
 			'common.cameraModePhoto' => '写真',
 			'common.cameraModeVideo' => '動画',
 			'common.cameraRetake' => '撮り直す',
-			_ => null,
-		} ?? switch (path) {
 			'common.cameraUse' => '使用する',
 			'common.cameraNoDevice' => '利用可能なカメラがありません',
 			'common.avatarEditAvatar' => 'アバターを編集',
@@ -4978,6 +4996,8 @@ extension on TranslationsJaJp {
 			'common.redPacketStuffLucky' => 'お年玉に金額を設定',
 			'common.redPacketStuffNormal' => 'ウォレットから送る',
 			'common.redPacketSwitchToLucky' => 'ランダムお年玉に変更',
+			_ => null,
+		} ?? switch (path) {
 			'common.redPacketSwitchToNormal' => '均等お年玉に変更',
 			'common.redPacketTotalAmount' => '合計金額',
 			'common.redPacketView' => 'お年玉を見る',
@@ -4987,8 +5007,6 @@ extension on TranslationsJaJp {
 			'common.e2eeRecoveryKeyTitle' => 'リカバリーキー',
 			'common.e2eeRecoveryKeyCopiedAutoClear' => ({required Object seconds}) => 'リカバリーキーをコピーしました。${seconds}秒後にクリップボードから自動的に消去されます。すぐに保存してください',
 			'common.e2eeErrAttachmentSeal' => '暗号化添付ファイルの封印に失敗したため、ファイルはアップロードされていません。後でもう一度お試しください',
-			_ => null,
-		} ?? switch (path) {
 			'common.e2eeErrForwardPlaintextTarget' => '転送先の会話はエンドツーエンド暗号化されていないため、暗号化添付ファイルを転送できません',
 			'common.e2eeErrForwardUndecryptable' => '元の暗号化添付ファイルをこの端末で復号できませんでした。転送に失敗しました',
 			'common.e2eeRetryFailedMessages' => '復号に失敗したメッセージを再試行',
@@ -5492,6 +5510,8 @@ extension on TranslationsJaJp {
 			'main.deletingInProgressPleaseWait' => '削除中です。お待ちください...',
 			'main.collecting' => 'コレクション中...',
 			'main.user' => 'ユーザー',
+			_ => null,
+		} ?? switch (path) {
 			'main.recommended' => '推奨',
 			'main.larger' => 'より大きい',
 			'main.fillIn' => '入力',
@@ -5501,8 +5521,6 @@ extension on TranslationsJaJp {
 			'main.mySentTab' => '送信',
 			'main.reject' => '辞退',
 			'main.myOrders' => '注文履歴',
-			_ => null,
-		} ?? switch (path) {
 			'main.purchaseUnlockHint' => '購入すると、チャンネルの過去のメッセージと今後の更新を閲覧できます。',
 			'main.payingDots' => '決済中...',
 			'main.purchaseAndUnlock' => '今すぐ購入してロック解除',
@@ -6006,6 +6024,8 @@ extension on TranslationsJaJp {
 			'passport.qrLoginCancelled' => 'ログインがキャンセルされました',
 			'passport.qrLoginCancelledByMe' => 'ログインをキャンセルしました',
 			'passport.qrLoginConfirming' => 'ログイン中...',
+			_ => null,
+		} ?? switch (path) {
 			'passport.qrLoginSuccess' => 'ログインしました',
 			'passport.qrWebLoginDesc' => 'このアカウントでのWeb版ログインを確認してください',
 			'passport.qrWebLoginTitle' => 'Web版ログインの確認',
@@ -6015,8 +6035,6 @@ extension on TranslationsJaJp {
 			'passport.oneKeyNoSimCard' => '現在のネットワークは未対応か、SIMカードが挿入されていません',
 			'passport.cannotGetScreenSize' => '画面サイズを取得できません',
 			'passport.oneKeyFailedRetry' => 'ワンタップログインに失敗しました。ネットワークを確認して再試行してください',
-			_ => null,
-		} ?? switch (path) {
 			'splash.slogan' => '自由に話し、自然に繋がる',
 			'talkRecord.uploadProgressRegister' => 'アップロードを準備中',
 			'talkRecord.uploadProgressUpload' => '音声をアップロード中',

@@ -231,3 +231,14 @@ inbox:
   undo: "Отменить"
   openChannels: "Открыть Каналы"
   channelEmptyDescription: "Обновите подписки или восстановите скрытые каналы на странице Каналы."
+
+# Множественный выбор сообщений (chat_multi_select_v1).
+multiSelect: Выбрать
+multiSelectCount: "Выбрано: $count"
+multiSelectLimit: "Можно выбрать не более $count сообщений"
+multiSelectUnavailable: Это сообщение нельзя выбрать
+multiSelectCancel: Отмена
+multiSelectDeselectAll: Снять выделение
+multiSelectForwardEach: Переслать по отдельности
+multiSelectForwardBundle: Переслать вместе
+multiSelectExport: Экспортировать

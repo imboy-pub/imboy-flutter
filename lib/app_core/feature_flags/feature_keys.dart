@@ -34,4 +34,16 @@ class FeatureKeys {
   static const wallet = 'wallet';
   static const liveRoom = 'live_room';
   // friendTag removed — zero references confirmed (Task B3)
+
+  // 聊天多选 v1 灰度开关（RUN chat-multi-20261111 §4.1）。
+  //
+  // 这是 **rollout flag**（渐进放量开关），不是产品组合域键：
+  // compiledProductFeatures 由后端 product-feature-manifest 生成，表达
+  // 「本构建包含哪些业务域」，不应为 UI 放量键改清单/manifest hash。
+  // 因此本键 **不进编译清单**，判定必须走
+  // [AppFeatureRegistry.isRolloutFlagEnabled]（本地硬关闭 + snapshot，
+  // 默认 false，fail-closed；服务端 snapshot / replaceSnapshotForTest 可开启）。
+  // 注意：直接用 isEnabled('chat_multi_select_v1') 会因未进编译清单恒为
+  // false —— snapshot 覆盖也无效，这是两者的关键区别。
+  static const chatMultiSelectV1 = 'chat_multi_select_v1';
 }

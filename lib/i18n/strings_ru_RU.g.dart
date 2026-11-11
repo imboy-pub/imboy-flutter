@@ -743,6 +743,15 @@ class _Translations$chat$ru_RU extends Translations$chat$zh_CN {
 	@override String get voiceCallPlaceholder => '[Аудиозвонок]';
 	@override String get notFriendCannotSend => 'Не друзья, отправка невозможна';
 	@override late final _Translations$chat$inbox$ru_RU inbox = _Translations$chat$inbox$ru_RU._(_root);
+	@override String get multiSelect => 'Выбрать';
+	@override String multiSelectCount({required Object count}) => 'Выбрано: ${count}';
+	@override String multiSelectLimit({required Object count}) => 'Можно выбрать не более ${count} сообщений';
+	@override String get multiSelectUnavailable => 'Это сообщение нельзя выбрать';
+	@override String get multiSelectCancel => 'Отмена';
+	@override String get multiSelectDeselectAll => 'Снять выделение';
+	@override String get multiSelectForwardEach => 'Переслать по отдельности';
+	@override String get multiSelectForwardBundle => 'Переслать вместе';
+	@override String get multiSelectExport => 'Экспортировать';
 }
 
 // Path: common
@@ -4088,6 +4097,15 @@ extension on TranslationsRuRu {
 			'chat.inbox.undo' => 'Отменить',
 			'chat.inbox.openChannels' => 'Открыть Каналы',
 			'chat.inbox.channelEmptyDescription' => 'Обновите подписки или восстановите скрытые каналы на странице Каналы.',
+			'chat.multiSelect' => 'Выбрать',
+			'chat.multiSelectCount' => ({required Object count}) => 'Выбрано: ${count}',
+			'chat.multiSelectLimit' => ({required Object count}) => 'Можно выбрать не более ${count} сообщений',
+			'chat.multiSelectUnavailable' => 'Это сообщение нельзя выбрать',
+			'chat.multiSelectCancel' => 'Отмена',
+			'chat.multiSelectDeselectAll' => 'Снять выделение',
+			'chat.multiSelectForwardEach' => 'Переслать по отдельности',
+			'chat.multiSelectForwardBundle' => 'Переслать вместе',
+			'chat.multiSelectExport' => 'Экспортировать',
 			'common.about' => 'О приложении',
 			'common.aboutApp' => 'О приложении',
 			'common.accept' => 'Принять',
@@ -4473,6 +4491,8 @@ extension on TranslationsRuRu {
 			'common.chatDeleteLocalOnly' => 'Только локально',
 			'common.chatDeleteFailed' => 'Не удалось удалить',
 			'common.chatNetworkErrorDeleteLocal' => 'Не удалось подключиться к сети. Удалить только локальное сообщение?',
+			_ => null,
+		} ?? switch (path) {
 			'common.chatDeleteConfirm' => 'Вы уверены, что хотите удалить это сообщение? Это действие нельзя отменить.',
 			'common.chatDeleteOnlyLocal' => 'Удалить только у вас, всё ещё видно другим',
 			'common.chatDeleteAll' => 'Удалить для всех, нельзя отменить',
@@ -4482,8 +4502,6 @@ extension on TranslationsRuRu {
 			'common.cameraModePhoto' => 'Фото',
 			'common.cameraModeVideo' => 'Видео',
 			'common.cameraRetake' => 'Переснять',
-			_ => null,
-		} ?? switch (path) {
 			'common.cameraUse' => 'Использовать',
 			'common.cameraNoDevice' => 'Камера не найдена',
 			'common.avatarEditAvatar' => 'Редактировать аватар',
@@ -4987,6 +5005,8 @@ extension on TranslationsRuRu {
 			'common.redPacketNotFound' => 'Конверт не существует или удалён',
 			'common.redPacketReceiverLabel' => ({required Object uid}) => 'Пользователь: ${uid}',
 			'common.redPacketSingleAmount' => 'Сумма на конверт',
+			_ => null,
+		} ?? switch (path) {
 			'common.redPacketStuffLucky' => 'Наполнить конверт',
 			'common.redPacketStuffNormal' => 'Отправить из кошелька',
 			'common.redPacketSwitchToLucky' => 'Переключить на конверт на удачу',
@@ -4996,8 +5016,6 @@ extension on TranslationsRuRu {
 			'common.switchCamera' => 'Переключить камеру',
 			'common.timeDaysShort' => ({required Object count}) => '${count} д',
 			'common.timeHoursShort' => ({required Object count}) => '${count} ч',
-			_ => null,
-		} ?? switch (path) {
 			'common.timeMinutesShort' => ({required Object count}) => '${count} мин',
 			'common.timeNowShort' => 'сейчас',
 			'common.transferAccepted' => 'Получено',
@@ -5501,6 +5519,8 @@ extension on TranslationsRuRu {
 			'main.deletingInProgressPleaseWait' => 'Удаление в процессе, пожалуйста, подождите...',
 			'main.collecting' => 'Сохранение...',
 			'main.user' => 'Пользователь',
+			_ => null,
+		} ?? switch (path) {
 			'main.recommended' => 'Рекомендуется',
 			'main.larger' => 'Больше',
 			'main.fillIn' => 'Заполнить',
@@ -5510,8 +5530,6 @@ extension on TranslationsRuRu {
 			'main.mySentTab' => 'Отправленные',
 			'main.reject' => 'Отклонить',
 			'main.myOrders' => 'Мои заказы',
-			_ => null,
-		} ?? switch (path) {
 			'main.purchaseUnlockHint' => 'После покупки откроется история сообщений канала и новые публикации.',
 			'main.payingDots' => 'Оплата...',
 			'main.purchaseAndUnlock' => 'Купить и открыть',
@@ -6015,6 +6033,8 @@ extension on TranslationsRuRu {
 			'passport.qrLoginCancelled' => 'Вход отменён',
 			'passport.qrLoginCancelledByMe' => 'Вы отменили вход',
 			'passport.qrLoginConfirming' => 'Выполняется вход...',
+			_ => null,
+		} ?? switch (path) {
 			'passport.qrLoginSuccess' => 'Вход выполнен',
 			'passport.qrWebLoginDesc' => 'Подтвердите вход этого аккаунта в веб-версии',
 			'passport.qrWebLoginTitle' => 'Подтверждение входа в веб-версии',
@@ -6024,8 +6044,6 @@ extension on TranslationsRuRu {
 			'passport.oneKeyNoSimCard' => 'Текущая сеть не поддерживается или в телефоне нет SIM-карты',
 			'passport.cannotGetScreenSize' => 'Не удалось получить размер экрана',
 			'passport.oneKeyFailedRetry' => 'Не удалось выполнить вход в один клик, проверьте сеть и повторите',
-			_ => null,
-		} ?? switch (path) {
 			'splash.slogan' => 'Свободно общайтесь — легко и удобно',
 			'talkRecord.uploadProgressRegister' => 'Подготовка загрузки',
 			'talkRecord.uploadProgressUpload' => 'Загрузка аудио',

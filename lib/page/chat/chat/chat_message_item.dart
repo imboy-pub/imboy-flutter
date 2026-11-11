@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:imboy/theme/default/app_spacing.dart';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart';
 import 'package:flutter_chat_ui/flutter_chat_ui.dart'
@@ -10,14 +11,92 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 
 import 'package:imboy/component/chat/performance_monitor.dart';
+import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/component/ui/avatar.dart' as imboy_ui;
+import 'package:imboy/i18n/strings.g.dart';
+import 'package:imboy/modules/messaging/domain/message_status.dart'
+    as domain_msg;
+import 'package:imboy/modules/messaging/domain/selection/message_selection.dart';
+import 'package:imboy/modules/messaging/domain/selection/message_selectability.dart';
 import 'package:imboy/page/chat/widget/burn_badge.dart';
 import 'package:imboy/modules/messaging/domain/policy/message_bubble_rules.dart';
 import 'package:imboy/modules/messaging/domain/policy/burn_read_at_rules.dart';
 import 'package:imboy/modules/messaging/domain/policy/visibility_read_rules.dart';
 import 'package:imboy/page/chat/chat/utils/message_status_icon_rules.dart';
+import 'package:imboy/service/message_type_constants.dart';
+import 'package:imboy/store/model/model_parse_utils.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/theme/providers/theme_provider.dart';
+
+/// 从 flutter_chat_core [Message] 提取多选可选性 traits（UI 边界映射）。
+///
+/// 字段口径与 W1-A handoff 一致：
+/// - msgType=`metadata['msg_type']`（S2C/系统行可为 null → 不可选）；
+///   元数据缺 msg_type 时按消息类兜底（TextMessage='text' 等，与
+///   message_model_mapper 的 msg_type → 消息类映射互逆）—— 否则裸
+///   TextMessage（metadata 只带 peer_id/burn 标志）会被误判为不可选；
+/// - status：flutter_chat_core 状态映射域 [domain_msg.MessageStatus]，
+///   null 映射为 sent（与 chat_page `resolveLongPressCapabilities` 同口径）；
+/// - e2eeFailed=`metadata['_e2ee_failed'] == true`；
+/// - burnReadAt=`metadata['burn_read_at']`（int，null 当 0）。
+MessageSelectionTraits messageSelectionTraitsOf(Message message) {
+  final meta = message.metadata;
+  return MessageSelectionTraits(
+    msgType: _multiSelectMsgTypeOf(message),
+    status: switch (message.status) {
+      MessageStatus.error => domain_msg.MessageStatus.error,
+      MessageStatus.sending => domain_msg.MessageStatus.sending,
+      MessageStatus.delivered => domain_msg.MessageStatus.delivered,
+      MessageStatus.seen => domain_msg.MessageStatus.seen,
+      MessageStatus.sent || null => domain_msg.MessageStatus.sent,
+    },
+    e2eeFailed: meta?['_e2ee_failed'] == true,
+    burnReadAt: parseModelNullableInt(meta?['burn_read_at']) ?? 0,
+  );
+}
+
+String? _multiSelectMsgTypeOf(Message message) {
+  final metaType = message.metadata?['msg_type']?.toString();
+  if (metaType != null && metaType.isNotEmpty) {
+    return metaType;
+  }
+  // CustomMessage/SystemMessage 的类型完全由 metadata 驱动，无兜底
+  // （null → 不可选，fail-closed）。
+  if (message is TextMessage) return MessageType.text;
+  if (message is ImageMessage) return MessageType.image;
+  if (message is FileMessage) return MessageType.file;
+  if (message is VideoMessage) return MessageType.video;
+  if (message is AudioMessage) return MessageType.audio;
+  return null;
+}
+
+/// 切换一条消息的多选选中态，并按 W1-A 契约给出用户反馈。
+///
+/// - 取消已选：始终成功（即使消息已变为不可选）；
+/// - 不可选消息：返回 reason，静默（勾选框已置灰表达状态）；
+/// - 第 101 条：返回 [MessageSelectionReason.limitExceeded] 并 toast 上限。
+///
+/// 返回 null=成功，非 null=被拒 reason code。
+String? toggleMessageSelectionWithFeedback(
+  WidgetRef ref,
+  String conversationUk3,
+  Message message,
+) {
+  if (conversationUk3.isEmpty) {
+    return MessageSelectionReason.inactive;
+  }
+  final reason = ref
+      .read(messageSelectionProvider(conversationUk3).notifier)
+      .toggle(message.id, messageSelectionTraitsOf(message));
+  if (reason == MessageSelectionReason.limitExceeded) {
+    AppLoading.showToast(
+      t.chat.multiSelectLimit(
+        count: MessageSelectionNotifier.maxSelectionCount,
+      ),
+    );
+  }
+  return reason;
+}
 
 /// 单条聊天消息容器 Widget。
 ///
@@ -43,6 +122,7 @@ class ChatMessageItem extends ConsumerWidget {
     this.groupStatus,
     this.peerId = '',
     this.peerAvatar = '',
+    this.conversationUk3 = '',
   });
 
   final Message message;
@@ -68,6 +148,13 @@ class ChatMessageItem extends ConsumerWidget {
   final String peerId;
   final String peerAvatar;
 
+  /// 多选状态归属会话（messageSelectionProvider family key）。
+  ///
+  /// 空串（默认/旧调用方）= 多选 UI 完全不渲染（零 UI 变化）；非空时
+  /// 本条消息行在多选激活后自绘 44×44pt 勾选框并按 provider 状态着色 ——
+  /// 状态按 message.id 从 provider 读取，滚动复用/重建不会串选。
+  final String conversationUk3;
+
   bool _isBurnMessage(Message msg) {
     final meta = msg.metadata;
     if (meta == null) return false;
@@ -84,6 +171,23 @@ class ChatMessageItem extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final themeNotifier = ref.read(themeProvider.notifier);
+
+    // 多选状态（chat_multi_select_v1）：conversationUk3 为空（旧调用方 /
+    // flag 未开启的布局路径）时完全不引入多选 UI。状态按 message.id 从
+    // provider 读取 —— 滚动复用换 message 重建时自然取到新 id 的选中态，
+    // 不会串选。
+    final MessageSelectionState? selectionState = conversationUk3.isEmpty
+        ? null
+        : ref.watch(messageSelectionProvider(conversationUk3));
+    final bool selectionActive = selectionState?.active ?? false;
+    final bool selectionChecked = selectionState?.contains(message.id) ?? false;
+    // 置灰判定：不可选（系统行/发送中/E2EE 失败占位等）灰显且不可点；
+    // 已选消息保持可用 —— 取消勾选不受可选性限制（W1-A toggle 契约）。
+    final bool selectionSelectable =
+        selectionActive &&
+        (selectionChecked ||
+            evaluateMessageSelectability(messageSelectionTraitsOf(message))
+                .selectable);
 
     // 目标消息绑定 GlobalKey 以便定位
     Key? itemKey;
@@ -195,7 +299,7 @@ class ChatMessageItem extends ConsumerWidget {
       composedChild = messageBody;
     }
 
-    final chatMsg = ChatMessage(
+    final Widget chatMsg = ChatMessage(
       key: itemKey,
       message: message,
       index: index,
@@ -212,7 +316,20 @@ class ChatMessageItem extends ConsumerWidget {
               child: Username(userId: message.authorId),
             )
           : null,
-      leadingWidget: !isCurrentUser
+      // 多选模式：所有消息行的 leading 统一替换为勾选框（头像从 trailing
+      // 保留）；非多选路径保持原布局 —— flag 关闭/未激活时零 UI 变化。
+      leadingWidget: selectionActive
+          ? _MessageSelectCheckbox(
+              messageId: message.id,
+              checked: selectionChecked,
+              enabled: selectionSelectable,
+              onTap: () => toggleMessageSelectionWithFeedback(
+                ref,
+                conversationUk3,
+                message,
+              ),
+            )
+          : !isCurrentUser
           ? avatar
           : isSystemMessage
           ? null
@@ -232,9 +349,14 @@ class ChatMessageItem extends ConsumerWidget {
       child: composedChild,
     );
 
+    // 多选模式下的不可选消息：整行置灰（含勾选框），不可点。
+    final Widget effectiveMsg = selectionActive && !selectionSelectable
+        ? Opacity(opacity: 0.45, child: chatMsg)
+        : chatMsg;
+
     final s = UserRepoLocal.to.setting;
     if (!s.enableVisibilityRead) {
-      return chatMsg;
+      return effectiveMsg;
     }
 
     final double fractionThreshold = normalizeVisibilityFraction(
@@ -271,7 +393,61 @@ class ChatMessageItem extends ConsumerWidget {
           readDelayTimers.remove(message.id);
         }
       },
-      child: chatMsg,
+      child: effectiveMsg,
+    );
+  }
+}
+
+/// 多选勾选框（chat_multi_select_v1 / W2-E）。
+///
+/// - 视觉 22pt 图标 + **44×44pt 触达区**（DESIGN.md §13.2 Hard Rule 1）；
+/// - [enabled]=false（不可选消息）：置灰且不响应点击；
+/// - [checked]=true 时恒可用（取消已选不受可选性限制）。
+class _MessageSelectCheckbox extends StatelessWidget {
+  const _MessageSelectCheckbox({
+    required this.messageId,
+    required this.checked,
+    required this.enabled,
+    required this.onTap,
+  });
+
+  /// 所属消息 ID：构成稳定 Key（测试/W3-K 集成测试定位用）。
+  final String messageId;
+  final bool checked;
+  final bool enabled;
+  final VoidCallback onTap;
+
+  /// 触达区尺寸（≥44×44pt）。
+  static const double kTouchTarget = 44.0;
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final Color color = checked
+        ? colorScheme.primary
+        : colorScheme.onSurface.withValues(alpha: enabled ? 0.35 : 0.2);
+    return Semantics(
+      button: true,
+      enabled: enabled,
+      checked: checked,
+      child: GestureDetector(
+        key: ValueKey('multi_select_check_$messageId'),
+        behavior: HitTestBehavior.opaque,
+        onTap: enabled ? onTap : null,
+        child: SizedBox(
+          width: kTouchTarget,
+          height: kTouchTarget,
+          child: Center(
+            child: Icon(
+              checked
+                  ? CupertinoIcons.checkmark_circle_fill
+                  : CupertinoIcons.circle,
+              size: 22,
+              color: color,
+            ),
+          ),
+        ),
+      ),
     );
   }
 }

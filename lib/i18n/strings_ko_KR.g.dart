@@ -743,6 +743,15 @@ class _Translations$chat$ko_KR extends Translations$chat$zh_CN {
 	@override String get voiceCallPlaceholder => '[음성 통화]';
 	@override String get notFriendCannotSend => '친구가 아니어서 메시지를 보낼 수 없습니다';
 	@override late final _Translations$chat$inbox$ko_KR inbox = _Translations$chat$inbox$ko_KR._(_root);
+	@override String get multiSelect => '선택';
+	@override String multiSelectCount({required Object count}) => '${count}개 선택됨';
+	@override String multiSelectLimit({required Object count}) => '최대 ${count}개까지 선택할 수 있습니다';
+	@override String get multiSelectUnavailable => '이 메시지는 선택할 수 없습니다';
+	@override String get multiSelectCancel => '취소';
+	@override String get multiSelectDeselectAll => '모두 선택 해제';
+	@override String get multiSelectForwardEach => '개별 전달';
+	@override String get multiSelectForwardBundle => '묶어서 전달';
+	@override String get multiSelectExport => '내보내기';
 }
 
 // Path: common
@@ -4079,6 +4088,15 @@ extension on TranslationsKoKr {
 			'chat.inbox.undo' => '실행 취소',
 			'chat.inbox.openChannels' => '채널 열기',
 			'chat.inbox.channelEmptyDescription' => '채널 화면에서 구독 목록을 업데이트하거나 숨긴 채널을 복원하세요.',
+			'chat.multiSelect' => '선택',
+			'chat.multiSelectCount' => ({required Object count}) => '${count}개 선택됨',
+			'chat.multiSelectLimit' => ({required Object count}) => '최대 ${count}개까지 선택할 수 있습니다',
+			'chat.multiSelectUnavailable' => '이 메시지는 선택할 수 없습니다',
+			'chat.multiSelectCancel' => '취소',
+			'chat.multiSelectDeselectAll' => '모두 선택 해제',
+			'chat.multiSelectForwardEach' => '개별 전달',
+			'chat.multiSelectForwardBundle' => '묶어서 전달',
+			'chat.multiSelectExport' => '내보내기',
 			'common.about' => '정보',
 			'common.aboutApp' => '앱 정보',
 			'common.accept' => '수락',
@@ -4464,6 +4482,8 @@ extension on TranslationsKoKr {
 			'common.chatDeleteLocalOnly' => '로컬만 삭제',
 			'common.chatDeleteFailed' => '삭제 실패',
 			'common.chatNetworkErrorDeleteLocal' => '네트워크 연결 실패, 로컬 메시지만 삭제하시겠습니까?',
+			_ => null,
+		} ?? switch (path) {
 			'common.chatDeleteConfirm' => '이 메시지를 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.',
 			'common.chatDeleteOnlyLocal' => '나만 삭제, 상대방에게는 여전히 표시',
 			'common.chatDeleteAll' => '모든 사용자의 채팅에서 삭제, 되돌릴 수 없음',
@@ -4473,8 +4493,6 @@ extension on TranslationsKoKr {
 			'common.cameraModePhoto' => '사진',
 			'common.cameraModeVideo' => '동영상',
 			'common.cameraRetake' => '다시 촬영',
-			_ => null,
-		} ?? switch (path) {
 			'common.cameraUse' => '사용',
 			'common.cameraNoDevice' => '사용 가능한 카메라가 없습니다',
 			'common.avatarEditAvatar' => '프로필 사진 편집',
@@ -4978,6 +4996,8 @@ extension on TranslationsKoKr {
 			'common.redPacketNotFound' => '복주머니가 없거나 삭제되었습니다',
 			'common.redPacketReceiverLabel' => ({required Object uid}) => '사용자: ${uid}',
 			'common.redPacketSingleAmount' => '개별 금액',
+			_ => null,
+		} ?? switch (path) {
 			'common.redPacketStuffLucky' => '금액을 넣어 복주머니 보내기',
 			'common.redPacketStuffNormal' => '지갑에 넣어 보내기',
 			'common.redPacketSwitchToLucky' => '랜덤 복주머니로 변경',
@@ -4987,8 +5007,6 @@ extension on TranslationsKoKr {
 			'common.switchCamera' => '카메라 전환',
 			'common.timeDaysShort' => ({required Object count}) => '${count}일',
 			'common.timeHoursShort' => ({required Object count}) => '${count}시간',
-			_ => null,
-		} ?? switch (path) {
 			'common.timeMinutesShort' => ({required Object count}) => '${count}분',
 			'common.timeNowShort' => '지금',
 			'common.transferAccepted' => '받기 완료',
@@ -5492,6 +5510,8 @@ extension on TranslationsKoKr {
 			'main.deletingInProgressPleaseWait' => '삭제 중입니다. 잠시 기다려 주세요...',
 			'main.collecting' => '수집 중...',
 			'main.user' => '사용자',
+			_ => null,
+		} ?? switch (path) {
 			'main.recommended' => '추천',
 			'main.larger' => '더 크게',
 			'main.fillIn' => '입력',
@@ -5501,8 +5521,6 @@ extension on TranslationsKoKr {
 			'main.mySentTab' => '보낸 초대',
 			'main.reject' => '거절',
 			'main.myOrders' => '내 주문',
-			_ => null,
-		} ?? switch (path) {
 			'main.purchaseUnlockHint' => '구매 시 채널의 과거 메시지와 향후 업데이트를 볼 수 있습니다.',
 			'main.payingDots' => '결제 중...',
 			'main.purchaseAndUnlock' => '구매하고 잠금 해제',
@@ -6006,6 +6024,8 @@ extension on TranslationsKoKr {
 			'passport.qrLoginCancelled' => '로그인이 취소되었습니다',
 			'passport.qrLoginCancelledByMe' => '로그인을 취소했습니다',
 			'passport.qrLoginConfirming' => '로그인 중...',
+			_ => null,
+		} ?? switch (path) {
 			'passport.qrLoginSuccess' => '로그인 성공',
 			'passport.qrWebLoginDesc' => '웹에서 이 계정으로 로그인하려 합니다. 확인해 주세요',
 			'passport.qrWebLoginTitle' => '웹 로그인 확인',
@@ -6015,8 +6035,6 @@ extension on TranslationsKoKr {
 			'passport.oneKeyNoSimCard' => '현재 네트워크가 지원되지 않거나 SIM카드가 없습니다',
 			'passport.cannotGetScreenSize' => '화면 크기를 가져올 수 없습니다',
 			'passport.oneKeyFailedRetry' => '원탭 로그인에 실패했습니다. 네트워크를 확인 후 다시 시도해 주세요',
-			_ => null,
-		} ?? switch (path) {
 			'splash.slogan' => '자유롭게 대화하세요',
 			'talkRecord.uploadProgressRegister' => '업로드 준비 중',
 			'talkRecord.uploadProgressUpload' => '오디오 업로드 중',

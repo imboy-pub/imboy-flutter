@@ -231,3 +231,14 @@ inbox:
   undo: "실행 취소"
   openChannels: "채널 열기"
   channelEmptyDescription: "채널 화면에서 구독 목록을 업데이트하거나 숨긴 채널을 복원하세요."
+
+# 메시지 다중 선택(chat_multi_select_v1).
+multiSelect: 선택
+multiSelectCount: "$count개 선택됨"
+multiSelectLimit: "최대 $count개까지 선택할 수 있습니다"
+multiSelectUnavailable: 이 메시지는 선택할 수 없습니다
+multiSelectCancel: 취소
+multiSelectDeselectAll: 모두 선택 해제
+multiSelectForwardEach: 개별 전달
+multiSelectForwardBundle: 묶어서 전달
+multiSelectExport: 내보내기

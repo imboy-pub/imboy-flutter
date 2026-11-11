@@ -229,3 +229,14 @@ inbox:
   undo: "撤销"
   openChannels: "前往频道"
   channelEmptyDescription: "在频道页更新订阅列表，也可以恢复已隐藏的频道。"
+
+# 多选消息（chat_multi_select_v1，RUN chat-multi-20261111 §4）。
+multiSelect: 多选
+multiSelectCount: "已选 $count 条"
+multiSelectLimit: "最多选择 $count 条消息"
+multiSelectUnavailable: 该消息不支持多选
+multiSelectCancel: 取消
+multiSelectDeselectAll: 全不选
+multiSelectForwardEach: 逐条转发
+multiSelectForwardBundle: 合并转发
+multiSelectExport: 导出

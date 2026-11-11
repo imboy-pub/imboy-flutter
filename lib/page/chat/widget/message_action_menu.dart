@@ -41,6 +41,7 @@ class MessageActionMenu extends StatefulWidget {
     this.onCollect,
     this.onDeleteForEveryone, // 新增：删除所有人的消息
     this.onRetry, // 新增：重试功能
+    this.onMultiSelect, // 多选模式入口（chat_multi_select_v1）
     this.onClose,
     this.canEdit = false,
     this.reportChatType = 'c2c',
@@ -61,6 +62,12 @@ class MessageActionMenu extends StatefulWidget {
   final VoidCallback? onCollect; // 新增：收藏功能
   final VoidCallback? onDeleteForEveryone; // 新增：删除所有人的消息
   final VoidCallback? onRetry; // 新增：重试功能
+
+  /// 多选模式入口（chat_multi_select_v1 / W2-E）：
+  /// 由 ChatPage 在 feature flag 开启且该消息可选时传入；null（flag 关闭
+  /// 或消息不可选）时不渲染按钮 —— 关闭开关零 UI 变化。
+  /// 回调约定与本菜单其他动作一致：先 onClose() 再动作。
+  final VoidCallback? onMultiSelect;
   final VoidCallback? onClose;
   final bool canEdit;
 
@@ -270,6 +277,20 @@ class _MessageActionMenuState extends State<MessageActionMenu> {
                       HapticFeedback.lightImpact();
                       widget.onClose?.call();
                       widget.onCollect!();
+                    },
+                  ),
+                // 多选入口（chat_multi_select_v1）：ChatPage 仅在 flag 开启
+                // 且消息可选时传入回调；null = 完全不渲染（零 UI 变化）。
+                if (widget.onMultiSelect != null)
+                  _buildActionButton(
+                    context: context,
+                    icon: CupertinoIcons.checkmark_circle,
+                    label: t.chat.multiSelect,
+                    onTap: () {
+                      HapticFeedback.lightImpact();
+                      // 与其他动作一致：先关菜单、再进入多选（见上方顺序注释）。
+                      widget.onClose?.call();
+                      widget.onMultiSelect!();
                     },
                   ),
               ],
@@ -683,6 +704,7 @@ void showMessageActionMenu({
   VoidCallback? onCollect, // 新增：收藏回调
   VoidCallback? onDeleteForEveryone, // 新增：删除所有人的消息
   VoidCallback? onRetry, // 新增：重试回调
+  VoidCallback? onMultiSelect, // 多选模式入口（chat_multi_select_v1）
   bool canEdit = false,
   String reportChatType = 'c2c',
   String reportScopeId = '',
@@ -710,6 +732,7 @@ void showMessageActionMenu({
           onCollect: onCollect,
           onDeleteForEveryone: onDeleteForEveryone,
           onRetry: onRetry,
+          onMultiSelect: onMultiSelect,
           canEdit: canEdit,
           onClose: () => Navigator.of(context).pop(),
         ),

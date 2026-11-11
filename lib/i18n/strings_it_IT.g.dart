@@ -743,6 +743,15 @@ class _Translations$chat$it_IT extends Translations$chat$zh_CN {
 	@override String get voiceCallPlaceholder => '[Chiamata vocale]';
 	@override String get notFriendCannotSend => 'Non amici, invio impossibile';
 	@override late final _Translations$chat$inbox$it_IT inbox = _Translations$chat$inbox$it_IT._(_root);
+	@override String get multiSelect => 'Seleziona';
+	@override String multiSelectCount({required Object count}) => '${count} selezionati';
+	@override String multiSelectLimit({required Object count}) => 'Puoi selezionare al massimo ${count} messaggi';
+	@override String get multiSelectUnavailable => 'Questo messaggio non può essere selezionato';
+	@override String get multiSelectCancel => 'Annulla';
+	@override String get multiSelectDeselectAll => 'Deseleziona tutto';
+	@override String get multiSelectForwardEach => 'Inoltra separatamente';
+	@override String get multiSelectForwardBundle => 'Inoltra insieme';
+	@override String get multiSelectExport => 'Esporta';
 }
 
 // Path: common
@@ -4082,6 +4091,15 @@ extension on TranslationsItIt {
 			'chat.inbox.undo' => 'Annulla',
 			'chat.inbox.openChannels' => 'Apri Canali',
 			'chat.inbox.channelEmptyDescription' => 'Aggiorna le iscrizioni o ripristina i canali nascosti dalla pagina Canali.',
+			'chat.multiSelect' => 'Seleziona',
+			'chat.multiSelectCount' => ({required Object count}) => '${count} selezionati',
+			'chat.multiSelectLimit' => ({required Object count}) => 'Puoi selezionare al massimo ${count} messaggi',
+			'chat.multiSelectUnavailable' => 'Questo messaggio non può essere selezionato',
+			'chat.multiSelectCancel' => 'Annulla',
+			'chat.multiSelectDeselectAll' => 'Deseleziona tutto',
+			'chat.multiSelectForwardEach' => 'Inoltra separatamente',
+			'chat.multiSelectForwardBundle' => 'Inoltra insieme',
+			'chat.multiSelectExport' => 'Esporta',
 			'common.about' => 'Informazioni',
 			'common.aboutApp' => 'Informazioni sull\'app',
 			'common.accept' => 'Accetta',
@@ -4467,6 +4485,8 @@ extension on TranslationsItIt {
 			'common.chatDeleteLocalOnly' => 'Elimina solo localmente',
 			'common.chatDeleteFailed' => 'Eliminazione non riuscita',
 			'common.chatNetworkErrorDeleteLocal' => 'Connessione di rete non riuscita, eliminare solo il messaggio locale?',
+			_ => null,
+		} ?? switch (path) {
 			'common.chatDeleteConfirm' => 'Sei sicuro di voler eliminare questo messaggio? Questa azione non può essere annullata.',
 			'common.chatDeleteOnlyLocal' => 'Elimina solo per te, ancora visibile agli altri',
 			'common.chatDeleteAll' => 'Elimina per tutti, non può essere annullato',
@@ -4476,8 +4496,6 @@ extension on TranslationsItIt {
 			'common.cameraModePhoto' => 'Foto',
 			'common.cameraModeVideo' => 'Video',
 			'common.cameraRetake' => 'Riprova',
-			_ => null,
-		} ?? switch (path) {
 			'common.cameraUse' => 'Usa',
 			'common.cameraNoDevice' => 'Nessuna fotocamera disponibile',
 			'common.avatarEditAvatar' => 'Modifica avatar',
@@ -4981,6 +4999,8 @@ extension on TranslationsItIt {
 			'common.redPacketNotFound' => 'La busta rossa non esiste o è stata eliminata',
 			'common.redPacketReceiverLabel' => ({required Object uid}) => 'Utente: ${uid}',
 			'common.redPacketSingleAmount' => 'Importo per busta',
+			_ => null,
+		} ?? switch (path) {
 			'common.redPacketStuffLucky' => 'Invia busta fortunata',
 			'common.redPacketStuffNormal' => 'Invia dal portafoglio',
 			'common.redPacketSwitchToLucky' => 'Passa a busta fortunata',
@@ -4990,8 +5010,6 @@ extension on TranslationsItIt {
 			'common.switchCamera' => 'Cambia fotocamera',
 			'common.timeDaysShort' => ({required Object count}) => '${count}g',
 			'common.timeHoursShort' => ({required Object count}) => '${count}h',
-			_ => null,
-		} ?? switch (path) {
 			'common.timeMinutesShort' => ({required Object count}) => '${count}m',
 			'common.timeNowShort' => 'adesso',
 			'common.transferAccepted' => 'Ricevuto',
@@ -5495,6 +5513,8 @@ extension on TranslationsItIt {
 			'main.deletingInProgressPleaseWait' => 'Eliminazione in corso, attendere...',
 			'main.collecting' => 'Raccolta in corso...',
 			'main.user' => 'Utente',
+			_ => null,
+		} ?? switch (path) {
 			'main.recommended' => 'Consigliato',
 			'main.larger' => 'Più grande',
 			'main.fillIn' => 'Compila',
@@ -5504,8 +5524,6 @@ extension on TranslationsItIt {
 			'main.mySentTab' => 'Inviati',
 			'main.reject' => 'Rifiuta',
 			'main.myOrders' => 'Ordini',
-			_ => null,
-		} ?? switch (path) {
 			'main.purchaseUnlockHint' => 'Dopo l\'acquisto, accedi allo storico e agli aggiornamenti del canale.',
 			'main.payingDots' => 'Pagamento...',
 			'main.purchaseAndUnlock' => 'Acquista e sblocca',
@@ -6009,6 +6027,8 @@ extension on TranslationsItIt {
 			'passport.qrLoginCancelled' => 'Accesso annullato',
 			'passport.qrLoginCancelledByMe' => 'Accesso annullato',
 			'passport.qrLoginConfirming' => 'Accesso in corso...',
+			_ => null,
+		} ?? switch (path) {
 			'passport.qrLoginSuccess' => 'Accesso riuscito',
 			'passport.qrWebLoginDesc' => 'Conferma se accedere a questo account dal client Web',
 			'passport.qrWebLoginTitle' => 'Conferma accesso dal Web',
@@ -6018,8 +6038,6 @@ extension on TranslationsItIt {
 			'passport.oneKeyNoSimCard' => 'Rete non supportata o telefono senza SIM',
 			'passport.cannotGetScreenSize' => 'Impossibile ottenere le dimensioni dello schermo',
 			'passport.oneKeyFailedRetry' => 'Login one-tap non riuscito, controlla la rete e riprova',
-			_ => null,
-		} ?? switch (path) {
 			'splash.slogan' => 'Parla liberamente, comunica con facilità',
 			'talkRecord.uploadProgressRegister' => 'Preparazione del caricamento',
 			'talkRecord.uploadProgressUpload' => 'Caricamento audio',

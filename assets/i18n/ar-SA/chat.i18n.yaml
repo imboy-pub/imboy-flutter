@@ -231,3 +231,14 @@ inbox:
   undo: "تراجع"
   openChannels: "فتح القنوات"
   channelEmptyDescription: "حدّث الاشتراكات أو أعد إظهار القنوات المخفية من صفحة القنوات."
+
+# تحديد متعدد للرسائل (chat_multi_select_v1).
+multiSelect: تحديد
+multiSelectCount: "تم تحديد $count"
+multiSelectLimit: "يمكنك تحديد $count رسالة كحد أقصى"
+multiSelectUnavailable: لا يمكن تحديد هذه الرسالة
+multiSelectCancel: إلغاء
+multiSelectDeselectAll: إلغاء التحديد الكل
+multiSelectExport: تصدير
+multiSelectForwardEach: إعادة توجيه فردي
+multiSelectForwardBundle: إعادة توجيه مجمعة

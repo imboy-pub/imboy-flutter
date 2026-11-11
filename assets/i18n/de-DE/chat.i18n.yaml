@@ -229,3 +229,14 @@ inbox:
   undo: "Rückgängig"
   openChannels: "Kanäle öffnen"
   channelEmptyDescription: "Unter Kanäle Abonnements aktualisieren oder ausgeblendete Kanäle wiederherstellen."
+
+# Mehrfachauswahl von Nachrichten (chat_multi_select_v1).
+multiSelect: Auswählen
+multiSelectCount: "$count ausgewählt"
+multiSelectLimit: "Es können maximal $count Nachrichten ausgewählt werden"
+multiSelectUnavailable: Diese Nachricht kann nicht ausgewählt werden
+multiSelectCancel: Abbrechen
+multiSelectDeselectAll: Auswahl aufheben
+multiSelectForwardEach: Einzeln weiterleiten
+multiSelectForwardBundle: Zusammengefasst weiterleiten
+multiSelectExport: Exportieren

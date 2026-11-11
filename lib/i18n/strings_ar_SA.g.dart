@@ -743,6 +743,15 @@ class _Translations$chat$ar_SA extends Translations$chat$zh_CN {
 	@override String get voiceCallPlaceholder => '[مكالمة صوتية]';
 	@override String get notFriendCannotSend => 'لستما أصدقاء، لا يمكن الإرسال';
 	@override late final _Translations$chat$inbox$ar_SA inbox = _Translations$chat$inbox$ar_SA._(_root);
+	@override String get multiSelect => 'تحديد';
+	@override String multiSelectCount({required Object count}) => 'تم تحديد ${count}';
+	@override String multiSelectLimit({required Object count}) => 'يمكنك تحديد ${count} رسالة كحد أقصى';
+	@override String get multiSelectUnavailable => 'لا يمكن تحديد هذه الرسالة';
+	@override String get multiSelectCancel => 'إلغاء';
+	@override String get multiSelectDeselectAll => 'إلغاء التحديد الكل';
+	@override String get multiSelectExport => 'تصدير';
+	@override String get multiSelectForwardEach => 'إعادة توجيه فردي';
+	@override String get multiSelectForwardBundle => 'إعادة توجيه مجمعة';
 }
 
 // Path: common
@@ -4091,6 +4100,15 @@ extension on TranslationsArSa {
 			'chat.inbox.undo' => 'تراجع',
 			'chat.inbox.openChannels' => 'فتح القنوات',
 			'chat.inbox.channelEmptyDescription' => 'حدّث الاشتراكات أو أعد إظهار القنوات المخفية من صفحة القنوات.',
+			'chat.multiSelect' => 'تحديد',
+			'chat.multiSelectCount' => ({required Object count}) => 'تم تحديد ${count}',
+			'chat.multiSelectLimit' => ({required Object count}) => 'يمكنك تحديد ${count} رسالة كحد أقصى',
+			'chat.multiSelectUnavailable' => 'لا يمكن تحديد هذه الرسالة',
+			'chat.multiSelectCancel' => 'إلغاء',
+			'chat.multiSelectDeselectAll' => 'إلغاء التحديد الكل',
+			'chat.multiSelectExport' => 'تصدير',
+			'chat.multiSelectForwardEach' => 'إعادة توجيه فردي',
+			'chat.multiSelectForwardBundle' => 'إعادة توجيه مجمعة',
 			'common.about' => 'حول',
 			'common.aboutApp' => 'حول التطبيق',
 			'common.accept' => 'قبول',
@@ -4476,6 +4494,8 @@ extension on TranslationsArSa {
 			'common.chatDeleteLocalOnly' => 'حذف محلي فقط',
 			'common.chatDeleteFailed' => 'فشل الحذف',
 			'common.chatNetworkErrorDeleteLocal' => 'فشل الاتصال بالشبكة، هل تريد حذف الرسائل المحلية فقط؟',
+			_ => null,
+		} ?? switch (path) {
 			'common.chatDeleteConfirm' => 'هل أنت متأكد من حذف هذه الرسالة؟ لا يمكن التراجع عن هذا الإجراء.',
 			'common.chatDeleteOnlyLocal' => 'حذف من جانبك فقط، لا يزال مرئياً للطرف الآخر',
 			'common.chatDeleteAll' => 'حذف من محادثات الجميع، لا يمكن التراجع',
@@ -4485,8 +4505,6 @@ extension on TranslationsArSa {
 			'common.cameraModePhoto' => 'صورة',
 			'common.cameraModeVideo' => 'فيديو',
 			'common.cameraRetake' => 'إعادة التصوير',
-			_ => null,
-		} ?? switch (path) {
 			'common.cameraUse' => 'استخدام',
 			'common.cameraNoDevice' => 'لا توجد كاميرا متاحة',
 			'common.avatarEditAvatar' => 'تعديل الصورة الرمزية',
@@ -4990,6 +5008,8 @@ extension on TranslationsArSa {
 			'common.redPacketTotalAmount' => 'المبلغ الإجمالي',
 			'common.redPacketSingleAmount' => 'مبلغ المغلف الواحد',
 			'common.redPacketCount' => 'عدد المغلفات',
+			_ => null,
+		} ?? switch (path) {
 			'common.redPacketCountUnit' => 'مغلف',
 			'common.redPacketCountEmpty' => 'يرجى إدخال عدد المغلفات',
 			'common.redPacketCountMin' => 'يجب أن يكون عدد المغلفات 1 على الأقل',
@@ -4999,8 +5019,6 @@ extension on TranslationsArSa {
 			'common.redPacketCurrentNormal' => 'الوضع الحالي: مغلف عادي',
 			'common.redPacketSwitchToLucky' => 'التحويل إلى مغلف حظ',
 			'common.redPacketSwitchToNormal' => 'التحويل إلى مغلف عادي',
-			_ => null,
-		} ?? switch (path) {
 			'common.redPacketStuffLucky' => 'إرسال مغلف حظ',
 			'common.redPacketStuffNormal' => 'إرسال من المحفظة',
 			'common.redPacketFetchError' => 'خطأ في جلب تفاصيل المغلف',
@@ -5504,6 +5522,8 @@ extension on TranslationsArSa {
 			'main.deletingInProgressPleaseWait' => 'جارٍ الحذف، يرجى الانتظار...',
 			'main.collecting' => 'جارٍ الإضافة إلى المفضلة...',
 			'main.user' => 'مستخدم',
+			_ => null,
+		} ?? switch (path) {
 			'main.recommended' => 'مُوصى به',
 			'main.larger' => 'أكبر',
 			'main.fillIn' => 'ملء',
@@ -5513,8 +5533,6 @@ extension on TranslationsArSa {
 			'main.mySentTab' => 'المُرسلة',
 			'main.reject' => 'رفض',
 			'main.myOrders' => 'طلباتي',
-			_ => null,
-		} ?? switch (path) {
 			'main.purchaseUnlockHint' => 'بعد الشراء يُفتح سجل رسائل القناة والتحديثات القادمة.',
 			'main.payingDots' => 'جارٍ الدفع...',
 			'main.purchaseAndUnlock' => 'شراء وفتح',
@@ -6018,6 +6036,8 @@ extension on TranslationsArSa {
 			'passport.qrLoginCancelledByMe' => 'تم إلغاء تسجيل الدخول',
 			'passport.qrConnecting' => 'جارٍ الاتصال...',
 			'passport.qrWebLoginTitle' => 'تأكيد تسجيل الدخول عبر الويب',
+			_ => null,
+		} ?? switch (path) {
 			'passport.qrWebLoginDesc' => 'يرجى تأكيد ما إذا كنت تريد تسجيل الدخول إلى هذا الحساب على الويب',
 			'passport.qrLoginAction' => 'تأكيد تسجيل الدخول',
 			'passport.qrLoginSuccess' => 'تم تسجيل الدخول بنجاح',
@@ -6027,8 +6047,6 @@ extension on TranslationsArSa {
 			'passport.oneKeyNoSimCard' => 'الشبكة الحالية غير مدعومة أو لا توجد شريحة SIM في الهاتف',
 			'passport.cannotGetScreenSize' => 'تعذر الحصول على حجم الشاشة',
 			'passport.oneKeyFailedRetry' => 'فشل تسجيل الدخول بنقرة واحدة، تحقق من الشبكة وحاول مجددًا',
-			_ => null,
-		} ?? switch (path) {
 			'splash.slogan' => 'تواصل بحرية وبدون قيود',
 			'talkRecord.uploadProgressRegister' => 'جارٍ تحضير الرفع',
 			'talkRecord.uploadProgressUpload' => 'جارٍ رفع الصوت',

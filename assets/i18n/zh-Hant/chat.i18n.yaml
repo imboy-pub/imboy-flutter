@@ -230,3 +230,14 @@ inbox:
   undo: "復原"
   openChannels: "前往頻道"
   channelEmptyDescription: "在頻道頁更新訂閱清單，也可以恢復已隱藏的頻道。"
+
+# 多選訊息（chat_multi_select_v1）。
+multiSelect: 多選
+multiSelectCount: "已選 $count 條"
+multiSelectLimit: "最多選擇 $count 條訊息"
+multiSelectUnavailable: 該訊息不支援多選
+multiSelectCancel: 取消
+multiSelectDeselectAll: 全不選
+multiSelectForwardEach: 逐條轉發
+multiSelectForwardBundle: 合併轉發
+multiSelectExport: 匯出

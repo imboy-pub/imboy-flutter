@@ -232,3 +232,14 @@ inbox:
   undo: "元に戻す"
   openChannels: "チャンネルを開く"
   channelEmptyDescription: "チャンネル画面で登録一覧の更新や非表示チャンネルの復元ができます。"
+
+# メッセージ複数選択（chat_multi_select_v1）。
+multiSelect: 選択
+multiSelectCount: "$count件選択中"
+multiSelectLimit: "選択できるのは$count件までです"
+multiSelectUnavailable: このメッセージは選択できません
+multiSelectCancel: キャンセル
+multiSelectDeselectAll: 全選択解除
+multiSelectForwardEach: 個別に転送
+multiSelectForwardBundle: まとめて転送
+multiSelectExport: 書き出し

@@ -138,6 +138,32 @@ class AppFeatureRegistry {
     return isEnabled(parentFeature);
   }
 
+  /// 灰度发布开关（rollout flag）判定。
+  ///
+  /// 与 [isEnabled] 的区别：**不要求键进入编译产品组合清单**
+  /// （compiledProductFeatures）。该清单由后端 product-feature-manifest
+  /// 生成（imboy/scripts/generate_product_features.py，跨仓合同），表达
+  /// 「本构建包含哪些业务域」；而灰度开关作用于已含业务域内的渐进放量，
+  /// 只受本地硬关闭与远程 snapshot 控制：
+  ///
+  /// - 默认 false（snapshot 无值即关，fail-closed）；
+  /// - 服务端 /api/v1/app-features snapshot 下发 true 可开启；
+  /// - 测试经 [replaceSnapshotForTest] 覆盖（与 isEnabled 同一 snapshot）。
+  ///
+  /// 仅供 FeatureKeys 中注明为 rollout flag 的键使用
+  /// （当前：[FeatureKeys.chatMultiSelectV1]）；产品组合域键仍走 [isEnabled]。
+  static bool isRolloutFlagEnabled(String featureKey) {
+    if (featureKey.isEmpty) {
+      // 空键不是合法 rollout flag：fail-closed（isEnabled 对空键放行是
+      // 「无门」语义，灰度键不存在这种用法）。
+      return false;
+    }
+    if (_localDisabledKeys.contains(featureKey)) {
+      return false;
+    }
+    return _readFlag(snapshot, featureKey);
+  }
+
   static Map<String, dynamic> normalizeFlags(Map<String, dynamic> raw) {
     final normalized = <String, dynamic>{};
     for (final entry in raw.entries) {

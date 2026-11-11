@@ -743,6 +743,15 @@ class _Translations$chat$de_DE extends Translations$chat$zh_CN {
 	@override String get voiceCallPlaceholder => '[Sprachanruf]';
 	@override String get notFriendCannotSend => 'Keine Freundschaft, Senden nicht möglich';
 	@override late final _Translations$chat$inbox$de_DE inbox = _Translations$chat$inbox$de_DE._(_root);
+	@override String get multiSelect => 'Auswählen';
+	@override String multiSelectCount({required Object count}) => '${count} ausgewählt';
+	@override String multiSelectLimit({required Object count}) => 'Es können maximal ${count} Nachrichten ausgewählt werden';
+	@override String get multiSelectUnavailable => 'Diese Nachricht kann nicht ausgewählt werden';
+	@override String get multiSelectCancel => 'Abbrechen';
+	@override String get multiSelectDeselectAll => 'Auswahl aufheben';
+	@override String get multiSelectForwardEach => 'Einzeln weiterleiten';
+	@override String get multiSelectForwardBundle => 'Zusammengefasst weiterleiten';
+	@override String get multiSelectExport => 'Exportieren';
 }
 
 // Path: common
@@ -4082,6 +4091,15 @@ extension on TranslationsDeDe {
 			'chat.inbox.undo' => 'Rückgängig',
 			'chat.inbox.openChannels' => 'Kanäle öffnen',
 			'chat.inbox.channelEmptyDescription' => 'Unter Kanäle Abonnements aktualisieren oder ausgeblendete Kanäle wiederherstellen.',
+			'chat.multiSelect' => 'Auswählen',
+			'chat.multiSelectCount' => ({required Object count}) => '${count} ausgewählt',
+			'chat.multiSelectLimit' => ({required Object count}) => 'Es können maximal ${count} Nachrichten ausgewählt werden',
+			'chat.multiSelectUnavailable' => 'Diese Nachricht kann nicht ausgewählt werden',
+			'chat.multiSelectCancel' => 'Abbrechen',
+			'chat.multiSelectDeselectAll' => 'Auswahl aufheben',
+			'chat.multiSelectForwardEach' => 'Einzeln weiterleiten',
+			'chat.multiSelectForwardBundle' => 'Zusammengefasst weiterleiten',
+			'chat.multiSelectExport' => 'Exportieren',
 			'common.about' => 'Über',
 			'common.aboutApp' => 'Über die App',
 			'common.accept' => 'Akzeptieren',
@@ -4467,6 +4485,8 @@ extension on TranslationsDeDe {
 			'common.chatDeleteLocalOnly' => 'Nur lokal löschen',
 			'common.chatDeleteFailed' => 'Löschen fehlgeschlagen',
 			'common.chatNetworkErrorDeleteLocal' => 'Netzwerkverbindung fehlgeschlagen, nur lokale Nachricht löschen?',
+			_ => null,
+		} ?? switch (path) {
 			'common.chatDeleteConfirm' => 'Diese Nachricht wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden.',
 			'common.chatDeleteOnlyLocal' => 'Nur für Sie löschen, für andere weiterhin sichtbar',
 			'common.chatDeleteAll' => 'Für alle löschen, kann nicht rückgängig gemacht werden',
@@ -4476,8 +4496,6 @@ extension on TranslationsDeDe {
 			'common.cameraModePhoto' => 'Foto',
 			'common.cameraModeVideo' => 'Video',
 			'common.cameraRetake' => 'Neu aufnehmen',
-			_ => null,
-		} ?? switch (path) {
 			'common.cameraUse' => 'Verwenden',
 			'common.cameraNoDevice' => 'Keine Kamera verfügbar',
 			'common.avatarEditAvatar' => 'Avatar bearbeiten',
@@ -4981,6 +4999,8 @@ extension on TranslationsDeDe {
 			'common.redPacketNotFound' => 'Geschenk nicht gefunden oder bereits gelöscht',
 			'common.redPacketReceiverLabel' => ({required Object uid}) => 'Nutzer: ${uid}',
 			'common.redPacketSingleAmount' => 'Einzelnbetrag',
+			_ => null,
+		} ?? switch (path) {
 			'common.redPacketStuffLucky' => 'Zufallsbeträge verteilen',
 			'common.redPacketStuffNormal' => 'Festbetrag senden',
 			'common.redPacketSwitchToLucky' => 'Zu Zufallsbetrag wechseln',
@@ -4990,8 +5010,6 @@ extension on TranslationsDeDe {
 			'common.e2eeErrPeerNotOnboarded' => 'Die Gegenseite war noch auf keinem Gerät angemeldet, verschlüsseltes Senden derzeit nicht möglich. Bitte warten Sie, bis sich die Gegenseite angemeldet hat, und versuchen Sie es erneut',
 			'common.e2eeRecoveryKeyTitle' => 'Wiederherstellungsschlüssel',
 			'common.e2eeRecoveryKeyCopiedAutoClear' => ({required Object seconds}) => 'Wiederherstellungsschlüssel kopiert. Die Zwischenablage wird in ${seconds} Sek. automatisch geleert. Bitte schnellstmöglich sichern',
-			_ => null,
-		} ?? switch (path) {
 			'common.e2eeErrAttachmentSeal' => 'Versiegeln der verschlüsselten Datei fehlgeschlagen, die Datei wurde nicht hochgeladen. Bitte später erneut versuchen',
 			'common.e2eeErrForwardPlaintextTarget' => 'Der Ziel-Chat ist nicht Ende-zu-Ende-verschlüsselt; die verschlüsselte Datei kann nicht weitergeleitet werden',
 			'common.e2eeErrForwardUndecryptable' => 'Die ursprüngliche verschlüsselte Datei kann auf diesem Gerät nicht entschlüsselt werden; Weiterleitung fehlgeschlagen',
@@ -5495,6 +5513,8 @@ extension on TranslationsDeDe {
 			'main.deletingInProgressPleaseWait' => 'Wird gelöscht, bitte warten...',
 			'main.collecting' => 'Wird favorisiert...',
 			'main.user' => 'Benutzer',
+			_ => null,
+		} ?? switch (path) {
 			'main.recommended' => 'Empfohlen',
 			'main.larger' => 'Größer',
 			'main.fillIn' => 'Ausfüllen',
@@ -5504,8 +5524,6 @@ extension on TranslationsDeDe {
 			'main.mySentTab' => 'Gesendet',
 			'main.reject' => 'Ablehnen',
 			'main.myOrders' => 'Bestellungen',
-			_ => null,
-		} ?? switch (path) {
 			'main.purchaseUnlockHint' => 'Nach Kauf werden Verlauf und neue Nachrichten freigeschaltet.',
 			'main.payingDots' => 'Zahlung...',
 			'main.purchaseAndUnlock' => 'Jetzt kaufen & freischalten',
@@ -6009,6 +6027,8 @@ extension on TranslationsDeDe {
 			'passport.qrLoginCancelled' => 'Anmeldung wurde abgebrochen',
 			'passport.qrLoginCancelledByMe' => 'Sie haben die Anmeldung abgebrochen',
 			'passport.qrLoginConfirming' => 'Anmeldung läuft...',
+			_ => null,
+		} ?? switch (path) {
 			'passport.qrLoginSuccess' => 'Angemeldet',
 			'passport.qrWebLoginDesc' => 'Bitte bestätigen Sie die Anmeldung dieses Kontos im Web',
 			'passport.qrWebLoginTitle' => 'Web-Anmeldung bestätigen',
@@ -6018,8 +6038,6 @@ extension on TranslationsDeDe {
 			'passport.oneKeyNoSimCard' => 'Das aktuelle Netzwerk wird nicht unterstützt oder das Handy hat keine SIM-Karte',
 			'passport.cannotGetScreenSize' => 'Bildschirmgröße konnte nicht ermittelt werden',
 			'passport.oneKeyFailedRetry' => 'One-Tap-Login fehlgeschlagen, bitte Netzwerk prüfen und erneut versuchen',
-			_ => null,
-		} ?? switch (path) {
 			'splash.slogan' => 'Frei kommunizieren.',
 			'talkRecord.uploadProgressRegister' => 'Upload wird vorbereitet',
 			'talkRecord.uploadProgressUpload' => 'Audio wird hochgeladen',

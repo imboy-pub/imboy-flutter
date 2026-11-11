@@ -809,6 +809,15 @@ class _Translations$chat$en_US extends Translations$chat$zh_CN {
 	@override String get voiceCallPlaceholder => '[Voice call]';
 	@override String get notFriendCannotSend => 'You are not friends, unable to send messages';
 	@override late final _Translations$chat$inbox$en_US inbox = _Translations$chat$inbox$en_US._(_root);
+	@override String get multiSelect => 'Select';
+	@override String multiSelectCount({required Object count}) => '${count} selected';
+	@override String multiSelectLimit({required Object count}) => 'You can select up to ${count} messages';
+	@override String get multiSelectUnavailable => 'This message cannot be selected';
+	@override String get multiSelectCancel => 'Cancel';
+	@override String get multiSelectDeselectAll => 'Deselect all';
+	@override String get multiSelectForwardEach => 'Forward separately';
+	@override String get multiSelectForwardBundle => 'Forward together';
+	@override String get multiSelectExport => 'Export';
 }
 
 // Path: common
@@ -4770,6 +4779,15 @@ extension on TranslationsEnUs {
 			'chat.inbox.undo' => 'Undo',
 			'chat.inbox.openChannels' => 'Open Channels',
 			'chat.inbox.channelEmptyDescription' => 'Update subscriptions or restore hidden channels from the Channels page.',
+			'chat.multiSelect' => 'Select',
+			'chat.multiSelectCount' => ({required Object count}) => '${count} selected',
+			'chat.multiSelectLimit' => ({required Object count}) => 'You can select up to ${count} messages',
+			'chat.multiSelectUnavailable' => 'This message cannot be selected',
+			'chat.multiSelectCancel' => 'Cancel',
+			'chat.multiSelectDeselectAll' => 'Deselect all',
+			'chat.multiSelectForwardEach' => 'Forward separately',
+			'chat.multiSelectForwardBundle' => 'Forward together',
+			'chat.multiSelectExport' => 'Export',
 			'common.about' => 'About',
 			'common.aboutApp' => 'About App',
 			'common.accept' => 'Accept',
@@ -5100,6 +5118,8 @@ extension on TranslationsEnUs {
 			'common.forceDeviceOfflineConfirm' => 'Will send offline command to this device, confirm to continue?',
 			'common.confirmForceOffline' => 'Confirm offline',
 			'common.forceOfflineCommandSent' => 'Offline command sent',
+			_ => null,
+		} ?? switch (path) {
 			'common.feedbackSlogan' => 'Your suggestions are our motivation for improvement',
 			'common.newFeedback' => 'New feedback',
 			'common.feedbackHistory' => 'Feedback history',
@@ -5109,8 +5129,6 @@ extension on TranslationsEnUs {
 			'common.officialReply' => 'Official reply',
 			'common.setPasswordSecurityTips' => 'Set a login password to enhance security and ensure you can always access your account.',
 			'common.locationHidden' => 'Your location has been hidden',
-			_ => null,
-		} ?? switch (path) {
 			'common.locationVisible' => 'Your location has been shown',
 			'common.noNearbyPeople' => 'No nearby people yet',
 			'common.clickSearchButtonToFind' => 'Click the search button above to find nearby people',
@@ -5614,6 +5632,8 @@ extension on TranslationsEnUs {
 			'common.exitFullscreen' => 'Exit fullscreen',
 			'common.developer' => 'Developer',
 			'common.fontSizeOptionSmall' => 'Small',
+			_ => null,
+		} ?? switch (path) {
 			'common.fontSizeOptionNormal' => 'Standard',
 			'common.fontSizeOptionMedium' => 'Medium',
 			'common.fontSizeOptionLarge' => 'Large',
@@ -5623,8 +5643,6 @@ extension on TranslationsEnUs {
 			'common.searchDisabledTitle' => 'Message search unavailable',
 			'common.searchDisabledByEncryption' => 'End-to-end encryption is on, so the server cannot read your messages and full-text search is not available',
 			'common.amountMustPositive' => 'Amount must be greater than 0',
-			_ => null,
-		} ?? switch (path) {
 			'common.answer' => 'Answer',
 			'common.collapse' => 'Collapse',
 			'common.declineCall' => 'Decline',
@@ -6128,6 +6146,8 @@ extension on TranslationsEnUs {
 			'groupSchedule.title' => 'Group Schedule',
 			'groupSchedule.createSchedule' => 'Create Schedule',
 			'groupSchedule.scheduleTitle' => 'Title',
+			_ => null,
+		} ?? switch (path) {
 			'groupSchedule.selectDate' => 'Select Date',
 			'groupSchedule.selectTime' => 'Select Time',
 			'groupSchedule.location' => 'Location',
@@ -6137,8 +6157,6 @@ extension on TranslationsEnUs {
 			'groupSchedule.participants' => 'Participants',
 			'groupSchedule.statusCancelled' => 'Cancelled',
 			'groupSchedule.statusInProgress' => 'In Progress',
-			_ => null,
-		} ?? switch (path) {
 			'groupSchedule.statusNotStarted' => 'Not Started',
 			'groupSchedule.statusEnded' => 'Ended',
 			'groupSchedule.cancelSuccess' => 'Schedule cancelled',
@@ -6642,6 +6660,8 @@ extension on TranslationsEnUs {
 			'organization.inviteColleagues.shareText' => ({required Object orgName, required Object code, required Object inviteUrl}) => '${orgName} invites you to join imboy\nInvite code: ${code} (valid for 7 days)\nJoin via link: ${inviteUrl}\nOpen the imboy app and enter the code under Directory > Join organization',
 			'organization.inviteColleagues.shareToWechat' => 'Share invite to WeChat',
 			'organization.inviteColleagues.copyInviteCode' => 'Copy invite code',
+			_ => null,
+		} ?? switch (path) {
 			'organization.inviteColleagues.codeValidityHint' => 'The invite code is valid for 7 days; regenerating invalidates the old code immediately',
 			'organization.inviteColleagues.possibleLoadFailed' => 'Failed to load possible colleagues, please retry',
 			'organization.inviteColleagues.revokeFailed' => 'Failed to revoke, please retry later',
@@ -6651,8 +6671,6 @@ extension on TranslationsEnUs {
 			'organization.inviteColleagues.codeMissingHint' => 'No active invite code yet; generate one to share',
 			'organization.inviteColleagues.generateCode' => 'Generate code',
 			'organization.inviteColleagues.generateForbidden' => 'Only enterprise admins can generate the invite code',
-			_ => null,
-		} ?? switch (path) {
 			'organization.inviteColleagues.possibleEmpty' => 'No pending colleagues',
 			'organization.inviteColleagues.possibleEmptyHint' => 'Invite your colleagues to join',
 			'organization.inviteColleagues.invitedBy' => ({required Object name}) => 'Invited by ${name}',
@@ -7156,6 +7174,8 @@ extension on TranslationsEnUs {
 			'talkRecord.transferKeepDefaultHint' => 'Off by default: after transfer you will no longer access this note.',
 			'talkRecord.transferKeepOnHint' => 'If kept, you can still view and play, but sharing and deletion belong to the new owner.',
 			'talkRecord.transferSubmit' => 'Transfer ownership',
+			_ => null,
+		} ?? switch (path) {
 			'talkRecord.transferSubmitting' => 'Transferring…',
 			'talkRecord.transferConfirmTitle' => 'Transfer ownership?',
 			'talkRecord.transferConfirmTarget' => ({required Object name}) => 'Management responsibility will be transferred to: ${name}',
@@ -7165,8 +7185,6 @@ extension on TranslationsEnUs {
 			'talkRecord.transferSuccessTitle' => 'Ownership transferred',
 			'talkRecord.transferSuccessOwner' => ({required Object name}) => 'New owner: ${name}',
 			'talkRecord.transferSuccessKeptAccess' => 'You still have view access; sharing is managed by the new owner.',
-			_ => null,
-		} ?? switch (path) {
 			'talkRecord.transferSuccessScopeUnchanged' => 'The note\'s organization and workspace are unchanged.',
 			'talkRecord.transferFailedBody' => 'Transfer failed, retry later.',
 			'talkRecord.transferConflictHint' => 'The note was updated by someone else. Refresh and retry.',
