@@ -4,10 +4,10 @@
     "app_head": "see-catalog",
     "ledger_count": 171,
     "ledger_row_count": 1897,
-    "lib_page_count": 171,
+    "lib_page_count": 172,
     "module_page_count": 40,
-    "route_page_component_count": 165,
-    "function_count": 2124,
+    "route_page_component_count": 166,
+    "function_count": 2125,
     "generated_ledger_pages": [],
     "note": "disposition 仅静态 required/excluded；运行结果只写 ignored RUN_ROOT/results/**"
   },
@@ -4714,6 +4714,29 @@
       "action": "切换系统语言后页面实时刷新",
       "expected_oracle": "见台账断言",
       "details": "",
+      "platforms": [
+        "android",
+        "macos"
+      ],
+      "requirements": [
+        "device.android",
+        "device.macos"
+      ],
+      "fixture": "pending:authorized-isolated",
+      "test_target": null,
+      "disposition": "required",
+      "exclusion_code": null
+    },
+    {
+      "function_id": "fn:chat:history_bundle_detail_page:001",
+      "page": "lib/page/chat/widget/history_bundle_detail_page.dart",
+      "route_or_entry": "HistoryBundleDetailPage",
+      "route_registered": true,
+      "source": "generated:lib_page",
+      "control": "unknown",
+      "action": "页面可进入（无静态可识别控件，待人工细化）",
+      "expected_oracle": "expect(<控件可观察状态>)",
+      "details": "GENERATED_ORACLE_PLACEHOLDER; lib page static extraction",
       "platforms": [
         "android",
         "macos"
@@ -49368,6 +49391,14 @@
       "function_count": 10,
       "route_registered": true,
       "has_ledger": true,
+      "ledger_generated": false
+    },
+    {
+      "page": "lib/page/chat/widget/history_bundle_detail_page.dart",
+      "module": "chat",
+      "function_count": 1,
+      "route_registered": true,
+      "has_ledger": false,
       "ledger_generated": false
     },
     {
