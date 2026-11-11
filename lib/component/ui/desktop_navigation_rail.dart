@@ -75,6 +75,7 @@ class DesktopNavigationItem {
 /// - 收起 72px，常规展开 176px；紧凑窗口可由宿主传 144px；
 /// - 最后一个目的地默认固定到底部，与账号/“我”的信息架构一致；
 /// - 选中、hover、焦点和宽度变化均使用同一套轻量动效；
+/// - 导航层级由背景色阶和留白表达，不绘制横向分隔线或右侧描边；
 /// - 展开态显示文案，收起态保留 Tooltip 与完整语义；
 /// - 使用现有 Token，不引入平台专属图片或重复图标资产。
 class DesktopNavigationRail extends StatelessWidget {
@@ -126,12 +127,7 @@ class DesktopNavigationRail extends StatelessWidget {
         duration: duration,
         curve: Curves.easeOutCubic,
         width: expanded ? expandedWidth : collapsedWidth,
-        decoration: BoxDecoration(
-          color: scheme.surfaceContainerLow,
-          border: Border(
-            right: BorderSide(color: scheme.outlineVariant, width: 0.5),
-          ),
-        ),
+        decoration: BoxDecoration(color: scheme.surfaceContainerLow),
         clipBehavior: Clip.hardEdge,
         child: SafeArea(
           child: LayoutBuilder(
@@ -154,9 +150,7 @@ class DesktopNavigationRail extends StatelessWidget {
                       ),
                       child: SizedBox(width: double.infinity, child: leading!),
                     ),
-                    AppSpacing.verticalSmall,
-                    _RailDivider(expanded: expanded),
-                    AppSpacing.verticalSmall,
+                    AppSpacing.verticalRegular,
                   ],
                   Expanded(
                     child: SingleChildScrollView(
@@ -173,8 +167,7 @@ class DesktopNavigationRail extends StatelessWidget {
                               onTap: () => onSelected(index),
                             ),
                           if (!pinFooter) ...[
-                            AppSpacing.verticalSmall,
-                            _RailDivider(expanded: expanded),
+                            AppSpacing.verticalRegular,
                             _collapseButton(),
                           ],
                         ],
@@ -182,9 +175,7 @@ class DesktopNavigationRail extends StatelessWidget {
                     ),
                   ),
                   if (pinFooter) ...[
-                    AppSpacing.verticalSmall,
-                    _RailDivider(expanded: expanded),
-                    AppSpacing.verticalSmall,
+                    AppSpacing.verticalRegular,
                     _DesktopNavigationTile(
                       item: items.last,
                       expanded: expanded,
@@ -215,28 +206,6 @@ class DesktopNavigationRail extends StatelessWidget {
         label: expanded ? collapseLabel : expandLabel,
         onPressed: onToggleExpanded,
       ),
-    );
-  }
-}
-
-class _RailDivider extends StatelessWidget {
-  const _RailDivider({required this.expanded});
-
-  final bool expanded;
-
-  @override
-  Widget build(BuildContext context) {
-    return AnimatedContainer(
-      duration: AppDuration.respectReducedMotion(
-        MediaQuery.disableAnimationsOf(context),
-        AppDuration.normal,
-      ),
-      curve: Curves.easeOutCubic,
-      height: 0.5,
-      margin: EdgeInsets.symmetric(
-        horizontal: expanded ? AppSpacing.regular : AppSpacing.medium,
-      ),
-      color: Theme.of(context).colorScheme.outlineVariant,
     );
   }
 }
