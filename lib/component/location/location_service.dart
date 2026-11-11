@@ -35,8 +35,7 @@ class ImboyLocation {
 /// final LocationService locationService = LocationService();
 /// ImboyLocation? position = await locationService.getCurrentPosition();
 /// if (position != null) {
-///   print('纬度: ${position.latitude}');
-///   print('经度: ${position.longitude}');
+///   // 使用 position.latitude 和 position.longitude。
 /// }
 /// ```
 class LocationService {
