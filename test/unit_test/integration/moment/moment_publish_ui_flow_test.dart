@@ -23,7 +23,7 @@
 /// 3. 两个已修 bug 的回归保护（草稿恢复丢图 / 退出提醒对纯文字失效）
 ///
 /// 媒体上传的逐项状态、9 张上限、删除等已由
-/// `test/component/upload/batch_upload_controller_test.dart` 真实覆盖，
+/// `test/unit_test/component/upload/batch_upload_controller_test.dart` 真实覆盖，
 /// 不在此处重复造伪测试。
 library;
 
@@ -32,6 +32,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:imboy/component/ui/app_loading.dart';
+import 'package:imboy/component/ui/cell_pressable.dart';
+import 'package:imboy/component/ui/common_bar.dart' show GlassBackButton;
+import 'package:imboy/component/ui/detail_settings_tile.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/moment/moment_create_page.dart';
@@ -39,18 +42,32 @@ import 'package:imboy/page/moment/moment_interactions.dart';
 import 'package:imboy/service/event_bus.dart';
 import 'package:imboy/service/events/common_events.dart';
 import 'package:imboy/service/storage.dart';
+import 'package:imboy/theme/default/app_colors.dart';
 
 const String _uid = 'tsid_moment_tester';
 
-Future<void> _pumpPage(WidgetTester tester) async {
+Future<void> _pumpPage(
+  WidgetTester tester, {
+  Brightness brightness = Brightness.light,
+  double textScale = 1,
+}) async {
+  final loading = AppLoading.init();
   await tester.pumpWidget(
     TranslationProvider(
       // 恢复草稿会弹 AppLoading toast，未挂 builder 时 EasyLoading 会断言
       // 'overlayEntry != null'。走项目 facade AppLoading.init()，不直接
       // import flutter_easyloading（边界门禁只允许 app_loading.dart 依赖它）。
       child: MaterialApp(
+        theme: ThemeData(brightness: brightness),
         home: const MomentCreatePage(),
-        builder: AppLoading.init(),
+        builder: (context, child) => loading(
+          context,
+          MediaQuery(
+            data: MediaQuery.of(context)
+                .copyWith(textScaler: TextScaler.linear(textScale)),
+            child: child!,
+          ),
+        ),
       ),
     ),
   );
@@ -85,14 +102,23 @@ void main() {
   tearDown(() async {
     // 草稿按 uid 隔离，逐个用例清掉避免互相污染
     await StorageService.to.remove(momentFailedDraftKey(_uid));
+    await StorageService.to.remove('moment_last_visibility_$_uid');
   });
 
   group('渲染契约（当前 Cupertino 实现）', () {
-    testWidgets('标题是"发表"，右上是 Cupertino 确认按钮而非 TextButton', (tester) async {
+    testWidgets('标题与发送动作分开，空内容禁用发送', (tester) async {
       await _pumpPage(tester);
 
       expect(find.text(t.chat.momentsSend), findsOneWidget);
-      expect(find.text(t.common.confirm), findsOneWidget);
+      expect(find.text(t.discovery.moments), findsOneWidget);
+      expect(
+        tester
+            .widget<CupertinoButton>(
+              find.widgetWithText(CupertinoButton, t.chat.momentsSend),
+            )
+            .onPressed,
+        isNull,
+      );
       // 旧用例断言 TextButton —— 页面是 Cupertino 风格，从来就没有
       expect(find.byType(TextButton), findsNothing);
 
@@ -141,7 +167,122 @@ void main() {
     });
   });
 
+  group('响应式编辑布局与主题', () {
+    for (final brightness in Brightness.values) {
+      for (final width in [320.0, 1200.0]) {
+        testWidgets('内容限宽、缩略图适度、设置可操作 $brightness $width', (tester) async {
+          tester.view.devicePixelRatio = 1;
+          tester.view.physicalSize = Size(width, 700);
+          addTearDown(tester.view.reset);
+          await StorageService.setMap('moment_last_visibility_$_uid', {
+            'visibility': momentVisibilityAllowList,
+            'allow_uids': List.generate(30, (i) => 'synthetic-$i'),
+          });
+          await _pumpPage(tester, brightness: brightness, textScale: 2);
+          await tester.pumpAndSettle();
+
+          expect(
+            tester.getSize(find.byType(ListView)).width,
+            lessThanOrEqualTo(680),
+          );
+          final add = find.ancestor(
+            of: find.byIcon(CupertinoIcons.add),
+            matching: find.byType(CellPressable),
+          );
+          expect(tester.getSize(add).width, inInclusiveRange(48, 120));
+          final nav = tester.widget<CupertinoNavigationBar>(
+            find.byType(CupertinoNavigationBar),
+          );
+          final title = nav.middle! as Text;
+          expect(title.style!.color, AppColors.getTextColor(brightness));
+          expect(
+            nav.backgroundColor!.computeLuminance() < .1,
+            brightness == Brightness.dark,
+          );
+
+          await tester.enterText(find.byType(TextField).first, '合成测试内容');
+          await tester.pump();
+          expect(
+            tester
+                .widget<CupertinoButton>(
+                  find.widgetWithText(CupertinoButton, t.chat.momentsSend),
+                )
+                .onPressed,
+            isNotNull,
+          );
+          final toggle = find.byType(CupertinoSwitch);
+          await tester.ensureVisible(toggle);
+          await tester.pumpAndSettle();
+          expect(toggle.hitTestable(), findsOneWidget);
+          await tester.tap(toggle);
+          await tester.pumpAndSettle();
+          expect(tester.widget<CupertinoSwitch>(toggle).value, isFalse);
+          expect(find.byType(DetailSettingsTile), findsNWidgets(4));
+          expect(tester.takeException(), isNull);
+          await _unmount(tester);
+        });
+      }
+    }
+
+    testWidgets('键盘展开后设置和媒体仍能滚动到达，可见范围仍可修改', (tester) async {
+      tester.view.devicePixelRatio = 1;
+      tester.view.physicalSize = const Size(320, 568);
+      tester.view.viewInsets = const FakeViewPadding(bottom: 240);
+      addTearDown(tester.view.reset);
+      await _pumpPage(tester, brightness: Brightness.dark);
+      await tester.pumpAndSettle();
+      final visibility = find.text(t.discovery.momentsVisibility);
+      await tester.ensureVisible(visibility);
+      await tester.pumpAndSettle();
+      await tester.tap(visibility);
+      await tester.pumpAndSettle();
+      await tester.tap(
+        find.widgetWithText(
+          CupertinoActionSheetAction,
+          t.discovery.momentsVisibilityPublic,
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(find.text(t.discovery.momentsVisibilityPublic), findsOneWidget);
+      final add = find.byIcon(CupertinoIcons.add);
+      await tester.ensureVisible(add);
+      await tester.pumpAndSettle();
+      expect(add.hitTestable(), findsOneWidget);
+      expect(tester.takeException(), isNull);
+      await _unmount(tester);
+    });
+  });
+
   group('退出提醒（回归：canPop 曾对纯文字失效）', () {
+    testWidgets('导航返回先询问草稿，取消后正文仍在', (tester) async {
+      await _pumpPage(tester);
+      final navigator = tester.state<NavigatorState>(find.byType(Navigator));
+      final pushed = navigator.push<void>(
+        CupertinoPageRoute(builder: (_) => const MomentCreatePage()),
+      );
+      await tester.pumpAndSettle();
+      await tester.enterText(find.byType(TextField), '尚未发布的合成内容');
+      await tester.pump();
+      await tester.tap(find.byType(GlassBackButton));
+      await tester.pumpAndSettle();
+      expect(find.byType(CupertinoAlertDialog), findsOneWidget);
+      await tester.tap(
+        find.widgetWithText(
+          CupertinoDialogAction,
+          t.discovery.momentActionCancel,
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(find.text('尚未发布的合成内容'), findsOneWidget);
+      expect(find.byType(GlassBackButton), findsOneWidget);
+      await tester.enterText(find.byType(TextField), '');
+      await tester.pump();
+      await navigator.maybePop();
+      await tester.pumpAndSettle();
+      await pushed;
+      await _unmount(tester);
+    });
+
     // 原 bug：PopScope 用 `canPop: !_hasUnsavedContent`，而该 getter 读
     // _contentController.text；页面只监听 _uploads 不监听 controller，打字
     // 不触发 rebuild，canPop 停在 true，侧滑直接把内容丢掉。只有加过图才
@@ -200,12 +341,12 @@ void main() {
 
   group('草稿恢复（回归：曾只回填文字、图片全丢）', () {
     testWidgets('草稿里的 media_urls 会被恢复成媒体项', (tester) async {
-      // 模拟"发布失败后存下的草稿"：文字 + 两张已上传成功的图
+      // 合成四图草稿同时验证恢复和桌面三列排列。
       await StorageService.setMap(
         momentFailedDraftKey(_uid),
         buildMomentDraft(
           content: '发布失败的内容',
-          mediaUrls: const ['https://cdn.example.com/a.jpg', 'b.jpg'],
+          mediaUrls: List.generate(4, (i) => 'synthetic/moment-$i.png'),
           visibility: momentVisibilityFriends,
           allowUids: const [],
           denyUids: const [],
@@ -219,11 +360,20 @@ void main() {
       await tester.pump(const Duration(milliseconds: 100));
 
       expect(find.text('发布失败的内容'), findsOneWidget);
-      // 两张恢复的图 + 一个"+"按钮；修复前这里只有"+"
+      // 四张恢复的图 + 一个"+"按钮；修复前这里只有"+"。
       expect(
         find.byIcon(CupertinoIcons.xmark),
-        findsNWidgets(2),
+        findsNWidgets(4),
         reason: '每张恢复的图都该有删除角标；数量为 0 说明媒体没被恢复',
+      );
+      final thumbs = find.byIcon(CupertinoIcons.xmark);
+      expect(
+        tester.getTopLeft(thumbs.at(0)).dy,
+        tester.getTopLeft(thumbs.at(2)).dy,
+      );
+      expect(
+        tester.getTopLeft(thumbs.at(3)).dy,
+        greaterThan(tester.getTopLeft(thumbs.at(2)).dy),
       );
 
       await _unmount(tester);

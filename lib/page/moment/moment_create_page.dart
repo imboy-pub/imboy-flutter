@@ -4,6 +4,7 @@ import 'package:imboy/component/ui/cell_pressable.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:imboy/theme/default/app_radius.dart';
 import 'package:imboy/theme/default/font_types.dart';
+import 'package:imboy/theme/default/app_sizes.dart';
 
 import 'dart:io';
 
@@ -15,6 +16,10 @@ import 'package:imboy/component/location/amap_helper.dart';
 import 'package:imboy/component/location/location_service.dart';
 import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/component/ui/app_back_scope.dart';
+import 'package:imboy/component/ui/common_bar.dart' show GlassBackButton;
+import 'package:imboy/component/ui/detail_settings_tile.dart';
+import 'package:imboy/component/ui/ios_settings_ui.dart';
+import 'package:imboy/component/ui/resource_page_layout.dart';
 import 'package:imboy/component/upload/batch_upload_controller.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/modules/moment_social/application/moment_facade.dart';
@@ -38,7 +43,7 @@ import 'moment_album_picker.dart';
 import 'moment_desktop_picker.dart';
 import 'moment_utils.dart';
 
-/// 朋友圈发布页 - 沉浸式重构（对标微信朋友圈发布体验）
+/// 朋友圈发布页：文字、媒体与可见范围沿同一内容列编辑。
 class MomentCreatePage extends StatefulWidget {
   const MomentCreatePage({super.key, this.initialText = ''});
 
@@ -748,6 +753,8 @@ class _MomentCreatePageState extends State<MomentCreatePage> {
   @override
   Widget build(BuildContext context) {
     final t = context.t;
+    final brightness = Theme.of(context).brightness;
+    final canSubmit = !_busy && _hasUnsavedContent;
     return AppBackScope<void>(
       // 有未保存内容才拦截。_hasUnsavedContent 读 _contentController.text，
       // 必须配合 initState 里的 _onContentChanged 监听才会随打字更新——
@@ -756,42 +763,49 @@ class _MomentCreatePageState extends State<MomentCreatePage> {
       // 空页面用路由原生侧滑；有草稿时通过边缘返回尝试复用异步确认。
       canPop: !_hasUnsavedContent,
       onPopInvokedWithResult: (didPop, _) => _confirmExit(didPop),
-      child: Scaffold(
-        appBar: CupertinoNavigationBar(
-          middle: Text(t.chat.momentsSend),
-          trailing: _isSubmitting
+      child: IosPageTemplate(
+        title: t.discovery.moments,
+        contentMaxWidth: ResourcePageLayout.maxWidth,
+        // 返回仍经 PopScope 询问草稿，不能使用模板默认的同步 pop。
+        leading: Navigator.of(context).canPop()
+            ? GlassBackButton(
+                onPressed: () => unawaited(Navigator.of(context).maybePop()),
+              )
+            : null,
+        actions: [
+          _isSubmitting
               ? const Padding(
-                  padding: EdgeInsets.only(right: 8),
+                  padding: EdgeInsets.all(AppSpacing.regular),
                   child: CupertinoActivityIndicator(radius: 10),
                 )
               : CupertinoButton(
-                  padding: EdgeInsets.zero,
-                  // 空内容时置灰：原先按钮常亮，点下去才弹"请输入内容"，
-                  // 白跑一趟。_hasUnsavedContent 正好是"有文本或有媒体"。
-                  // _submit 内的空值兜底保留，作为防御。
-                  onPressed: (_busy || !_hasUnsavedContent) ? null : _submit,
+                  padding: AppSpacing.pageHorizontal,
+                  onPressed: canSubmit ? _submit : null,
                   child: Text(
-                    t.common.confirm,
+                    t.chat.momentsSend,
                     style: context.textStyle(
                       FontSizeType.body,
                       fontWeight: FontWeight.w600,
+                      color: canSubmit
+                          ? AppColors.getIosBlue(brightness)
+                          : AppColors.getTextColor(
+                              brightness,
+                              isSecondary: true,
+                            ),
                     ),
                   ),
                 ),
-        ),
-        // 工具栏随内容滚动，不再是底部常驻条。原来 Column+Expanded 的结构下，
-        // 4 行工具栏固定吃掉 ~250pt，键盘再占 2/5 屏，Expanded 剩下的可视区
-        // 装不下「输入框 + 媒体网格」——「+」号被挤出首屏，看起来就像被工具栏盖住。
-        // 微信同款：4 项排在图片下方跟着滚，首屏永远是「输入框 → 媒体格」。
+        ],
+        // 保留一个滚动体，键盘弹起时媒体和发布设置仍可到达。
         body: ListView(
           // 下拉即收键盘（微信同款）；再点输入框重新弹起。ListView 默认
           // manual —— 页面全是滚动内容、没有空白可点，键盘一弹就下不去。
           keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-          padding: EdgeInsets.fromLTRB(
-            20,
-            16,
-            20,
-            24 + MediaQuery.paddingOf(context).bottom,
+          padding: const EdgeInsets.fromLTRB(
+            AppSpacing.regular,
+            AppSpacing.regular,
+            AppSpacing.regular,
+            AppSpacing.xLarge,
           ),
           children: [
             ComposerField(
@@ -818,80 +832,88 @@ class _MomentCreatePageState extends State<MomentCreatePage> {
   Widget _buildMediaGrid(Translations t) {
     final items = _uploads.items;
     final showAdd = items.length < momentMaxImageCount;
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        // 复用统一的 cell 尺寸计算；拾取网格（含"+添加"格）始终三列流式排布
-        final layout = momentGridLayout(
-          count: items.length + (showAdd ? 1 : 0),
-          maxWidth: constraints.maxWidth,
-          spacing: AppSpacing.small,
-        );
-        return Wrap(
-          spacing: AppSpacing.small,
-          runSpacing: AppSpacing.small,
-          children: [
-            ...List.generate(items.length, (index) {
-              final item = items[index];
-              return _MediaThumb(
-                size: layout.cellSize,
-                item: item,
-                onRemove: () => _removeMedia(index),
-                onRetry: item.canRetry ? () => _retryUpload(index) : null,
-              );
-            }),
-            if (showAdd)
-              _MediaAddButton(size: layout.cellSize, onTap: _showMediaPicker),
-          ],
-        );
-      },
+    return Align(
+      alignment: AlignmentDirectional.centerStart,
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(
+          maxWidth: AppSizes.imageSizeMedium * 3 + AppSpacing.small * 2,
+        ),
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            // 复用九宫格算法；桌面缩略图不随窗口放大。
+            final layout = momentGridLayout(
+              count: items.length + (showAdd ? 1 : 0),
+              maxWidth: constraints.maxWidth,
+              spacing: AppSpacing.small,
+            );
+            return Wrap(
+              spacing: AppSpacing.small,
+              runSpacing: AppSpacing.small,
+              children: [
+                ...List.generate(items.length, (index) {
+                  final item = items[index];
+                  return _MediaThumb(
+                    size: layout.cellSize,
+                    item: item,
+                    onRemove: () => _removeMedia(index),
+                    onRetry: item.canRetry ? () => _retryUpload(index) : null,
+                  );
+                }),
+                if (showAdd)
+                  _MediaAddButton(
+                    size: layout.cellSize,
+                    onTap: _showMediaPicker,
+                  ),
+              ],
+            );
+          },
+        ),
+      ),
     );
   }
 
-  Widget _buildToolbar(Translations t) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    // 在滚动区里是一张分组卡片（圆角 + 描边），不再是贴屏底的固定条，
-    // 故去掉顶部分隔线与 SafeArea（底部安全区由 ListView 的 padding 承担）。
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-      decoration: BoxDecoration(
-        color: isDark ? AppColors.darkSurface : AppColors.lightSurface,
-        borderRadius: AppRadius.borderRadiusRegular,
-        border: Border.all(
-          color: AppColors.getIosSeparator(Theme.of(context).brightness)
-              .withValues(alpha: 0.3),
-          width: 0.5,
+  Widget _buildToolbar(Translations t) => IconTheme(
+    data: IconThemeData(
+      size: AppSizes.iconSizeSmall,
+      color: AppColors.getTextColor(
+        Theme.of(context).brightness,
+        isSecondary: true,
+      ),
+    ),
+    child: ImBoySettingsSection(
+      margin: EdgeInsets.zero,
+      children: [
+        DetailSettingsTile(
+          leading: const Icon(CupertinoIcons.lock),
+          title: Text(t.discovery.momentsVisibility),
+          value: _visibilitySummary(t),
+          onTap: _pickVisibility,
         ),
-      ),
-      child: Column(
-        children: [
-          _ToolbarItem(
-            icon: CupertinoIcons.lock_fill,
-            label: t.discovery.momentsVisibility,
-            value: _visibilitySummary(t),
-            onTap: _pickVisibility,
+        DetailSettingsTile(
+          leading: const Icon(CupertinoIcons.location),
+          title: Text(t.discovery.momentLocation),
+          value: _locationSummary(t),
+          onTap: _pickLocation,
+        ),
+        DetailSettingsTile(
+          leading: const Icon(CupertinoIcons.at),
+          title: Text(t.discovery.momentAtWho),
+          value: _atSummary(t),
+          onTap: _pickAtFriends,
+        ),
+        MergeSemantics(
+          child: DetailSettingsTile(
+            leading: const Icon(CupertinoIcons.chat_bubble),
+            title: Text(t.common.momentsAllowComment),
+            trailing: CupertinoSwitch(
+              value: _allowComment,
+              onChanged: (v) => setState(() => _allowComment = v),
+            ),
           ),
-          _ToolbarItem(
-            icon: CupertinoIcons.location_solid,
-            label: t.discovery.momentLocation,
-            value: _locationSummary(t),
-            onTap: _pickLocation,
-          ),
-          _ToolbarItem(
-            icon: CupertinoIcons.at,
-            label: t.discovery.momentAtWho,
-            value: _atSummary(t),
-            onTap: _pickAtFriends,
-          ),
-          _ToolbarSwitch(
-            icon: CupertinoIcons.chat_bubble_fill,
-            label: t.common.momentsAllowComment,
-            value: _allowComment,
-            onChanged: (v) => setState(() => _allowComment = v),
-          ),
-        ],
-      ),
-    );
-  }
+        ),
+      ],
+    ),
+  );
 }
 
 /// 单个媒体缩略图，按逐项上传状态渲染（本地缩略图优先，见 `_buildImage`）：
@@ -1082,114 +1104,6 @@ class _MediaAddButton extends StatelessWidget {
             color: AppColors.iosGray,
             semanticLabel: t.common.buttonAdd,
           ),
-        ),
-      ),
-    );
-  }
-}
-
-class _ToolbarItem extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final String? value;
-  final VoidCallback onTap;
-
-  const _ToolbarItem({
-    required this.icon,
-    required this.label,
-    this.value,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    // 不用 InkWell：DESIGN.md §13.2 明令禁止在 Cupertino 列表行上使用
-    // Material Ripple。用透明命中区 + 最小 44pt 高度，反馈交给页面整体风格。
-    return CellPressable(
-      onTap: onTap,
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(minHeight: 44),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 12),
-          child: Row(
-            children: [
-              Icon(icon, size: 18, color: AppColors.wechatBlue),
-              const SizedBox(width: 10),
-              Expanded(
-                child: Text(
-                  label,
-                  style: context.textStyle(
-                    FontSizeType.normal,
-                    fontWeight: FontWeight.w500,
-                    color: isDark
-                        ? AppColors.darkTextPrimary
-                        : AppColors.lightTextPrimary,
-                  ),
-                ),
-              ),
-              if (value != null)
-                Flexible(
-                  child: Text(
-                    value!,
-                    textAlign: TextAlign.end,
-                    style: context.textStyle(
-                      FontSizeType.footnote,
-                      color: AppColors.iosGray,
-                    ),
-                  ),
-                ),
-              const SizedBox(width: 6),
-              const Icon(
-                CupertinoIcons.chevron_right,
-                size: 16,
-                color: AppColors.iosGray3,
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _ToolbarSwitch extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final bool value;
-  final ValueChanged<bool> onChanged;
-
-  const _ToolbarSwitch({
-    required this.icon,
-    required this.label,
-    required this.value,
-    required this.onChanged,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    return MergeSemantics(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 6),
-        child: Row(
-          children: [
-            Icon(icon, size: 18, color: AppColors.wechatBlue),
-            const SizedBox(width: 10),
-            Expanded(
-              child: Text(
-                label,
-                style: context.textStyle(
-                  FontSizeType.normal,
-                  fontWeight: FontWeight.w500,
-                  color: isDark
-                      ? AppColors.darkTextPrimary
-                      : AppColors.lightTextPrimary,
-                ),
-              ),
-            ),
-            CupertinoSwitch(value: value, onChanged: onChanged),
-          ],
         ),
       ),
     );
