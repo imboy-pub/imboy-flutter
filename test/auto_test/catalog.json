@@ -1,12 +1,12 @@
 {
   "schema_version": 1,
   "generated_from": {
-    "app_head": "a0891a0224ee2aa59dcb673dab96df84e76f19e5",
-    "backend_head": "a66ead861304db916df683062457397481ea4308",
-    "integration_test_count": 197,
-    "lib_page_count": 171,
+    "app_head": "74c2e1cf093c88ad6410d843033a1093546b8111",
+    "backend_head": "2fd7b569abd3b4bd6c3097491ace63b4f041dea7",
+    "integration_test_count": 200,
+    "lib_page_count": 172,
     "module_page_count": 40,
-    "route_page_component_count": 165,
+    "route_page_component_count": 166,
     "spec_count": 31
   },
   "entries": [
@@ -793,6 +793,62 @@
         "chat"
       ],
       "enabled": true,
+      "oracle_hint": true
+    },
+    {
+      "id": "test:integration_test/chat_multi_bundle_roundtrip_test.dart",
+      "target": "integration_test/chat_multi_bundle_roundtrip_test.dart",
+      "target_sha256": "4e1d36667dba7ab0aa9a17d7170ffaf3e2c7a049e32762965c2627913cde92e4",
+      "sources": [],
+      "dependencies": [],
+      "risk": "device-readonly",
+      "requirements": [],
+      "tags": [
+        "chat_multi_bundle_roundtrip_test.dart"
+      ],
+      "enabled": false,
+      "oracle_hint": true
+    },
+    {
+      "id": "test:integration_test/chat_multi_export_test.dart",
+      "target": "integration_test/chat_multi_export_test.dart",
+      "target_sha256": "57aaa49c377ba9e1064622b380eeea4643ac8e938ada5cfbff2210f8c2bca8ea",
+      "sources": [],
+      "dependencies": [],
+      "risk": "device-readonly",
+      "requirements": [],
+      "tags": [
+        "chat_multi_export_test.dart"
+      ],
+      "enabled": false,
+      "oracle_hint": true
+    },
+    {
+      "id": "test:integration_test/chat_multi_forward_c2g_test.dart",
+      "target": "integration_test/chat_multi_forward_c2g_test.dart",
+      "target_sha256": "e3777a87e06a9a85aacffc3818092f42ec604798c2266bd8084b0b16e7bd9de7",
+      "sources": [],
+      "dependencies": [],
+      "risk": "device-readonly",
+      "requirements": [],
+      "tags": [
+        "chat_multi_forward_c2g_test.dart"
+      ],
+      "enabled": false,
+      "oracle_hint": true
+    },
+    {
+      "id": "test:integration_test/chat_multi_select_test.dart",
+      "target": "integration_test/chat_multi_select_test.dart",
+      "target_sha256": "f48f8c722b737dea166c2ae493e4174e1215798ed360d497198040870519bbef",
+      "sources": [],
+      "dependencies": [],
+      "risk": "device-readonly",
+      "requirements": [],
+      "tags": [
+        "chat_multi_select_test.dart"
+      ],
+      "enabled": false,
       "oracle_hint": true
     },
     {
@@ -3665,6 +3721,16 @@
     },
     {
       "page": "lib/page/chat/send_to/send_to_page.dart",
+      "mapped_targets": [],
+      "dependency_targets": [],
+      "route_registered": true,
+      "in_spec_sources": false,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/page/chat/widget/history_bundle_detail_page.dart",
       "mapped_targets": [],
       "dependency_targets": [],
       "route_registered": true,
