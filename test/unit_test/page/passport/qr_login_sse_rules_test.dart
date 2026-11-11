@@ -1,6 +1,8 @@
 /// QR SSE 帧解析 + 降级决策单测（PR-4α RED→GREEN→REFACTOR）。
 library;
 
+import 'dart:convert';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/page/passport/qr_login_sse_rules.dart';
 import 'package:imboy/page/passport/qr_login_response_rules.dart';
@@ -69,6 +71,188 @@ void main() {
     test('data:{"status":"waiting"} 无空格也接受（SSE 规范允许）', () {
       final event = parseSseFrame('data:{"status":"waiting"}');
       expect(event, isA<QrStatusWaiting>());
+    });
+
+    test('SSE and polling preserve the same exact authoritative UID', () {
+      // Same synthetic wire pair asserted by backend qr_login_uid_contract_tests.
+      const wire =
+          '{"status":"confirmed","token":"synthetic-qr-contract-token",'
+          '"uid":111174215241304065,"uid_str":"111174215241304065",'
+          '"future_field":"ignored by existing clients"}';
+      final payload = jsonDecode(wire) as Map<String, dynamic>;
+      final sse = parseSseFrame('data: $wire') as QrStatusConfirmed;
+      final polling = parseQrStatusResponse(
+        ok: true,
+        code: 0,
+        payload: payload,
+      ) as QrStatusConfirmed;
+      expect(sse.token, polling.token);
+      expect(sse.uid, payload['uid_str']);
+      expect(sse.uid, polling.uid);
+    });
+
+    test('non-finite numeric compatibility fields cannot assert identity', () {
+      for (final uid in [
+        double.nan,
+        double.infinity,
+        double.negativeInfinity,
+      ]) {
+        final event = parseQrStatusResponse(
+          ok: true,
+          code: 0,
+          payload: {
+            'status': 'confirmed',
+            'token': 'synthetic-token',
+            'uid': uid,
+            'uid_str': '42',
+          },
+        ) as QrStatusConfirmed;
+        expect(event.uid, isNull);
+      }
+    });
+
+    test('exact legacy string UID is preserved without the new field', () {
+      final event = parseSseFrame(
+        'data: {"status":"confirmed","token":"synthetic-token",'
+        '"uid":"9223372036854775807"}',
+      ) as QrStatusConfirmed;
+      expect(event.uid, '9223372036854775807');
+    });
+
+    for (final uidFields in <Map<String, dynamic>>[
+      {'uid_str': '42', 'uid': 42},
+      {'uid_str': '42', 'uid': '42'},
+      {'uid_str': '42'},
+      {'uid_str': '9223372036854775807'},
+    ]) {
+      test(
+        'exact UID accepts consistent or absent legacy field: $uidFields',
+        () {
+          final payload = {
+            'status': 'confirmed',
+            'token': 'synthetic-token',
+            ...uidFields,
+          };
+          final sse = parseSseFrame(
+            'data: ${jsonEncode(payload)}',
+          ) as QrStatusConfirmed;
+          final polling = parseQrStatusResponse(
+            ok: true,
+            code: 0,
+            payload: payload,
+          ) as QrStatusConfirmed;
+          expect(sse.uid, uidFields['uid_str']);
+          expect(polling.uid, uidFields['uid_str']);
+        },
+      );
+    }
+
+    test(
+      'safe legacy numeric UID uses the same parsing on both transports',
+      () {
+        const payload = {
+          'status': 'confirmed',
+          'token': 'synthetic-claimed-token',
+          'uid': 9007199254740991,
+        };
+        final sse =
+            parseSseFrame('data: ${jsonEncode(payload)}') as QrStatusConfirmed;
+        final polling = parseQrStatusResponse(
+          ok: true,
+          code: 0,
+          payload: payload,
+        ) as QrStatusConfirmed;
+        expect(sse.uid, '9007199254740991');
+        expect(sse.uid, polling.uid);
+      },
+    );
+
+    for (final invalidUid in <Object?>[
+      null,
+      '',
+      '   ',
+      0,
+      -1,
+      9007199254740992,
+      1.5,
+      true,
+      <String, Object>{'uid': 'not-authoritative'},
+      <String>['not-authoritative'],
+    ]) {
+      test(
+        'invalid UID ($invalidUid) is never synthesized by either parser',
+        () {
+          final payload = {
+            'status': 'confirmed',
+            'token': 'synthetic-claimed-token',
+            'uid': invalidUid,
+            'scanned_by': 'not-a-wire-uid',
+            'user': {'uid': 'not-authoritative'},
+          };
+          final sse = parseSseFrame(
+            'data: ${jsonEncode(payload)}',
+          ) as QrStatusConfirmed;
+          final polling = parseQrStatusResponse(
+            ok: true,
+            code: 0,
+            payload: payload,
+          ) as QrStatusConfirmed;
+          expect(sse.uid, isNull);
+          expect(polling.uid, isNull);
+        },
+      );
+    }
+
+    for (final uidFields in <Map<String, dynamic>>[
+      {'uid_str': null, 'uid': 42},
+      {'uid_str': '', 'uid': 42},
+      {'uid_str': ' 42 ', 'uid': 42},
+      {'uid_str': '42\n'},
+      {'uid_str': '9223372036854775808'},
+      {'uid_str': '999999999999999999999999999999999999999999999'},
+      {'uid_str': '042', 'uid': 42},
+      {'uid_str': '0', 'uid': 42},
+      {'uid_str': '-1', 'uid': 42},
+      {'uid_str': 42, 'uid': 42},
+      {'uid_str': '43', 'uid': 42},
+      {'uid_str': '43', 'uid': '42'},
+      {'uid_str': '42', 'uid': 1.5},
+      {'uid_str': '42', 'uid': -9007199254740992},
+      {'uid_str': '42', 'uid': null},
+      {'uid_str': '42', 'uid': true},
+      {'uid_str': '42', 'uid': <String, dynamic>{}},
+    ]) {
+      test(
+        'malformed or conflicting exact UID cannot downgrade: $uidFields',
+        () {
+          final payload = {
+            'status': 'confirmed',
+            'token': 'synthetic-claimed-token',
+            ...uidFields,
+          };
+          final sse = parseSseFrame(
+            'data: ${jsonEncode(payload)}',
+          ) as QrStatusConfirmed;
+          final polling = parseQrStatusResponse(
+            ok: true,
+            code: 0,
+            payload: payload,
+          ) as QrStatusConfirmed;
+          expect(sse.uid, isNull);
+          expect(polling.uid, isNull);
+        },
+      );
+    }
+
+    test('already-claimed responses carry no reusable login credentials', () {
+      final sse = parseSseFrame(': claimed_elsewhere');
+      final polling = parseQrStatusResponse(
+        ok: true,
+        code: 5203,
+        payload: const <String, dynamic>{},
+      );
+      expect(sse, isA<QrStatusStopPolling>());
+      expect(polling, isA<QrStatusStopPolling>());
     });
   });
 

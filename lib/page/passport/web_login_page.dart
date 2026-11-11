@@ -112,9 +112,7 @@ class QRLogin extends _$QRLogin {
   /// PR-4δ：SSE 会话（Web 平台主路径，失败 fallback 到 _startPolling）
   QrSseSession? _sseSession;
 
-  /// PR-4δ：SSE 客户端工厂，测试可通过 setter 替换为 FakeSseClient
-  /// 默认走 platform-conditional createSseClient（Web 真实 EventSource，
-  /// 非 Web 走 IO stub 抛 UnsupportedError）。
+  /// 测试可注入 SSE 客户端；默认使用对应平台的实现。
   SseClientBuilder _sseClientBuilder = createSseClient;
   // ignore: avoid_setters_without_getters
   set sseClientBuilderForTesting(SseClientBuilder builder) =>
@@ -127,6 +125,10 @@ class QRLogin extends _$QRLogin {
 
   /// 生成新的 QR 码
   Future<void> generateQRCode() async {
+    _stopPolling();
+    _stopSseSession();
+    // 先使旧凭据失效，避免新二维码创建期间旧的在途轮询发布登录会话。
+    state = const QRLoginState();
     try {
       // 获取或创建 Web 设备 ID
       _webDeviceId ??= 'web_${DateTime.now().millisecondsSinceEpoch}';
@@ -141,8 +143,7 @@ class QRLogin extends _$QRLogin {
         },
       );
 
-      // slice-5b：委托纯函数解析（27 测覆盖契约：qr_token / session_token /
-      // expires_in / 字段缺失 / 非法类型等）。
+      // 按创建响应合同解析二维码、领取凭据和有效期。
       switch (parseQrCreateResponse(
         ok: response.ok,
         payload: response.payload,
@@ -188,7 +189,8 @@ class QRLogin extends _$QRLogin {
   void _startPolling() {
     _pollTimer?.cancel();
     _pollTimer = Timer.periodic(const Duration(seconds: 2), (timer) async {
-      if (state.sessionToken == null) {
+      final sessionToken = state.sessionToken;
+      if (sessionToken == null || !_awaitingConfirmation) {
         timer.cancel();
         return;
       }
@@ -196,17 +198,19 @@ class QRLogin extends _$QRLogin {
       try {
         final response = await HttpClient.client.get(
           '/api/v1/passport/qr_login/status',
-          queryParameters: {'session_token': state.sessionToken},
+          queryParameters: {'session_token': sessionToken},
         );
+        // 已领取、正在登记所有者或已换码时，丢弃尚在途的旧轮询结果。
+        if (sessionToken != state.sessionToken || !_awaitingConfirmation) {
+          return;
+        }
 
-        // slice-5b：解析层（27 测覆盖契约：6 status 字符串 / confirmed+token 防御 /
-        // payload 非 Map 等）。
+        // 轮询与 SSE 共用响应字段和状态转换规则。
         final event = parseQrStatusResponse(
           ok: response.ok,
           code: response.code,
           payload: response.payload,
         );
-        // slice-5c：决策层（24 测覆盖：sessionToken 守卫 + 7 状态分支 + 协议违反）。
         switch (derivePollingDecision(
           sessionToken: state.sessionToken,
           event: event,
@@ -220,7 +224,6 @@ class QRLogin extends _$QRLogin {
           case TransitionToScanned():
             state = state.copyWith(status: QRLoginStatus.scanned);
           case RequestCompleteLogin(:final token, :final uid):
-            state = state.copyWith(status: QRLoginStatus.confirming);
             await _completeLogin(token, uid: uid);
           case TransitionToExpired():
             state = state.copyWith(status: QRLoginStatus.expired);
@@ -260,6 +263,11 @@ class QRLogin extends _$QRLogin {
 
   /// 完成登录
   Future<void> _completeLogin(String? token, {String? uid}) async {
+    if (!_awaitingConfirmation) return;
+    // 同步关门，避免重复 confirmed 或断线回退在所有者写入等待期间重入。
+    state = state.copyWith(status: QRLoginStatus.confirming);
+    _stopPolling();
+    _stopSseSession();
     switch (deriveCompleteLoginDecision(token: token)) {
       case RejectInvalidToken():
         state = state.copyWith(
@@ -271,8 +279,6 @@ class QRLogin extends _$QRLogin {
         try {
           await UserRepoLocal.to.loginAfterQr(uid: uid, token: token);
           state = state.copyWith(status: QRLoginStatus.success);
-          _pollTimer?.cancel();
-          _expireTimer?.cancel();
         } catch (e) {
           state = state.copyWith(
             status: QRLoginStatus.failed,
@@ -282,10 +288,12 @@ class QRLogin extends _$QRLogin {
     }
   }
 
+  bool get _awaitingConfirmation =>
+      state.status == QRLoginStatus.waiting ||
+      state.status == QRLoginStatus.scanned;
+
   /// 刷新 QR 码
   Future<void> refresh() async {
-    _pollTimer?.cancel();
-    _expireTimer?.cancel();
     await generateQRCode();
   }
 
@@ -295,19 +303,17 @@ class QRLogin extends _$QRLogin {
     _expireTimer?.cancel();
   }
 
-  /// PR-4δ: 启动 SSE 会话（Web 平台主路径）。
-  ///
-  /// 标记 `@visibleForTesting` 而非 private —— 让单测可绕过 generateQRCode
-  /// 的 HTTP 调用直接验证状态机接线。生产路径只通过 generateQRCode 内部触发。
-  ///
-  /// onEvent 复用 `derivePollingDecision`：与轮询路径同套状态机，避免双轨漂移。
-  /// onFallback 调 `_startPolling()`：SSE 不可用时无缝降级。
+  /// Web 优先使用 SSE；断线后关闭旧订阅，再回退到轮询。
+  /// 两种运输共用状态机。测试可直接验证订阅和会话发布顺序。
   @visibleForTesting
   void startSseSession(String sessionToken, {int gracePeriodSeconds = 3}) {
     _sseSession?.stop(); // 防重入：旧会话先清理
     final session = QrSseSession(
       client: _sseClientBuilder(),
       onEvent: (event) {
+        if (sessionToken != state.sessionToken || !_awaitingConfirmation) {
+          return;
+        }
         switch (derivePollingDecision(
           sessionToken: state.sessionToken,
           event: event,
@@ -319,8 +325,7 @@ class QRLogin extends _$QRLogin {
           case TransitionToScanned():
             state = state.copyWith(status: QRLoginStatus.scanned);
           case RequestCompleteLogin(:final token, :final uid):
-            state = state.copyWith(status: QRLoginStatus.confirming);
-            _completeLogin(token, uid: uid);
+            unawaited(_completeLogin(token, uid: uid));
           case TransitionToExpired():
             state = state.copyWith(status: QRLoginStatus.expired);
             _stopSseSession();
@@ -337,13 +342,19 @@ class QRLogin extends _$QRLogin {
         }
       },
       onFallback: () {
+        if (sessionToken != state.sessionToken || !_awaitingConfirmation) {
+          return;
+        }
         // SSE 不可用 → 启动 2 秒轮询兜底（与现有 _startPolling 完全一致）
+        _stopSseSession();
         _startPolling();
       },
     );
     _sseSession = session;
-    final url =
-        '/api/v1/passport/qr_login/subscribe?session_token=$sessionToken';
+    final url = Uri(
+      path: '/api/v1/passport/qr_login/subscribe',
+      queryParameters: {'session_token': sessionToken},
+    ).toString();
     unawaited(session.start(url, gracePeriodSeconds: gracePeriodSeconds));
   }
 

@@ -5,6 +5,7 @@ import 'dart:io' show Directory;
 import 'package:dio/dio.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider_platform_interface/path_provider_platform_interface.dart';
@@ -16,7 +17,9 @@ import 'package:imboy/app_core/feature_flags/runtime_feature_recovery.dart';
 import 'package:imboy/component/http/http_client.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/config/env.dart';
-import 'package:imboy/config/init.dart' show currentEnv;
+import 'package:imboy/config/init.dart' show currentEnv, serviceContainer;
+import 'package:imboy/page/passport/sse_client.dart';
+import 'package:imboy/page/passport/web_login_page.dart';
 import 'package:imboy/service/account_local_data_service.dart';
 import 'package:imboy/service/login_account_history_service.dart';
 import 'package:imboy/service/push_notification_service.dart';
@@ -62,21 +65,76 @@ class _QrPreferences extends InMemorySharedPreferencesStore {
 }
 
 class _SyntheticHttpAdapter implements HttpClientAdapter {
+  Map<String, dynamic>? qrStatusResponse;
+  String qrSessionToken = 'synthetic-session';
+  Future<void> Function()? beforeCreateResponse;
+  void Function(RequestOptions)? beforeQrStatus;
+  Future<void> Function()? beforeStatusResponse;
+  int statusRequests = 0;
+
   @override
   Future<ResponseBody> fetch(
     RequestOptions options,
     Stream<Uint8List>? requestStream,
     Future<void>? cancelFuture,
-  ) async => ResponseBody.fromString(
-    '{"code":503,"msg":"synthetic unavailable"}',
-    200,
-    headers: {
-      Headers.contentTypeHeader: [Headers.jsonContentType],
-    },
-  );
+  ) async {
+    Map<String, dynamic> response = {
+      'code': 503,
+      'msg': 'synthetic unavailable',
+    };
+    if (options.path == '/api/v1/passport/qr_login/create') {
+      await beforeCreateResponse?.call();
+      response = {
+        'code': 0,
+        'payload': {
+          'qr_token': 'synthetic-qr-code',
+          'session_token': qrSessionToken,
+          'expires_in': 60,
+        },
+      };
+    } else if (options.path == '/api/v1/passport/qr_login/status') {
+      statusRequests++;
+      beforeQrStatus?.call(options);
+      await beforeStatusResponse?.call();
+      response = qrStatusResponse ?? response;
+    }
+    return ResponseBody.fromString(
+      jsonEncode(response),
+      200,
+      headers: {
+        Headers.contentTypeHeader: [Headers.jsonContentType],
+      },
+    );
+  }
 
   @override
   void close({bool force = false}) {}
+}
+
+class _SyntheticSseClient implements SseClient {
+  final _frames = StreamController<String>.broadcast();
+  final _errors = StreamController<Object>.broadcast();
+  bool closed = false;
+
+  @override
+  bool get isOpen => !closed;
+  @override
+  Stream<String> get frames => _frames.stream;
+  @override
+  Stream<Object> get errors => _errors.stream;
+  @override
+  Future<void> connect(String url) async {}
+  @override
+  Future<void> close() async => closed = true;
+
+  void confirmed(Map<String, dynamic> payload) =>
+      _frames.add('data: ${jsonEncode(payload)}');
+  void disconnect() => _errors.add(StateError('synthetic disconnect'));
+}
+
+class _ReadyQrLogin extends QRLogin {
+  @override
+  QRLoginState build() => const QRLoginState(sessionToken: 'synthetic-session');
 }
 
 void main() {
@@ -88,7 +146,7 @@ void main() {
   const notificationsChannel = MethodChannel(
     'dexterous.com/flutter/local_notifications',
   );
-  const uid = 'qr-synthetic-owner';
+  const uid = '9007199254740993';
   const token = 'synthetic-qr-access-token';
   final repo = UserRepoLocal.to;
   final history = LoginAccountHistoryService();
@@ -98,6 +156,30 @@ void main() {
   late _QrPreferences preferences;
   late Map<String, String> secure;
   late List<String> secretMutations;
+  late ProviderContainer container;
+  late QRLogin notifier;
+  late _SyntheticSseClient sse;
+  late _SyntheticHttpAdapter adapter;
+
+  const confirmed = {
+    'status': 'confirmed',
+    'token': token,
+    // Simulate the legacy JSON number after browser rounding.
+    'uid': 9007199254740992,
+    'uid_str': uid,
+  };
+
+  Future<void> waitForStatus(QRLoginStatus status) async {
+    final reached = Completer<void>();
+    final subscription = container.listen(qRLoginProvider, (_, state) {
+      if (state.status == status && !reached.isCompleted) reached.complete();
+    }, fireImmediately: true);
+    try {
+      await reached.future.timeout(const Duration(seconds: 8));
+    } finally {
+      subscription.close();
+    }
+  }
 
   LoginAccountIdentity identity({String endpoint = ''}) => LoginAccountIdentity(
     uid: uid,
@@ -144,7 +226,18 @@ void main() {
     repo.clearAuthTransitionFailureForTest();
     SqliteService.setDbUnavailableForTest();
     PushNotificationService.instance.resetForTest();
-    HttpClient.adapterForTest = _SyntheticHttpAdapter();
+    adapter = _SyntheticHttpAdapter();
+    HttpClient.adapterForTest = adapter;
+    serviceContainer.put(
+      HttpClient(options: BaseOptions(baseUrl: Env().apiBaseUrl)),
+    );
+    container = ProviderContainer(
+      overrides: [qRLoginProvider.overrideWith(_ReadyQrLogin.new)],
+    );
+    container.listen(qRLoginProvider, (_, _) {});
+    notifier = container.read(qRLoginProvider.notifier);
+    sse = _SyntheticSseClient();
+    notifier.sseClientBuilderForTesting = () => sse;
     secure = {};
     secretMutations = [];
     AndroidFlutterLocalNotificationsPlugin.registerWith();
@@ -185,6 +278,9 @@ void main() {
   });
 
   tearDown(() async {
+    notifier.dispose();
+    container.dispose();
+    serviceContainer.clear();
     RuntimeFeatureRecovery.dispose();
     WebSocketService.to.dispose();
     PersistentMessageQueue.to.dispose();
@@ -203,6 +299,165 @@ void main() {
     }
     await root.delete(recursive: true);
   });
+
+  test(
+    'SSE preserves exact UID, persists owner first, and publishes only once',
+    () async {
+      final entered = Completer<void>();
+      final release = Completer<void>();
+      preferences.beforeRegistryWrite = () async {
+        entered.complete();
+        await release.future;
+      };
+      final generation = repo.sessionGeneration;
+      notifier.startSseSession('synthetic-session');
+      final success = waitForStatus(QRLoginStatus.success);
+      sse.confirmed(confirmed);
+      try {
+        await entered.future.timeout(const Duration(seconds: 5));
+        expect(
+          container.read(qRLoginProvider).status,
+          QRLoginStatus.confirming,
+        );
+        expect(repo.currentUid, isEmpty);
+        expect(secretMutations, isEmpty);
+        expect(repo.sessionGeneration, generation + 1);
+        sse.confirmed(confirmed);
+        sse.disconnect();
+        await Future<void>.delayed(Duration.zero);
+        expect(repo.sessionGeneration, generation + 1);
+        expect(sse.closed, isTrue);
+        expect(adapter.statusRequests, 0);
+      } finally {
+        release.complete();
+      }
+      await success;
+      sse.confirmed(confirmed);
+      sse.confirmed(const {'status': 'expired'});
+      await Future<void>.delayed(Duration.zero);
+      expect(repo.currentUid, uid);
+      expect(secure['secure_token'], token);
+      expect(registered().single.uid, uid);
+      expect(registered().single.storageOwnershipVerified, isTrue);
+      expect(repo.sessionGeneration, generation + 1);
+      expect(
+        secretMutations.where((item) => item == 'write:secure_token'),
+        hasLength(1),
+      );
+      expect(container.read(qRLoginProvider).status, QRLoginStatus.success);
+    },
+  );
+
+  for (final uidFields in <Map<String, dynamic>>[
+    {},
+    {'uid': 9007199254740992},
+    {'uid': 42, 'uid_str': ''},
+    {'uid': 42, 'uid_str': '43'},
+  ]) {
+    test('SSE invalid authority $uidFields publishes no session', () async {
+      final generation = repo.sessionGeneration;
+      notifier.startSseSession('synthetic-session');
+      final failed = waitForStatus(QRLoginStatus.failed);
+      sse.confirmed({'status': 'confirmed', 'token': token, ...uidFields});
+      await failed;
+      expect(repo.sessionGeneration, generation);
+      expect(repo.currentUid, isEmpty);
+      expect(secretMutations, isEmpty);
+      expect(StorageService.to.getKeys(), isEmpty);
+    });
+  }
+
+  test('polling confirmed uses the same exact owner and token', () async {
+    adapter.qrStatusResponse = {'code': 0, 'payload': confirmed};
+    final success = waitForStatus(QRLoginStatus.success);
+    await notifier.generateQRCode();
+    await success;
+    expect(adapter.statusRequests, 1);
+    expect(repo.currentUid, uid);
+    expect(secure['secure_token'], token);
+    expect(registered().single.uid, uid);
+  });
+
+  test(
+    'refresh invalidates old in-flight polling before new create returns',
+    () async {
+      final oldPollEntered = Completer<void>();
+      final releaseOldPoll = Completer<void>();
+      final newCreateEntered = Completer<void>();
+      final releaseNewCreate = Completer<void>();
+      adapter.qrStatusResponse = {'code': 0, 'payload': confirmed};
+      adapter.beforeQrStatus = (_) => oldPollEntered.complete();
+      adapter.beforeStatusResponse = () => releaseOldPoll.future;
+      final generation = repo.sessionGeneration;
+      await notifier.generateQRCode();
+      await oldPollEntered.future.timeout(const Duration(seconds: 8));
+      adapter.beforeCreateResponse = () async {
+        newCreateEntered.complete();
+        await releaseNewCreate.future;
+      };
+      adapter.qrSessionToken = 'synthetic-refreshed-session';
+      final refreshing = notifier.refresh();
+      try {
+        await newCreateEntered.future.timeout(const Duration(seconds: 5));
+        expect(container.read(qRLoginProvider).sessionToken, isNull);
+        releaseOldPoll.complete();
+        await Future<void>.delayed(Duration.zero);
+        expect(repo.sessionGeneration, generation);
+        expect(repo.currentUid, isEmpty);
+        expect(secretMutations, isEmpty);
+      } finally {
+        if (!releaseOldPoll.isCompleted) releaseOldPoll.complete();
+        releaseNewCreate.complete();
+        await refreshing;
+      }
+      expect(
+        container.read(qRLoginProvider).sessionToken,
+        'synthetic-refreshed-session',
+      );
+      expect(repo.sessionGeneration, generation);
+      expect(repo.currentUid, isEmpty);
+    },
+  );
+
+  test(
+    'disconnect before claim closes SSE and completes via polling',
+    () async {
+      adapter.qrStatusResponse = {'code': 0, 'payload': confirmed};
+      adapter.beforeQrStatus = (options) {
+        expect(sse.closed, isTrue);
+        expect(options.queryParameters['session_token'], 'synthetic-session');
+      };
+      final generation = repo.sessionGeneration;
+      notifier.startSseSession('synthetic-session');
+      final success = waitForStatus(QRLoginStatus.success);
+      sse.disconnect();
+      await success;
+      expect(adapter.statusRequests, 1);
+      expect(repo.sessionGeneration, generation + 1);
+      expect(repo.currentUid, uid);
+      expect(secure['secure_token'], token);
+      expect(registered().single.uid, uid);
+    },
+  );
+
+  test(
+    'disconnect after server claim cannot reuse an already-consumed token',
+    () async {
+      adapter.qrStatusResponse = {'code': 5203, 'msg': 'already claimed'};
+      final polled = Completer<void>();
+      adapter.beforeQrStatus = (_) => polled.complete();
+      final generation = repo.sessionGeneration;
+      notifier.startSseSession('synthetic-session');
+      sse.disconnect();
+      await polled.future.timeout(const Duration(seconds: 8));
+      await Future<void>.delayed(Duration.zero);
+      expect(sse.closed, isTrue);
+      expect(repo.sessionGeneration, generation);
+      expect(repo.currentUid, isEmpty);
+      expect(secretMutations, isEmpty);
+      expect(StorageService.to.getKeys(), isEmpty);
+    },
+  );
 
   test(
     'QR waits for durable ownership before publishing any session data',

@@ -8,8 +8,8 @@
 ///   - `create/2`（76-113）：成功响应 payload 为
 ///     `#{<<"qr_token">> => Bin, <<"session_token">> => Bin, <<"expires_in">> => 60}`
 ///   - `status/2`（117-147）：成功响应 payload 为
-///     `#{<<"status">> => waiting|scanned|confirmed|cancelled, <<"token">> => Jwt?}`
-///     仅 `confirmed` 时附 `token`（即 `token_ds:encrypt_token/1` 的 JWT）。
+///     仅 `confirmed` 时附 `token`、旧格式 `uid` 和同次领取结果的精确
+///     十进制字符串 `uid_str`；SSE 与轮询共享此合同。
 ///
 /// 本文件故意零 Flutter / HTTP 依赖，便于纯 Dart 单元测试，覆盖：
 ///   - 字段缺失 / 空值 / 错误类型的防御行为
@@ -125,9 +125,8 @@ final class QrStatusConfirmed extends QrStatusEvent {
   /// 后端 `token` 字段（JWT），调用方应保存到 SecureTokenStorageService。
   final String token;
 
-  /// 后端 `uid` 字段（批次126 起随 confirmed 透传）：客户端 QR 登录落地
-  /// 需要写 currentUid 建立登录态，token 是加密串客户端解不出 uid。
-  /// 兼容旧后端：缺失时为 null。
+  /// 后端 `uid_str` 优先；缺省时兼容旧 `uid` 字符串或安全整数。
+  /// 缺失、无效或字段矛盾时为 null，loginAfterQr 必须在会话写入前拒绝。
   final String? uid;
 }
 
@@ -179,14 +178,8 @@ QrStatusEvent parseQrStatusResponse({
       return const QrStatusScanned();
     case 'confirmed':
       final token = _readNonEmptyString(payload, 'token');
-      // uid 后端为整数（TSID 可能超出 JS 安全整数）且可能缺省（旧后端），
-      // 字符串或正整数均接受
-      final uidRaw = payload['uid'];
-      final String? uid = uidRaw is int && uidRaw > 0
-          ? uidRaw.toString()
-          : _readNonEmptyString(payload, 'uid');
       if (token == null) return QrStatusUnknown(rawStatus);
-      return QrStatusConfirmed(token, uid: uid);
+      return QrStatusConfirmed(token, uid: _readQrUid(payload));
     case 'expired':
       return const QrStatusExpired();
     case 'cancelled':
@@ -199,6 +192,34 @@ QrStatusEvent parseQrStatusResponse({
 // ---------------------------------------------------------------------------
 // 内部解析辅助
 // ---------------------------------------------------------------------------
+
+/// Prefer the exact additive field without changing the legacy wire field.
+/// Never reconstruct an identity from a number rounded by JavaScript.
+String? _readQrUid(Map<String, dynamic> payload) {
+  const maxSafeInteger = 9007199254740991;
+  final raw = payload['uid'];
+  final legacy = raw is int && raw > 0 && raw <= maxSafeInteger
+      ? raw.toString()
+      : _readNonEmptyString(payload, 'uid');
+  if (!payload.containsKey('uid_str')) return legacy;
+
+  final exact = payload['uid_str'];
+  const maxUid = '9223372036854775807';
+  if (exact is! String ||
+      exact.length > maxUid.length ||
+      RegExp(r'^[1-9][0-9]*$').stringMatch(exact) != exact ||
+      (exact.length == maxUid.length && exact.compareTo(maxUid) > 0)) {
+    return null; // A malformed new field must not silently downgrade.
+  }
+  if (raw is String && legacy != exact) return null;
+  if (payload.containsKey('uid') && raw is! String) {
+    if (raw is! int || raw <= 0) return null;
+    if (raw <= maxSafeInteger && legacy != exact) return null;
+  }
+  // The old large numeric field may already be rounded in a browser. It must
+  // neither override nor invalidate the exact value from the same response.
+  return exact;
+}
 
 /// 从 `Map<String, dynamic>` 读取字段，要求非空非全空白字符串；否则返回 null。
 String? _readNonEmptyString(Map<String, dynamic> map, String key) {

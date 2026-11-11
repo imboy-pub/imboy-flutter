@@ -111,12 +111,16 @@ void main() {
       );
       await session.start('http://x');
       client.emitFrame('data: {"status":"scanned"}');
-      client.emitFrame('data: {"status":"confirmed","token":"jwt_xyz"}');
+      client.emitFrame(
+        'data: {"status":"confirmed","token":"jwt_xyz",'
+        '"uid":9007199254740992,"uid_str":"9007199254740993"}',
+      );
       await Future<dynamic>.delayed(Duration.zero);
       expect(received, hasLength(2));
       expect(received[0], isA<QrStatusScanned>());
       expect(received[1], isA<QrStatusConfirmed>());
       expect((received[1] as QrStatusConfirmed).token, 'jwt_xyz');
+      expect((received[1] as QrStatusConfirmed).uid, '9007199254740993');
       await session.stop();
     });
 
