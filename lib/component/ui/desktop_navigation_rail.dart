@@ -23,6 +23,12 @@ const double kCompactDesktopNavigationExpandedWidth = 144;
 const String kDesktopNavigationExpandedPreferenceKey =
     'desktop_navigation_expanded';
 
+Color _desktopNavigationRailBackground(Brightness brightness) {
+  return brightness == Brightness.dark
+      ? AppColors.darkSurfaceGroupedTertiary
+      : AppColors.lightSurfaceGrouped;
+}
+
 /// Desktop/Web 左侧导航的布局上下文。
 ///
 /// 需要随导航展开态调整的子组件（例如空间切换器）可读取 [expanded]，
@@ -114,7 +120,8 @@ class DesktopNavigationRail extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
+    final theme = Theme.of(context);
+    final railBackground = _desktopNavigationRailBackground(theme.brightness);
     final duration = AppDuration.respectReducedMotion(
       MediaQuery.disableAnimationsOf(context),
       AppDuration.slow,
@@ -127,7 +134,7 @@ class DesktopNavigationRail extends StatelessWidget {
         duration: duration,
         curve: Curves.easeOutCubic,
         width: expanded ? expandedWidth : collapsedWidth,
-        decoration: BoxDecoration(color: scheme.surfaceContainerLow),
+        decoration: BoxDecoration(color: railBackground),
         clipBehavior: Clip.hardEdge,
         child: SafeArea(
           child: LayoutBuilder(
@@ -234,7 +241,8 @@ class _DesktopNavigationTileState extends State<_DesktopNavigationTile> {
   bool _hovered = false;
 
   Widget _glyph(BuildContext context, Color iconColor) {
-    final scheme = Theme.of(context).colorScheme;
+    final theme = Theme.of(context);
+    final railBackground = _desktopNavigationRailBackground(theme.brightness);
     return Stack(
       clipBehavior: Clip.none,
       children: [
@@ -253,10 +261,7 @@ class _DesktopNavigationTileState extends State<_DesktopNavigationTile> {
               decoration: BoxDecoration(
                 color: widget.item.statusColor,
                 shape: BoxShape.circle,
-                border: Border.all(
-                  color: scheme.surfaceContainerLow,
-                  width: 1.5,
-                ),
+                border: Border.all(color: railBackground, width: 1.5),
               ),
             ),
           ),
