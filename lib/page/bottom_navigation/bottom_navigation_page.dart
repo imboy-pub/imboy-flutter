@@ -5,7 +5,9 @@ import 'package:imboy/theme/default/app_spacing.dart';
 import 'dart:async';
 
 import 'package:imboy/component/ui/badge_widget.dart';
+import 'package:imboy/component/ui/desktop_navigation_rail.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -13,11 +15,13 @@ import 'package:imboy/modules/social_graph/public.dart';
 import 'package:imboy/config/router/generated_product_feature_routes.dart';
 import 'package:imboy/theme/default/font_types.dart';
 import 'package:imboy/theme/default/app_colors.dart';
+import 'package:imboy/theme/default/app_duration.dart';
 import 'package:imboy/app_core/feature_flags/app_feature_registry.dart';
 import 'package:imboy/app_core/feature_flags/app_manifest_service.dart';
 import 'package:imboy/page/conversation/conversation_page.dart';
 import 'package:imboy/page/conversation/conversation_provider.dart';
 import 'package:imboy/page/mine/mine/mine_page.dart';
+import 'package:imboy/page/web_shell/web_nav_rail.dart';
 import 'package:imboy/page/workspace_shell/space_switcher_button.dart';
 import 'package:imboy/service/websocket_status_provider.dart';
 import 'package:imboy/component/ui/glass_bottom_bar.dart';
@@ -51,6 +55,30 @@ int resolveInitialIndex(
   return normalizeIndex(index, tabCount);
 }
 
+/// 600–900pt 个人壳是否使用可折叠桌面导航。
+///
+/// macOS / Windows / Linux 与 Web 共用桌面交互；iOS / Android 平板继续使用
+/// 既有 Material NavigationRail，避免把鼠标/键盘导向的折叠模式硬搬到移动端。
+@visibleForTesting
+bool shouldUseCollapsibleDesktopNavigation({
+  required double width,
+  required TargetPlatform platform,
+  required bool isWeb,
+}) {
+  final inRailRange =
+      width >= AppBreakpoints.mobile && width < AppBreakpoints.wide;
+  if (!inRailRange) return false;
+  if (isWeb) return true;
+  return switch (platform) {
+    TargetPlatform.macOS ||
+    TargetPlatform.windows ||
+    TargetPlatform.linux => true,
+    TargetPlatform.android ||
+    TargetPlatform.iOS ||
+    TargetPlatform.fuchsia => false,
+  };
+}
+
 class BottomNavigationPage extends ConsumerStatefulWidget {
   const BottomNavigationPage({super.key, this.restoredIndex});
 
@@ -71,6 +99,10 @@ class _BottomNavigationPageState extends ConsumerState<BottomNavigationPage> {
   /// 是否已根据 GoRouter 的 query 参数初始化过 index
   /// GoRouterState.of(context) 必须在 initState 之后调用（依赖 InheritedWidget）
   bool _initialIndexApplied = false;
+
+  double _pageOpacity = 1;
+  Offset _pageOffset = Offset.zero;
+  int _pageTransitionTicket = 0;
 
   bool _isTabEnabled(String entry) {
     if (entry == 'channel_tab') {
@@ -174,6 +206,42 @@ class _BottomNavigationPageState extends ConsumerState<BottomNavigationPage> {
     );
   }
 
+  void _transitionToPage(int target) {
+    if (!pageController.hasClients) return;
+    final current = pageController.page?.round() ?? target;
+    if (current == target) return;
+    if (MediaQuery.disableAnimationsOf(context)) {
+      pageController.jumpToPage(target);
+      return;
+    }
+
+    final ticket = ++_pageTransitionTicket;
+    setState(() {
+      _pageOpacity = 0.96;
+      _pageOffset = Offset(current < target ? 0.012 : -0.012, 0);
+    });
+    pageController.jumpToPage(target);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted || ticket != _pageTransitionTicket) return;
+      setState(() {
+        _pageOpacity = 1;
+        _pageOffset = Offset.zero;
+      });
+    });
+  }
+
+  Color _connectionStatusColor(WebSocketConnectionState socketStatus) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return switch (socketStatus) {
+      WebSocketConnectionState.connected =>
+        isDark ? AppColors.iosGreenDark : AppColors.iosGreen,
+      WebSocketConnectionState.connecting =>
+        isDark ? AppColors.iosOrangeDark : AppColors.iosOrange,
+      WebSocketConnectionState.disconnected =>
+        isDark ? AppColors.iosRedDark : AppColors.iosRed,
+    };
+  }
+
   @override
   void dispose() {
     _localeSubscription?.cancel();
@@ -187,19 +255,9 @@ class _BottomNavigationPageState extends ConsumerState<BottomNavigationPage> {
     final t = context.t;
     // channelEnabled 控制会话列表顶部频道置顶区显示（Slice-5 接线）
     final channelEnabled = AppFeatureRegistry.isEnabled(FeatureKeys.channel);
-    final labelFontSize = ThemeManager.instance.getFontSize(
-      FontSizeType.small,
-      context: context,
-    );
 
     final rawBottomBarIndex = ref.watch(bottomNavigationProvider);
     final bottomBarIndex = _normalizeIndex(rawBottomBarIndex);
-    ref.listen(bottomNavigationProvider, (_, index) {
-      final target = _normalizeIndex(index);
-      if (pageController.hasClients && pageController.page?.round() != target) {
-        pageController.jumpToPage(target);
-      }
-    });
     final socketStatusAsync = ref.watch(webSocketStatusProvider);
     final socketStatus =
         socketStatusAsync.value ?? WebSocketConnectionState.disconnected;
@@ -207,10 +265,20 @@ class _BottomNavigationPageState extends ConsumerState<BottomNavigationPage> {
     // 只取宽度：MediaQuery.sizeOf 不会因为键盘内边距/方向以外的无关
     // MediaQueryData 变化（例如 viewInsets 抖动）而重建整个壳层。
     final width = MediaQuery.sizeOf(context).width;
-    // mobile(600px) - wide(900px) 为 tablet 模式（使用 NavigationRail）
-    final isTablet =
+    // 600–900pt 为 rail 布局；桌面/Web 用共享可折叠导航，移动平板
+    // 保留既有 Material NavigationRail。
+    final isRailLayout =
         width >= AppBreakpoints.mobile && width < AppBreakpoints.wide;
-    final pageList = _buildPageList(useRail: isTablet);
+    final useCollapsibleDesktopRail = shouldUseCollapsibleDesktopNavigation(
+      width: width,
+      platform: defaultTargetPlatform,
+      isWeb: kIsWeb,
+    );
+    final pageList = _buildPageList(useRail: isRailLayout);
+
+    ref.listen(bottomNavigationProvider, (_, index) {
+      _transitionToPage(_normalizeIndex(index));
+    });
 
     if (rawBottomBarIndex != bottomBarIndex) {
       Future.microtask(() {
@@ -263,6 +331,15 @@ class _BottomNavigationPageState extends ConsumerState<BottomNavigationPage> {
       ),
     ];
 
+    void selectDestination(int index) {
+      ref.read(bottomNavigationProvider.notifier).changeIndex(index);
+    }
+
+    final pageTransitionDuration = AppDuration.respectReducedMotion(
+      MediaQuery.disableAnimationsOf(context),
+      AppDuration.fast,
+    );
+
     return PopScope(
       canPop: false,
       child: Scaffold(
@@ -270,25 +347,40 @@ class _BottomNavigationPageState extends ConsumerState<BottomNavigationPage> {
         extendBody: true,
         body: Row(
           children: [
-            if (isTablet)
+            if (useCollapsibleDesktopRail)
+              WebNavRail(
+                key: const ValueKey('personal-shell-rail'),
+                leading: const PersonalShellDrawerAvatarButton(inRail: true),
+                items: navigationItems
+                    .map(
+                      (item) => WebNavItem(
+                        icon: item.icon,
+                        activeIcon: item.activeIcon,
+                        label: item.label,
+                        badgeCount: item.remindCount,
+                        statusColor: item.isStatusItem
+                            ? _connectionStatusColor(socketStatus)
+                            : null,
+                        controlKey: item.tabKey,
+                      ),
+                    )
+                    .toList(growable: false),
+                currentIndex: bottomBarIndex,
+                onTap: selectDestination,
+                expandedWidth: kCompactDesktopNavigationExpandedWidth,
+              )
+            else if (isRailLayout)
               NavigationRail(
                 key: const ValueKey('personal-shell-rail'),
                 leading: const PersonalShellDrawerAvatarButton(inRail: true),
                 scrollable: true,
                 selectedIndex: bottomBarIndex,
-                onDestinationSelected: (index) {
-                  ref
-                      .read(bottomNavigationProvider.notifier)
-                      .changeIndex(index);
-                  if (pageController.hasClients) {
-                    pageController.jumpToPage(index);
-                  }
-                },
+                onDestinationSelected: selectDestination,
                 labelType: NavigationRailLabelType.all,
                 backgroundColor: Theme.of(context)
                     .colorScheme
                     .surfaceContainerLow,
-                indicatorColor: AppColors.primary.withValues(alpha: 0.15),
+                indicatorColor: AppColors.primaryAlpha20,
                 selectedLabelTextStyle: context.textStyle(
                   FontSizeType.small,
                   color: AppColors.primary,
@@ -296,21 +388,14 @@ class _BottomNavigationPageState extends ConsumerState<BottomNavigationPage> {
                 ),
                 unselectedLabelTextStyle: context.textStyle(
                   FontSizeType.small,
-                  color: Theme.of(context).colorScheme.onSurface
-                      .withValues(alpha: 0.5),
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
                 ),
                 destinations: navigationItems.map((item) {
                   return NavigationRailDestination(
-                    icon: _buildNavigationIcon(
-                      item,
-                      false,
-                      labelFontSize,
-                      socketStatus,
-                    ),
+                    icon: _buildNavigationIcon(item, false, socketStatus),
                     selectedIcon: _buildNavigationIcon(
                       item,
                       true,
-                      labelFontSize,
                       socketStatus,
                     ),
                     label: Text(item.label),
@@ -318,43 +403,42 @@ class _BottomNavigationPageState extends ConsumerState<BottomNavigationPage> {
                 }).toList(),
               ),
             Expanded(
-              child: PageView(
-                controller: pageController,
-                onPageChanged: (index) {
-                  ref
-                      .read(bottomNavigationProvider.notifier)
-                      .changeIndex(index);
-                },
-                physics: const NeverScrollableScrollPhysics(),
-                children: pageList,
+              child: AnimatedSlide(
+                duration: pageTransitionDuration,
+                curve: Curves.easeOutCubic,
+                offset: _pageOffset,
+                child: AnimatedOpacity(
+                  duration: pageTransitionDuration,
+                  curve: Curves.easeOutCubic,
+                  opacity: _pageOpacity,
+                  child: PageView(
+                    controller: pageController,
+                    onPageChanged: (index) {
+                      ref
+                          .read(bottomNavigationProvider.notifier)
+                          .changeIndex(index);
+                    },
+                    physics: const NeverScrollableScrollPhysics(),
+                    children: pageList,
+                  ),
+                ),
               ),
             ),
           ],
         ),
-        bottomNavigationBar: isTablet
+        bottomNavigationBar: isRailLayout
             ? null
             : GlassBottomNavigationBar(
                 currentIndex: bottomBarIndex,
-                onTap: (index) {
-                  ref
-                      .read(bottomNavigationProvider.notifier)
-                      .changeIndex(index);
-                  if (pageController.hasClients) {
-                    pageController.jumpToPage(index);
-                  }
-                },
+                onTap: selectDestination,
                 items: navigationItems.map((item) {
                   return GlassBottomBarItem(
                     icon: item.icon,
                     activeIcon: item.activeIcon,
                     label: item.label,
                     tabKey: item.tabKey,
-                    iconBuilder: (isSelected) => _buildNavigationIcon(
-                      item,
-                      isSelected,
-                      labelFontSize,
-                      socketStatus,
-                    ),
+                    iconBuilder: (isSelected) =>
+                        _buildNavigationIcon(item, isSelected, socketStatus),
                   );
                 }).toList(),
               ),
@@ -365,7 +449,6 @@ class _BottomNavigationPageState extends ConsumerState<BottomNavigationPage> {
   Widget _buildNavigationIcon(
     _NavigationItemData item,
     bool isSelected,
-    double labelFontSize,
     WebSocketConnectionState socketStatus,
   ) {
     Widget icon = Icon(
@@ -376,18 +459,8 @@ class _BottomNavigationPageState extends ConsumerState<BottomNavigationPage> {
 
     if (item.isStatusItem) {
       final isDark = Theme.of(context).brightness == Brightness.dark;
-      // 三态指示：绿=已连接，橙=重连/连接中，红=已断开
-      // 暗色模式下使用 *Dark 变体保持 iOS HIG 推荐的对比度
-      final Color badgeColor = switch (socketStatus) {
-        WebSocketConnectionState.connected =>
-          isDark ? AppColors.iosGreenDark : AppColors.iosGreen,
-        WebSocketConnectionState.connecting =>
-          isDark ? AppColors.iosOrangeDark : AppColors.iosOrange,
-        WebSocketConnectionState.disconnected =>
-          isDark ? AppColors.iosRedDark : AppColors.iosRed,
-      };
       return BadgeWidget(
-        color: badgeColor,
+        color: _connectionStatusColor(socketStatus),
         padding: AppSpacing.allTiny,
         borderSide: BorderSide(
           color: isSelected

@@ -7,6 +7,7 @@ import 'package:go_router/go_router.dart';
 
 import 'package:imboy/component/helper/func.dart' show avatarImageProvider;
 import 'package:imboy/component/ui/avatar_fallback.dart';
+import 'package:imboy/component/ui/desktop_navigation_rail.dart';
 import 'package:imboy/component/ui/popover_menu.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/store/repository/user_repo_provider.dart';
@@ -70,6 +71,7 @@ class _SpaceSwitcherButtonState extends ConsumerState<SpaceSwitcherButton> {
     final isPersonal = widget.organizationId.isEmpty;
     final hasAvatar = isPersonal && (user?.avatar.isNotEmpty ?? false);
     final dark = Theme.of(context).brightness == Brightness.dark;
+    final scheme = Theme.of(context).colorScheme;
     final tint = dark ? AppColors.primaryContainer : AppColors.primaryDark;
     final label = context.t.organization.experienceUi.switchSpace;
     final space = widget.spaceName?.isNotEmpty == true
@@ -77,6 +79,122 @@ class _SpaceSwitcherButtonState extends ConsumerState<SpaceSwitcherButton> {
         : isPersonal
         ? context.t.organization.experienceUi.personalSpace
         : context.t.organization.experienceUi.enterpriseSpaces;
+    final desktopScope = DesktopNavigationScope.maybeOf(context);
+    final railExpanded = widget.inRail && (desktopScope?.expanded ?? false);
+    // iPad/Android 平板与企业旧壳仍使用 Material NavigationRail；没有共享
+    // scope 时保留原先“图标 + 空间名”纵向布局，避免桌面改动外溢到移动端。
+    final legacyRail = widget.inRail && desktopScope == null;
+
+    final avatar = Container(
+      width: AppSizes.avatarSizeSmall,
+      height: AppSizes.avatarSizeSmall,
+      alignment: Alignment.center,
+      decoration: BoxDecoration(
+        color: dark ? AppColors.primaryAlpha20 : AppColors.primaryLight,
+        borderRadius: AppRadius.borderRadiusSmall,
+        image: hasAvatar
+            ? DecorationImage(
+                image: avatarImageProvider(user!.avatar),
+                fit: BoxFit.cover,
+              )
+            : null,
+      ),
+      child: hasAvatar
+          ? null
+          : isPersonal
+          ? AvatarFallbackContent(
+              name: user?.nickname ?? context.t.common.unknown,
+              color: tint,
+              textStyle: context.textStyle(FontSizeType.footnote),
+            )
+          : Icon(
+              CupertinoIcons.building_2_fill,
+              size: AppSizes.iconSizeSmall,
+              color: tint,
+            ),
+    );
+
+    final compact = Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        avatar,
+        AppSpacing.horizontalTiny,
+        Icon(
+          CupertinoIcons.chevron_down,
+          size: AppSizes.iconSizeXSmall,
+          color: scheme.onSurfaceVariant,
+        ),
+      ],
+    );
+
+    final Widget control;
+    if (railExpanded) {
+      control = Container(
+        width: double.infinity,
+        height: AppSizes.touchTarget,
+        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.small),
+        decoration: BoxDecoration(
+          color: scheme.surfaceContainerHighest,
+          borderRadius: AppRadius.borderRadiusMedium,
+        ),
+        child: Row(
+          children: [
+            avatar,
+            AppSpacing.horizontalSmall,
+            Expanded(
+              child: Text(
+                space,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: context.textStyle(
+                  FontSizeType.small,
+                  color: scheme.onSurface,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+            AppSpacing.horizontalTiny,
+            Icon(
+              CupertinoIcons.chevron_down,
+              size: AppSizes.iconSizeXSmall,
+              color: scheme.onSurfaceVariant,
+            ),
+          ],
+        ),
+      );
+    } else if (legacyRail) {
+      control = Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          SizedBox(
+            width: AppSizes.buttonHeightXLarge,
+            height: AppSizes.touchTarget,
+            child: Center(child: compact),
+          ),
+          AppSpacing.verticalTiny,
+          SizedBox(
+            width: AppSizes.buttonHeightXLarge,
+            child: Text(
+              space,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              textAlign: TextAlign.center,
+              style: context.textStyle(
+                FontSizeType.caption2,
+                color: scheme.onSurfaceVariant,
+              ),
+            ),
+          ),
+        ],
+      );
+    } else {
+      control = SizedBox(
+        width: AppSizes.buttonHeightXLarge,
+        height: AppSizes.touchTarget,
+        child: Center(child: compact),
+      );
+    }
+
     return Semantics(
       label: label,
       value: space,
@@ -85,74 +203,12 @@ class _SpaceSwitcherButtonState extends ConsumerState<SpaceSwitcherButton> {
         excludeFromSemantics: true,
         child: CupertinoButton(
           padding: EdgeInsets.zero,
-          minimumSize: const Size.square(AppSizes.touchTarget),
-          onPressed: _open,
-          child: ExcludeSemantics(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Container(
-                      width: AppSizes.avatarSizeSmall,
-                      height: AppSizes.avatarSizeSmall,
-                      alignment: Alignment.center,
-                      decoration: BoxDecoration(
-                        color: dark
-                            ? AppColors.primaryAlpha20
-                            : AppColors.primaryLight,
-                        borderRadius: AppRadius.borderRadiusSmall,
-                        image: hasAvatar
-                            ? DecorationImage(
-                                image: avatarImageProvider(user!.avatar),
-                                fit: BoxFit.cover,
-                              )
-                            : null,
-                      ),
-                      child: hasAvatar
-                          ? null
-                          : isPersonal
-                          ? AvatarFallbackContent(
-                              name: user?.nickname ?? context.t.common.unknown,
-                              color: tint,
-                              textStyle: context.textStyle(
-                                FontSizeType.footnote,
-                              ),
-                            )
-                          : Icon(
-                              CupertinoIcons.building_2_fill,
-                              size: AppSizes.iconSizeSmall,
-                              color: tint,
-                            ),
-                    ),
-                    AppSpacing.horizontalTiny,
-                    Icon(
-                      CupertinoIcons.chevron_down,
-                      size: AppSizes.iconSizeXSmall,
-                      color: Theme.of(context).colorScheme.onSurfaceVariant,
-                    ),
-                  ],
-                ),
-                if (widget.inRail) ...[
-                  AppSpacing.verticalTiny,
-                  SizedBox(
-                    width: AppSizes.buttonHeightXLarge,
-                    child: Text(
-                      space,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      textAlign: TextAlign.center,
-                      style: context.textStyle(
-                        FontSizeType.caption2,
-                        color: Theme.of(context).colorScheme.onSurfaceVariant,
-                      ),
-                    ),
-                  ),
-                ],
-              ],
-            ),
+          minimumSize: Size(
+            widget.inRail ? 0 : AppSizes.touchTarget,
+            AppSizes.touchTarget,
           ),
+          onPressed: _open,
+          child: ExcludeSemantics(child: control),
         ),
       ),
     );
