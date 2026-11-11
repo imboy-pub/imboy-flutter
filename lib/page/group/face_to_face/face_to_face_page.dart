@@ -1,8 +1,6 @@
-import 'dart:async';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:imboy/component/ui/app_loading.dart';
+import 'package:imboy/component/http/http_exceptions.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:imboy/component/ui/ios_settings_ui.dart';
@@ -13,7 +11,7 @@ import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:imboy/theme/default/font_types.dart';
 
-/// 面对面建群页面 - 极致 iOS 17 Premium 风格
+/// 输入附近朋友约定的四位暗号。
 class FaceToFacePage extends ConsumerStatefulWidget {
   const FaceToFacePage({super.key});
 
@@ -22,6 +20,35 @@ class FaceToFacePage extends ConsumerStatefulWidget {
 }
 
 class _FaceToFacePageState extends ConsumerState<FaceToFacePage> {
+  bool _isMatching = false;
+
+  Future<void> _match(String code) async {
+    if (_isMatching || code.length != 4) return;
+    setState(() => _isMatching = true);
+    final notifier = ref.read(faceToFaceProvider.notifier);
+    notifier.updateErrorInfo('');
+    try {
+      final result = await notifier.faceToFace(code);
+      if (!mounted) return;
+      notifier.updateErrorInfo(result['error'] as String? ?? '');
+      final gid = '${result['gid'] ?? ''}';
+      if (gid.isEmpty || gid == '0') return;
+      await context.push(
+        '/group/face_to_face_confirm',
+        extra: {'code': code, 'gid': gid, 'memberList': result['memberList']},
+      );
+      if (mounted) notifier.clearInput();
+    } catch (error) {
+      if (mounted) {
+        notifier.updateErrorInfo(
+          error is HttpException ? error.message : t.common.tipFailed,
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isMatching = false);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(faceToFaceProvider);
@@ -32,40 +59,28 @@ class _FaceToFacePageState extends ConsumerState<FaceToFacePage> {
     return IosPageTemplate(
       title: t.chat.createGroupF2f,
       useLargeTitle: false,
-      bottomWidget: Container(
-        color: isDark ? AppColors.darkSurface : AppColors.lightSurface,
-        child: NumericKeypad(
-          controller: state.textEditingController,
-          onChanged: (value) async {
-            notifier.updateResult(value);
-            if (value.length == 4) {
-              AppLoading.show();
-              // 网络异常时 faceToFace 可能抛出，用 try/finally 保证 loading
-              // 遮罩一定被 dismiss，避免异常路径下遮罩永久卡死须强退。
-              try {
-                Map<String, dynamic> res = await notifier.faceToFace(value);
-                notifier.updateErrorInfo(res['error'] as String? ?? '');
-                String gid = '${res['gid'] ?? ''}';
-                if (gid.isNotEmpty && context.mounted) {
-                  context.push(
-                    '/group/face_to_face_confirm',
-                    extra: {
-                      'code': value,
-                      'gid': gid,
-                      'memberList': res['memberList'] ?? <dynamic>[],
-                    },
-                  );
-                }
-                Timer(const Duration(seconds: 3), () {
-                  notifier.clearInput();
-                });
-              } on Exception {
-                notifier.updateErrorInfo(t.common.tipFailed);
-              } finally {
-                AppLoading.dismiss();
-              }
-            }
-          },
+      contentMaxWidth: 480,
+      bottomWidget: SafeArea(
+        top: false,
+        child: Align(
+          heightFactor: 1,
+          alignment: Alignment.bottomCenter,
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 420),
+            child: ColoredBox(
+              color: isDark ? AppColors.darkSurface : AppColors.lightSurface,
+              child: NumericKeypad(
+                controller: state.textEditingController,
+                maxLength: 4,
+                enabled: !_isMatching,
+                onChanged: (value) {
+                  notifier.updateResult(value);
+                  notifier.updateErrorInfo('');
+                  if (value.length == 4) _match(value);
+                },
+              ),
+            ),
+          ),
         ),
       ),
       child: Column(
@@ -109,7 +124,7 @@ class _FaceToFacePageState extends ConsumerState<FaceToFacePage> {
                       style: context
                           .textStyle(
                             FontSizeType.normal,
-                            color: AppColors.iosGray,
+                            color: AppColors.getTextSecondary(brightness),
                             fontWeight: FontWeight.w500,
                           )
                           .copyWith(height: 1.4),
@@ -127,22 +142,43 @@ class _FaceToFacePageState extends ConsumerState<FaceToFacePage> {
 
           const SizedBox(height: AppSpacing.xLarge),
 
+          if (_isMatching)
+            Semantics(
+              liveRegion: true,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const CupertinoActivityIndicator(),
+                  const SizedBox(width: AppSpacing.small),
+                  Text(t.common.loading),
+                ],
+              ),
+            ),
           // 错误提示
           if (state.errorInfo.isNotEmpty)
             Padding(
               padding: const EdgeInsets.symmetric(
                 horizontal: AppSpacing.xxLarge,
               ),
-              child: Text(
-                state.errorInfo,
-                style: context.textStyle(
-                  FontSizeType.normal,
-                  color: AppColors.iosRed,
-                  fontWeight: FontWeight.w500,
+              child: Semantics(
+                liveRegion: true,
+                child: Text(
+                  state.errorInfo,
+                  style: context.textStyle(
+                    FontSizeType.normal,
+                    color: AppColors.iosRed,
+                    fontWeight: FontWeight.w500,
+                  ),
+                  textAlign: TextAlign.center,
                 ),
-                textAlign: TextAlign.center,
               ),
             ),
+          if (state.errorInfo.isNotEmpty && state.resultData.length == 4)
+            CupertinoButton(
+              onPressed: _isMatching ? null : () => _match(state.resultData),
+              child: Text(t.common.retry),
+            ),
+          const SizedBox(height: AppSpacing.large),
         ],
       ),
     );
@@ -155,62 +191,70 @@ class _FaceToFacePageState extends ConsumerState<FaceToFacePage> {
     Brightness brightness,
   ) {
     final length = state.resultData.length;
-    final double screenW = MediaQuery.sizeOf(context).width;
-    final double boxSize = screenW <= 360 ? 56 : 64;
+    final boxSize =
+        ((MediaQuery.sizeOf(context).width - AppSpacing.xxLarge) / 4 -
+                AppSpacing.regular)
+            .clamp(40.0, 64.0);
 
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: List.generate(4, (index) {
-        final hasValue = index < length;
-        final isActive = index == length;
+    return Semantics(
+      label: t.common.f2fSecretCode,
+      value: state.resultData,
+      child: ExcludeSemantics(
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: List.generate(4, (index) {
+            final hasValue = index < length;
+            final isActive = index == length;
 
-        return Container(
-          width: boxSize,
-          constraints: BoxConstraints(minHeight: boxSize),
-          margin: const EdgeInsets.symmetric(horizontal: AppSpacing.small),
-          decoration: BoxDecoration(
-            color: hasValue
-                ? (isDark
-                      ? AppColors.primary.withValues(alpha: 0.2)
-                      : AppColors.primary.withValues(alpha: 0.1))
-                : (isDark
-                      ? AppColors.iosGray.withValues(alpha: 0.05)
-                      : AppColors.darkBackground.withValues(alpha: 0.03)),
-            borderRadius: BorderRadius.circular(14),
-            border: Border.all(
-              color: isActive
-                  ? AppColors.getIosBlue(brightness)
-                  : (hasValue
-                        ? AppColors.getIosBlue(brightness)
-                              .withValues(alpha: 0.3)
-                        : AppColors.transparent),
-              width: 2,
-            ),
-          ),
-          alignment: Alignment.center,
-          child: hasValue
-              ? Text(
-                  state.resultData[index],
-                  style: context
-                      .textStyle(
-                        FontSizeType.extraLargeTitle,
-                        fontWeight: FontWeight.bold,
-                      )
-                      .copyWith(letterSpacing: -1),
-                )
-              : Container(
-                  width: 8,
-                  height: 8,
-                  decoration: BoxDecoration(
-                    color: isActive
-                        ? AppColors.getIosBlue(brightness)
-                              .withValues(alpha: 0.5)
-                        : AppColors.iosGray.withValues(alpha: 0.2),
-                    shape: BoxShape.circle,
-                  ),
+            return Container(
+              width: boxSize,
+              constraints: BoxConstraints(minHeight: boxSize),
+              margin: const EdgeInsets.symmetric(horizontal: AppSpacing.small),
+              decoration: BoxDecoration(
+                color: hasValue
+                    ? (isDark
+                          ? AppColors.primary.withValues(alpha: 0.2)
+                          : AppColors.primary.withValues(alpha: 0.1))
+                    : (isDark
+                          ? AppColors.iosGray.withValues(alpha: 0.05)
+                          : AppColors.darkBackground.withValues(alpha: 0.03)),
+                borderRadius: BorderRadius.circular(14),
+                border: Border.all(
+                  color: isActive
+                      ? AppColors.getIosBlue(brightness)
+                      : (hasValue
+                            ? AppColors.getIosBlue(brightness)
+                                  .withValues(alpha: 0.3)
+                            : AppColors.transparent),
+                  width: 2,
                 ),
-        );
-      }),
+              ),
+              alignment: Alignment.center,
+              child: hasValue
+                  ? Text(
+                      state.resultData[index],
+                      style: context
+                          .textStyle(
+                            FontSizeType.extraLargeTitle,
+                            fontWeight: FontWeight.bold,
+                          )
+                          .copyWith(letterSpacing: -1),
+                    )
+                  : Container(
+                      width: 8,
+                      height: 8,
+                      decoration: BoxDecoration(
+                        color: isActive
+                            ? AppColors.getIosBlue(brightness)
+                                  .withValues(alpha: 0.5)
+                            : AppColors.iosGray.withValues(alpha: 0.2),
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+            );
+          }),
+        ),
+      ),
     );
   }
 }

@@ -2069,6 +2069,34 @@
       "basis": [
         "Browser-only direct web-put transport contract (307/308 redirect rejection, cookie omission, PUT timeout/cancel) needs the committed same-host Node fixture on 127.0.0.1:19972. CI starts it in the web worker prepare step; the dart-define un-skips the two cases. No backend, account or externally hosted service is required."
       ]
+    },
+    "integration_test/group/face_to_face_friend_flow_test.dart": {
+      "suite": "device-single",
+      "runner": "flutter-device",
+      "platforms": [
+        "android"
+      ],
+      "products": [
+        "phase1_delivery"
+      ],
+      "flavor": "gzCustomer",
+      "dependencies": [
+        "isolated-backend",
+        "isolated-accounts"
+      ],
+      "required_env": [
+        "TEST_TOKEN",
+        "TEST_PEER_TOKEN",
+        "TEST_EXPECTED_UID",
+        "TEST_PEER_UID"
+      ],
+      "required_true_env": [
+        "TEST_ALLOW_GROUP_WRITES",
+        "IMBOY_LOCAL_EXTERNAL_SERVICES_DISABLED"
+      ],
+      "basis": [
+        "Owned loopback fixture tokens from backend face_to_face_http_tests:setup/0; native SQLite, matching, member refresh, real profile and friend request/acceptance APIs. Synthetic coordinates do not certify GPS permissions. The chat destination checks route parameters and local group persistence, not messaging. Use an isolated QA flavor; never replace the standard user application."
+      ]
     }
   },
   "profiles": {

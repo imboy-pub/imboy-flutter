@@ -6,7 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/ios_settings_ui.dart';
-import 'package:imboy/component/ui/app_loading.dart';
+import 'package:imboy/component/http/http_exceptions.dart';
 import 'package:imboy/component/ui/avatar_list.dart' show AvatarList;
 import 'package:imboy/page/group/face_to_face/face_to_face_provider.dart';
 import 'package:imboy/service/event_bus.dart';
@@ -17,11 +17,11 @@ import 'package:imboy/store/model/people_model.dart';
 import 'package:imboy/store/repository/group_repo_sqlite.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/theme/default/app_colors.dart';
-import 'package:imboy/theme/default/app_shadows.dart';
+import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:imboy/theme/default/font_types.dart';
 
-/// 面对面建群确认页面 - 极致 iOS 17 Premium 风格
+/// 展示匹配成员，并复用资料页的好友申请流程。
 class FaceToFaceConfirmPage extends ConsumerStatefulWidget {
   final String gid;
   final String code;
@@ -45,11 +45,21 @@ class FaceToFaceConfirmPageState extends ConsumerState<FaceToFaceConfirmPage> {
   StreamSubscription<dynamic>? _localeSubscription;
   bool _isJoiningGroup = false;
   bool _wasOffline = false;
+  bool _syncing = false;
+  int _memberRevision = 0;
+  Timer? _refreshTimer;
+  String _error = '';
+  String _memberError = '';
 
   @override
   void initState() {
     super.initState();
     initData();
+    _syncMembersFromServer();
+    _refreshTimer = Timer.periodic(
+      const Duration(seconds: 5),
+      (_) => _syncMembersFromServer(),
+    );
     _localeSubscription = LocaleSettings.getLocaleStream().listen(
       (_) => mounted ? setState(() {}) : null,
     );
@@ -59,12 +69,7 @@ class FaceToFaceConfirmPageState extends ConsumerState<FaceToFaceConfirmPage> {
 
   @override
   void dispose() {
-    // 此处曾无条件 AppLoading.dismiss()：失败路径刚弹出的服务端错误 toast
-    // 会被页面卸载兜底清掉（用户永远看不到失败原因），且在 deactivated
-    // widget 状态下 dismiss 会在 EasyLoading overlay 上抛
-    // "Looking up a deactivated widget's ancestor is unsafe" 未捕获异常
-    // （批次123 GF8 实证崩测试绑定）。loading 的收尾已由按钮回调的
-    // finally 负责（成功 dismiss / 失败靠 toast 自身 duration），这里不能再碰。
+    _refreshTimer?.cancel();
     ssMsg?.cancel();
     _localeSubscription?.cancel();
     NetworkMonitorService.to.removeNetworkChangeListener(_onNetworkChanged);
@@ -78,57 +83,114 @@ class FaceToFaceConfirmPageState extends ConsumerState<FaceToFaceConfirmPage> {
   }
 
   Future<void> _syncMembersFromServer() async {
-    if (widget.gid.isEmpty) return;
+    if (_syncing || widget.gid.isEmpty) return;
+    _syncing = true;
+    final revision = _memberRevision;
     try {
-      final payload = await GroupMemberApi().page(
-        gid: widget.gid,
-        page: 1,
-        size: 200,
-      );
-      if (payload == null || !mounted) return;
-      final list = payload['list'];
-      if (list is! List) return;
-      final existingIds = memberList.map((m) => m.id).toSet();
-      bool hasNewMembers = false;
-      for (final item in list) {
-        if (item is! Map) continue;
-        final uid = (item['user_id'] ?? '').toString();
-        if (uid.isEmpty || uid == '0' || existingIds.contains(uid)) continue;
-        memberList.insert(
-          0,
-          PeopleModel(
-            id: uid,
-            account: item['account']?.toString() ?? '',
-            avatar: item['avatar']?.toString() ?? '',
-            nickname:
-                item['alias']?.toString() ?? item['nickname']?.toString() ?? '',
-          ),
+      final members = <String, PeopleModel>{};
+      for (var page = 1; ; page++) {
+        final payload = await GroupMemberApi().page(
+          gid: widget.gid,
+          page: page,
+          size: 200,
         );
-        existingIds.add(uid);
-        hasNewMembers = true;
+        if (!mounted) return;
+        final list = payload?['list'];
+        if (list is! List) throw const FormatException('missing members');
+        for (final item in list.whereType<Map<String, dynamic>>()) {
+          if ('${item['status'] ?? 1}' != '1') continue;
+          final uid = '${item['user_id'] ?? ''}';
+          if (uid.isEmpty || uid == '0') continue;
+          final alias = '${item['alias'] ?? ''}'.trim();
+          final nickname = '${item['nickname'] ?? ''}'.trim();
+          members[uid] = PeopleModel(
+            id: uid,
+            account: '${item['account'] ?? ''}',
+            avatar: '${item['avatar'] ?? ''}',
+            nickname: alias.isNotEmpty
+                ? alias
+                : nickname.isNotEmpty
+                ? nickname
+                : t.main.unnamed,
+          );
+        }
+        final total = int.tryParse('${payload?['total'] ?? ''}');
+        if (list.length < 200 || total != null && page * 200 >= total) break;
       }
-      if (hasNewMembers && mounted) setState(() {});
-    } catch (_) {}
+      if (revision != _memberRevision) return;
+      setState(() {
+        memberList = members.values.toList();
+        _memberError = '';
+      });
+    } catch (error) {
+      if (mounted) {
+        setState(() => _memberError = t.common.retryFailedPleaseCheckNetwork);
+      }
+    } finally {
+      _syncing = false;
+    }
   }
 
-  Future<void> initData() async {
-    memberList = List.from(widget.memberList);
-    memberList.add(PeopleModel(id: -1, account: ''));
-    ssMsg ??= AppEventBus.on<ChatExtendEvent>().listen((
-      ChatExtendEvent obj,
-    ) async {
-      if (obj.type == 'join_group') {
-        final i = memberList.indexWhere(
-          (e) =>
-              e.id == obj.payload['userId']?.toString() &&
-              widget.gid == obj.payload['groupId'],
-        );
-        if (i == -1) {
-          memberList.insert(0, obj.payload['people'] as PeopleModel);
-          if (mounted) setState(() {});
-        }
+  void initData() {
+    memberList = List.of(widget.memberList);
+    ssMsg = AppEventBus.on<ChatExtendEvent>().listen((event) {
+      if (event.type != 'join_group' ||
+          '${event.payload['groupId']}' != widget.gid) {
+        return;
+      }
+      final people = event.payload['people'];
+      if (people is! PeopleModel || people.id.isEmpty || people.id == '0') {
+        return;
+      }
+      if (memberList.any((member) => member.id == people.id)) return;
+      if (mounted) {
+        setState(() {
+          _memberRevision++;
+          memberList = [people, ...memberList];
+        });
       }
     });
+  }
+
+  Future<void> _enterGroup() async {
+    if (_isJoiningGroup) return;
+    setState(() {
+      _isJoiningGroup = true;
+      _error = '';
+    });
+    try {
+      final result = await ref
+          .read(faceToFaceProvider.notifier)
+          .faceToFaceSave(widget.gid, widget.code);
+      final group = result['group'] as Map<String, dynamic>;
+      if ('${group['id'] ?? ''}' != widget.gid) {
+        throw const FormatException('mismatched group');
+      }
+      await GroupRepo().save('', group);
+      if (!mounted) return;
+      final title = '${group['title'] ?? ''}'.trim();
+      context.pushReplacement(
+        '/chat/${widget.gid}',
+        extra: {
+          'type': 'C2G',
+          'title': title.isEmpty ? t.main.unnamed : title,
+          'avatar': group['avatar'] ?? '',
+          'sign': group['introduction'] ?? '',
+          'memberCount': (result['memberList'] as List<PeopleModel>).length,
+        },
+      );
+    } catch (error) {
+      iPrint('[FaceToFaceConfirm] 入群失败: $error');
+      if (mounted) {
+        setState(
+          () => _error = error is HttpException
+              ? error.message
+              : t.common.tipFailed,
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isJoiningGroup = false);
+    }
   }
 
   @override
@@ -140,6 +202,7 @@ class FaceToFaceConfirmPageState extends ConsumerState<FaceToFaceConfirmPage> {
     return IosPageTemplate(
       title: t.chat.createGroupF2f,
       useLargeTitle: false,
+      contentMaxWidth: 480,
       backgroundColor: isDark
           ? AppColors.darkSurfaceGrouped
           : AppColors.lightSurfaceGrouped,
@@ -154,11 +217,11 @@ class FaceToFaceConfirmPageState extends ConsumerState<FaceToFaceConfirmPage> {
           _buildLiveMemberCount(context, brightness),
           const SizedBox(height: AppSpacing.large),
           Text(
-            t.common.createGroupF2fConfirmTips,
+            t.common.f2fMemberHint,
             textAlign: TextAlign.center,
             style: context.textStyle(
               FontSizeType.subheadline,
-              color: AppColors.iosGray,
+              color: AppColors.getTextSecondary(brightness),
               fontWeight: FontWeight.w500,
             ),
           ),
@@ -172,10 +235,38 @@ class FaceToFaceConfirmPageState extends ConsumerState<FaceToFaceConfirmPage> {
                   : AppColors.lightSurface,
               borderRadius: BorderRadius.circular(20),
             ),
-            child: AvatarList(
-              memberList: memberList,
-              column: (MediaQuery.of(context).size.width - 72) ~/ 64,
+            child: LayoutBuilder(
+              builder: (context, constraints) => AvatarList(
+                memberList: memberList,
+                column: (constraints.maxWidth / 72).floor().clamp(1, 5),
+                onTapAvatar: (person) =>
+                    person.id == UserRepoLocal.to.currentUid
+                    ? context.push('/personal_info/profile')
+                    : context.push(
+                        '/people_info/${person.id}',
+                        extra: {'scene': 'group_member'},
+                      ),
+              ),
             ),
+          ),
+          if (_error.isNotEmpty || _memberError.isNotEmpty)
+            Padding(
+              padding: AppSpacing.allRegular,
+              child: Semantics(
+                liveRegion: true,
+                child: Text(
+                  _error.isEmpty ? _memberError : _error,
+                  textAlign: TextAlign.center,
+                  style: context.textStyle(
+                    FontSizeType.normal,
+                    color: AppColors.getDestructiveText(brightness),
+                  ),
+                ),
+              ),
+            ),
+          CupertinoButton(
+            onPressed: _syncing ? null : _syncMembersFromServer,
+            child: Text(t.common.retry),
           ),
           const SizedBox(height: AppSpacing.xxxLarge),
         ],
@@ -185,7 +276,10 @@ class FaceToFaceConfirmPageState extends ConsumerState<FaceToFaceConfirmPage> {
 
   Widget _buildCodeChip(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.medium,
+        vertical: AppSpacing.tiny,
+      ),
       decoration: BoxDecoration(
         color: AppColors.primary.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(20),
@@ -193,13 +287,19 @@ class FaceToFaceConfirmPageState extends ConsumerState<FaceToFaceConfirmPage> {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(CupertinoIcons.lock_fill, size: 12, color: AppColors.primary),
-          const SizedBox(width: 4),
+          Icon(
+            CupertinoIcons.lock_fill,
+            size: 12,
+            color: Theme.of(context).brightness == Brightness.dark
+                ? AppColors.getIosBlue(Brightness.dark)
+                : AppColors.primaryDark,
+          ),
+          const SizedBox(width: AppSpacing.tiny),
           Text(
             t.common.f2fSecretCode,
             style: context.textStyle(
               FontSizeType.footnote,
-              color: AppColors.primary,
+              color: Theme.of(context).colorScheme.onSurface,
               fontWeight: FontWeight.w600,
             ),
           ),
@@ -214,19 +314,22 @@ class FaceToFaceConfirmPageState extends ConsumerState<FaceToFaceConfirmPage> {
     bool isDark,
     Brightness brightness,
   ) {
+    final boxSize =
+        ((MediaQuery.sizeOf(context).width - AppSpacing.xxLarge) / 4 -
+                AppSpacing.regular)
+            .clamp(40.0, 64.0);
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: code.split('').map((char) {
         return Container(
-          width: 64,
-          constraints: const BoxConstraints(minHeight: 72),
+          width: boxSize,
+          constraints: BoxConstraints(minHeight: boxSize),
           margin: const EdgeInsets.symmetric(horizontal: AppSpacing.small),
           decoration: BoxDecoration(
             color: isDark
                 ? AppColors.primary.withValues(alpha: 0.15)
                 : AppColors.lightSurface,
             borderRadius: BorderRadius.circular(16),
-            boxShadow: AppShadows.cardForBrightness(brightness),
             border: Border.all(
               color: AppColors.primary.withValues(alpha: 0.25),
               width: 1.5,
@@ -238,7 +341,7 @@ class FaceToFaceConfirmPageState extends ConsumerState<FaceToFaceConfirmPage> {
             style: context.textStyle(
               FontSizeType.extraLargeTitle,
               fontWeight: FontWeight.bold,
-              color: AppColors.primary,
+              color: AppColors.getIosBlue(brightness),
             ),
           ),
         );
@@ -247,19 +350,23 @@ class FaceToFaceConfirmPageState extends ConsumerState<FaceToFaceConfirmPage> {
   }
 
   Widget _buildLiveMemberCount(BuildContext context, Brightness brightness) {
-    final count = memberList.where((m) => m.id != '-1').length;
+    final count = memberList.length;
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        const _LiveDot(),
-        const SizedBox(width: 6),
+        Icon(
+          CupertinoIcons.person_2,
+          size: 16,
+          color: AppColors.getTextSecondary(brightness),
+        ),
+        const SizedBox(width: AppSpacing.small),
         Flexible(
           child: Text(
             t.common.f2fEnteringGroup(count: count),
             textAlign: TextAlign.center,
             style: context.textStyle(
               FontSizeType.footnote,
-              color: AppColors.getIosGreen(brightness),
+              color: AppColors.getTextSecondary(brightness),
               fontWeight: FontWeight.w600,
             ),
           ),
@@ -269,131 +376,45 @@ class FaceToFaceConfirmPageState extends ConsumerState<FaceToFaceConfirmPage> {
   }
 
   Widget _buildBottomButton(BuildContext context, ThemeData theme) {
-    return Container(
-      padding: EdgeInsets.fromLTRB(
-        AppSpacing.regular,
-        AppSpacing.small,
-        AppSpacing.regular,
-        MediaQuery.of(context).padding.bottom + 16,
-      ),
-      child: SizedBox(
-        width: double.infinity,
-        child: CupertinoButton.filled(
-          minimumSize: const Size(0, 50),
-          padding: EdgeInsets.zero,
-          borderRadius: BorderRadius.circular(14),
-          onPressed: _isJoiningGroup
-              ? null
-              : () async {
-                  setState(() => _isJoiningGroup = true);
-                  // 失败时不能走 finally 的 dismiss：API 层已把服务端失败
-                  // 原因（如 gid not exist）作为 error toast 弹出，dismiss
-                  // 会把它立刻清掉，用户永远看不到失败提示（批次123 GF8）。
-                  // toast 自带 duration 会自动消失，故失败路径跳过 dismiss。
-                  var failed = false;
-                  try {
-                    AppLoading.show(status: t.common.loading);
-                    final res = await ref
-                        .read(faceToFaceProvider.notifier)
-                        .faceToFaceSave(widget.gid, widget.code);
-                    List<PeopleModel> memberList =
-                        res['memberList'] as List<PeopleModel>? ?? [];
-                    Map<String, dynamic> group =
-                        res['group'] as Map<String, dynamic>;
-                    // groupFace2faceSave 对服务端失败（如匹配码失效 gid not
-                    // exist）吞错返回空 map——空 group 意味着建群未成功，
-                    // 必须留在本页（错误 toast 已由 API 层弹出），否则会
-                    // 带着空群信息跳进聊天页并向本地库插 id=0 脏行。
-                    if (group.isEmpty) {
-                      failed = true;
-                      iPrint('[FaceToFaceConfirm] save 返回空 group，视为失败');
-                      return;
-                    }
-                    await GroupRepo().save('', group);
-                    // `?? ''` 只挡得住 null —— 无名群后端返回的 title 就是**空字符串**，
-                    // 于是空串一路传到聊天页，标题栏整个是空的（QA#60，比显示 gid 还糟）。
-                    // 兜底策略与 GroupModel.displayTitle 保持一致：回退「未命名」，
-                    // 且绝不回退到 gid。
-                    // 注意不要写成 `group['title'] as String?` —— 后端返回的
-                    // title 未必是 String，`as` 会抛 TypeError 并被下面的
-                    // catch(_) 吞掉，表现为「点进入该群完全没反应」（实测踩过）。
-                    final rawTitle = (group['title'] ?? '').toString().trim();
-                    final chatTitle = rawTitle.isNotEmpty
-                        ? rawTitle
-                        : t.main.unnamed;
-                    if (context.mounted) {
-                      context.pushReplacement(
-                        '/chat/${widget.gid}',
-                        extra: {
-                          'type': 'C2G',
-                          'title': chatTitle,
-                          'avatar': group['avatar'] ?? '',
-                          'sign': group['introduction'] ?? '',
-                          'memberCount': memberList.length,
-                        },
-                      );
-                    }
-                  } catch (e) {
-                    failed = true;
-                    iPrint('[FaceToFaceConfirm] 入群失败: $e');
-                    AppLoading.showError(t.common.tipFailed);
-                  } finally {
-                    if (!failed) AppLoading.dismiss();
-                    if (mounted) setState(() => _isJoiningGroup = false);
-                  }
-                },
-          child: _isJoiningGroup
-              ? CupertinoActivityIndicator(color: AppColors.onPrimary)
-              : Text(
-                  t.group.enterTheGroup,
-                  style: context.textStyle(
-                    FontSizeType.body,
-                    fontWeight: FontWeight.w600,
-                    color: AppColors.onPrimary,
-                  ),
-                ),
+    return SafeArea(
+      top: false,
+      child: Align(
+        heightFactor: 1,
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 480),
+          child: Padding(
+            padding: AppSpacing.allRegular,
+            child: SizedBox(
+              width: double.infinity,
+              child: CupertinoButton.filled(
+                minimumSize: const Size(0, 50),
+                color: AppColors.primaryDark,
+                borderRadius: BorderRadius.circular(AppSpacing.medium),
+                onPressed: _isJoiningGroup ? null : _enterGroup,
+                child: _isJoiningGroup
+                    ? Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const CupertinoActivityIndicator(
+                            color: AppColors.onPrimary,
+                          ),
+                          const SizedBox(width: AppSpacing.small),
+                          Text(t.common.loading),
+                        ],
+                      )
+                    : Text(
+                        t.group.enterTheGroup,
+                        style: context.textStyle(
+                          FontSizeType.body,
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.onPrimary,
+                        ),
+                      ),
+              ),
+            ),
+          ),
         ),
       ),
     );
   }
-}
-
-class _LiveDot extends StatefulWidget {
-  const _LiveDot();
-
-  @override
-  State<_LiveDot> createState() => _LiveDotState();
-}
-
-class _LiveDotState extends State<_LiveDot>
-    with SingleTickerProviderStateMixin {
-  late final AnimationController _ctrl;
-
-  @override
-  void initState() {
-    super.initState();
-    _ctrl = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 900),
-    )..repeat(reverse: true);
-  }
-
-  @override
-  void dispose() {
-    _ctrl.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) => FadeTransition(
-    opacity: CurvedAnimation(parent: _ctrl, curve: Curves.easeInOut),
-    child: Container(
-      width: 8,
-      height: 8,
-      decoration: const BoxDecoration(
-        color: AppColors.iosGreen,
-        shape: BoxShape.circle,
-      ),
-    ),
-  );
 }

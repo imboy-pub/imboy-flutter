@@ -1625,7 +1625,7 @@ class _Translations$common$ko_KR extends Translations$common$zh_CN {
 	@override String get e2eeUseRecoveryKey => '복구 키 생성(암호 분실 시 대비용)';
 	@override String get enterAmount => '금액을 입력해 주세요';
 	@override String get expandFull => '펼치기';
-	@override String f2fEnteringGroup({required Object count}) => '${count}명이 곧 그룹 채팅에 입장합니다';
+	@override String f2fEnteringGroup({required Object count}) => '${count}명이 그룹 채팅에 참여했습니다';
 	@override String get f2fSecretCode => '암호';
 	@override String get hoursAgo => '시간 전';
 	@override String get initConfigDecryptFailed => '설정 복호화 실패: 앱과 서버의 보안 키가 일치하지 않습니다. 앱을 업데이트하거나 관리자에게 문의해 주세요';
@@ -1692,6 +1692,8 @@ class _Translations$common$ko_KR extends Translations$common$zh_CN {
 	@override String get legacyUploadRecoveryMismatch => '선택한 파일이 일치하지 않거나 복구할 수 없습니다.';
 	@override String get legacyUploadRecoveryContinues => '첨부파일을 복구했습니다. 원래 메시지 처리를 계속합니다.';
 	@override String get legacyUploadReturnToOriginalPage => '업로드가 완료되지 않았습니다. 원래 화면에서 파일을 다시 선택하고 제출하세요。';
+	@override String get f2fLocationRequired => '위치 권한과 서비스를 켠 후 주변 친구와 다시 시도하세요.';
+	@override String get f2fMemberHint => '친구의 프로필 사진을 눌러 프로필을 보고 친구로 추가하세요.';
 }
 
 // Path: complaint
@@ -4946,7 +4948,7 @@ extension on TranslationsKoKr {
 			'common.e2eeUseRecoveryKey' => '복구 키 생성(암호 분실 시 대비용)',
 			'common.enterAmount' => '금액을 입력해 주세요',
 			'common.expandFull' => '펼치기',
-			'common.f2fEnteringGroup' => ({required Object count}) => '${count}명이 곧 그룹 채팅에 입장합니다',
+			'common.f2fEnteringGroup' => ({required Object count}) => '${count}명이 그룹 채팅에 참여했습니다',
 			'common.f2fSecretCode' => '암호',
 			'common.hoursAgo' => '시간 전',
 			'common.initConfigDecryptFailed' => '설정 복호화 실패: 앱과 서버의 보안 키가 일치하지 않습니다. 앱을 업데이트하거나 관리자에게 문의해 주세요',
@@ -5015,6 +5017,8 @@ extension on TranslationsKoKr {
 			'common.legacyUploadRecoveryMismatch' => '선택한 파일이 일치하지 않거나 복구할 수 없습니다.',
 			'common.legacyUploadRecoveryContinues' => '첨부파일을 복구했습니다. 원래 메시지 처리를 계속합니다.',
 			'common.legacyUploadReturnToOriginalPage' => '업로드가 완료되지 않았습니다. 원래 화면에서 파일을 다시 선택하고 제출하세요。',
+			'common.f2fLocationRequired' => '위치 권한과 서비스를 켠 후 주변 친구와 다시 시도하세요.',
+			'common.f2fMemberHint' => '친구의 프로필 사진을 눌러 프로필을 보고 친구로 추가하세요.',
 			'complaint.complaint' => '신고',
 			'complaint.e2eeConsentTitle' => '암호화 메시지 증거 제출',
 			'complaint.e2eeConsentBody' => '이 메시지는 종단 간 암호화되어 있어 서버가 내용을 볼 수 없습니다. 발췌를 제출하면 선택한 평문이 검토자에게 공개됩니다. 동의하시겠습니까?',
@@ -5497,10 +5501,10 @@ extension on TranslationsKoKr {
 			'main.mySentTab' => '보낸 초대',
 			'main.reject' => '거절',
 			'main.myOrders' => '내 주문',
-			'main.purchaseUnlockHint' => '구매 시 채널의 과거 메시지와 향후 업데이트를 볼 수 있습니다.',
-			'main.payingDots' => '결제 중...',
 			_ => null,
 		} ?? switch (path) {
+			'main.purchaseUnlockHint' => '구매 시 채널의 과거 메시지와 향후 업데이트를 볼 수 있습니다.',
+			'main.payingDots' => '결제 중...',
 			'main.purchaseAndUnlock' => '구매하고 잠금 해제',
 			'main.orderDetail' => '주문 상세',
 			'main.orderAmountLabel' => ({required Object currency, required Object amount}) => '금액: ${currency} ${amount}',
@@ -6011,10 +6015,10 @@ extension on TranslationsKoKr {
 			'passport.oneKeyNoSimCard' => '현재 네트워크가 지원되지 않거나 SIM카드가 없습니다',
 			'passport.cannotGetScreenSize' => '화면 크기를 가져올 수 없습니다',
 			'passport.oneKeyFailedRetry' => '원탭 로그인에 실패했습니다. 네트워크를 확인 후 다시 시도해 주세요',
-			'splash.slogan' => '자유롭게 대화하세요',
-			'talkRecord.uploadProgressRegister' => '업로드 준비 중',
 			_ => null,
 		} ?? switch (path) {
+			'splash.slogan' => '자유롭게 대화하세요',
+			'talkRecord.uploadProgressRegister' => '업로드 준비 중',
 			'talkRecord.uploadProgressUpload' => '오디오 업로드 중',
 			'talkRecord.uploadProgressConfirm' => '오디오 확인 중',
 			'talkRecord.uploadProgressSubmitting' => '저장 제출 중',

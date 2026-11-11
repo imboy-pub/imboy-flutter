@@ -1619,7 +1619,7 @@ class _Translations$common$ja_JP extends Translations$common$zh_CN {
 	@override String get timeNowShort => '今';
 	@override String get hoursAgo => '時間前';
 	@override String get minutesAgo => '分前';
-	@override String f2fEnteringGroup({required Object count}) => '${count}人がまもなくグループチャットに参加します';
+	@override String f2fEnteringGroup({required Object count}) => '${count}人がグループチャットに参加しました';
 	@override String get f2fSecretCode => '合言葉';
 	@override String get momentsHasFailedUploads => 'アップロードに失敗したメディアがあります。再試行するか削除してから公開してください';
 	@override String get transferAccepted => '受け取りました';
@@ -1692,6 +1692,8 @@ class _Translations$common$ja_JP extends Translations$common$zh_CN {
 	@override String get legacyUploadRecoveryMismatch => '選択したファイルが一致しないか、復元できません。';
 	@override String get legacyUploadRecoveryContinues => '添付ファイルを復元しました。元のメッセージの処理を続けます。';
 	@override String get legacyUploadReturnToOriginalPage => 'アップロードが未完了です。元の画面でファイルを選び直して送信してください。';
+	@override String get f2fLocationRequired => '位置情報の権限とサービスを有効にして、近くの友達と再試行してください。';
+	@override String get f2fMemberHint => '友達のアイコンをタップしてプロフィールを表示し、友達を追加します。';
 }
 
 // Path: complaint
@@ -4940,7 +4942,7 @@ extension on TranslationsJaJp {
 			'common.timeNowShort' => '今',
 			'common.hoursAgo' => '時間前',
 			'common.minutesAgo' => '分前',
-			'common.f2fEnteringGroup' => ({required Object count}) => '${count}人がまもなくグループチャットに参加します',
+			'common.f2fEnteringGroup' => ({required Object count}) => '${count}人がグループチャットに参加しました',
 			'common.f2fSecretCode' => '合言葉',
 			'common.momentsHasFailedUploads' => 'アップロードに失敗したメディアがあります。再試行するか削除してから公開してください',
 			'common.transferAccepted' => '受け取りました',
@@ -5015,6 +5017,8 @@ extension on TranslationsJaJp {
 			'common.legacyUploadRecoveryMismatch' => '選択したファイルが一致しないか、復元できません。',
 			'common.legacyUploadRecoveryContinues' => '添付ファイルを復元しました。元のメッセージの処理を続けます。',
 			'common.legacyUploadReturnToOriginalPage' => 'アップロードが未完了です。元の画面でファイルを選び直して送信してください。',
+			'common.f2fLocationRequired' => '位置情報の権限とサービスを有効にして、近くの友達と再試行してください。',
+			'common.f2fMemberHint' => '友達のアイコンをタップしてプロフィールを表示し、友達を追加します。',
 			'complaint.complaint' => '通報',
 			'complaint.e2eeConsentTitle' => '暗号化メッセージの証拠を提出',
 			'complaint.e2eeConsentBody' => 'このメッセージはエンドツーエンド暗号化されており、サーバーは内容を確認できません。抜粋を提出すると、選択した平文が審査員に開示されます。同意しますか？',
@@ -5497,10 +5501,10 @@ extension on TranslationsJaJp {
 			'main.mySentTab' => '送信',
 			'main.reject' => '辞退',
 			'main.myOrders' => '注文履歴',
-			'main.purchaseUnlockHint' => '購入すると、チャンネルの過去のメッセージと今後の更新を閲覧できます。',
-			'main.payingDots' => '決済中...',
 			_ => null,
 		} ?? switch (path) {
+			'main.purchaseUnlockHint' => '購入すると、チャンネルの過去のメッセージと今後の更新を閲覧できます。',
+			'main.payingDots' => '決済中...',
 			'main.purchaseAndUnlock' => '今すぐ購入してロック解除',
 			'main.orderDetail' => '注文詳細',
 			'main.orderAmountLabel' => ({required Object currency, required Object amount}) => '金額: ${currency} ${amount}',
@@ -6011,10 +6015,10 @@ extension on TranslationsJaJp {
 			'passport.oneKeyNoSimCard' => '現在のネットワークは未対応か、SIMカードが挿入されていません',
 			'passport.cannotGetScreenSize' => '画面サイズを取得できません',
 			'passport.oneKeyFailedRetry' => 'ワンタップログインに失敗しました。ネットワークを確認して再試行してください',
-			'splash.slogan' => '自由に話し、自然に繋がる',
-			'talkRecord.uploadProgressRegister' => 'アップロードを準備中',
 			_ => null,
 		} ?? switch (path) {
+			'splash.slogan' => '自由に話し、自然に繋がる',
+			'talkRecord.uploadProgressRegister' => 'アップロードを準備中',
 			'talkRecord.uploadProgressUpload' => '音声をアップロード中',
 			'talkRecord.uploadProgressConfirm' => '音声を確認中',
 			'talkRecord.uploadProgressSubmitting' => '保存を送信中',

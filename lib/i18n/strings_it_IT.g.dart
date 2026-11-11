@@ -1628,7 +1628,7 @@ class _Translations$common$it_IT extends Translations$common$zh_CN {
 	@override String get e2eeUseRecoveryKey => 'Genera chiave di recupero (strumento di riserva in caso di passphrase dimenticata)';
 	@override String get enterAmount => 'Inserisci l\'importo';
 	@override String get expandFull => 'Espandi';
-	@override String f2fEnteringGroup({required Object count}) => '${count} persone stanno per entrare nella chat di gruppo';
+	@override String f2fEnteringGroup({required Object count}) => '${count} persone si sono unite alla chat di gruppo';
 	@override String get f2fSecretCode => 'Codice segreto';
 	@override String get hoursAgo => 'ore fa';
 	@override String get initConfigDecryptFailed => 'Decifratura della configurazione non riuscita: la chiave di sicurezza dell\'app non corrisponde a quella del server, aggiorna l\'app o contatta l\'amministratore';
@@ -1695,6 +1695,8 @@ class _Translations$common$it_IT extends Translations$common$zh_CN {
 	@override String get legacyUploadRecoveryMismatch => 'Il file non corrisponde o il recupero non è disponibile.';
 	@override String get legacyUploadRecoveryContinues => 'Allegato recuperato; elaborazione del messaggio originale in corso.';
 	@override String get legacyUploadReturnToOriginalPage => 'Il caricamento è incompleto. Torna alla pagina originale, seleziona il file e invia.';
+	@override String get f2fLocationRequired => 'Attiva il permesso e i servizi di localizzazione e riprova con gli amici vicini.';
+	@override String get f2fMemberHint => 'Tocca un avatar per vedere il profilo e aggiungere la persona agli amici.';
 }
 
 // Path: complaint
@@ -4949,7 +4951,7 @@ extension on TranslationsItIt {
 			'common.e2eeUseRecoveryKey' => 'Genera chiave di recupero (strumento di riserva in caso di passphrase dimenticata)',
 			'common.enterAmount' => 'Inserisci l\'importo',
 			'common.expandFull' => 'Espandi',
-			'common.f2fEnteringGroup' => ({required Object count}) => '${count} persone stanno per entrare nella chat di gruppo',
+			'common.f2fEnteringGroup' => ({required Object count}) => '${count} persone si sono unite alla chat di gruppo',
 			'common.f2fSecretCode' => 'Codice segreto',
 			'common.hoursAgo' => 'ore fa',
 			'common.initConfigDecryptFailed' => 'Decifratura della configurazione non riuscita: la chiave di sicurezza dell\'app non corrisponde a quella del server, aggiorna l\'app o contatta l\'amministratore',
@@ -5018,6 +5020,8 @@ extension on TranslationsItIt {
 			'common.legacyUploadRecoveryMismatch' => 'Il file non corrisponde o il recupero non è disponibile.',
 			'common.legacyUploadRecoveryContinues' => 'Allegato recuperato; elaborazione del messaggio originale in corso.',
 			'common.legacyUploadReturnToOriginalPage' => 'Il caricamento è incompleto. Torna alla pagina originale, seleziona il file e invia.',
+			'common.f2fLocationRequired' => 'Attiva il permesso e i servizi di localizzazione e riprova con gli amici vicini.',
+			'common.f2fMemberHint' => 'Tocca un avatar per vedere il profilo e aggiungere la persona agli amici.',
 			'complaint.complaint' => 'Reclamo',
 			'complaint.e2eeConsentTitle' => 'Invia prove crittografate',
 			'complaint.e2eeConsentBody' => 'Questo messaggio è cifrato end-to-end; il server non può vederne il contenuto. Inviare un estratto renderà visibile il testo selezionato ai moderatori per la revisione. Acconsenti?',
@@ -5500,10 +5504,10 @@ extension on TranslationsItIt {
 			'main.mySentTab' => 'Inviati',
 			'main.reject' => 'Rifiuta',
 			'main.myOrders' => 'Ordini',
-			'main.purchaseUnlockHint' => 'Dopo l\'acquisto, accedi allo storico e agli aggiornamenti del canale.',
-			'main.payingDots' => 'Pagamento...',
 			_ => null,
 		} ?? switch (path) {
+			'main.purchaseUnlockHint' => 'Dopo l\'acquisto, accedi allo storico e agli aggiornamenti del canale.',
+			'main.payingDots' => 'Pagamento...',
 			'main.purchaseAndUnlock' => 'Acquista e sblocca',
 			'main.orderDetail' => 'Dettagli ordine',
 			'main.orderAmountLabel' => ({required Object currency, required Object amount}) => 'Importo: ${currency} ${amount}',
@@ -6014,10 +6018,10 @@ extension on TranslationsItIt {
 			'passport.oneKeyNoSimCard' => 'Rete non supportata o telefono senza SIM',
 			'passport.cannotGetScreenSize' => 'Impossibile ottenere le dimensioni dello schermo',
 			'passport.oneKeyFailedRetry' => 'Login one-tap non riuscito, controlla la rete e riprova',
-			'splash.slogan' => 'Parla liberamente, comunica con facilità',
-			'talkRecord.uploadProgressRegister' => 'Preparazione del caricamento',
 			_ => null,
 		} ?? switch (path) {
+			'splash.slogan' => 'Parla liberamente, comunica con facilità',
+			'talkRecord.uploadProgressRegister' => 'Preparazione del caricamento',
 			'talkRecord.uploadProgressUpload' => 'Caricamento audio',
 			'talkRecord.uploadProgressConfirm' => 'Conferma audio',
 			'talkRecord.uploadProgressSubmitting' => 'Invio del salvataggio',

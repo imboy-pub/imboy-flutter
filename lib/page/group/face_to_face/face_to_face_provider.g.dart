@@ -45,7 +45,7 @@ final class FaceToFaceNotifierProvider
 }
 
 String _$faceToFaceNotifierHash() =>
-    r'863aea50ece5d4e735c676f11ef6095e73ca82e7';
+    r'bcd8e41ae397771016d5580f2166416ba0c05831';
 
 /// 面对面建群 Notifier
 

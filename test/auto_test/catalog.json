@@ -1,9 +1,9 @@
 {
   "schema_version": 1,
   "generated_from": {
-    "app_head": "d03e60cf1ef3781b6780ab99e1a83bff6b0e09bc",
-    "backend_head": "9e4fc46a0420ed9c9e4830111976c0436b540c12",
-    "integration_test_count": 196,
+    "app_head": "a0891a0224ee2aa59dcb673dab96df84e76f19e5",
+    "backend_head": "a66ead861304db916df683062457397481ea4308",
+    "integration_test_count": 197,
     "lib_page_count": 171,
     "module_page_count": 40,
     "route_page_component_count": 165,
@@ -734,7 +734,7 @@
     {
       "id": "test:integration_test/chat/quick_reply_manage_test.dart",
       "target": "integration_test/chat/quick_reply_manage_test.dart",
-      "target_sha256": "97346c4bf404e471aa0fcb0f1af1a660e13cb320a8d9f4004b54e30e2d6e7637",
+      "target_sha256": "d4d370f2d562a997807fcb5ea6058fdc2ce44ad5074bf075d959e658356f27d2",
       "sources": [
         "lib/page/chat/widget/quick_reply_manage_page.dart"
       ],
@@ -1004,7 +1004,7 @@
     {
       "id": "test:integration_test/demo_flow/dual_account_message_flow_test.dart",
       "target": "integration_test/demo_flow/dual_account_message_flow_test.dart",
-      "target_sha256": "50bd4752ed56d3d1130f5b932f0d2dc92b67a16eecd2dbf71a10ee81eb84215c",
+      "target_sha256": "144f64c4620ed718806d127b82add5c5672ecd1e6d71c1b32085912b631e8473",
       "sources": [],
       "dependencies": [],
       "risk": "device-readonly",
@@ -1747,6 +1747,20 @@
       "oracle_hint": true
     },
     {
+      "id": "test:integration_test/group/face_to_face_friend_flow_test.dart",
+      "target": "integration_test/group/face_to_face_friend_flow_test.dart",
+      "target_sha256": "70183a71ed9253f8b6af39bbd3ee0b792353936510468750660fc0aca66a5dd0",
+      "sources": [],
+      "dependencies": [],
+      "risk": "device-readonly",
+      "requirements": [],
+      "tags": [
+        "group"
+      ],
+      "enabled": false,
+      "oracle_hint": true
+    },
+    {
       "id": "test:integration_test/group/gm_pagination_failover_test.dart",
       "target": "integration_test/group/gm_pagination_failover_test.dart",
       "target_sha256": "ef05ba75ea920e6c8d045e9a61051c841328db62d6e0771ed1f94aa77a2b230d",
@@ -2299,7 +2313,7 @@
     {
       "id": "test:integration_test/rtc/rtc_relay_realdevice_test.dart",
       "target": "integration_test/rtc/rtc_relay_realdevice_test.dart",
-      "target_sha256": "96c9a88defb0f09bf2552e8579ca1cf645359d3eb4269b45cfafb9bf0e8cfdcd",
+      "target_sha256": "1a769a3393b60c910bb83c50a0c2a4ea20e931ca41ae8bd9b21323dc4da0a45d",
       "sources": [],
       "dependencies": [],
       "risk": "device-readonly",

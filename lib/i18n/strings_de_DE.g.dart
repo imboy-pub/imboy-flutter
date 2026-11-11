@@ -1619,7 +1619,7 @@ class _Translations$common$de_DE extends Translations$common$zh_CN {
 	@override String get reconnecting => 'Schlechte Verbindung, wird neu verbunden…';
 	@override String get amountMustPositive => 'Betrag muss größer als 0 sein';
 	@override String get enterAmount => 'Bitte Betrag eingeben';
-	@override String f2fEnteringGroup({required Object count}) => '${count} Personen treten gleich dem Gruppenchat bei';
+	@override String f2fEnteringGroup({required Object count}) => '${count} Personen sind dem Gruppenchat beigetreten';
 	@override String get f2fSecretCode => 'Geheimcode';
 	@override String uploadPartialFailed({required Object count}) => '${count} Uploads fehlgeschlagen';
 	@override String get momentsHasFailedUploads => 'Einige Medien wurden nicht hochgeladen. Bitte erneut versuchen oder entfernen und dann veröffentlichen';
@@ -1695,6 +1695,8 @@ class _Translations$common$de_DE extends Translations$common$zh_CN {
 	@override String get legacyUploadRecoveryMismatch => 'Die Datei stimmt nicht überein oder die Wiederherstellung ist nicht möglich.';
 	@override String get legacyUploadRecoveryContinues => 'Anhang wiederhergestellt; die ursprüngliche Nachricht wird weiterbearbeitet.';
 	@override String get legacyUploadReturnToOriginalPage => 'Der Upload ist unvollständig. Kehre zur ursprünglichen Seite zurück, wähle die Datei erneut und sende sie ab.';
+	@override String get f2fLocationRequired => 'Aktiviere Standortberechtigung und Standortdienste und versuche es mit Freunden in der Nähe erneut.';
+	@override String get f2fMemberHint => 'Tippe auf ein Profilbild, um das Profil anzusehen und die Person hinzuzufügen.';
 }
 
 // Path: complaint
@@ -4940,7 +4942,7 @@ extension on TranslationsDeDe {
 			'common.reconnecting' => 'Schlechte Verbindung, wird neu verbunden…',
 			'common.amountMustPositive' => 'Betrag muss größer als 0 sein',
 			'common.enterAmount' => 'Bitte Betrag eingeben',
-			'common.f2fEnteringGroup' => ({required Object count}) => '${count} Personen treten gleich dem Gruppenchat bei',
+			'common.f2fEnteringGroup' => ({required Object count}) => '${count} Personen sind dem Gruppenchat beigetreten',
 			'common.f2fSecretCode' => 'Geheimcode',
 			'common.uploadPartialFailed' => ({required Object count}) => '${count} Uploads fehlgeschlagen',
 			'common.momentsHasFailedUploads' => 'Einige Medien wurden nicht hochgeladen. Bitte erneut versuchen oder entfernen und dann veröffentlichen',
@@ -5018,6 +5020,8 @@ extension on TranslationsDeDe {
 			'common.legacyUploadRecoveryMismatch' => 'Die Datei stimmt nicht überein oder die Wiederherstellung ist nicht möglich.',
 			'common.legacyUploadRecoveryContinues' => 'Anhang wiederhergestellt; die ursprüngliche Nachricht wird weiterbearbeitet.',
 			'common.legacyUploadReturnToOriginalPage' => 'Der Upload ist unvollständig. Kehre zur ursprünglichen Seite zurück, wähle die Datei erneut und sende sie ab.',
+			'common.f2fLocationRequired' => 'Aktiviere Standortberechtigung und Standortdienste und versuche es mit Freunden in der Nähe erneut.',
+			'common.f2fMemberHint' => 'Tippe auf ein Profilbild, um das Profil anzusehen und die Person hinzuzufügen.',
 			'complaint.complaint' => 'Beschwerde',
 			'complaint.e2eeConsentTitle' => 'Verschlüsselte Beweise einreichen',
 			'complaint.e2eeConsentBody' => 'Diese Nachricht ist Ende-zu-Ende-verschlüsselt; der Server kann ihren Inhalt nicht einsehen. Durch das Einreichen eines Auszugs wird der ausgewählte Klartext den Moderatoren zur Prüfung offengelegt. Stimmen Sie zu?',
@@ -5500,10 +5504,10 @@ extension on TranslationsDeDe {
 			'main.mySentTab' => 'Gesendet',
 			'main.reject' => 'Ablehnen',
 			'main.myOrders' => 'Bestellungen',
-			'main.purchaseUnlockHint' => 'Nach Kauf werden Verlauf und neue Nachrichten freigeschaltet.',
-			'main.payingDots' => 'Zahlung...',
 			_ => null,
 		} ?? switch (path) {
+			'main.purchaseUnlockHint' => 'Nach Kauf werden Verlauf und neue Nachrichten freigeschaltet.',
+			'main.payingDots' => 'Zahlung...',
 			'main.purchaseAndUnlock' => 'Jetzt kaufen & freischalten',
 			'main.orderDetail' => 'Bestelldetails',
 			'main.orderAmountLabel' => ({required Object currency, required Object amount}) => 'Betrag: ${currency} ${amount}',
@@ -6014,10 +6018,10 @@ extension on TranslationsDeDe {
 			'passport.oneKeyNoSimCard' => 'Das aktuelle Netzwerk wird nicht unterstützt oder das Handy hat keine SIM-Karte',
 			'passport.cannotGetScreenSize' => 'Bildschirmgröße konnte nicht ermittelt werden',
 			'passport.oneKeyFailedRetry' => 'One-Tap-Login fehlgeschlagen, bitte Netzwerk prüfen und erneut versuchen',
-			'splash.slogan' => 'Frei kommunizieren.',
-			'talkRecord.uploadProgressRegister' => 'Upload wird vorbereitet',
 			_ => null,
 		} ?? switch (path) {
+			'splash.slogan' => 'Frei kommunizieren.',
+			'talkRecord.uploadProgressRegister' => 'Upload wird vorbereitet',
 			'talkRecord.uploadProgressUpload' => 'Audio wird hochgeladen',
 			'talkRecord.uploadProgressConfirm' => 'Audio wird bestätigt',
 			'talkRecord.uploadProgressSubmitting' => 'Speicherung wird übermittelt',

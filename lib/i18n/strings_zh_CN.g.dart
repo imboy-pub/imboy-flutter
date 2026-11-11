@@ -2406,8 +2406,8 @@ class Translations$common$zh_CN {
 	/// zh-CN: '暗号'
 	String get f2fSecretCode => '暗号';
 
-	/// zh-CN: '$count 人即将进入群聊'
-	String f2fEnteringGroup({required Object count}) => '${count} 人即将进入群聊';
+	/// zh-CN: '$count 人已加入群聊'
+	String f2fEnteringGroup({required Object count}) => '${count} 人已加入群聊';
 
 	/// zh-CN: '删除'
 	String get delete => _root.common.buttonDelete;
@@ -5012,6 +5012,12 @@ class Translations$common$zh_CN {
 
 	/// zh-CN: '原上传未完成，请返回原页面重新选择文件并提交；原记录已保留。'
 	String get legacyUploadReturnToOriginalPage => '原上传未完成，请返回原页面重新选择文件并提交；原记录已保留。';
+
+	/// zh-CN: '请开启定位权限和定位服务，和身边的朋友一起重试'
+	String get f2fLocationRequired => '请开启定位权限和定位服务，和身边的朋友一起重试';
+
+	/// zh-CN: '点击朋友头像查看资料并添加好友'
+	String get f2fMemberHint => '点击朋友头像查看资料并添加好友';
 }
 
 // Path: complaint
@@ -11843,7 +11849,7 @@ extension on Translations {
 			'common.createGroupF2fConfirmTips' => '这些朋友也将进入群聊',
 			'common.createGroupF2fTips' => '和身边的朋友输入同样的四个数字，进入同一个群聊',
 			'common.f2fSecretCode' => '暗号',
-			'common.f2fEnteringGroup' => ({required Object count}) => '${count} 人即将进入群聊',
+			'common.f2fEnteringGroup' => ({required Object count}) => '${count} 人已加入群聊',
 			'common.delete' => _root.common.buttonDelete,
 			'common.deleteCollectConfirmDesc' => '删除后无法恢复，确定要删除这条收藏吗？',
 			'common.deleteContact' => '删除联系人',
@@ -12714,6 +12720,8 @@ extension on Translations {
 			'common.legacyUploadRecoveryMismatch' => '所选文件与原文件不一致或暂时无法恢复。',
 			'common.legacyUploadRecoveryContinues' => '附件已恢复，正在继续处理原消息。',
 			'common.legacyUploadReturnToOriginalPage' => '原上传未完成，请返回原页面重新选择文件并提交；原记录已保留。',
+			'common.f2fLocationRequired' => '请开启定位权限和定位服务，和身边的朋友一起重试',
+			'common.f2fMemberHint' => '点击朋友头像查看资料并添加好友',
 			'complaint.complaint' => '投诉',
 			'complaint.e2eeConsentTitle' => '提交加密消息证据',
 			'complaint.e2eeConsentBody' => '该消息为端到端加密消息，服务器无法查看其内容。提交内容摘录会将你选择的消息明文随工单披露给审核员用于核实举报。是否同意提交？',
@@ -13121,10 +13129,10 @@ extension on Translations {
 			'groupDiscovery.searchHint' => '搜索公开群',
 			'groupDiscovery.allCategories' => '全部',
 			'groupDiscovery.sortPopular' => '热门',
-			'groupDiscovery.sortNewest' => '最新',
-			'groupDiscovery.emptyTitle' => '暂无公开群，稍后再来看看',
 			_ => null,
 		} ?? switch (path) {
+			'groupDiscovery.sortNewest' => '最新',
+			'groupDiscovery.emptyTitle' => '暂无公开群，稍后再来看看',
 			'groupDiscovery.searchEmpty' => '无匹配的公开群',
 			'groupList.attrAll' => '全部',
 			'groupList.attrOwner' => '我创建',
@@ -13635,10 +13643,10 @@ extension on Translations {
 			'organization.picker.joinQrHint' => '对准企业邀请二维码即可自动加入',
 			'organization.picker.joinQrInvalid' => '不是有效的企业邀请二维码',
 			'organization.inviteColleagues.title' => '邀请同事',
-			'organization.inviteColleagues.tabInvite' => '邀请同事',
-			'organization.inviteColleagues.tabPossible' => '可能的同事',
 			_ => null,
 		} ?? switch (path) {
+			'organization.inviteColleagues.tabInvite' => '邀请同事',
+			'organization.inviteColleagues.tabPossible' => '可能的同事',
 			'organization.inviteColleagues.wechatInvite' => '微信邀请同事',
 			'organization.inviteColleagues.wechatInviteHint' => '把邀请码发给微信好友，对方打开 imboy 加入',
 			'organization.inviteColleagues.faceToFace' => '面对面邀请同事',
@@ -14149,10 +14157,10 @@ extension on Translations {
 			'talkRecord.exportFailedBody' => '生成导出失败，可重试。',
 			'talkRecord.exportConflictHint' => '记录已被他人更新，请刷新后重试。',
 			'talkRecord.exportFixtureHint' => '组件阶段：下载链接为 fixture 示例，不产生真实文件。',
-			'talkRecord.transferTitle' => '移交管理责任',
-			'talkRecord.transferScopeHint' => '移交仅变更管理责任人；记录归属（企业与工作区）保持不变。',
 			_ => null,
 		} ?? switch (path) {
+			'talkRecord.transferTitle' => '移交管理责任',
+			'talkRecord.transferScopeHint' => '移交仅变更管理责任人；记录归属（企业与工作区）保持不变。',
 			'talkRecord.transferCreatedByHint' => '创建者记录保持不变；此动作与分享权限相互独立。',
 			'talkRecord.transferCandidateSectionTitle' => '选择新责任人',
 			'talkRecord.transferCandidateEmpty' => '没有符合条件的候选同事',

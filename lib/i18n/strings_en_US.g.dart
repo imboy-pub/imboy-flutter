@@ -895,7 +895,7 @@ class _Translations$common$en_US extends Translations$common$zh_CN {
 	@override String get createGroupF2fConfirmTips => 'These friends will also join the group chat';
 	@override String get createGroupF2fTips => 'Enter the same four digits as friends nearby to join the same group chat';
 	@override String get f2fSecretCode => 'Secret Code';
-	@override String f2fEnteringGroup({required Object count}) => '${count} people about to join the group chat';
+	@override String f2fEnteringGroup({required Object count}) => '${count} people have joined the group chat';
 	@override String get delete => _root.common.buttonDelete;
 	@override String get deleteCollectConfirmDesc => 'Cannot be recovered after deletion, are you sure you want to delete this favorite?';
 	@override String get deleteContact => 'Delete contact';
@@ -1761,6 +1761,8 @@ class _Translations$common$en_US extends Translations$common$zh_CN {
 	@override String get legacyUploadRecoveryMismatch => 'The selected file does not match or recovery is unavailable.';
 	@override String get legacyUploadRecoveryContinues => 'Attachment recovered; continuing the original message.';
 	@override String get legacyUploadReturnToOriginalPage => 'The upload is incomplete. Return to the original screen, select the file again and submit; the old record is kept.';
+	@override String get f2fLocationRequired => 'Enable location permission and services, then try again with nearby friends.';
+	@override String get f2fMemberHint => 'Tap a friend’s avatar to view their profile and add them.';
 }
 
 // Path: complaint
@@ -4845,7 +4847,7 @@ extension on TranslationsEnUs {
 			'common.createGroupF2fConfirmTips' => 'These friends will also join the group chat',
 			'common.createGroupF2fTips' => 'Enter the same four digits as friends nearby to join the same group chat',
 			'common.f2fSecretCode' => 'Secret Code',
-			'common.f2fEnteringGroup' => ({required Object count}) => '${count} people about to join the group chat',
+			'common.f2fEnteringGroup' => ({required Object count}) => '${count} people have joined the group chat',
 			'common.delete' => _root.common.buttonDelete,
 			'common.deleteCollectConfirmDesc' => 'Cannot be recovered after deletion, are you sure you want to delete this favorite?',
 			'common.deleteContact' => 'Delete contact',
@@ -5706,6 +5708,8 @@ extension on TranslationsEnUs {
 			'common.legacyUploadRecoveryMismatch' => 'The selected file does not match or recovery is unavailable.',
 			'common.legacyUploadRecoveryContinues' => 'Attachment recovered; continuing the original message.',
 			'common.legacyUploadReturnToOriginalPage' => 'The upload is incomplete. Return to the original screen, select the file again and submit; the old record is kept.',
+			'common.f2fLocationRequired' => 'Enable location permission and services, then try again with nearby friends.',
+			'common.f2fMemberHint' => 'Tap a friend’s avatar to view their profile and add them.',
 			'complaint.complaint' => 'Complaint',
 			'complaint.e2eeConsentTitle' => 'Submit encrypted evidence',
 			'complaint.e2eeConsentBody' => 'This message is end-to-end encrypted and the server cannot see its content. Submitting an excerpt will disclose the selected plaintext to moderators for review. Do you consent?',
@@ -6133,10 +6137,10 @@ extension on TranslationsEnUs {
 			'groupSchedule.participants' => 'Participants',
 			'groupSchedule.statusCancelled' => 'Cancelled',
 			'groupSchedule.statusInProgress' => 'In Progress',
-			'groupSchedule.statusNotStarted' => 'Not Started',
-			'groupSchedule.statusEnded' => 'Ended',
 			_ => null,
 		} ?? switch (path) {
+			'groupSchedule.statusNotStarted' => 'Not Started',
+			'groupSchedule.statusEnded' => 'Ended',
 			'groupSchedule.cancelSuccess' => 'Schedule cancelled',
 			'groupSchedule.cancelFailed' => 'Cancel failed, please try again',
 			'groupSchedule.confirmAttend' => 'Confirm Attendance',
@@ -6647,10 +6651,10 @@ extension on TranslationsEnUs {
 			'organization.inviteColleagues.codeMissingHint' => 'No active invite code yet; generate one to share',
 			'organization.inviteColleagues.generateCode' => 'Generate code',
 			'organization.inviteColleagues.generateForbidden' => 'Only enterprise admins can generate the invite code',
-			'organization.inviteColleagues.possibleEmpty' => 'No pending colleagues',
-			'organization.inviteColleagues.possibleEmptyHint' => 'Invite your colleagues to join',
 			_ => null,
 		} ?? switch (path) {
+			'organization.inviteColleagues.possibleEmpty' => 'No pending colleagues',
+			'organization.inviteColleagues.possibleEmptyHint' => 'Invite your colleagues to join',
 			'organization.inviteColleagues.invitedBy' => ({required Object name}) => 'Invited by ${name}',
 			'organization.inviteColleagues.invitedAt' => ({required Object time}) => 'Invited at ${time}',
 			'organization.inviteColleagues.revoke' => 'Revoke',
@@ -7161,10 +7165,10 @@ extension on TranslationsEnUs {
 			'talkRecord.transferSuccessTitle' => 'Ownership transferred',
 			'talkRecord.transferSuccessOwner' => ({required Object name}) => 'New owner: ${name}',
 			'talkRecord.transferSuccessKeptAccess' => 'You still have view access; sharing is managed by the new owner.',
-			'talkRecord.transferSuccessScopeUnchanged' => 'The note\'s organization and workspace are unchanged.',
-			'talkRecord.transferFailedBody' => 'Transfer failed, retry later.',
 			_ => null,
 		} ?? switch (path) {
+			'talkRecord.transferSuccessScopeUnchanged' => 'The note\'s organization and workspace are unchanged.',
+			'talkRecord.transferFailedBody' => 'Transfer failed, retry later.',
 			'talkRecord.transferConflictHint' => 'The note was updated by someone else. Refresh and retry.',
 			'talkRecord.transferPersonalUnsupported' => 'Personal notes do not support ownership transfer yet.',
 			'talkRecord.transferOnlyOwner' => 'Only the current managing owner can transfer ownership.',

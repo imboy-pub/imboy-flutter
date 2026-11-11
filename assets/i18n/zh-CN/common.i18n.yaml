@@ -83,7 +83,7 @@ copy: 复制
 createGroupF2fConfirmTips: 这些朋友也将进入群聊
 createGroupF2fTips: 和身边的朋友输入同样的四个数字，进入同一个群聊
 f2fSecretCode: 暗号
-f2fEnteringGroup(count): $count 人即将进入群聊
+f2fEnteringGroup(count): "$count 人已加入群聊"
 delete: "@:common.buttonDelete"
 deleteCollectConfirmDesc: 删除后无法恢复，确定要删除这条收藏吗？
 deleteContact: 删除联系人
@@ -958,3 +958,6 @@ legacyUploadOutboxCheck: "消息可能已进入发送队列，请先检查聊天
 legacyUploadRecoveryMismatch: "所选文件与原文件不一致或暂时无法恢复。"
 legacyUploadRecoveryContinues: "附件已恢复，正在继续处理原消息。"
 legacyUploadReturnToOriginalPage: "原上传未完成，请返回原页面重新选择文件并提交；原记录已保留。"
+
+f2fLocationRequired: "请开启定位权限和定位服务，和身边的朋友一起重试"
+f2fMemberHint: "点击朋友头像查看资料并添加好友"

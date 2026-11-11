@@ -7,8 +7,10 @@ import 'package:imboy/i18n/strings.g.dart';
 Future<void> _pumpKeypad(
   WidgetTester tester,
   NumericKeypadController controller,
-  ValueChanged<String> onChanged,
-) async {
+  ValueChanged<String> onChanged, {
+  int? maxLength,
+  bool enabled = true,
+}) async {
   await tester.pumpWidget(
     TranslationProvider(
       child: MaterialApp(
@@ -20,6 +22,8 @@ Future<void> _pumpKeypad(
               child: NumericKeypad(
                 controller: controller,
                 onChanged: onChanged,
+                maxLength: maxLength,
+                enabled: enabled,
               ),
             ),
           ),
@@ -45,6 +49,55 @@ void main() {
   tearDown(() {
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
         .setMockMethodCallHandler(soundChannel, null);
+  });
+
+  testWidgets('实体键盘输入数字和退格复用四位限制', (tester) async {
+    final controller = NumericKeypadController('');
+    addTearDown(controller.dispose);
+    final changes = <String>[];
+    await _pumpKeypad(tester, controller, changes.add, maxLength: 4);
+    for (final key in [
+      LogicalKeyboardKey.digit0,
+      LogicalKeyboardKey.digit1,
+      LogicalKeyboardKey.digit2,
+      LogicalKeyboardKey.digit3,
+      LogicalKeyboardKey.digit4,
+    ]) {
+      await tester.sendKeyEvent(key, character: key.keyLabel);
+      await tester.pump();
+    }
+    expect(controller.value, '0123');
+    await tester.sendKeyEvent(LogicalKeyboardKey.backspace);
+    await tester.pump();
+    expect(controller.value, '012');
+    expect(changes, ['0', '01', '012', '0123', '012']);
+  });
+
+  testWidgets('四位上限与禁用态不能修改输入，删除后可以补位', (tester) async {
+    final controller = NumericKeypadController('0123');
+    addTearDown(controller.dispose);
+    final changes = <String>[];
+    await _pumpKeypad(tester, controller, changes.add, maxLength: 4);
+    await tester.tap(find.text('4'));
+    await tester.pump();
+    expect(controller.value, '0123');
+    expect(changes, isEmpty);
+    await tester.tap(find.bySemanticsLabel(t.common.buttonDelete));
+    await tester.pump();
+    await tester.tap(find.text('4'));
+    await tester.pump();
+    expect(controller.value, '0124');
+    expect(changes, ['012', '0124']);
+    await _pumpKeypad(
+      tester,
+      controller,
+      changes.add,
+      maxLength: 4,
+      enabled: false,
+    );
+    await tester.tap(find.bySemanticsLabel(t.common.buttonDelete));
+    await tester.pump();
+    expect(controller.value, '0124');
   });
 
   testWidgets('数字与删除保持输入回调，空白格不播放声音或修改内容', (tester) async {

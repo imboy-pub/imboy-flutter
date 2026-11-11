@@ -872,7 +872,7 @@ e2eeRecoveryKeyTitle: Chiave di recupero
 e2eeUseRecoveryKey: "Genera chiave di recupero (strumento di riserva in caso di passphrase dimenticata)"
 enterAmount: Inserisci l'importo
 expandFull: Espandi
-f2fEnteringGroup(count): "$count persone stanno per entrare nella chat di gruppo"
+f2fEnteringGroup(count): "$count persone si sono unite alla chat di gruppo"
 f2fSecretCode: Codice segreto
 hoursAgo: ore fa
 initConfigDecryptFailed: "Decifratura della configurazione non riuscita: la chiave di sicurezza dell'app non corrisponde a quella del server, aggiorna l'app o contatta l'amministratore"
@@ -942,3 +942,6 @@ legacyUploadOutboxCheck: "Il messaggio potrebbe essere già in coda. Controlla l
 legacyUploadRecoveryMismatch: "Il file non corrisponde o il recupero non è disponibile."
 legacyUploadRecoveryContinues: "Allegato recuperato; elaborazione del messaggio originale in corso."
 legacyUploadReturnToOriginalPage: "Il caricamento è incompleto. Torna alla pagina originale, seleziona il file e invia."
+
+f2fLocationRequired: "Attiva il permesso e i servizi di localizzazione e riprova con gli amici vicini."
+f2fMemberHint: "Tocca un avatar per vedere il profilo e aggiungere la persona agli amici."

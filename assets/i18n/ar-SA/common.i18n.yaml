@@ -880,7 +880,7 @@ payReceiveSuccess: تم استلام المبلغ بنجاح!
 purchaseConfirming: جارٍ تأكيد الدفع، تحقق من حالة الطلب لاحقاً
 uploadPartialFailed(count): فشل رفع $count عنصراً
 momentsHasFailedUploads: فشل رفع بعض الوسائط، أعد المحاولة أو أزلها ثم انشر
-f2fEnteringGroup(count): سيدخل $count أشخاص قريباً إلى الدردشة الجماعية
+f2fEnteringGroup(count): "انضم $count أشخاص إلى الدردشة الجماعية"
 f2fSecretCode: الرمز السري
 complianceKeyChangedTitle: تم تغيير مفتاح تدقيق الامتثال
 complianceKeyChangedActionConfirm: تأكيد التدوير
@@ -951,3 +951,6 @@ legacyUploadOutboxCheck: "قد تكون الرسالة في قائمة الإر�
 legacyUploadRecoveryMismatch: "الملف المحدد غير مطابق أو يتعذر الاستعادة."
 legacyUploadRecoveryContinues: "تمت استعادة المرفق؛ يجري استكمال الرسالة الأصلية."
 legacyUploadReturnToOriginalPage: "لم يكتمل الرفع. عُد إلى الصفحة الأصلية واختر الملف مجدداً ثم أرسله."
+
+f2fLocationRequired: "فعّل إذن الموقع وخدمات الموقع، ثم حاول مجددًا مع الأصدقاء القريبين."
+f2fMemberHint: "اضغط على صورة صديق لعرض ملفه الشخصي وإضافته."

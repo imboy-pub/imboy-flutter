@@ -863,7 +863,7 @@ switchCamera: Kamera wechseln
 reconnecting: "Schlechte Verbindung, wird neu verbunden…"
 amountMustPositive: Betrag muss größer als 0 sein
 enterAmount: Bitte Betrag eingeben
-f2fEnteringGroup(count): "$count Personen treten gleich dem Gruppenchat bei"
+f2fEnteringGroup(count): "$count Personen sind dem Gruppenchat beigetreten"
 f2fSecretCode: Geheimcode
 uploadPartialFailed(count): "$count Uploads fehlgeschlagen"
 momentsHasFailedUploads: Einige Medien wurden nicht hochgeladen. Bitte erneut versuchen oder entfernen und dann veröffentlichen
@@ -942,3 +942,6 @@ legacyUploadOutboxCheck: "Die Nachricht ist möglicherweise bereits in der Sende
 legacyUploadRecoveryMismatch: "Die Datei stimmt nicht überein oder die Wiederherstellung ist nicht möglich."
 legacyUploadRecoveryContinues: "Anhang wiederhergestellt; die ursprüngliche Nachricht wird weiterbearbeitet."
 legacyUploadReturnToOriginalPage: "Der Upload ist unvollständig. Kehre zur ursprünglichen Seite zurück, wähle die Datei erneut und sende sie ab."
+
+f2fLocationRequired: "Aktiviere Standortberechtigung und Standortdienste und versuche es mit Freunden in der Nähe erneut."
+f2fMemberHint: "Tippe auf ein Profilbild, um das Profil anzusehen und die Person hinzuzufügen."

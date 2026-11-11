@@ -878,7 +878,7 @@ e2eeRecoveryKeyTitle: Ключ восстановления
 e2eeUseRecoveryKey: Создать ключ восстановления (запасной доступ при забытой парольной фразе)
 enterAmount: Введите сумму
 expandFull: Развернуть
-f2fEnteringGroup(count): "Скоро в групповой чат войдут: $count чел."
+f2fEnteringGroup(count): "К групповому чату присоединились: $count чел."
 f2fSecretCode: Секретный код
 hoursAgo: ч. назад
 minutesAgo: мин. назад
@@ -948,3 +948,6 @@ legacyUploadOutboxCheck: "Сообщение уже может быть в оч�
 legacyUploadRecoveryMismatch: "Файл не совпадает или восстановление недоступно."
 legacyUploadRecoveryContinues: "Вложение восстановлено; обработка исходного сообщения продолжается."
 legacyUploadReturnToOriginalPage: "Загрузка не завершена. Вернитесь на исходную страницу, снова выберите файл и отправьте."
+
+f2fLocationRequired: "Включите разрешение и службы геолокации и повторите попытку с друзьями рядом."
+f2fMemberHint: "Нажмите на аватар, чтобы открыть профиль и добавить друга."

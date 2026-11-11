@@ -1,12 +1,19 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/http/http_response.dart';
 import 'package:imboy/component/location/location_service.dart';
 import 'package:imboy/component/ui/numeric_keypad.dart';
 import 'package:imboy/store/model/people_model.dart';
 import 'package:imboy/store/api/group_api.dart';
+import 'package:imboy/i18n/strings.g.dart';
 
 part 'face_to_face_provider.g.dart';
+
+final faceToFaceLocationProvider = Provider<Future<ImboyLocation?> Function()>(
+  (ref) =>
+      () => LocationService().getCurrentPosition(),
+);
 
 /// 面对面建群状态
 class FaceToFaceState {
@@ -47,7 +54,9 @@ class FaceToFaceState {
 class FaceToFaceNotifier extends _$FaceToFaceNotifier {
   @override
   FaceToFaceState build() {
-    return FaceToFaceState(textEditingController: NumericKeypadController(''));
+    final controller = NumericKeypadController('');
+    ref.onDispose(controller.dispose);
+    return FaceToFaceState(textEditingController: controller);
   }
 
   /// 更新输入结果
@@ -68,19 +77,18 @@ class FaceToFaceNotifier extends _$FaceToFaceNotifier {
 
   /// 获取位置
   Future<bool> getLocation() async {
-    if (state.longitude.isNotEmpty) {
-      return true;
-    }
-
     try {
-      ImboyLocation? l = await LocationService().getCurrentPosition();
-      final lon = '${l?.longitude}';
-      final lat = '${l?.latitude}';
-
+      final location = await ref
+          .read(faceToFaceLocationProvider)()
+          .timeout(const Duration(seconds: 30));
+      if (!ref.mounted || location == null) return false;
+      final lon = '${location.longitude}';
+      final lat = '${location.latitude}';
+      if (!_isValidCoordinate(lon, lat)) return false;
       state = state.copyWith(longitude: lon, latitude: lat);
-
-      return _isValidCoordinate(lon, lat);
+      return true;
     } catch (e) {
+      iPrint('[面对面建群] 定位失败: ${e.runtimeType}');
       return false;
     }
   }
@@ -91,6 +99,7 @@ class FaceToFaceNotifier extends _$FaceToFaceNotifier {
     final longitude = double.tryParse(lon);
     final latitude = double.tryParse(lat);
     if (longitude == null || latitude == null) return false;
+    if (!longitude.isFinite || !latitude.isFinite) return false;
 
     if (longitude == 0.0 && latitude == 0.0) return false;
     if (longitude < -180 || longitude > 180) return false;
@@ -100,16 +109,15 @@ class FaceToFaceNotifier extends _$FaceToFaceNotifier {
 
   /// 面对面建群
   Future<Map<String, dynamic>> faceToFace(String code) async {
-    // 获取位置（失败时降级为 0.0, 0.0，不阻断流程）。
-    // timeout 兜底：定位权限弹窗等待用户（无人点）或 native 定位挂起时，
-    // getLocation 永不返回会把整个 face2face 卡死在 API 调用之前——
-    // 页面对位置的承诺是"降级不阻断"，超时同样是失败的一种。
-    final hasLocation = await getLocation().timeout(
-      const Duration(seconds: 3),
-      onTimeout: () => false,
-    );
+    final hasLocation = await getLocation();
+    if (!ref.mounted) return {};
     if (!hasLocation) {
-      state = state.copyWith(longitude: '0.0', latitude: '0.0');
+      state = state.copyWith(longitude: '', latitude: '');
+      return {
+        'gid': '',
+        'memberList': <PeopleModel>[],
+        'error': t.common.f2fLocationRequired,
+      };
     }
 
     iPrint('[面对面建群] 开始请求, hasLocation=$hasLocation');
@@ -134,9 +142,7 @@ class FaceToFaceNotifier extends _$FaceToFaceNotifier {
           id: (itemMap['user_id'] ?? 0) as Object,
           account: IMBoyHttpResponse.payloadStr(itemMap, 'account') ?? '',
           avatar: IMBoyHttpResponse.payloadStr(itemMap, 'avatar') ?? '',
-          nickname:
-              IMBoyHttpResponse.payloadStr(itemMap, 'alias') ??
-              (IMBoyHttpResponse.payloadStr(itemMap, 'nickname') ?? ''),
+          nickname: _memberName(itemMap),
         ),
       );
     }
@@ -146,7 +152,7 @@ class FaceToFaceNotifier extends _$FaceToFaceNotifier {
     return {
       'gid': '${payload['gid'] ?? ''}',
       'memberList': memberList2,
-      'error': '',
+      'error': '${payload['gid'] ?? ''}'.isEmpty ? t.common.tipFailed : '',
     };
   }
 
@@ -168,9 +174,7 @@ class FaceToFaceNotifier extends _$FaceToFaceNotifier {
           id: (itemMap['user_id'] ?? 0) as Object,
           account: IMBoyHttpResponse.payloadStr(itemMap, 'account') ?? '',
           avatar: IMBoyHttpResponse.payloadStr(itemMap, 'avatar') ?? '',
-          nickname:
-              IMBoyHttpResponse.payloadStr(itemMap, 'alias') ??
-              (IMBoyHttpResponse.payloadStr(itemMap, 'nickname') ?? ''),
+          nickname: _memberName(itemMap),
         ),
       );
     }
@@ -179,5 +183,15 @@ class FaceToFaceNotifier extends _$FaceToFaceNotifier {
       'group': payload['group'] ?? <String, dynamic>{},
       'memberList': memberList2,
     };
+  }
+
+  String _memberName(Map<String, dynamic> member) {
+    final alias = IMBoyHttpResponse.payloadStr(member, 'alias') ?? '';
+    final nickname = IMBoyHttpResponse.payloadStr(member, 'nickname') ?? '';
+    return alias.trim().isNotEmpty
+        ? alias
+        : nickname.trim().isNotEmpty
+        ? nickname
+        : t.main.unnamed;
   }
 }

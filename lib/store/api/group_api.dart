@@ -252,12 +252,8 @@ class GroupApi extends HttpClient {
         "latitude": latitude, // 维度
       },
     );
-    if (resp.ok == false) {
-      AppLoading.showError(resp.msg);
-    }
-    return resp.ok
-        ? IMBoyHttpResponse.payloadAsMap(resp.payload)
-        : <String, dynamic>{};
+    if (!resp.ok) throw BadServiceException(message: resp.msg, code: resp.code);
+    return IMBoyHttpResponse.payloadAsMap(resp.payload);
   }
 
   Future<Map<String, dynamic>> groupFace2faceSave({
@@ -273,12 +269,8 @@ class GroupApi extends HttpClient {
       ),
       data: {"code": code, "gid": gid},
     );
-    if (resp.ok == false) {
-      AppLoading.showError(resp.msg);
-    }
-    return resp.ok
-        ? IMBoyHttpResponse.payloadAsMap(resp.payload)
-        : <String, dynamic>{};
+    if (!resp.ok) throw BadServiceException(message: resp.msg, code: resp.code);
+    return IMBoyHttpResponse.payloadAsMap(resp.payload);
   }
 
   Future<Map<String, dynamic>?> groupAdd({

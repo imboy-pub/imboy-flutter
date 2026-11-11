@@ -832,7 +832,7 @@ class Translations$common$zh_Hant extends Translations$common$zh_CN {
 	@override String get createGroupF2fConfirmTips => '這些朋友也將進入群組聊天';
 	@override String get createGroupF2fTips => '和身邊的朋友輸入同樣的四個數字，進入同一個群組聊天';
 	@override String get f2fSecretCode => '暗號';
-	@override String f2fEnteringGroup({required Object count}) => '${count} 人即將進入群組聊天';
+	@override String f2fEnteringGroup({required Object count}) => '${count} 人已加入群組聊天';
 	@override String get delete => _root.common.buttonDelete;
 	@override String get deleteCollectConfirmDesc => '刪除後無法恢復，確定要刪除這則收藏嗎？';
 	@override String get deleteContact => '刪除聯絡人';
@@ -1692,6 +1692,8 @@ class Translations$common$zh_Hant extends Translations$common$zh_CN {
 	@override String get legacyUploadRecoveryMismatch => '所選檔案與原檔案不一致或暫時無法恢復。';
 	@override String get legacyUploadRecoveryContinues => '附件已恢復，正在繼續處理原訊息。';
 	@override String get legacyUploadReturnToOriginalPage => '原上傳未完成，請返回原頁面重新選擇檔案並提交；原紀錄已保留。';
+	@override String get f2fLocationRequired => '請開啟定位權限與定位服務，和身邊朋友一起重試';
+	@override String get f2fMemberHint => '點選朋友頭像查看資料並加入好友';
 }
 
 // Path: complaint
@@ -4157,7 +4159,7 @@ extension on TranslationsZhHant {
 			'common.createGroupF2fConfirmTips' => '這些朋友也將進入群組聊天',
 			'common.createGroupF2fTips' => '和身邊的朋友輸入同樣的四個數字，進入同一個群組聊天',
 			'common.f2fSecretCode' => '暗號',
-			'common.f2fEnteringGroup' => ({required Object count}) => '${count} 人即將進入群組聊天',
+			'common.f2fEnteringGroup' => ({required Object count}) => '${count} 人已加入群組聊天',
 			'common.delete' => _root.common.buttonDelete,
 			'common.deleteCollectConfirmDesc' => '刪除後無法恢復，確定要刪除這則收藏嗎？',
 			'common.deleteContact' => '刪除聯絡人',
@@ -5015,6 +5017,8 @@ extension on TranslationsZhHant {
 			'common.legacyUploadRecoveryMismatch' => '所選檔案與原檔案不一致或暫時無法恢復。',
 			'common.legacyUploadRecoveryContinues' => '附件已恢復，正在繼續處理原訊息。',
 			'common.legacyUploadReturnToOriginalPage' => '原上傳未完成，請返回原頁面重新選擇檔案並提交；原紀錄已保留。',
+			'common.f2fLocationRequired' => '請開啟定位權限與定位服務，和身邊朋友一起重試',
+			'common.f2fMemberHint' => '點選朋友頭像查看資料並加入好友',
 			'complaint.complaint' => '投訴',
 			'complaint.e2eeConsentTitle' => '提交加密訊息證據',
 			'complaint.e2eeConsentBody' => '該訊息為端對端加密訊息，伺服器無法查看其內容。提交內容摘錄會將你選擇的訊息明文隨工單披露給審核員用於核實舉報。是否同意提交？',
@@ -5497,10 +5501,10 @@ extension on TranslationsZhHant {
 			'main.mySentTab' => '我發出的',
 			'main.reject' => '拒絕',
 			'main.myOrders' => '我的訂單',
-			'main.purchaseUnlockHint' => '購買後可解鎖頻道歷史訊息與後續更新內容。',
-			'main.payingDots' => '付款中...',
 			_ => null,
 		} ?? switch (path) {
+			'main.purchaseUnlockHint' => '購買後可解鎖頻道歷史訊息與後續更新內容。',
+			'main.payingDots' => '付款中...',
 			'main.purchaseAndUnlock' => '立即購買並解鎖',
 			'main.orderDetail' => '訂單詳情',
 			'main.orderAmountLabel' => ({required Object currency, required Object amount}) => '金額: ${currency} ${amount}',
@@ -6011,10 +6015,10 @@ extension on TranslationsZhHant {
 			'passport.oneKeyNoSimCard' => '目前網路環境不支援，或手機沒有綁定電話卡',
 			'passport.cannotGetScreenSize' => '無法取得螢幕尺寸',
 			'passport.oneKeyFailedRetry' => '一鍵登入失敗，請檢查網路後重試',
-			'splash.slogan' => '暢所欲言，自在溝通',
-			'talkRecord.uploadProgressRegister' => '準備上傳',
 			_ => null,
 		} ?? switch (path) {
+			'splash.slogan' => '暢所欲言，自在溝通',
+			'talkRecord.uploadProgressRegister' => '準備上傳',
 			'talkRecord.uploadProgressUpload' => '上傳音訊',
 			'talkRecord.uploadProgressConfirm' => '確認音訊',
 			'talkRecord.uploadProgressSubmitting' => '提交儲存',

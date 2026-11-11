@@ -1634,7 +1634,7 @@ class _Translations$common$ru_RU extends Translations$common$zh_CN {
 	@override String get e2eeUseRecoveryKey => 'Создать ключ восстановления (запасной доступ при забытой парольной фразе)';
 	@override String get enterAmount => 'Введите сумму';
 	@override String get expandFull => 'Развернуть';
-	@override String f2fEnteringGroup({required Object count}) => 'Скоро в групповой чат войдут: ${count} чел.';
+	@override String f2fEnteringGroup({required Object count}) => 'К групповому чату присоединились: ${count} чел.';
 	@override String get f2fSecretCode => 'Секретный код';
 	@override String get hoursAgo => 'ч. назад';
 	@override String get minutesAgo => 'мин. назад';
@@ -1701,6 +1701,8 @@ class _Translations$common$ru_RU extends Translations$common$zh_CN {
 	@override String get legacyUploadRecoveryMismatch => 'Файл не совпадает или восстановление недоступно.';
 	@override String get legacyUploadRecoveryContinues => 'Вложение восстановлено; обработка исходного сообщения продолжается.';
 	@override String get legacyUploadReturnToOriginalPage => 'Загрузка не завершена. Вернитесь на исходную страницу, снова выберите файл и отправьте.';
+	@override String get f2fLocationRequired => 'Включите разрешение и службы геолокации и повторите попытку с друзьями рядом.';
+	@override String get f2fMemberHint => 'Нажмите на аватар, чтобы открыть профиль и добавить друга.';
 }
 
 // Path: complaint
@@ -4955,7 +4957,7 @@ extension on TranslationsRuRu {
 			'common.e2eeUseRecoveryKey' => 'Создать ключ восстановления (запасной доступ при забытой парольной фразе)',
 			'common.enterAmount' => 'Введите сумму',
 			'common.expandFull' => 'Развернуть',
-			'common.f2fEnteringGroup' => ({required Object count}) => 'Скоро в групповой чат войдут: ${count} чел.',
+			'common.f2fEnteringGroup' => ({required Object count}) => 'К групповому чату присоединились: ${count} чел.',
 			'common.f2fSecretCode' => 'Секретный код',
 			'common.hoursAgo' => 'ч. назад',
 			'common.minutesAgo' => 'мин. назад',
@@ -5024,6 +5026,8 @@ extension on TranslationsRuRu {
 			'common.legacyUploadRecoveryMismatch' => 'Файл не совпадает или восстановление недоступно.',
 			'common.legacyUploadRecoveryContinues' => 'Вложение восстановлено; обработка исходного сообщения продолжается.',
 			'common.legacyUploadReturnToOriginalPage' => 'Загрузка не завершена. Вернитесь на исходную страницу, снова выберите файл и отправьте.',
+			'common.f2fLocationRequired' => 'Включите разрешение и службы геолокации и повторите попытку с друзьями рядом.',
+			'common.f2fMemberHint' => 'Нажмите на аватар, чтобы открыть профиль и добавить друга.',
 			'complaint.complaint' => 'Жалоба',
 			'complaint.e2eeConsentTitle' => 'Отправить зашифрованные доказательства',
 			'complaint.e2eeConsentBody' => 'Это сообщение зашифровано сквозным шифрованием; сервер не видит его содержимое. Отправка выдержки раскроет выбранный открытый текст модераторам для проверки. Согласны?',
@@ -5506,10 +5510,10 @@ extension on TranslationsRuRu {
 			'main.mySentTab' => 'Отправленные',
 			'main.reject' => 'Отклонить',
 			'main.myOrders' => 'Мои заказы',
-			'main.purchaseUnlockHint' => 'После покупки откроется история сообщений канала и новые публикации.',
-			'main.payingDots' => 'Оплата...',
 			_ => null,
 		} ?? switch (path) {
+			'main.purchaseUnlockHint' => 'После покупки откроется история сообщений канала и новые публикации.',
+			'main.payingDots' => 'Оплата...',
 			'main.purchaseAndUnlock' => 'Купить и открыть',
 			'main.orderDetail' => 'Детали заказа',
 			'main.orderAmountLabel' => ({required Object currency, required Object amount}) => 'Сумма: ${currency} ${amount}',
@@ -6020,10 +6024,10 @@ extension on TranslationsRuRu {
 			'passport.oneKeyNoSimCard' => 'Текущая сеть не поддерживается или в телефоне нет SIM-карты',
 			'passport.cannotGetScreenSize' => 'Не удалось получить размер экрана',
 			'passport.oneKeyFailedRetry' => 'Не удалось выполнить вход в один клик, проверьте сеть и повторите',
-			'splash.slogan' => 'Свободно общайтесь — легко и удобно',
-			'talkRecord.uploadProgressRegister' => 'Подготовка загрузки',
 			_ => null,
 		} ?? switch (path) {
+			'splash.slogan' => 'Свободно общайтесь — легко и удобно',
+			'talkRecord.uploadProgressRegister' => 'Подготовка загрузки',
 			'talkRecord.uploadProgressUpload' => 'Загрузка аудио',
 			'talkRecord.uploadProgressConfirm' => 'Подтверждение аудио',
 			'talkRecord.uploadProgressSubmitting' => 'Отправка для сохранения',

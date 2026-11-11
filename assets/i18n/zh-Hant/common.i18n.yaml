@@ -78,7 +78,7 @@ copy: 複製
 createGroupF2fConfirmTips: 這些朋友也將進入群組聊天
 createGroupF2fTips: 和身邊的朋友輸入同樣的四個數字，進入同一個群組聊天
 f2fSecretCode: 暗號
-f2fEnteringGroup(count): $count 人即將進入群組聊天
+f2fEnteringGroup(count): "$count 人已加入群組聊天"
 delete: '@:common.buttonDelete'
 deleteCollectConfirmDesc: 刪除後無法恢復，確定要刪除這則收藏嗎？
 deleteContact: 刪除聯絡人
@@ -939,3 +939,6 @@ legacyUploadOutboxCheck: "訊息可能已進入傳送佇列，請先檢查聊天
 legacyUploadRecoveryMismatch: "所選檔案與原檔案不一致或暫時無法恢復。"
 legacyUploadRecoveryContinues: "附件已恢復，正在繼續處理原訊息。"
 legacyUploadReturnToOriginalPage: "原上傳未完成，請返回原頁面重新選擇檔案並提交；原紀錄已保留。"
+
+f2fLocationRequired: "請開啟定位權限與定位服務，和身邊朋友一起重試"
+f2fMemberHint: "點選朋友頭像查看資料並加入好友"

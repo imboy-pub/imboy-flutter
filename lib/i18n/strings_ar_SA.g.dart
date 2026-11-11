@@ -1636,7 +1636,7 @@ class _Translations$common$ar_SA extends Translations$common$zh_CN {
 	@override String get purchaseConfirming => 'جارٍ تأكيد الدفع، تحقق من حالة الطلب لاحقاً';
 	@override String uploadPartialFailed({required Object count}) => 'فشل رفع ${count} عنصراً';
 	@override String get momentsHasFailedUploads => 'فشل رفع بعض الوسائط، أعد المحاولة أو أزلها ثم انشر';
-	@override String f2fEnteringGroup({required Object count}) => 'سيدخل ${count} أشخاص قريباً إلى الدردشة الجماعية';
+	@override String f2fEnteringGroup({required Object count}) => 'انضم ${count} أشخاص إلى الدردشة الجماعية';
 	@override String get f2fSecretCode => 'الرمز السري';
 	@override String get complianceKeyChangedTitle => 'تم تغيير مفتاح تدقيق الامتثال';
 	@override String get complianceKeyChangedActionConfirm => 'تأكيد التدوير';
@@ -1704,6 +1704,8 @@ class _Translations$common$ar_SA extends Translations$common$zh_CN {
 	@override String get legacyUploadRecoveryMismatch => 'الملف المحدد غير مطابق أو يتعذر الاستعادة.';
 	@override String get legacyUploadRecoveryContinues => 'تمت استعادة المرفق؛ يجري استكمال الرسالة الأصلية.';
 	@override String get legacyUploadReturnToOriginalPage => 'لم يكتمل الرفع. عُد إلى الصفحة الأصلية واختر الملف مجدداً ثم أرسله.';
+	@override String get f2fLocationRequired => 'فعّل إذن الموقع وخدمات الموقع، ثم حاول مجددًا مع الأصدقاء القريبين.';
+	@override String get f2fMemberHint => 'اضغط على صورة صديق لعرض ملفه الشخصي وإضافته.';
 }
 
 // Path: complaint
@@ -4957,7 +4959,7 @@ extension on TranslationsArSa {
 			'common.purchaseConfirming' => 'جارٍ تأكيد الدفع، تحقق من حالة الطلب لاحقاً',
 			'common.uploadPartialFailed' => ({required Object count}) => 'فشل رفع ${count} عنصراً',
 			'common.momentsHasFailedUploads' => 'فشل رفع بعض الوسائط، أعد المحاولة أو أزلها ثم انشر',
-			'common.f2fEnteringGroup' => ({required Object count}) => 'سيدخل ${count} أشخاص قريباً إلى الدردشة الجماعية',
+			'common.f2fEnteringGroup' => ({required Object count}) => 'انضم ${count} أشخاص إلى الدردشة الجماعية',
 			'common.f2fSecretCode' => 'الرمز السري',
 			'common.complianceKeyChangedTitle' => 'تم تغيير مفتاح تدقيق الامتثال',
 			'common.complianceKeyChangedActionConfirm' => 'تأكيد التدوير',
@@ -5027,6 +5029,8 @@ extension on TranslationsArSa {
 			'common.legacyUploadRecoveryMismatch' => 'الملف المحدد غير مطابق أو يتعذر الاستعادة.',
 			'common.legacyUploadRecoveryContinues' => 'تمت استعادة المرفق؛ يجري استكمال الرسالة الأصلية.',
 			'common.legacyUploadReturnToOriginalPage' => 'لم يكتمل الرفع. عُد إلى الصفحة الأصلية واختر الملف مجدداً ثم أرسله.',
+			'common.f2fLocationRequired' => 'فعّل إذن الموقع وخدمات الموقع، ثم حاول مجددًا مع الأصدقاء القريبين.',
+			'common.f2fMemberHint' => 'اضغط على صورة صديق لعرض ملفه الشخصي وإضافته.',
 			'complaint.complaint' => 'شكوى',
 			'complaint.e2eeConsentTitle' => 'تقديم دليل مشفّر',
 			'complaint.e2eeConsentBody' => 'هذه الرسالة مشفّرة من الطرف إلى الطرف ولا يمكن للخادم الاطلاع على محتواها. سيكشف تقديم مقتطف النص محتوى الرسالة المحدد للمشرفين لمراجعة البلاغ. هل توافق؟',
@@ -5509,10 +5513,10 @@ extension on TranslationsArSa {
 			'main.mySentTab' => 'المُرسلة',
 			'main.reject' => 'رفض',
 			'main.myOrders' => 'طلباتي',
-			'main.purchaseUnlockHint' => 'بعد الشراء يُفتح سجل رسائل القناة والتحديثات القادمة.',
-			'main.payingDots' => 'جارٍ الدفع...',
 			_ => null,
 		} ?? switch (path) {
+			'main.purchaseUnlockHint' => 'بعد الشراء يُفتح سجل رسائل القناة والتحديثات القادمة.',
+			'main.payingDots' => 'جارٍ الدفع...',
 			'main.purchaseAndUnlock' => 'شراء وفتح',
 			'main.orderDetail' => 'تفاصيل الطلب',
 			'main.orderAmountLabel' => ({required Object currency, required Object amount}) => 'المبلغ: ${currency} ${amount}',
@@ -6023,10 +6027,10 @@ extension on TranslationsArSa {
 			'passport.oneKeyNoSimCard' => 'الشبكة الحالية غير مدعومة أو لا توجد شريحة SIM في الهاتف',
 			'passport.cannotGetScreenSize' => 'تعذر الحصول على حجم الشاشة',
 			'passport.oneKeyFailedRetry' => 'فشل تسجيل الدخول بنقرة واحدة، تحقق من الشبكة وحاول مجددًا',
-			'splash.slogan' => 'تواصل بحرية وبدون قيود',
-			'talkRecord.uploadProgressRegister' => 'جارٍ تحضير الرفع',
 			_ => null,
 		} ?? switch (path) {
+			'splash.slogan' => 'تواصل بحرية وبدون قيود',
+			'talkRecord.uploadProgressRegister' => 'جارٍ تحضير الرفع',
 			'talkRecord.uploadProgressUpload' => 'جارٍ رفع الصوت',
 			'talkRecord.uploadProgressConfirm' => 'جارٍ تأكيد الصوت',
 			'talkRecord.uploadProgressSubmitting' => 'جارٍ إرسال الحفظ',

@@ -1628,7 +1628,7 @@ class _Translations$common$fr_FR extends Translations$common$zh_CN {
 	@override String get e2eeUseRecoveryKey => 'Générer une clé de récupération (secours en cas d\'oubli de la phrase secrète)';
 	@override String get enterAmount => 'Veuillez saisir le montant';
 	@override String get expandFull => 'Développer';
-	@override String f2fEnteringGroup({required Object count}) => '${count} personnes sur le point de rejoindre le groupe';
+	@override String f2fEnteringGroup({required Object count}) => '${count} personnes ont rejoint le groupe';
 	@override String get f2fSecretCode => 'Code secret';
 	@override String get hoursAgo => 'h';
 	@override String get initConfigDecryptFailed => 'Échec du déchiffrement de la configuration : la clé de sécurité de l\'application et celle du serveur ne correspondent pas. Mettez à jour l\'application ou contactez l\'administrateur';
@@ -1695,6 +1695,8 @@ class _Translations$common$fr_FR extends Translations$common$zh_CN {
 	@override String get legacyUploadRecoveryMismatch => 'Le fichier ne correspond pas ou la récupération est impossible.';
 	@override String get legacyUploadRecoveryContinues => 'Pièce jointe récupérée ; traitement du message initial en cours.';
 	@override String get legacyUploadReturnToOriginalPage => 'L’envoi est incomplet. Revenez à la page initiale, sélectionnez le fichier et validez.';
+	@override String get f2fLocationRequired => 'Activez la localisation et son autorisation, puis réessayez avec vos amis à proximité.';
+	@override String get f2fMemberHint => 'Touchez un avatar pour voir le profil et ajouter cet ami.';
 }
 
 // Path: complaint
@@ -4949,7 +4951,7 @@ extension on TranslationsFrFr {
 			'common.e2eeUseRecoveryKey' => 'Générer une clé de récupération (secours en cas d\'oubli de la phrase secrète)',
 			'common.enterAmount' => 'Veuillez saisir le montant',
 			'common.expandFull' => 'Développer',
-			'common.f2fEnteringGroup' => ({required Object count}) => '${count} personnes sur le point de rejoindre le groupe',
+			'common.f2fEnteringGroup' => ({required Object count}) => '${count} personnes ont rejoint le groupe',
 			'common.f2fSecretCode' => 'Code secret',
 			'common.hoursAgo' => 'h',
 			'common.initConfigDecryptFailed' => 'Échec du déchiffrement de la configuration : la clé de sécurité de l\'application et celle du serveur ne correspondent pas. Mettez à jour l\'application ou contactez l\'administrateur',
@@ -5018,6 +5020,8 @@ extension on TranslationsFrFr {
 			'common.legacyUploadRecoveryMismatch' => 'Le fichier ne correspond pas ou la récupération est impossible.',
 			'common.legacyUploadRecoveryContinues' => 'Pièce jointe récupérée ; traitement du message initial en cours.',
 			'common.legacyUploadReturnToOriginalPage' => 'L’envoi est incomplet. Revenez à la page initiale, sélectionnez le fichier et validez.',
+			'common.f2fLocationRequired' => 'Activez la localisation et son autorisation, puis réessayez avec vos amis à proximité.',
+			'common.f2fMemberHint' => 'Touchez un avatar pour voir le profil et ajouter cet ami.',
 			'complaint.complaint' => 'Plainte',
 			'complaint.e2eeConsentTitle' => 'Soumettre des preuves chiffrées',
 			'complaint.e2eeConsentBody' => 'Ce message est chiffré de bout en bout ; le serveur ne peut pas en voir le contenu. Soumettre un extrait divulguera le texte clair sélectionné aux modérateurs pour examen. Êtes-vous d\'accord ?',
@@ -5500,10 +5504,10 @@ extension on TranslationsFrFr {
 			'main.mySentTab' => 'Envoyées',
 			'main.reject' => 'Refuser',
 			'main.myOrders' => 'Commandes',
-			'main.purchaseUnlockHint' => 'Après achat, accédez à l\'historique et aux nouveautés du canal.',
-			'main.payingDots' => 'Paiement...',
 			_ => null,
 		} ?? switch (path) {
+			'main.purchaseUnlockHint' => 'Après achat, accédez à l\'historique et aux nouveautés du canal.',
+			'main.payingDots' => 'Paiement...',
 			'main.purchaseAndUnlock' => 'Acheter et déverrouiller',
 			'main.orderDetail' => 'Détails de la commande',
 			'main.orderAmountLabel' => ({required Object currency, required Object amount}) => 'Montant : ${currency} ${amount}',
@@ -6014,10 +6018,10 @@ extension on TranslationsFrFr {
 			'passport.oneKeyNoSimCard' => 'Le réseau actuel n\'est pas pris en charge ou le téléphone n\'a pas de carte SIM',
 			'passport.cannotGetScreenSize' => 'Impossible d\'obtenir la taille de l\'écran',
 			'passport.oneKeyFailedRetry' => 'Échec de la connexion en un clic, vérifiez le réseau et réessayez',
-			'splash.slogan' => 'Communiquez librement',
-			'talkRecord.uploadProgressRegister' => 'Préparation du transfert',
 			_ => null,
 		} ?? switch (path) {
+			'splash.slogan' => 'Communiquez librement',
+			'talkRecord.uploadProgressRegister' => 'Préparation du transfert',
 			'talkRecord.uploadProgressUpload' => 'Transfert audio',
 			'talkRecord.uploadProgressConfirm' => 'Confirmation audio',
 			'talkRecord.uploadProgressSubmitting' => 'Envoi pour enregistrement',

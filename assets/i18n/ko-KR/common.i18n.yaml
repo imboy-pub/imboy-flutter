@@ -869,7 +869,7 @@ e2eeRecoveryKeyTitle: 복구 키
 e2eeUseRecoveryKey: 복구 키 생성(암호 분실 시 대비용)
 enterAmount: 금액을 입력해 주세요
 expandFull: 펼치기
-f2fEnteringGroup(count): "$count명이 곧 그룹 채팅에 입장합니다"
+f2fEnteringGroup(count): "$count명이 그룹 채팅에 참여했습니다"
 f2fSecretCode: 암호
 hoursAgo: 시간 전
 initConfigDecryptFailed: "설정 복호화 실패: 앱과 서버의 보안 키가 일치하지 않습니다. 앱을 업데이트하거나 관리자에게 문의해 주세요"
@@ -939,3 +939,6 @@ legacyUploadOutboxCheck: "메시지가 이미 전송 대기 중일 수 있습니
 legacyUploadRecoveryMismatch: "선택한 파일이 일치하지 않거나 복구할 수 없습니다."
 legacyUploadRecoveryContinues: "첨부파일을 복구했습니다. 원래 메시지 처리를 계속합니다."
 legacyUploadReturnToOriginalPage: "업로드가 완료되지 않았습니다. 원래 화면에서 파일을 다시 선택하고 제출하세요。"
+
+f2fLocationRequired: "위치 권한과 서비스를 켠 후 주변 친구와 다시 시도하세요."
+f2fMemberHint: "친구의 프로필 사진을 눌러 프로필을 보고 친구로 추가하세요."
