@@ -560,6 +560,11 @@ class _Translations$chat$it_IT extends Translations$chat$zh_CN {
 	@override String get forwardTo => 'Inoltra a';
 	@override String get forwardToFriend => 'Inoltra ad amico';
 	@override String forwardedToChats({required Object count}) => 'Inoltrato a ${count} chat';
+	@override String batchForwardTargetLimit({required Object max}) => 'Seleziona al massimo ${max} chat';
+	@override String batchForwardProgress({required Object completed, required Object total}) => 'Inoltro ${completed}/${total}';
+	@override String batchForwardDone({required Object success, required Object failed}) => 'Inoltro completato: ${success} riusciti, ${failed} falliti';
+	@override String get batchForwardRetryFailed => 'Riprova solo i falliti';
+	@override String batchForwardLimitMessages({required Object max}) => 'Inoltra al massimo ${max} messaggi';
 	@override String get great => 'Eccellente';
 	@override String get groupFile => 'File del gruppo';
 	@override String get groupFileImagePreview => 'Anteprima immagine';
@@ -3892,6 +3897,11 @@ extension on TranslationsItIt {
 			'chat.forwardTo' => 'Inoltra a',
 			'chat.forwardToFriend' => 'Inoltra ad amico',
 			'chat.forwardedToChats' => ({required Object count}) => 'Inoltrato a ${count} chat',
+			'chat.batchForwardTargetLimit' => ({required Object max}) => 'Seleziona al massimo ${max} chat',
+			'chat.batchForwardProgress' => ({required Object completed, required Object total}) => 'Inoltro ${completed}/${total}',
+			'chat.batchForwardDone' => ({required Object success, required Object failed}) => 'Inoltro completato: ${success} riusciti, ${failed} falliti',
+			'chat.batchForwardRetryFailed' => 'Riprova solo i falliti',
+			'chat.batchForwardLimitMessages' => ({required Object max}) => 'Inoltra al massimo ${max} messaggi',
 			'chat.great' => 'Eccellente',
 			'chat.groupFile' => 'File del gruppo',
 			'chat.groupFileImagePreview' => 'Anteprima immagine',
@@ -3966,13 +3976,13 @@ extension on TranslationsItIt {
 			'chat.voice' => 'Voce',
 			'chat.voiceMessage' => 'Messaggio vocale',
 			'chat.youWithdrewAMessage' => 'Hai revocato un messaggio',
+			_ => null,
+		} ?? switch (path) {
 			'chat.formatCheck' => 'Controllo formato',
 			'chat.featureRequest' => 'Richiesta funzionalità',
 			'chat.chatResend' => 'Invia di nuovo',
 			'chat.profileExportProfile' => 'Esporta profilo',
 			'chat.momentsSend' => 'Invia',
-			_ => null,
-		} ?? switch (path) {
 			'chat.loginExpiredMessage' => 'Sessione scaduta, accedi di nuovo',
 			'chat.customImage' => 'Immagine personalizzata',
 			'chat.burnAfterReading' => 'Distruggi dopo la lettura',
@@ -4480,13 +4490,13 @@ extension on TranslationsItIt {
 			'common.deleteAccountActionDesc' => 'Elimina permanentemente l\'account e tutti i dati, questa azione non può essere annullata',
 			'common.chatHistoryCleared' => 'Cronologia delle chat cancellata',
 			'common.chatDeleteMessage' => 'Elimina messaggio',
+			_ => null,
+		} ?? switch (path) {
 			'common.chatCopy' => 'Copia',
 			'common.chatSaveImage' => 'Salva immagine',
 			'common.chatDeleteLocalOnly' => 'Elimina solo localmente',
 			'common.chatDeleteFailed' => 'Eliminazione non riuscita',
 			'common.chatNetworkErrorDeleteLocal' => 'Connessione di rete non riuscita, eliminare solo il messaggio locale?',
-			_ => null,
-		} ?? switch (path) {
 			'common.chatDeleteConfirm' => 'Sei sicuro di voler eliminare questo messaggio? Questa azione non può essere annullata.',
 			'common.chatDeleteOnlyLocal' => 'Elimina solo per te, ancora visibile agli altri',
 			'common.chatDeleteAll' => 'Elimina per tutti, non può essere annullato',
@@ -4994,13 +5004,13 @@ extension on TranslationsItIt {
 			'common.redPacketDialogSubtitle' => 'Buona fortuna e tanta prosperità',
 			'common.redPacketDialogTitle' => 'Ti ho inviato una busta rossa',
 			'common.redPacketFetchError' => 'Errore nel recupero dei dettagli della busta',
+			_ => null,
+		} ?? switch (path) {
 			'common.redPacketFetchFailed' => 'Impossibile recuperare i dettagli della busta',
 			'common.redPacketGreetingLabel' => 'Messaggio / auguri',
 			'common.redPacketNotFound' => 'La busta rossa non esiste o è stata eliminata',
 			'common.redPacketReceiverLabel' => ({required Object uid}) => 'Utente: ${uid}',
 			'common.redPacketSingleAmount' => 'Importo per busta',
-			_ => null,
-		} ?? switch (path) {
 			'common.redPacketStuffLucky' => 'Invia busta fortunata',
 			'common.redPacketStuffNormal' => 'Invia dal portafoglio',
 			'common.redPacketSwitchToLucky' => 'Passa a busta fortunata',
@@ -5508,13 +5518,13 @@ extension on TranslationsItIt {
 			'main.volumeDown' => 'Volume giù',
 			'main.fastRewind' => ({required Object seconds}) => 'Indietro veloce ${seconds} secondi',
 			'main.pleaseTryAgain' => 'Riprova',
+			_ => null,
+		} ?? switch (path) {
 			'main.secret' => 'Segreto',
 			'main.takePhoto' => 'Scatta foto',
 			'main.deletingInProgressPleaseWait' => 'Eliminazione in corso, attendere...',
 			'main.collecting' => 'Raccolta in corso...',
 			'main.user' => 'Utente',
-			_ => null,
-		} ?? switch (path) {
 			'main.recommended' => 'Consigliato',
 			'main.larger' => 'Più grande',
 			'main.fillIn' => 'Compila',
@@ -6022,13 +6032,13 @@ extension on TranslationsItIt {
 			'passport.oneKeyLogin' => 'Accesso rapido',
 			'passport.qrCodeExpired' => 'Codice QR scaduto, scansiona di nuovo',
 			'passport.qrCodeUsed' => 'Questo codice QR è già stato usato',
+			_ => null,
+		} ?? switch (path) {
 			'passport.qrConnecting' => 'Connessione in corso...',
 			'passport.qrLoginAction' => 'Conferma accesso',
 			'passport.qrLoginCancelled' => 'Accesso annullato',
 			'passport.qrLoginCancelledByMe' => 'Accesso annullato',
 			'passport.qrLoginConfirming' => 'Accesso in corso...',
-			_ => null,
-		} ?? switch (path) {
 			'passport.qrLoginSuccess' => 'Accesso riuscito',
 			'passport.qrWebLoginDesc' => 'Conferma se accedere a questo account dal client Web',
 			'passport.qrWebLoginTitle' => 'Conferma accesso dal Web',

@@ -560,6 +560,11 @@ class _Translations$chat$de_DE extends Translations$chat$zh_CN {
 	@override String get forwardTo => 'Weiterleiten an';
 	@override String get forwardToFriend => 'An Freund weiterleiten';
 	@override String forwardedToChats({required Object count}) => 'An ${count} Chats weitergeleitet';
+	@override String batchForwardTargetLimit({required Object max}) => 'Maximal ${max} Chats auswählen';
+	@override String batchForwardProgress({required Object completed, required Object total}) => 'Weiterleitung ${completed}/${total}';
+	@override String batchForwardDone({required Object success, required Object failed}) => 'Weiterleitung abgeschlossen: ${success} erfolgreich, ${failed} fehlgeschlagen';
+	@override String get batchForwardRetryFailed => 'Nur fehlgeschlagene wiederholen';
+	@override String batchForwardLimitMessages({required Object max}) => 'Maximal ${max} Nachrichten weiterleiten';
 	@override String get great => 'Ausgezeichnet';
 	@override String get groupFile => 'Gruppendateien';
 	@override String get groupFileImagePreview => 'Bildvorschau';
@@ -3892,6 +3897,11 @@ extension on TranslationsDeDe {
 			'chat.forwardTo' => 'Weiterleiten an',
 			'chat.forwardToFriend' => 'An Freund weiterleiten',
 			'chat.forwardedToChats' => ({required Object count}) => 'An ${count} Chats weitergeleitet',
+			'chat.batchForwardTargetLimit' => ({required Object max}) => 'Maximal ${max} Chats auswählen',
+			'chat.batchForwardProgress' => ({required Object completed, required Object total}) => 'Weiterleitung ${completed}/${total}',
+			'chat.batchForwardDone' => ({required Object success, required Object failed}) => 'Weiterleitung abgeschlossen: ${success} erfolgreich, ${failed} fehlgeschlagen',
+			'chat.batchForwardRetryFailed' => 'Nur fehlgeschlagene wiederholen',
+			'chat.batchForwardLimitMessages' => ({required Object max}) => 'Maximal ${max} Nachrichten weiterleiten',
 			'chat.great' => 'Ausgezeichnet',
 			'chat.groupFile' => 'Gruppendateien',
 			'chat.groupFileImagePreview' => 'Bildvorschau',
@@ -3966,13 +3976,13 @@ extension on TranslationsDeDe {
 			'chat.voice' => 'Sprache',
 			'chat.voiceMessage' => 'Sprachnachricht',
 			'chat.youWithdrewAMessage' => 'Sie haben eine Nachricht widerrufen',
+			_ => null,
+		} ?? switch (path) {
 			'chat.formatCheck' => 'Formatprüfung',
 			'chat.featureRequest' => 'Funktionsanfrage',
 			'chat.chatResend' => 'Erneut senden',
 			'chat.profileExportProfile' => 'Profil exportieren',
 			'chat.momentsSend' => 'Senden',
-			_ => null,
-		} ?? switch (path) {
 			'chat.loginExpiredMessage' => 'Anmeldung abgelaufen, bitte erneut anmelden',
 			'chat.customImage' => 'Benutzerdefiniertes Bild',
 			'chat.burnAfterReading' => 'Nach dem Lesen vernichten',
@@ -4480,13 +4490,13 @@ extension on TranslationsDeDe {
 			'common.deleteAccountActionDesc' => 'Konto und alle Daten dauerhaft löschen, diese Aktion kann nicht rückgängig gemacht werden',
 			'common.chatHistoryCleared' => 'Chat-Verlauf gelöscht',
 			'common.chatDeleteMessage' => 'Nachricht löschen',
+			_ => null,
+		} ?? switch (path) {
 			'common.chatCopy' => 'Kopieren',
 			'common.chatSaveImage' => 'Bild speichern',
 			'common.chatDeleteLocalOnly' => 'Nur lokal löschen',
 			'common.chatDeleteFailed' => 'Löschen fehlgeschlagen',
 			'common.chatNetworkErrorDeleteLocal' => 'Netzwerkverbindung fehlgeschlagen, nur lokale Nachricht löschen?',
-			_ => null,
-		} ?? switch (path) {
 			'common.chatDeleteConfirm' => 'Diese Nachricht wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden.',
 			'common.chatDeleteOnlyLocal' => 'Nur für Sie löschen, für andere weiterhin sichtbar',
 			'common.chatDeleteAll' => 'Für alle löschen, kann nicht rückgängig gemacht werden',
@@ -4994,13 +5004,13 @@ extension on TranslationsDeDe {
 			'common.redPacketDialogSubtitle' => 'Viel Glück und großen Reichtum',
 			'common.redPacketDialogTitle' => 'Ein Geschenk für Sie',
 			'common.redPacketFetchError' => 'Fehler beim Laden der Geschenk-Details',
+			_ => null,
+		} ?? switch (path) {
 			'common.redPacketFetchFailed' => 'Geschenk-Details konnten nicht geladen werden',
 			'common.redPacketGreetingLabel' => 'Nachricht / Glückwünsche',
 			'common.redPacketNotFound' => 'Geschenk nicht gefunden oder bereits gelöscht',
 			'common.redPacketReceiverLabel' => ({required Object uid}) => 'Nutzer: ${uid}',
 			'common.redPacketSingleAmount' => 'Einzelnbetrag',
-			_ => null,
-		} ?? switch (path) {
 			'common.redPacketStuffLucky' => 'Zufallsbeträge verteilen',
 			'common.redPacketStuffNormal' => 'Festbetrag senden',
 			'common.redPacketSwitchToLucky' => 'Zu Zufallsbetrag wechseln',
@@ -5508,13 +5518,13 @@ extension on TranslationsDeDe {
 			'main.volumeDown' => 'Lautstärke verringern',
 			'main.fastRewind' => ({required Object seconds}) => 'Schnell zurück ${seconds} Sekunden',
 			'main.pleaseTryAgain' => 'Bitte versuchen Sie es erneut',
+			_ => null,
+		} ?? switch (path) {
 			'main.secret' => 'Geheim',
 			'main.takePhoto' => 'Foto aufnehmen',
 			'main.deletingInProgressPleaseWait' => 'Wird gelöscht, bitte warten...',
 			'main.collecting' => 'Wird favorisiert...',
 			'main.user' => 'Benutzer',
-			_ => null,
-		} ?? switch (path) {
 			'main.recommended' => 'Empfohlen',
 			'main.larger' => 'Größer',
 			'main.fillIn' => 'Ausfüllen',
@@ -6022,13 +6032,13 @@ extension on TranslationsDeDe {
 			'passport.oneKeyLogin' => 'Schnellanmeldung',
 			'passport.qrCodeExpired' => 'QR-Code abgelaufen, bitte neu scannen',
 			'passport.qrCodeUsed' => 'Dieser QR-Code wurde bereits verwendet',
+			_ => null,
+		} ?? switch (path) {
 			'passport.qrConnecting' => 'Verbindung wird hergestellt...',
 			'passport.qrLoginAction' => 'Anmeldung bestätigen',
 			'passport.qrLoginCancelled' => 'Anmeldung wurde abgebrochen',
 			'passport.qrLoginCancelledByMe' => 'Sie haben die Anmeldung abgebrochen',
 			'passport.qrLoginConfirming' => 'Anmeldung läuft...',
-			_ => null,
-		} ?? switch (path) {
 			'passport.qrLoginSuccess' => 'Angemeldet',
 			'passport.qrWebLoginDesc' => 'Bitte bestätigen Sie die Anmeldung dieses Kontos im Web',
 			'passport.qrWebLoginTitle' => 'Web-Anmeldung bestätigen',

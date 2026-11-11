@@ -560,6 +560,11 @@ class _Translations$chat$ko_KR extends Translations$chat$zh_CN {
 	@override String get forwardTo => '전달 대상';
 	@override String get forwardToFriend => '친구에게 전달';
 	@override String forwardedToChats({required Object count}) => '${count}개의 대화에 전달했습니다';
+	@override String batchForwardTargetLimit({required Object max}) => '최대 ${max}개의 대화를 선택할 수 있습니다';
+	@override String batchForwardProgress({required Object completed, required Object total}) => '전달 중 ${completed}/${total}';
+	@override String batchForwardDone({required Object success, required Object failed}) => '전달 완료: 성공 ${success}, 실패 ${failed}';
+	@override String get batchForwardRetryFailed => '실패 항목만 재시도';
+	@override String batchForwardLimitMessages({required Object max}) => '최대 ${max}개의 메시지를 전달할 수 있습니다';
 	@override String get great => '매우 좋음';
 	@override String get groupFile => '그룹 파일';
 	@override String get groupFileImagePreview => '이미지 미리보기';
@@ -3889,6 +3894,11 @@ extension on TranslationsKoKr {
 			'chat.forwardTo' => '전달 대상',
 			'chat.forwardToFriend' => '친구에게 전달',
 			'chat.forwardedToChats' => ({required Object count}) => '${count}개의 대화에 전달했습니다',
+			'chat.batchForwardTargetLimit' => ({required Object max}) => '최대 ${max}개의 대화를 선택할 수 있습니다',
+			'chat.batchForwardProgress' => ({required Object completed, required Object total}) => '전달 중 ${completed}/${total}',
+			'chat.batchForwardDone' => ({required Object success, required Object failed}) => '전달 완료: 성공 ${success}, 실패 ${failed}',
+			'chat.batchForwardRetryFailed' => '실패 항목만 재시도',
+			'chat.batchForwardLimitMessages' => ({required Object max}) => '최대 ${max}개의 메시지를 전달할 수 있습니다',
 			'chat.great' => '매우 좋음',
 			'chat.groupFile' => '그룹 파일',
 			'chat.groupFileImagePreview' => '이미지 미리보기',
@@ -3963,13 +3973,13 @@ extension on TranslationsKoKr {
 			'chat.voice' => '음성',
 			'chat.voiceMessage' => '음성 메시지',
 			'chat.youWithdrewAMessage' => '메시지를 회수했습니다',
+			_ => null,
+		} ?? switch (path) {
 			'chat.formatCheck' => '형식 검사',
 			'chat.featureRequest' => '기능 요청',
 			'chat.chatResend' => '재전송',
 			'chat.profileExportProfile' => '프로필 내보내기',
 			'chat.momentsSend' => '전송',
-			_ => null,
-		} ?? switch (path) {
 			'chat.loginExpiredMessage' => '로그인이 만료되었습니다. 다시 로그인하세요',
 			'chat.customImage' => '사용자 지정 이미지',
 			'chat.burnAfterReading' => '읽은 후 자동 삭제',
@@ -4477,13 +4487,13 @@ extension on TranslationsKoKr {
 			'common.deleteAccountActionDesc' => '계정과 모든 데이터를 영구 삭제합니다. 되돌릴 수 없습니다.',
 			'common.chatHistoryCleared' => '채팅 기록이 삭제되었습니다',
 			'common.chatDeleteMessage' => '메시지 삭제',
+			_ => null,
+		} ?? switch (path) {
 			'common.chatCopy' => '복사',
 			'common.chatSaveImage' => '이미지 저장',
 			'common.chatDeleteLocalOnly' => '로컬만 삭제',
 			'common.chatDeleteFailed' => '삭제 실패',
 			'common.chatNetworkErrorDeleteLocal' => '네트워크 연결 실패, 로컬 메시지만 삭제하시겠습니까?',
-			_ => null,
-		} ?? switch (path) {
 			'common.chatDeleteConfirm' => '이 메시지를 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.',
 			'common.chatDeleteOnlyLocal' => '나만 삭제, 상대방에게는 여전히 표시',
 			'common.chatDeleteAll' => '모든 사용자의 채팅에서 삭제, 되돌릴 수 없음',
@@ -4991,13 +5001,13 @@ extension on TranslationsKoKr {
 			'common.redPacketDialogSubtitle' => '좋은 일이 가득하길, 복 많이 받으세요',
 			'common.redPacketDialogTitle' => '복주머니가 도착했습니다',
 			'common.redPacketFetchError' => '복주머니 상세 조회 오류',
+			_ => null,
+		} ?? switch (path) {
 			'common.redPacketFetchFailed' => '복주머니 상세를 불러오지 못했습니다',
 			'common.redPacketGreetingLabel' => '메시지 / 축하 문구',
 			'common.redPacketNotFound' => '복주머니가 없거나 삭제되었습니다',
 			'common.redPacketReceiverLabel' => ({required Object uid}) => '사용자: ${uid}',
 			'common.redPacketSingleAmount' => '개별 금액',
-			_ => null,
-		} ?? switch (path) {
 			'common.redPacketStuffLucky' => '금액을 넣어 복주머니 보내기',
 			'common.redPacketStuffNormal' => '지갑에 넣어 보내기',
 			'common.redPacketSwitchToLucky' => '랜덤 복주머니로 변경',
@@ -5505,13 +5515,13 @@ extension on TranslationsKoKr {
 			'main.volumeDown' => '볼륨 낮추기',
 			'main.fastRewind' => ({required Object seconds}) => '${seconds}초 되감기',
 			'main.pleaseTryAgain' => '다시 시도해 주세요',
+			_ => null,
+		} ?? switch (path) {
 			'main.secret' => '비공개',
 			'main.takePhoto' => '사진 촬영',
 			'main.deletingInProgressPleaseWait' => '삭제 중입니다. 잠시 기다려 주세요...',
 			'main.collecting' => '수집 중...',
 			'main.user' => '사용자',
-			_ => null,
-		} ?? switch (path) {
 			'main.recommended' => '추천',
 			'main.larger' => '더 크게',
 			'main.fillIn' => '입력',
@@ -6019,13 +6029,13 @@ extension on TranslationsKoKr {
 			'passport.oneKeyLogin' => '원클릭 로그인',
 			'passport.qrCodeExpired' => 'QR코드가 만료되었습니다. 다시 스캔해 주세요',
 			'passport.qrCodeUsed' => '이 QR코드는 이미 사용되었습니다',
+			_ => null,
+		} ?? switch (path) {
 			'passport.qrConnecting' => '연결 중...',
 			'passport.qrLoginAction' => '로그인 확인',
 			'passport.qrLoginCancelled' => '로그인이 취소되었습니다',
 			'passport.qrLoginCancelledByMe' => '로그인을 취소했습니다',
 			'passport.qrLoginConfirming' => '로그인 중...',
-			_ => null,
-		} ?? switch (path) {
 			'passport.qrLoginSuccess' => '로그인 성공',
 			'passport.qrWebLoginDesc' => '웹에서 이 계정으로 로그인하려 합니다. 확인해 주세요',
 			'passport.qrWebLoginTitle' => '웹 로그인 확인',

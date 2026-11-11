@@ -25,6 +25,11 @@ forward: Transférer
 forwardTo: Transférer à
 forwardToFriend: Transférer à un ami
 forwardedToChats: "Transféré à $count conversations"
+batchForwardTargetLimit(max): Sélectionnez au maximum $max conversations
+batchForwardProgress(completed, total): "Transfert $completed/$total"
+batchForwardDone(success, failed): "Transfert terminé : $success réussi(s), $failed échoué(s)"
+batchForwardRetryFailed: Réessayer uniquement les échecs
+batchForwardLimitMessages(max): Transférez au maximum $max messages
 great: Excellent
 groupFile: Fichiers du groupe
 groupFileImagePreview: Aperçu image

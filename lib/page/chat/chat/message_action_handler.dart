@@ -277,4 +277,21 @@ class MessageActionHandler {
       ),
     );
   }
+
+  /// 批量转发消息（chat_multi_select_v1 / W2-F）
+  ///
+  /// 多选 action bar 的逐条转发入口：打开批量模式 SendToPage（目标多选 +
+  /// 协调器串行调度 + 进度/汇总/仅失败重试）。50 条消息上限等入口校验
+  /// 由多选状态（100 条上限）与调用方负责；单条路径 [forwardMessage]
+  /// 行为保持不变。
+  void forwardMessages(BuildContext context, List<Message> messages) {
+    if (messages.isEmpty) return;
+    showCupertinoModalPopup<void>(
+      context: context,
+      builder: (context) => Padding(
+        padding: const EdgeInsets.only(top: AppSpacing.xLarge),
+        child: SendToPage.batch(messages: messages),
+      ),
+    );
+  }
 }

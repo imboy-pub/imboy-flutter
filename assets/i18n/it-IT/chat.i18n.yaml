@@ -25,6 +25,11 @@ forward: Inoltra
 forwardTo: Inoltra a
 forwardToFriend: Inoltra ad amico
 forwardedToChats: "Inoltrato a $count chat"
+batchForwardTargetLimit(max): Seleziona al massimo $max chat
+batchForwardProgress(completed, total): "Inoltro $completed/$total"
+batchForwardDone(success, failed): "Inoltro completato: $success riusciti, $failed falliti"
+batchForwardRetryFailed: Riprova solo i falliti
+batchForwardLimitMessages(max): Inoltra al massimo $max messaggi
 great: Eccellente
 groupFile: File del gruppo
 groupFileImagePreview: Anteprima immagine

@@ -560,6 +560,11 @@ class _Translations$chat$ja_JP extends Translations$chat$zh_CN {
 	@override String get forwardTo => '転送先';
 	@override String get forwardToFriend => '友達に転送';
 	@override String forwardedToChats({required Object count}) => '${count} 件のチャットに転送しました';
+	@override String batchForwardTargetLimit({required Object max}) => '最大 ${max} 件のトークを選択できます';
+	@override String batchForwardProgress({required Object completed, required Object total}) => '転送中 ${completed}/${total}';
+	@override String batchForwardDone({required Object success, required Object failed}) => '転送完了：成功 ${success}、失敗 ${failed}';
+	@override String get batchForwardRetryFailed => '失敗分のみ再試行';
+	@override String batchForwardLimitMessages({required Object max}) => '最大 ${max} 件のメッセージを転送できます';
 	@override String get great => '素晴らしい';
 	@override String get groupFile => 'グループファイル';
 	@override String get groupFileImagePreview => '画像プレビュー';
@@ -3889,6 +3894,11 @@ extension on TranslationsJaJp {
 			'chat.forwardTo' => '転送先',
 			'chat.forwardToFriend' => '友達に転送',
 			'chat.forwardedToChats' => ({required Object count}) => '${count} 件のチャットに転送しました',
+			'chat.batchForwardTargetLimit' => ({required Object max}) => '最大 ${max} 件のトークを選択できます',
+			'chat.batchForwardProgress' => ({required Object completed, required Object total}) => '転送中 ${completed}/${total}',
+			'chat.batchForwardDone' => ({required Object success, required Object failed}) => '転送完了：成功 ${success}、失敗 ${failed}',
+			'chat.batchForwardRetryFailed' => '失敗分のみ再試行',
+			'chat.batchForwardLimitMessages' => ({required Object max}) => '最大 ${max} 件のメッセージを転送できます',
 			'chat.great' => '素晴らしい',
 			'chat.groupFile' => 'グループファイル',
 			'chat.groupFileImagePreview' => '画像プレビュー',
@@ -3963,13 +3973,13 @@ extension on TranslationsJaJp {
 			'chat.voice' => '音声',
 			'chat.voiceMessage' => '音声メッセージ',
 			'chat.youWithdrewAMessage' => 'あなたがメッセージを取り消しました',
+			_ => null,
+		} ?? switch (path) {
 			'chat.formatCheck' => '形式チェック',
 			'chat.featureRequest' => '機能リクエスト',
 			'chat.chatResend' => '再送信',
 			'chat.profileExportProfile' => 'プロフィールをエクスポート',
 			'chat.momentsSend' => '送信',
-			_ => null,
-		} ?? switch (path) {
 			'chat.loginExpiredMessage' => 'ログインの有効期限が切れました。再度ログインしてください',
 			'chat.customImage' => 'カスタム画像',
 			'chat.burnAfterReading' => '閲覧後自動削除',
@@ -4477,13 +4487,13 @@ extension on TranslationsJaJp {
 			'common.deleteAccountActionDesc' => 'アカウントとすべてのデータを完全に削除します。この操作は取り消せません',
 			'common.chatHistoryCleared' => 'チャット履歴を消去しました',
 			'common.chatDeleteMessage' => 'メッセージを削除',
+			_ => null,
+		} ?? switch (path) {
 			'common.chatCopy' => 'コピー',
 			'common.chatSaveImage' => '画像を保存',
 			'common.chatDeleteLocalOnly' => 'ローカルのみ削除',
 			'common.chatDeleteFailed' => '削除に失敗しました',
 			'common.chatNetworkErrorDeleteLocal' => 'ネットワーク接続に失敗しました。ローカルメッセージのみ削除しますか？',
-			_ => null,
-		} ?? switch (path) {
 			'common.chatDeleteConfirm' => 'このメッセージを削除してもよろしいですか？この操作は取り消せません。',
 			'common.chatDeleteOnlyLocal' => '自分のみ削除、相手には表示されます',
 			'common.chatDeleteAll' => 'すべてのユーザーのチャットから削除、取り消せません',
@@ -4991,13 +5001,13 @@ extension on TranslationsJaJp {
 			'common.redPacketFetchFailed' => 'お年玉の詳細を取得できませんでした',
 			'common.redPacketGreetingLabel' => 'メッセージ / 祝いの言葉',
 			'common.redPacketNotFound' => 'お年玉が存在しないか、削除されました',
+			_ => null,
+		} ?? switch (path) {
 			'common.redPacketReceiverLabel' => ({required Object uid}) => 'ユーザー：${uid}',
 			'common.redPacketSingleAmount' => '1個あたりの金額',
 			'common.redPacketStuffLucky' => 'お年玉に金額を設定',
 			'common.redPacketStuffNormal' => 'ウォレットから送る',
 			'common.redPacketSwitchToLucky' => 'ランダムお年玉に変更',
-			_ => null,
-		} ?? switch (path) {
 			'common.redPacketSwitchToNormal' => '均等お年玉に変更',
 			'common.redPacketTotalAmount' => '合計金額',
 			'common.redPacketView' => 'お年玉を見る',
@@ -5505,13 +5515,13 @@ extension on TranslationsJaJp {
 			'main.volumeDown' => '音量を下げる',
 			'main.fastRewind' => ({required Object seconds}) => '巻き戻し ${seconds}秒',
 			'main.pleaseTryAgain' => 'もう一度お試しください',
+			_ => null,
+		} ?? switch (path) {
 			'main.secret' => '秘密',
 			'main.takePhoto' => '写真を撮る',
 			'main.deletingInProgressPleaseWait' => '削除中です。お待ちください...',
 			'main.collecting' => 'コレクション中...',
 			'main.user' => 'ユーザー',
-			_ => null,
-		} ?? switch (path) {
 			'main.recommended' => '推奨',
 			'main.larger' => 'より大きい',
 			'main.fillIn' => '入力',
@@ -6019,13 +6029,13 @@ extension on TranslationsJaJp {
 			'passport.oneKeyLogin' => 'ワンタップログイン',
 			'passport.qrCodeExpired' => 'QRコードの有効期限が切れました。もう一度スキャンしてください',
 			'passport.qrCodeUsed' => 'このQRコードは使用済みです',
+			_ => null,
+		} ?? switch (path) {
 			'passport.qrConnecting' => '接続中...',
 			'passport.qrLoginAction' => 'ログインを承認',
 			'passport.qrLoginCancelled' => 'ログインがキャンセルされました',
 			'passport.qrLoginCancelledByMe' => 'ログインをキャンセルしました',
 			'passport.qrLoginConfirming' => 'ログイン中...',
-			_ => null,
-		} ?? switch (path) {
 			'passport.qrLoginSuccess' => 'ログインしました',
 			'passport.qrWebLoginDesc' => 'このアカウントでのWeb版ログインを確認してください',
 			'passport.qrWebLoginTitle' => 'Web版ログインの確認',

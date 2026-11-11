@@ -20,6 +20,11 @@ forward: Forward
 forwardTo: Forward to
 forwardToFriend: Forward to friend
 forwardedToChats: "Forwarded to $count chats"
+batchForwardTargetLimit(max): Select up to $max chats
+batchForwardProgress(completed, total): "Forwarding $completed/$total"
+batchForwardDone(success, failed): "Forward complete: $success succeeded, $failed failed"
+batchForwardRetryFailed: Retry failed only
+batchForwardLimitMessages(max): Forward up to $max messages
 great: Excellent
 groupFile: Group Files
 groupFileImagePreview: Image preview

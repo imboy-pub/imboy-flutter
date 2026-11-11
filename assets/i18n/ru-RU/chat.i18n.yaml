@@ -25,6 +25,11 @@ forward: Переслать
 forwardTo: Переслать
 forwardToFriend: Переслать другу
 forwardedToChats: "Переслано в $count чатов"
+batchForwardTargetLimit(max): Можно выбрать не более $max чатов
+batchForwardProgress(completed, total): "Пересылка $completed/$total"
+batchForwardDone(success, failed): "Пересылка завершена: успешно $success, не удалось $failed"
+batchForwardRetryFailed: Повторить только неудачные
+batchForwardLimitMessages(max): Можно переслать не более $max сообщений
 great: Превосходно
 groupFile: Файлы группы
 groupFileImagePreview: Просмотр изображения

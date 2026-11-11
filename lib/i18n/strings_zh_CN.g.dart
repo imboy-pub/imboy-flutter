@@ -1591,6 +1591,21 @@ class Translations$chat$zh_CN {
 	/// zh-CN: '已转发给 $count 个会话'
 	String forwardedToChats({required Object count}) => '已转发给 ${count} 个会话';
 
+	/// zh-CN: '最多选择 $max 个会话'
+	String batchForwardTargetLimit({required Object max}) => '最多选择 ${max} 个会话';
+
+	/// zh-CN: '正在转发 $completed/$total'
+	String batchForwardProgress({required Object completed, required Object total}) => '正在转发 ${completed}/${total}';
+
+	/// zh-CN: '转发完成：成功 $success，失败 $failed'
+	String batchForwardDone({required Object success, required Object failed}) => '转发完成：成功 ${success}，失败 ${failed}';
+
+	/// zh-CN: '仅重试失败'
+	String get batchForwardRetryFailed => '仅重试失败';
+
+	/// zh-CN: '最多转发 $max 条消息'
+	String batchForwardLimitMessages({required Object max}) => '最多转发 ${max} 条消息';
+
 	/// zh-CN: '非常棒'
 	String get great => '非常棒';
 
@@ -11591,6 +11606,11 @@ extension on Translations {
 			'chat.forwardTo' => '转发给',
 			'chat.forwardToFriend' => '转发给朋友',
 			'chat.forwardedToChats' => ({required Object count}) => '已转发给 ${count} 个会话',
+			'chat.batchForwardTargetLimit' => ({required Object max}) => '最多选择 ${max} 个会话',
+			'chat.batchForwardProgress' => ({required Object completed, required Object total}) => '正在转发 ${completed}/${total}',
+			'chat.batchForwardDone' => ({required Object success, required Object failed}) => '转发完成：成功 ${success}，失败 ${failed}',
+			'chat.batchForwardRetryFailed' => '仅重试失败',
+			'chat.batchForwardLimitMessages' => ({required Object max}) => '最多转发 ${max} 条消息',
 			'chat.great' => '非常棒',
 			'chat.groupFile' => '群文件',
 			'chat.groupFileImagePreview' => '图片预览',
@@ -11609,13 +11629,13 @@ extension on Translations {
 			'chat.groupFileCategoryVideo' => '视频',
 			'chat.groupFileCategoryAudio' => '音频',
 			'chat.groupFileCategoryOther' => '其他',
+			_ => null,
+		} ?? switch (path) {
 			'chat.groupChat' => '群聊',
 			'chat.image' => '图片',
 			'chat.imageMessage' => '[图片]',
 			'chat.initiateChat' => '发起群聊',
 			'chat.exportMyData' => '导出我的数据',
-			_ => null,
-		} ?? switch (path) {
 			'chat.exportDataDesc' => '导出你的个人信息、联系人和聊天记录',
 			'chat.customMessage' => '自定义消息',
 			'chat.card' => '名片',
@@ -12123,13 +12143,13 @@ extension on Translations {
 			'common.waitingPeerAccept' => '等待对方接受邀请...',
 			'common.warning' => '警告:',
 			'common.webpageLoading' => '网页加载中...',
+			_ => null,
+		} ?? switch (path) {
 			'common.yesterday' => '昨天',
 			'common.confirmRemoveFromDenylist' => '确认将此用户移出黑名单？',
 			'common.buttonRemove' => '移出',
 			'common.removedFromDenylist' => '已移出黑名单',
 			'common.newEmailAddress' => '新邮箱地址',
-			_ => null,
-		} ?? switch (path) {
 			'common.emailAddress' => '邮箱地址',
 			'common.enterEmailAddress' => '请输入邮箱地址',
 			'common.getVerificationCode' => '获取验证码',
@@ -12637,13 +12657,13 @@ extension on Translations {
 			'common.initConfigTimeout' => '配置获取超时：请检查网络连接或服务端状态',
 			'common.initConfigNetworkError' => ({required Object code}) => '网络故障或服务故障 (HTTP ${code})',
 			'common.initConfigProtocolError' => '服务故障协议有误',
+			_ => null,
+		} ?? switch (path) {
 			'common.initConfigFetchFailed' => '配置获取失败，请检查网络连接',
 			'common.initConfigDecryptFailed' => '配置解密失败：应用与服务端安全密钥不一致，请更新应用版本或联系管理员',
 			'common.saveFailedRetry' => '保存失败，请重试',
 			'common.downloadFileNotFound' => '下载文件不存在，请重试',
 			'common.downloadHashRetrying' => ({required Object retry, required Object max}) => '文件校验失败，正在重新下载 (${retry}/${max})',
-			_ => null,
-		} ?? switch (path) {
 			'common.downloadHashFailed' => '文件多次校验失败，请检查网络后重试',
 			'common.buttonBackHome' => '返回首页',
 			'common.featureNotEnabled' => '当前功能未启用',
@@ -13151,13 +13171,13 @@ extension on Translations {
 			'group.noEligibleSuccessor' => '暂无可转让的成员',
 			'groupCategory.title' => '群分组',
 			'groupCategory.createCategory' => '创建分组',
+			_ => null,
+		} ?? switch (path) {
 			'groupCategory.categoryName' => '分组名称',
 			'groupCategory.noCategory' => '暂无分组',
 			'groupCategory.deleteCategory' => '删除分组',
 			'groupCategory.deleteCategoryConfirm' => '确定要删除该分组吗？群聊不会被删除。',
 			'groupCategory.categoryDeleted' => '分组已删除',
-			_ => null,
-		} ?? switch (path) {
 			'groupCategory.renameCategory' => '重命名分组',
 			'groupCategory.categoryRenamed' => '分组重命名成功',
 			'groupCategory.renameFailed' => '重命名失败，请重试',
@@ -13665,13 +13685,13 @@ extension on Translations {
 			'organization.picker.joinCodeLabel' => '企业邀请码',
 			'organization.picker.joinSubmit' => '加入',
 			'organization.picker.joinInvalidCode' => '企业邀请码无效或已失效',
+			_ => null,
+		} ?? switch (path) {
 			'organization.picker.joinExpiredCode' => '企业邀请码已过期',
 			'organization.picker.joinFailed' => ({required Object msg}) => '加入失败：${msg}',
 			'organization.picker.joinScanQr' => '扫码加入',
 			'organization.picker.joinCodeOnlyHint' => '输入 8 位企业邀请码',
 			'organization.picker.joinConfirmTitle' => '确认加入企业',
-			_ => null,
-		} ?? switch (path) {
 			'organization.picker.joinConfirmWith' => ({required Object name}) => '将加入企业「${name}」',
 			'organization.picker.joinConfirmWithRole' => ({required Object role, required Object name}) => '确认以 ${role} 身份加入「${name}」？',
 			'organization.picker.joinRoleMember' => '普通成员',
@@ -14179,13 +14199,13 @@ extension on Translations {
 			'talkRecord.exportQueuedTitle' => '导出排队中',
 			'talkRecord.exportQueuedBody' => '已提交生成请求；排队不代表已生成完成，可稍后刷新状态。',
 			'talkRecord.exportRefreshState' => '刷新状态',
+			_ => null,
+		} ?? switch (path) {
 			'talkRecord.exportReadyTitle' => '导出已就绪',
 			'talkRecord.exportReadyBody' => '可下载导出文件；下载链接短期有效，到期后需重新生成。',
 			'talkRecord.exportExpiresAt' => ({required Object date}) => '有效期至 ${date}',
 			'talkRecord.exportRemaining' => ({required Object minutes}) => '剩余约 ${minutes} 分钟',
 			'talkRecord.exportDownload' => '保存导出文件',
-			_ => null,
-		} ?? switch (path) {
 			'talkRecord.exportDownloading' => '正在下载并准备保存…',
 			'talkRecord.exportDownloadReady' => '文件已保存；这是独立副本，撤销权限不会删除该副本。',
 			'talkRecord.exportDownloadFailed' => '下载或保存失败，可重试',

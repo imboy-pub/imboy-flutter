@@ -25,6 +25,11 @@ forward: 전달
 forwardTo: 전달 대상
 forwardToFriend: 친구에게 전달
 forwardedToChats: "$count개의 대화에 전달했습니다"
+batchForwardTargetLimit(max): 최대 $max개의 대화를 선택할 수 있습니다
+batchForwardProgress(completed, total): "전달 중 $completed/$total"
+batchForwardDone(success, failed): "전달 완료: 성공 $success, 실패 $failed"
+batchForwardRetryFailed: 실패 항목만 재시도
+batchForwardLimitMessages(max): 최대 $max개의 메시지를 전달할 수 있습니다
 great: 매우 좋음
 groupFile: 그룹 파일
 groupFileImagePreview: 이미지 미리보기

@@ -11,15 +11,41 @@ import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:imboy/theme/default/font_types.dart';
 
+import 'batch_forward_coordinator.dart';
 import 'send_to_provider.dart';
 
 import 'package:imboy/store/model/conversation_model.dart';
+import 'package:imboy/store/model/message_model.dart';
 
 /// 发送给 页面
+///
+/// 两种请求形态（chat_multi_select_v1 / W2-F）：
+/// - 单条（默认构造 `SendToPage(msg: ...)`，含 `onConfirmedSend` 注入）：
+///   既有行为零变化；
+/// - 批量逐条转发（`SendToPage.batch(messages: ...)`）：复用同一联系人
+///   多选 UI，目标上限 [kBatchForwardMaxTargets]（第 10 个拒绝选择）；
+///   确认后交给 [BatchForwardCoordinator] 全串行调度，提供进度、
+///   成功/失败汇总与「仅重试失败」。
 class SendToPage extends ConsumerStatefulWidget {
-  final Message msg;
+  /// 单条模式的源消息；批量模式为 null。
+  final Message? msg;
+
+  /// 批量模式（W2-F）的源消息列表；单条模式为 null。
+  final List<Message>? batchMessages;
+
   final Future<bool> Function(List<ConversationModel>)? onConfirmedSend;
-  const SendToPage({super.key, required this.msg, this.onConfirmedSend});
+
+  const SendToPage({super.key, required Message this.msg, this.onConfirmedSend})
+    : batchMessages = null;
+
+  /// 批量逐条转发构造（chat_multi_select_v1 / W2-F）。
+  const SendToPage.batch({super.key, required List<Message> messages})
+    : msg = null,
+      batchMessages = messages,
+      onConfirmedSend = null;
+
+  /// 是否批量逐条转发模式。
+  bool get isBatch => batchMessages != null;
 
   @override
   ConsumerState<SendToPage> createState() => _SendToPageState();
@@ -29,11 +55,27 @@ class _SendToPageState extends ConsumerState<SendToPage> {
   final TextEditingController _searchController = TextEditingController();
   bool _confirming = false;
 
+  // ---- 批量逐条转发状态（chat_multi_select_v1 / W2-F）----
+  BatchForwardCoordinator? _coordinator;
+  BatchForwardReport? _lastReport;
+  List<ConversationModel> _lastTargets = const [];
+  List<MessageModel> _lastModels = const [];
+  bool _batchRunning = false;
+  int _completed = 0;
+  int _total = 0;
+
+  /// 单元 key → 最近一次结果。首次 run 整体填充；「仅重试失败」只覆盖
+  /// 被重试的单元，成功单元保持首次结果，汇总即整批口径。
+  Map<String, ForwardItemResult> _mergedResults = const {};
+
+  int _mergedCount(ForwardUnitStatus status) =>
+      _mergedResults.values.where((r) => r.status == status).length;
+
   @override
   void initState() {
     super.initState();
     Future.microtask(() async {
-      if (widget.onConfirmedSend != null) {
+      if (widget.onConfirmedSend != null || widget.isBatch) {
         ref.read(sendToProvider.notifier).clearSelection();
       }
       await ref.read(sendToProvider.notifier).conversationsList();
@@ -42,6 +84,8 @@ class _SendToPageState extends ConsumerState<SendToPage> {
 
   @override
   void dispose() {
+    // 页面销毁即停止排入新单元（冻结合同 §4.3）；已入队的不回滚。
+    _coordinator?.dispose();
     _searchController.dispose();
     super.dispose();
   }
@@ -80,13 +124,21 @@ class _SendToPageState extends ConsumerState<SendToPage> {
         rightDMActions: [
           CupertinoButton(
             padding: const EdgeInsets.symmetric(horizontal: 12),
-            onPressed: _send,
+            // 批量执行中：按钮变「取消」（停排新单元，已成功不回滚）；
+            // 批量已执行完：禁用，防止整批重复发送（重试只走「仅重试失败」）。
+            onPressed: _batchRunning
+                ? _onCancelBatch
+                : (widget.isBatch && _mergedResults.isNotEmpty)
+                ? null
+                : _send,
             child: Text(
-              t.common.buttonSend,
+              _batchRunning ? t.common.cancel : t.common.buttonSend,
               style: context.textStyle(
                 FontSizeType.body,
                 fontWeight: FontWeight.w600,
-                color: AppColors.getIosBlue(Theme.of(context).brightness),
+                color: _batchRunning
+                    ? colorScheme.primary
+                    : AppColors.getIosBlue(Theme.of(context).brightness),
               ),
             ),
           ),
@@ -120,6 +172,9 @@ class _SendToPageState extends ConsumerState<SendToPage> {
               },
             ),
           ),
+          // 批量模式：进度 / 完成汇总卡（含「仅重试失败」入口）
+          if (widget.isBatch && (_batchRunning || _mergedResults.isNotEmpty))
+            _batchStatusCard(theme),
           // 联系人列表
           Expanded(
             child: Consumer(
@@ -151,6 +206,12 @@ class _SendToPageState extends ConsumerState<SendToPage> {
                     );
                     return GestureDetector(
                       onTap: () {
+                        if (_rejectBatchTargetSelection(
+                          contact,
+                          selectedContacts,
+                        )) {
+                          return;
+                        }
                         ref
                             .read(sendToProvider.notifier)
                             .toggleContactSelection(contact);
@@ -226,6 +287,10 @@ class _SendToPageState extends ConsumerState<SendToPage> {
 
   // 发送消息
   Future<void> _send() async {
+    if (widget.isBatch) {
+      await _sendBatch();
+      return;
+    }
     if (_confirming) return;
     final selectedContacts = ref.read(sendToProvider).selectedContacts;
     if (selectedContacts.isEmpty) {
@@ -244,7 +309,7 @@ class _SendToPageState extends ConsumerState<SendToPage> {
       return;
     }
     final notifier = ref.read(sendToProvider.notifier);
-    final failCount = await notifier.sendToSelected(widget.msg);
+    final failCount = await notifier.sendToSelected(widget.msg!);
     if (!mounted) return;
 
     if (failCount > 0) {
@@ -260,5 +325,243 @@ class _SendToPageState extends ConsumerState<SendToPage> {
       t.chat.forwardedToChats(count: selectedContacts.length),
     );
     context.pop();
+  }
+
+  // ============ 批量逐条转发（chat_multi_select_v1 / W2-F）============
+
+  /// 目标上限兜底（冻结合同 §4.2：第 10 个拒绝选择并提示）。
+  /// 返回 true 表示本次点击被拒绝（不改选择状态）。
+  bool _rejectBatchTargetSelection(
+    ConversationModel contact,
+    List<ConversationModel> selectedContacts,
+  ) {
+    if (!widget.isBatch) return false;
+    final already = selectedContacts.any((e) => e.id == contact.id);
+    if (already || selectedContacts.length < kBatchForwardMaxTargets) {
+      return false;
+    }
+    AppLoading.showToast(
+      t.chat.batchForwardTargetLimit(max: kBatchForwardMaxTargets),
+    );
+    return true;
+  }
+
+  BatchForwardCoordinator _buildCoordinator(
+    SendToNotifier notifier,
+    Map<String, Message> messagesById,
+  ) => BatchForwardCoordinator(
+    forwardOne: (target, message, isCurrent) => notifier.forwardOneForBatch(
+      target,
+      message,
+      isCurrent,
+      messagesById: messagesById,
+    ),
+    onProgress: (completed, total, _) {
+      if (!mounted) return;
+      setState(() {
+        _completed = completed;
+        _total = total;
+      });
+    },
+  );
+
+  /// 确认按钮（批量模式）：兜底校验后整批交给协调器（目标外层 × 消息
+  /// 旧→新内层，全串行）。50 条 / 9 目标超限在打开本页前已由调用方拦
+  /// 截，此处按同一合同再兜底一次。
+  Future<void> _sendBatch() async {
+    if (_batchRunning) return;
+    final messages = widget.batchMessages;
+    if (messages == null) return;
+    final selectedContacts = ref.read(sendToProvider).selectedContacts;
+    if (selectedContacts.isEmpty) {
+      context.pop();
+      return;
+    }
+    final targets = List<ConversationModel>.from(selectedContacts);
+    final models = SendToNotifier.toCoordinatorMessageModels(messages);
+    final errorCode = validateBatch(targets, models);
+    if (errorCode != null) {
+      AppLoading.showError(_batchErrorCodeText(errorCode));
+      return;
+    }
+    final coordinator = _buildCoordinator(ref.read(sendToProvider.notifier), {
+      for (final m in messages) m.id: m,
+    });
+    _coordinator = coordinator;
+    setState(() {
+      _batchRunning = true;
+      _completed = 0;
+      _total = targets.length * models.length;
+    });
+    final report = await _runBatchSafely(
+      () => coordinator.run(targets, models),
+    );
+    if (report == null || !mounted) return;
+    _applyBatchReport(report, targets: targets, models: models);
+  }
+
+  /// 「仅重试失败」：只重跑上次报告中 failed 的单元（冻结合同 §4.3），
+  /// 成功单元零重复发送；重试结果按单元 key 覆盖合并。
+  Future<void> _retryFailedBatch() async {
+    final coordinator = _coordinator;
+    final lastReport = _lastReport;
+    if (_batchRunning || coordinator == null || lastReport == null) return;
+    if (lastReport.retryableUnitKeys.isEmpty) return;
+    setState(() {
+      _batchRunning = true;
+      _completed = 0;
+      _total = lastReport.retryableUnitKeys.length;
+    });
+    final report = await _runBatchSafely(
+      () => coordinator.retryFailed(
+        lastReport,
+        targets: _lastTargets,
+        messages: _lastModels,
+      ),
+    );
+    if (report == null || !mounted) return;
+    _applyBatchReport(report, targets: _lastTargets, models: _lastModels);
+  }
+
+  Future<BatchForwardReport?> _runBatchSafely(
+    Future<BatchForwardReport> Function() body,
+  ) async {
+    try {
+      return await body();
+    } on BatchForwardException catch (e) {
+      if (mounted) {
+        setState(() => _batchRunning = false);
+        AppLoading.showError(_batchErrorCodeText(e.code));
+      }
+      return null;
+    }
+  }
+
+  void _applyBatchReport(
+    BatchForwardReport report, {
+    required List<ConversationModel> targets,
+    required List<MessageModel> models,
+  }) {
+    setState(() {
+      _batchRunning = false;
+      _lastReport = report;
+      _lastTargets = targets;
+      _lastModels = models;
+      _mergedResults = {
+        ..._mergedResults,
+        for (final r in report.results) r.key: r,
+      };
+    });
+    _notifyBatchSummary();
+  }
+
+  /// 完成汇总：全部成功 → 复用既有 `forwardedToChats` 文案并关页；
+  /// 存在失败/未完成 → 留页展示汇总卡（失败可「仅重试失败」）。
+  void _notifyBatchSummary() {
+    if (_mergedResults.isEmpty) return;
+    final success = _mergedCount(ForwardUnitStatus.success);
+    final failed = _mergedCount(ForwardUnitStatus.failed);
+    final unfinished = _mergedResults.length - success - failed;
+    if (failed == 0 && unfinished == 0) {
+      AppLoading.showSuccess(
+        t.chat.forwardedToChats(count: _lastTargets.length),
+      );
+      context.pop();
+      return;
+    }
+    AppLoading.showToast(
+      t.chat.batchForwardDone(success: success, failed: failed),
+    );
+  }
+
+  /// 批量执行中的「取消」：停止排入新单元；已成功单元不回滚不重发。
+  void _onCancelBatch() => _coordinator?.cancel();
+
+  String _batchErrorCodeText(String code) {
+    switch (code) {
+      case BatchForwardErrorCode.limitMessages:
+        return t.chat.batchForwardLimitMessages(max: kBatchForwardMaxMessages);
+      case BatchForwardErrorCode.limitTargets:
+        return t.chat.batchForwardTargetLimit(max: kBatchForwardMaxTargets);
+      default:
+        return t.common.sendFailed;
+    }
+  }
+
+  /// 进度 / 完成汇总卡。
+  Widget _batchStatusCard(ThemeData theme) {
+    final colorScheme = theme.colorScheme;
+    if (_batchRunning) {
+      return Container(
+        margin: const EdgeInsets.symmetric(horizontal: AppSpacing.regular),
+        padding: AppSpacing.allSmall,
+        decoration: BoxDecoration(
+          color: colorScheme.surface,
+          borderRadius: BorderRadius.circular(AppSpacing.small),
+          border: Border.all(color: theme.dividerColor),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              t.chat.batchForwardProgress(completed: _completed, total: _total),
+              style: TextStyle(
+                color: colorScheme.onSurface,
+                fontSize:
+                    theme.textTheme.bodyMedium?.fontSize ??
+                    FontSizeType.normal.size,
+              ),
+            ),
+            const SizedBox(height: AppSpacing.small),
+            LinearProgressIndicator(
+              value: _total > 0 ? _completed / _total : null,
+              minHeight: 4,
+            ),
+          ],
+        ),
+      );
+    }
+    final failed = _mergedCount(ForwardUnitStatus.failed);
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: AppSpacing.regular),
+      padding: AppSpacing.allSmall,
+      decoration: BoxDecoration(
+        color: colorScheme.surface,
+        borderRadius: BorderRadius.circular(AppSpacing.small),
+        border: Border.all(color: theme.dividerColor),
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: Text(
+              t.chat.batchForwardDone(
+                success: _mergedCount(ForwardUnitStatus.success),
+                failed: failed,
+              ),
+              style: TextStyle(
+                color: colorScheme.onSurface,
+                fontSize:
+                    theme.textTheme.bodyMedium?.fontSize ??
+                    FontSizeType.normal.size,
+              ),
+            ),
+          ),
+          if (failed > 0)
+            CupertinoButton(
+              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.small),
+              onPressed: _retryFailedBatch,
+              child: Text(
+                t.chat.batchForwardRetryFailed,
+                style: context.textStyle(
+                  FontSizeType.body,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.getIosBlue(theme.brightness),
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
   }
 }

@@ -25,6 +25,11 @@ forward: 转发
 forwardTo: 转发给
 forwardToFriend: 转发给朋友
 forwardedToChats: "已转发给 $count 个会话"
+batchForwardTargetLimit(max): 最多选择 $max 个会话
+batchForwardProgress(completed, total): "正在转发 $completed/$total"
+batchForwardDone(success, failed): "转发完成：成功 $success，失败 $failed"
+batchForwardRetryFailed: 仅重试失败
+batchForwardLimitMessages(max): 最多转发 $max 条消息
 great: 非常棒
 groupFile: 群文件
 groupFileImagePreview: 图片预览

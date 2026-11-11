@@ -560,6 +560,11 @@ class Translations$chat$zh_Hant extends Translations$chat$zh_CN {
 	@override String get forwardTo => '轉發給';
 	@override String get forwardToFriend => '轉發給好友';
 	@override String forwardedToChats({required Object count}) => '已轉發給 ${count} 個會話';
+	@override String batchForwardTargetLimit({required Object max}) => '最多選擇 ${max} 個會話';
+	@override String batchForwardProgress({required Object completed, required Object total}) => '正在轉發 ${completed}/${total}';
+	@override String batchForwardDone({required Object success, required Object failed}) => '轉發完成：成功 ${success}，失敗 ${failed}';
+	@override String get batchForwardRetryFailed => '僅重試失敗';
+	@override String batchForwardLimitMessages({required Object max}) => '最多轉發 ${max} 條訊息';
 	@override String get great => '太棒了';
 	@override String get groupFile => '群檔案';
 	@override String get groupFileImagePreview => '圖片預覽';
@@ -3889,6 +3894,11 @@ extension on TranslationsZhHant {
 			'chat.forwardTo' => '轉發給',
 			'chat.forwardToFriend' => '轉發給好友',
 			'chat.forwardedToChats' => ({required Object count}) => '已轉發給 ${count} 個會話',
+			'chat.batchForwardTargetLimit' => ({required Object max}) => '最多選擇 ${max} 個會話',
+			'chat.batchForwardProgress' => ({required Object completed, required Object total}) => '正在轉發 ${completed}/${total}',
+			'chat.batchForwardDone' => ({required Object success, required Object failed}) => '轉發完成：成功 ${success}，失敗 ${failed}',
+			'chat.batchForwardRetryFailed' => '僅重試失敗',
+			'chat.batchForwardLimitMessages' => ({required Object max}) => '最多轉發 ${max} 條訊息',
 			'chat.great' => '太棒了',
 			'chat.groupFile' => '群檔案',
 			'chat.groupFileImagePreview' => '圖片預覽',
@@ -3963,13 +3973,13 @@ extension on TranslationsZhHant {
 			'chat.voice' => '語音',
 			'chat.voiceMessage' => '語音訊息',
 			'chat.youWithdrewAMessage' => '你撤回了一則訊息',
+			_ => null,
+		} ?? switch (path) {
 			'chat.formatCheck' => '格式檢查',
 			'chat.featureRequest' => '功能請求',
 			'chat.chatResend' => '重新傳送',
 			'chat.releaseConvertToText' => '放開 轉文字',
 			'chat.voiceReleaseCancelSend' => '放開 取消傳送',
-			_ => null,
-		} ?? switch (path) {
 			'chat.voiceReleaseCancel' => '放開 取消',
 			'chat.voiceSlideHint' => '上滑 取消 / 轉文字',
 			'chat.convertToText' => '轉文字',
@@ -4477,13 +4487,13 @@ extension on TranslationsZhHant {
 			'common.clearChatRecordsDesc' => '清除所有聊天記錄，此操作不可恢復',
 			'common.deleteAccountAction' => '註銷帳號',
 			'common.deleteAccountActionDesc' => '永久刪除帳號和所有資料，此操作不可恢復',
+			_ => null,
+		} ?? switch (path) {
 			'common.chatHistoryCleared' => '聊天記錄已清除',
 			'common.chatDeleteMessage' => '刪除訊息',
 			'common.chatCopy' => '複製',
 			'common.chatSaveImage' => '儲存圖片',
 			'common.chatDeleteLocalOnly' => '僅刪除本地',
-			_ => null,
-		} ?? switch (path) {
 			'common.chatDeleteFailed' => '刪除失敗',
 			'common.chatNetworkErrorDeleteLocal' => '網路連接失敗，是否僅刪除本地訊息？',
 			'common.chatDeleteConfirm' => '確定要刪除這則訊息嗎？此操作無法撤銷。',
@@ -4991,13 +5001,13 @@ extension on TranslationsZhHant {
 			'common.redPacketDialogSubtitle' => '大吉大利，恭喜發財',
 			'common.redPacketDialogTitle' => '送你一個紅包',
 			'common.redPacketFetchError' => '取得紅包詳情時發生異常',
+			_ => null,
+		} ?? switch (path) {
 			'common.redPacketFetchFailed' => '取得紅包詳情失敗',
 			'common.redPacketGreetingLabel' => '留言 / 祝福語',
 			'common.redPacketNotFound' => '紅包不存在或已被刪除',
 			'common.redPacketReceiverLabel' => ({required Object uid}) => '使用者：${uid}',
 			'common.redPacketSingleAmount' => '單個金額',
-			_ => null,
-		} ?? switch (path) {
 			'common.redPacketStuffLucky' => '塞錢發紅包',
 			'common.redPacketStuffNormal' => '放入錢包傳送',
 			'common.redPacketSwitchToLucky' => '改為拼手氣紅包',
@@ -5505,13 +5515,13 @@ extension on TranslationsZhHant {
 			'main.volumeDown' => '音量減少',
 			'main.fastRewind' => ({required Object seconds}) => '倒轉 ${seconds} 秒',
 			'main.pleaseTryAgain' => '請重試',
+			_ => null,
+		} ?? switch (path) {
 			'main.secret' => '保守祕密',
 			'main.takePhoto' => '拍攝照片',
 			'main.deletingInProgressPleaseWait' => '正在刪除中，請稍候...',
 			'main.collecting' => '加入收藏中...',
 			'main.user' => '使用者',
-			_ => null,
-		} ?? switch (path) {
 			'main.recommended' => '推薦',
 			'main.larger' => '放大',
 			'main.fillIn' => '填寫',
@@ -6019,13 +6029,13 @@ extension on TranslationsZhHant {
 			'passport.oneKeyLogin' => '一鍵登入',
 			'passport.qrCodeExpired' => '二維碼已過期，請重新掃碼',
 			'passport.qrCodeUsed' => '此二維碼已使用',
+			_ => null,
+		} ?? switch (path) {
 			'passport.qrLoginCancelled' => '登入已取消',
 			'passport.qrLoginConfirming' => '登入中...',
 			'passport.qrLoginCancelledByMe' => '已取消登入',
 			'passport.qrConnecting' => '連線中...',
 			'passport.qrWebLoginTitle' => 'Web 端登入確認',
-			_ => null,
-		} ?? switch (path) {
 			'passport.qrWebLoginDesc' => '請確認是否在 Web 端登入此帳號',
 			'passport.qrLoginAction' => '確認登入',
 			'passport.qrLoginSuccess' => '登入成功',

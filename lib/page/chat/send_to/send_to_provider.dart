@@ -378,6 +378,52 @@ class SendToNotifier extends Notifier<SendToState> {
     return failCount;
   }
 
+  /// 批量逐条转发（chat_multi_select_v1 / W2-F）：协调器输入转换——
+  /// flutter_chat `Message` → `MessageModel`。
+  ///
+  /// 协调器只消费 `id`（单元 key / 去重）与 `createdAt`（旧→新稳定排序）；
+  /// 真正发送时 [forwardOneForBatch] 会按 id 取回**原 `Message` 对象**交给
+  /// sendMsg，因此这里刻意不做 payload / 附件 / E2EE 字段的搬运与复制。
+  static List<MessageModel> toCoordinatorMessageModels(List<Message> messages) {
+    return [
+      for (final m in messages)
+        MessageModel(
+          m.id,
+          autoId: 0,
+          type: 'C2C',
+          status: 0,
+          fromId: m.authorId,
+          toId: 0,
+          payload: const <String, dynamic>{},
+          isAuthor: 0,
+          conversationUk3: '',
+          createdAt: m.createdAt?.millisecondsSinceEpoch ?? 0,
+          msgType: resolveForwardMsgType(m.metadata),
+        ),
+    ];
+  }
+
+  /// 批量逐条转发的 forwardOne 适配（chat_multi_select_v1 / W2-F）。
+  ///
+  /// 把协调器单元转接到**唯一单条发送入口 [sendMsg]**：目标字段覆盖、
+  /// `burn_read_at` 剥离、明文附件重传、E2EE 重封装判定全部与单条转发
+  /// 走同一份代码，本层零复制。sendMsg 全捕获异常并返回 bool，不会把
+  /// 异常抛回协调器；`isCurrent` 按 W1-B handoff 约定包成闭包语义
+  /// （sendMsg 在落库前多点检查）。
+  ///
+  /// [messagesById] 由调用方从原 `Message` 列表构建（id → 原消息）。
+  /// 查不到 id 属于调用方接线错误：按本单元失败（false）处理，不崩溃。
+  Future<bool> forwardOneForBatch(
+    ConversationModel target,
+    MessageModel message,
+    bool isCurrent, {
+    required Map<String, Message> messagesById,
+  }) {
+    final origin = messagesById[message.id];
+    if (origin == null) return Future<bool>.value(false);
+    return sendMsg(target, origin, isCurrent: () => isCurrent);
+  }
+
   /// 搜索
   void search(String query) {
     final results = query.isEmpty

@@ -560,6 +560,11 @@ class _Translations$chat$ar_SA extends Translations$chat$zh_CN {
 	@override String get forwardTo => 'إعادة توجيه إلى';
 	@override String get forwardToFriend => 'إعادة توجيه إلى صديق';
 	@override String forwardedToChats({required Object count}) => 'تمت إعادة التوجيه إلى ${count} محادثة';
+	@override String batchForwardTargetLimit({required Object max}) => 'يمكنك اختيار ${max} محادثة كحد أقصى';
+	@override String batchForwardProgress({required Object completed, required Object total}) => 'جارٍ التحويل ${completed}/${total}';
+	@override String batchForwardDone({required Object success, required Object failed}) => 'اكتمل التحويل: نجح ${success}، فشل ${failed}';
+	@override String get batchForwardRetryFailed => 'إعادة محاولة الفاشلة فقط';
+	@override String batchForwardLimitMessages({required Object max}) => 'يمكنك تحويل ${max} رسالة كحد أقصى';
 	@override String get great => 'ممتاز جداً';
 	@override String get groupFile => 'ملفات المجموعة';
 	@override String get groupFileImagePreview => 'معاينة الصورة';
@@ -3901,6 +3906,11 @@ extension on TranslationsArSa {
 			'chat.forwardTo' => 'إعادة توجيه إلى',
 			'chat.forwardToFriend' => 'إعادة توجيه إلى صديق',
 			'chat.forwardedToChats' => ({required Object count}) => 'تمت إعادة التوجيه إلى ${count} محادثة',
+			'chat.batchForwardTargetLimit' => ({required Object max}) => 'يمكنك اختيار ${max} محادثة كحد أقصى',
+			'chat.batchForwardProgress' => ({required Object completed, required Object total}) => 'جارٍ التحويل ${completed}/${total}',
+			'chat.batchForwardDone' => ({required Object success, required Object failed}) => 'اكتمل التحويل: نجح ${success}، فشل ${failed}',
+			'chat.batchForwardRetryFailed' => 'إعادة محاولة الفاشلة فقط',
+			'chat.batchForwardLimitMessages' => ({required Object max}) => 'يمكنك تحويل ${max} رسالة كحد أقصى',
 			'chat.great' => 'ممتاز جداً',
 			'chat.groupFile' => 'ملفات المجموعة',
 			'chat.groupFileImagePreview' => 'معاينة الصورة',
@@ -3975,13 +3985,13 @@ extension on TranslationsArSa {
 			'chat.voice' => 'صوت',
 			'chat.voiceMessage' => 'رسالة صوتية',
 			'chat.youWithdrewAMessage' => 'قمت بسحب رسالة',
+			_ => null,
+		} ?? switch (path) {
 			'chat.formatCheck' => 'فحص التنسيق',
 			'chat.featureRequest' => 'طلب ميزة',
 			'chat.chatResend' => 'إعادة الإرسال',
 			'chat.profileExportProfile' => 'تصدير الملف الشخصي',
 			'chat.momentsSend' => 'إرسال',
-			_ => null,
-		} ?? switch (path) {
 			'chat.loginExpiredMessage' => 'انتهت صلاحية تسجيل الدخول، يرجى تسجيل الدخول مرة أخرى',
 			'chat.customImage' => 'صورة مخصصة',
 			'chat.burnAfterReading' => 'الحرق بعد القراءة',
@@ -4489,13 +4499,13 @@ extension on TranslationsArSa {
 			'common.deleteAccountActionDesc' => 'حذف الحساب وجميع البيانات بشكل دائم، هذا الإجراء لا يمكن التراجع عنه',
 			'common.chatHistoryCleared' => 'تم مسح سجل الدردشة',
 			'common.chatDeleteMessage' => 'حذف الرسالة',
+			_ => null,
+		} ?? switch (path) {
 			'common.chatCopy' => 'نسخ',
 			'common.chatSaveImage' => 'حفظ الصورة',
 			'common.chatDeleteLocalOnly' => 'حذف محلي فقط',
 			'common.chatDeleteFailed' => 'فشل الحذف',
 			'common.chatNetworkErrorDeleteLocal' => 'فشل الاتصال بالشبكة، هل تريد حذف الرسائل المحلية فقط؟',
-			_ => null,
-		} ?? switch (path) {
 			'common.chatDeleteConfirm' => 'هل أنت متأكد من حذف هذه الرسالة؟ لا يمكن التراجع عن هذا الإجراء.',
 			'common.chatDeleteOnlyLocal' => 'حذف من جانبك فقط، لا يزال مرئياً للطرف الآخر',
 			'common.chatDeleteAll' => 'حذف من محادثات الجميع، لا يمكن التراجع',
@@ -5003,13 +5013,13 @@ extension on TranslationsArSa {
 			'common.voiceSttPreviewTitle' => 'معاينة تحويل الصوت إلى نص',
 			'common.redPacketBrand' => 'مغلف IMBoy الأحمر',
 			'common.redPacketDialogTitle' => 'أرسلنا لك مغلفاً أحمر',
+			_ => null,
+		} ?? switch (path) {
 			'common.redPacketDialogSubtitle' => 'أطيب التمنيات، وكل عام وأنتم بخير',
 			'common.redPacketView' => 'عرض المغلف',
 			'common.redPacketTotalAmount' => 'المبلغ الإجمالي',
 			'common.redPacketSingleAmount' => 'مبلغ المغلف الواحد',
 			'common.redPacketCount' => 'عدد المغلفات',
-			_ => null,
-		} ?? switch (path) {
 			'common.redPacketCountUnit' => 'مغلف',
 			'common.redPacketCountEmpty' => 'يرجى إدخال عدد المغلفات',
 			'common.redPacketCountMin' => 'يجب أن يكون عدد المغلفات 1 على الأقل',
@@ -5517,13 +5527,13 @@ extension on TranslationsArSa {
 			'main.volumeDown' => 'خفض الصوت',
 			'main.fastRewind' => ({required Object seconds}) => 'ترجيع سريع ${seconds} ثانية',
 			'main.pleaseTryAgain' => 'يرجى المحاولة مرة أخرى',
+			_ => null,
+		} ?? switch (path) {
 			'main.secret' => 'سري',
 			'main.takePhoto' => 'التقاط صورة',
 			'main.deletingInProgressPleaseWait' => 'جارٍ الحذف، يرجى الانتظار...',
 			'main.collecting' => 'جارٍ الإضافة إلى المفضلة...',
 			'main.user' => 'مستخدم',
-			_ => null,
-		} ?? switch (path) {
 			'main.recommended' => 'مُوصى به',
 			'main.larger' => 'أكبر',
 			'main.fillIn' => 'ملء',
@@ -6031,13 +6041,13 @@ extension on TranslationsArSa {
 			'passport.oneKeyLogin' => 'تسجيل الدخول بنقرة واحدة',
 			'passport.qrCodeExpired' => 'انتهت صلاحية رمز QR، امسحه ضوئياً من جديد',
 			'passport.qrCodeUsed' => 'تم استخدام رمز QR هذا بالفعل',
+			_ => null,
+		} ?? switch (path) {
 			'passport.qrLoginCancelled' => 'تم إلغاء تسجيل الدخول',
 			'passport.qrLoginConfirming' => 'جارٍ تسجيل الدخول...',
 			'passport.qrLoginCancelledByMe' => 'تم إلغاء تسجيل الدخول',
 			'passport.qrConnecting' => 'جارٍ الاتصال...',
 			'passport.qrWebLoginTitle' => 'تأكيد تسجيل الدخول عبر الويب',
-			_ => null,
-		} ?? switch (path) {
 			'passport.qrWebLoginDesc' => 'يرجى تأكيد ما إذا كنت تريد تسجيل الدخول إلى هذا الحساب على الويب',
 			'passport.qrLoginAction' => 'تأكيد تسجيل الدخول',
 			'passport.qrLoginSuccess' => 'تم تسجيل الدخول بنجاح',

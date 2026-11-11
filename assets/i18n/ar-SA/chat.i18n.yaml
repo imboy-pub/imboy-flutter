@@ -25,6 +25,11 @@ forward: إعادة توجيه
 forwardTo: إعادة توجيه إلى
 forwardToFriend: إعادة توجيه إلى صديق
 forwardedToChats: "تمت إعادة التوجيه إلى $count محادثة"
+batchForwardTargetLimit(max): يمكنك اختيار $max محادثة كحد أقصى
+batchForwardProgress(completed, total): "جارٍ التحويل $completed/$total"
+batchForwardDone(success, failed): "اكتمل التحويل: نجح $success، فشل $failed"
+batchForwardRetryFailed: إعادة محاولة الفاشلة فقط
+batchForwardLimitMessages(max): يمكنك تحويل $max رسالة كحد أقصى
 great: ممتاز جداً
 groupFile: ملفات المجموعة
 groupFileImagePreview: معاينة الصورة

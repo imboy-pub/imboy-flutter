@@ -560,6 +560,11 @@ class _Translations$chat$fr_FR extends Translations$chat$zh_CN {
 	@override String get forwardTo => 'Transférer à';
 	@override String get forwardToFriend => 'Transférer à un ami';
 	@override String forwardedToChats({required Object count}) => 'Transféré à ${count} conversations';
+	@override String batchForwardTargetLimit({required Object max}) => 'Sélectionnez au maximum ${max} conversations';
+	@override String batchForwardProgress({required Object completed, required Object total}) => 'Transfert ${completed}/${total}';
+	@override String batchForwardDone({required Object success, required Object failed}) => 'Transfert terminé : ${success} réussi(s), ${failed} échoué(s)';
+	@override String get batchForwardRetryFailed => 'Réessayer uniquement les échecs';
+	@override String batchForwardLimitMessages({required Object max}) => 'Transférez au maximum ${max} messages';
 	@override String get great => 'Excellent';
 	@override String get groupFile => 'Fichiers du groupe';
 	@override String get groupFileImagePreview => 'Aperçu image';
@@ -3892,6 +3897,11 @@ extension on TranslationsFrFr {
 			'chat.forwardTo' => 'Transférer à',
 			'chat.forwardToFriend' => 'Transférer à un ami',
 			'chat.forwardedToChats' => ({required Object count}) => 'Transféré à ${count} conversations',
+			'chat.batchForwardTargetLimit' => ({required Object max}) => 'Sélectionnez au maximum ${max} conversations',
+			'chat.batchForwardProgress' => ({required Object completed, required Object total}) => 'Transfert ${completed}/${total}',
+			'chat.batchForwardDone' => ({required Object success, required Object failed}) => 'Transfert terminé : ${success} réussi(s), ${failed} échoué(s)',
+			'chat.batchForwardRetryFailed' => 'Réessayer uniquement les échecs',
+			'chat.batchForwardLimitMessages' => ({required Object max}) => 'Transférez au maximum ${max} messages',
 			'chat.great' => 'Excellent',
 			'chat.groupFile' => 'Fichiers du groupe',
 			'chat.groupFileImagePreview' => 'Aperçu image',
@@ -3966,13 +3976,13 @@ extension on TranslationsFrFr {
 			'chat.voice' => 'Vocal',
 			'chat.voiceMessage' => 'Message vocal',
 			'chat.youWithdrewAMessage' => 'Vous avez révoqué un message.',
+			_ => null,
+		} ?? switch (path) {
 			'chat.formatCheck' => 'Vérification du format',
 			'chat.featureRequest' => 'Demande de fonctionnalité',
 			'chat.chatResend' => 'Renvoyer',
 			'chat.profileExportProfile' => 'Exporter le profil',
 			'chat.momentsSend' => 'Envoyer',
-			_ => null,
-		} ?? switch (path) {
 			'chat.loginExpiredMessage' => 'Connexion expirée. Veuillez vous reconnecter.',
 			'chat.customImage' => 'Image personnalisée',
 			'chat.burnAfterReading' => 'Détruire après lecture',
@@ -4480,13 +4490,13 @@ extension on TranslationsFrFr {
 			'common.deleteAccountActionDesc' => 'Supprimer définitivement le compte et toutes les données. Cette action est irréversible.',
 			'common.chatHistoryCleared' => 'Historique de conversation effacé.',
 			'common.chatDeleteMessage' => 'Supprimer le message',
+			_ => null,
+		} ?? switch (path) {
 			'common.chatCopy' => 'Copier',
 			'common.chatSaveImage' => 'Enregistrer l\'image',
 			'common.chatDeleteLocalOnly' => 'Supprimer uniquement localement',
 			'common.chatDeleteFailed' => 'Échec de la suppression.',
 			'common.chatNetworkErrorDeleteLocal' => 'Échec de la connexion réseau. Supprimer uniquement le message local ?',
-			_ => null,
-		} ?? switch (path) {
 			'common.chatDeleteConfirm' => 'Confirmer la suppression de ce message ? Cette action ne peut pas être annulée.',
 			'common.chatDeleteOnlyLocal' => 'Supprimer uniquement pour vous. Toujours visible pour les autres.',
 			'common.chatDeleteAll' => 'Supprimer pour tout le monde. Impossible à annuler.',
@@ -4994,13 +5004,13 @@ extension on TranslationsFrFr {
 			'common.redPacketDialogSubtitle' => 'Bonne fortune et grande prospérité !',
 			'common.redPacketDialogTitle' => 'Un hongbao pour vous',
 			'common.redPacketFetchError' => 'Anomalie lors de la récupération des détails du hongbao',
+			_ => null,
+		} ?? switch (path) {
 			'common.redPacketFetchFailed' => 'Échec de la récupération des détails du hongbao',
 			'common.redPacketGreetingLabel' => 'Message / vœux',
 			'common.redPacketNotFound' => 'Hongbao introuvable ou déjà supprimé',
 			'common.redPacketReceiverLabel' => ({required Object uid}) => 'Utilisateur : ${uid}',
 			'common.redPacketSingleAmount' => 'Montant par hongbao',
-			_ => null,
-		} ?? switch (path) {
 			'common.redPacketStuffLucky' => 'Verser l\'argent et envoyer',
 			'common.redPacketStuffNormal' => 'Déposer dans le portefeuille et envoyer',
 			'common.redPacketSwitchToLucky' => 'Passer au hongbao à montant aléatoire',
@@ -5508,13 +5518,13 @@ extension on TranslationsFrFr {
 			'main.volumeDown' => 'Baisser le volume',
 			'main.fastRewind' => ({required Object seconds}) => 'Retour rapide de ${seconds} secondes',
 			'main.pleaseTryAgain' => 'Réessayez.',
+			_ => null,
+		} ?? switch (path) {
 			'main.secret' => 'Confidentiel',
 			'main.takePhoto' => 'Prendre une photo',
 			'main.deletingInProgressPleaseWait' => 'Suppression en cours. Veuillez patienter...',
 			'main.collecting' => 'Ajout aux favoris...',
 			'main.user' => 'Utilisateur',
-			_ => null,
-		} ?? switch (path) {
 			'main.recommended' => 'Recommandé',
 			'main.larger' => 'Plus grand',
 			'main.fillIn' => 'Remplir',
@@ -6022,13 +6032,13 @@ extension on TranslationsFrFr {
 			'passport.oneKeyLogin' => 'Connexion en un clic',
 			'passport.qrCodeExpired' => 'QR code expiré, veuillez le scanner à nouveau',
 			'passport.qrCodeUsed' => 'Ce QR code a déjà été utilisé',
+			_ => null,
+		} ?? switch (path) {
 			'passport.qrConnecting' => 'Connexion...',
 			'passport.qrLoginAction' => 'Confirmer la connexion',
 			'passport.qrLoginCancelled' => 'Connexion annulée',
 			'passport.qrLoginCancelledByMe' => 'Vous avez annulé la connexion',
 			'passport.qrLoginConfirming' => 'Connexion en cours...',
-			_ => null,
-		} ?? switch (path) {
 			'passport.qrLoginSuccess' => 'Connexion réussie',
 			'passport.qrWebLoginDesc' => 'Confirmez-vous la connexion à ce compte depuis le Web ?',
 			'passport.qrWebLoginTitle' => 'Confirmation de connexion Web',

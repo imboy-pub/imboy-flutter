@@ -560,6 +560,11 @@ class _Translations$chat$ru_RU extends Translations$chat$zh_CN {
 	@override String get forwardTo => 'Переслать';
 	@override String get forwardToFriend => 'Переслать другу';
 	@override String forwardedToChats({required Object count}) => 'Переслано в ${count} чатов';
+	@override String batchForwardTargetLimit({required Object max}) => 'Можно выбрать не более ${max} чатов';
+	@override String batchForwardProgress({required Object completed, required Object total}) => 'Пересылка ${completed}/${total}';
+	@override String batchForwardDone({required Object success, required Object failed}) => 'Пересылка завершена: успешно ${success}, не удалось ${failed}';
+	@override String get batchForwardRetryFailed => 'Повторить только неудачные';
+	@override String batchForwardLimitMessages({required Object max}) => 'Можно переслать не более ${max} сообщений';
 	@override String get great => 'Превосходно';
 	@override String get groupFile => 'Файлы группы';
 	@override String get groupFileImagePreview => 'Просмотр изображения';
@@ -3898,6 +3903,11 @@ extension on TranslationsRuRu {
 			'chat.forwardTo' => 'Переслать',
 			'chat.forwardToFriend' => 'Переслать другу',
 			'chat.forwardedToChats' => ({required Object count}) => 'Переслано в ${count} чатов',
+			'chat.batchForwardTargetLimit' => ({required Object max}) => 'Можно выбрать не более ${max} чатов',
+			'chat.batchForwardProgress' => ({required Object completed, required Object total}) => 'Пересылка ${completed}/${total}',
+			'chat.batchForwardDone' => ({required Object success, required Object failed}) => 'Пересылка завершена: успешно ${success}, не удалось ${failed}',
+			'chat.batchForwardRetryFailed' => 'Повторить только неудачные',
+			'chat.batchForwardLimitMessages' => ({required Object max}) => 'Можно переслать не более ${max} сообщений',
 			'chat.great' => 'Превосходно',
 			'chat.groupFile' => 'Файлы группы',
 			'chat.groupFileImagePreview' => 'Просмотр изображения',
@@ -3972,13 +3982,13 @@ extension on TranslationsRuRu {
 			'chat.voice' => 'Голос',
 			'chat.voiceMessage' => 'Голосовое сообщение',
 			'chat.youWithdrewAMessage' => 'Вы отозвали сообщение',
+			_ => null,
+		} ?? switch (path) {
 			'chat.formatCheck' => 'Проверка формата',
 			'chat.featureRequest' => 'Запрос функции',
 			'chat.chatResend' => 'Отправить снова',
 			'chat.profileExportProfile' => 'Экспортировать профиль',
 			'chat.momentsSend' => 'Отправить',
-			_ => null,
-		} ?? switch (path) {
 			'chat.loginExpiredMessage' => 'Срок входа истёк, войдите снова',
 			'chat.customImage' => 'Пользовательское изображение',
 			'chat.burnAfterReading' => 'Удалить после прочтения',
@@ -4486,13 +4496,13 @@ extension on TranslationsRuRu {
 			'common.deleteAccountActionDesc' => 'Окончательно удалить аккаунт и все данные. Это действие нельзя отменить.',
 			'common.chatHistoryCleared' => 'История чата очищена',
 			'common.chatDeleteMessage' => 'Удалить сообщение',
+			_ => null,
+		} ?? switch (path) {
 			'common.chatCopy' => 'Копировать',
 			'common.chatSaveImage' => 'Сохранить изображение',
 			'common.chatDeleteLocalOnly' => 'Только локально',
 			'common.chatDeleteFailed' => 'Не удалось удалить',
 			'common.chatNetworkErrorDeleteLocal' => 'Не удалось подключиться к сети. Удалить только локальное сообщение?',
-			_ => null,
-		} ?? switch (path) {
 			'common.chatDeleteConfirm' => 'Вы уверены, что хотите удалить это сообщение? Это действие нельзя отменить.',
 			'common.chatDeleteOnlyLocal' => 'Удалить только у вас, всё ещё видно другим',
 			'common.chatDeleteAll' => 'Удалить для всех, нельзя отменить',
@@ -5000,13 +5010,13 @@ extension on TranslationsRuRu {
 			'common.redPacketDialogSubtitle' => 'Удачи и благополучия!',
 			'common.redPacketDialogTitle' => 'Красный конверт для вас',
 			'common.redPacketFetchError' => 'Ошибка загрузки деталей конверта',
+			_ => null,
+		} ?? switch (path) {
 			'common.redPacketFetchFailed' => 'Не удалось загрузить детали конверта',
 			'common.redPacketGreetingLabel' => 'Подпись / пожелание',
 			'common.redPacketNotFound' => 'Конверт не существует или удалён',
 			'common.redPacketReceiverLabel' => ({required Object uid}) => 'Пользователь: ${uid}',
 			'common.redPacketSingleAmount' => 'Сумма на конверт',
-			_ => null,
-		} ?? switch (path) {
 			'common.redPacketStuffLucky' => 'Наполнить конверт',
 			'common.redPacketStuffNormal' => 'Отправить из кошелька',
 			'common.redPacketSwitchToLucky' => 'Переключить на конверт на удачу',
@@ -5514,13 +5524,13 @@ extension on TranslationsRuRu {
 			'main.volumeDown' => 'Уменьшить громкость',
 			'main.fastRewind' => ({required Object seconds}) => 'Быстрая перемотка назад ${seconds} сек',
 			'main.pleaseTryAgain' => 'Пожалуйста, попробуйте снова',
+			_ => null,
+		} ?? switch (path) {
 			'main.secret' => 'Конфиденциально',
 			'main.takePhoto' => 'Сделать фото',
 			'main.deletingInProgressPleaseWait' => 'Удаление в процессе, пожалуйста, подождите...',
 			'main.collecting' => 'Сохранение...',
 			'main.user' => 'Пользователь',
-			_ => null,
-		} ?? switch (path) {
 			'main.recommended' => 'Рекомендуется',
 			'main.larger' => 'Больше',
 			'main.fillIn' => 'Заполнить',
@@ -6028,13 +6038,13 @@ extension on TranslationsRuRu {
 			'passport.oneKeyLogin' => 'Быстрый вход',
 			'passport.qrCodeExpired' => 'Срок действия QR-кода истёк, отсканируйте заново',
 			'passport.qrCodeUsed' => 'Этот QR-код уже использован',
+			_ => null,
+		} ?? switch (path) {
 			'passport.qrConnecting' => 'Подключение...',
 			'passport.qrLoginAction' => 'Подтвердить вход',
 			'passport.qrLoginCancelled' => 'Вход отменён',
 			'passport.qrLoginCancelledByMe' => 'Вы отменили вход',
 			'passport.qrLoginConfirming' => 'Выполняется вход...',
-			_ => null,
-		} ?? switch (path) {
 			'passport.qrLoginSuccess' => 'Вход выполнен',
 			'passport.qrWebLoginDesc' => 'Подтвердите вход этого аккаунта в веб-версии',
 			'passport.qrWebLoginTitle' => 'Подтверждение входа в веб-версии',

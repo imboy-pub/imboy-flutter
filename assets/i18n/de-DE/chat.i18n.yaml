@@ -25,6 +25,11 @@ forward: Weiterleiten
 forwardTo: Weiterleiten an
 forwardToFriend: An Freund weiterleiten
 forwardedToChats: "An $count Chats weitergeleitet"
+batchForwardTargetLimit(max): Maximal $max Chats auswählen
+batchForwardProgress(completed, total): "Weiterleitung $completed/$total"
+batchForwardDone(success, failed): "Weiterleitung abgeschlossen: $success erfolgreich, $failed fehlgeschlagen"
+batchForwardRetryFailed: Nur fehlgeschlagene wiederholen
+batchForwardLimitMessages(max): Maximal $max Nachrichten weiterleiten
 great: Ausgezeichnet
 groupFile: Gruppendateien
 groupFileImagePreview: Bildvorschau
