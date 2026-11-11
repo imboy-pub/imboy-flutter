@@ -207,6 +207,60 @@ PR 同时执行独立的 Linux `routes` 计划，每条路由各用一个进程�
 PR/手动构建使用合成配置和 Android 调试签名，不注入发布用 Firebase/Sentry 配置。
 These PR route and native build jobs execute real checks; skipped jobs do not certify success.
 
+### Ubuntu / Debian 兼容验证
+
+现有托管 Linux 与 Web worker、质量/契约/路由门及 Android 构建固定到
+`ubuntu-24.04`；动态矩阵的映射在 `execution_runner.host_worker_matrix()`，不能只改 YAML。
+这样不会跟随 `ubuntu-latest` 在 2026-10-19 至 2026-11-19
+[迁移至 26.04](https://github.blog/changelog/2026-09-17-ubuntu-26-generally-available-and-latest-migration/)。
+macOS、Web、Android APK/AAB、iOS 构建及原 38% 覆盖率门槛继续保留。
+
+主 CI 另外增加一个阻塞的 `Debian 13 core compatibility` job：Ubuntu runner 只提供
+Docker 宿主，在固定日期与 digest 的 Debian 13 `trixie` 容器内准备 SDK、编译原生 FFI、
+执行同一个 `linux-compat` profile。其六个既有目标覆盖 protobuf/帧身份、真实系统
+SQLite 的迁移/快照/UID 隔离，以及真实 Rust/vodozemac Olm round-trip 与 ratchet。
+这是有意缩小的发行版兼容范围；既有 PR Linux/macOS/Web 矩阵仍是完整 PR 义务。
+与现有 host worker 一样，客户端和后端源码并排 checkout 到 `imboyapp` / `imboy`，
+供执行器对 `phase1_delivery` 的七个客户端产品生成物做只读核验；不启动后端服务。
+The Debian lane preserves the existing product-manifest validation using sibling backend sources.
+
+容器先断言 `/etc/os-release` 为 Debian 13，再安装 Git、CA、curl、jq、tar/xz/unzip/zip/zstd、
+Python、C/C++ 构建工具、pkg-config、libGLU 和 `libsqlite3-dev`。Git 必须在 checkout 前可用，
+否则 archive fallback 缺少执行器所需的提交与 tracked-file 信息。
+`pubspec.yaml` 明确指定 SQLite `source: system`，开发包提供 hook 所需的
+`libsqlite3.so`，并依赖真正的 Debian SQLite runtime；不能从 Ubuntu 复制动态库。
+既有 Ubuntu Linux worker 和路由 job 通过 `ci_ensure_system_sqlite.sh` 核验开发包安装状态、
+实际加载 `libsqlite3.so` 并记录版本；仅缺失时安装，APT 网络等待/重试有界，整个步骤限时五分钟。
+包状态不正确或动态库加载失败仍会阻断，既有 SQLite 真实测试继续完整执行。
+Ubuntu workers verify the installed package and load the system library; missing packages use bounded installation.
+
+Flutter 继续使用 `ci.yml` 的精确 `3.47.5` pin，Dart 由其附带并通过 SDK 检查；
+`flutter pub get --enforce-lockfile` 保留 Git/path 依赖及 lockfile 校验。
+Debian 单独固定 Rust `1.98.1`，复用 `ci_build_vod.sh` 从解析后的插件源码构建，
+不使用 Ubuntu 构建产物。Cargo 依赖沿用现有脚本的解析流程，本次未增加 `--locked`；
+固定 Rust 编译器不等于冻结全部 Rust 依赖。SDK/pub 缓存的 key 与路径都有 Debian 13 前缀，原生 build
+目录不缓存。记录 OS、glibc、SQLite、SDK 和 Rust 版本，系统包允许同发行版安全更新。
+日期镜像与 digest 应一起更新并重跑该 job；Ubuntu 24.04 固定的是发行版，托管镜像内
+工具仍可能更新。Android 保留显式 Temurin 17、Gradle 8.14 / AGP 8.11.1，不能依赖默认 Java。
+
+`linux-compat` 仍由 `execution-run` 与 `execution-summary` 核验机器事件、退出码、
+零执行和未批准 skip。其独立 `debian-core-evidence` artifact 不混入 `execution-*`
+或 Linux coverage；`IMBoy Test Summary` 的 `needs` 包含 Debian job，失败/取消/跳过
+会阻断汇总及后续构建，不因缩小测试集而放宽现有质量门禁。
+
+```bash
+python3 scripts/auto_test.py execution-plan --profile linux-compat --output "$REPORT_DIR/linux-compat-plan.json"
+python3 scripts/auto_test.py execution-run --plan "$REPORT_DIR/linux-compat-plan.json" --artifact-dir "$REPORT_DIR/linux-compat"
+python3 scripts/auto_test.py execution-summary --plan "$REPORT_DIR/linux-compat-plan.json" --results "$REPORT_DIR/linux-compat" --output "$REPORT_DIR/linux-compat-summary.json"
+```
+
+These commands verify the current userspace only. A Debian container shares the Ubuntu host's
+kernel and does not certify Debian boot/systemd, GPU, native desktop packaging or devices.
+A complete Debian VM check needs a separately maintained Debian VM/self-hosted runner with
+explicit custom labels; `debian-latest` is not a standard GitHub-hosted runner label.
+Before upgrading to Ubuntu 26.04, run the existing gates, browser checks and Android builds on
+that explicit image in a candidate PR; changing only the core compatibility lane is insufficient.
+
 `--coverage` 给已声明可统计的实例增加收集参数，与业务测试同次执行，不重新选文件。
 CI 覆盖率仍只收集 Linux 分片，Chrome worker 不开启覆盖率，也不额外重跑目标。
 路由、后端、Golden、设备和工具不混入宿主覆盖率。原 38% 门槛保留，实际扩大范围后的

@@ -134,7 +134,6 @@ class _WorkspacePlusButtonState extends State<WorkspacePlusButton> {
       onPressed: _showMenu,
       child: Semantics(
         label: t.common.buttonMore,
-        button: true,
         // TODO 广州第一期交付后实现：「新功能」常驻红点随占位菜单项
         // （记录面聊/智能总结/休息一下）一起恢复。
         // child: Stack(

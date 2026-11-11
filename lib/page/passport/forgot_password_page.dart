@@ -8,6 +8,7 @@ import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/passport/passport_notifier.dart';
 import 'package:imboy/page/passport/passport_state.dart';
 import 'package:imboy/page/passport/widget/bezier_container.dart';
+import 'package:imboy/page/passport/widget/login_form_tabs.dart';
 import 'package:imboy/page/passport/widget/passport_title.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/font_types.dart';
@@ -43,8 +44,6 @@ class _ForgotPasswordPageState extends ConsumerState<ForgotPasswordPage>
   bool get _isDark => Theme.of(context).brightness == Brightness.dark;
   Color get _inputFill =>
       _isDark ? AppColors.darkSurfaceContainer : AppColors.lightSurface;
-  Color get _unselectedLabel =>
-      _isDark ? AppColors.darkTextSecondary : AppColors.iosGray;
 
   @override
   Widget build(BuildContext context) {
@@ -55,73 +54,62 @@ class _ForgotPasswordPageState extends ConsumerState<ForgotPasswordPage>
     return CupertinoPageScaffold(
       child: Material(
         type: MaterialType.transparency,
-        child: SizedBox(
-          height: height,
-          child: Stack(
-            children: [
-              Positioned(
-                top: -height * .15,
-                right: -MediaQuery.of(context).size.width * .18,
-                child: const BezierContainer(),
-              ),
-
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: SingleChildScrollView(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      SizedBox(height: height * 0.12),
-                      const PassportTitle(color: AppColors.primary),
-                      const SizedBox(height: 40),
-
-                      Text(
-                        t.account.recoverPassword,
-                        style: context.textStyle(
-                          FontSizeType.extraLarge,
-                          fontWeight: FontWeight.bold,
-                          color: _isDark
-                              ? AppColors.darkTextPrimary
-                              : AppColors.lightTextPrimary,
-                        ),
-                      ),
-                      const SizedBox(height: 30),
-
-                      // Tabs
-                      TabBar(
-                        controller: _tabController,
-                        labelColor: AppColors.primary,
-                        unselectedLabelColor: _unselectedLabel,
-                        indicatorColor: AppColors.primary,
-                        tabs: [
-                          Tab(text: t.account.email),
-                          Tab(text: t.account.mobile),
+        child: Stack(
+          children: [
+            Positioned(
+              top: -height * .15,
+              right: -MediaQuery.sizeOf(context).width * .18,
+              child: const BezierContainer(),
+            ),
+            SafeArea(
+              child: Column(
+                children: [
+                  Align(
+                    alignment: AlignmentDirectional.centerStart,
+                    child: notifier.backButton(
+                      color: AppColors.primary,
+                      isRtl: Directionality.of(context) == TextDirection.rtl,
+                    ),
+                  ),
+                  Expanded(
+                    child: SingleChildScrollView(
+                      keyboardDismissBehavior:
+                          ScrollViewKeyboardDismissBehavior.onDrag,
+                      padding: AppSpacing.pageHorizontal,
+                      child: Column(
+                        children: [
+                          SizedBox(height: height * 0.04),
+                          const PassportTitle(color: AppColors.primary),
+                          AppSpacing.verticalXLarge,
+                          Text(
+                            t.account.recoverPassword,
+                            textAlign: TextAlign.center,
+                            style: context.textStyle(
+                              FontSizeType.extraLarge,
+                              fontWeight: FontWeight.bold,
+                              color: _isDark
+                                  ? AppColors.darkTextPrimary
+                                  : AppColors.lightTextPrimary,
+                            ),
+                          ),
+                          AppSpacing.verticalXLarge,
+                          LoginFormTabs(
+                            controller: _tabController,
+                            labels: [t.account.email, t.account.mobile],
+                            children: [
+                              _buildEmailInput(state, notifier),
+                              _buildMobileInput(state, notifier),
+                            ],
+                          ),
+                          AppSpacing.verticalLarge,
                         ],
                       ),
-                      AppSpacing.verticalLarge,
-
-                      SizedBox(
-                        height: 200,
-                        child: TabBarView(
-                          controller: _tabController,
-                          children: [
-                            _buildEmailInput(state, notifier),
-                            _buildMobileInput(state, notifier),
-                          ],
-                        ),
-                      ),
-                    ],
+                    ),
                   ),
-                ),
+                ],
               ),
-              Positioned(
-                top: 40,
-                left: 0,
-                child: notifier.backButton(color: AppColors.primary),
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

@@ -64,8 +64,9 @@ void main() {
       await tester.pumpWidget(_buildApp(darkTheme, textResult));
       await tester.pumpAndSettle();
 
-      final context = tester.element(find.text(textResult));
-      final style = DefaultTextStyle.of(context).style;
+      final content = find.byType(SelectableText);
+      final context = tester.element(content);
+      final style = tester.widget<SelectableText>(content).style!;
       final textOnSurface = Theme.of(context).colorScheme.onSurface;
       final surface = Theme.of(context).colorScheme.surface;
 
@@ -171,5 +172,37 @@ void main() {
       );
       expect(ratio, greaterThanOrEqualTo(4.5), reason: '亮色正文对比度 $ratio');
     });
+  });
+
+  testWidgets('long scan text scrolls above the safe-area action row', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(320, 480);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    final longResult = List.filled(80, 'A long QR result line').join('\n');
+    await tester.pumpWidget(_buildApp(darkTheme, longResult));
+    await tester.pumpAndSettle();
+
+    expect(
+      tester.widget<SelectableText>(find.byType(SelectableText)).data,
+      longResult,
+    );
+    expect(tester.takeException(), isNull);
+    final scroll = find.byType(SingleChildScrollView);
+    final action = find.byTooltip(t.common.buttonCopy);
+    expect(
+      tester.getRect(scroll).bottom,
+      lessThanOrEqualTo(tester.getRect(action).top),
+    );
+    await tester.drag(scroll, const Offset(0, -300));
+    await tester.pumpAndSettle();
+    final position = tester
+        .state<ScrollableState>(
+          find.descendant(of: scroll, matching: find.byType(Scrollable)).first,
+        )
+        .position;
+    expect(position.pixels, greaterThan(0));
+    expect(action.hitTestable(), findsOneWidget);
   });
 }

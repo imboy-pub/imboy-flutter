@@ -720,6 +720,7 @@ void main({bool realTime = false}) {
 
     expect(find.byKey(const Key('org-dir-dept-list-$dept1')), findsOneWidget);
     expect(find.byKey(const Key('org-dir-member-9002')), findsOneWidget);
+    expect(find.text(t.organization.directory.emptySearch), findsNothing);
     // 搜索模式不展示目录分页节。
     expect(find.text(t.organization.directory.deptSection), findsNothing);
   });

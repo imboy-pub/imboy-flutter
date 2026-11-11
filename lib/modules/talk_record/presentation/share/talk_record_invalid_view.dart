@@ -37,7 +37,8 @@ class TalkRecordInvalidView extends StatelessWidget {
     final brightness = Theme.of(context).brightness;
     return Center(
       key: const ValueKey('talk_record_invalid_view'),
-      child: Padding(
+      child: SingleChildScrollView(
+        primary: false,
         padding: const EdgeInsets.all(AppSpacing.regular),
         child: Column(
           mainAxisSize: MainAxisSize.min,

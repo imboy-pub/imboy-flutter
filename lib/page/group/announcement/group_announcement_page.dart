@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/component/ui/avatar_fallback.dart';
+import 'package:imboy/component/ui/cell_pressable.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:imboy/component/ui/common_bar.dart';
@@ -166,29 +167,32 @@ class _GroupAnnouncementPageState extends ConsumerState<GroupAnnouncementPage> {
                   ),
                 ),
                 const SizedBox(width: AppSpacing.medium),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      announcement.publisherName,
-                      style: context.textStyle(
-                        FontSizeType.medium,
-                        fontWeight: FontWeight.w600,
-                        color: Theme.of(context).colorScheme.onSurface,
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        announcement.publisherName,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: context.textStyle(
+                          FontSizeType.medium,
+                          fontWeight: FontWeight.w600,
+                          color: Theme.of(context).colorScheme.onSurface,
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      notifier.formatTime(announcement.createdAt),
-                      style: context.textStyle(
-                        FontSizeType.small,
-                        color: Theme.of(context).colorScheme.onSurface
-                            .withValues(alpha: 0.5),
+                      const SizedBox(height: 2),
+                      Text(
+                        notifier.formatTime(announcement.createdAt),
+                        style: context.textStyle(
+                          FontSizeType.small,
+                          color: Theme.of(context).colorScheme.onSurface
+                              .withValues(alpha: 0.5),
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-                const Spacer(),
                 // 仅管理员可见删除按钮
                 if (canManage)
                   IconButton(
@@ -239,14 +243,16 @@ class _GroupAnnouncementPageState extends ConsumerState<GroupAnnouncementPage> {
                           .withValues(alpha: 0.6),
                     ),
                     const SizedBox(width: 6),
-                    Text(
-                      t.common.groupAnnouncementExpiry(
-                        time: notifier.formatTime(announcement.expiredAt!),
-                      ),
-                      style: context.textStyle(
-                        FontSizeType.small,
-                        color: Theme.of(context).colorScheme.onSurface
-                            .withValues(alpha: 0.6),
+                    Flexible(
+                      child: Text(
+                        t.common.groupAnnouncementExpiry(
+                          time: notifier.formatTime(announcement.expiredAt!),
+                        ),
+                        style: context.textStyle(
+                          FontSizeType.small,
+                          color: Theme.of(context).colorScheme.onSurface
+                              .withValues(alpha: 0.6),
+                        ),
                       ),
                     ),
                   ],
@@ -296,7 +302,7 @@ class _GroupAnnouncementPageState extends ConsumerState<GroupAnnouncementPage> {
                 ),
               ),
               const SizedBox(height: AppSpacing.regular),
-              GestureDetector(
+              CellPressable(
                 onTap: () async {
                   // Cupertino 日期选择器
                   DateTime temp = DateTime.now();
@@ -356,13 +362,15 @@ class _GroupAnnouncementPageState extends ConsumerState<GroupAnnouncementPage> {
                             color: AppColors.iosGray,
                           ),
                           const SizedBox(width: AppSpacing.small),
-                          Text(
-                            expiredDate != null
-                                ? '${expiredDate.year}-${expiredDate.month.toString().padLeft(2, '0')}-${expiredDate.day.toString().padLeft(2, '0')}'
-                                : t.common.selectExpirationDateOptional,
-                            style: context.textStyle(
-                              FontSizeType.subheadline,
-                              color: AppColors.iosGray,
+                          Expanded(
+                            child: Text(
+                              expiredDate != null
+                                  ? '${expiredDate.year}-${expiredDate.month.toString().padLeft(2, '0')}-${expiredDate.day.toString().padLeft(2, '0')}'
+                                  : t.common.selectExpirationDateOptional,
+                              style: context.textStyle(
+                                FontSizeType.subheadline,
+                                color: AppColors.iosGray,
+                              ),
                             ),
                           ),
                         ],

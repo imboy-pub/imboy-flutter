@@ -75,7 +75,7 @@ class DetailSettingsTile extends StatelessWidget {
       style: style.copyWith(
         fontWeight: FontWeight.w400,
         color: destructive
-            ? AppColors.getIosRed(brightness)
+            ? AppColors.getDestructiveText(brightness)
             : AppColors.getTextColor(brightness),
       ),
       child: Column(

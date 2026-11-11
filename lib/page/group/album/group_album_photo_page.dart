@@ -8,6 +8,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/app_loading.dart';
+import 'package:imboy/component/ui/cell_pressable.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/nodata_view.dart';
 import 'package:imboy/i18n/strings.g.dart';
@@ -456,103 +457,114 @@ class _GroupAlbumPhotoPageState extends ConsumerState<GroupAlbumPhotoPage> {
     final photoId = _resolveDeletePhotoId(photo);
     final isSelected = _selectedPhotoIds.contains(photoId);
     final url = _resolvePhotoUrl(photo);
+    final selectionDuration = MediaQuery.disableAnimationsOf(context)
+        ? Duration.zero
+        : const Duration(milliseconds: 150);
     // 图片格没有文字，读屏只能靠语义：
     //   - selected 声明选中态，否则多选时完全不知道选了哪几张
     //   - 长按进多选是纯手势，读屏用户做不出来，挂成自定义操作才够得到
-    return Semantics(
-      button: true,
-      selected: _isSelectionMode ? isSelected : false,
-      customSemanticsActions: _isSelectionMode
-          ? null
-          : <CustomSemanticsAction, VoidCallback>{
-              CustomSemanticsAction(label: t.main.multiSelect): () =>
-                  _enterSelectionMode(photo),
+    return ClipRRect(
+      borderRadius: AppRadius.borderRadiusSmall,
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          CellPressable(
+            key: Key('group_album_photo_cell_$index'),
+            onTap: () {
+              if (_isSelectionMode) {
+                _togglePhotoSelection(photo);
+                return;
+              }
+              _openPhotoDetail(photo, index);
             },
-      child: GestureDetector(
-        key: Key('group_album_photo_cell_$index'),
-        onTap: () {
-          if (_isSelectionMode) {
-            _togglePhotoSelection(photo);
-            return;
-          }
-          _openPhotoDetail(photo, index);
-        },
-        onLongPress: () {
-          if (_isSelectionMode) return;
-          HapticFeedback.mediumImpact();
-          _enterSelectionMode(photo);
-        },
-        child: ClipRRect(
-          borderRadius: AppRadius.borderRadiusSmall,
-          child: Stack(
-            fit: StackFit.expand,
-            children: [
-              // 缩略图加载前的中性占位底（图片网格衬底，保留中性灰语义）
-              Container(
-                color: Theme.of(context).brightness == Brightness.dark
-                    ? AppColors.darkSurface
-                    : AppColors.lightSurfaceContainer,
-              ),
-              // 选中态压暗蒙层（叠在照片上，固定深色蒙层语义，带动画）
-              AnimatedOpacity(
-                opacity: isSelected ? 1.0 : 0.0,
-                duration: const Duration(milliseconds: 150),
-                child: Container(
-                  color: AppColors.darkBackground.withValues(alpha: 0.102),
-                ),
-              ),
-              if (url.isNotEmpty)
-                Image(
-                  image: cachedImageProvider(url),
-                  fit: BoxFit.cover,
-                  errorBuilder: (_, _, _) =>
-                      const Center(child: Icon(CupertinoIcons.photo_fill)),
-                )
-              else
-                const Center(child: Icon(CupertinoIcons.photo_fill)),
-              if (_isSelectionMode)
-                Positioned(
-                  left: 2,
-                  top: 2,
-                  child: AnimatedOpacity(
-                    opacity: _isSelectionMode ? 1.0 : 0.0,
-                    duration: const Duration(milliseconds: 150),
-                    child: Icon(
-                      isSelected
-                          ? CupertinoIcons.check_mark_circled_solid
-                          : CupertinoIcons.circle,
-                      color: isSelected
-                          ? AppColors.iosSkyBlue
-                          : AppColors.onPrimary.withValues(alpha: 0.7),
-                      size: 20,
-                    ),
+            onLongPress: () {
+              if (_isSelectionMode) return;
+              HapticFeedback.mediumImpact();
+              _enterSelectionMode(photo);
+            },
+            child: Semantics(
+              label: '${t.group.groupAlbumPhotoDetailTitle} ${index + 1}',
+              selected: _isSelectionMode ? isSelected : false,
+              customSemanticsActions: _isSelectionMode
+                  ? null
+                  : <CustomSemanticsAction, VoidCallback>{
+                      CustomSemanticsAction(label: t.main.multiSelect): () =>
+                          _enterSelectionMode(photo),
+                    },
+              child: Stack(
+                fit: StackFit.expand,
+                children: [
+                  // 缩略图加载前的中性占位底（图片网格衬底，保留中性灰语义）
+                  Container(
+                    color: Theme.of(context).brightness == Brightness.dark
+                        ? AppColors.darkSurface
+                        : AppColors.lightSurfaceContainer,
                   ),
-                ),
-              // SR-4：删除仅上传者本人 / 管理员 / 群主可见（隐藏而非报错）
-              if (!_isSelectionMode && _canDeletePhoto(photo))
-                Positioned(
-                  right: 2,
-                  top: 2,
-                  child: GestureDetector(
-                    key: Key('group_album_photo_delete_$index'),
-                    onTap: () => _deletePhoto(photo),
+                  if (url.isNotEmpty)
+                    Image(
+                      image: cachedImageProvider(url),
+                      fit: BoxFit.cover,
+                      errorBuilder: (_, _, _) =>
+                          const Center(child: Icon(CupertinoIcons.photo_fill)),
+                    )
+                  else
+                    const Center(child: Icon(CupertinoIcons.photo_fill)),
+                  // The selection overlay must paint above the loaded photo.
+                  AnimatedOpacity(
+                    opacity: isSelected ? 1.0 : 0.0,
+                    duration: selectionDuration,
                     child: Container(
-                      padding: const EdgeInsets.all(AppSpacing.tiny),
-                      decoration: BoxDecoration(
-                        color: AppColors.darkBackground.withValues(alpha: 0.54),
-                        borderRadius: AppRadius.borderRadiusRegular,
-                      ),
-                      child: const Icon(
-                        CupertinoIcons.delete,
-                        size: 16,
-                        color: AppColors.onPrimary,
-                      ),
+                      color: AppColors.darkBackground.withValues(alpha: 0.102),
                     ),
                   ),
-                ),
-            ],
+                  if (_isSelectionMode)
+                    Positioned(
+                      left: 2,
+                      top: 2,
+                      child: AnimatedOpacity(
+                        opacity: _isSelectionMode ? 1.0 : 0.0,
+                        duration: selectionDuration,
+                        child: Icon(
+                          isSelected
+                              ? CupertinoIcons.check_mark_circled_solid
+                              : CupertinoIcons.circle,
+                          color: isSelected
+                              ? AppColors.iosSkyBlue
+                              : AppColors.onPrimary.withValues(alpha: 0.7),
+                          size: 20,
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+            ),
           ),
-        ),
+          // Keep the destructive action separate from the photo's focus node.
+          if (!_isSelectionMode && _canDeletePhoto(photo))
+            Positioned(
+              right: 2,
+              top: 2,
+              child: CupertinoButton(
+                key: Key('group_album_photo_delete_$index'),
+                padding: EdgeInsets.zero,
+                minimumSize: const Size(44, 44),
+                onPressed: () => _deletePhoto(photo),
+                child: Container(
+                  padding: const EdgeInsets.all(AppSpacing.tiny),
+                  decoration: BoxDecoration(
+                    color: AppColors.darkBackground.withValues(alpha: 0.54),
+                    borderRadius: AppRadius.borderRadiusRegular,
+                  ),
+                  child: Icon(
+                    CupertinoIcons.delete,
+                    semanticLabel: t.common.groupAlbumPhotoDeleteTitle,
+                    size: 16,
+                    color: AppColors.onPrimary,
+                  ),
+                ),
+              ),
+            ),
+        ],
       ),
     );
   }

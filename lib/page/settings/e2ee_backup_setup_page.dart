@@ -6,6 +6,7 @@ import 'package:flutter/services.dart' show Clipboard, ClipboardData;
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/component/ui/ios_settings_ui.dart';
+import 'package:imboy/component/ui/resource_page_layout.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/service/e2ee_backup_setup_service.dart';
 import 'package:imboy/service/e2ee_crypto_service.dart';
@@ -89,6 +90,7 @@ class _E2EEBackupSetupPageState extends State<E2EEBackupSetupPage> {
         }
       },
       child: IosPageTemplate(
+        contentMaxWidth: ResourcePageLayout.maxWidth,
         title: t.common.e2eeBackupSetupTitle,
         // 无返回键：注意力留在本页；离开请走「稍后再说」（带代价确认）
         leading: const SizedBox.shrink(),
@@ -125,7 +127,9 @@ class _E2EEBackupSetupPageState extends State<E2EEBackupSetupPage> {
       width: double.infinity,
       padding: const EdgeInsets.all(AppSpacing.regular),
       decoration: BoxDecoration(
-        color: AppColors.iosGray6,
+        color: CupertinoTheme.brightnessOf(context) == Brightness.dark
+            ? AppColors.darkSurfaceGroupedTertiary
+            : AppColors.lightSurface,
         borderRadius: BorderRadius.circular(12),
       ),
       child: Text(

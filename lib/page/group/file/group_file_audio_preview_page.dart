@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:imboy/component/ui/resource_page_layout.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:imboy/component/extension/imboy_cache_manager.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
@@ -106,53 +107,57 @@ class _GroupFileAudioPreviewPageState extends State<GroupFileAudioPreviewPage> {
 
     return Scaffold(
       appBar: GlassAppBar(title: widget.title, automaticallyImplyLeading: true),
-      body: Center(
-        child: Padding(
-          padding: AppSpacing.allLarge,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Icon(CupertinoIcons.music_note, size: 56),
-              AppSpacing.verticalRegular,
-              if (_isPreparing) ...[
-                const CupertinoActivityIndicator(),
-                AppSpacing.verticalMedium,
-                Text(t.common.groupFileAudioLoading),
-              ] else if (_errorText != null) ...[
-                Text(_errorText!),
-              ] else ...[
-                CupertinoSlider(
-                  value: positionMs.toDouble(),
-                  max: maxMs.toDouble(),
-                  onChanged: (value) =>
-                      _player.seek(Duration(milliseconds: value.toInt())),
-                ),
-                Text(
-                  '${_formatDuration(_position)} / ${_formatDuration(_duration)}',
-                ),
-                AppSpacing.verticalSmall,
-                CupertinoButton.filled(
-                  onPressed: _togglePlay,
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(
-                        _isPlaying
-                            ? CupertinoIcons.pause
-                            : CupertinoIcons.play_arrow,
-                        size: 18,
-                      ),
-                      AppSpacing.horizontalSmall,
-                      Text(
-                        _isPlaying
-                            ? t.chat.groupFileMediaPause
-                            : t.chat.groupFileMediaPlay,
-                      ),
-                    ],
+      body: ResourcePageLayout(
+        child: Center(
+          child: SingleChildScrollView(
+            padding: AppSpacing.allLarge,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(CupertinoIcons.music_note, size: 56),
+                AppSpacing.verticalRegular,
+                if (_isPreparing) ...[
+                  const CupertinoActivityIndicator(),
+                  AppSpacing.verticalMedium,
+                  Text(t.common.groupFileAudioLoading),
+                ] else if (_errorText != null) ...[
+                  Text(_errorText!),
+                ] else ...[
+                  CupertinoSlider(
+                    value: positionMs.toDouble(),
+                    max: maxMs.toDouble(),
+                    onChanged: (value) =>
+                        _player.seek(Duration(milliseconds: value.toInt())),
                   ),
-                ),
+                  Text(
+                    '${_formatDuration(_position)} / ${_formatDuration(_duration)}',
+                  ),
+                  AppSpacing.verticalSmall,
+                  CupertinoButton.filled(
+                    onPressed: _togglePlay,
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          _isPlaying
+                              ? CupertinoIcons.pause
+                              : CupertinoIcons.play_arrow,
+                          size: 18,
+                        ),
+                        AppSpacing.horizontalSmall,
+                        Flexible(
+                          child: Text(
+                            _isPlaying
+                                ? t.chat.groupFileMediaPause
+                                : t.chat.groupFileMediaPlay,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
               ],
-            ],
+            ),
           ),
         ),
       ),

@@ -1,11 +1,13 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:imboy/component/ui/cell_pressable.dart';
 
 import 'package:imboy/component/ui/avatar.dart' show SmartGroupAvatar;
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/store/model/group_model.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
+import 'package:imboy/theme/default/app_sizes.dart';
 import 'package:imboy/theme/default/font_types.dart';
 
 /// 群详情页顶部信息卡片。
@@ -45,9 +47,8 @@ class _GroupInfoCardState extends State<GroupInfoCard> {
     final titleText = group.displayTitle;
     final hasIntro = group.introduction.isNotEmpty;
 
-    return GestureDetector(
+    return CellPressable(
       onTap: widget.onTap,
-      behavior: HitTestBehavior.opaque,
       child: Container(
         margin: const EdgeInsets.fromLTRB(
           AppSpacing.regular,
@@ -99,36 +100,41 @@ class _GroupInfoCardState extends State<GroupInfoCard> {
                   ),
                   if (hasIntro) ...[
                     const SizedBox(height: AppSpacing.tiny),
-                    GestureDetector(
+                    CellPressable(
                       // 简介点击展开/收起，不触达外层 onTap（进入编辑）
                       onTap: () =>
                           setState(() => _introExpanded = !_introExpanded),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Expanded(
-                            child: Text(
-                              group.introduction,
-                              style: context.textStyle(
-                                FontSizeType.footnote,
-                                color: AppColors.iosGray,
-                              ),
-                              maxLines: _introExpanded ? 5 : 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                          if (group.introduction.length > 20)
-                            Padding(
-                              padding: const EdgeInsets.only(left: 4),
-                              child: Icon(
-                                _introExpanded
-                                    ? CupertinoIcons.chevron_up
-                                    : CupertinoIcons.chevron_down,
-                                size: 12,
-                                color: AppColors.iosGray3,
+                      child: ConstrainedBox(
+                        constraints: const BoxConstraints(
+                          minHeight: AppSizes.touchTarget,
+                        ),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Expanded(
+                              child: Text(
+                                group.introduction,
+                                style: context.textStyle(
+                                  FontSizeType.footnote,
+                                  color: AppColors.iosGray,
+                                ),
+                                maxLines: _introExpanded ? 5 : 1,
+                                overflow: TextOverflow.ellipsis,
                               ),
                             ),
-                        ],
+                            if (group.introduction.length > 20)
+                              Padding(
+                                padding: const EdgeInsets.only(left: 4),
+                                child: Icon(
+                                  _introExpanded
+                                      ? CupertinoIcons.chevron_up
+                                      : CupertinoIcons.chevron_down,
+                                  size: 12,
+                                  color: AppColors.iosGray3,
+                                ),
+                              ),
+                          ],
+                        ),
                       ),
                     ),
                   ],

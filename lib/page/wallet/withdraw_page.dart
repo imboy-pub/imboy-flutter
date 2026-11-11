@@ -1,5 +1,6 @@
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:flutter/material.dart';
+import 'package:imboy/component/ui/resource_page_layout.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:imboy/theme/default/font_types.dart';
 import 'package:imboy/component/ui/app_loading.dart';
@@ -168,174 +169,187 @@ class _WithdrawPageState extends ConsumerState<WithdrawPage> {
         title: t.common.withdraw,
         automaticallyImplyLeading: true,
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(AppSpacing.regular),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              // 余额展示卡片
-              Container(
-                width: double.infinity,
-                padding: AppSpacing.allLarge,
-                decoration: BoxDecoration(
-                  color: AppColors.getSurfaceColor(brightness),
-                  borderRadius: AppRadius.borderRadiusMedium,
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      t.common.smallChange,
-                      style: context.textStyle(
-                        FontSizeType.footnote,
-                        color: AppColors.getTextColor(
-                          brightness,
-                          isSecondary: true,
+      body: ResourcePageLayout(
+        child: SingleChildScrollView(
+          keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+          padding: const EdgeInsets.all(AppSpacing.regular),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                // 余额展示卡片
+                Container(
+                  width: double.infinity,
+                  padding: AppSpacing.allLarge,
+                  decoration: BoxDecoration(
+                    color: AppColors.getSurfaceColor(brightness),
+                    borderRadius: AppRadius.borderRadiusMedium,
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        t.common.smallChange,
+                        style: context.textStyle(
+                          FontSizeType.footnote,
+                          color: AppColors.getTextColor(
+                            brightness,
+                            isSecondary: true,
+                          ),
                         ),
                       ),
+                      AppSpacing.verticalSmall,
+                      Text(
+                        '￥${balanceYuan.toStringAsFixed(2)}',
+                        style: context.textStyle(
+                          FontSizeType.extraLargeTitle,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                AppSpacing.verticalRegular,
+
+                // 提现金额（hero）
+                WalletAmountField(
+                  controller: _amountController,
+                  label: t.common.withdrawAmountLabel,
+                  accent: AppColors.primary,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return t.common.withdrawAmountError;
+                    }
+                    final amountFen = parseYuanToFen(value);
+                    if (amountFen == null || amountFen < 1) {
+                      return t.common.withdrawAmountError;
+                    }
+                    return null;
+                  },
+                ),
+                AppSpacing.verticalRegular,
+
+                // 提现渠道选择
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: AppSpacing.tiny,
+                  ),
+                  child: Text(
+                    t.common.withdrawMethod,
+                    style: context.textStyle(
+                      FontSizeType.footnote,
+                      color: AppColors.getTextColor(
+                        brightness,
+                        isSecondary: true,
+                      ),
                     ),
-                    AppSpacing.verticalSmall,
-                    Text(
-                      '￥${balanceYuan.toStringAsFixed(2)}',
-                      style: context.textStyle(
-                        FontSizeType.extraLargeTitle,
-                        fontWeight: FontWeight.bold,
+                  ),
+                ),
+                AppSpacing.verticalSmall,
+                Row(
+                  children: [
+                    Expanded(
+                      child: ChoiceChip(
+                        label: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Icon(CupertinoIcons.money_dollar, size: 20),
+                            AppSpacing.horizontalSmall,
+                            Flexible(
+                              child: Text(
+                                t.common.withdrawAlipay,
+                                textAlign: TextAlign.center,
+                              ),
+                            ),
+                          ],
+                        ),
+                        selected: _selectedMethod == 'alipay',
+                        onSelected: (selected) {
+                          if (selected) {
+                            setState(() => _selectedMethod = 'alipay');
+                          }
+                        },
+                      ),
+                    ),
+                    AppSpacing.horizontalRegular,
+                    Expanded(
+                      child: ChoiceChip(
+                        label: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Icon(CupertinoIcons.chat_bubble, size: 20),
+                            AppSpacing.horizontalSmall,
+                            Flexible(
+                              child: Text(
+                                t.common.withdrawWechat,
+                                textAlign: TextAlign.center,
+                              ),
+                            ),
+                          ],
+                        ),
+                        selected: _selectedMethod == 'wechat',
+                        onSelected: (selected) {
+                          if (selected) {
+                            setState(() => _selectedMethod = 'wechat');
+                          }
+                        },
                       ),
                     ),
                   ],
                 ),
-              ),
-              AppSpacing.verticalRegular,
+                AppSpacing.verticalRegular,
 
-              // 提现金额（hero）
-              WalletAmountField(
-                controller: _amountController,
-                label: t.common.withdrawAmountLabel,
-                accent: AppColors.primary,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return t.common.withdrawAmountError;
-                  }
-                  final amountFen = parseYuanToFen(value);
-                  if (amountFen == null || amountFen < 1) {
-                    return t.common.withdrawAmountError;
-                  }
-                  return null;
-                },
-              ),
-              AppSpacing.verticalRegular,
-
-              // 提现渠道选择
-              Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: AppSpacing.tiny,
-                ),
-                child: Text(
-                  t.common.withdrawMethod,
-                  style: context.textStyle(
-                    FontSizeType.footnote,
-                    color: AppColors.getTextColor(
-                      brightness,
-                      isSecondary: true,
+                // 提现账号
+                WalletFieldCard(
+                  child: TextFormField(
+                    enableSuggestions: false,
+                    autocorrect: false,
+                    controller: _accountController,
+                    decoration: walletInputDecoration(
+                      hint: _selectedMethod == 'alipay'
+                          ? t.common.withdrawAccountHintAlipay
+                          : t.common.withdrawAccountHintWechat,
                     ),
+                    validator: _validateAccount,
                   ),
                 ),
-              ),
-              AppSpacing.verticalSmall,
-              Row(
-                children: [
-                  Expanded(
-                    child: ChoiceChip(
-                      label: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const Icon(CupertinoIcons.money_dollar, size: 20),
-                          AppSpacing.horizontalSmall,
-                          Text(t.common.withdrawAlipay),
-                        ],
+                AppSpacing.verticalSmall,
+
+                WalletBalanceHint(balanceYuan: balanceYuan),
+                AppSpacing.verticalTiny,
+                // 手续费与到账时效：后端 /wallet/withdraw 只返回 balance /
+                // balance_yuan / reference_no，无费率与时效字段，故不做任何具体承诺。
+                // ponytail: neutral notice; show real fee/ETA once the API returns them
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: AppSpacing.tiny,
+                  ),
+                  child: Text(
+                    t.common.withdrawFeeNotice,
+                    style: context.textStyle(
+                      FontSizeType.footnote,
+                      color: AppColors.getTextColor(
+                        brightness,
+                        isSecondary: true,
                       ),
-                      selected: _selectedMethod == 'alipay',
-                      onSelected: (selected) {
-                        if (selected) {
-                          setState(() => _selectedMethod = 'alipay');
-                        }
-                      },
-                    ),
-                  ),
-                  AppSpacing.horizontalRegular,
-                  Expanded(
-                    child: ChoiceChip(
-                      label: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const Icon(CupertinoIcons.chat_bubble, size: 20),
-                          AppSpacing.horizontalSmall,
-                          Text(t.common.withdrawWechat),
-                        ],
-                      ),
-                      selected: _selectedMethod == 'wechat',
-                      onSelected: (selected) {
-                        if (selected) {
-                          setState(() => _selectedMethod = 'wechat');
-                        }
-                      },
-                    ),
-                  ),
-                ],
-              ),
-              AppSpacing.verticalRegular,
-
-              // 提现账号
-              WalletFieldCard(
-                child: TextFormField(
-                  enableSuggestions: false,
-                  autocorrect: false,
-                  controller: _accountController,
-                  decoration: walletInputDecoration(
-                    hint: _selectedMethod == 'alipay'
-                        ? t.common.withdrawAccountHintAlipay
-                        : t.common.withdrawAccountHintWechat,
-                  ),
-                  validator: _validateAccount,
-                ),
-              ),
-              AppSpacing.verticalSmall,
-
-              WalletBalanceHint(balanceYuan: balanceYuan),
-              AppSpacing.verticalTiny,
-              // 手续费与到账时效：后端 /wallet/withdraw 只返回 balance /
-              // balance_yuan / reference_no，无费率与时效字段，故不做任何具体承诺。
-              // ponytail: neutral notice; show real fee/ETA once the API returns them
-              Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: AppSpacing.tiny,
-                ),
-                child: Text(
-                  t.common.withdrawFeeNotice,
-                  style: context.textStyle(
-                    FontSizeType.footnote,
-                    color: AppColors.getTextColor(
-                      brightness,
-                      isSecondary: true,
                     ),
                   ),
                 ),
-              ),
-              const SizedBox(height: 40),
+                const SizedBox(height: 40),
 
-              WalletPrimaryButton(
-                label: t.common.withdrawConfirm,
-                // 与二次确认弹窗同一条判据：提现不是破坏性操作，iosRed 留给
-                // 删除/退出。转账页同为资金主操作，也用 primary。
-                color: AppColors.primary,
-                onPressed: () {
-                  FocusScope.of(context).unfocus();
-                  _handleWithdraw(walletState.balance);
-                },
-              ),
-            ],
+                WalletPrimaryButton(
+                  label: t.common.withdrawConfirm,
+                  // 与二次确认弹窗同一条判据：提现不是破坏性操作，iosRed 留给
+                  // 删除/退出。转账页同为资金主操作，也用 primary。
+                  color: AppColors.primary,
+                  onPressed: () {
+                    FocusScope.of(context).unfocus();
+                    _handleWithdraw(walletState.balance);
+                  },
+                ),
+              ],
+            ),
           ),
         ),
       ),

@@ -1,11 +1,13 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 
 import 'package:imboy/page/chat/rtc_room/rtc_room_page.dart';
 import 'package:imboy/page/chat/rtc_room/rtc_room_provider.dart';
+import 'package:imboy/theme/default/call_tokens.dart';
 
 /// 假 Notifier：不触碰 LiveKit Room，仅驱动 UI 状态
 class _FakeRtcRoomNotifier extends RtcRoomNotifier {
@@ -125,6 +127,28 @@ void main() {
     expect(find.byIcon(CupertinoIcons.videocam_fill), findsOneWidget);
     expect(find.byIcon(CupertinoIcons.arrow_2_circlepath), findsOneWidget);
     expect(find.byIcon(CupertinoIcons.phone_down_fill), findsOneWidget);
+    expect(
+      tester
+          .widget<CupertinoPageScaffold>(find.byType(CupertinoPageScaffold))
+          .backgroundColor,
+      CallTokens.bgDeep,
+      reason: 'White call content needs its media backdrop in light mode',
+    );
+  });
+
+  testWidgets('Tab, Enter and Space activate the microphone control', (
+    tester,
+  ) async {
+    await tester.pumpWidget(_buildPage());
+    await tester.pump();
+    await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+    await tester.pump();
+    await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+    await tester.pump();
+    expect(find.byIcon(CupertinoIcons.mic_slash), findsOneWidget);
+    await tester.sendKeyEvent(LogicalKeyboardKey.space);
+    await tester.pump();
+    expect(find.byIcon(CupertinoIcons.mic_fill), findsOneWidget);
   });
 
   testWidgets('群通话初次连接失败时保留页面并提供重试', (tester) async {

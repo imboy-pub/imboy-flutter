@@ -9,23 +9,17 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:imboy/component/helper/func.dart'
-    show strNoEmpty, avatarImageProvider;
-import 'package:imboy/component/ui/avatar_fallback.dart';
 import 'package:imboy/modules/social_graph/public.dart';
 import 'package:imboy/config/router/generated_product_feature_routes.dart';
 import 'package:imboy/theme/default/font_types.dart';
 import 'package:imboy/theme/default/app_colors.dart';
-import 'package:imboy/theme/default/app_radius.dart';
-import 'package:imboy/theme/default/app_sizes.dart';
 import 'package:imboy/app_core/feature_flags/app_feature_registry.dart';
 import 'package:imboy/app_core/feature_flags/app_manifest_service.dart';
 import 'package:imboy/page/conversation/conversation_page.dart';
 import 'package:imboy/page/conversation/conversation_provider.dart';
 import 'package:imboy/page/mine/mine/mine_page.dart';
-import 'package:imboy/page/workspace_shell/workspace_drawer_menu.dart';
+import 'package:imboy/page/workspace_shell/space_switcher_button.dart';
 import 'package:imboy/service/websocket_status_provider.dart';
-import 'package:imboy/store/repository/user_repo_provider.dart';
 import 'package:imboy/component/ui/glass_bottom_bar.dart';
 import 'package:imboy/component/dialog/e2ee_recovery_guide_dialog.dart';
 import 'package:imboy/service/storage.dart';
@@ -49,14 +43,20 @@ int resolveInitialIndex(
   Map<String, String> queryParameters,
   int tabCount, {
   int fallback = 0,
+  int? restoredIndex,
 }) {
+  if (restoredIndex != null) return normalizeIndex(restoredIndex, tabCount);
   final raw = queryParameters['index'];
   final index = raw == null ? fallback : (int.tryParse(raw) ?? 0);
   return normalizeIndex(index, tabCount);
 }
 
 class BottomNavigationPage extends ConsumerStatefulWidget {
-  const BottomNavigationPage({super.key});
+  const BottomNavigationPage({super.key, this.restoredIndex});
+
+  /// A live resize restores the active destination instead of replaying a
+  /// previously consumed URL query. Ordinary entry still honors that query.
+  final int? restoredIndex;
 
   @override
   ConsumerState<BottomNavigationPage> createState() =>
@@ -65,10 +65,6 @@ class BottomNavigationPage extends ConsumerStatefulWidget {
 
 class _BottomNavigationPageState extends ConsumerState<BottomNavigationPage> {
   late final PageController pageController;
-
-  /// 壳级 Scaffold 钥匙：消息页顶栏头像在嵌套 Scaffold（IosPageTemplate）
-  /// 内，Scaffold.of 命不中壳，须经钥匙直达壳级抽屉。
-  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   StreamSubscription<dynamic>? _localeSubscription;
 
@@ -91,14 +87,12 @@ class _BottomNavigationPageState extends ConsumerState<BottomNavigationPage> {
     return normalizeIndex(value, _buildPageList().length);
   }
 
-  List<Widget> _buildPageList() {
+  List<Widget> _buildPageList({bool useRail = false}) {
     final channelPage = compiledChannelListPage();
     return [
-      // 消息页左上角头像 = 空间切换抽屉入口（企业侧为壳级汉堡，同职责）。
+      // 有侧栏时空间入口全局常驻，消息头不再重复。
       ConversationPage(
-        leading: PersonalShellDrawerAvatarButton(
-          onTap: () => _scaffoldKey.currentState?.openDrawer(),
-        ),
+        leading: useRail ? null : const PersonalShellDrawerAvatarButton(),
       ),
       ContactPage(),
       if (_isTabEnabled('channel_tab') && channelPage != null) channelPage,
@@ -109,10 +103,10 @@ class _BottomNavigationPageState extends ConsumerState<BottomNavigationPage> {
   @override
   void initState() {
     super.initState();
-    // PageController 初始为 0，真正的 initialIndex 在 didChangeDependencies 中
-    // 根据 GoRouterState 的 query 参数计算并跳转（GoRouterState.of 依赖
-    // InheritedWidget，不能在 initState 中调用）
-    pageController = PageController(initialPage: 0);
+    // 普通入口在 didChangeDependencies 解析路由初值；跨断点先恢复控制器，
+    // 避免恢复帧短暂显示消息页。GoRouterState.of 依赖 InheritedWidget，
+    // 仍不能在 initState 中读取。
+    pageController = PageController(initialPage: widget.restoredIndex ?? 0);
 
     _localeSubscription = LocaleSettings.getLocaleStream().listen((_) {
       if (mounted) {
@@ -131,7 +125,10 @@ class _BottomNavigationPageState extends ConsumerState<BottomNavigationPage> {
     if (_initialIndexApplied) return;
     _initialIndexApplied = true;
 
-    int initialIndex = _normalizeIndex(ref.read(bottomNavigationProvider));
+    final navigationBeforeRestore = ref.read(bottomNavigationProvider);
+    int initialIndex = _normalizeIndex(
+      widget.restoredIndex ?? navigationBeforeRestore,
+    );
 
     try {
       final routerState = GoRouterState.of(context);
@@ -139,6 +136,7 @@ class _BottomNavigationPageState extends ConsumerState<BottomNavigationPage> {
         routerState.uri.queryParameters,
         _buildPageList().length,
         fallback: initialIndex,
+        restoredIndex: widget.restoredIndex,
       );
     } catch (e) {
       // 非 GoRouter 上下文时使用默认值
@@ -146,10 +144,18 @@ class _BottomNavigationPageState extends ConsumerState<BottomNavigationPage> {
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
+      final currentIndex = ref.read(bottomNavigationProvider);
+      if (widget.restoredIndex != null &&
+          currentIndex != navigationBeforeRestore &&
+          currentIndex != initialIndex) {
+        return;
+      }
       if (pageController.hasClients) {
         pageController.jumpToPage(initialIndex);
       }
-      ref.read(bottomNavigationProvider.notifier).changeIndex(initialIndex);
+      if (widget.restoredIndex == null || currentIndex != initialIndex) {
+        ref.read(bottomNavigationProvider.notifier).changeIndex(initialIndex);
+      }
       _maybeShowE2EERecoveryGuide();
     });
   }
@@ -181,7 +187,6 @@ class _BottomNavigationPageState extends ConsumerState<BottomNavigationPage> {
     final t = context.t;
     // channelEnabled 控制会话列表顶部频道置顶区显示（Slice-5 接线）
     final channelEnabled = AppFeatureRegistry.isEnabled(FeatureKeys.channel);
-    final pageList = _buildPageList();
     final labelFontSize = ThemeManager.instance.getFontSize(
       FontSizeType.small,
       context: context,
@@ -199,11 +204,13 @@ class _BottomNavigationPageState extends ConsumerState<BottomNavigationPage> {
     final socketStatus =
         socketStatusAsync.value ?? WebSocketConnectionState.disconnected;
 
-    final mediaQuery = MediaQuery.of(context);
-    final width = mediaQuery.size.width;
+    // 只取宽度：MediaQuery.sizeOf 不会因为键盘内边距/方向以外的无关
+    // MediaQueryData 变化（例如 viewInsets 抖动）而重建整个壳层。
+    final width = MediaQuery.sizeOf(context).width;
     // mobile(600px) - wide(900px) 为 tablet 模式（使用 NavigationRail）
     final isTablet =
         width >= AppBreakpoints.mobile && width < AppBreakpoints.wide;
+    final pageList = _buildPageList(useRail: isTablet);
 
     if (rawBottomBarIndex != bottomBarIndex) {
       Future.microtask(() {
@@ -223,14 +230,20 @@ class _BottomNavigationPageState extends ConsumerState<BottomNavigationPage> {
         icon: CupertinoIcons.chat_bubble,
         activeIcon: CupertinoIcons.chat_bubble_fill,
         label: t.chat.titleMessage,
-        remindCount: ref.watch(conversationProvider).chatMsgRemindCounter,
+        // 只订阅「未读总数」这个标量：历史上这里是
+        // `ref.watch(conversationProvider)`，导致任意会话状态变化（收到消息、
+        // isLoading / connectDesc 翻转）都会重建整个底部导航壳层及其 PageView
+        // 子页。select 之后仅在未读数真的变化时才重建。
+        remindCount: ref.watch(
+          conversationProvider.select((s) => s.chatMsgRemindCounter),
+        ),
         tabKey: const Key('tab_conversations'),
       ),
       _NavigationItemData(
         icon: CupertinoIcons.person_2,
         activeIcon: CupertinoIcons.person_2_fill,
         label: t.organization.directory.title,
-        remindCount: ref.watch(newFriendRemindProvider).length,
+        remindCount: ref.watch(newFriendRemindProvider.select((s) => s.length)),
         tabKey: const Key('tab_contacts'),
       ),
       if (_isTabEnabled('channel_tab') && compiledChannelListPage() != null)
@@ -253,14 +266,15 @@ class _BottomNavigationPageState extends ConsumerState<BottomNavigationPage> {
     return PopScope(
       canPop: false,
       child: Scaffold(
-        key: _scaffoldKey,
-        drawer: const WorkspaceDrawerMenu(),
         backgroundColor: Theme.of(context).colorScheme.surface,
         extendBody: true,
         body: Row(
           children: [
             if (isTablet)
               NavigationRail(
+                key: const ValueKey('personal-shell-rail'),
+                leading: const PersonalShellDrawerAvatarButton(inRail: true),
+                scrollable: true,
                 selectedIndex: bottomBarIndex,
                 onDestinationSelected: (index) {
                   ref
@@ -430,52 +444,23 @@ class _NavigationItemData {
   });
 }
 
-/// 消息页顶栏左上角头像：打开壳级空间切换抽屉（Slack/飞书式入口）。
-///
-/// onTap 由壳注入（经 GlobalKey 直达壳 Scaffold），不经 Scaffold.of——
-/// 本按钮位于 IosPageTemplate 的嵌套 Scaffold 内，向上最近命中非壳。
-/// 公开仅为可测（整页挂载不在测试 ROI 内，见 bottom_navigation_page_test）。
+/// 保留既有个人入口与回调契约，容器由共享空间入口按壳布局选择。
 class PersonalShellDrawerAvatarButton extends ConsumerWidget {
-  const PersonalShellDrawerAvatarButton({super.key, required this.onTap});
+  const PersonalShellDrawerAvatarButton({
+    super.key,
+    this.onTap,
+    this.inRail = false,
+  });
 
-  final VoidCallback onTap;
+  final VoidCallback? onTap;
+  final bool inRail;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final user = ref.watch(currentUserProvider);
-    final hasAvatar = user != null && strNoEmpty(user.avatar);
-    return CupertinoButton(
+    return SpaceSwitcherButton(
       key: const ValueKey('personal-shell-drawer-avatar'),
-      padding: EdgeInsets.zero,
-      minimumSize: const Size.square(AppSizes.touchTargetCompact),
-      onPressed: onTap,
-      child: Semantics(
-        label: context.t.organization.experienceUi.switchSpace,
-        button: true,
-        child: Container(
-          width: AppSizes.avatarSizeSmall,
-          height: AppSizes.avatarSizeSmall,
-          // 回退内容是裸 Text/Icon，不自带居中。
-          alignment: Alignment.center,
-          decoration: BoxDecoration(
-            color: AppColors.primary.withValues(alpha: 0.1),
-            borderRadius: AppRadius.borderRadiusSmall,
-            image: hasAvatar
-                ? DecorationImage(
-                    image: avatarImageProvider(user.avatar),
-                    fit: BoxFit.cover,
-                  )
-                : null,
-          ),
-          child: hasAvatar
-              ? null
-              : AvatarFallbackContent(
-                  name: user?.nickname ?? context.t.common.unknown,
-                  color: AppColors.primary,
-                  textStyle: context.textStyle(FontSizeType.footnote),
-                ),
-        ),
-      ),
+      onTap: onTap,
+      inRail: inRail,
     );
   }
 }

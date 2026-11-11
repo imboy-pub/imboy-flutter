@@ -564,7 +564,7 @@ class ChannelApi extends HttpClient
     );
 
     if (!resp.ok || resp.payload == null) {
-      return [];
+      throw StateError('channel_subscribers_request_failed');
     }
 
     final list = IMBoyHttpResponse.payloadList(resp.payload);

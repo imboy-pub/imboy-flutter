@@ -105,15 +105,26 @@ class FontSizeNotifier extends _$FontSizeNotifier {
     Color? color,
   }) {
     final themeNotifier = ref.read(themeProvider.notifier);
-    return themeNotifier.getTextStyle(
-      type,
-      color: color ?? Theme.of(context).colorScheme.onSurface,
-    );
+    return themeNotifier
+        .getTextStyle(
+          type,
+          color: color ?? Theme.of(context).colorScheme.onSurface,
+        )
+        .copyWith(
+          fontSize: FontScaleCalculator.calculateFinalSize(
+            type,
+            state.previewOption,
+          ),
+        );
   }
 
   bool get isPreviewAccessible {
-    final themeNotifier = ref.read(themeProvider.notifier);
-    return themeNotifier.isCurrentFontSizeAccessible;
+    return FontScaleCalculator.isAccessibleSize(
+      FontScaleCalculator.calculateFinalSize(
+        FontSizeType.normal,
+        state.previewOption,
+      ),
+    );
   }
 }
 
@@ -187,21 +198,20 @@ class FontSizePage extends ConsumerWidget {
               ),
             ),
             AppSpacing.verticalRegular,
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                Text(
-                  notifier.isPreviewAccessible
-                      ? t.chat.goodReadability
-                      : t.common.fontTooSmallMayAffect,
-                  style: context.textStyle(
-                    FontSizeType.small,
-                    color: notifier.isPreviewAccessible
-                        ? AppColors.iosBlue
-                        : AppColors.iosRed,
-                  ),
+            Align(
+              alignment: AlignmentDirectional.centerEnd,
+              child: Text(
+                notifier.isPreviewAccessible
+                    ? t.chat.goodReadability
+                    : t.common.fontTooSmallMayAffect,
+                textAlign: TextAlign.end,
+                style: context.textStyle(
+                  FontSizeType.small,
+                  color: notifier.isPreviewAccessible
+                      ? AppColors.iosBlue
+                      : AppColors.iosRed,
                 ),
-              ],
+              ),
             ),
           ],
         ),
@@ -269,6 +279,9 @@ class FontSizePage extends ConsumerWidget {
               max: (options.length - 1).toDouble(),
               divisions: options.length - 1,
               value: state.sliderValue,
+              semanticFormatterCallback: (value) =>
+                  options[value.round().clamp(0, options.length - 1)]
+                      .localizedName,
               onChanged: (value) =>
                   ref.read(fontSizeProvider.notifier).updatePreview(value),
               onChangeEnd: (value) async {
@@ -318,8 +331,11 @@ class FontSizePage extends ConsumerWidget {
     ColorScheme cs,
     Translations t,
   ) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    return Wrap(
+      alignment: WrapAlignment.spaceBetween,
+      crossAxisAlignment: WrapCrossAlignment.center,
+      spacing: AppSpacing.small,
+      runSpacing: AppSpacing.small,
       children: [
         Text(
           t.common.currentFontScale(

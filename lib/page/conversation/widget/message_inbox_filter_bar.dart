@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/theme/default/app_colors.dart';
+import 'package:imboy/theme/default/app_duration.dart';
 import 'package:imboy/theme/default/app_radius.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:imboy/theme/default/font_types.dart';
@@ -25,6 +26,17 @@ class MessageInboxFilterBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final brightness = Theme.of(context).brightness;
+    final isDark = brightness == Brightness.dark;
+    final selectedBackground = isDark
+        ? AppColors.primaryAlpha20
+        : AppColors.primaryLight;
+    final selectedForeground = isDark
+        ? AppColors.primaryContainer
+        : AppColors.primaryDark;
+    final duration = AppDuration.respectReducedMotion(
+      MediaQuery.disableAnimationsOf(context),
+      AppDuration.fast,
+    );
     final labels = <MessageInboxFilter, String>{
       MessageInboxFilter.all: t.common.all,
       MessageInboxFilter.unread: t.workspace.filterUnread,
@@ -36,34 +48,45 @@ class MessageInboxFilterBar extends StatelessWidget {
       scrollDirection: Axis.horizontal,
       padding: const EdgeInsets.symmetric(horizontal: AppSpacing.regular),
       child: Row(
+        spacing: AppSpacing.tiny,
         children: [
           for (final entry in labels.entries)
-            Padding(
-              padding: const EdgeInsetsDirectional.only(end: AppSpacing.small),
-              child: Semantics(
-                selected: selected == entry.key,
-                child: CupertinoButton(
-                  key: ValueKey('message-filter-${entry.key.name}'),
-                  minimumSize: const Size(48, 48),
+            Semantics(
+              selected: selected == entry.key,
+              child: CupertinoButton(
+                key: ValueKey('message-filter-${entry.key.name}'),
+                minimumSize: const Size.square(AppSpacing.xxxLarge),
+                padding: const EdgeInsets.symmetric(vertical: AppSpacing.small),
+                borderRadius: AppRadius.borderRadiusCell,
+                onPressed: () => onChanged(entry.key),
+                // Keep the fill compact while the entire 48pt button remains
+                // tappable. Both layers can grow with accessibility text.
+                child: AnimatedContainer(
+                  duration: duration,
+                  constraints: const BoxConstraints(
+                    minHeight: AppSpacing.xxLarge,
+                  ),
                   padding: const EdgeInsets.symmetric(
                     horizontal: AppSpacing.medium,
-                    vertical: AppSpacing.small,
+                    vertical: AppSpacing.tiny,
                   ),
-                  borderRadius: AppRadius.borderRadiusLarge,
-                  color: selected == entry.key
-                      ? AppColors.primaryDark
-                      : AppColors.getSurfaceGrouped(brightness),
-                  onPressed: () => onChanged(entry.key),
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    color: selected == entry.key
+                        ? selectedBackground
+                        : AppColors.transparent,
+                    borderRadius: AppRadius.borderRadiusCell,
+                  ),
                   child: Text(
                     entry.value,
                     style: context.textStyle(
                       FontSizeType.subheadline,
                       fontWeight: selected == entry.key
-                          ? FontWeight.w600
+                          ? FontWeight.w500
                           : FontWeight.w400,
                       color: selected == entry.key
-                          ? AppColors.onPrimary
-                          : Theme.of(context).colorScheme.onSurface,
+                          ? selectedForeground
+                          : AppColors.getTextSecondary(brightness),
                     ),
                   ),
                 ),

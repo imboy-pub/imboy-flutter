@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:imboy/component/ui/app_loading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/password.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
 import 'package:imboy/page/passport/passport_notifier.dart';
@@ -272,9 +271,7 @@ class _PinCodeVerificationPageState
                                           notifier.toggleNewPwdObscure();
                                         },
                                         onChanged: (String? val) {
-                                          if (strNoEmpty(val)) {
-                                            notifier.setNewPwd(val!.trim());
-                                          }
+                                          notifier.setNewPwd(val?.trim() ?? '');
                                         },
                                       );
                                     },
@@ -304,9 +301,9 @@ class _PinCodeVerificationPageState
                                           });
                                         },
                                         onChanged: (String? val) {
-                                          if (strNoEmpty(val)) {
-                                            notifier.setRetypePwd(val!.trim());
-                                          }
+                                          notifier.setRetypePwd(
+                                            val?.trim() ?? '',
+                                          );
                                         },
                                       );
                                     },
@@ -345,6 +342,7 @@ class _PinCodeVerificationPageState
                                       if (!context.mounted) return;
                                       context.go('/sign_in');
                                     } else {
+                                      if (!mounted) return;
                                       setState(() {
                                         hasError = false;
                                         notifier.snackBar(
@@ -378,9 +376,9 @@ class _PinCodeVerificationPageState
                       AppSpacing.verticalLarge,
                       FadeAnimation(
                         delay: 1,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          mainAxisSize: MainAxisSize.min,
+                        child: Wrap(
+                          alignment: WrapAlignment.center,
+                          crossAxisAlignment: WrapCrossAlignment.center,
                           children: [
                             Text(
                               t.main.tryAgainQ,
@@ -389,8 +387,8 @@ class _PinCodeVerificationPageState
                                 letterSpacing: 0.5,
                               ),
                             ),
-                            GestureDetector(
-                              onTap: () {
+                            CupertinoButton(
+                              onPressed: () {
                                 if (!context.mounted) return;
                                 context.go('/sign_in');
                               },

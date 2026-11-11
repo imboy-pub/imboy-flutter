@@ -396,7 +396,6 @@ class _GroupScheduleDetailPageState
             if (participants.length > 6) ...[
               const SizedBox(height: AppSpacing.tiny),
               CupertinoButton(
-                minimumSize: Size.zero,
                 padding: EdgeInsets.zero,
                 onPressed: () => setState(
                   () => _showAllParticipants = !_showAllParticipants,
@@ -513,7 +512,6 @@ class _GroupScheduleDetailPageState
               ),
               const SizedBox(height: AppSpacing.tiny),
               CupertinoButton(
-                minimumSize: Size.zero,
                 padding: const EdgeInsets.symmetric(vertical: 8),
                 onPressed: _isSubmitting ? null : _cancelSchedule,
                 child: Text(
@@ -668,10 +666,13 @@ class _TimeRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    return Row(
+    return Wrap(
+      spacing: AppSpacing.small,
+      runSpacing: AppSpacing.tiny,
+      crossAxisAlignment: WrapCrossAlignment.center,
       children: [
-        SizedBox(
-          width: 64,
+        ConstrainedBox(
+          constraints: const BoxConstraints(minWidth: 64),
           child: Text(
             label,
             style: context.textStyle(

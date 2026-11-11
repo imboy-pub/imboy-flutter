@@ -130,6 +130,7 @@ class _OrganizationInvitationsPageState
         context: context,
         barrierDismissible: false,
         builder: (ctx) => AlertDialog(
+          scrollable: true,
           title: Text(t.organization.invitations.invitationCreated),
           content: Column(
             mainAxisSize: MainAxisSize.min,
@@ -234,7 +235,6 @@ class _OrganizationInvitationsPageState
         actions: [
           if (!widget.mineMode)
             Semantics(
-              button: true,
               label: t.organization.invitations.createInvitation,
               child: IconButton(
                 icon: const Icon(CupertinoIcons.add),

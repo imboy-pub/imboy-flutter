@@ -9,6 +9,7 @@ import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/passport/passport_notifier.dart';
 import 'package:imboy/page/passport/passport_state.dart';
 import 'package:imboy/page/passport/widget/bezier_container.dart';
+import 'package:imboy/page/passport/widget/login_form_tabs.dart';
 import 'package:imboy/page/passport/widget/passport_title.dart';
 import 'package:imboy/page/passport/widget/other_login_section.dart';
 import 'package:imboy/theme/default/app_colors.dart';
@@ -65,8 +66,6 @@ class _SignupPageState extends ConsumerState<SignupPage>
   bool get _isDark => Theme.of(context).brightness == Brightness.dark;
   Color get _inputFill =>
       _isDark ? AppColors.darkSurfaceContainer : AppColors.lightSurface;
-  Color get _unselectedLabel =>
-      _isDark ? AppColors.darkTextSecondary : AppColors.iosGray;
 
   @override
   Widget build(BuildContext context) {
@@ -95,32 +94,18 @@ class _SignupPageState extends ConsumerState<SignupPage>
                     const PassportTitle(color: AppColors.primary),
                     AppSpacing.verticalXLarge,
 
-                    // Tabs
-                    TabBar(
+                    LoginFormTabs(
                       controller: _tabController,
-                      labelColor: AppColors.primary,
-                      unselectedLabelColor: _unselectedLabel,
-                      indicatorColor: AppColors.primary,
-                      tabs: [
-                        Tab(text: t.account.email),
-                        Tab(text: t.account.mobile),
+                      labels: [t.account.email, t.account.mobile],
+                      children: [
+                        _buildEmailRegister(state, notifier),
+                        _buildMobileRegister(state, notifier),
                       ],
                     ),
-                    AppSpacing.verticalRegular,
 
-                    SizedBox(
-                      height: 290,
-                      child: TabBarView(
-                        controller: _tabController,
-                        children: [
-                          _buildEmailRegister(state, notifier),
-                          _buildMobileRegister(state, notifier),
-                        ],
-                      ),
-                    ),
-
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    Wrap(
+                      alignment: WrapAlignment.spaceBetween,
+                      crossAxisAlignment: WrapCrossAlignment.center,
                       children: [
                         CupertinoButton(
                           onPressed: () => context.go(AppRoutes.signIn),

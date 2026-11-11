@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:imboy/component/ui/cell_pressable.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:imboy/theme/default/app_radius.dart';
 
@@ -31,6 +32,7 @@ import 'moment_interactions.dart';
 import 'moment_meta_view.dart';
 import 'moment_notify/moment_notify_provider.dart';
 import 'moment_utils.dart';
+import 'widgets/moment_empty_state_icon.dart';
 
 import 'package:video_player/video_player.dart';
 import 'package:visibility_detector/visibility_detector.dart';
@@ -327,12 +329,12 @@ class _MomentFeedPageState extends State<MomentFeedPage> {
 
     return IosPageTemplate(
       title: t.discovery.moments,
+      controller: _scrollController,
       actions: [
         const _MomentNotifyEntry(),
         // 纯图标按钮，CupertinoButton 无 tooltip 参数，须显式 Semantics
         // 才有读屏标签（与同文件 _MomentNotifyEntry 写法一致）。
         Semantics(
-          button: true,
           label: t.main.publish,
           child: CupertinoButton(
             padding: EdgeInsets.zero,
@@ -417,7 +419,7 @@ class _MomentFeedPageState extends State<MomentFeedPage> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           // 缓慢呼吸缩放，让空状态不那么"死"
-          const _BreathingIcon(
+          const MomentEmptyStateIcon(
             icon: CupertinoIcons.photo_on_rectangle,
             size: 60,
           ),
@@ -485,52 +487,6 @@ class MomentStaleBanner extends StatelessWidget {
   }
 }
 
-/// 呼吸缩放图标：3 秒循环 1.0↔1.05，用于空状态让画面不"死"。
-class _BreathingIcon extends StatefulWidget {
-  final IconData icon;
-  final double size;
-
-  const _BreathingIcon({required this.icon, required this.size});
-
-  @override
-  State<_BreathingIcon> createState() => _BreathingIconState();
-}
-
-class _BreathingIconState extends State<_BreathingIcon>
-    with SingleTickerProviderStateMixin {
-  late final AnimationController _controller;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(
-      vsync: this,
-      duration: const Duration(seconds: 3),
-    )..repeat(reverse: true);
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return ScaleTransition(
-      scale: Tween(
-        begin: 1.0,
-        end: 1.05,
-      ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut)),
-      child: Icon(
-        widget.icon,
-        size: widget.size,
-        color: AppColors.iosGray.withValues(alpha: 0.3),
-      ),
-    );
-  }
-}
-
 /// 朋友圈动态卡片（微信式重构）。
 class _MomentCard extends StatelessWidget {
   final Map<String, dynamic> item;
@@ -564,9 +520,8 @@ class _MomentCard extends StatelessWidget {
     final likers = parseRecentLikers(item);
     final commentsPreview = parseCommentsPreview(item);
 
-    // DESIGN.md §13.2：卡片点击态用 GestureDetector，禁用 Material Ripple
-    return GestureDetector(
-      behavior: HitTestBehavior.opaque,
+    // DESIGN.md §13.2：卡片点击态用 CellPressable，禁用 Material Ripple
+    return CellPressable(
       onTap: onTap,
       child: Padding(
         padding: const EdgeInsets.fromLTRB(16, 14, 16, 12),
@@ -596,7 +551,7 @@ class _MomentCard extends StatelessWidget {
                     children: [
                       Flexible(
                         // 点作者名跳资料页（对齐微信，与头像一致）
-                        child: GestureDetector(
+                        child: CellPressable(
                           onTap: () => context.push(
                             '/contact/people/${parseModelString(item['author_uid'])}'
                             '?scene=contact_page',
@@ -616,14 +571,12 @@ class _MomentCard extends StatelessWidget {
                         ),
                       ),
                       // 右上角•••操作入口，命中区 44×44
-                      Semantics(
-                        button: true,
-                        // 该按钮弹出「赞/评论/删除」整套 Action Sheet，
-                        // 标签应为"更多操作"，此前误标成"评论"误导读屏用户。
-                        label: t.discovery.momentActionMore,
-                        child: GestureDetector(
-                          behavior: HitTestBehavior.opaque,
-                          onTap: onActionTap,
+                      CellPressable(
+                        onTap: onActionTap,
+                        child: Semantics(
+                          // 该按钮弹出「赞/评论/删除」整套 Action Sheet，
+                          // 标签应为"更多操作"，此前误标成"评论"误导读屏用户。
+                          label: t.discovery.momentActionMore,
                           child: const SizedBox(
                             width: 44,
                             height: 44,
@@ -748,8 +701,7 @@ class _MomentContentState extends State<_MomentContent> {
                 .copyWith(height: 1.45),
           ),
         if (_isLong)
-          GestureDetector(
-            behavior: HitTestBehavior.opaque,
+          CellPressable(
             onTap: () => setState(() => _expanded = !_expanded),
             child: ConstrainedBox(
               constraints: const BoxConstraints(minHeight: 44),
@@ -925,9 +877,8 @@ class _MomentLikersRow extends StatelessWidget {
     if (!hasLikes && !hasPreview && !showCountRow) {
       return const SizedBox.shrink();
     }
-    // DESIGN.md §13.2：点赞行用 GestureDetector，禁用 Material Ripple
-    return GestureDetector(
-      behavior: HitTestBehavior.opaque,
+    // DESIGN.md §13.2：点赞行用 CellPressable，禁用 Material Ripple
+    return CellPressable(
       onTap: onTap,
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
@@ -1411,7 +1362,6 @@ class _MomentNotifyEntry extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final unread = ref.watch(momentNotifyProvider.select((s) => s.unreadCount));
     return Semantics(
-      button: true,
       label: t.momentNotify.title,
       hint: unread > 0 ? '$unread' : null,
       child: CupertinoButton(

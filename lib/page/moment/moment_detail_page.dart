@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:imboy/component/ui/cell_pressable.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:imboy/theme/default/app_radius.dart';
 
@@ -27,6 +28,7 @@ import 'moment_confirm_dialog.dart';
 import 'moment_interactions.dart';
 import 'moment_meta_view.dart';
 import 'moment_utils.dart';
+import 'widgets/moment_detail_state_view.dart';
 
 /// 朋友圈详情页面 - 对标微信朋友圈体验重构
 class MomentDetailPage extends StatefulWidget {
@@ -468,47 +470,8 @@ class _MomentDetailPageState extends State<MomentDetailPage> {
         body: const _DetailSkeleton(),
       );
     }
-    if (_loadError && post == null) {
-      return Scaffold(
-        body: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                CupertinoIcons.wifi_exclamationmark,
-                size: 48,
-                color: AppColors.iosGray.withValues(alpha: 0.4),
-              ),
-              AppSpacing.verticalMedium,
-              Text(
-                t.common.loadError,
-                style: context.textStyle(
-                  FontSizeType.subheadline,
-                  color: AppColors.iosGray,
-                ),
-              ),
-              AppSpacing.verticalMedium,
-              CupertinoButton.filled(
-                onPressed: _loadAll,
-                child: Text(t.common.buttonRetry),
-              ),
-            ],
-          ),
-        ),
-      );
-    }
     if (post == null) {
-      return Scaffold(
-        body: Center(
-          child: Text(
-            t.common.momentsNotFound,
-            style: context.textStyle(
-              FontSizeType.subheadline,
-              color: AppColors.iosGray,
-            ),
-          ),
-        ),
-      );
+      return MomentDetailStateView(loadFailed: _loadError, onRetry: _loadAll);
     }
 
     final brightness = Theme.of(context).brightness;
@@ -522,7 +485,6 @@ class _MomentDetailPageState extends State<MomentDetailPage> {
       actions: [
         // 纯图标按钮须显式 Semantics，CupertinoButton 无 tooltip 参数。
         Semantics(
-          button: true,
           label: t.discovery.momentActionMore,
           child: CupertinoButton(
             padding: EdgeInsets.zero,
@@ -658,7 +620,7 @@ class _MomentDetailPageState extends State<MomentDetailPage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     // 点作者名跳资料页（与头像一致）
-                    GestureDetector(
+                    CellPressable(
                       onTap: () => context.push(
                         '/contact/people/${parseModelString(post['author_uid'])}'
                         '?scene=contact_page',
@@ -884,8 +846,7 @@ class _MomentDetailPageState extends State<MomentDetailPage> {
             uid: replyToUid,
           );
 
-    return GestureDetector(
-      behavior: HitTestBehavior.opaque,
+    return CellPressable(
       onTap: userId != currentUid ? () => _startReplyTo(comment) : null,
       onLongPress: () => _showCommentActionSheet(
         comment,
@@ -914,7 +875,7 @@ class _MomentDetailPageState extends State<MomentDetailPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // 点评论人名跳资料页
-                  GestureDetector(
+                  CellPressable(
                     onTap: () => context.push(
                       '/contact/people/$userId?scene=contact_page',
                     ),
@@ -933,15 +894,15 @@ class _MomentDetailPageState extends State<MomentDetailPage> {
               ),
             ),
             if (canDeleteComment(comment, _moment!, currentUid: currentUid))
-              GestureDetector(
-                behavior: HitTestBehavior.opaque,
+              CellPressable(
                 onTap: () => _deleteComment(parseModelString(comment['id'])),
-                child: const SizedBox(
-                  width: 36,
-                  height: 36,
+                child: SizedBox(
+                  width: 44,
+                  height: 44,
                   child: Center(
                     child: Icon(
                       CupertinoIcons.delete,
+                      semanticLabel: t.common.buttonDelete,
                       size: 15,
                       color: AppColors.iosGray,
                     ),

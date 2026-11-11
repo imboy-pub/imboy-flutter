@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:imboy/component/ui/nodata_view.dart';
 import 'package:imboy/component/ui/ios_settings_ui.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/theme/default/app_colors.dart';
@@ -145,16 +146,31 @@ class _SelectRegionPageState extends ConsumerState<SelectRegionPage> {
         ),
 
         // 列表 Section
-        SliverToBoxAdapter(
-          child: ImBoySettingsSection(
-            children: _displayList
-                .map(
-                  (model) =>
-                      _buildListItem(context, widget.parent, model, brightness),
-                )
-                .toList(),
+        if (_displayList.isEmpty)
+          SliverFillRemaining(
+            hasScrollBody: false,
+            child: NoDataView(
+              text: _searchC.text.trim().isNotEmpty
+                  ? t.common.searchNoResults
+                  : t.common.noData,
+              icon: CupertinoIcons.search,
+            ),
+          )
+        else
+          SliverToBoxAdapter(
+            child: ImBoySettingsSection(
+              children: _displayList
+                  .map(
+                    (model) => _buildListItem(
+                      context,
+                      widget.parent,
+                      model,
+                      brightness,
+                    ),
+                  )
+                  .toList(),
+            ),
           ),
-        ),
       ],
     );
   }
@@ -172,49 +188,52 @@ class _SelectRegionPageState extends ConsumerState<SelectRegionPage> {
     bool haveChildren = children.isNotEmpty;
     final isSelected = notifier.isRegionSelected(title);
 
-    return ImBoySettingsTile(
-      title: Text(
-        title,
-        style: context.textStyle(
-          FontSizeType.body,
-          fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+    return Semantics(
+      selected: !haveChildren && isSelected,
+      child: ImBoySettingsTile(
+        title: Text(
+          title,
+          style: context.textStyle(
+            FontSizeType.body,
+            fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+          ),
         ),
-      ),
-      trailing: haveChildren
-          ? const CupertinoListTileChevron()
-          : (isSelected
-                ? Icon(
-                    CupertinoIcons.check_mark,
-                    size: 18,
-                    color: AppColors.getIosBlue(brightness),
-                  )
-                : const SizedBox.shrink()),
-      onTap: () {
-        List<String> items = parent.split(' ')..add(title);
-        final selectedVal = items.toSet().toList().join(' ').trim();
-        notifier.updateSelectedVal(selectedVal);
-        if (haveChildren) {
-          Navigator.push(
-            context,
-            CupertinoPageRoute<void>(
-              builder: (_) => SelectRegionPage(
-                parent: selectedVal,
-                children: children,
-                callback: widget.callback,
-                outCallback: widget.outCallback,
+        trailing: haveChildren
+            ? const CupertinoListTileChevron()
+            : (isSelected
+                  ? Icon(
+                      CupertinoIcons.check_mark,
+                      size: 18,
+                      color: AppColors.getIosBlue(brightness),
+                    )
+                  : const SizedBox.shrink()),
+        onTap: () {
+          List<String> items = parent.split(' ')..add(title);
+          final selectedVal = items.toSet().toList().join(' ').trim();
+          notifier.updateSelectedVal(selectedVal);
+          if (haveChildren) {
+            Navigator.push(
+              context,
+              CupertinoPageRoute<void>(
+                builder: (_) => SelectRegionPage(
+                  parent: selectedVal,
+                  children: children,
+                  callback: widget.callback,
+                  outCallback: widget.outCallback,
+                ),
               ),
-            ),
-          );
-        } else {
-          if (parent != selectedVal) {
-            widget.callback(parent, title);
-            notifier.regionSelectedTitle(title);
-            notifier.valueOnChange(true);
+            );
           } else {
-            notifier.valueOnChange(false);
+            if (parent != selectedVal) {
+              widget.callback(parent, title);
+              notifier.regionSelectedTitle(title);
+              notifier.valueOnChange(true);
+            } else {
+              notifier.valueOnChange(false);
+            }
           }
-        }
-      },
+        },
+      ),
     );
   }
 }

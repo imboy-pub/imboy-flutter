@@ -26,6 +26,7 @@ import 'package:imboy/page/workspace/workspace_group_agenda_views.dart';
 import 'package:imboy/page/workspace_shell/workspace_message_filter.dart';
 import 'package:imboy/page/workspace_shell/workspace_shell_provider.dart';
 import 'package:imboy/theme/default/app_colors.dart';
+import 'package:imboy/theme/default/app_sizes.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:imboy/theme/default/font_types.dart';
 
@@ -316,8 +317,8 @@ class _WorkspaceMessageFilterBarState
           ),
         ),
       ),
-      child: SizedBox(
-        height: 48,
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(minHeight: AppSizes.touchTarget),
         child: Row(
           children: [
             Expanded(
@@ -342,6 +343,7 @@ class _WorkspaceMessageFilterBarState
               _verticalHairline(theme.brightness),
               Expanded(
                 child: _BarItem(
+                  itemKey: ValueKey('workspace-message-${tab.$1.name}-tab'),
                   icon: Icon(
                     tab.$2,
                     size: 20,
@@ -367,7 +369,7 @@ class _WorkspaceMessageFilterBarState
 
   Widget _verticalHairline(Brightness brightness) => Container(
     width: 0.5,
-    margin: const EdgeInsets.symmetric(vertical: 14),
+    height: AppSpacing.large,
     color: AppColors.getIosSeparator(brightness).withValues(alpha: 0.5),
   );
 }
@@ -399,41 +401,44 @@ class _BarItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final tint = active ? activeColor : idleColor;
-    return CupertinoButton(
-      key: itemKey,
-      padding: EdgeInsets.zero,
-      minimumSize: const Size(0, 44),
-      pressedOpacity: 0.55,
-      onPressed: onTap,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          icon,
-          AppSpacing.horizontalTiny,
-          Flexible(
-            child: Text(
-              label,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: context.textStyle(
-                FontSizeType.subheadline,
-                fontWeight: active ? FontWeight.w600 : FontWeight.w500,
-                color: tint,
+    return Semantics(
+      container: true,
+      selected: active,
+      child: CupertinoButton(
+        key: itemKey,
+        padding: const EdgeInsets.symmetric(vertical: AppSpacing.small),
+        minimumSize: const Size(0, AppSizes.touchTarget),
+        pressedOpacity: 0.55,
+        onPressed: onTap,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            icon,
+            AppSpacing.horizontalTiny,
+            Flexible(
+              child: Text(
+                label,
+                textAlign: TextAlign.center,
+                style: context.textStyle(
+                  FontSizeType.subheadline,
+                  fontWeight: active ? FontWeight.w600 : FontWeight.w500,
+                  color: tint,
+                ),
               ),
             ),
-          ),
-          if (showChevron) ...[
-            AppSpacing.horizontalTiny,
-            Icon(
-              chevronUp
-                  ? CupertinoIcons.chevron_up
-                  : CupertinoIcons.chevron_down,
-              size: 12,
-              color: tint,
-            ),
+            if (showChevron) ...[
+              AppSpacing.horizontalTiny,
+              Icon(
+                chevronUp
+                    ? CupertinoIcons.chevron_up
+                    : CupertinoIcons.chevron_down,
+                size: 12,
+                color: tint,
+              ),
+            ],
           ],
-        ],
+        ),
       ),
     );
   }

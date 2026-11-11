@@ -18,6 +18,10 @@ SWIFTPM_ERROR = (
     "150.7871.04/WebRTC.xcframework.zip' which is required by binary target "
     "'WebRTC': badResponseStatusCode(504)"
 )
+GIT_DNS_ERROR = (
+    "fatal: unable to access 'https://gitee.com/imboy-tripartite-deps/azlistview.git/': "
+    'Could not resolve host: gitee.com'
+)
 
 COMMAND = r'''#!/usr/bin/env python3
 import json
@@ -97,6 +101,45 @@ class BuildDownloadRetryTest(unittest.TestCase):
                     self.assertEqual(result.returncode, 65)
                     self.assertEqual(len(calls), 1)
                     self.assertEqual(delays, [])
+
+    def test_locked_pub_get_dns_failure_recovers_with_unchanged_arguments(self):
+        self.command = self.command.rename(self.bin_dir / 'flutter')
+        result, calls, delays = self.run_build([
+            {'stderr': GIT_DNS_ERROR, 'exit_code': 69}, {},
+        ], args=('pub', 'get', '--enforce-lockfile'))
+        self.assertEqual(result.returncode, 0)
+        self.assertEqual(len(calls), 2)
+        self.assertEqual(delays, ['10'])
+
+    def test_locked_pub_get_dns_failure_keeps_three_attempt_limit(self):
+        self.command = self.command.rename(self.bin_dir / 'flutter')
+        result, calls, delays = self.run_build([
+            {'stderr': GIT_DNS_ERROR, 'exit_code': 69},
+        ], args=('pub', 'get', '--enforce-lockfile'))
+        self.assertEqual(result.returncode, 69)
+        self.assertEqual(len(calls), 3)
+        self.assertEqual(delays, ['10', '20'])
+
+    def test_dns_output_does_not_retry_other_commands_or_pub_errors(self):
+        self.command = self.command.rename(self.bin_dir / 'flutter')
+        for args, status in ((('build', 'apk'), 69), (('pub', 'get'), 65)):
+            with self.subTest(args=args, status=status):
+                result, calls, delays = self.run_build([
+                    {'stderr': GIT_DNS_ERROR, 'exit_code': status}, {},
+                ], args=args)
+                self.assertEqual(result.returncode, status)
+                self.assertEqual(len(calls), 1)
+                self.assertEqual(delays, [])
+
+    def test_previous_dns_failure_does_not_retry_lockfile_failure(self):
+        self.command = self.command.rename(self.bin_dir / 'flutter')
+        result, calls, delays = self.run_build([
+            {'stderr': GIT_DNS_ERROR, 'exit_code': 69},
+            {'stderr': 'Unable to satisfy pubspec.yaml using pubspec.lock.', 'exit_code': 65},
+        ], args=('pub', 'get', '--enforce-lockfile'))
+        self.assertEqual(result.returncode, 65)
+        self.assertEqual(len(calls), 2)
+        self.assertEqual(delays, ['10'])
 
     def test_flutter_internal_retry_does_not_mask_terminal_compile_failure(self):
         output = '\n'.join([

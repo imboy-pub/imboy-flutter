@@ -2,8 +2,8 @@
 ///
 /// 让用户对 [QuickReplyService] 持久化的短语做 CRUD。
 /// - 列表项滑动左划删除 + 点击编辑
-/// - 底部 FAB 新增
-/// - 未登录态下 FAB 隐藏
+/// - 导航栏新增按钮在空列表时仍可使用
+/// - 未登录态下新增按钮隐藏
 library;
 
 import 'package:flutter/material.dart';
@@ -126,112 +126,104 @@ class _QuickReplyManagePageState extends State<QuickReplyManagePage> {
     return CupertinoPageScaffold(
       navigationBar: CupertinoNavigationBar(
         middle: Text(t.chat.quickReplyManage),
-      ),
-      child: _loading
-          ? const Center(child: CupertinoActivityIndicator())
-          : _replies.isEmpty
-          ? Center(
-              child: Padding(
-                padding: AppSpacing.allXLarge,
-                child: Text(
-                  t.chat.quickReplyEmpty,
-                  textAlign: TextAlign.center,
-                  style: context.textStyle(
-                    FontSizeType.body,
-                    color: CupertinoColors.systemGrey,
-                  ),
+        trailing: _uid.isEmpty
+            ? null
+            : CupertinoButton(
+                padding: EdgeInsets.zero,
+                onPressed: _loading ? null : _handleAdd,
+                child: Icon(
+                  CupertinoIcons.add,
+                  semanticLabel: t.common.quickReplyAddTitle,
                 ),
               ),
-            )
-          : Stack(
-              children: [
-                ReorderableListView.builder(
-                  padding: const EdgeInsets.symmetric(vertical: 8),
-                  itemCount: _replies.length,
-                  onReorderItem: _handleReorder,
-                  buildDefaultDragHandles: false,
-                  itemBuilder: (context, index) {
-                    final text = _replies[index];
-                    final itemKey = ValueKey('quickReply-$index-$text');
-                    return Dismissible(
-                      key: itemKey,
-                      direction: DismissDirection.endToStart,
-                      background: Container(
-                        color: AppColors.getIosRed(
-                          Theme.of(context).brightness,
-                        ),
-                        alignment: Alignment.centerRight,
-                        padding: const EdgeInsets.symmetric(horizontal: 20),
-                        child: const Icon(
-                          CupertinoIcons.delete,
-                          color: AppColors.onPrimary,
-                        ),
-                      ),
-                      onDismissed: (_) => _handleDelete(index),
-                      child: GestureDetector(
-                        behavior: HitTestBehavior.opaque,
-                        onTap: () => _handleEdit(index),
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 12,
-                          ),
-                          child: Row(
-                            children: [
-                              Expanded(
-                                child: Text(
-                                  text,
-                                  maxLines: 2,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                              ),
-                              CupertinoButton(
-                                padding: EdgeInsets.zero,
-                                onPressed: () => _handleEdit(index),
-                                child: const Icon(
-                                  semanticLabel: '编辑',
-                                  CupertinoIcons.pencil,
-                                  size: 20,
-                                ),
-                              ),
-                              ReorderableDragStartListener(
-                                index: index,
-                                child: Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 8,
-                                  ),
-                                  child: Icon(
-                                    CupertinoIcons.line_horizontal_3,
-                                    size: 20,
-                                    color: CupertinoColors.systemGrey,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    );
-                  },
-                ),
-                // FAB positioned manually
-                Positioned(
-                  right: 16,
-                  bottom: 16,
-                  child: _uid.isEmpty
-                      ? const SizedBox.shrink()
-                      : CupertinoButton(
-                          onPressed: _handleAdd,
-                          color: CupertinoColors.activeBlue,
-                          child: const Icon(
-                            semanticLabel: '添加',
-                            CupertinoIcons.add,
-                            color: CupertinoColors.white,
-                          ),
-                        ),
-                ),
-              ],
+      ),
+      child: SafeArea(child: _buildReplies(context)),
+    );
+  }
+
+  Widget _buildReplies(BuildContext context) {
+    if (_loading) return const Center(child: CupertinoActivityIndicator());
+    if (_replies.isEmpty) {
+      return Center(
+        child: Padding(
+          padding: AppSpacing.allXLarge,
+          child: Text(
+            t.chat.quickReplyEmpty,
+            textAlign: TextAlign.center,
+            style: context.textStyle(
+              FontSizeType.body,
+              color: CupertinoColors.systemGrey,
             ),
+          ),
+        ),
+      );
+    }
+    return ReorderableListView.builder(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      itemCount: _replies.length,
+      onReorderItem: _handleReorder,
+      buildDefaultDragHandles: false,
+      itemBuilder: (context, index) {
+        final text = _replies[index];
+        final itemKey = ValueKey('quickReply-$index-$text');
+        return Dismissible(
+          key: itemKey,
+          direction: DismissDirection.endToStart,
+          background: Container(
+            color: AppColors.getIosRed(Theme.of(context).brightness),
+            alignment: Alignment.centerRight,
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: const Icon(
+              CupertinoIcons.delete,
+              color: AppColors.onPrimary,
+            ),
+          ),
+          onDismissed: (_) => _handleDelete(index),
+          child: GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTap: () => _handleEdit(index),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: AppSpacing.regular,
+                vertical: AppSpacing.medium,
+              ),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      text,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                  CupertinoButton(
+                    padding: EdgeInsets.zero,
+                    onPressed: () => _handleEdit(index),
+                    child: const Icon(
+                      semanticLabel: '编辑',
+                      CupertinoIcons.pencil,
+                      size: 20,
+                    ),
+                  ),
+                  ReorderableDragStartListener(
+                    index: index,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: AppSpacing.small,
+                      ),
+                      child: Icon(
+                        CupertinoIcons.line_horizontal_3,
+                        size: 20,
+                        color: CupertinoColors.systemGrey,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 }

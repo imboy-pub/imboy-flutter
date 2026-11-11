@@ -5,12 +5,14 @@
 /// - 选中态：activeIcon 切换 + primary 高亮
 /// - 角标：count=0 隐藏 / 1-99 直显 / >99 显示 99+
 /// - onTap 回调正确触发
+/// - 键盘焦点遍历、Enter/Space 激活和选中状态语义
 /// - 默认/自定义 width
 /// - assert 防御边界
 /// - WebNavItem 相等性
 library;
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/page/web_shell/web_nav_rail.dart';
 
@@ -44,6 +46,7 @@ Future<void> _pumpRail(
   required ValueChanged<int> onTap,
   double? width,
   Brightness brightness = Brightness.light,
+  Widget? leading,
 }) async {
   await tester.pumpWidget(
     MaterialApp(
@@ -61,6 +64,7 @@ Future<void> _pumpRail(
               currentIndex: currentIndex,
               onTap: onTap,
               width: width ?? 72,
+              leading: leading,
             ),
             const Expanded(child: SizedBox()),
           ],
@@ -72,6 +76,32 @@ Future<void> _pumpRail(
 
 void main() {
   group('WebNavRail — 基础渲染', () {
+    testWidgets('矮窗口固定全局入口，滚动目的地仍能到达我', (tester) async {
+      tester.view.physicalSize = const Size(750, 200);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+      var selected = -1;
+      const key = ValueKey('rail-global-entry');
+      await _pumpRail(
+        tester,
+        items: _kSampleItems,
+        currentIndex: 0,
+        onTap: (index) => selected = index,
+        leading: const SizedBox(key: key, height: 64, child: Text('Space')),
+      );
+      final position = tester.getTopLeft(find.byKey(key));
+      expect(tester.takeException(), isNull);
+      await tester.drag(
+        find.byType(SingleChildScrollView),
+        const Offset(0, -300),
+      );
+      await tester.pumpAndSettle();
+      expect(tester.getTopLeft(find.byKey(key)), position);
+      await tester.tap(find.byTooltip('Mine'));
+      expect(selected, 3);
+      expect(tester.takeException(), isNull);
+    });
+
     testWidgets('渲染 4 个 items', (tester) async {
       await _pumpRail(
         tester,
@@ -117,6 +147,87 @@ void main() {
       expect(find.byType(Tooltip), findsNWidgets(4));
       expect(find.byTooltip('Messages'), findsOneWidget);
       expect(find.byTooltip('Contacts'), findsOneWidget);
+    });
+  });
+
+  group('WebNavRail — 键盘与无障碍', () {
+    testWidgets('矮窗口 Tab 遍历自动滚动，Enter/Space 激活目标', (tester) async {
+      tester.view.physicalSize = const Size(750, 200);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+      final calls = <int>[];
+      const leadingKey = ValueKey('keyboard-space-entry');
+      await _pumpRail(
+        tester,
+        items: _kSampleItems,
+        currentIndex: 0,
+        onTap: calls.add,
+        leading: SizedBox(
+          height: 64,
+          child: TextButton(
+            key: leadingKey,
+            onPressed: () {},
+            child: const Text('Space'),
+          ),
+        ),
+      );
+      await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+      await tester.pumpAndSettle();
+      expect(Focus.of(tester.element(find.text('Space'))).hasFocus, isTrue);
+      final leadingPosition = tester.getTopLeft(find.byKey(leadingKey));
+      for (var i = 0; i < _kSampleItems.length; i++) {
+        await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+        await tester.pumpAndSettle();
+        final icon = find.byIcon(
+          i == 0 ? _kSampleItems[i].activeIcon : _kSampleItems[i].icon,
+        );
+        expect(Focus.of(tester.element(icon)).hasFocus, isTrue);
+        expect(tester.getCenter(icon).dy, inInclusiveRange(0, 200));
+        await tester.sendKeyEvent(
+          i.isEven ? LogicalKeyboardKey.enter : LogicalKeyboardKey.space,
+        );
+        expect(calls, List.generate(i + 1, (index) => index));
+      }
+      expect(tester.getTopLeft(find.byKey(leadingKey)), leadingPosition);
+      await tester.sendKeyDownEvent(LogicalKeyboardKey.shiftLeft);
+      await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+      await tester.sendKeyUpEvent(LogicalKeyboardKey.shiftLeft);
+      await tester.pumpAndSettle();
+      expect(
+        Focus.of(tester.element(find.byIcon(Icons.campaign_outlined))).hasFocus,
+        isTrue,
+      );
+      await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+      expect(calls, [0, 1, 2, 3, 2]);
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('每个目标暴露按钮名称并随当前标签更新选中语义', (tester) async {
+      final semantics = tester.ensureSemantics();
+      try {
+        for (final selected in [0, 2]) {
+          await _pumpRail(
+            tester,
+            items: _kSampleItems,
+            currentIndex: selected,
+            onTap: (_) {},
+          );
+          for (var i = 0; i < _kSampleItems.length; i++) {
+            final label = _kSampleItems[i].label;
+            final button = find.bySemanticsLabel(label);
+            expect(button, findsOneWidget);
+            final data = tester.getSemantics(button).getSemanticsData();
+            expect(data.label, label);
+            expect(data.flagsCollection.isButton, isTrue);
+            expect(
+              data.flagsCollection.isSelected.toBoolOrNull(),
+              i == selected,
+            );
+          }
+        }
+      } finally {
+        semantics.dispose();
+      }
     });
   });
 

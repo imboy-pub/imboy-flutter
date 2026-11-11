@@ -161,12 +161,14 @@ class SetPasswordPage extends ConsumerWidget {
                               size: 20,
                             ),
                             AppSpacing.horizontalSmall,
-                            Text(
-                              t.account.newPassword,
-                              style: context.textStyle(
-                                FontSizeType.normal,
-                                fontWeight: FontWeight.w600,
-                                color: colorScheme.onSurface,
+                            Expanded(
+                              child: Text(
+                                t.account.newPassword,
+                                style: context.textStyle(
+                                  FontSizeType.normal,
+                                  fontWeight: FontWeight.w600,
+                                  color: colorScheme.onSurface,
+                                ),
                               ),
                             ),
                           ],
@@ -181,11 +183,9 @@ class SetPasswordPage extends ConsumerWidget {
                                 .toggleNewPwdObscure();
                           },
                           onChanged: (String? val) {
-                            if (strNoEmpty(val)) {
-                              ref
-                                  .read(setPasswordProvider.notifier)
-                                  .updateNewPassword(val!.trim());
-                            }
+                            ref
+                                .read(setPasswordProvider.notifier)
+                                .updateNewPassword(val?.trim() ?? '');
                           },
                         ),
                       ],
@@ -215,12 +215,14 @@ class SetPasswordPage extends ConsumerWidget {
                               size: 20,
                             ),
                             AppSpacing.horizontalSmall,
-                            Text(
-                              t.account.retypePassword,
-                              style: context.textStyle(
-                                FontSizeType.normal,
-                                fontWeight: FontWeight.w600,
-                                color: colorScheme.onSurface,
+                            Expanded(
+                              child: Text(
+                                t.account.retypePassword,
+                                style: context.textStyle(
+                                  FontSizeType.normal,
+                                  fontWeight: FontWeight.w600,
+                                  color: colorScheme.onSurface,
+                                ),
                               ),
                             ),
                           ],
@@ -235,11 +237,9 @@ class SetPasswordPage extends ConsumerWidget {
                                 .toggleRetypePwdObscure();
                           },
                           onChanged: (String? val) {
-                            if (strNoEmpty(val)) {
-                              ref
-                                  .read(setPasswordProvider.notifier)
-                                  .updateRetypePassword(val!.trim());
-                            }
+                            ref
+                                .read(setPasswordProvider.notifier)
+                                .updateRetypePassword(val?.trim() ?? '');
                           },
                         ),
                       ],

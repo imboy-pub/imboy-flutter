@@ -2,8 +2,10 @@ import 'package:flutter/services.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:imboy/component/ui/common_bar.dart';
+import 'package:imboy/component/ui/cell_pressable.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
+import 'package:imboy/theme/default/app_sizes.dart';
 import 'package:imboy/theme/default/font_types.dart';
 
 /// iOS 风格页面模板
@@ -22,6 +24,7 @@ class IosPageTemplate extends StatelessWidget {
     this.useLargeTitle = false, // 默认改为紧凑模式
     this.backgroundColor,
     this.bottomWidget,
+    this.contentMaxWidth,
   });
 
   final String title;
@@ -47,6 +50,9 @@ class IosPageTemplate extends StatelessWidget {
   final bool useLargeTitle;
   final Color? backgroundColor;
   final Widget? bottomWidget;
+
+  /// 可选的内容列最大宽度；导航栏保持全宽，默认不改变既有页面布局。
+  final double? contentMaxWidth;
 
   @override
   Widget build(BuildContext context) {
@@ -109,11 +115,24 @@ class IosPageTemplate extends StatelessWidget {
           : null,
     );
 
+    final pageBody = _buildBody(context, bgColor);
+
     // 核心重构：即便有 slivers，我们也使用固定高度的 appBar，确保 title 和返回键永远在同一行
     return Scaffold(
       backgroundColor: bgColor,
       appBar: navBar,
-      body: _buildBody(context, bgColor),
+      body: SafeArea(
+        top: false,
+        child: contentMaxWidth == null
+            ? pageBody
+            : Align(
+                alignment: Alignment.topCenter,
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(maxWidth: contentMaxWidth!),
+                  child: pageBody,
+                ),
+              ),
+      ),
       bottomNavigationBar: bottomWidget,
     );
   }
@@ -125,6 +144,7 @@ class IosPageTemplate extends StatelessWidget {
     if (slivers != null) {
       return CustomScrollView(
         controller: controller,
+        keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
         physics: const BouncingScrollPhysics(
           parent: AlwaysScrollableScrollPhysics(),
         ),
@@ -132,6 +152,7 @@ class IosPageTemplate extends StatelessWidget {
       );
     }
     return SingleChildScrollView(
+      keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
       physics: const BouncingScrollPhysics(
         parent: AlwaysScrollableScrollPhysics(),
       ),
@@ -174,8 +195,8 @@ class ImBoySettingsSection extends StatelessWidget {
     final isDark = theme.brightness == Brightness.dark;
 
     final headerColor = isDark
-        ? AppColors.darkTextSecondary.withValues(alpha: 0.5)
-        : AppColors.lightTextSecondary.withValues(alpha: 0.5);
+        ? AppColors.darkTextSecondary
+        : AppColors.lightTextSecondary;
     final headerStyle = context
         .textStyle(
           FontSizeType.footnote,
@@ -251,7 +272,7 @@ class ImBoySettingsTile extends StatelessWidget {
           FontSizeType.body,
           fontWeight: FontWeight.w400,
           color: destructive
-              ? AppColors.getIosRed(theme.brightness)
+              ? AppColors.getDestructiveText(theme.brightness)
               : (isDark
                     ? AppColors.darkTextPrimary
                     : AppColors.lightTextPrimary),
@@ -261,8 +282,8 @@ class ImBoySettingsTile extends StatelessWidget {
     final subtitleStyle = context.textStyle(
       FontSizeType.subheadline,
       color: isDark
-          ? AppColors.darkTextSecondary.withValues(alpha: 0.6)
-          : AppColors.lightTextSecondary.withValues(alpha: 0.6),
+          ? AppColors.darkTextSecondary
+          : AppColors.lightTextSecondary,
     );
 
     return CupertinoListTile.notched(
@@ -341,12 +362,11 @@ class ImBoyListTile extends StatelessWidget {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
 
-    return GestureDetector(
+    return CellPressable(
       onTap: onTap,
       onLongPress: onLongPress,
-      behavior: HitTestBehavior.opaque,
       child: Container(
-        height: height,
+        constraints: BoxConstraints(minHeight: height ?? AppSizes.touchTarget),
         color:
             backgroundColor ??
             (isDark ? AppColors.darkSurface : AppColors.lightSurface),

@@ -103,6 +103,9 @@ class AppColors {
   static const Color lightBorder = Color(0xFFE5E5E5);
   static const Color lightAppBarBackground = Color(0xFFEDEDED);
   static const Color lightError = Color(0xFFFF3B30);
+
+  /// Regular-weight destructive labels on light menu and settings surfaces.
+  static const Color lightDestructiveText = Color(0xFFB42318);
   static const Color lightErrorContainer = Color(0xFFFFDAD6);
   static const Color lightOnErrorContainer = Color(0xFF410002);
 
@@ -271,6 +274,10 @@ class AppColors {
       b == Brightness.dark ? iosBlueDark : iosBlue;
   static Color getIosRed(Brightness b) =>
       b == Brightness.dark ? iosRedDark : iosRed;
+
+  /// Keep destructive menu and settings text readable in both appearances.
+  static Color getDestructiveText(Brightness b) =>
+      b == Brightness.dark ? iosRedDark : lightDestructiveText;
   static Color getIosGreen(Brightness b) =>
       b == Brightness.dark ? iosGreenDark : iosGreen;
   static Color getIosOrange(Brightness b) =>

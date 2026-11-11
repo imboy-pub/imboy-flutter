@@ -65,7 +65,7 @@ void main() {
               ]);
         listener.close();
         await container.pump();
-        final survived = container.read(conversationProvider.exist);
+        final survived = container.read(conversationProvider.exists);
         release.complete();
         await lock;
         await pending;
@@ -77,7 +77,7 @@ void main() {
         );
         expect(row['unread_num'], latest ? 0 : 1);
         await container.pump();
-        expect(container.read(conversationProvider.exist), isFalse);
+        expect(container.read(conversationProvider.exists), isFalse);
       } finally {
         if (!release.isCompleted) release.complete();
         await lock;

@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:imboy/component/ui/resource_page_layout.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:flutter_markdown_plus/flutter_markdown_plus.dart';
@@ -91,8 +92,7 @@ class _MarkdownPageState extends ConsumerState<MarkdownPage> {
         title: widget.title,
         rightDMActions: widget.rightDMActions,
       ),
-      body: Container(
-        color: Theme.of(context).colorScheme.surface,
+      body: ResourcePageLayout(
         child: AsyncStateView(
           isLoading: _isLoading,
           isEmpty: false,

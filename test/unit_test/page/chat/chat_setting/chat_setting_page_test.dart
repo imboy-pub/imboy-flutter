@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:go_router/go_router.dart';
 
 import 'package:imboy/component/extension/imboy_cache_manager.dart';
 import 'package:imboy/component/ui/cell_pressable.dart';
@@ -11,6 +12,7 @@ import 'package:imboy/app_core/feature_flags/generated_product_features.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/chat/chat_setting/chat_setting_page.dart';
 import 'package:imboy/service/storage.dart';
+import 'package:imboy/utils/conversation_uk3_generator.dart';
 
 /// ChatSettingPage widget test
 ///
@@ -88,6 +90,53 @@ void main() {
   });
 
   group('ChatSettingPage layout', () {
+    testWidgets('inbox settings without options can open scoped search', (
+      tester,
+    ) async {
+      Map<String, dynamic>? searchArguments;
+      final router = GoRouter(
+        routes: [
+          GoRoute(
+            path: '/',
+            builder: (_, _) => const ChatSettingPage('peer_1', type: 'C2C'),
+          ),
+          GoRoute(
+            path: '/search_chat',
+            builder: (_, state) {
+              searchArguments = state.extra! as Map<String, dynamic>;
+              return const Scaffold(body: Text('SCOPED_SEARCH'));
+            },
+          ),
+        ],
+      );
+      addTearDown(router.dispose);
+      await tester.pumpWidget(
+        ProviderScope(
+          child: TranslationProvider(
+            child: MaterialApp.router(routerConfig: router),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      await tester.ensureVisible(find.text(t.common.searchChatRecord));
+      await tester.tap(find.text(t.common.searchChatRecord));
+      await tester.pumpAndSettle();
+
+      expect(find.text('SCOPED_SEARCH'), findsOneWidget);
+      expect(searchArguments?['peerId'], 'peer_1');
+      expect(searchArguments?['type'], 'C2C');
+      expect(
+        searchArguments?['conversationUk3'],
+        ConversationUk3Generator.generateSmart(
+          type: 'C2C',
+          currentUserId: 'tsid_uid_001',
+          peerId: 'peer_1',
+        ),
+      );
+      expect(tester.takeException(), isNull);
+      await _unmount(tester);
+    });
+
     testWidgets('AppBar title 渲染 "聊天设置"', (tester) async {
       await _pump(tester);
       // i18n: chatSettings = "聊天设置"

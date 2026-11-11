@@ -219,7 +219,7 @@ class FaceToFaceConfirmPageState extends ConsumerState<FaceToFaceConfirmPage> {
       children: code.split('').map((char) {
         return Container(
           width: 64,
-          height: 72,
+          constraints: const BoxConstraints(minHeight: 72),
           margin: const EdgeInsets.symmetric(horizontal: AppSpacing.small),
           decoration: BoxDecoration(
             color: isDark
@@ -253,12 +253,15 @@ class FaceToFaceConfirmPageState extends ConsumerState<FaceToFaceConfirmPage> {
       children: [
         const _LiveDot(),
         const SizedBox(width: 6),
-        Text(
-          t.common.f2fEnteringGroup(count: count),
-          style: context.textStyle(
-            FontSizeType.footnote,
-            color: AppColors.getIosGreen(brightness),
-            fontWeight: FontWeight.w600,
+        Flexible(
+          child: Text(
+            t.common.f2fEnteringGroup(count: count),
+            textAlign: TextAlign.center,
+            style: context.textStyle(
+              FontSizeType.footnote,
+              color: AppColors.getIosGreen(brightness),
+              fontWeight: FontWeight.w600,
+            ),
           ),
         ),
       ],

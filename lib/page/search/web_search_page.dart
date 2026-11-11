@@ -21,6 +21,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:imboy/component/helper/datetime.dart';
+import 'package:imboy/component/ui/nodata_view.dart';
 import 'package:imboy/config/env.dart';
 import 'package:imboy/service/storage.dart';
 import 'package:imboy/i18n/strings.g.dart';
@@ -140,6 +141,7 @@ class _WebSearchPageState extends ConsumerState<WebSearchPage> {
 
     // 自动聚焦
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
       _searchFocusNode.requestFocus();
     });
   }
@@ -239,20 +241,17 @@ class _WebSearchPageState extends ConsumerState<WebSearchPage> {
     if (query.trim().isEmpty) {
       _resultExpiry.cancel();
       setState(() {
-        _state = _state.copyWith(
-          query: '',
-          results: [],
-          showRecent: true,
-          isLoading: false,
-        );
+        _state = WebSearchState(recentSearches: _state.recentSearches);
         _messageSearchFailure = null;
       });
       return;
     }
 
     setState(() {
-      _state = _state.copyWith(
+      _state = WebSearchState(
         query: query,
+        results: _state.results,
+        recentSearches: _state.recentSearches,
         showRecent: false,
         isLoading: true,
       );
@@ -271,8 +270,9 @@ class _WebSearchPageState extends ConsumerState<WebSearchPage> {
     final generation = ++_searchGeneration;
     if (_isAuthTransitioning) {
       setState(() {
-        _state = _state.copyWith(
+        _state = WebSearchState(
           query: query,
+          recentSearches: _state.recentSearches,
           results: [],
           isLoading: false,
           showRecent: false,
@@ -282,8 +282,10 @@ class _WebSearchPageState extends ConsumerState<WebSearchPage> {
       return;
     }
     setState(() {
-      _state = _state.copyWith(
+      _state = WebSearchState(
         query: query,
+        results: _state.results,
+        recentSearches: _state.recentSearches,
         isLoading: true,
         showRecent: false,
       );
@@ -641,42 +643,15 @@ class _WebSearchPageState extends ConsumerState<WebSearchPage> {
   /// 构建加载状态
   Widget _buildLoadingState(bool isDark) {
     return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const CupertinoActivityIndicator(),
-          AppSpacing.verticalRegular,
-          Text(
-            t.common.search,
-            style: context.textStyle(
-              FontSizeType.normal,
-              color: isDark
-                  ? AppColors.chatWebSecondaryDark
-                  : AppColors.chatWebSecondaryLight,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  /// 构建最近搜索
-  Widget _buildRecentSearches(bool isDark) {
-    if (_state.recentSearches.isEmpty) {
-      return Center(
+      child: SingleChildScrollView(
+        padding: AppSpacing.allMedium,
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(
-              CupertinoIcons.search,
-              size: 64,
-              color: isDark
-                  ? AppColors.chatWebDividerDark
-                  : AppColors.chatWebDividerLight,
-            ),
+            const CupertinoActivityIndicator(),
             AppSpacing.verticalRegular,
             Text(
-              t.common.searchChatContent,
+              t.common.search,
               style: context.textStyle(
                 FontSizeType.normal,
                 color: isDark
@@ -686,6 +661,20 @@ class _WebSearchPageState extends ConsumerState<WebSearchPage> {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  /// 构建最近搜索
+  Widget _buildRecentSearches(bool isDark) {
+    if (_state.recentSearches.isEmpty) {
+      return NoDataView(
+        text: t.common.searchChatContent,
+        icon: CupertinoIcons.search,
+        iconSize: 64,
+        iconColor: isDark
+            ? AppColors.chatWebDividerDark
+            : AppColors.chatWebDividerLight,
       );
     }
 
@@ -698,14 +687,16 @@ class _WebSearchPageState extends ConsumerState<WebSearchPage> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                t.common.searchHistory,
-                style: context.textStyle(
-                  FontSizeType.normal,
-                  fontWeight: FontWeight.w500,
-                  color: isDark
-                      ? AppColors.chatWebSecondaryDark
-                      : AppColors.chatWebSecondaryLight,
+              Expanded(
+                child: Text(
+                  t.common.searchHistory,
+                  style: context.textStyle(
+                    FontSizeType.normal,
+                    fontWeight: FontWeight.w500,
+                    color: isDark
+                        ? AppColors.chatWebSecondaryDark
+                        : AppColors.chatWebSecondaryLight,
+                  ),
                 ),
               ),
               CupertinoButton(
@@ -779,55 +770,25 @@ class _WebSearchPageState extends ConsumerState<WebSearchPage> {
   /// 构建搜索结果
   Widget _buildSearchResults(bool isDark) {
     if (_state.error != null) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              CupertinoIcons.exclamationmark_circle,
-              size: 64,
-              color: isDark ? AppColors.iosRedDark : AppColors.iosRed,
-            ),
-            AppSpacing.verticalRegular,
-            Text(
-              _state.error!,
-              style: context.textStyle(
-                FontSizeType.normal,
-                color: isDark ? AppColors.iosRedDark : AppColors.iosRed,
-              ),
-            ),
-          ],
-        ),
+      return NoDataView(
+        text: _state.error!,
+        icon: CupertinoIcons.exclamationmark_circle,
+        iconSize: 64,
+        iconColor: isDark ? AppColors.iosRedDark : AppColors.iosRed,
+        onTop: () => _performSearch(_state.query),
       );
     }
 
     if (_state.results.isEmpty &&
         _state.query.isNotEmpty &&
         _messageSearchFailure == null) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              CupertinoIcons.slash_circle,
-              size: 64,
-              color: isDark
-                  ? AppColors.chatWebDividerDark
-                  : AppColors.chatWebDividerLight,
-            ),
-            AppSpacing.verticalRegular,
-            Text(
-              '${t.common.search}: "${_state.query}"',
-              style: context.textStyle(
-                FontSizeType.normal,
-                color: isDark
-                    ? AppColors.chatWebSecondaryDark
-                    : AppColors.chatWebSecondaryLight,
-              ),
-              textAlign: TextAlign.center,
-            ),
-          ],
-        ),
+      return NoDataView(
+        text: '${t.common.search}: "${_state.query}"',
+        icon: CupertinoIcons.slash_circle,
+        iconSize: 64,
+        iconColor: isDark
+            ? AppColors.chatWebDividerDark
+            : AppColors.chatWebDividerLight,
       );
     }
 
@@ -923,7 +884,14 @@ class _WebSearchPageState extends ConsumerState<WebSearchPage> {
     if (!mounted) return;
     switch (item.type) {
       case SearchItemType.conversation:
-        await context.push('/chat/${item.id}');
+        await context.push(
+          Uri(
+            path: '/chat/${item.id}',
+            queryParameters: {
+              'type': item.metadata?['type']?.toString() ?? 'C2C',
+            },
+          ).toString(),
+        );
       case SearchItemType.message:
         // 跳转到消息详情
         if (item.metadata?['conversationId'] != null) {

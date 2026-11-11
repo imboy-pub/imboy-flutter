@@ -7,6 +7,7 @@ import 'package:go_router/go_router.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/avatar.dart';
 import 'package:imboy/component/ui/common_bar.dart';
+import 'package:imboy/component/ui/cell_pressable.dart';
 import 'package:imboy/component/ui/nodata_view.dart';
 import 'package:imboy/store/model/contact_model.dart';
 import 'package:imboy/store/model/group_model.dart';
@@ -96,7 +97,9 @@ class _LaunchChatPageState extends ConsumerState<LaunchChatPage> {
               Expanded(
                 child: Container(
                   alignment: Alignment.centerLeft,
-                  height: _itemHeight.toDouble(),
+                  constraints: BoxConstraints(
+                    minHeight: _itemHeight.toDouble(),
+                  ),
                   decoration: BoxDecoration(
                     border: Border(
                       bottom: BorderSide(
@@ -129,12 +132,17 @@ class _LaunchChatPageState extends ConsumerState<LaunchChatPage> {
     final state = ref.watch(launchChatProvider);
     final selects = state.selects;
     if (selects.isEmpty) {
-      return SizedBox(
-        height: 40,
+      return Container(
+        constraints: const BoxConstraints(minHeight: 40),
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppSpacing.regular,
+          vertical: AppSpacing.small,
+        ),
         child: Center(
           child: Text(
             // TODO(i18n): t.chat.noSelectedMember
             t.group.touchContactAddMember,
+            textAlign: TextAlign.center,
             style: context.textStyle(
               FontSizeType.footnote,
               color: AppColors.iosGray,
@@ -145,7 +153,6 @@ class _LaunchChatPageState extends ConsumerState<LaunchChatPage> {
     }
 
     return Container(
-      height: 92,
       color: Theme.of(context).brightness == Brightness.dark
           ? Theme.of(context).colorScheme.surface
           : AppColors.lightSurface,
@@ -153,19 +160,24 @@ class _LaunchChatPageState extends ConsumerState<LaunchChatPage> {
         horizontal: AppSpacing.regular,
         vertical: AppSpacing.small,
       ),
-      child: ListView.separated(
+      child: SingleChildScrollView(
         scrollDirection: Axis.horizontal,
-        itemCount: selects.length,
-        separatorBuilder: (_, _) => const SizedBox(width: AppSpacing.medium),
-        itemBuilder: (context, index) {
-          final contact = selects[index];
-          return _SelectedAvatar(
-            contact: contact,
-            onRemove: () {
-              ref.read(launchChatProvider.notifier).toggleSelection(contact);
-            },
-          );
-        },
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            for (var index = 0; index < selects.length; index++) ...[
+              if (index > 0) AppSpacing.horizontalMedium,
+              _SelectedAvatar(
+                contact: selects[index],
+                onRemove: () {
+                  ref
+                      .read(launchChatProvider.notifier)
+                      .toggleSelection(selects[index]);
+                },
+              ),
+            ],
+          ],
+        ),
       ),
     );
   }
@@ -517,7 +529,7 @@ class _SelectedAvatar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
+    return CellPressable(
       onTap: onRemove,
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -535,10 +547,11 @@ class _SelectedAvatar extends StatelessWidget {
                     color: AppColors.getIosRed(Theme.of(context).brightness),
                     shape: BoxShape.circle,
                   ),
-                  child: const Icon(
+                  child: Icon(
                     CupertinoIcons.xmark,
                     size: 10,
                     color: AppColors.onPrimary,
+                    semanticLabel: t.common.buttonRemove,
                   ),
                 ),
               ),
@@ -584,8 +597,8 @@ class _QuickEntryTile extends StatelessWidget {
     return CupertinoButton(
       padding: const EdgeInsets.symmetric(horizontal: AppSpacing.regular),
       onPressed: onTap,
-      child: SizedBox(
-        height: 52,
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(minHeight: 52),
         child: Row(
           children: [
             Container(

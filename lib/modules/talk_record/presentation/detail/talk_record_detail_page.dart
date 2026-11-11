@@ -21,6 +21,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import 'package:imboy/component/ui/cell_pressable.dart';
 import 'package:imboy/component/ui/ios_settings_ui.dart';
 import 'package:imboy/component/ui/shimmer_list.dart';
 import 'package:imboy/i18n/strings.g.dart';
@@ -364,9 +365,8 @@ class _SpeakersEntry extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final brightness = Theme.of(context).brightness;
-    return GestureDetector(
+    return CellPressable(
       key: const ValueKey('talk_record_speakers_entry'),
-      behavior: HitTestBehavior.opaque,
       onTap: () => context.push('$kTalkRecordDetailPath/$recordId/speakers'),
       child: ConstrainedBox(
         // C-F4：触达 ≥44pt。
@@ -458,8 +458,8 @@ class _TabBar extends StatelessWidget {
     return Padding(
       key: const ValueKey('talk_record_detail_tabs'),
       padding: const EdgeInsets.symmetric(horizontal: AppSpacing.regular),
-      child: SizedBox(
-        height: AppSpacing.xxxLarge,
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(minHeight: AppSpacing.xxxLarge),
         child: Row(
           children: [
             for (final (i, tab) in [
@@ -508,21 +508,18 @@ class _TabSegment extends StatelessWidget {
     final unselectedFg = brightness == Brightness.dark
         ? AppColors.darkTextPrimary
         : AppColors.lightTextPrimary;
-    return Semantics(
-      selected: selected,
-      button: true,
-      label: label,
-      child: GestureDetector(
-        key: ValueKey('talk_record_tab_${label.hashCode}'),
-        behavior: HitTestBehavior.opaque,
-        onTap: onTap,
+    return CellPressable(
+      key: ValueKey('talk_record_tab_${label.hashCode}'),
+      onTap: onTap,
+      child: Semantics(
+        selected: selected,
         child: Container(
           // C-F1：选中态 primaryDark(#1565C0) 实底 + 白字 w600（5.75:1，
           // 明暗两态同款；对齐 T10 分段方案，不复刻原型对比缺陷）。
           key: selected
               ? const ValueKey('talk_record_tab_selected_container')
               : null,
-          height: AppSpacing.xxxLarge,
+          constraints: const BoxConstraints(minHeight: AppSpacing.xxxLarge),
           decoration: BoxDecoration(
             color: selected ? AppColors.primaryDark : unselectedBg,
             borderRadius: borderRadius,
@@ -531,8 +528,7 @@ class _TabSegment extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: AppSpacing.small),
           child: Text(
             label,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
+            textAlign: TextAlign.center,
             style: context.textStyle(
               FontSizeType.normal,
               fontWeight: selected ? FontWeight.w600 : FontWeight.w400,

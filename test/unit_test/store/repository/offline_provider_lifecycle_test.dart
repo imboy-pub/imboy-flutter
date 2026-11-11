@@ -43,7 +43,7 @@ void main() {
         message['msg_id'],
       ]);
       await container.pump();
-      expect(container.read(conversationProvider.exist), isFalse);
+      expect(container.read(conversationProvider.exists), isFalse);
       expect(await repo.batchInsertOfflineMessages([message]), [
         message['msg_id'],
       ]);

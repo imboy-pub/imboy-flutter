@@ -1,50 +1,37 @@
 import 'dart:async';
-import 'dart:convert';
 
-import 'package:dio/dio.dart';
 import 'package:imboy/app_core/feature_flags/app_feature_registry.dart';
 import 'package:imboy/app_core/feature_flags/app_manifest_service.dart';
 import 'package:imboy/app_core/feature_flags/feature_keys.dart';
 import 'package:imboy/app_core/feature_flags/generated_product_features.dart';
 import 'package:imboy/app_core/routing/route_feature_guard.dart';
-import 'package:imboy/component/http/http_client.dart';
-import 'package:imboy/page/workspace_shell/workspace_shell_bootstrap.dart';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:imboy/config/const.dart';
-import 'package:imboy/service/storage.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/modules/enterprise_oa/public.dart';
-import 'package:imboy/modules/enterprise_oa/data/oa_workbench_api.dart';
 import 'package:imboy/modules/organization/public.dart';
-import 'package:imboy/modules/organization/presentation/organization_entry_provider.dart';
 import 'package:imboy/page/mine/mine/mine_page.dart';
 import 'package:imboy/page/workspace/workspace_channels_page.dart';
 import 'package:imboy/page/workspace/workspace_conversations_page.dart';
-import 'package:imboy/page/workspace/workspace_access_provider.dart';
-import 'package:imboy/page/workspace/widget/workspace_access_guard.dart';
 import 'package:imboy/page/workspace/workspace_data_providers.dart';
 import 'package:imboy/page/workspace/workspace_group_agenda_views.dart';
 import 'package:imboy/page/workspace_shell/workspace_message_filter.dart';
 import 'package:imboy/page/workspace_shell/workspace_shell_page.dart';
 import 'package:imboy/page/workspace_shell/workspace_top_bar.dart';
 import 'package:imboy/page/workspace_shell/workspace_shell_provider.dart';
+import 'package:imboy/page/workspace_shell/workspace_drawer_menu.dart';
 import 'package:imboy/store/api/workspace_api.dart';
 import 'package:imboy/store/model/channel_model.dart';
 import 'package:imboy/store/model/group_model.dart';
 import 'package:imboy/modules/attachments/workspace_attachments_page.dart';
 import 'package:imboy/store/model/user_model.dart';
-import 'package:imboy/store/model/workspace_conversation_model.dart';
-import 'package:imboy/store/model/workspace_model.dart';
 import 'package:imboy/store/repository/user_repo_provider.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 
-part 'enterprise_shell_test_fixtures.dart';
+import 'enterprise_shell_test_fixtures.dart';
 
 List<String> _labels(WidgetTester tester) => tester
     .widget<NavigationBar>(
@@ -76,41 +63,34 @@ class _DelayedChannelsApi extends WorkspaceApi {
 }
 
 void main() {
-  setUp(() {
-    FlutterSecureStorage.setMockInitialValues({});
-    HttpClient.adapterForTest = _DirectoryTransport();
-  });
-  tearDown(() async {
-    HttpClient.adapterForTest = null;
-    // 跨用例会话复位：显式 StorageService.init 的用例（附件入口/feature
-    // flag 系）会把 prefs 单例的 currentUid 留给下一个用例，而下个用例
-    // 的 setUp 已把 secure token mock 重置为空。「loggedIn 且无 token」
-    // 会触发 HttpClient._handleTokenExpired → UserRepoLocal.quitLogin →
-    // _clearLogin 卡在测试无 mock 的 platform channel（sqlite/push），
-    // _pendingAuthTransitions 永挂 → 后续用例所有 HTTP 走
-    // _SessionChanged→409（网络错误），workspaceGroupSchedulesProvider
-    // 等无 retry 的 FutureProvider 被 riverpod 默认 retry 安排 200ms 起
-    // 的退避 Timer，测试结束时 timersPending invariant 失败。退出登录态
-    // 即断根；未 init 的用例无残留，remove 的 not-initialized 直接忽略
-    // （手法与 organization_api_session_generation_test 的 tearDown 同构）。
-    try {
-      await StorageService.to.remove(Keys.currentUid);
-    } on Object {
-      // StorageService 未 init：本用例无 prefs 残留。
-    }
-  });
+  registerEnterpriseShellFixture();
   for (final role in ['member', 'admin']) {
-    testWidgets('企业抽屉承载身份与快捷入口，角色 $role', (tester) async {
-      final api = _OaApi();
-      await _pump(tester, api, orgRole: role, size: const Size(320, 640));
+    testWidgets('窄屏空间 Sheet 承载身份与快捷入口，角色 $role', (tester) async {
+      final api = EnterpriseOaApi();
+      await pumpEnterpriseShell(
+        tester,
+        api,
+        orgRole: role,
+        size: const Size(320, 640),
+      );
       // 底栏回四栏：消息/通讯录/工作台/我。
       expect(find.text('我'), findsOneWidget);
-      // 左上汉堡按钮唤起深蓝抽屉：身份 + 名片/高级功能/创建加入企业/设置
-      // + 切换到个人/退出登录。
+      // 消息顶栏企业入口唤起共享空间 Sheet。
       await tester.tap(
         find.byKey(const ValueKey('enterprise-shell-menu-button')),
       );
       await tester.pumpAndSettle();
+      expect(
+        find.byKey(const ValueKey('space-switcher-sheet')),
+        findsOneWidget,
+      );
+      expect(find.byType(Drawer), findsNothing);
+      expect(
+        tester
+            .widget<WorkspaceDrawerMenu>(find.byType(WorkspaceDrawerMenu))
+            .compact,
+        isTrue,
+      );
       expect(find.text('合成员工'), findsOneWidget);
       // 企业名两处：身份行次级文本 + 企业带主名。
       expect(find.text('合成企业'), findsWidgets);
@@ -131,8 +111,8 @@ void main() {
     });
   }
   testWidgets('顶栏显示企业·工作区两级上下文（T06 spec D1）', (tester) async {
-    final api = _OaApi();
-    await _pump(tester, api);
+    final api = EnterpriseOaApi();
+    await pumpEnterpriseShell(tester, api);
     // org detail(合成企业资料) + currentWorkspace(合成企业) 组成两级
     // 副行；消息 tab 标题仍为 tab 名，汉堡与加号按钮原样保留。
     expect(find.text('合成企业资料 · 工作区：合成企业'), findsOneWidget);
@@ -156,9 +136,9 @@ void main() {
   });
   for (final role in ['member', 'admin', 'error']) {
     testWidgets('企业我的快捷入口保留角色语义并只显示一处空间上下文 $role', (tester) async {
-      final api = _OaApi();
-      final container = await _pump(tester, api, orgRole: role);
-      (container.read(workspaceShellProvider.notifier) as _Shell)
+      final api = EnterpriseOaApi();
+      final container = await pumpEnterpriseShell(tester, api, orgRole: role);
+      (container.read(workspaceShellProvider.notifier) as EnterpriseShellFake)
           .useNonOwnerWorkspace();
       final navigation = find.byKey(
         const ValueKey('enterprise-shell-bottom-nav'),
@@ -197,8 +177,8 @@ void main() {
   }
 
   testWidgets('无工作区上下文时顶栏降级为单段（不产生孤立分隔符）', (tester) async {
-    final api = _OaApi();
-    await _pump(tester, api, emptyMode: 'ok');
+    final api = EnterpriseOaApi();
+    await pumpEnterpriseShell(tester, api, emptyMode: 'ok');
     await tester.pumpAndSettle();
     // empty('ok') 起步时工作区列表为空 → 副行只剩 org 名单段，无 ' · '。
     final joined = tester
@@ -208,9 +188,9 @@ void main() {
     expect(joined, isEmpty);
     expect(find.text('合成企业资料'), findsOneWidget);
   });
-  testWidgets('仅消息页显示左上抽屉入口，切回消息恢复入口', (tester) async {
-    final api = _OaApi();
-    await _pump(tester, api);
+  testWidgets('窄屏消息页保留空间入口，切回消息恢复入口', (tester) async {
+    final api = EnterpriseOaApi();
+    await pumpEnterpriseShell(tester, api);
     api.completeFirst([]);
     await tester.pumpAndSettle();
     final menu = find.byKey(const ValueKey('enterprise-shell-menu-button'));
@@ -231,8 +211,8 @@ void main() {
     expect(find.text('我的名片'), findsOneWidget);
   });
   testWidgets('消息页挂筛选 tab 与右上角加号按钮', (tester) async {
-    final api = _OaApi();
-    await _pump(tester, api);
+    final api = EnterpriseOaApi();
+    await pumpEnterpriseShell(tester, api);
     expect(find.text('日程'), findsOneWidget);
     expect(find.text('待办'), findsOneWidget);
     expect(
@@ -264,8 +244,8 @@ void main() {
     expect(tester.takeException(), isNull);
   });
   testWidgets('弹窗可切日程/待办视图并同步顶栏 chip', (tester) async {
-    final api = _OaApi();
-    await _pump(tester, api);
+    final api = EnterpriseOaApi();
+    await pumpEnterpriseShell(tester, api);
     api.completeFirst([]);
     await tester.pumpAndSettle();
     // 从弹窗进入日程视图（顶栏 tab 与菜单项同文案，取菜单项后者）。
@@ -295,8 +275,8 @@ void main() {
     expect(tester.takeException(), isNull);
   });
   testWidgets('企业标签在重挂载后恢复，各企业的频道选择独立', (tester) async {
-    final api = _OaApi();
-    final container = await _pump(tester, api);
+    final api = EnterpriseOaApi();
+    final container = await pumpEnterpriseShell(tester, api);
     api.completeFirst([]);
     await tester.pumpAndSettle();
     await tester.tap(find.text('通讯录').last);
@@ -316,7 +296,8 @@ void main() {
       tester.widget<NavigationBar>(find.byType(NavigationBar)).selectedIndex,
       1,
     );
-    final shell = container.read(workspaceShellProvider.notifier) as _Shell;
+    final shell =
+        container.read(workspaceShellProvider.notifier) as EnterpriseShellFake;
     shell.organization('10', workspaceId: '101');
     await tester.pumpAndSettle();
     expect(find.byType(HumanDirectoryBrowserPage), findsNothing);
@@ -347,7 +328,7 @@ void main() {
     final container = ProviderContainer.test(
       overrides: [
         currentUserProvider.overrideWith((ref) => ref.watch(_account)),
-        workspaceApiProvider.overrideWithValue(_Api()),
+        workspaceApiProvider.overrideWithValue(EnterpriseWorkspaceApi()),
       ],
     );
     final shell = container.read(workspaceShellProvider.notifier);
@@ -374,9 +355,9 @@ void main() {
     ));
   });
   testWidgets('恢复工作台先重新校验配置，撤权后保留空工作台', (tester) async {
-    final api = _OaApi();
-    final container = await _pump(tester, api);
-    api.completeFirst(_entries('10'));
+    final api = EnterpriseOaApi();
+    final container = await pumpEnterpriseShell(tester, api);
+    api.completeFirst(enterpriseOaEntries('10'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('工作台').last);
     await tester.pumpAndSettle();
@@ -406,8 +387,8 @@ void main() {
   });
   for (final mode in ['normal', 'loading', 'error']) {
     testWidgets('无工作区企业 $mode 仍可从首页进入组织架构', (tester) async {
-      final api = _OaApi();
-      await _pump(tester, api, emptyMode: mode);
+      final api = EnterpriseOaApi();
+      await pumpEnterpriseShell(tester, api, emptyMode: mode);
       api.completeFirst([]);
       await tester.pump();
       expect(_labels(tester), ['消息', '通讯录', '工作台', '我']);
@@ -491,8 +472,8 @@ void main() {
   });
 
   testWidgets('无 OA：四项导航默认消息，通讯录按需加载', (tester) async {
-    final api = _OaApi();
-    await _pump(tester, api);
+    final api = EnterpriseOaApi();
+    await pumpEnterpriseShell(tester, api);
     api.completeFirst([]);
     await tester.pump();
     expect(_labels(tester), ['消息', '通讯录', '工作台', '我']);
@@ -547,8 +528,8 @@ void main() {
       false,
       reason: 'attachment entry auth fixture',
     );
-    final api = _OaApi();
-    final attachmentContainer = await _pump(
+    final api = EnterpriseOaApi();
+    final attachmentContainer = await pumpEnterpriseShell(
       tester,
       api,
       groups: [
@@ -575,9 +556,9 @@ void main() {
   });
 
   testWidgets('授权 OA 出现工作台，但未选应用前不创建 SSO 页面', (tester) async {
-    final api = _OaApi();
-    await _pump(tester, api);
-    api.completeFirst(_entries('10'));
+    final api = EnterpriseOaApi();
+    await pumpEnterpriseShell(tester, api);
+    api.completeFirst(enterpriseOaEntries('10'));
     await tester.pump();
     expect(_labels(tester), ['消息', '通讯录', '工作台', '我']);
     expect(find.byType(OaTabPage), findsNothing);
@@ -589,14 +570,13 @@ void main() {
     expect(tester.takeException(), isNull);
   });
   testWidgets('企业切换重建 shell 后配置仍是账号级结果，无按企业分叉的旧缓存（定位修订）', (tester) async {
-    final api = _OaApi();
-    final container = await _pump(tester, api);
-    api.completeFirst(_entries('10'));
+    final api = EnterpriseOaApi();
+    final container = await pumpEnterpriseShell(tester, api);
+    api.completeFirst(enterpriseOaEntries('10'));
     await tester.pump();
     await tester.pump();
-    (container.read(workspaceShellProvider.notifier) as _Shell).organization(
-      '20',
-    );
+    (container.read(workspaceShellProvider.notifier) as EnterpriseShellFake)
+        .organization('20');
     await tester.pump();
     await tester.pump();
     // 切企业会重建 shell（保持各企业导航的既有机制），initState 的
@@ -604,7 +584,7 @@ void main() {
     // 业务对象不参与），不存在 (account, org) 分叉缓存，重建后由最新
     // 请求结果驱动 UI。
     expect(_labels(tester), ['消息', '通讯录', '工作台', '我']);
-    api.completeFirst(_entries('10'));
+    api.completeFirst(enterpriseOaEntries('10'));
     await tester.pump();
     await tester.tap(find.text('工作台'));
     await tester.pump(const Duration(milliseconds: 100));
@@ -616,8 +596,8 @@ void main() {
     expect(tester.takeException(), isNull);
   });
   testWidgets('频道经筛选下拉进入，不占企业底栏', (tester) async {
-    final api = _OaApi();
-    await _pump(tester, api);
+    final api = EnterpriseOaApi();
+    await pumpEnterpriseShell(tester, api);
     api.completeFirst([]);
     await tester.pump();
     await tester.tap(
@@ -631,9 +611,9 @@ void main() {
     expect(tester.takeException(), isNull);
   });
   testWidgets('企业配置读取失败有重试入口，旧工作台立即撤下', (tester) async {
-    final api = _OaApi();
-    final container = await _pump(tester, api);
-    api.completeFirst(_entries('10'));
+    final api = EnterpriseOaApi();
+    final container = await pumpEnterpriseShell(tester, api);
+    api.completeFirst(enterpriseOaEntries('10'));
     await tester.pump();
     await tester.tap(find.text('工作台'));
     await tester.pump();
@@ -651,8 +631,8 @@ void main() {
   testWidgets('桌面复用四项侧栏，同样读取 OA entries（macOS 平台门已放开）', (tester) async {
     debugDefaultTargetPlatformOverride = TargetPlatform.macOS;
     addTearDown(() => debugDefaultTargetPlatformOverride = null);
-    final api = _OaApi();
-    await _pump(tester, api, size: const Size(1440, 900));
+    final api = EnterpriseOaApi();
+    await pumpEnterpriseShell(tester, api, size: const Size(1440, 900));
     final rail = tester.widget<NavigationRail>(
       find.byKey(const ValueKey('enterprise-shell-rail')),
     );
@@ -694,8 +674,8 @@ void main() {
         AppManifestService.replaceForTest(previousManifest);
       }
     });
-    final api = _OaApi();
-    await _pump(tester, api);
+    final api = EnterpriseOaApi();
+    await pumpEnterpriseShell(tester, api);
     api.completeFirst([]);
     await tester.pumpAndSettle();
     expect(_labels(tester), ['消息', '通讯录', '工作台', '我']);
@@ -733,8 +713,8 @@ void main() {
     (tester) async {
       await seedLoggedInSessionFixture();
       AppFeatureRegistry.replaceSnapshotForTest({FeatureKeys.project: false});
-      final api = _OaApi();
-      await _pump(tester, api);
+      final api = EnterpriseOaApi();
+      await pumpEnterpriseShell(tester, api);
       api.completeFirst([]);
       await tester.pumpAndSettle();
       await tester.tap(find.text('工作台'));
@@ -774,8 +754,8 @@ void main() {
         AppFeatureRegistry.isEnabled(FeatureKeys.project),
         projectCompiled,
       );
-      final api = _OaApi();
-      await _pump(tester, api);
+      final api = EnterpriseOaApi();
+      await pumpEnterpriseShell(tester, api);
       api.completeFirst([]);
       await tester.pumpAndSettle();
       await tester.tap(find.text('工作台'));

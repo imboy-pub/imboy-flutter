@@ -1,5 +1,6 @@
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:flutter/material.dart';
+import 'package:imboy/component/ui/resource_page_layout.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:imboy/theme/default/font_types.dart';
 import 'package:imboy/component/ui/app_loading.dart';
@@ -192,134 +193,137 @@ class _RedPacketSendPageState extends ConsumerState<RedPacketSendPage> {
         title: t.common.redPacketSend,
         automaticallyImplyLeading: true,
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(AppSpacing.regular),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              // 红包类型切换（仅群聊）
-              if (_isGroup) ...[
-                WalletFieldCard(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: AppSpacing.small,
-                      vertical: AppSpacing.tiny,
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        // 左侧文案可收缩：英文环境文案长 + 右按钮默认 padding，
-                        // 两者硬宽之和在 390pt 屏溢出 4.2px
-                        Expanded(
-                          child: Text(
-                            _isLucky
-                                ? t.common.redPacketCurrentLucky
-                                : t.common.redPacketCurrentNormal,
-                            style: context.textStyle(
-                              FontSizeType.medium,
-                              fontWeight: FontWeight.w600,
+      body: ResourcePageLayout(
+        child: SingleChildScrollView(
+          keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+          padding: const EdgeInsets.all(AppSpacing.regular),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                // 红包类型切换（仅群聊）
+                if (_isGroup) ...[
+                  WalletFieldCard(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: AppSpacing.small,
+                        vertical: AppSpacing.tiny,
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          // 左侧文案可收缩：英文环境文案长 + 右按钮默认 padding，
+                          // 两者硬宽之和在 390pt 屏溢出 4.2px
+                          Expanded(
+                            child: Text(
+                              _isLucky
+                                  ? t.common.redPacketCurrentLucky
+                                  : t.common.redPacketCurrentNormal,
+                              style: context.textStyle(
+                                FontSizeType.medium,
+                                fontWeight: FontWeight.w600,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
                             ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
                           ),
-                        ),
-                        CupertinoButton(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: AppSpacing.small,
+                          CupertinoButton(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: AppSpacing.small,
+                            ),
+                            onPressed: () => setState(() {
+                              _selectedType = _isLucky ? 'fixed' : 'random';
+                            }),
+                            child: Text(
+                              _isLucky
+                                  ? t.common.redPacketSwitchToNormal
+                                  : t.common.redPacketSwitchToLucky,
+                              style: TextStyle(color: AppColors.iosRed),
+                            ),
                           ),
-                          onPressed: () => setState(() {
-                            _selectedType = _isLucky ? 'fixed' : 'random';
-                          }),
-                          child: Text(
-                            _isLucky
-                                ? t.common.redPacketSwitchToNormal
-                                : t.common.redPacketSwitchToLucky,
-                            style: TextStyle(color: AppColors.iosRed),
-                          ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
+                  AppSpacing.verticalRegular,
+                ],
+
+                // 金额 hero 卡片
+                WalletAmountField(
+                  controller: _amountController,
+                  label: _isLucky
+                      ? t.common.redPacketTotalAmount
+                      : t.common.redPacketSingleAmount,
+                  accent: AppColors.iosRed,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return t.common.enterAmount;
+                    }
+                    final amountFen = parseYuanToFen(value);
+                    if (amountFen == null || amountFen < 1) {
+                      return t.common.amountMustPositive;
+                    }
+                    return null;
+                  },
                 ),
                 AppSpacing.verticalRegular,
-              ],
 
-              // 金额 hero 卡片
-              WalletAmountField(
-                controller: _amountController,
-                label: _isLucky
-                    ? t.common.redPacketTotalAmount
-                    : t.common.redPacketSingleAmount,
-                accent: AppColors.iosRed,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return t.common.enterAmount;
-                  }
-                  final amountFen = parseYuanToFen(value);
-                  if (amountFen == null || amountFen < 1) {
-                    return t.common.amountMustPositive;
-                  }
-                  return null;
-                },
-              ),
-              AppSpacing.verticalRegular,
+                // 红包个数（仅群聊）
+                if (_isGroup) ...[
+                  WalletFieldCard(
+                    child: TextFormField(
+                      enableSuggestions: false,
+                      autocorrect: false,
+                      controller: _countController,
+                      keyboardType: TextInputType.number,
+                      decoration: walletInputDecoration(
+                        hint: t.common.redPacketCount,
+                        suffix: t.common.redPacketCountUnit,
+                      ),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return t.common.redPacketCountEmpty;
+                        }
+                        final count = int.tryParse(value);
+                        if (count == null || count < 1) {
+                          return t.common.redPacketCountMin;
+                        }
+                        return null;
+                      },
+                    ),
+                  ),
+                  AppSpacing.verticalRegular,
+                ],
 
-              // 红包个数（仅群聊）
-              if (_isGroup) ...[
+                // 祝福语
                 WalletFieldCard(
                   child: TextFormField(
                     enableSuggestions: false,
                     autocorrect: false,
-                    controller: _countController,
-                    keyboardType: TextInputType.number,
+                    controller: _greetingController,
                     decoration: walletInputDecoration(
-                      hint: t.common.redPacketCount,
-                      suffix: t.common.redPacketCountUnit,
+                      hint: t.common.redPacketGreetingLabel,
                     ),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return t.common.redPacketCountEmpty;
-                      }
-                      final count = int.tryParse(value);
-                      if (count == null || count < 1) {
-                        return t.common.redPacketCountMin;
-                      }
-                      return null;
-                    },
                   ),
                 ),
-                AppSpacing.verticalRegular,
+                AppSpacing.verticalSmall,
+
+                WalletBalanceHint(balanceYuan: balanceYuan),
+                const SizedBox(height: 40),
+
+                WalletPrimaryButton(
+                  label: _isLucky
+                      ? t.common.redPacketStuffLucky
+                      : t.common.redPacketStuffNormal,
+                  color: AppColors.iosRed,
+                  onPressed: () {
+                    FocusScope.of(context).unfocus();
+                    _handleSend(walletState.balance);
+                  },
+                ),
               ],
-
-              // 祝福语
-              WalletFieldCard(
-                child: TextFormField(
-                  enableSuggestions: false,
-                  autocorrect: false,
-                  controller: _greetingController,
-                  decoration: walletInputDecoration(
-                    hint: t.common.redPacketGreetingLabel,
-                  ),
-                ),
-              ),
-              AppSpacing.verticalSmall,
-
-              WalletBalanceHint(balanceYuan: balanceYuan),
-              const SizedBox(height: 40),
-
-              WalletPrimaryButton(
-                label: _isLucky
-                    ? t.common.redPacketStuffLucky
-                    : t.common.redPacketStuffNormal,
-                color: AppColors.iosRed,
-                onPressed: () {
-                  FocusScope.of(context).unfocus();
-                  _handleSend(walletState.balance);
-                },
-              ),
-            ],
+            ),
           ),
         ),
       ),

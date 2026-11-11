@@ -26,7 +26,7 @@ import 'package:imboy/service/websocket_events.dart';
 import 'package:imboy/store/model/conversation_model.dart';
 import 'package:imboy/store/model/workspace_conversation_model.dart';
 import 'package:imboy/store/repository/user_repo_provider.dart';
-import 'package:imboy/theme/default/app_duration.dart';
+import 'package:imboy/component/ui/cell_pressable.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/font_types.dart';
@@ -323,31 +323,21 @@ class _WorkspaceConversationsPageState
   }
 }
 
-class _MessageRow extends StatefulWidget {
+class _MessageRow extends StatelessWidget {
   const _MessageRow({required this.row, required this.avatarLoader});
   final WorkspaceConversationModel row;
   final Future<List<String>> Function(String) avatarLoader;
 
-  @override
-  State<_MessageRow> createState() => _MessageRowState();
-}
-
-/// 视觉规格与 Personal 会话行 [ConversationItem] 逐项对齐（56 群拼图
-/// 头像 + 未读徽标同位、标题 body w600 letterSpacing -0.4、时间戳
-/// footnote tabularFigures、预览 subheadline 灰、按压 100ms 高光），
-/// 但不与 Personal 模型/provider 耦合——见该文件头注释的取舍说明。
-class _MessageRowState extends State<_MessageRow> {
-  bool _isPressed = false;
-
+  // 共享点击反馈与键盘激活；保持原会话头像、未读、时间和预览布局。
   @override
   Widget build(BuildContext context) {
-    final group = widget.row.group;
+    final group = row.group;
     final t = context.t;
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final preview = widget.row.previewText.isEmpty
+    final preview = row.previewText.isEmpty
         ? t.workspace.groupTileSubtitle(count: group.memberCount.toString())
-        : widget.row.previewText;
-    return GestureDetector(
+        : row.previewText;
+    return CellPressable(
       onTap: () => context.push(
         '/chat/${group.groupId}',
         extra: {
@@ -356,18 +346,9 @@ class _MessageRowState extends State<_MessageRow> {
           'avatar': group.avatar,
         },
       ),
-      // 不触发 HapticFeedback：iOS 系统列表按下不给触感（同 ConversationItem）。
-      onTapDown: (_) => setState(() => _isPressed = true),
-      onTapUp: (_) => setState(() => _isPressed = false),
-      onTapCancel: () => setState(() => _isPressed = false),
-      behavior: HitTestBehavior.opaque,
-      child: AnimatedContainer(
-        // DESIGN.md 6.4：Cell 按压反馈 100ms
-        duration: AppDuration.buttonPress,
+      child: Container(
         key: ValueKey('workspace-message-${group.groupId}'),
-        color: _isPressed
-            ? (isDark ? AppColors.overlayWhite10 : AppColors.overlayBlack5)
-            : (isDark ? AppColors.darkSurface : AppColors.lightSurface),
+        color: isDark ? AppColors.darkSurface : AppColors.lightSurface,
         padding: const EdgeInsets.symmetric(
           horizontal: AppSpacing.regular,
           vertical: AppSpacing.medium,
@@ -378,14 +359,10 @@ class _MessageRowState extends State<_MessageRow> {
             // 头像区域 + 未读角标（位置/字号/颜色与 ConversationItem 相同）
             BadgeWidget(
               key: ValueKey('workspace-unread-${group.groupId}'),
-              showBadge: widget.row.unreadCount > 0,
-              semanticLabel: t.common.unreadCount(
-                count: '${widget.row.unreadCount}',
-              ),
+              showBadge: row.unreadCount > 0,
+              semanticLabel: t.common.unreadCount(count: '${row.unreadCount}'),
               content: Text(
-                widget.row.unreadCount > 99
-                    ? '99+'
-                    : '${widget.row.unreadCount}',
+                row.unreadCount > 99 ? '99+' : '${row.unreadCount}',
                 style: context
                     .textStyle(
                       FontSizeType.caption2,
@@ -405,7 +382,7 @@ class _MessageRowState extends State<_MessageRow> {
                 avatar: group.avatar,
                 groupId: group.groupId.toString(),
                 size: 56,
-                avatarLoader: widget.avatarLoader,
+                avatarLoader: avatarLoader,
                 heroTag: 'avatar_${group.groupId}',
               ),
             ),
@@ -437,9 +414,9 @@ class _MessageRowState extends State<_MessageRow> {
                       ),
                       // 不画 disclosure chevron：整行可点（同 ConversationItem /
                       // 微信 / Telegram 的会话列表）。
-                      if (widget.row.serverTs > 0)
+                      if (row.serverTs > 0)
                         Text(
-                          DateTimeHelper.lastTimeFmt(widget.row.serverTs),
+                          DateTimeHelper.lastTimeFmt(row.serverTs),
                           style: context
                               .textStyle(
                                 FontSizeType.footnote,

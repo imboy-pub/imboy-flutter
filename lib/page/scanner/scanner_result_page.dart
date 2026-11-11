@@ -3,12 +3,12 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/component/helper/func.dart';
-import 'package:imboy/component/ui/common.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/web_view.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/font_types.dart';
+import 'package:imboy/theme/default/app_spacing.dart';
 
 class ScannerResultPage extends StatelessWidget {
   final String scanResult;
@@ -25,81 +25,68 @@ class ScannerResultPage extends StatelessWidget {
         automaticallyImplyLeading: true,
         title: t.discovery.scanResult,
       ),
-      floatingActionButtonLocation:
-          FloatingActionButtonLocation.miniCenterFloat,
-      floatingActionButton: SizedBox(
-        width: MediaQuery.of(context).size.width,
-        height: 64.0,
-        child: Column(
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Space(width: 40),
-                FloatingActionButton(
-                  heroTag: "back",
-                  tooltip: t.common.buttonBack,
-                  onPressed: () {
-                    Navigator.pop(context);
-                  },
-                  child: const Icon(CupertinoIcons.chevron_left),
-                ),
-                // copy
-                FloatingActionButton(
-                  heroTag: 'copy',
-                  tooltip: t.common.buttonCopy,
-                  onPressed: () {
-                    // 已复制
-                    Clipboard.setData(ClipboardData(text: scanResult));
-                    AppLoading.showToast(t.main.copied);
-                  },
-                  child: const Icon(CupertinoIcons.doc_on_doc),
-                ),
-                // open in browser
-                FloatingActionButton(
-                  heroTag: "open_in_browser",
-                  tooltip: t.main.openInBrowser,
-                  backgroundColor: isUrl(scanResult) ? null : AppColors.iosGray,
-                  onPressed: isUrl(scanResult)
-                      ? () {
-                          Navigator.push(
-                            context,
-                            CupertinoPageRoute<dynamic>(
-                              builder: (context) => WebViewPage(
-                                scanResult,
-                                '',
-                                errorCallback: (String url) {
-                                  _showResult(
-                                    context,
-                                    "${t.common.cannotOpenWebpage}: $url",
-                                  );
-                                },
-                              ),
+      bottomNavigationBar: SafeArea(
+        child: Padding(
+          padding: AppSpacing.allRegular,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              FloatingActionButton(
+                heroTag: "back",
+                tooltip: t.common.buttonBack,
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: const Icon(CupertinoIcons.chevron_left),
+              ),
+              // copy
+              FloatingActionButton(
+                heroTag: 'copy',
+                tooltip: t.common.buttonCopy,
+                onPressed: () {
+                  // 已复制
+                  Clipboard.setData(ClipboardData(text: scanResult));
+                  AppLoading.showToast(t.main.copied);
+                },
+                child: const Icon(CupertinoIcons.doc_on_doc),
+              ),
+              // open in browser
+              FloatingActionButton(
+                heroTag: "open_in_browser",
+                tooltip: t.main.openInBrowser,
+                backgroundColor: isUrl(scanResult) ? null : AppColors.iosGray,
+                onPressed: isUrl(scanResult)
+                    ? () {
+                        Navigator.push(
+                          context,
+                          CupertinoPageRoute<dynamic>(
+                            builder: (context) => WebViewPage(
+                              scanResult,
+                              '',
+                              errorCallback: (String url) {
+                                _showResult(
+                                  context,
+                                  "${t.common.cannotOpenWebpage}: $url",
+                                );
+                              },
                             ),
-                          );
-                        }
-                      : null,
-                  child: const Icon(CupertinoIcons.arrow_up_right),
-                ),
-                const Space(width: 40),
-              ],
-            ),
-          ],
+                          ),
+                        );
+                      }
+                    : null,
+                child: const Icon(CupertinoIcons.arrow_up_right),
+              ),
+            ],
+          ),
         ),
       ),
-      body: Container(
-        width: double.infinity,
-        margin: const EdgeInsets.all(0.0),
-        height: double.infinity,
-        padding: const EdgeInsets.fromLTRB(16, 28, 0, 10),
-        alignment: Alignment.center,
-        color: Theme.of(context).colorScheme.surface,
-        child: Center(
-          child: Text(
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: AppSpacing.allRegular,
+          child: SelectableText(
             scanResult,
-            textAlign: TextAlign.left,
             style: context.textStyle(
-              FontSizeType.largeTitle,
+              FontSizeType.body,
               color: Theme.of(context).colorScheme.onSurface,
             ),
           ),
@@ -109,30 +96,16 @@ class ScannerResultPage extends StatelessWidget {
   }
 
   Future<void> _showResult(BuildContext context, String txt) {
-    return showCupertinoModalPopup(
+    return showCupertinoDialog<void>(
       context: context,
-      builder: (context) => GestureDetector(
-        onTap: () {
-          Navigator.pop(context);
-        },
-        child: Container(
-          width: double.infinity,
-          margin: const EdgeInsets.all(0.0),
-          height: double.infinity,
-          padding: const EdgeInsets.fromLTRB(16, 28, 0, 10),
-          alignment: Alignment.center,
-          color: Theme.of(context).colorScheme.surface,
-          child: Center(
-            child: Text(
-              txt,
-              textAlign: TextAlign.left,
-              style: context.textStyle(
-                FontSizeType.largeTitle,
-                color: Theme.of(context).colorScheme.onSurface,
-              ),
-            ),
+      builder: (dialogContext) => CupertinoAlertDialog(
+        content: Text(txt),
+        actions: [
+          CupertinoDialogAction(
+            onPressed: () => Navigator.pop(dialogContext),
+            child: Text(t.common.buttonClose),
           ),
-        ),
+        ],
       ),
     );
   }

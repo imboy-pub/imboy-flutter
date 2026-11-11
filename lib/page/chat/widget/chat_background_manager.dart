@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:imboy/capabilities/capability_locator.dart';
 import 'package:imboy/capabilities/contracts/media_picker_capability.dart';
 import 'package:imboy/component/ui/common_bar.dart';
+import 'package:imboy/component/ui/cell_pressable.dart';
 import 'package:imboy/service/storage.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/theme/default/app_colors.dart';
@@ -335,76 +336,93 @@ class ChatBackgroundSettingsPage extends ConsumerWidget {
           ),
         ),
         AppSpacing.verticalMedium,
-        GridView.builder(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 3,
-            crossAxisSpacing: 12,
-            mainAxisSpacing: 12,
-            childAspectRatio: 1.2,
-          ),
-          itemCount: ChatBackgroundManager.backgroundOptions.length,
-          itemBuilder: (context, index) {
-            final option = ChatBackgroundManager.backgroundOptions[index];
-            final name =
-                ChatBackgroundManager.backgroundNames[option] ?? option;
-
-            return GestureDetector(
-              onTap: () async {
-                if (option == 'custom_image') {
-                  await manager.pickCustomImage(context);
-                } else {
-                  manager.setBackground(option);
-                }
-              },
-              child: Container(
-                decoration: BoxDecoration(
-                  borderRadius: AppRadius.borderRadiusSmall,
-                  border: Border.all(
-                    color: state.currentBackground == option
-                        ? Theme.of(context).primaryColor
-                        : AppColors.iosSeparator,
-                    width: state.currentBackground == option ? 2 : 1,
+        LayoutBuilder(
+          builder: (context, constraints) {
+            final itemWidth =
+                (constraints.maxWidth - AppSpacing.medium * 2) / 3;
+            return Wrap(
+              spacing: AppSpacing.medium,
+              runSpacing: AppSpacing.medium,
+              children: [
+                for (final option in ChatBackgroundManager.backgroundOptions)
+                  SizedBox(
+                    width: itemWidth,
+                    child: _buildBackgroundOption(
+                      context,
+                      state,
+                      manager,
+                      option,
+                    ),
                   ),
-                ),
-                child: Column(
-                  children: [
-                    Expanded(
-                      child: Container(
-                        width: double.infinity,
-                        decoration: BoxDecoration(
-                          borderRadius: const BorderRadius.vertical(
-                            top: Radius.circular(8),
-                          ),
-                          color: AppColors.iosGray5.withValues(alpha: 0.5),
-                        ),
-                        child: _buildBackgroundPreviewThumbnail(option, state),
-                      ),
-                    ),
-                    Container(
-                      padding: AppSpacing.allSmall,
-                      child: Text(
-                        name,
-                        style: context.textStyle(
-                          FontSizeType.small,
-                          fontWeight: state.currentBackground == option
-                              ? FontWeight.w600
-                              : FontWeight.w400,
-                          color: state.currentBackground == option
-                              ? Theme.of(context).primaryColor
-                              : null,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+              ],
             );
           },
         ),
       ],
+    );
+  }
+
+  Widget _buildBackgroundOption(
+    BuildContext context,
+    ChatBackgroundState state,
+    ChatBackgroundManager manager,
+    String option,
+  ) {
+    final name = ChatBackgroundManager.backgroundNames[option] ?? option;
+    final isSelected = state.currentBackground == option;
+    return CellPressable(
+      onTap: () async {
+        if (option == 'custom_image') {
+          await manager.pickCustomImage(context);
+        } else {
+          manager.setBackground(option);
+        }
+      },
+      child: Semantics(
+        selected: isSelected,
+        inMutuallyExclusiveGroup: true,
+        child: Container(
+          decoration: BoxDecoration(
+            borderRadius: AppRadius.borderRadiusSmall,
+            border: Border.all(
+              color: isSelected
+                  ? Theme.of(context).primaryColor
+                  : AppColors.iosSeparator,
+              width: isSelected ? 2 : 1,
+            ),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              AspectRatio(
+                aspectRatio: 1.8,
+                child: Container(
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    borderRadius: const BorderRadius.vertical(
+                      top: Radius.circular(8),
+                    ),
+                    color: AppColors.iosGray5.withValues(alpha: 0.5),
+                  ),
+                  child: _buildBackgroundPreviewThumbnail(option, state),
+                ),
+              ),
+              Padding(
+                padding: AppSpacing.allSmall,
+                child: Text(
+                  name,
+                  style: context.textStyle(
+                    FontSizeType.small,
+                    fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+                    color: isSelected ? Theme.of(context).primaryColor : null,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 

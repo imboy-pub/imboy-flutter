@@ -43,8 +43,9 @@ class UserCollectDetailPage extends ConsumerWidget {
   Widget _buildActionMenu(
     BuildContext context,
     WidgetRef ref,
-    UserCollectModel obj,
-  ) {
+    UserCollectModel obj, {
+    required BuildContext pageContext,
+  }) {
     final notifier = ref.read(userCollectProvider.notifier);
 
     return Container(
@@ -58,294 +59,298 @@ class UserCollectDetailPage extends ConsumerWidget {
         ),
       ),
       child: SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // 顶部指示器
-            Container(
-              width: 40,
-              height: 4,
-              margin: const EdgeInsets.only(
-                top: AppSpacing.regular,
-                bottom: AppSpacing.xLarge,
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // 顶部指示器
+              Container(
+                width: 40,
+                height: 4,
+                margin: const EdgeInsets.only(
+                  top: AppSpacing.regular,
+                  bottom: AppSpacing.xLarge,
+                ),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.onSurfaceVariant
+                      .withValues(alpha: 0.3),
+                  borderRadius: AppRadius.borderRadiusTiny,
+                ),
               ),
-              decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.onSurfaceVariant
-                    .withValues(alpha: 0.3),
-                borderRadius: AppRadius.borderRadiusTiny,
-              ),
-            ),
 
-            // 标题
-            Text(
-              t.common.operationOptions,
-              style: context.textStyle(
-                FontSizeType.large,
-                fontWeight: FontWeight.w600,
-                color: Theme.of(context).colorScheme.onSurface,
+              // 标题
+              Text(
+                t.common.operationOptions,
+                style: context.textStyle(
+                  FontSizeType.large,
+                  fontWeight: FontWeight.w600,
+                  color: Theme.of(context).colorScheme.onSurface,
+                ),
               ),
-            ),
-            AppSpacing.verticalXLarge,
+              AppSpacing.verticalXLarge,
 
-            // 复制按钮（仅文本类型）
-            if (obj.kind == 1)
+              // 复制按钮（仅文本类型）
+              if (obj.kind == 1)
+                _buildActionButton(
+                  context: context,
+                  icon: CupertinoIcons.doc_on_doc,
+                  title: t.common.buttonCopy,
+                  subtitle: t.common.copyTextContent,
+                  onTap: () async {
+                    Navigator.pop(context);
+                    final String txt =
+                        obj.info['payload']['text'] as String? ?? '';
+                    if (txt.isNotEmpty) {
+                      Clipboard.setData(ClipboardData(text: txt));
+                      AppLoading.showToast(t.main.copied);
+                    }
+                  },
+                  iconColor: Theme.of(context).colorScheme.primary,
+                ),
+
+              // 转发给朋友
               _buildActionButton(
                 context: context,
-                icon: CupertinoIcons.doc_on_doc,
-                title: t.common.buttonCopy,
-                subtitle: t.common.copyTextContent,
+                icon: CupertinoIcons.share,
+                title: t.chat.forwardToFriend,
+                subtitle: t.common.shareWithOtherFriends,
                 onTap: () async {
                   Navigator.pop(context);
-                  final String txt =
-                      obj.info['payload']['text'] as String? ?? '';
-                  if (txt.isNotEmpty) {
-                    Clipboard.setData(ClipboardData(text: txt));
-                    AppLoading.showToast(t.main.copied);
+
+                  // 确保 obj.info 有正确的数据结构
+                  final Map<String, dynamic> info = Map<String, dynamic>.from(
+                    obj.info,
+                  );
+
+                  // 多种方式尝试获取 msg_type
+                  String? msgType = info['msg_type']?.toString();
+
+                  // 方式1：如果顶层没有 msg_type，从 payload 中获取
+                  if (msgType == null || msgType.isEmpty) {
+                    if (info['payload'] is Map) {
+                      final payload = info['payload'] as Map<String, dynamic>;
+                      msgType = payload['msg_type']?.toString();
+                    }
                   }
+
+                  // 方式2：根据 kind 字段推断类型（kind 定义：1 文本 2 图片 3 语音 4 视频 5 文件 6 位置 7 名片）
+                  if (msgType == null || msgType.isEmpty) {
+                    switch (obj.kind) {
+                      case 1:
+                        msgType = 'text';
+                        break;
+                      case 2:
+                        msgType = 'image';
+                        break;
+                      case 3:
+                        msgType = MessageType.voice;
+                        break;
+                      case 4:
+                        msgType = 'video';
+                        break;
+                      case 5:
+                        msgType = 'file';
+                        break;
+                      case 6:
+                        msgType = 'location';
+                        break;
+                      case 7:
+                        msgType = 'visitCard';
+                        break;
+                      default:
+                        msgType = 'text';
+                    }
+                  }
+
+                  // 确保 msg_type 在顶层（msgType 在此处已确保非空）
+                  info['msg_type'] = msgType;
+                  info['type'] = info['type'] ?? 'C2C';
+
+                  // C6（PLAN 2026-10-24-e2ee-collect）：保留原消息 id 作附件
+                  // 源绑定（AttachmentBinding 的 message_id）——发送侧
+                  // SendToPage 自行生成新消息 id（send_to_provider.dart 的
+                  // messageId），此处覆盖 id 会使加密附件源绑定失配（ATT-01）。
+
+                  try {
+                    var msg = await MessageModel.fromJson(info).toTypeMessage();
+                    // 消息解析可能晚于 sheet 退出动画，后续导航使用详情页 context。
+                    if (!pageContext.mounted) return;
+
+                    // 使用 Navigator.push 替代 Get.to
+                    Navigator.push(
+                      pageContext,
+                      CupertinoPageRoute<dynamic>(
+                        builder: (context) => SendToPage(msg: msg),
+                      ),
+                    ).then((value) {
+                      if (!pageContext.mounted) return;
+                      // 调用 Provider 的 change 方法
+                      notifier.change(obj.kindId.toString());
+                    });
+                  } catch (e) {
+                    iPrint('[UserCollectDetail] 收藏操作失败: $e');
+                    AppLoading.showError(t.common.operationFailedAgainLater);
+                  }
+                },
+                iconColor: Theme.of(context).colorScheme.secondary,
+              ),
+
+              // 编辑标签
+              _buildActionButton(
+                context: context,
+                icon: CupertinoIcons.bookmark,
+                title: t.common.editTag,
+                subtitle: t.common.addTagsToFavorites,
+                onTap: () {
+                  // 同「删除」分支：NavigatorState 必须在关闭 sheet 之前抓住。
+                  // 这里的 context 属于 sheet 的 builder，sheet pop 掉之后它就
+                  // defunct，`if (context.mounted)` 恒为 false —— 编辑完标签回来
+                  // 详情页根本不会退出（详情页不展示标签，用户看不到任何变化）。
+                  final navigator = Navigator.of(context);
+                  Navigator.pop(context);
+                  navigator
+                      .push(
+                        CupertinoPageRoute<dynamic>(
+                          builder: (context) => TagRelationPage(
+                            peerId: obj.kindId.toString(),
+                            peerTag: obj.tag,
+                            scene: 'collect',
+                            title: t.common.editTag,
+                          ),
+                        ),
+                      )
+                      .then((value) {
+                        if (value != null && value is String) {
+                          // 更新本地对象
+                          final updatedObj = UserCollectModel(
+                            userId: obj.userId,
+                            kind: obj.kind,
+                            kindId: obj.kindId,
+                            source: obj.source,
+                            remark: obj.remark,
+                            tag: value.toString(),
+                            updatedAt: obj.updatedAt,
+                            createdAt: obj.createdAt,
+                            info: obj.info,
+                          );
+                          // 调用 Provider 的 updateItem 方法
+                          notifier.updateItem(updatedObj);
+                          navigator.pop();
+                        }
+                      });
+                },
+                iconColor: Theme.of(context).colorScheme.tertiary,
+              ),
+
+              // 设置备注
+              _buildActionButton(
+                context: context,
+                icon: CupertinoIcons.pencil,
+                title: t.main.setParam(param: t.contact.remark),
+                subtitle: t.common.addRemarkToFavorites,
+                onTap: () {
+                  Navigator.pop(context);
+                  Navigator.push(
+                    context,
+                    CupertinoPageRoute<dynamic>(
+                      builder: (context) => UpdatePage(
+                        title: t.main.setParam(param: t.contact.remark),
+                        value: obj.remark,
+                        field: 'text',
+                        maxLength: 100,
+                        callback: (remarkNew) async {
+                          // 调用 Provider 的 remark 方法
+                          bool ok = await notifier.remark(
+                            obj.kindId.toString(),
+                            remarkNew,
+                          );
+                          // remark() 只写服务端和本地库，不碰 provider 里的列表。
+                          // 少了这一步，备注卡片（`if (obj.remark.isNotEmpty)`）
+                          // 就永远拿不到新值 —— 真机实测：设完备注返回详情页，
+                          // 备注区压根不出现。与上面「编辑标签」的处理保持一致。
+                          if (ok) {
+                            notifier.updateItem(
+                              UserCollectModel(
+                                userId: obj.userId,
+                                kind: obj.kind,
+                                kindId: obj.kindId,
+                                source: obj.source,
+                                remark: remarkNew,
+                                tag: obj.tag,
+                                updatedAt: obj.updatedAt,
+                                createdAt: obj.createdAt,
+                                info: obj.info,
+                              ),
+                            );
+                          }
+                          return ok;
+                        },
+                      ),
+                    ),
+                  );
                 },
                 iconColor: Theme.of(context).colorScheme.primary,
               ),
 
-            // 转发给朋友
-            _buildActionButton(
-              context: context,
-              icon: CupertinoIcons.share,
-              title: t.chat.forwardToFriend,
-              subtitle: t.common.shareWithOtherFriends,
-              onTap: () async {
-                Navigator.pop(context);
-
-                // 确保 obj.info 有正确的数据结构
-                final Map<String, dynamic> info = Map<String, dynamic>.from(
-                  obj.info,
-                );
-
-                // 多种方式尝试获取 msg_type
-                String? msgType = info['msg_type']?.toString();
-
-                // 方式1：如果顶层没有 msg_type，从 payload 中获取
-                if (msgType == null || msgType.isEmpty) {
-                  if (info['payload'] is Map) {
-                    final payload = info['payload'] as Map<String, dynamic>;
-                    msgType = payload['msg_type']?.toString();
+              // 删除
+              _buildActionButton(
+                context: context,
+                icon: CupertinoIcons.delete,
+                title: t.common.buttonDelete,
+                subtitle: t.common.deleteThisCollection,
+                onTap: () async {
+                  // NavigatorState 必须在关闭 sheet 之前抓住：这里的 context 属于
+                  // sheet 的 builder，sheet pop 掉之后它就 defunct，
+                  // `if (context.mounted)` 恒为 false —— 删除成功后详情页根本不会
+                  // 退出，用户还停在一条已被删除的收藏上。
+                  final navigator = Navigator.of(context);
+                  Navigator.pop(context);
+                  // 调用 Provider 的 remove 方法
+                  bool res = await notifier.remove(obj);
+                  if (res) {
+                    // 从列表中移除
+                    final currentState = ref.read(userCollectProvider);
+                    final updatedItems = currentState.items
+                        .where((item) => item.kindId != obj.kindId)
+                        .toList();
+                    notifier.updateState(
+                      currentState.copyWith(items: updatedItems),
+                    );
+                    AppLoading.showSuccess(t.common.deleteSuccess);
+                    navigator.pop();
+                  } else {
+                    // 失败必须出声：remove() 内部只在 kDebugMode 打日志，
+                    // 之前这里没有 else 分支，删除失败对用户完全静默。
+                    AppLoading.showError(t.common.deleteFailedPleaseTryAgain);
                   }
-                }
+                },
+                iconColor: AppColors.getIosRed(Theme.of(context).brightness),
+                isDestructive: true,
+              ),
 
-                // 方式2：根据 kind 字段推断类型（kind 定义：1 文本 2 图片 3 语音 4 视频 5 文件 6 位置 7 名片）
-                if (msgType == null || msgType.isEmpty) {
-                  switch (obj.kind) {
-                    case 1:
-                      msgType = 'text';
-                      break;
-                    case 2:
-                      msgType = 'image';
-                      break;
-                    case 3:
-                      msgType = MessageType.voice;
-                      break;
-                    case 4:
-                      msgType = 'video';
-                      break;
-                    case 5:
-                      msgType = 'file';
-                      break;
-                    case 6:
-                      msgType = 'location';
-                      break;
-                    case 7:
-                      msgType = 'visitCard';
-                      break;
-                    default:
-                      msgType = 'text';
-                  }
-                }
+              AppSpacing.verticalRegular,
 
-                // 确保 msg_type 在顶层（msgType 在此处已确保非空）
-                info['msg_type'] = msgType;
-                info['type'] = info['type'] ?? 'C2C';
-
-                // C6（PLAN 2026-10-24-e2ee-collect）：保留原消息 id 作附件
-                // 源绑定（AttachmentBinding 的 message_id）——发送侧
-                // SendToPage 自行生成新消息 id（send_to_provider.dart 的
-                // messageId），此处覆盖 id 会使加密附件源绑定失配（ATT-01）。
-
-                try {
-                  var msg = await MessageModel.fromJson(info).toTypeMessage();
-                  if (!context.mounted) return;
-
-                  // 使用 Navigator.push 替代 Get.to
-                  Navigator.push(
-                    context,
-                    CupertinoPageRoute<dynamic>(
-                      builder: (context) => SendToPage(msg: msg),
+              // 取消按钮
+              Container(
+                margin: const EdgeInsets.symmetric(horizontal: 24),
+                width: double.infinity,
+                child: CupertinoButton(
+                  minimumSize: const Size(0, 48),
+                  padding: EdgeInsets.zero,
+                  borderRadius: AppRadius.borderRadiusMedium,
+                  onPressed: () => Navigator.pop(context),
+                  child: Text(
+                    t.common.buttonCancel,
+                    style: context.textStyle(
+                      FontSizeType.medium,
+                      fontWeight: FontWeight.w500,
                     ),
-                  ).then((value) {
-                    // 调用 Provider 的 change 方法
-                    notifier.change(obj.kindId.toString());
-                  });
-                } catch (e) {
-                  iPrint('[UserCollectDetail] 收藏操作失败: $e');
-                  AppLoading.showError(t.common.operationFailedAgainLater);
-                }
-              },
-              iconColor: Theme.of(context).colorScheme.secondary,
-            ),
-
-            // 编辑标签
-            _buildActionButton(
-              context: context,
-              icon: CupertinoIcons.bookmark,
-              title: t.common.editTag,
-              subtitle: t.common.addTagsToFavorites,
-              onTap: () {
-                // 同「删除」分支：NavigatorState 必须在关闭 sheet 之前抓住。
-                // 这里的 context 属于 sheet 的 builder，sheet pop 掉之后它就
-                // defunct，`if (context.mounted)` 恒为 false —— 编辑完标签回来
-                // 详情页根本不会退出（详情页不展示标签，用户看不到任何变化）。
-                final navigator = Navigator.of(context);
-                Navigator.pop(context);
-                navigator
-                    .push(
-                      CupertinoPageRoute<dynamic>(
-                        builder: (context) => TagRelationPage(
-                          peerId: obj.kindId.toString(),
-                          peerTag: obj.tag,
-                          scene: 'collect',
-                          title: t.common.editTag,
-                        ),
-                      ),
-                    )
-                    .then((value) {
-                      if (value != null && value is String) {
-                        // 更新本地对象
-                        final updatedObj = UserCollectModel(
-                          userId: obj.userId,
-                          kind: obj.kind,
-                          kindId: obj.kindId,
-                          source: obj.source,
-                          remark: obj.remark,
-                          tag: value.toString(),
-                          updatedAt: obj.updatedAt,
-                          createdAt: obj.createdAt,
-                          info: obj.info,
-                        );
-                        // 调用 Provider 的 updateItem 方法
-                        notifier.updateItem(updatedObj);
-                        navigator.pop();
-                      }
-                    });
-              },
-              iconColor: Theme.of(context).colorScheme.tertiary,
-            ),
-
-            // 设置备注
-            _buildActionButton(
-              context: context,
-              icon: CupertinoIcons.pencil,
-              title: t.main.setParam(param: t.contact.remark),
-              subtitle: t.common.addRemarkToFavorites,
-              onTap: () {
-                Navigator.pop(context);
-                Navigator.push(
-                  context,
-                  CupertinoPageRoute<dynamic>(
-                    builder: (context) => UpdatePage(
-                      title: t.main.setParam(param: t.contact.remark),
-                      value: obj.remark,
-                      field: 'text',
-                      maxLength: 100,
-                      callback: (remarkNew) async {
-                        // 调用 Provider 的 remark 方法
-                        bool ok = await notifier.remark(
-                          obj.kindId.toString(),
-                          remarkNew,
-                        );
-                        // remark() 只写服务端和本地库，不碰 provider 里的列表。
-                        // 少了这一步，备注卡片（`if (obj.remark.isNotEmpty)`）
-                        // 就永远拿不到新值 —— 真机实测：设完备注返回详情页，
-                        // 备注区压根不出现。与上面「编辑标签」的处理保持一致。
-                        if (ok) {
-                          notifier.updateItem(
-                            UserCollectModel(
-                              userId: obj.userId,
-                              kind: obj.kind,
-                              kindId: obj.kindId,
-                              source: obj.source,
-                              remark: remarkNew,
-                              tag: obj.tag,
-                              updatedAt: obj.updatedAt,
-                              createdAt: obj.createdAt,
-                              info: obj.info,
-                            ),
-                          );
-                        }
-                        return ok;
-                      },
-                    ),
-                  ),
-                );
-              },
-              iconColor: Theme.of(context).colorScheme.primary,
-            ),
-
-            // 删除
-            _buildActionButton(
-              context: context,
-              icon: CupertinoIcons.delete,
-              title: t.common.buttonDelete,
-              subtitle: t.common.deleteThisCollection,
-              onTap: () async {
-                // NavigatorState 必须在关闭 sheet 之前抓住：这里的 context 属于
-                // sheet 的 builder，sheet pop 掉之后它就 defunct，
-                // `if (context.mounted)` 恒为 false —— 删除成功后详情页根本不会
-                // 退出，用户还停在一条已被删除的收藏上。
-                final navigator = Navigator.of(context);
-                Navigator.pop(context);
-                // 调用 Provider 的 remove 方法
-                bool res = await notifier.remove(obj);
-                if (res) {
-                  // 从列表中移除
-                  final currentState = ref.read(userCollectProvider);
-                  final updatedItems = currentState.items
-                      .where((item) => item.kindId != obj.kindId)
-                      .toList();
-                  notifier.updateState(
-                    currentState.copyWith(items: updatedItems),
-                  );
-                  AppLoading.showSuccess(t.common.deleteSuccess);
-                  navigator.pop();
-                } else {
-                  // 失败必须出声：remove() 内部只在 kDebugMode 打日志，
-                  // 之前这里没有 else 分支，删除失败对用户完全静默。
-                  AppLoading.showError(t.common.deleteFailedPleaseTryAgain);
-                }
-              },
-              iconColor: AppColors.getIosRed(Theme.of(context).brightness),
-              isDestructive: true,
-            ),
-
-            AppSpacing.verticalRegular,
-
-            // 取消按钮
-            Container(
-              margin: const EdgeInsets.symmetric(horizontal: 24),
-              width: double.infinity,
-              child: CupertinoButton(
-                minimumSize: const Size(0, 48),
-                padding: EdgeInsets.zero,
-                borderRadius: AppRadius.borderRadiusMedium,
-                onPressed: () => Navigator.pop(context),
-                child: Text(
-                  t.common.buttonCancel,
-                  style: context.textStyle(
-                    FontSizeType.medium,
-                    fontWeight: FontWeight.w500,
                   ),
                 ),
               ),
-            ),
-            AppSpacing.verticalRegular,
-          ],
+              AppSpacing.verticalRegular,
+            ],
+          ),
         ),
       ),
     );
@@ -439,16 +444,22 @@ class UserCollectDetailPage extends ConsumerWidget {
             width: 48,
             height: 48,
             margin: const EdgeInsets.only(right: 8),
-            child: GestureDetector(
+            child: CellPressable(
               onTap: () {
                 // 使用 showCupertinoModalPopup 替代 Get.bottomSheet
                 showCupertinoModalPopup<void>(
                   context: context,
-                  builder: (context) => _buildActionMenu(context, ref, current),
+                  builder: (sheetContext) => _buildActionMenu(
+                    sheetContext,
+                    ref,
+                    current,
+                    pageContext: context,
+                  ),
                 );
               },
               child: Icon(
                 CupertinoIcons.ellipsis,
+                semanticLabel: t.common.operationOptions,
                 color: Theme.of(context).colorScheme.onSurface,
                 size: 24,
               ),

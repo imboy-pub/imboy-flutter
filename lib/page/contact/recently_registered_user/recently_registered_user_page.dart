@@ -30,6 +30,7 @@ class _RecentlyRegisteredUserPageState
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
       ref.read(recentlyRegisteredUserApi.notifier).initData();
     });
   }
@@ -62,7 +63,10 @@ class _RecentlyRegisteredUserPageState
             child: Center(child: CupertinoActivityIndicator()),
           )
         else if (state.peopleList.isEmpty)
-          SliverFillRemaining(child: _buildEmptyState(context))
+          SliverFillRemaining(
+            hasScrollBody: false,
+            child: _buildEmptyState(context),
+          )
         else
           SliverPadding(
             padding: const EdgeInsets.only(bottom: 40),

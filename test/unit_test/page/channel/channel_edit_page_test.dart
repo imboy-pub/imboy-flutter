@@ -33,7 +33,7 @@ ChannelModel _makeChannel({required int id, required String name}) {
   );
 }
 
-Widget _buildTestApp(ChannelApi api, ChannelModel channel) {
+Widget _buildTestApp(ChannelApi api, [ChannelModel? channel]) {
   return TranslationProvider(
     child: ProviderScope(
       overrides: [channelApiProvider.overrideWithValue(api)],
@@ -49,6 +49,45 @@ void main() {
 
   setUp(() {
     api = _MockChannelApi();
+  });
+
+  testWidgets('初次加载失败没有空白保存表单，重试后显示真实频道', (tester) async {
+    final channel = _makeChannel(id: 1001, name: '重试成功的频道');
+    var attempts = 0;
+    when(() => api.getChannel(any())).thenAnswer((_) async {
+      attempts++;
+      if (attempts == 1) throw Exception('temporary failure');
+      return channel;
+    });
+
+    await tester.pumpWidget(_buildTestApp(api));
+    await tester.pumpAndSettle();
+    expect(find.text(t.channel.editChannel), findsOneWidget);
+    expect(find.text(t.common.loadError), findsOneWidget);
+    expect(find.byType(TextFormField), findsNothing);
+    expect(find.text(t.common.save), findsNothing);
+    expect(tester.takeException(), isNull);
+
+    await tester.tap(find.text(t.common.buttonRetry));
+    await tester.pumpAndSettle();
+    expect(attempts, 2);
+    expect(find.text(t.common.loadError), findsNothing);
+    expect(find.text('重试成功的频道'), findsOneWidget);
+    expect(find.byType(TextFormField), findsWidgets);
+    expect(find.text(t.common.save), findsOneWidget);
+  });
+
+  testWidgets('ID与自定义ID都未返回频道时不显示可提交空表单', (tester) async {
+    when(() => api.getChannel(any())).thenAnswer((_) async => null);
+    when(() => api.getChannelByCustomId(any())).thenAnswer((_) async => null);
+
+    await tester.pumpWidget(_buildTestApp(api));
+    await tester.pumpAndSettle();
+    verify(() => api.getChannelByCustomId('1001')).called(1);
+    expect(find.text(t.common.loadError), findsOneWidget);
+    expect(find.text(t.common.buttonRetry), findsOneWidget);
+    expect(find.byType(TextFormField), findsNothing);
+    expect(find.text(t.common.save), findsNothing);
   });
 
   testWidgets('渲染编辑表单并预填频道名称 / renders form prefilled with channel name', (

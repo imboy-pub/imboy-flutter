@@ -7,6 +7,7 @@ import 'package:cross_file/cross_file.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:file_picker_platform_interface/file_picker_platform_interface.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/component/ui/app_loading.dart';
@@ -51,6 +52,93 @@ void main() {
 
   groupFileControlledOpenTests();
   groupFileLoadRaceTests();
+
+  testWidgets('large category labels remain visible and announce selection', (
+    tester,
+  ) async {
+    final semantics = tester.ensureSemantics();
+    try {
+      tester.view.physicalSize = const Size(320, 640);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+      GroupFileService.instanceForTest = _FakeGroupFileService(
+        files: const [
+          {'file_id': 'f1', 'file_name': '图片B', 'file_category': 'image'},
+        ],
+        categoryStats: const [
+          {'category': 'document', 'count': 1},
+          {'category': 'image', 'count': 1},
+        ],
+        searchResult: const [],
+      );
+      await tester.pumpWidget(
+        ProviderScope(
+          child: TranslationProvider(
+            child: MaterialApp(
+              builder: (context, child) => MediaQuery(
+                // 13pt 的两倍字高加 16pt 内边距仍能装入最小 44pt；
+                // 2.5 倍才要求分类条真实增高，避免依赖字体度量的误判。
+                data: MediaQuery.of(context)
+                    .copyWith(textScaler: const TextScaler.linear(2.5)),
+                child: AppLoading.init()(context, child),
+              ),
+              home: const GroupFilePage(groupId: 'g1'),
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      final filters = find.byWidgetPredicate(
+        (widget) =>
+            widget is SingleChildScrollView &&
+            widget.scrollDirection == Axis.horizontal,
+      );
+      final label = '${t.chat.groupFileCategoryImage} (1)';
+      final labelFinder = find.text(label);
+      await tester.ensureVisible(labelFinder);
+      await tester.pumpAndSettle();
+
+      final paragraph = tester.renderObject<RenderParagraph>(labelFinder);
+      expect(
+        MediaQuery.textScalerOf(tester.element(labelFinder)).scale(1),
+        2.5,
+      );
+      expect(paragraph.textScaler.scale(1), 2.5);
+      expect(tester.getSize(filters).height, greaterThan(44));
+      expect(paragraph.didExceedMaxLines, isFalse);
+      final viewport = tester.getRect(filters);
+      final origin = tester.getTopLeft(labelFinder);
+      final glyphs = paragraph.getBoxesForSelection(
+        TextSelection(baseOffset: 0, extentOffset: label.length),
+      );
+      expect(glyphs, isNotEmpty);
+      for (final glyph in glyphs) {
+        final bounds = glyph.toRect().shift(origin);
+        expect(bounds.left, greaterThanOrEqualTo(viewport.left));
+        expect(bounds.top, greaterThanOrEqualTo(viewport.top));
+        expect(bounds.right, lessThanOrEqualTo(viewport.right));
+        expect(bounds.bottom, lessThanOrEqualTo(viewport.bottom));
+      }
+      final initial = tester.getSemantics(labelFinder).getSemanticsData();
+      expect(
+        initial.flagsCollection.isSelected.toBoolOrNull() ?? false,
+        isFalse,
+      );
+      await tester.tap(labelFinder);
+      await tester.pumpAndSettle();
+      final selected = tester.getSemantics(labelFinder).getSemanticsData();
+      expect(selected.flagsCollection.isButton, isTrue);
+      expect(
+        selected.flagsCollection.isSelected.toBoolOrNull() ?? false,
+        isTrue,
+      );
+      expect(find.text('图片B'), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    } finally {
+      semantics.dispose();
+    }
+  });
 
   testWidgets('category filter narrows list and forwards category', (
     tester,
@@ -180,31 +268,43 @@ void main() {
     expect(find.text('文件地址无效'), findsOneWidget);
   });
 
-  testWidgets('tap image file opens in-app full-screen preview', (
+  testWidgets('image preview uses localized close and returns to files', (
     tester,
   ) async {
-    final fakeService = _FakeGroupFileService(
-      files: [
-        {
-          'file_id': 'f1',
-          'file_name': '示例图片.jpg',
-          'file_category': 'image',
-          'file_url': 'https://example.com/a.jpg',
-        },
-      ],
-      categoryStats: const [],
-      searchResult: const [],
-    );
-    GroupFileService.instanceForTest = fakeService;
+    final previousLocale = LocaleSettings.currentLocale;
+    try {
+      await tester.runAsync(() => LocaleSettings.setLocale(AppLocale.enUs));
+      final fakeService = _FakeGroupFileService(
+        files: [
+          {
+            'file_id': 'f1',
+            'file_name': '示例图片.jpg',
+            'file_category': 'image',
+            'file_url': 'https://example.com/a.jpg',
+          },
+        ],
+        categoryStats: const [],
+        searchResult: const [],
+      );
+      GroupFileService.instanceForTest = fakeService;
 
-    await tester.pumpWidget(_buildTestApp());
-    await tester.pumpAndSettle();
+      await tester.pumpWidget(_buildTestApp());
+      await tester.pumpAndSettle();
 
-    await tester.tap(find.text('示例图片.jpg'));
-    await tester.pumpAndSettle();
+      await tester.tap(find.text('示例图片.jpg'));
+      await tester.pumpAndSettle();
 
-    expect(find.bySemanticsLabel('关闭'), findsOneWidget);
-    expect(find.text('无法打开文件链接'), findsNothing);
+      final close = find.bySemanticsLabel(t.common.buttonClose);
+      expect(close, findsOneWidget);
+      expect(find.text(t.common.groupFileOpenFailed), findsNothing);
+      expect(find.byType(InteractiveViewer), findsOneWidget);
+      await tester.tap(close);
+      await tester.pumpAndSettle();
+      expect(find.byType(InteractiveViewer), findsNothing);
+      expect(find.text('示例图片.jpg'), findsOneWidget);
+    } finally {
+      await tester.runAsync(() => LocaleSettings.setLocale(previousLocale));
+    }
   });
 
   testWidgets('tap document file opens in-app web preview', (tester) async {

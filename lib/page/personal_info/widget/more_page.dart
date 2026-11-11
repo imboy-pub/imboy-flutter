@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:imboy/component/ui/detail_settings_tile.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 
 import '../update/update_page.dart';
@@ -12,7 +13,6 @@ import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_radius.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
-import 'package:imboy/theme/default/font_types.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 
 class MorePage extends ConsumerStatefulWidget {
@@ -51,13 +51,7 @@ class _MorePageState extends ConsumerState<MorePage> {
                 icon: CupertinoIcons.person,
                 iconColor: AppColors.iosBlue,
                 title: t.account.gender,
-                trailing: Text(
-                  UserRepoLocal.to.current.genderTitle,
-                  style: context.textStyle(
-                    FontSizeType.medium,
-                    color: colorScheme.onSurfaceVariant,
-                  ),
-                ),
+                value: UserRepoLocal.to.current.genderTitle,
                 onPressed: () => _handleGenderUpdate(context),
               ),
 
@@ -67,13 +61,9 @@ class _MorePageState extends ConsumerState<MorePage> {
                 icon: CupertinoIcons.location,
                 iconColor: AppColors.iosGreen,
                 title: t.account.region,
-                trailing: Text(
-                  _formatRegion(UserRepoLocal.to.current.region),
-                  style: context.textStyle(
-                    FontSizeType.medium,
-                    color: colorScheme.onSurfaceVariant,
-                  ),
-                ),
+                value: UserRepoLocal.to.current.region.isEmpty
+                    ? t.common.notFilled
+                    : UserRepoLocal.to.current.region,
                 onPressed: () => _handleRegionUpdate(context),
               ),
 
@@ -83,22 +73,9 @@ class _MorePageState extends ConsumerState<MorePage> {
                 icon: CupertinoIcons.pencil,
                 iconColor: AppColors.iosOrange,
                 title: t.account.signature,
-                trailing: Flexible(
-                  child: Text(
-                    UserRepoLocal.to.current.sign.isEmpty
-                        ? t.common.notFilled
-                        : UserRepoLocal.to.current.sign,
-                    textAlign: TextAlign.right,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: context.textStyle(
-                      FontSizeType.medium,
-                      color: UserRepoLocal.to.current.sign.isEmpty
-                          ? colorScheme.outline.withValues(alpha: 0.5)
-                          : colorScheme.onSurfaceVariant,
-                    ),
-                  ),
-                ),
+                value: UserRepoLocal.to.current.sign.isEmpty
+                    ? t.common.notFilled
+                    : UserRepoLocal.to.current.sign,
                 onPressed: () => _handleSignatureUpdate(context),
               ),
             ]),
@@ -159,57 +136,22 @@ class _MorePageState extends ConsumerState<MorePage> {
     required IconData icon,
     required Color iconColor,
     required String title,
-    required Widget trailing,
+    required String value,
     required VoidCallback onPressed,
   }) {
-    final colorScheme = Theme.of(context).colorScheme;
-
-    return GestureDetector(
-      onTap: onPressed,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(
-          horizontal: AppSpacing.regular,
-          vertical: AppSpacing.regular,
+    return DetailSettingsTile(
+      title: Text(title),
+      value: value,
+      leading: Container(
+        padding: const EdgeInsets.all(6),
+        decoration: BoxDecoration(
+          color: iconColor.withValues(alpha: 0.1),
+          borderRadius: AppRadius.borderRadiusSmall,
         ),
-        child: Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(6),
-              decoration: BoxDecoration(
-                color: iconColor.withValues(alpha: 0.1),
-                borderRadius: AppRadius.borderRadiusSmall,
-              ),
-              child: Icon(icon, size: 20, color: iconColor),
-            ),
-            const SizedBox(width: AppSpacing.regular),
-            Text(
-              title,
-              style: context.textStyle(
-                FontSizeType.medium,
-                fontWeight: FontWeight.w500,
-                color: colorScheme.onSurface,
-              ),
-            ),
-            const Spacer(),
-            trailing,
-            const SizedBox(width: AppSpacing.small),
-            Icon(
-              CupertinoIcons.chevron_right,
-              size: 16,
-              color: colorScheme.onSurfaceVariant.withValues(alpha: 0.5),
-            ),
-          ],
-        ),
+        child: Icon(icon, size: 20, color: iconColor),
       ),
+      onTap: onPressed,
     );
-  }
-
-  String _formatRegion(String region) {
-    if (region.isEmpty) return t.common.notFilled;
-    if (region.length > 10) {
-      return '${region.substring(0, 9)}...';
-    }
-    return region;
   }
 
   Future<void> _handleGenderUpdate(BuildContext context) async {

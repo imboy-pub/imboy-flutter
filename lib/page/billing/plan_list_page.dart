@@ -304,9 +304,9 @@ class _PlanListPageState extends ConsumerState<PlanListPage> {
 
   /// 价格行：¥xx.xx + 周期（月付/年付）。
   Widget _buildPriceRow(BuildContext context, BillingPlan plan, bool isDark) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.baseline,
-      textBaseline: TextBaseline.alphabetic,
+    return Wrap(
+      crossAxisAlignment: WrapCrossAlignment.center,
+      spacing: AppSpacing.small,
       children: [
         Text(
           '¥${plan.priceYuan.toStringAsFixed(2)}',
@@ -320,7 +320,6 @@ class _PlanListPageState extends ConsumerState<PlanListPage> {
               )
               .copyWith(letterSpacing: -0.5),
         ),
-        AppSpacing.horizontalSmall,
         Text(
           plan.isYearly
               ? t.billing.planPeriodYearly

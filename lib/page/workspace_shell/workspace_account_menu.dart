@@ -56,7 +56,6 @@ class WorkspaceAccountButton extends ConsumerWidget {
       onPressed: () => _openAccountSheet(context, ref),
       child: Semantics(
         label: context.t.account.account,
-        button: true,
         child: Icon(
           CupertinoIcons.person_crop_circle,
           size: 24,

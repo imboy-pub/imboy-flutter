@@ -590,15 +590,10 @@ class _GroupFilePageState extends ConsumerState<GroupFilePage> {
       }),
     ];
 
-    return SizedBox(
-      height: 44,
-      child: ListView.separated(
-        scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.regular),
-        itemBuilder: (context, index) => chips[index],
-        separatorBuilder: (_, _) => AppSpacing.horizontalSmall,
-        itemCount: chips.length,
-      ),
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.regular),
+      child: Row(children: chips),
     );
   }
 
@@ -610,34 +605,37 @@ class _GroupFilePageState extends ConsumerState<GroupFilePage> {
       child: CupertinoButton(
         padding: EdgeInsets.zero,
         onPressed: () => _selectCategory(category),
-        child: Container(
-          padding: const EdgeInsets.symmetric(
-            horizontal: AppSpacing.medium,
-            vertical: AppSpacing.small,
-          ),
-          decoration: BoxDecoration(
-            color: isSelected
-                ? Theme.of(context).colorScheme.surfaceContainerHighest
-                : (brightness == Brightness.dark
-                      ? AppColors.darkSurface
-                      : AppColors.lightSurface),
-            borderRadius: AppRadius.button,
-            border: Border.all(
-              color: AppColors.getIosSeparator(brightness)
-                  .withValues(alpha: 0.3),
-              width: 0.33,
+        child: Semantics(
+          selected: isSelected,
+          child: Container(
+            padding: const EdgeInsets.symmetric(
+              horizontal: AppSpacing.medium,
+              vertical: AppSpacing.small,
             ),
-          ),
-          child: Text(
-            label,
-            style: context.textStyle(
-              FontSizeType.footnote,
+            decoration: BoxDecoration(
               color: isSelected
-                  ? AppColors.getIosBlue(brightness)
+                  ? Theme.of(context).colorScheme.surfaceContainerHighest
                   : (brightness == Brightness.dark
-                        ? AppColors.darkTextPrimary
-                        : AppColors.lightTextPrimary),
-              fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+                        ? AppColors.darkSurface
+                        : AppColors.lightSurface),
+              borderRadius: AppRadius.button,
+              border: Border.all(
+                color: AppColors.getIosSeparator(brightness)
+                    .withValues(alpha: 0.3),
+                width: 0.33,
+              ),
+            ),
+            child: Text(
+              label,
+              style: context.textStyle(
+                FontSizeType.footnote,
+                color: isSelected
+                    ? AppColors.getIosBlue(brightness)
+                    : (brightness == Brightness.dark
+                          ? AppColors.darkTextPrimary
+                          : AppColors.lightTextPrimary),
+                fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+              ),
             ),
           ),
         ),

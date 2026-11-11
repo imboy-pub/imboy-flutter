@@ -324,7 +324,10 @@ class _RedPacketDetailPageState extends ConsumerState<RedPacketDetailPage> {
                         color: AppColors.onPrimary,
                       ),
                     ),
-                    title: Row(
+                    title: Wrap(
+                      crossAxisAlignment: WrapCrossAlignment.center,
+                      spacing: AppSpacing.small,
+                      runSpacing: AppSpacing.tiny,
                       children: [
                         Text(
                           t.common.redPacketReceiverLabel(
@@ -334,7 +337,6 @@ class _RedPacketDetailPageState extends ConsumerState<RedPacketDetailPage> {
                           ),
                         ),
                         if (isBestLuck) ...[
-                          AppSpacing.horizontalSmall,
                           Container(
                             padding: const EdgeInsets.symmetric(
                               horizontal: 6,
@@ -346,6 +348,7 @@ class _RedPacketDetailPageState extends ConsumerState<RedPacketDetailPage> {
                               borderRadius: AppRadius.borderRadiusTiny,
                             ),
                             child: Row(
+                              mainAxisSize: MainAxisSize.min,
                               children: [
                                 Icon(
                                   CupertinoIcons.star,

@@ -9,7 +9,8 @@
 /// - suspend 降级：API 403/409 时展示只读提示并禁用发送。
 library;
 
-import 'package:flutter/cupertino.dart' show CupertinoIcons;
+import 'package:flutter/cupertino.dart'
+    show CupertinoActivityIndicator, CupertinoIcons;
 import 'package:flutter/material.dart';
 
 import 'package:imboy/theme/default/app_colors.dart';
@@ -49,6 +50,7 @@ class _EnterpriseConversationPageState
   /// after_id 游标：已加载的最大消息 id（空串 = 全量首拉）。
   String _cursor = '';
   bool _readOnly = false;
+  bool _sending = false;
   String? _error;
 
   /// 面级 workspace 门（PR-W2-C01：GET 走查询串、写走正文，缺即 422）。
@@ -115,6 +117,7 @@ class _EnterpriseConversationPageState
       if (!mounted) return;
       setState(() {
         _messages = [..._messages, ...fresh];
+        _error = null;
         if (fresh.isNotEmpty) {
           _cursor = fresh.last.id;
         }
@@ -154,7 +157,8 @@ class _EnterpriseConversationPageState
 
   Future<void> _send() async {
     final text = _input.text.trim();
-    if (text.isEmpty || _readOnly) return;
+    if (text.isEmpty || _readOnly || _sending) return;
+    setState(() => _sending = true);
     try {
       final workspaceId = await _resolveWorkspaceId();
       final sent = await _api.sendMessage(
@@ -164,8 +168,8 @@ class _EnterpriseConversationPageState
         workspaceId: workspaceId,
       );
       await _store.saveMessage(sent);
-      _input.clear();
       if (!mounted) return;
+      _input.clear();
       setState(() {
         _messages = [..._messages, sent];
         _cursor = sent.id;
@@ -177,6 +181,8 @@ class _EnterpriseConversationPageState
         _error = '${e.message} (code=${e.code})';
         _readOnly = _readOnly || e.isForbidden || e.isOffboardingRequired;
       });
+    } finally {
+      if (mounted) setState(() => _sending = false);
     }
   }
 
@@ -313,16 +319,18 @@ class _EnterpriseConversationPageState
                     ),
                     child: TextField(
                       controller: _input,
-                      enabled: !_readOnly,
+                      enabled: !_readOnly && !_sending,
                       onSubmitted: (_) => _send(),
                       decoration: const InputDecoration(hintText: '输入企业消息'),
                     ),
                   ),
                 ),
                 IconButton(
-                  onPressed: _readOnly ? null : _send,
+                  onPressed: _readOnly || _sending ? null : _send,
                   tooltip: '发送',
-                  icon: const Icon(CupertinoIcons.paperplane_fill),
+                  icon: _sending
+                      ? const CupertinoActivityIndicator()
+                      : const Icon(CupertinoIcons.paperplane_fill),
                 ),
               ],
             ),

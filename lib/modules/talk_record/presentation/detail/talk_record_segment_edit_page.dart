@@ -104,6 +104,7 @@ class _TalkRecordSegmentEditPageState
   }
 
   Future<void> _save() async {
+    if (_savePhase == _SavePhase.saving || _loading || _loadFailed) return;
     final segment = _segment;
     if (segment == null) return;
     setState(() => _savePhase = _SavePhase.saving);
@@ -265,6 +266,7 @@ class _TalkRecordSegmentEditPageState
                 CupertinoTextField(
                   key: const ValueKey('talk_record_segment_field'),
                   controller: _controller,
+                  enabled: _savePhase != _SavePhase.saving,
                   minLines: 4,
                   maxLines: 10,
                   placeholder: t.talkRecord.segmentEditPlaceholder,
@@ -298,10 +300,12 @@ class _TalkRecordSegmentEditPageState
   Widget _buildBottom(Brightness brightness) {
     return Padding(
       padding: const EdgeInsets.all(AppSpacing.regular),
-      child: SizedBox(
-        width: double.infinity,
+      child: ConstrainedBox(
         // C-F2/C-F4：保存主按钮 ≥48pt、primaryDark 底 + 白字 w600。
-        height: AppSpacing.xxxLarge,
+        constraints: const BoxConstraints(
+          minWidth: double.infinity,
+          minHeight: AppSpacing.xxxLarge,
+        ),
         child: CupertinoButton(
           key: const ValueKey('talk_record_segment_save'),
           borderRadius: BorderRadius.circular(10),

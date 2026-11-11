@@ -39,6 +39,7 @@ class _LiveRoomListPageState extends ConsumerState<LiveRoomListPage> {
     _scrollController.addListener(_onScroll);
     // 页面首次加载时从后端拉取数据
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
       ref.read(liveRoomListProvider.notifier).loadFirst();
     });
   }
@@ -51,6 +52,10 @@ class _LiveRoomListPageState extends ConsumerState<LiveRoomListPage> {
   }
 
   void _onScroll() {
+    if (!_scrollController.hasClients ||
+        ref.read(liveRoomListProvider).items.isEmpty) {
+      return;
+    }
     if (_scrollController.position.pixels >=
         _scrollController.position.maxScrollExtent - 100) {
       ref.read(liveRoomListProvider.notifier).loadMore();
@@ -127,25 +132,46 @@ class _LiveRoomListPageState extends ConsumerState<LiveRoomListPage> {
       ),
       body: RefreshIndicator(
         onRefresh: () => ref.read(liveRoomListProvider.notifier).loadFirst(),
-        child: state.isLoading && state.items.isEmpty
-            ? const Center(child: CupertinoActivityIndicator())
-            : state.items.isEmpty
-            ? NoDataView(text: t.common.noData)
-            : ListView.separated(
-                controller: _scrollController,
-                itemCount: state.items.length + (state.hasMore ? 1 : 0),
-                separatorBuilder: (_, _) =>
-                    const Divider(height: 1, indent: 16),
-                itemBuilder: (context, index) {
+        child: CustomScrollView(
+          controller: _scrollController,
+          physics: const AlwaysScrollableScrollPhysics(),
+          slivers: [
+            if (state.items.isEmpty)
+              SliverFillRemaining(
+                hasScrollBody: false,
+                child: state.isLoading
+                    ? const Center(child: CupertinoActivityIndicator())
+                    : NoDataView(text: t.common.noData),
+              )
+            else
+              SliverList(
+                delegate: SliverChildBuilderDelegate((context, index) {
                   if (index == state.items.length) {
-                    return const Padding(
-                      padding: EdgeInsets.all(AppSpacing.regular),
-                      child: Center(child: CupertinoActivityIndicator()),
+                    return Padding(
+                      padding: AppSpacing.allRegular,
+                      child: Center(
+                        child: state.isLoading
+                            ? const CupertinoActivityIndicator()
+                            : CupertinoButton(
+                                onPressed: () => ref
+                                    .read(liveRoomListProvider.notifier)
+                                    .loadMore(),
+                                child: Text(t.common.loadMore),
+                              ),
+                      ),
                     );
                   }
-                  return _buildRoomTile(context, state.items[index]);
-                },
+                  return Column(
+                    children: [
+                      _buildRoomTile(context, state.items[index]),
+                      if (index < state.items.length - 1)
+                        const Divider(height: 1, indent: 16),
+                    ],
+                  );
+                }, childCount: state.items.length + (state.hasMore ? 1 : 0)),
               ),
+          ],
+        ),
       ),
     );
   }

@@ -238,9 +238,9 @@ class _ConfirmBody extends ConsumerWidget {
               ),
             ),
           const SizedBox(height: AppSpacing.small),
-          SizedBox(
+          ConstrainedBox(
             // C-F2：主操作 ≥48；破坏性操作用警示红实底。
-            height: 48,
+            constraints: const BoxConstraints(minHeight: 48),
             child: CupertinoButton(
               key: const ValueKey('talk_record_delete_submit'),
               minimumSize: const Size.fromHeight(48),

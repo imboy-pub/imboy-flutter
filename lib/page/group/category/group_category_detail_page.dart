@@ -169,7 +169,6 @@ class _GroupCategoryDetailPageState extends State<GroupCategoryDetailPage> {
           // 避免为一个标签新增一套翻译。
           if (!_isDefaultCategory)
             Semantics(
-              button: true,
               label: t.discovery.momentActionMore,
               child: CupertinoButton(
                 padding: EdgeInsets.zero,

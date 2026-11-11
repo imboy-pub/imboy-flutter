@@ -66,6 +66,9 @@ class WebShellPage extends ConsumerWidget {
   /// 通常调用方传入 `BottomNavigationPage()` 或类似移动端入口
   final Widget mobileFallback;
 
+  /// 侧栏顶部的全局入口，由业务接线层注入，不参与 tab 索引。
+  final Widget? navigationLeading;
+
   // === 角标计数（可选，0 时不显示） ===
 
   /// 消息 Tab 未读数
@@ -94,6 +97,7 @@ class WebShellPage extends ConsumerWidget {
     required this.channelBuilder,
     required this.mineBuilder,
     required this.mobileFallback,
+    this.navigationLeading,
     this.messageBadgeCount = 0,
     this.contactBadgeCount = 0,
     this.channelBadgeCount = 0,
@@ -128,6 +132,7 @@ class WebShellPage extends ConsumerWidget {
         children: [
           // 左栏：NavRail（72px）
           WebNavRail(
+            leading: navigationLeading,
             items: navItems,
             currentIndex: shellState.currentTab,
             onTap: notifier.switchTab,

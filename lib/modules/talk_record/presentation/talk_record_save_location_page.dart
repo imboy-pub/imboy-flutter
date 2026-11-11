@@ -13,6 +13,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import 'package:imboy/component/ui/cell_pressable.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/store/model/talk_record/talk_record_capabilities_model.dart'
     show TalkRecordCreationContextModel;
@@ -281,68 +282,68 @@ class _LocationTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final brightness = Theme.of(context).brightness;
-    return GestureDetector(
-      behavior: HitTestBehavior.opaque,
-      onTap: onTap,
-      child: Container(
-        // 触达 ≥44pt。
-        constraints: const BoxConstraints(minHeight: 44),
-        padding: EdgeInsets.fromLTRB(
-          indent ? AppSpacing.xLarge : AppSpacing.medium,
-          AppSpacing.small,
-          AppSpacing.medium,
-          AppSpacing.small,
-        ),
-        decoration: BoxDecoration(
-          color: brightness == Brightness.dark
-              ? AppColors.darkSurface
-              : AppColors.lightSurface,
-          borderRadius: BorderRadius.circular(8),
-        ),
-        margin: const EdgeInsets.only(bottom: AppSpacing.small),
-        child: Row(
-          children: [
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
+    final tile = Container(
+      // 触达 ≥44pt。
+      constraints: const BoxConstraints(minHeight: 44),
+      padding: EdgeInsets.fromLTRB(
+        indent ? AppSpacing.xLarge : AppSpacing.medium,
+        AppSpacing.small,
+        AppSpacing.medium,
+        AppSpacing.small,
+      ),
+      decoration: BoxDecoration(
+        color: brightness == Brightness.dark
+            ? AppColors.darkSurface
+            : AppColors.lightSurface,
+        borderRadius: BorderRadius.circular(8),
+      ),
+      margin: const EdgeInsets.only(bottom: AppSpacing.small),
+      child: Row(
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  title,
+                  // C-F3：长名可换行。
+                  style: context.textStyle(
+                    FontSizeType.medium,
+                    fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
+                    color: brightness == Brightness.dark
+                        ? AppColors.darkTextPrimary
+                        : AppColors.lightTextPrimary,
+                  ),
+                ),
+                if (subtitle != null && subtitle!.isNotEmpty) ...[
+                  const SizedBox(height: 2),
                   Text(
-                    title,
-                    // C-F3：长名可换行。
+                    subtitle!,
+                    // C-F3：期限说明可换行。
                     style: context.textStyle(
-                      FontSizeType.medium,
-                      fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
+                      FontSizeType.small,
                       color: brightness == Brightness.dark
-                          ? AppColors.darkTextPrimary
-                          : AppColors.lightTextPrimary,
+                          ? AppColors.darkTextSecondary
+                          : AppColors.lightTextSecondary,
                     ),
                   ),
-                  if (subtitle != null && subtitle!.isNotEmpty) ...[
-                    const SizedBox(height: 2),
-                    Text(
-                      subtitle!,
-                      // C-F3：期限说明可换行。
-                      style: context.textStyle(
-                        FontSizeType.small,
-                        color: brightness == Brightness.dark
-                            ? AppColors.darkTextSecondary
-                            : AppColors.lightTextSecondary,
-                      ),
-                    ),
-                  ],
                 ],
-              ),
+              ],
             ),
-            if (selected)
-              Icon(
-                CupertinoIcons.check_mark,
-                size: AppSpacing.xLarge,
-                color: AppColors.primaryDark,
-              ),
-          ],
-        ),
+          ),
+          if (selected)
+            Icon(
+              CupertinoIcons.check_mark,
+              size: AppSpacing.xLarge,
+              color: AppColors.primaryDark,
+            ),
+        ],
       ),
+    );
+    return CellPressable(
+      onTap: onTap,
+      child: Semantics(selected: selected, child: tile),
     );
   }
 }

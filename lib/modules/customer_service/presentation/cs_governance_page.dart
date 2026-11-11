@@ -411,6 +411,7 @@ class _CsGovernancePageState extends State<CsGovernancePage> {
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
+        scrollable: true,
         title: Text(t.suspendConfirmTitle),
         content: Text(t.suspendConfirmBody),
         actions: [
@@ -559,6 +560,7 @@ class _LimitDialog extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = context.t.customerService.governance;
     return AlertDialog(
+      scrollable: true,
       title: Text(t.limitAdjustTitle),
       content: TextField(
         key: const ValueKey('cs-governance-limit-input'),

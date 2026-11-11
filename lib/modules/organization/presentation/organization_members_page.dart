@@ -282,8 +282,8 @@ class _OrganizationMembersPageState extends State<OrganizationMembersPage> {
     final action = showModalBottomSheet<String>(
       context: context,
       builder: (ctx) => SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
+        child: ListView(
+          shrinkWrap: true,
           children: [
             ListTile(
               key: ValueKey('org-member-action-detail-${m.userId}'),

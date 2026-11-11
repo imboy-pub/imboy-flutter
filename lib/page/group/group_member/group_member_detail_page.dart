@@ -276,7 +276,6 @@ class _GroupMemberDetailPageState extends ConsumerState<GroupMemberDetailPage> {
           ),
           // 纯图标按钮须显式 Semantics，CupertinoButton 无 tooltip 参数。
           leading: Semantics(
-            button: true,
             label: t.common.buttonBack,
             child: CupertinoButton(
               padding: EdgeInsets.zero,
@@ -446,17 +445,29 @@ class _GroupMemberDetailPageState extends ConsumerState<GroupMemberDetailPage> {
       ),
       child: Row(
         children: [
-          Text(
-            label,
-            style: ThemeManager.instance.getTextStyle(FontSizeType.medium),
+          Expanded(
+            child: Text(
+              label,
+              style: ThemeManager.instance.getTextStyle(FontSizeType.medium),
+            ),
           ),
-          const Spacer(),
-          ?trailing,
-          Text(
-            value,
-            style: ThemeManager.instance.getTextStyle(
-              FontSizeType.medium,
-              color: colorScheme.onSurface.withValues(alpha: 0.6),
+          AppSpacing.horizontalSmall,
+          Flexible(
+            child: Wrap(
+              alignment: WrapAlignment.end,
+              crossAxisAlignment: WrapCrossAlignment.center,
+              spacing: AppSpacing.small,
+              runSpacing: AppSpacing.tiny,
+              children: [
+                ?trailing,
+                Text(
+                  value,
+                  style: ThemeManager.instance.getTextStyle(
+                    FontSizeType.medium,
+                    color: colorScheme.onSurfaceVariant,
+                  ),
+                ),
+              ],
             ),
           ),
         ],

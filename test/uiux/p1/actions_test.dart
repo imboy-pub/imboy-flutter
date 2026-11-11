@@ -18,13 +18,16 @@ import 'dart:async' show Stream;
 import 'dart:math' show pow;
 import 'dart:convert' show jsonEncode;
 import 'dart:typed_data' show Uint8List;
+import 'dart:ui' show SemanticsAction;
 
 import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart' show LogicalKeyboardKey;
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:imboy/component/http/http_client.dart';
+import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/channel/widgets/channel_header_bar.dart';
 import 'package:imboy/store/model/channel_model.dart';
@@ -86,6 +89,7 @@ Future<void> pumpT12Header(
   VoidCallback? onShareTap,
   VoidCallback? onForwardTap,
   VoidCallback? onActionTap,
+  ValueChanged<bool>? onMuteChanged,
   bool isActionPending = false,
 }) async {
   SharedPreferences.setMockInitialValues(<String, Object>{});
@@ -93,19 +97,26 @@ Future<void> pumpT12Header(
   HttpClient.adapterForTest = _T12NoopAdapter();
   addTearDown(() => HttpClient.adapterForTest = null);
   final service = _NotificationService();
+  var muted = false;
   when(() => service.getSubscription(any())).thenAnswer(
     (_) async => ChannelSubscriptionModel(
       channelId: channel.id,
       subscribedAt: DateTime(2024),
-      isMuted: false,
+      isMuted: muted,
     ),
   );
+  when(() => service.setMuted(any(), any())).thenAnswer((call) async {
+    muted = call.positionalArguments[1] as bool;
+    onMuteChanged?.call(muted);
+    return true;
+  });
   await tester.pumpWidget(
     ProviderScope(
       overrides: [channelServiceProvider.overrideWithValue(service)],
       child: TranslationProvider(
         child: MaterialApp(
           theme: AppTheme.getLightThemeFromOption(FontSizeOption.normal),
+          builder: AppLoading.init(),
           home: Scaffold(
             body: ChannelHeaderBar(
               channel: channel,
@@ -124,12 +135,19 @@ Future<void> pumpT12Header(
   await tester.pump(const Duration(milliseconds: 50));
 }
 
-CupertinoButton _buttonOfSemantics(WidgetTester tester, String label) {
-  final Finder f = find.ancestor(
-    of: find.bySemanticsLabel(label),
-    matching: find.byType(CupertinoButton),
-  );
-  return tester.widget<CupertinoButton>(f.first);
+Finder _expectAction(
+  WidgetTester tester,
+  String label, {
+  required bool enabled,
+}) {
+  final action = find.bySemanticsLabel(label);
+  expect(action, findsOneWidget, reason: '动作名称必须唯一且不重复朗读');
+  final data = tester.getSemantics(action).getSemanticsData();
+  expect(data.label, label);
+  expect(data.flagsCollection.isButton, isTrue);
+  expect(data.flagsCollection.isEnabled.toBoolOrNull(), enabled);
+  expect(data.hasAction(SemanticsAction.tap), enabled);
+  return action;
 }
 
 /// WCAG 相对亮度对比度。
@@ -171,7 +189,7 @@ void main() {
     ).colorScheme.surface;
     final Icon shareIcon = tester.widget<Icon>(
       find.descendant(
-        of: find.bySemanticsLabel('分享'),
+        of: _expectAction(tester, t.channel.share, enabled: true),
         matching: find.byIcon(CupertinoIcons.share),
       ),
     );
@@ -190,8 +208,13 @@ void main() {
       onShareTap: () {},
       onForwardTap: () {},
     );
-    for (final String label in <String>['分享', '发送给好友', '消息免打扰']) {
-      final Size size = tester.getSize(find.bySemanticsLabel(label).first);
+    for (final label in [
+      t.channel.share,
+      t.channel.shareToChat,
+      t.chat.chatSettingMute,
+    ]) {
+      final action = _expectAction(tester, label, enabled: true);
+      final Size size = tester.getSize(action);
       expect(size.width, greaterThanOrEqualTo(48), reason: '$label 点击目标宽 ≥48');
       expect(size.height, greaterThanOrEqualTo(48), reason: '$label 点击目标高 ≥48');
     }
@@ -200,30 +223,70 @@ void main() {
   testWidgets('p1_missing_callback_is_disabled_not_noop：回调缺失即禁用', (
     tester,
   ) async {
+    var manageCalls = 0;
     await pumpT12Header(
       tester,
       channel: _channel(managed: true, subscribed: true),
       // 只给管理回调：分享/转发缺失
-      onManageTap: () {},
+      onManageTap: () => manageCalls++,
     );
-    expect(_buttonOfSemantics(tester, '管理').onPressed, isNotNull);
-    expect(
-      _buttonOfSemantics(tester, '分享').onPressed,
-      isNull,
-      reason: '缺失回调必须禁用（onPressed=null），不得空函数假可用',
+    final manage = _expectAction(tester, t.main.manage, enabled: true);
+    for (final label in [t.channel.share, t.channel.shareToChat]) {
+      await tester.tap(_expectAction(tester, label, enabled: false));
+      await tester.pump();
+      expect(manageCalls, 0);
+    }
+    await tester.tap(manage);
+    await tester.pump();
+    expect(manageCalls, 1);
+
+    var visitorCalls = 0;
+    await pumpT12Header(
+      tester,
+      channel: _channel(managed: false, subscribed: false),
+      onActionTap: () => visitorCalls++,
     );
-    expect(_buttonOfSemantics(tester, '发送给好友').onPressed, isNull);
+    for (final label in [t.channel.share, t.channel.shareToChat]) {
+      await tester.tap(_expectAction(tester, label, enabled: false));
+      await tester.pump();
+      expect(visitorCalls, 0);
+    }
+    expect(manageCalls, 1);
+    expect(tester.takeException(), isNull);
   });
 
   testWidgets('p1_muted_is_toggleable_not_disabled：静音动作始终可切换', (tester) async {
+    final updates = <bool>[];
     await pumpT12Header(
       tester,
       channel: _channel(managed: true, subscribed: true),
       onManageTap: () {},
+      onMuteChanged: updates.add,
     );
-    // 静音按钮（默认未静音：主色激活态）必须可点击切换
-    final CupertinoButton mute = _buttonOfSemantics(tester, '消息免打扰');
-    expect(mute.onPressed, isNotNull, reason: '静音是切换动作，任何视觉态都不得被禁用');
+    for (final muted in [true, false]) {
+      final mute = _expectAction(tester, t.chat.chatSettingMute, enabled: true);
+      await tester.tap(mute);
+      await tester.pumpAndSettle();
+      expect(updates, muted ? [true] : [true, false]);
+      final updated = _expectAction(
+        tester,
+        t.chat.chatSettingMute,
+        enabled: true,
+      );
+      expect(
+        find.descendant(
+          of: updated,
+          matching: find.byIcon(
+            muted ? CupertinoIcons.bell_slash_fill : CupertinoIcons.bell_fill,
+          ),
+        ),
+        findsOneWidget,
+      );
+      final dismissal = AppLoading.dismiss(animation: false);
+      await tester.pumpAndSettle();
+      await dismissal;
+    }
+    expect(tester.takeException(), isNull);
   });
 
   testWidgets('pending 不重复回调：进行中点击不触发', (tester) async {
@@ -239,8 +302,78 @@ void main() {
       find.byType(FilledButton),
     );
     expect(subscribe.onPressed, isNull, reason: '进行中必须禁用');
-    await tester.tap(find.byType(FilledButton), warnIfMissed: false);
+    final pending = _expectAction(tester, t.channel.subscribe, enabled: false);
+    await tester.tap(pending);
     await tester.pump();
     expect(calls, 0, reason: '进行中点击不得重复触发回调');
+  });
+
+  testWidgets('圆形订阅动作 pending 后恢复具名焦点与 Enter 操作', (tester) async {
+    final semantics = tester.ensureSemantics();
+    try {
+      var calls = 0;
+      var manageCalls = 0;
+      final channel = _channel(managed: true, subscribed: false);
+      void subscribe() => calls++;
+      void manage() => manageCalls++;
+
+      await pumpT12Header(
+        tester,
+        channel: channel,
+        onManageTap: manage,
+        onActionTap: subscribe,
+        isActionPending: true,
+      );
+      final headerState = tester.state(find.byType(ChannelHeaderBar));
+      expect(find.byType(FilledButton), findsNothing);
+      final pending = _expectAction(
+        tester,
+        t.channel.subscribe,
+        enabled: false,
+      );
+      expect(
+        tester
+            .widget<CupertinoButton>(
+              find.descendant(
+                of: pending,
+                matching: find.byType(CupertinoButton),
+              ),
+            )
+            .onPressed,
+        isNull,
+      );
+      await tester.tap(pending);
+      await tester.pump();
+      expect(calls, 0, reason: '进行中的圆形订阅按钮不得重复调用订阅');
+      expect(manageCalls, 0);
+
+      await pumpT12Header(
+        tester,
+        channel: channel,
+        onManageTap: manage,
+        onActionTap: subscribe,
+      );
+      expect(tester.state(find.byType(ChannelHeaderBar)), same(headerState));
+      final enabled = _expectAction(tester, t.channel.subscribe, enabled: true);
+      final subscribeFocus = Focus.of(
+        tester.element(find.text(t.channel.subscribe)),
+      );
+      for (var step = 0; step < 8 && !subscribeFocus.hasPrimaryFocus; step++) {
+        await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+        await tester.pump();
+      }
+      expect(subscribeFocus.hasPrimaryFocus, isTrue);
+      expect(
+        tester.getSemantics(enabled).flagsCollection.isFocused.toBoolOrNull(),
+        isTrue,
+      );
+      await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+      await tester.pumpAndSettle();
+      expect(calls, 1);
+      expect(manageCalls, 0);
+      expect(tester.takeException(), isNull);
+    } finally {
+      semantics.dispose();
+    }
   });
 }

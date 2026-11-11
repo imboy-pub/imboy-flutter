@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/semantics.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
@@ -12,6 +13,8 @@ import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/service/group_album_service.dart';
 import 'package:imboy/service/storage.dart';
 import 'package:imboy/store/api/group_album_api.dart';
+
+part 'group_album_photo_accessibility_checks.dart';
 
 class _FakeGroupAlbumService extends GroupAlbumService {
   _FakeGroupAlbumService({
@@ -736,49 +739,5 @@ void main() {
     expect(find.text('Album 1/1'), findsOneWidget);
   });
 
-  group('图片格无障碍（多选收口回归）', () {
-    testWidgets('非多选态：长按进多选暴露为自定义语义操作', (tester) async {
-      final handle = tester.ensureSemantics();
-      final fakeService = _FakeGroupAlbumService(
-        photos: [
-          {
-            'id': 'legacy-1',
-            'photo_id': 'p1',
-            'thumbnail_url': '',
-            'uploader_id': _currentUid,
-          },
-        ],
-        photoDetails: const {},
-      );
-      GroupAlbumService.instanceForTest = fakeService;
-
-      await tester.pumpWidget(
-        ProviderScope(
-          child: MaterialApp(
-            home: GroupAlbumPhotoPage(groupId: 'g1', albumId: 'a1'),
-            builder: AppLoading.init(),
-          ),
-        ),
-      );
-      await tester.pumpAndSettle();
-
-      // 图片格没有文字，读屏只能靠语义。长按是纯手势，读屏用户做不出来，
-      // 不挂自定义操作的话根本进不了多选。
-      final cell = find.byKey(const Key('group_album_photo_cell_0'));
-      expect(cell, findsOneWidget);
-
-      final labels = tester
-          .getSemantics(cell)
-          .getSemanticsData()
-          .customSemanticsActionIds
-          ?.map((id) => CustomSemanticsAction.getAction(id)?.label)
-          .whereType<String>()
-          .toSet();
-
-      expect(labels, isNotNull, reason: '图片格没有任何自定义语义操作');
-      expect(labels, contains(t.main.multiSelect));
-
-      handle.dispose();
-    });
-  });
+  groupAlbumPhotoAccessibilityTests();
 }

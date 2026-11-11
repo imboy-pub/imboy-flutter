@@ -15,6 +15,7 @@ import 'package:share_plus/share_plus.dart';
 import 'package:imboy/component/ui/avatar.dart';
 import 'package:imboy/component/ui/ios_settings_ui.dart';
 import 'package:imboy/component/ui/detail_settings_tile.dart';
+import 'package:imboy/component/ui/resource_page_layout.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/font_types.dart';
@@ -73,6 +74,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
     return IosPageTemplate(
       title: t.common.personalInfo,
       useLargeTitle: false,
+      contentMaxWidth: ResourcePageLayout.maxWidth,
       actions: [
         IconButton(
           onPressed: profileState.isLoading
@@ -93,6 +95,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
             onPreviewAvatar: () => _previewAvatar(context, profileState.avatar),
             onEditAvatar: () => _editAvatar(context, profileNotifier),
             onEditBackground: () => _editBackground(context),
+            onOpenQrCode: () => context.push('/qrcode/user'),
           ),
         ),
 
@@ -223,18 +226,6 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
             ),
             children: [
               DetailSettingsTile(
-                title: Text(t.account.myQRCode),
-                leading: Icon(
-                  CupertinoIcons.qrcode,
-                  color: AppColors.getTextColor(
-                    Theme.of(context).brightness,
-                    isSecondary: true,
-                  ),
-                  size: AppSizes.iconSizeMedium,
-                ),
-                onTap: () => context.push('/qrcode/user'),
-              ),
-              DetailSettingsTile(
                 title: Text(t.common.privacySettings),
                 leading: Icon(
                   CupertinoIcons.shield,
@@ -270,7 +261,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
             children: [
               const Icon(CupertinoIcons.share, size: 18),
               AppSpacing.horizontalMedium,
-              Text(t.common.profileShareProfile),
+              Expanded(child: Text(t.common.profileShareProfile)),
             ],
           ),
         ),
@@ -280,7 +271,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
             children: [
               const Icon(CupertinoIcons.cloud_download, size: 18),
               AppSpacing.horizontalMedium,
-              Text(t.chat.profileExportProfile),
+              Expanded(child: Text(t.chat.profileExportProfile)),
             ],
           ),
         ),

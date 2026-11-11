@@ -31,8 +31,8 @@ extension _GroupFilePreviews on _GroupFilePageState {
             trailing: CupertinoButton(
               padding: EdgeInsets.zero,
               onPressed: () => Navigator.of(ctx).pop(),
-              child: const Icon(
-                semanticLabel: '关闭',
+              child: Icon(
+                semanticLabel: ctx.t.common.buttonClose,
                 CupertinoIcons.xmark,
                 size: 22,
               ),
