@@ -670,7 +670,7 @@ class _MomentCreatePageState extends State<MomentCreatePage> {
     }
 
     AppLoading.show(status: context.t.common.loading);
-    final AMapPosition? l = await LocationService().getCurrentPosition();
+    final ImboyLocation? l = await LocationService().getCurrentPosition();
     await AppLoading.dismiss();
     if (!mounted) return;
     if (l == null) {
@@ -680,8 +680,8 @@ class _MomentCreatePageState extends State<MomentCreatePage> {
     final result = await context.push<Map<String, dynamic>>(
       '/map_location_picker',
       extra: {
-        'lat': l.latLng.latitude,
-        'lng': l.latLng.longitude,
+        'lat': l.latitude,
+        'lng': l.longitude,
         'citycode': AMapApi.getCityNameByGaoDe(l.adCode),
         'isMapImage': false,
       },

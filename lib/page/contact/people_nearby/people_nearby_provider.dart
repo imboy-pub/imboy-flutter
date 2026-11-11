@@ -5,7 +5,6 @@ import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/http/http_response.dart';
 import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/component/location/location_service.dart';
-import 'package:imboy/component/location/amap_helper.dart';
 import 'package:imboy/store/model/people_model.dart';
 import 'package:imboy/store/api/location_api.dart';
 import 'package:imboy/store/repository/contact_repo_sqlite.dart';
@@ -202,13 +201,13 @@ class PeopleNearbyNotifier extends Notifier<PeopleNearbyState> {
         final swLocate = Stopwatch()..start();
         // preferLastKnown: 附近的人半径 500km，几分钟前的坐标与实时坐标
         // 落到同一批结果，没必要为此等高德失败(约1s)+geolocator 超时(4s)。
-        AMapPosition? l = await LocationService().getCurrentPosition(
+        ImboyLocation? l = await LocationService().getCurrentPosition(
           preferLastKnown: true,
         );
         if (!active()) return;
         msLocate = swLocate.elapsedMilliseconds;
         debugPrint('[PeopleNearbyPerf] 1.定位 ${msLocate}ms');
-        updateLocation('${l?.latLng.longitude}', '${l?.latLng.latitude}');
+        updateLocation('${l?.longitude}', '${l?.latitude}');
       } else {
         debugPrint('[PeopleNearbyPerf] 1.定位 跳过(已有坐标)');
       }

@@ -1,3 +1,4 @@
+import 'package:imboy/component/location/location_capabilities.dart';
 import 'package:imboy/app_core/feature_flags/runtime_feature_recovery.dart';
 
 import 'dart:async';
@@ -132,6 +133,15 @@ class RouteFeatureGuard {
   static ({String redirect, RouteBlockReason reason, String name})?
   checkBlocked({required bool isLoggedIn, required String currentPath}) {
     if (!isLoggedIn) return null;
+    if ((currentPath == '/contact/people_nearby' ||
+            currentPath.startsWith('/contact/people_nearby/')) &&
+        !LocationCapabilities.supportsNearbyPeople) {
+      return (
+        redirect: '/bottom_navigation',
+        reason: RouteBlockReason.featureFlag,
+        name: _displayName('people_nearby_page'),
+      );
+    }
 
     // Check manifest app_entries first (plugin-level gate)
     final appEntry = appEntryForPath(currentPath);
