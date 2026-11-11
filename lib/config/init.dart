@@ -682,7 +682,7 @@ class AppInitializer {
         _groupSelfHealCompleter!.complete(result);
       }
       return result;
-    } on Exception catch (e) {
+    } on Object catch (e) {
       final fallback = {'skipped': 1, 'errors': 1, 'reason': 500};
       AppLogger.warning(
         'Group membership self-heal trigger failed: ${e.runtimeType}',

@@ -50,7 +50,8 @@ IMBoyHttpResponse handleResponse(
     final payload = data is Map ? data['payload'] : null;
 
     // 处理 429 Too Many Requests
-    if (int.tryParse('$code') == ErrorCode.TOO_MANY_REQUESTS) {
+    if (int.tryParse('$code') == ErrorCode.TOO_MANY_REQUESTS &&
+        response.requestOptions.extra[httpSuppressErrorToast] != true) {
       // 检查 Retry-After header，显示倒计时提示
       final retryAfter = response.headers.value('retry-after');
       final retrySeconds = int.tryParse(retryAfter ?? '');

@@ -12,12 +12,15 @@ import 'package:imboy/component/http/http_client.dart';
 import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/config/init.dart';
+import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/service/message_offline.dart';
 import 'package:imboy/service/storage.dart';
 
 class _OfflineAdapter implements HttpClientAdapter {
   final requests = <RequestOptions>[];
   bool empty = false;
+  int responseCode = 0;
+  int statusCode = 200;
 
   @override
   Future<ResponseBody> fetch(
@@ -28,8 +31,8 @@ class _OfflineAdapter implements HttpClientAdapter {
     requests.add(options);
     return ResponseBody.fromString(
       jsonEncode({
-        'code': 0,
-        'msg': 'success',
+        'code': responseCode,
+        'msg': responseCode == 0 ? 'success' : 'synthetic-offline-rejected',
         'payload': {
           'c2c': {
             'list': empty
@@ -49,7 +52,7 @@ class _OfflineAdapter implements HttpClientAdapter {
           },
         },
       }),
-      200,
+      statusCode,
       headers: {
         'content-type': ['application/json'],
       },
@@ -105,6 +108,8 @@ void main() {
       );
       try {
         await _expectStorageFailures(tester, service);
+        await tester.pump();
+        expect(find.text(t.common.pullOfflineMessagesAbnormal), findsNothing);
         expect(
           adapter.requests.length,
           2,
@@ -139,4 +144,69 @@ void main() {
       }
     },
   );
+
+  for (final status in [200, 429]) {
+    testWidgets('background rejection stays silent for HTTP $status', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        MaterialApp(builder: AppLoading.init(), home: const SizedBox()),
+      );
+      adapter.responseCode = status == 429 ? 429 : 1;
+      adapter.statusCode = status;
+      try {
+        expect(
+          await tester.runAsync(
+            () => service.requestPull(source: 'background_rejection'),
+          ),
+          isFalse,
+        );
+        await tester.pumpAndSettle();
+        expect(find.textContaining('synthetic-offline-rejected'), findsNothing);
+        expect(find.text(t.common.throttleWarning), findsNothing);
+        expect(service.getPullStats()['failed_total'], 1);
+        expect(service.getPullStats()['next_allowed_in_ms'], greaterThan(0));
+        expect(
+          MessageOfflineService.readStoredCursor(Keys.offlineCursorC2c),
+          0,
+        );
+        expect(adapter.requests, hasLength(1));
+      } finally {
+        service.onDispose();
+        HttpClient.adapterForTest = null;
+        serviceContainer.clear();
+        await AppFeatureRegistry.clear();
+      }
+    });
+  }
+
+  testWidgets('long failure streak keeps the 30-second backoff', (
+    tester,
+  ) async {
+    adapter.responseCode = 1;
+    try {
+      await tester.runAsync(() async {
+        for (var attempt = 1; attempt <= 70; attempt++) {
+          expect(
+            await service.requestPull(source: 'long_failure', force: true),
+            isFalse,
+          );
+          if (attempt >= 6) {
+            expect(
+              service.getPullStats()['next_allowed_in_ms'],
+              greaterThan(29000),
+            );
+          }
+        }
+      });
+      expect(service.getPullStats()['failed_total'], 70);
+      expect(adapter.requests, hasLength(70));
+      expect(MessageOfflineService.readStoredCursor(Keys.offlineCursorC2c), 0);
+    } finally {
+      service.onDispose();
+      HttpClient.adapterForTest = null;
+      serviceContainer.clear();
+      await AppFeatureRegistry.clear();
+    }
+  });
 }

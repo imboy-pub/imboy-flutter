@@ -4,7 +4,6 @@ import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart' show visibleForTesting;
 import 'package:imboy/component/helper/app_clock.dart';
-import 'package:imboy/component/ui/app_loading.dart';
 
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/http/http_client.dart';
@@ -13,7 +12,6 @@ import 'package:imboy/component/http/http_request_policy.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/config/env.dart';
 import 'package:imboy/config/init.dart';
-import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/service/event_bus.dart';
 import 'package:imboy/service/auth_session_scope.dart';
 import 'package:imboy/service/events/common_events.dart';
@@ -90,15 +88,8 @@ class MessageOfflineService {
     }
   }
 
-  /// 游标：各类消息最后一条消息的时间戳（毫秒）
-  ///
-  /// 协议一致性修复 D4：服务端 /api/v1/msg/offline 支持通过 c2c_last_msg_at、
-  /// c2g_last_msg_at、s2c_last_msg_at 参数做增量拉取，返回值中 next_last_msg_at
-  /// 字段即为下次请求时应传入的游标值。客户端保存游标并在每次请求时携带，
-  /// 避免每次全量拉取带来的性能压力。
-  ///
-  /// 游标通过 StorageService 持久化（Keys.offlineCursor*），应用重启后由
-  /// onInit 恢复，避免冷启动后游标归零触发全量重拉。
+  /// 毫秒增量游标：采用响应 next_last_msg_at，持久化至 Keys.offlineCursor*，
+  /// onInit 恢复，避免重启后全量重拉。
   int _c2cLastMsgAt = 0;
   int _c2gLastMsgAt = 0;
   String _c2gCursor = '';
@@ -132,6 +123,7 @@ class MessageOfflineService {
   int _failedTotal = 0;
   int _httpRequestsTotal = 0;
   int _fetchedMessagesTotal = 0;
+  int _acknowledgedMessagesTotal = 0;
 
   DateTime? _lastPullStartedAt;
   DateTime? _lastPullFinishedAt;
@@ -282,14 +274,17 @@ class MessageOfflineService {
     );
     _inFlightPull = pullFuture;
 
+    var succeeded = false;
     try {
-      return await pullFuture;
+      succeeded = await pullFuture;
+      return succeeded;
     } finally {
       _inFlightPull = null;
 
-      // 如果拉取期间又来了新请求，则补拉一次（force=true，确保不会被冷却窗口吞掉）
-      if (_hasPendingPullRequest && _pullRequestedSubscription != null) {
-        _hasPendingPullRequest = false;
+      final pending = _hasPendingPullRequest;
+      _hasPendingPullRequest = false;
+      // 失败后的合并请求沿用退避，避免强制补拉绕过冷却。
+      if (succeeded && pending && _pullRequestedSubscription != null) {
         unawaited(
           requestPull(
             source: 'merged_pending',
@@ -326,14 +321,14 @@ class MessageOfflineService {
       }
     }
 
+    int totalFetched = 0;
+    int currentPullHttpRequests = 0;
     try {
       requireCurrent();
       iPrint('开始拉取离线消息 source=$source reason=${reason ?? "-"}');
 
       bool hasMore = true;
       int pullCount = 0;
-      int totalFetched = 0;
-      int currentPullHttpRequests = 0;
 
       // 本次拉取周期内使用的游标（拉取过程中持续更新）
       int localC2cLastMsgAt = _c2cLastMsgAt;
@@ -343,6 +338,13 @@ class MessageOfflineService {
 
       while (hasMore && pullCount < _maxPullCount) {
         requireCurrent();
+        final previousCursors = (
+          localC2cLastMsgAt,
+          localC2gLastMsgAt,
+          localC2gCursor,
+          localS2cLastMsgAt,
+        );
+        final previousAcknowledged = _acknowledgedMessagesTotal;
         pullCount++;
         iPrint(
           '第 $pullCount 次拉取离线消息 c2c_cursor=$localC2cLastMsgAt '
@@ -375,7 +377,11 @@ class MessageOfflineService {
           API.msgOffline,
           queryParameters: queryParams.isEmpty ? null : queryParams,
           options: Options(
-            extra: {httpRequestGuard: requireCurrent, httpNoAutoRetry: true},
+            extra: {
+              httpRequestGuard: requireCurrent,
+              httpNoAutoRetry: true,
+              httpSuppressErrorToast: true,
+            },
             responseDecoder: channelIdResponseDecoder(
               ChannelResponseShape.offline,
             ),
@@ -392,9 +398,6 @@ class MessageOfflineService {
           _markPullFailure();
           iPrint('拉取离线消息失败: ${resp.msg}');
           _logPullMetrics('failed_code', extra: {'resp_code': resp.code});
-          AppLoading.showError(
-            '${t.common.pullOfflineMessagesFailed}: ${resp.msg}',
-          );
           return false;
         }
 
@@ -470,20 +473,22 @@ class MessageOfflineService {
         );
 
         if (hasMore) {
+          if (previousCursors ==
+                  (
+                    localC2cLastMsgAt,
+                    localC2gLastMsgAt,
+                    localC2gCursor,
+                    localS2cLastMsgAt,
+                  ) &&
+              _acknowledgedMessagesTotal == previousAcknowledged) {
+            throw StateError('offline pagination made no cursor progress');
+          }
           // 短暂延迟，避免分页场景下连续高频请求
           await Future<dynamic>.delayed(_pagePullDelay);
         }
       }
 
       if (hasMore) {
-        final advanced =
-            localC2cLastMsgAt > _c2cLastMsgAt ||
-            localC2gLastMsgAt > _c2gLastMsgAt ||
-            localS2cLastMsgAt > _s2cLastMsgAt ||
-            localC2gCursor != _c2gCursor;
-        if (!advanced) {
-          throw StateError('offline pagination made no cursor progress');
-        }
         // Yield at the per-cycle limit, then drain the remaining backlog.
         if (_pullRequestedSubscription != null) _hasPendingPullRequest = true;
       }
@@ -534,10 +539,11 @@ class MessageOfflineService {
       _failedTotal++;
       _lastResult = 'failed_exception';
       _lastPullFinishedAt = DateTime.now();
+      _lastPullHttpRequests = currentPullHttpRequests;
+      _lastPullFetchedMessages = totalFetched;
       _markPullFailure();
       iPrint('拉取离线消息异常: ${e.runtimeType}');
       _logPullMetrics('failed_exception');
-      AppLoading.showError(t.common.pullOfflineMessagesAbnormal);
       return false;
     }
   }
@@ -572,18 +578,8 @@ class MessageOfflineService {
     return section['has_more'] == true;
   }
 
-  /// 从服务端响应 section 中提取下一次请求的游标值（D4 修复）
-  ///
-  /// 服务端在每个 section（c2c/c2g/s2c）中返回 next_last_msg_at 字段，
-  /// 客户端应在下次拉取时将其作为对应的 *_last_msg_at 参数传入，
-  /// 实现增量拉取，避免重复获取已处理的消息。
-  ///
-  /// 兼容两种服务端格式：
-  /// - 毫秒整数（当前契约，rest-api-v1-catalog：请求参数即为 ms）；
-  /// - RFC3339 字符串（历史后端实现直接回传行内 created_at；
-  ///   2026-10 后端已修复为毫秒，此分支保留以兼容旧服务端）。
-  ///
-  /// 返回 null 表示 section 无效或未携带游标。
+  /// 提取 next_last_msg_at：兼容毫秒整数、数值字符串及历史 RFC3339；
+  /// 无效或缺失时返回 null，保留原游标。
   @visibleForTesting
   static int? extractNextCursor(dynamic section) {
     if (section is! Map) return null;
@@ -601,17 +597,9 @@ class MessageOfflineService {
     return null;
   }
 
-  /// 解析 C2G 分页游标 token 的协议版本（R01）。
-  ///
-  /// 服务端 token 形如 base64(JSON)：
-  /// - v1：`{"v":1,"at":"<rfc3339>","id":"<msg_id>"}`（旧，时间戳+尾 id）
-  /// - v2：`{"v":2,"marks":[{"g":<gid>,"s":<seq>},...]}`（per-group
-  ///   服务端投递进度，B 钳制；msg_offline_cursor.erl:13-17）
-  ///
-  /// 客户端对 v1/v2 一律原样透传（兼容解码在服务端 decode_data 分支，
-  /// 滚动部署安全），本地不解析 marks 语义；本方法仅供观测与迁移守护
-  /// （持久化 key 已按 `${env}_${uid}` scope 隔离，见 _currentC2gCursorKey）。
-  /// 返回 null 表示空 token 或非版本化旧格式。
+  /// 仅供观测：从 base64(JSON) 提取 C2G 游标版本，无效时返回 null。
+  /// v1 使用 at/id，v2 使用分群 g/s marks；协议语义由服务端解释，客户端
+  /// 原样透传 token，持久化 key 按环境及账号隔离。
   @visibleForTesting
   static int? c2gCursorVersion(String token) {
     if (token.isEmpty) return null;
@@ -657,14 +645,13 @@ class MessageOfflineService {
   void _markPullFailure() {
     _consecutivePullFailures += 1;
 
-    int backoffSeconds = 1 << (_consecutivePullFailures - 1);
+    // 先封顶，避免长期失败时位移溢出使退避退回 2 秒。
+    int backoffSeconds = _consecutivePullFailures >= 6
+        ? _maxFailureBackoff.inSeconds
+        : 1 << (_consecutivePullFailures - 1);
     if (backoffSeconds < 2) {
       backoffSeconds = 2;
     }
-    if (backoffSeconds > _maxFailureBackoff.inSeconds) {
-      backoffSeconds = _maxFailureBackoff.inSeconds;
-    }
-
     _pullCooldown.startFor(Duration(seconds: backoffSeconds));
   }
 
@@ -784,7 +771,11 @@ class MessageOfflineService {
     final resp = await client.post(
       API.msgOfflineAck,
       options: Options(
-        extra: {httpRequestGuard: requireCurrent, httpNoAutoRetry: true},
+        extra: {
+          httpRequestGuard: requireCurrent,
+          httpNoAutoRetry: true,
+          httpSuppressErrorToast: true,
+        },
       ),
       // 带 did 走服务端按设备送达标记（不再按 uid 删行），
       // 修复双端登录时一端确认导致另一离线端永久丢消息
@@ -795,5 +786,8 @@ class MessageOfflineService {
       },
     );
     requireAckAccepted(resp.code);
+    requireCurrent();
+    // 按设备投递由 ACK 推进，同毫秒分页不一定改变时间游标。
+    _acknowledgedMessagesTotal += msgIds.length;
   }
 }

@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 
 const httpNoAutoRetry = 'http_no_auto_retry';
+const httpSuppressErrorToast = 'http_suppress_error_toast';
 const httpRequestGuard = 'http_request_guard';
 
 /// Diagnostic URLs never include credentials, query values or fragments.

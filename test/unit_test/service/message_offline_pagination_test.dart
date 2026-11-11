@@ -17,6 +17,7 @@ import 'package:imboy/component/http/http_client.dart';
 import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/config/init.dart';
+import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/service/message_offline.dart';
 import 'package:imboy/service/sqlite.dart';
 import 'package:imboy/service/storage.dart';
@@ -31,6 +32,7 @@ class _PagedAdapter implements HttpClientAdapter {
   final cursors = <int>[];
   bool stall = false;
   bool c2gMode = false;
+  bool tiedTimestamps = false;
   final groupCursors = <String?>[];
   String? rejectAckId;
   void Function()? onTwentiethAck;
@@ -71,7 +73,11 @@ class _PagedAdapter implements HttpClientAdapter {
     final cursor =
         int.tryParse('${options.queryParameters['c2c_last_msg_at']}') ?? 0;
     cursors.add(cursor);
-    final page = cursor == 0 ? 1 : cursor - 1750000000000 + 1;
+    final page = tiedTimestamps
+        ? acknowledged.length + 1
+        : cursor == 0
+        ? 1
+        : cursor - 1750000000000 + 1;
     final section = {
       'list': stall || page > 23
           ? <Map<String, dynamic>>[]
@@ -82,11 +88,12 @@ class _PagedAdapter implements HttpClientAdapter {
                 'to': '995011',
                 'msg_type': 'text',
                 'payload': {'text': ''},
-                'created_at': 1750000000000 + page,
+                'created_at': 1750000000000 + (tiedTimestamps ? 1 : page),
               },
             ],
       'has_more': stall || page < 23,
-      if (!stall) 'next_last_msg_at': 1750000000000 + page,
+      if (!stall)
+        'next_last_msg_at': 1750000000000 + (tiedTimestamps ? 1 : page),
     };
     return response({
       'code': 0,
@@ -322,6 +329,31 @@ void main() {
       await tester.pumpAndSettle();
     },
   );
+  testWidgets('device ACK drains tied timestamps beyond 20 pages', (
+    tester,
+  ) async {
+    adapter.tiedTimestamps = true;
+    await tester.pumpWidget(
+      MaterialApp(builder: AppLoading.init(), home: const SizedBox()),
+    );
+    await tester.runAsync(() async {
+      expect(
+        await service.requestPull(source: 'tied_device_pages', force: true),
+        isTrue,
+      );
+      await _waitForPullIdle(service);
+      expect(adapter.acknowledged, hasLength(23));
+      expect(adapter.cursors, [0, ...List.filled(22, 1750000000001)]);
+      expect(await db.query('msg_c2c'), hasLength(23));
+      expect((await db.query('conversation')).single['unread_num'], 23);
+      expect(service.getPullStats()['failed_total'], 0);
+      expect(
+        MessageOfflineService.readStoredCursor(Keys.offlineCursorC2c),
+        1750000000001,
+      );
+    });
+  });
+
   testWidgets(
     'C2G composite cursor drains tied timestamps beyond20 pages and resumes',
     (tester) async {
@@ -440,19 +472,27 @@ void main() {
       MaterialApp(builder: AppLoading.init(), home: const SizedBox()),
     );
     adapter.stall = true;
+    adapter.afterPull = () {
+      unawaited(service.requestPull(source: 'merged_during_stall'));
+    };
     await tester.runAsync(() async {
       expect(
         await service.requestPull(source: 'stalled_pagination', force: true),
         isFalse,
       );
       await Future<void>.delayed(const Duration(milliseconds: 500));
-      expect(adapter.cursors, hasLength(20));
+      expect(adapter.cursors, hasLength(1));
       expect(adapter.acknowledged, isEmpty);
       expect(service.getPullStats()['succeeded_total'], 0);
       expect(service.getPullStats()['failed_total'], 1);
+      expect(service.getPullStats()['last_pull_http_requests'], 1);
+      expect(service.getPullStats()['merged_total'], 1);
+      expect(service.getPullStats()['pending_pull_request'], isFalse);
+      expect(service.getPullStats()['next_allowed_in_ms'], greaterThan(0));
       expect(MessageOfflineService.readStoredCursor(Keys.offlineCursorC2c), 0);
     });
     await tester.pumpAndSettle();
+    expect(find.text(t.common.pullOfflineMessagesAbnormal), findsNothing);
   });
   testWidgets(
     'ACK failure retains cursor and retry deduplicates before draining',

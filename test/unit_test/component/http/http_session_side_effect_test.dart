@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/component/http/http_client.dart' as http;
+import 'package:imboy/component/http/http_request_policy.dart';
 import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/i18n/strings.g.dart';
@@ -197,32 +198,37 @@ void main() {
     );
   }
 
-  testWidgets('current session 429 still displays throttle warning', (
-    tester,
-  ) async {
-    await tester.pumpWidget(
-      MaterialApp(builder: AppLoading.init(), home: const Scaffold()),
-    );
-    http.HttpClient.adapterForTest = _Adapter(() async => _throttled());
-    final client = http.HttpClient(
-      options: BaseOptions(
-        baseUrl: 'http://127.0.0.1',
-        validateStatus: (status) => status != null,
-      ),
-      retryEnabled: false,
-    );
-    await tester.runAsync(() async {
-      final result = await client.get('/synthetic-protected');
-      expect(result.code, 429);
+  for (final silent in [false, true]) {
+    testWidgets('current session 429 toast follows silent=$silent', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        MaterialApp(builder: AppLoading.init(), home: const Scaffold()),
+      );
+      http.HttpClient.adapterForTest = _Adapter(() async => _throttled());
+      final client = http.HttpClient(
+        options: BaseOptions(
+          baseUrl: 'http://127.0.0.1',
+          validateStatus: (status) => status != null,
+        ),
+        retryEnabled: false,
+      );
+      await tester.runAsync(() async {
+        final result = await client.get(
+          '/synthetic-protected',
+          options: Options(extra: {httpSuppressErrorToast: silent}),
+        );
+        expect(result.code, 429);
+      });
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 300));
+      expect(
+        find.text(t.common.throttleRetryAfter(seconds: '3')),
+        silent ? findsNothing : findsOneWidget,
+      );
+      expect(repo.currentUid, '1001');
+      await tester.pump(const Duration(seconds: 4));
+      await tester.pumpWidget(const SizedBox.shrink());
     });
-    await tester.pump();
-    await tester.pump(const Duration(milliseconds: 300));
-    expect(
-      find.text(t.common.throttleRetryAfter(seconds: '3')),
-      findsOneWidget,
-    );
-    expect(repo.currentUid, '1001');
-    await tester.pump(const Duration(seconds: 4));
-    await tester.pumpWidget(const SizedBox.shrink());
-  });
+  }
 }
