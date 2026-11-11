@@ -2,7 +2,7 @@
 
 # ImBoy App - 架构文档 / Architecture Document
 
-> 最后更新 / Last updated：2026-09-19 CST（schema 版本与模块索引对齐代码）| Flutter 客户端 | 双语文档规则见根级 [CLAUDE.md](../CLAUDE.md)；三端术语以后端仓 `docs/glossary.md` 为准
+> 最后更新 / Last updated：2026-11-11 CST（校准头部日期；正文上次对齐 2026-11-06 schema v37/Dart 3.13 与 2026-11-10 统一收件箱）| Flutter 客户端 | 双语文档规则见根级 [CLAUDE.md](../CLAUDE.md)；三端术语以后端仓 `docs/glossary.md` 为准
 
 ---
 
