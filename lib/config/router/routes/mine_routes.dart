@@ -1,6 +1,7 @@
 library;
 
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart' show Theme, ThemeMode;
 import 'package:feedback/feedback.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:go_router/go_router.dart';
@@ -195,9 +196,28 @@ List<RouteBase> mineRoutes() => [
     // 真要修得改该库的图标/文案，成本远超收益，暂记为已知第三方限制。
     pageBuilder: (context, state) => CupertinoPage(
       key: state.pageKey,
-      child: const BetterFeedback(
-        mode: FeedbackMode.navigate,
-        child: FeedbackPage(),
+      child: Builder(
+        builder: (context) {
+          final theme = Theme.of(context);
+          // 插件会注入自己的 Theme，页面仍沿用 App 的颜色及字体。
+          final page = Theme(data: theme, child: const FeedbackPage());
+          return BetterFeedback(
+            mode: FeedbackMode.navigate,
+            themeMode: theme.brightness == Brightness.dark
+                ? ThemeMode.dark
+                : ThemeMode.light,
+            theme: FeedbackThemeData(
+              brightness: theme.brightness,
+              colorScheme: theme.colorScheme,
+              feedbackSheetColor: theme.colorScheme.surface,
+              background: theme.scaffoldBackgroundColor,
+              activeFeedbackModeColor: theme.colorScheme.primary,
+              bottomSheetDescriptionStyle: theme.textTheme.bodyMedium!,
+              bottomSheetTextInputStyle: theme.textTheme.bodyLarge!,
+            ),
+            child: page,
+          );
+        },
       ),
     ),
     routes: [
