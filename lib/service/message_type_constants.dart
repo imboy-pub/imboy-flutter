@@ -233,6 +233,29 @@ abstract class MessageType {
   /// 群公告卡片消息（服务端在公告发布时创建，客户端只渲染不发送）
   static const String groupNotice = 'groupNotice';
 
+  /// 合并转发聊天记录消息（chat_history_bundle_v1）
+  ///
+  /// 多选消息「合并转发」的产物：把 1..50 条原消息的安全快照打包成一条
+  /// 消息发出。payload 为 bundle JSON（合同冻结于 backend
+  /// `docs/reference/chat-history-bundle-contract.md` §2 + PLAN_SNAPSHOT §4.5）：
+  /// ```json
+  /// {
+  ///   "bundle_version": 1,
+  ///   "title": "来源会话名快照（可选）",
+  ///   "exported_at": 1760000000000,
+  ///   "entries": [
+  ///     {"msg_type": "text", "sender_name": "张三",
+  ///      "sent_at": 1760000000000, "payload": {"text": "…"}}
+  ///   ]
+  /// }
+  /// ```
+  /// 渲染侧（气泡/详情页）只消费转发时快照，不回查原会话。
+  /// 常量值与 `HistoryBundleContract.msgType`
+  /// （lib/modules/messaging/application/history_bundle/history_bundle_types.dart）
+  /// 冻结值一致；接收侧渲染注册见 builtin registry 的
+  /// ChatHistoryBundleMessageTypePlugin。
+  static const String chatHistoryBundle = 'chat_history_bundle';
+
   /// 自定义消息
   ///
   /// 作为通用兜底类型使用。
@@ -285,6 +308,10 @@ abstract class MessageType {
     groupVote,
     groupTask,
     groupNotice,
+    // 合并转发聊天记录（chat_history_bundle_v1）：渲染真值注册在 builtin
+    // registry（ChatHistoryBundleMessageTypePlugin），发送链路由批量转发
+    // coordinator 构建（W2-G HistoryBundleBuilder）。
+    chatHistoryBundle,
   ];
 
   /// 判断是否为有效的消息类型

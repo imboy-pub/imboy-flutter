@@ -627,6 +627,8 @@ class _Translations$chat$en_US extends Translations$chat$zh_CN {
 	@override String batchForwardDone({required Object success, required Object failed}) => 'Forward complete: ${success} succeeded, ${failed} failed';
 	@override String get batchForwardRetryFailed => 'Retry failed only';
 	@override String batchForwardLimitMessages({required Object max}) => 'Forward up to ${max} messages';
+	@override String get bundleTitle => 'Chat history';
+	@override String bundlePreview({required Object count}) => '[Chat history] ${count} messages';
 	@override String get great => 'Excellent';
 	@override String get groupFile => 'Group Files';
 	@override String get groupFileImagePreview => 'Image preview';
@@ -4586,6 +4588,8 @@ extension on TranslationsEnUs {
 			'chat.batchForwardDone' => ({required Object success, required Object failed}) => 'Forward complete: ${success} succeeded, ${failed} failed',
 			'chat.batchForwardRetryFailed' => 'Retry failed only',
 			'chat.batchForwardLimitMessages' => ({required Object max}) => 'Forward up to ${max} messages',
+			'chat.bundleTitle' => 'Chat history',
+			'chat.bundlePreview' => ({required Object count}) => '[Chat history] ${count} messages',
 			'chat.great' => 'Excellent',
 			'chat.groupFile' => 'Group Files',
 			'chat.groupFileImagePreview' => 'Image preview',
@@ -4607,10 +4611,10 @@ extension on TranslationsEnUs {
 			'chat.groupChat' => 'Group chat',
 			'chat.image' => 'Image',
 			'chat.imageMessage' => '[Image]',
-			'chat.initiateChat' => 'Start group chat',
-			'chat.exportMyData' => 'Export My Data',
 			_ => null,
 		} ?? switch (path) {
+			'chat.initiateChat' => 'Start group chat',
+			'chat.exportMyData' => 'Export My Data',
 			'chat.exportDataDesc' => 'Export your personal info, contacts, and chat history',
 			'chat.customMessage' => 'Custom message',
 			'chat.card' => 'Card',
@@ -5121,10 +5125,10 @@ extension on TranslationsEnUs {
 			'common.getVerificationCode' => 'Get verification code',
 			'common.confirmChange' => 'Confirm change',
 			'common.verificationCodeSentToEmail' => 'Verification code will be sent to this email. Please verify within the validity period.',
-			'common.verificationCodeSentToMobile' => 'Verification code will be sent to this phone. Please verify within the validity period.',
-			'common.sendFailed' => 'Failed to send',
 			_ => null,
 		} ?? switch (path) {
+			'common.verificationCodeSentToMobile' => 'Verification code will be sent to this phone. Please verify within the validity period.',
+			'common.sendFailed' => 'Failed to send',
 			'common.forceOffline' => 'Offline',
 			'common.forceDeviceOffline' => 'Make this device offline',
 			'common.forceDeviceOfflineConfirm' => 'Will send offline command to this device, confirm to continue?',
@@ -5635,10 +5639,10 @@ extension on TranslationsEnUs {
 			'common.showPassword' => 'Show password',
 			'common.hidePassword' => 'Hide password',
 			'common.turnOnFlashlight' => 'Turn on flashlight',
-			'common.turnOffFlashlight' => 'Turn off flashlight',
-			'common.pauseScan' => 'Pause scanning',
 			_ => null,
 		} ?? switch (path) {
+			'common.turnOffFlashlight' => 'Turn off flashlight',
+			'common.pauseScan' => 'Pause scanning',
 			'common.resumeScan' => 'Resume scanning',
 			'common.enterFullscreen' => 'Enter fullscreen',
 			'common.exitFullscreen' => 'Exit fullscreen',
@@ -6149,10 +6153,10 @@ extension on TranslationsEnUs {
 			'groupDiscovery.emptyTitle' => 'No public groups yet, come back later',
 			'groupDiscovery.searchEmpty' => 'No matching public groups',
 			'groupList.attrAll' => 'All',
-			'groupList.attrOwner' => 'Created by me',
-			'groupList.attrManager' => 'I manage',
 			_ => null,
 		} ?? switch (path) {
+			'groupList.attrOwner' => 'Created by me',
+			'groupList.attrManager' => 'I manage',
 			'groupList.attrJoin' => 'I joined',
 			'groupList.refresh' => 'Refresh',
 			'groupSchedule.title' => 'Group Schedule',
@@ -6663,10 +6667,10 @@ extension on TranslationsEnUs {
 			'organization.inviteColleagues.tabPossible' => 'Possible colleagues',
 			'organization.inviteColleagues.wechatInvite' => 'Invite via WeChat',
 			'organization.inviteColleagues.wechatInviteHint' => 'Send the invite code to WeChat friends; they join via imboy',
-			'organization.inviteColleagues.faceToFace' => 'Invite face to face',
-			'organization.inviteColleagues.faceToFaceHint' => 'Colleagues scan the QR code or enter the invite code',
 			_ => null,
 		} ?? switch (path) {
+			'organization.inviteColleagues.faceToFace' => 'Invite face to face',
+			'organization.inviteColleagues.faceToFaceHint' => 'Colleagues scan the QR code or enter the invite code',
 			'organization.inviteColleagues.fromWechatGroup' => 'Add from WeChat groups',
 			'organization.inviteColleagues.fromWechatGroupHint' => 'Share the invite code to a WeChat group for colleagues to join',
 			'organization.inviteColleagues.shareText' => ({required Object orgName, required Object code, required Object inviteUrl}) => '${orgName} invites you to join imboy\nInvite code: ${code} (valid for 7 days)\nJoin via link: ${inviteUrl}\nOpen the imboy app and enter the code under Directory > Join organization',
@@ -7177,10 +7181,10 @@ extension on TranslationsEnUs {
 			'talkRecord.transferScopeHint' => 'Transferring changes only the managing owner; the note\'s organization and workspace stay unchanged.',
 			'talkRecord.transferCreatedByHint' => 'The creator record stays unchanged; this action is independent of sharing permissions.',
 			'talkRecord.transferCandidateSectionTitle' => 'Choose the new owner',
-			'talkRecord.transferCandidateEmpty' => 'No eligible colleague candidates',
-			'talkRecord.transferCandidateHint' => 'Candidates are colleagues in this organization who meet the workspace policy; eligibility is decided by the server.',
 			_ => null,
 		} ?? switch (path) {
+			'talkRecord.transferCandidateEmpty' => 'No eligible colleague candidates',
+			'talkRecord.transferCandidateHint' => 'Candidates are colleagues in this organization who meet the workspace policy; eligibility is decided by the server.',
 			'talkRecord.transferKeepSectionTitle' => 'Original owner access',
 			'talkRecord.transferKeepViewer' => 'Keep my view access after transfer',
 			'talkRecord.transferKeepDefaultHint' => 'Off by default: after transfer you will no longer access this note.',

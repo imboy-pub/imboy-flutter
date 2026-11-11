@@ -565,6 +565,8 @@ class _Translations$chat$ru_RU extends Translations$chat$zh_CN {
 	@override String batchForwardDone({required Object success, required Object failed}) => 'Пересылка завершена: успешно ${success}, не удалось ${failed}';
 	@override String get batchForwardRetryFailed => 'Повторить только неудачные';
 	@override String batchForwardLimitMessages({required Object max}) => 'Можно переслать не более ${max} сообщений';
+	@override String get bundleTitle => 'История чата';
+	@override String bundlePreview({required Object count}) => '[История чата] ${count} сообщений';
 	@override String get great => 'Превосходно';
 	@override String get groupFile => 'Файлы группы';
 	@override String get groupFileImagePreview => 'Просмотр изображения';
@@ -3908,6 +3910,8 @@ extension on TranslationsRuRu {
 			'chat.batchForwardDone' => ({required Object success, required Object failed}) => 'Пересылка завершена: успешно ${success}, не удалось ${failed}',
 			'chat.batchForwardRetryFailed' => 'Повторить только неудачные',
 			'chat.batchForwardLimitMessages' => ({required Object max}) => 'Можно переслать не более ${max} сообщений',
+			'chat.bundleTitle' => 'История чата',
+			'chat.bundlePreview' => ({required Object count}) => '[История чата] ${count} сообщений',
 			'chat.great' => 'Превосходно',
 			'chat.groupFile' => 'Файлы группы',
 			'chat.groupFileImagePreview' => 'Просмотр изображения',
@@ -3980,10 +3984,10 @@ extension on TranslationsRuRu {
 			'chat.viewAttachments' => 'Просмотреть вложения',
 			'chat.viewLargeImage' => 'Открыть полностью',
 			'chat.voice' => 'Голос',
-			'chat.voiceMessage' => 'Голосовое сообщение',
-			'chat.youWithdrewAMessage' => 'Вы отозвали сообщение',
 			_ => null,
 		} ?? switch (path) {
+			'chat.voiceMessage' => 'Голосовое сообщение',
+			'chat.youWithdrewAMessage' => 'Вы отозвали сообщение',
 			'chat.formatCheck' => 'Проверка формата',
 			'chat.featureRequest' => 'Запрос функции',
 			'chat.chatResend' => 'Отправить снова',
@@ -4494,10 +4498,10 @@ extension on TranslationsRuRu {
 			'common.clearChatRecordsDesc' => 'Очистить все записи чата, это действие нельзя отменить',
 			'common.deleteAccountAction' => 'Удалить аккаунт',
 			'common.deleteAccountActionDesc' => 'Окончательно удалить аккаунт и все данные. Это действие нельзя отменить.',
-			'common.chatHistoryCleared' => 'История чата очищена',
-			'common.chatDeleteMessage' => 'Удалить сообщение',
 			_ => null,
 		} ?? switch (path) {
+			'common.chatHistoryCleared' => 'История чата очищена',
+			'common.chatDeleteMessage' => 'Удалить сообщение',
 			'common.chatCopy' => 'Копировать',
 			'common.chatSaveImage' => 'Сохранить изображение',
 			'common.chatDeleteLocalOnly' => 'Только локально',
@@ -5008,10 +5012,10 @@ extension on TranslationsRuRu {
 			'common.redPacketCurrentLucky' => 'Тип: конверт на удачу',
 			'common.redPacketCurrentNormal' => 'Тип: обычный конверт',
 			'common.redPacketDialogSubtitle' => 'Удачи и благополучия!',
-			'common.redPacketDialogTitle' => 'Красный конверт для вас',
-			'common.redPacketFetchError' => 'Ошибка загрузки деталей конверта',
 			_ => null,
 		} ?? switch (path) {
+			'common.redPacketDialogTitle' => 'Красный конверт для вас',
+			'common.redPacketFetchError' => 'Ошибка загрузки деталей конверта',
 			'common.redPacketFetchFailed' => 'Не удалось загрузить детали конверта',
 			'common.redPacketGreetingLabel' => 'Подпись / пожелание',
 			'common.redPacketNotFound' => 'Конверт не существует или удалён',
@@ -5522,10 +5526,10 @@ extension on TranslationsRuRu {
 			'main.selectFromAlbum' => 'Выбрать из альбома',
 			'main.volumeUp' => 'Увеличить громкость',
 			'main.volumeDown' => 'Уменьшить громкость',
-			'main.fastRewind' => ({required Object seconds}) => 'Быстрая перемотка назад ${seconds} сек',
-			'main.pleaseTryAgain' => 'Пожалуйста, попробуйте снова',
 			_ => null,
 		} ?? switch (path) {
+			'main.fastRewind' => ({required Object seconds}) => 'Быстрая перемотка назад ${seconds} сек',
+			'main.pleaseTryAgain' => 'Пожалуйста, попробуйте снова',
 			'main.secret' => 'Конфиденциально',
 			'main.takePhoto' => 'Сделать фото',
 			'main.deletingInProgressPleaseWait' => 'Удаление в процессе, пожалуйста, подождите...',
@@ -6036,10 +6040,10 @@ extension on TranslationsRuRu {
 			'passport.hintVerifyCode' => 'Введите код подтверждения',
 			'passport.getVerifyCode' => 'Получить код',
 			'passport.oneKeyLogin' => 'Быстрый вход',
-			'passport.qrCodeExpired' => 'Срок действия QR-кода истёк, отсканируйте заново',
-			'passport.qrCodeUsed' => 'Этот QR-код уже использован',
 			_ => null,
 		} ?? switch (path) {
+			'passport.qrCodeExpired' => 'Срок действия QR-кода истёк, отсканируйте заново',
+			'passport.qrCodeUsed' => 'Этот QR-код уже использован',
 			'passport.qrConnecting' => 'Подключение...',
 			'passport.qrLoginAction' => 'Подтвердить вход',
 			'passport.qrLoginCancelled' => 'Вход отменён',

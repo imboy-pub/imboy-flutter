@@ -102,6 +102,12 @@ String messagePreviewText(
     case 'revoked':
       return '[${t.common.messageRevoked}]';
 
+    case MessageType.chatHistoryBundle:
+      // 合并转发聊天记录：摘要给出条数（entries 缺失/畸形的极端行按 0 条
+      // 展示，保持类型标签可辨识）；正文细节只在详情页展示。
+      final entries = body['entries'];
+      return t.chat.bundlePreview(count: entries is List ? entries.length : 0);
+
     case MessageType.redPacket:
       final greeting = body['greeting']?.toString() ?? '';
       final label = '[${t.common.redPacket}]';

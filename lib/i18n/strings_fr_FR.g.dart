@@ -565,6 +565,8 @@ class _Translations$chat$fr_FR extends Translations$chat$zh_CN {
 	@override String batchForwardDone({required Object success, required Object failed}) => 'Transfert terminé : ${success} réussi(s), ${failed} échoué(s)';
 	@override String get batchForwardRetryFailed => 'Réessayer uniquement les échecs';
 	@override String batchForwardLimitMessages({required Object max}) => 'Transférez au maximum ${max} messages';
+	@override String get bundleTitle => 'Historique de discussion';
+	@override String bundlePreview({required Object count}) => '[Historique] ${count} messages';
 	@override String get great => 'Excellent';
 	@override String get groupFile => 'Fichiers du groupe';
 	@override String get groupFileImagePreview => 'Aperçu image';
@@ -3902,6 +3904,8 @@ extension on TranslationsFrFr {
 			'chat.batchForwardDone' => ({required Object success, required Object failed}) => 'Transfert terminé : ${success} réussi(s), ${failed} échoué(s)',
 			'chat.batchForwardRetryFailed' => 'Réessayer uniquement les échecs',
 			'chat.batchForwardLimitMessages' => ({required Object max}) => 'Transférez au maximum ${max} messages',
+			'chat.bundleTitle' => 'Historique de discussion',
+			'chat.bundlePreview' => ({required Object count}) => '[Historique] ${count} messages',
 			'chat.great' => 'Excellent',
 			'chat.groupFile' => 'Fichiers du groupe',
 			'chat.groupFileImagePreview' => 'Aperçu image',
@@ -3974,10 +3978,10 @@ extension on TranslationsFrFr {
 			'chat.viewAttachments' => 'Voir les pièces jointes.',
 			'chat.viewLargeImage' => 'Voir en grand',
 			'chat.voice' => 'Vocal',
-			'chat.voiceMessage' => 'Message vocal',
-			'chat.youWithdrewAMessage' => 'Vous avez révoqué un message.',
 			_ => null,
 		} ?? switch (path) {
+			'chat.voiceMessage' => 'Message vocal',
+			'chat.youWithdrewAMessage' => 'Vous avez révoqué un message.',
 			'chat.formatCheck' => 'Vérification du format',
 			'chat.featureRequest' => 'Demande de fonctionnalité',
 			'chat.chatResend' => 'Renvoyer',
@@ -4488,10 +4492,10 @@ extension on TranslationsFrFr {
 			'common.clearChatRecordsDesc' => 'Effacer tous les enregistrements de conversation. Cette action est irréversible.',
 			'common.deleteAccountAction' => 'Supprimer le compte',
 			'common.deleteAccountActionDesc' => 'Supprimer définitivement le compte et toutes les données. Cette action est irréversible.',
-			'common.chatHistoryCleared' => 'Historique de conversation effacé.',
-			'common.chatDeleteMessage' => 'Supprimer le message',
 			_ => null,
 		} ?? switch (path) {
+			'common.chatHistoryCleared' => 'Historique de conversation effacé.',
+			'common.chatDeleteMessage' => 'Supprimer le message',
 			'common.chatCopy' => 'Copier',
 			'common.chatSaveImage' => 'Enregistrer l\'image',
 			'common.chatDeleteLocalOnly' => 'Supprimer uniquement localement',
@@ -5002,10 +5006,10 @@ extension on TranslationsFrFr {
 			'common.redPacketCurrentLucky' => 'Actuel : hongbao à montant aléatoire',
 			'common.redPacketCurrentNormal' => 'Actuel : hongbao à montant fixe',
 			'common.redPacketDialogSubtitle' => 'Bonne fortune et grande prospérité !',
-			'common.redPacketDialogTitle' => 'Un hongbao pour vous',
-			'common.redPacketFetchError' => 'Anomalie lors de la récupération des détails du hongbao',
 			_ => null,
 		} ?? switch (path) {
+			'common.redPacketDialogTitle' => 'Un hongbao pour vous',
+			'common.redPacketFetchError' => 'Anomalie lors de la récupération des détails du hongbao',
 			'common.redPacketFetchFailed' => 'Échec de la récupération des détails du hongbao',
 			'common.redPacketGreetingLabel' => 'Message / vœux',
 			'common.redPacketNotFound' => 'Hongbao introuvable ou déjà supprimé',
@@ -5516,10 +5520,10 @@ extension on TranslationsFrFr {
 			'main.selectFromAlbum' => 'Sélectionner depuis l\'album',
 			'main.volumeUp' => 'Augmenter le volume',
 			'main.volumeDown' => 'Baisser le volume',
-			'main.fastRewind' => ({required Object seconds}) => 'Retour rapide de ${seconds} secondes',
-			'main.pleaseTryAgain' => 'Réessayez.',
 			_ => null,
 		} ?? switch (path) {
+			'main.fastRewind' => ({required Object seconds}) => 'Retour rapide de ${seconds} secondes',
+			'main.pleaseTryAgain' => 'Réessayez.',
 			'main.secret' => 'Confidentiel',
 			'main.takePhoto' => 'Prendre une photo',
 			'main.deletingInProgressPleaseWait' => 'Suppression en cours. Veuillez patienter...',
@@ -6030,10 +6034,10 @@ extension on TranslationsFrFr {
 			'passport.hintVerifyCode' => 'Veuillez entrer le code de vérification',
 			'passport.getVerifyCode' => 'Obtenir le code',
 			'passport.oneKeyLogin' => 'Connexion en un clic',
-			'passport.qrCodeExpired' => 'QR code expiré, veuillez le scanner à nouveau',
-			'passport.qrCodeUsed' => 'Ce QR code a déjà été utilisé',
 			_ => null,
 		} ?? switch (path) {
+			'passport.qrCodeExpired' => 'QR code expiré, veuillez le scanner à nouveau',
+			'passport.qrCodeUsed' => 'Ce QR code a déjà été utilisé',
 			'passport.qrConnecting' => 'Connexion...',
 			'passport.qrLoginAction' => 'Confirmer la connexion',
 			'passport.qrLoginCancelled' => 'Connexion annulée',

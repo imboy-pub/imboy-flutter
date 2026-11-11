@@ -565,6 +565,8 @@ class Translations$chat$zh_Hant extends Translations$chat$zh_CN {
 	@override String batchForwardDone({required Object success, required Object failed}) => '轉發完成：成功 ${success}，失敗 ${failed}';
 	@override String get batchForwardRetryFailed => '僅重試失敗';
 	@override String batchForwardLimitMessages({required Object max}) => '最多轉發 ${max} 條訊息';
+	@override String get bundleTitle => '聊天記錄';
+	@override String bundlePreview({required Object count}) => '[聊天記錄] ${count} 條';
 	@override String get great => '太棒了';
 	@override String get groupFile => '群檔案';
 	@override String get groupFileImagePreview => '圖片預覽';
@@ -3899,6 +3901,8 @@ extension on TranslationsZhHant {
 			'chat.batchForwardDone' => ({required Object success, required Object failed}) => '轉發完成：成功 ${success}，失敗 ${failed}',
 			'chat.batchForwardRetryFailed' => '僅重試失敗',
 			'chat.batchForwardLimitMessages' => ({required Object max}) => '最多轉發 ${max} 條訊息',
+			'chat.bundleTitle' => '聊天記錄',
+			'chat.bundlePreview' => ({required Object count}) => '[聊天記錄] ${count} 條',
 			'chat.great' => '太棒了',
 			'chat.groupFile' => '群檔案',
 			'chat.groupFileImagePreview' => '圖片預覽',
@@ -3971,10 +3975,10 @@ extension on TranslationsZhHant {
 			'chat.viewAttachments' => '瀏覽附件',
 			'chat.viewLargeImage' => '檢視大圖',
 			'chat.voice' => '語音',
-			'chat.voiceMessage' => '語音訊息',
-			'chat.youWithdrewAMessage' => '你撤回了一則訊息',
 			_ => null,
 		} ?? switch (path) {
+			'chat.voiceMessage' => '語音訊息',
+			'chat.youWithdrewAMessage' => '你撤回了一則訊息',
 			'chat.formatCheck' => '格式檢查',
 			'chat.featureRequest' => '功能請求',
 			'chat.chatResend' => '重新傳送',
@@ -4485,10 +4489,10 @@ extension on TranslationsZhHant {
 			'common.dataSettings' => '資料設定',
 			'common.clearChatRecords' => '清除聊天記錄',
 			'common.clearChatRecordsDesc' => '清除所有聊天記錄，此操作不可恢復',
-			'common.deleteAccountAction' => '註銷帳號',
-			'common.deleteAccountActionDesc' => '永久刪除帳號和所有資料，此操作不可恢復',
 			_ => null,
 		} ?? switch (path) {
+			'common.deleteAccountAction' => '註銷帳號',
+			'common.deleteAccountActionDesc' => '永久刪除帳號和所有資料，此操作不可恢復',
 			'common.chatHistoryCleared' => '聊天記錄已清除',
 			'common.chatDeleteMessage' => '刪除訊息',
 			'common.chatCopy' => '複製',
@@ -4999,10 +5003,10 @@ extension on TranslationsZhHant {
 			'common.redPacketCurrentLucky' => '目前為：拼手氣紅包',
 			'common.redPacketCurrentNormal' => '目前為：普通紅包',
 			'common.redPacketDialogSubtitle' => '大吉大利，恭喜發財',
-			'common.redPacketDialogTitle' => '送你一個紅包',
-			'common.redPacketFetchError' => '取得紅包詳情時發生異常',
 			_ => null,
 		} ?? switch (path) {
+			'common.redPacketDialogTitle' => '送你一個紅包',
+			'common.redPacketFetchError' => '取得紅包詳情時發生異常',
 			'common.redPacketFetchFailed' => '取得紅包詳情失敗',
 			'common.redPacketGreetingLabel' => '留言 / 祝福語',
 			'common.redPacketNotFound' => '紅包不存在或已被刪除',
@@ -5513,10 +5517,10 @@ extension on TranslationsZhHant {
 			'main.selectFromAlbum' => '從相簿選擇',
 			'main.volumeUp' => '調高音量',
 			'main.volumeDown' => '音量減少',
-			'main.fastRewind' => ({required Object seconds}) => '倒轉 ${seconds} 秒',
-			'main.pleaseTryAgain' => '請重試',
 			_ => null,
 		} ?? switch (path) {
+			'main.fastRewind' => ({required Object seconds}) => '倒轉 ${seconds} 秒',
+			'main.pleaseTryAgain' => '請重試',
 			'main.secret' => '保守祕密',
 			'main.takePhoto' => '拍攝照片',
 			'main.deletingInProgressPleaseWait' => '正在刪除中，請稍候...',
@@ -6027,10 +6031,10 @@ extension on TranslationsZhHant {
 			'passport.hintVerifyCode' => '請輸入驗證碼',
 			'passport.getVerifyCode' => '獲取驗證碼',
 			'passport.oneKeyLogin' => '一鍵登入',
-			'passport.qrCodeExpired' => '二維碼已過期，請重新掃碼',
-			'passport.qrCodeUsed' => '此二維碼已使用',
 			_ => null,
 		} ?? switch (path) {
+			'passport.qrCodeExpired' => '二維碼已過期，請重新掃碼',
+			'passport.qrCodeUsed' => '此二維碼已使用',
 			'passport.qrLoginCancelled' => '登入已取消',
 			'passport.qrLoginConfirming' => '登入中...',
 			'passport.qrLoginCancelledByMe' => '已取消登入',

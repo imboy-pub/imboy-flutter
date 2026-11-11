@@ -333,6 +333,22 @@ GoRouter createAppRouter({
           );
         },
       ),
+      // 合并转发聊天记录详情页（chat_history_bundle_v1，W3-I）：
+      // extra 携带 bundle 快照 Map（来自消息 metadata，详情页不回查原会话）。
+      // 必须注册在 `/chat/:peerId` 之前，避免被 path 参数路由吞掉。
+      GoRoute(
+        path: '/chat/history_bundle',
+        name: 'chat_history_bundle_detail',
+        pageBuilder: (context, state) {
+          final bundle = state.extra is Map<String, dynamic>
+              ? state.extra as Map<String, dynamic>
+              : const <String, dynamic>{};
+          return CupertinoPage(
+            key: state.pageKey,
+            child: HistoryBundleDetailPage(bundle: bundle),
+          );
+        },
+      ),
       // 聊天页面路由 - 使用 CupertinoPage 支持 iOS 风格滑动返回
       GoRoute(
         path: '/chat/:peerId',

@@ -30,6 +30,8 @@ batchForwardProgress(completed, total): "Transfert $completed/$total"
 batchForwardDone(success, failed): "Transfert terminé : $success réussi(s), $failed échoué(s)"
 batchForwardRetryFailed: Réessayer uniquement les échecs
 batchForwardLimitMessages(max): Transférez au maximum $max messages
+bundleTitle: Historique de discussion
+bundlePreview(count): "[Historique] $count messages"
 great: Excellent
 groupFile: Fichiers du groupe
 groupFileImagePreview: Aperçu image

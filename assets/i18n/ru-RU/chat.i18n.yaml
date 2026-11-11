@@ -30,6 +30,8 @@ batchForwardProgress(completed, total): "Пересылка $completed/$total"
 batchForwardDone(success, failed): "Пересылка завершена: успешно $success, не удалось $failed"
 batchForwardRetryFailed: Повторить только неудачные
 batchForwardLimitMessages(max): Можно переслать не более $max сообщений
+bundleTitle: История чата
+bundlePreview(count): "[История чата] $count сообщений"
 great: Превосходно
 groupFile: Файлы группы
 groupFileImagePreview: Просмотр изображения

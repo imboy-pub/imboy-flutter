@@ -72,6 +72,9 @@ enum MsgTypeEnum {
 
   /// 业务操作卡片消息（V3-23 企业应用代发点名类型，含跳转）
   businessActionCard,
+
+  /// 合并转发聊天记录消息（chat_history_bundle_v1，多选消息合并转发的产物）
+  chatHistoryBundle,
 }
 
 /// MsgTypeEnum 扩展方法
@@ -119,6 +122,8 @@ extension MsgTypeEnumExtension on MsgTypeEnum {
         return MessageType.linkCard;
       case MsgTypeEnum.businessActionCard:
         return MessageType.businessActionCard;
+      case MsgTypeEnum.chatHistoryBundle:
+        return MessageType.chatHistoryBundle;
     }
   }
 
@@ -165,6 +170,8 @@ extension MsgTypeEnumExtension on MsgTypeEnum {
         return MsgTypeEnum.linkCard;
       case MessageType.businessActionCard:
         return MsgTypeEnum.businessActionCard;
+      case MessageType.chatHistoryBundle:
+        return MsgTypeEnum.chatHistoryBundle;
       default:
         return null;
     }

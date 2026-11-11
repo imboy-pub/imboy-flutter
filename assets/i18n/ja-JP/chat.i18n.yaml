@@ -30,6 +30,8 @@ batchForwardProgress(completed, total): "転送中 $completed/$total"
 batchForwardDone(success, failed): "転送完了：成功 $success、失敗 $failed"
 batchForwardRetryFailed: 失敗分のみ再試行
 batchForwardLimitMessages(max): 最大 $max 件のメッセージを転送できます
+bundleTitle: チャット履歴
+bundlePreview(count): "[チャット履歴] $count件"
 great: 素晴らしい
 groupFile: グループファイル
 groupFileImagePreview: 画像プレビュー

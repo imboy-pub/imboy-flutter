@@ -30,6 +30,8 @@ batchForwardProgress(completed, total): "جارٍ التحويل $completed/$tot
 batchForwardDone(success, failed): "اكتمل التحويل: نجح $success، فشل $failed"
 batchForwardRetryFailed: إعادة محاولة الفاشلة فقط
 batchForwardLimitMessages(max): يمكنك تحويل $max رسالة كحد أقصى
+bundleTitle: سجل الدردشة
+bundlePreview(count): "[سجل الدردشة] $count رسالة"
 great: ممتاز جداً
 groupFile: ملفات المجموعة
 groupFileImagePreview: معاينة الصورة

@@ -25,6 +25,8 @@ batchForwardProgress(completed, total): "Forwarding $completed/$total"
 batchForwardDone(success, failed): "Forward complete: $success succeeded, $failed failed"
 batchForwardRetryFailed: Retry failed only
 batchForwardLimitMessages(max): Forward up to $max messages
+bundleTitle: Chat history
+bundlePreview(count): "[Chat history] $count messages"
 great: Excellent
 groupFile: Group Files
 groupFileImagePreview: Image preview

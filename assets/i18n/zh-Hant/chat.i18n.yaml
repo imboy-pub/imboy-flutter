@@ -29,6 +29,8 @@ batchForwardProgress(completed, total): "正在轉發 $completed/$total"
 batchForwardDone(success, failed): "轉發完成：成功 $success，失敗 $failed"
 batchForwardRetryFailed: 僅重試失敗
 batchForwardLimitMessages(max): 最多轉發 $max 條訊息
+bundleTitle: 聊天記錄
+bundlePreview(count): "[聊天記錄] $count 條"
 great: 太棒了
 groupFile: 群檔案
 groupFileImagePreview: 圖片預覽

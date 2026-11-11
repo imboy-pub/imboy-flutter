@@ -463,6 +463,17 @@ extension MessageModelMapper on MessageModel {
           'total': payloadData['total'] ?? 0,
         },
       );
+    } else if (effectiveMsgType == MessageType.chatHistoryBundle) {
+      // 合并转发聊天记录（chat_history_bundle_v1）：bundle payload
+      // （bundle_version/title/exported_at/entries）原样进 metadata，
+      // 由 ChatHistoryBundleMessageTypePlugin 渲染气泡 + 详情页；
+      // 详情页只消费这份转发时快照，不回查原会话。
+      message = CustomMessage(
+        authorId: author.id,
+        id: safeId,
+        createdAt: createdDt,
+        metadata: {...metadata, ...payloadData},
+      );
     } else if (effectiveMsgType == 'system') {
       // 系统消息：使用 CustomMessage，系统消息通常不需要复杂处理
       message = CustomMessage(

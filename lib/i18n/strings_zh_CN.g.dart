@@ -1606,6 +1606,12 @@ class Translations$chat$zh_CN {
 	/// zh-CN: '最多转发 $max 条消息'
 	String batchForwardLimitMessages({required Object max}) => '最多转发 ${max} 条消息';
 
+	/// zh-CN: '聊天记录'
+	String get bundleTitle => '聊天记录';
+
+	/// zh-CN: '[聊天记录] $count 条'
+	String bundlePreview({required Object count}) => '[聊天记录] ${count} 条';
+
 	/// zh-CN: '非常棒'
 	String get great => '非常棒';
 
@@ -11611,6 +11617,8 @@ extension on Translations {
 			'chat.batchForwardDone' => ({required Object success, required Object failed}) => '转发完成：成功 ${success}，失败 ${failed}',
 			'chat.batchForwardRetryFailed' => '仅重试失败',
 			'chat.batchForwardLimitMessages' => ({required Object max}) => '最多转发 ${max} 条消息',
+			'chat.bundleTitle' => '聊天记录',
+			'chat.bundlePreview' => ({required Object count}) => '[聊天记录] ${count} 条',
 			'chat.great' => '非常棒',
 			'chat.groupFile' => '群文件',
 			'chat.groupFileImagePreview' => '图片预览',
@@ -11627,10 +11635,10 @@ extension on Translations {
 			'chat.groupFileCategoryDoc' => '文档',
 			'chat.groupFileCategoryImage' => '图片',
 			'chat.groupFileCategoryVideo' => '视频',
-			'chat.groupFileCategoryAudio' => '音频',
-			'chat.groupFileCategoryOther' => '其他',
 			_ => null,
 		} ?? switch (path) {
+			'chat.groupFileCategoryAudio' => '音频',
+			'chat.groupFileCategoryOther' => '其他',
 			'chat.groupChat' => '群聊',
 			'chat.image' => '图片',
 			'chat.imageMessage' => '[图片]',
@@ -12141,10 +12149,10 @@ extension on Translations {
 			'common.voiceInputNotImplemented' => '语音输入功能暂无实现',
 			'common.waitingDownload' => '等待下载',
 			'common.waitingPeerAccept' => '等待对方接受邀请...',
-			'common.warning' => '警告:',
-			'common.webpageLoading' => '网页加载中...',
 			_ => null,
 		} ?? switch (path) {
+			'common.warning' => '警告:',
+			'common.webpageLoading' => '网页加载中...',
 			'common.yesterday' => '昨天',
 			'common.confirmRemoveFromDenylist' => '确认将此用户移出黑名单？',
 			'common.buttonRemove' => '移出',
@@ -12655,10 +12663,10 @@ extension on Translations {
 			'common.e2eeBackupErrUrlTooLarge' => '文件过大（超过 10MB 上限）',
 			'common.passwordEncryptFailed' => '密码加密失败',
 			'common.initConfigTimeout' => '配置获取超时：请检查网络连接或服务端状态',
-			'common.initConfigNetworkError' => ({required Object code}) => '网络故障或服务故障 (HTTP ${code})',
-			'common.initConfigProtocolError' => '服务故障协议有误',
 			_ => null,
 		} ?? switch (path) {
+			'common.initConfigNetworkError' => ({required Object code}) => '网络故障或服务故障 (HTTP ${code})',
+			'common.initConfigProtocolError' => '服务故障协议有误',
 			'common.initConfigFetchFailed' => '配置获取失败，请检查网络连接',
 			'common.initConfigDecryptFailed' => '配置解密失败：应用与服务端安全密钥不一致，请更新应用版本或联系管理员',
 			'common.saveFailedRetry' => '保存失败，请重试',
@@ -13169,10 +13177,10 @@ extension on Translations {
 			'group.sureToTransferAndLeave' => '转让后你将退出本群并失去群主权限，确定继续吗？',
 			'group.transferredButLeaveFailed' => '已转让群主，但退出失败，请重试退出',
 			'group.noEligibleSuccessor' => '暂无可转让的成员',
-			'groupCategory.title' => '群分组',
-			'groupCategory.createCategory' => '创建分组',
 			_ => null,
 		} ?? switch (path) {
+			'groupCategory.title' => '群分组',
+			'groupCategory.createCategory' => '创建分组',
 			'groupCategory.categoryName' => '分组名称',
 			'groupCategory.noCategory' => '暂无分组',
 			'groupCategory.deleteCategory' => '删除分组',
@@ -13683,10 +13691,10 @@ extension on Translations {
 			'organization.picker.joinOrgIdHint' => '向企业管理员获取（数字 ID）',
 			'organization.picker.joinOrgIdInvalid' => '请输入有效的企业 ID（数字）',
 			'organization.picker.joinCodeLabel' => '企业邀请码',
-			'organization.picker.joinSubmit' => '加入',
-			'organization.picker.joinInvalidCode' => '企业邀请码无效或已失效',
 			_ => null,
 		} ?? switch (path) {
+			'organization.picker.joinSubmit' => '加入',
+			'organization.picker.joinInvalidCode' => '企业邀请码无效或已失效',
 			'organization.picker.joinExpiredCode' => '企业邀请码已过期',
 			'organization.picker.joinFailed' => ({required Object msg}) => '加入失败：${msg}',
 			'organization.picker.joinScanQr' => '扫码加入',
@@ -14197,10 +14205,10 @@ extension on Translations {
 			'talkRecord.exportGenerate' => '生成导出',
 			'talkRecord.exportGenerating' => '生成中…',
 			'talkRecord.exportQueuedTitle' => '导出排队中',
-			'talkRecord.exportQueuedBody' => '已提交生成请求；排队不代表已生成完成，可稍后刷新状态。',
-			'talkRecord.exportRefreshState' => '刷新状态',
 			_ => null,
 		} ?? switch (path) {
+			'talkRecord.exportQueuedBody' => '已提交生成请求；排队不代表已生成完成，可稍后刷新状态。',
+			'talkRecord.exportRefreshState' => '刷新状态',
 			'talkRecord.exportReadyTitle' => '导出已就绪',
 			'talkRecord.exportReadyBody' => '可下载导出文件；下载链接短期有效，到期后需重新生成。',
 			'talkRecord.exportExpiresAt' => ({required Object date}) => '有效期至 ${date}',

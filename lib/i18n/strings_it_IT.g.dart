@@ -565,6 +565,8 @@ class _Translations$chat$it_IT extends Translations$chat$zh_CN {
 	@override String batchForwardDone({required Object success, required Object failed}) => 'Inoltro completato: ${success} riusciti, ${failed} falliti';
 	@override String get batchForwardRetryFailed => 'Riprova solo i falliti';
 	@override String batchForwardLimitMessages({required Object max}) => 'Inoltra al massimo ${max} messaggi';
+	@override String get bundleTitle => 'Cronologia chat';
+	@override String bundlePreview({required Object count}) => '[Cronologia] ${count} messaggi';
 	@override String get great => 'Eccellente';
 	@override String get groupFile => 'File del gruppo';
 	@override String get groupFileImagePreview => 'Anteprima immagine';
@@ -3902,6 +3904,8 @@ extension on TranslationsItIt {
 			'chat.batchForwardDone' => ({required Object success, required Object failed}) => 'Inoltro completato: ${success} riusciti, ${failed} falliti',
 			'chat.batchForwardRetryFailed' => 'Riprova solo i falliti',
 			'chat.batchForwardLimitMessages' => ({required Object max}) => 'Inoltra al massimo ${max} messaggi',
+			'chat.bundleTitle' => 'Cronologia chat',
+			'chat.bundlePreview' => ({required Object count}) => '[Cronologia] ${count} messaggi',
 			'chat.great' => 'Eccellente',
 			'chat.groupFile' => 'File del gruppo',
 			'chat.groupFileImagePreview' => 'Anteprima immagine',
@@ -3974,10 +3978,10 @@ extension on TranslationsItIt {
 			'chat.viewAttachments' => 'Visualizza allegati',
 			'chat.viewLargeImage' => 'Vedi ingrandito',
 			'chat.voice' => 'Voce',
-			'chat.voiceMessage' => 'Messaggio vocale',
-			'chat.youWithdrewAMessage' => 'Hai revocato un messaggio',
 			_ => null,
 		} ?? switch (path) {
+			'chat.voiceMessage' => 'Messaggio vocale',
+			'chat.youWithdrewAMessage' => 'Hai revocato un messaggio',
 			'chat.formatCheck' => 'Controllo formato',
 			'chat.featureRequest' => 'Richiesta funzionalità',
 			'chat.chatResend' => 'Invia di nuovo',
@@ -4488,10 +4492,10 @@ extension on TranslationsItIt {
 			'common.clearChatRecordsDesc' => 'Cancella tutta la cronologia delle chat, questa azione non può essere annullata',
 			'common.deleteAccountAction' => 'Disattiva account',
 			'common.deleteAccountActionDesc' => 'Elimina permanentemente l\'account e tutti i dati, questa azione non può essere annullata',
-			'common.chatHistoryCleared' => 'Cronologia delle chat cancellata',
-			'common.chatDeleteMessage' => 'Elimina messaggio',
 			_ => null,
 		} ?? switch (path) {
+			'common.chatHistoryCleared' => 'Cronologia delle chat cancellata',
+			'common.chatDeleteMessage' => 'Elimina messaggio',
 			'common.chatCopy' => 'Copia',
 			'common.chatSaveImage' => 'Salva immagine',
 			'common.chatDeleteLocalOnly' => 'Elimina solo localmente',
@@ -5002,10 +5006,10 @@ extension on TranslationsItIt {
 			'common.redPacketCurrentLucky' => 'Attuale: busta fortunata',
 			'common.redPacketCurrentNormal' => 'Attuale: busta normale',
 			'common.redPacketDialogSubtitle' => 'Buona fortuna e tanta prosperità',
-			'common.redPacketDialogTitle' => 'Ti ho inviato una busta rossa',
-			'common.redPacketFetchError' => 'Errore nel recupero dei dettagli della busta',
 			_ => null,
 		} ?? switch (path) {
+			'common.redPacketDialogTitle' => 'Ti ho inviato una busta rossa',
+			'common.redPacketFetchError' => 'Errore nel recupero dei dettagli della busta',
 			'common.redPacketFetchFailed' => 'Impossibile recuperare i dettagli della busta',
 			'common.redPacketGreetingLabel' => 'Messaggio / auguri',
 			'common.redPacketNotFound' => 'La busta rossa non esiste o è stata eliminata',
@@ -5516,10 +5520,10 @@ extension on TranslationsItIt {
 			'main.selectFromAlbum' => 'Seleziona dalla galleria',
 			'main.volumeUp' => 'Volume su',
 			'main.volumeDown' => 'Volume giù',
-			'main.fastRewind' => ({required Object seconds}) => 'Indietro veloce ${seconds} secondi',
-			'main.pleaseTryAgain' => 'Riprova',
 			_ => null,
 		} ?? switch (path) {
+			'main.fastRewind' => ({required Object seconds}) => 'Indietro veloce ${seconds} secondi',
+			'main.pleaseTryAgain' => 'Riprova',
 			'main.secret' => 'Segreto',
 			'main.takePhoto' => 'Scatta foto',
 			'main.deletingInProgressPleaseWait' => 'Eliminazione in corso, attendere...',
@@ -6030,10 +6034,10 @@ extension on TranslationsItIt {
 			'passport.hintVerifyCode' => 'Inserisci codice di verifica',
 			'passport.getVerifyCode' => 'Ottieni codice',
 			'passport.oneKeyLogin' => 'Accesso rapido',
-			'passport.qrCodeExpired' => 'Codice QR scaduto, scansiona di nuovo',
-			'passport.qrCodeUsed' => 'Questo codice QR è già stato usato',
 			_ => null,
 		} ?? switch (path) {
+			'passport.qrCodeExpired' => 'Codice QR scaduto, scansiona di nuovo',
+			'passport.qrCodeUsed' => 'Questo codice QR è già stato usato',
 			'passport.qrConnecting' => 'Connessione in corso...',
 			'passport.qrLoginAction' => 'Conferma accesso',
 			'passport.qrLoginCancelled' => 'Accesso annullato',

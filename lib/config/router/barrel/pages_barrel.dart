@@ -50,6 +50,7 @@ export 'package:imboy/page/chat/chat/chat_page.dart';
 export 'package:imboy/page/chat/send_to/send_to_page.dart';
 export 'package:imboy/page/chat/chat_setting/chat_setting_page.dart';
 export 'package:imboy/page/chat/widget/select_friend.dart';
+export 'package:imboy/page/chat/widget/history_bundle_detail_page.dart';
 
 // ============================================================================
 // 联系人模块

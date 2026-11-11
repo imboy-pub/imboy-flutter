@@ -565,6 +565,8 @@ class _Translations$chat$ar_SA extends Translations$chat$zh_CN {
 	@override String batchForwardDone({required Object success, required Object failed}) => 'اكتمل التحويل: نجح ${success}، فشل ${failed}';
 	@override String get batchForwardRetryFailed => 'إعادة محاولة الفاشلة فقط';
 	@override String batchForwardLimitMessages({required Object max}) => 'يمكنك تحويل ${max} رسالة كحد أقصى';
+	@override String get bundleTitle => 'سجل الدردشة';
+	@override String bundlePreview({required Object count}) => '[سجل الدردشة] ${count} رسالة';
 	@override String get great => 'ممتاز جداً';
 	@override String get groupFile => 'ملفات المجموعة';
 	@override String get groupFileImagePreview => 'معاينة الصورة';
@@ -3911,6 +3913,8 @@ extension on TranslationsArSa {
 			'chat.batchForwardDone' => ({required Object success, required Object failed}) => 'اكتمل التحويل: نجح ${success}، فشل ${failed}',
 			'chat.batchForwardRetryFailed' => 'إعادة محاولة الفاشلة فقط',
 			'chat.batchForwardLimitMessages' => ({required Object max}) => 'يمكنك تحويل ${max} رسالة كحد أقصى',
+			'chat.bundleTitle' => 'سجل الدردشة',
+			'chat.bundlePreview' => ({required Object count}) => '[سجل الدردشة] ${count} رسالة',
 			'chat.great' => 'ممتاز جداً',
 			'chat.groupFile' => 'ملفات المجموعة',
 			'chat.groupFileImagePreview' => 'معاينة الصورة',
@@ -3983,10 +3987,10 @@ extension on TranslationsArSa {
 			'chat.viewAttachments' => 'تصفح المرفقات',
 			'chat.viewLargeImage' => 'عرض بالحجم الكامل',
 			'chat.voice' => 'صوت',
-			'chat.voiceMessage' => 'رسالة صوتية',
-			'chat.youWithdrewAMessage' => 'قمت بسحب رسالة',
 			_ => null,
 		} ?? switch (path) {
+			'chat.voiceMessage' => 'رسالة صوتية',
+			'chat.youWithdrewAMessage' => 'قمت بسحب رسالة',
 			'chat.formatCheck' => 'فحص التنسيق',
 			'chat.featureRequest' => 'طلب ميزة',
 			'chat.chatResend' => 'إعادة الإرسال',
@@ -4497,10 +4501,10 @@ extension on TranslationsArSa {
 			'common.clearChatRecordsDesc' => 'مسح جميع سجلات الدردشة، هذا الإجراء لا يمكن التراجع عنه',
 			'common.deleteAccountAction' => 'إلغاء الحساب',
 			'common.deleteAccountActionDesc' => 'حذف الحساب وجميع البيانات بشكل دائم، هذا الإجراء لا يمكن التراجع عنه',
-			'common.chatHistoryCleared' => 'تم مسح سجل الدردشة',
-			'common.chatDeleteMessage' => 'حذف الرسالة',
 			_ => null,
 		} ?? switch (path) {
+			'common.chatHistoryCleared' => 'تم مسح سجل الدردشة',
+			'common.chatDeleteMessage' => 'حذف الرسالة',
 			'common.chatCopy' => 'نسخ',
 			'common.chatSaveImage' => 'حفظ الصورة',
 			'common.chatDeleteLocalOnly' => 'حذف محلي فقط',
@@ -5011,10 +5015,10 @@ extension on TranslationsArSa {
 			'common.voiceSttConverting' => 'جارٍ التعرف على الصوت...',
 			'common.voiceSttNotConfigured' => 'ميزة التحويل إلى نص غير مهيأة بعد',
 			'common.voiceSttPreviewTitle' => 'معاينة تحويل الصوت إلى نص',
-			'common.redPacketBrand' => 'مغلف IMBoy الأحمر',
-			'common.redPacketDialogTitle' => 'أرسلنا لك مغلفاً أحمر',
 			_ => null,
 		} ?? switch (path) {
+			'common.redPacketBrand' => 'مغلف IMBoy الأحمر',
+			'common.redPacketDialogTitle' => 'أرسلنا لك مغلفاً أحمر',
 			'common.redPacketDialogSubtitle' => 'أطيب التمنيات، وكل عام وأنتم بخير',
 			'common.redPacketView' => 'عرض المغلف',
 			'common.redPacketTotalAmount' => 'المبلغ الإجمالي',
@@ -5525,10 +5529,10 @@ extension on TranslationsArSa {
 			'main.selectFromAlbum' => 'اختيار من الألبوم',
 			'main.volumeUp' => 'زيادة الصوت',
 			'main.volumeDown' => 'خفض الصوت',
-			'main.fastRewind' => ({required Object seconds}) => 'ترجيع سريع ${seconds} ثانية',
-			'main.pleaseTryAgain' => 'يرجى المحاولة مرة أخرى',
 			_ => null,
 		} ?? switch (path) {
+			'main.fastRewind' => ({required Object seconds}) => 'ترجيع سريع ${seconds} ثانية',
+			'main.pleaseTryAgain' => 'يرجى المحاولة مرة أخرى',
 			'main.secret' => 'سري',
 			'main.takePhoto' => 'التقاط صورة',
 			'main.deletingInProgressPleaseWait' => 'جارٍ الحذف، يرجى الانتظار...',
@@ -6039,10 +6043,10 @@ extension on TranslationsArSa {
 			'passport.hintVerifyCode' => 'أدخل رمز التحقق',
 			'passport.getVerifyCode' => 'احصل على الرمز',
 			'passport.oneKeyLogin' => 'تسجيل الدخول بنقرة واحدة',
-			'passport.qrCodeExpired' => 'انتهت صلاحية رمز QR، امسحه ضوئياً من جديد',
-			'passport.qrCodeUsed' => 'تم استخدام رمز QR هذا بالفعل',
 			_ => null,
 		} ?? switch (path) {
+			'passport.qrCodeExpired' => 'انتهت صلاحية رمز QR، امسحه ضوئياً من جديد',
+			'passport.qrCodeUsed' => 'تم استخدام رمز QR هذا بالفعل',
 			'passport.qrLoginCancelled' => 'تم إلغاء تسجيل الدخول',
 			'passport.qrLoginConfirming' => 'جارٍ تسجيل الدخول...',
 			'passport.qrLoginCancelledByMe' => 'تم إلغاء تسجيل الدخول',

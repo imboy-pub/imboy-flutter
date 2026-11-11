@@ -30,6 +30,8 @@ batchForwardProgress(completed, total): "Inoltro $completed/$total"
 batchForwardDone(success, failed): "Inoltro completato: $success riusciti, $failed falliti"
 batchForwardRetryFailed: Riprova solo i falliti
 batchForwardLimitMessages(max): Inoltra al massimo $max messaggi
+bundleTitle: Cronologia chat
+bundlePreview(count): "[Cronologia] $count messaggi"
 great: Eccellente
 groupFile: File del gruppo
 groupFileImagePreview: Anteprima immagine

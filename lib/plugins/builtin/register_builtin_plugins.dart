@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:imboy/component/chat/message_audio_builder.dart';
 import 'package:imboy/component/chat/message_expression_builder.dart';
 import 'package:imboy/component/chat/message_file_builder.dart';
+import 'package:imboy/component/chat/message_history_bundle_builder.dart';
 import 'package:imboy/component/chat/message_image_builder.dart';
 import 'package:imboy/component/chat/message_image_multi_builder.dart';
 import 'package:imboy/component/chat/message_location_builder.dart';
@@ -56,6 +57,8 @@ void registerBuiltinPlugins(MessageTypeRegistry registry) {
     // V3-23 企业应用代发点名卡片（matrix spec §5 D1/D2）
     _LinkCardMessageTypePlugin(),
     _BusinessActionCardMessageTypePlugin(),
+    // 合并转发聊天记录（chat_history_bundle_v1，多选消息计划 W3-I）
+    ChatHistoryBundleMessageTypePlugin(),
     UnsupportedMessageTypePlugin(),
     RedPacketMessageTypePlugin(),
     TransferMessageTypePlugin(),

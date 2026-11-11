@@ -565,6 +565,8 @@ class _Translations$chat$ko_KR extends Translations$chat$zh_CN {
 	@override String batchForwardDone({required Object success, required Object failed}) => '전달 완료: 성공 ${success}, 실패 ${failed}';
 	@override String get batchForwardRetryFailed => '실패 항목만 재시도';
 	@override String batchForwardLimitMessages({required Object max}) => '최대 ${max}개의 메시지를 전달할 수 있습니다';
+	@override String get bundleTitle => '채팅 기록';
+	@override String bundlePreview({required Object count}) => '[채팅 기록] ${count}개';
 	@override String get great => '매우 좋음';
 	@override String get groupFile => '그룹 파일';
 	@override String get groupFileImagePreview => '이미지 미리보기';
@@ -3899,6 +3901,8 @@ extension on TranslationsKoKr {
 			'chat.batchForwardDone' => ({required Object success, required Object failed}) => '전달 완료: 성공 ${success}, 실패 ${failed}',
 			'chat.batchForwardRetryFailed' => '실패 항목만 재시도',
 			'chat.batchForwardLimitMessages' => ({required Object max}) => '최대 ${max}개의 메시지를 전달할 수 있습니다',
+			'chat.bundleTitle' => '채팅 기록',
+			'chat.bundlePreview' => ({required Object count}) => '[채팅 기록] ${count}개',
 			'chat.great' => '매우 좋음',
 			'chat.groupFile' => '그룹 파일',
 			'chat.groupFileImagePreview' => '이미지 미리보기',
@@ -3971,10 +3975,10 @@ extension on TranslationsKoKr {
 			'chat.viewAttachments' => '첨부 파일 보기',
 			'chat.viewLargeImage' => '크게 보기',
 			'chat.voice' => '음성',
-			'chat.voiceMessage' => '음성 메시지',
-			'chat.youWithdrewAMessage' => '메시지를 회수했습니다',
 			_ => null,
 		} ?? switch (path) {
+			'chat.voiceMessage' => '음성 메시지',
+			'chat.youWithdrewAMessage' => '메시지를 회수했습니다',
 			'chat.formatCheck' => '형식 검사',
 			'chat.featureRequest' => '기능 요청',
 			'chat.chatResend' => '재전송',
@@ -4485,10 +4489,10 @@ extension on TranslationsKoKr {
 			'common.clearChatRecordsDesc' => '모든 채팅 기록을 삭제합니다. 이 작업은 되돌릴 수 없습니다',
 			'common.deleteAccountAction' => '계정 탈퇴',
 			'common.deleteAccountActionDesc' => '계정과 모든 데이터를 영구 삭제합니다. 되돌릴 수 없습니다.',
-			'common.chatHistoryCleared' => '채팅 기록이 삭제되었습니다',
-			'common.chatDeleteMessage' => '메시지 삭제',
 			_ => null,
 		} ?? switch (path) {
+			'common.chatHistoryCleared' => '채팅 기록이 삭제되었습니다',
+			'common.chatDeleteMessage' => '메시지 삭제',
 			'common.chatCopy' => '복사',
 			'common.chatSaveImage' => '이미지 저장',
 			'common.chatDeleteLocalOnly' => '로컬만 삭제',
@@ -4999,10 +5003,10 @@ extension on TranslationsKoKr {
 			'common.redPacketCurrentLucky' => '현재: 랜덤 복주머니',
 			'common.redPacketCurrentNormal' => '현재: 일반 복주머니',
 			'common.redPacketDialogSubtitle' => '좋은 일이 가득하길, 복 많이 받으세요',
-			'common.redPacketDialogTitle' => '복주머니가 도착했습니다',
-			'common.redPacketFetchError' => '복주머니 상세 조회 오류',
 			_ => null,
 		} ?? switch (path) {
+			'common.redPacketDialogTitle' => '복주머니가 도착했습니다',
+			'common.redPacketFetchError' => '복주머니 상세 조회 오류',
 			'common.redPacketFetchFailed' => '복주머니 상세를 불러오지 못했습니다',
 			'common.redPacketGreetingLabel' => '메시지 / 축하 문구',
 			'common.redPacketNotFound' => '복주머니가 없거나 삭제되었습니다',
@@ -5513,10 +5517,10 @@ extension on TranslationsKoKr {
 			'main.selectFromAlbum' => '앨범에서 선택',
 			'main.volumeUp' => '볼륨 높이기',
 			'main.volumeDown' => '볼륨 낮추기',
-			'main.fastRewind' => ({required Object seconds}) => '${seconds}초 되감기',
-			'main.pleaseTryAgain' => '다시 시도해 주세요',
 			_ => null,
 		} ?? switch (path) {
+			'main.fastRewind' => ({required Object seconds}) => '${seconds}초 되감기',
+			'main.pleaseTryAgain' => '다시 시도해 주세요',
 			'main.secret' => '비공개',
 			'main.takePhoto' => '사진 촬영',
 			'main.deletingInProgressPleaseWait' => '삭제 중입니다. 잠시 기다려 주세요...',
@@ -6027,10 +6031,10 @@ extension on TranslationsKoKr {
 			'passport.hintVerifyCode' => '인증 코드를 입력해 주세요',
 			'passport.getVerifyCode' => '인증 코드 받기',
 			'passport.oneKeyLogin' => '원클릭 로그인',
-			'passport.qrCodeExpired' => 'QR코드가 만료되었습니다. 다시 스캔해 주세요',
-			'passport.qrCodeUsed' => '이 QR코드는 이미 사용되었습니다',
 			_ => null,
 		} ?? switch (path) {
+			'passport.qrCodeExpired' => 'QR코드가 만료되었습니다. 다시 스캔해 주세요',
+			'passport.qrCodeUsed' => '이 QR코드는 이미 사용되었습니다',
 			'passport.qrConnecting' => '연결 중...',
 			'passport.qrLoginAction' => '로그인 확인',
 			'passport.qrLoginCancelled' => '로그인이 취소되었습니다',

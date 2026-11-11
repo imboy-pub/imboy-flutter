@@ -565,6 +565,8 @@ class _Translations$chat$ja_JP extends Translations$chat$zh_CN {
 	@override String batchForwardDone({required Object success, required Object failed}) => '転送完了：成功 ${success}、失敗 ${failed}';
 	@override String get batchForwardRetryFailed => '失敗分のみ再試行';
 	@override String batchForwardLimitMessages({required Object max}) => '最大 ${max} 件のメッセージを転送できます';
+	@override String get bundleTitle => 'チャット履歴';
+	@override String bundlePreview({required Object count}) => '[チャット履歴] ${count}件';
 	@override String get great => '素晴らしい';
 	@override String get groupFile => 'グループファイル';
 	@override String get groupFileImagePreview => '画像プレビュー';
@@ -3899,6 +3901,8 @@ extension on TranslationsJaJp {
 			'chat.batchForwardDone' => ({required Object success, required Object failed}) => '転送完了：成功 ${success}、失敗 ${failed}',
 			'chat.batchForwardRetryFailed' => '失敗分のみ再試行',
 			'chat.batchForwardLimitMessages' => ({required Object max}) => '最大 ${max} 件のメッセージを転送できます',
+			'chat.bundleTitle' => 'チャット履歴',
+			'chat.bundlePreview' => ({required Object count}) => '[チャット履歴] ${count}件',
 			'chat.great' => '素晴らしい',
 			'chat.groupFile' => 'グループファイル',
 			'chat.groupFileImagePreview' => '画像プレビュー',
@@ -3971,10 +3975,10 @@ extension on TranslationsJaJp {
 			'chat.viewAttachments' => '添付ファイルを表示',
 			'chat.viewLargeImage' => '拡大表示',
 			'chat.voice' => '音声',
-			'chat.voiceMessage' => '音声メッセージ',
-			'chat.youWithdrewAMessage' => 'あなたがメッセージを取り消しました',
 			_ => null,
 		} ?? switch (path) {
+			'chat.voiceMessage' => '音声メッセージ',
+			'chat.youWithdrewAMessage' => 'あなたがメッセージを取り消しました',
 			'chat.formatCheck' => '形式チェック',
 			'chat.featureRequest' => '機能リクエスト',
 			'chat.chatResend' => '再送信',
@@ -4485,10 +4489,10 @@ extension on TranslationsJaJp {
 			'common.clearChatRecordsDesc' => 'すべてのチャット履歴を消去します。この操作は取り消せません',
 			'common.deleteAccountAction' => 'アカウントを削除',
 			'common.deleteAccountActionDesc' => 'アカウントとすべてのデータを完全に削除します。この操作は取り消せません',
-			'common.chatHistoryCleared' => 'チャット履歴を消去しました',
-			'common.chatDeleteMessage' => 'メッセージを削除',
 			_ => null,
 		} ?? switch (path) {
+			'common.chatHistoryCleared' => 'チャット履歴を消去しました',
+			'common.chatDeleteMessage' => 'メッセージを削除',
 			'common.chatCopy' => 'コピー',
 			'common.chatSaveImage' => '画像を保存',
 			'common.chatDeleteLocalOnly' => 'ローカルのみ削除',
@@ -4999,10 +5003,10 @@ extension on TranslationsJaJp {
 			'common.redPacketDialogTitle' => 'お年玉を贈ります',
 			'common.redPacketFetchError' => 'お年玉の詳細取得でエラーが発生しました',
 			'common.redPacketFetchFailed' => 'お年玉の詳細を取得できませんでした',
-			'common.redPacketGreetingLabel' => 'メッセージ / 祝いの言葉',
-			'common.redPacketNotFound' => 'お年玉が存在しないか、削除されました',
 			_ => null,
 		} ?? switch (path) {
+			'common.redPacketGreetingLabel' => 'メッセージ / 祝いの言葉',
+			'common.redPacketNotFound' => 'お年玉が存在しないか、削除されました',
 			'common.redPacketReceiverLabel' => ({required Object uid}) => 'ユーザー：${uid}',
 			'common.redPacketSingleAmount' => '1個あたりの金額',
 			'common.redPacketStuffLucky' => 'お年玉に金額を設定',
@@ -5513,10 +5517,10 @@ extension on TranslationsJaJp {
 			'main.selectFromAlbum' => 'アルバムから選択',
 			'main.volumeUp' => '音量を上げる',
 			'main.volumeDown' => '音量を下げる',
-			'main.fastRewind' => ({required Object seconds}) => '巻き戻し ${seconds}秒',
-			'main.pleaseTryAgain' => 'もう一度お試しください',
 			_ => null,
 		} ?? switch (path) {
+			'main.fastRewind' => ({required Object seconds}) => '巻き戻し ${seconds}秒',
+			'main.pleaseTryAgain' => 'もう一度お試しください',
 			'main.secret' => '秘密',
 			'main.takePhoto' => '写真を撮る',
 			'main.deletingInProgressPleaseWait' => '削除中です。お待ちください...',
@@ -6027,10 +6031,10 @@ extension on TranslationsJaJp {
 			'passport.hintVerifyCode' => '認証コードを入力してください',
 			'passport.getVerifyCode' => '認証コードを取得',
 			'passport.oneKeyLogin' => 'ワンタップログイン',
-			'passport.qrCodeExpired' => 'QRコードの有効期限が切れました。もう一度スキャンしてください',
-			'passport.qrCodeUsed' => 'このQRコードは使用済みです',
 			_ => null,
 		} ?? switch (path) {
+			'passport.qrCodeExpired' => 'QRコードの有効期限が切れました。もう一度スキャンしてください',
+			'passport.qrCodeUsed' => 'このQRコードは使用済みです',
 			'passport.qrConnecting' => '接続中...',
 			'passport.qrLoginAction' => 'ログインを承認',
 			'passport.qrLoginCancelled' => 'ログインがキャンセルされました',

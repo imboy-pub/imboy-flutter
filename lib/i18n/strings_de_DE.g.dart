@@ -565,6 +565,8 @@ class _Translations$chat$de_DE extends Translations$chat$zh_CN {
 	@override String batchForwardDone({required Object success, required Object failed}) => 'Weiterleitung abgeschlossen: ${success} erfolgreich, ${failed} fehlgeschlagen';
 	@override String get batchForwardRetryFailed => 'Nur fehlgeschlagene wiederholen';
 	@override String batchForwardLimitMessages({required Object max}) => 'Maximal ${max} Nachrichten weiterleiten';
+	@override String get bundleTitle => 'Chatverlauf';
+	@override String bundlePreview({required Object count}) => '[Chatverlauf] ${count} Nachrichten';
 	@override String get great => 'Ausgezeichnet';
 	@override String get groupFile => 'Gruppendateien';
 	@override String get groupFileImagePreview => 'Bildvorschau';
@@ -3902,6 +3904,8 @@ extension on TranslationsDeDe {
 			'chat.batchForwardDone' => ({required Object success, required Object failed}) => 'Weiterleitung abgeschlossen: ${success} erfolgreich, ${failed} fehlgeschlagen',
 			'chat.batchForwardRetryFailed' => 'Nur fehlgeschlagene wiederholen',
 			'chat.batchForwardLimitMessages' => ({required Object max}) => 'Maximal ${max} Nachrichten weiterleiten',
+			'chat.bundleTitle' => 'Chatverlauf',
+			'chat.bundlePreview' => ({required Object count}) => '[Chatverlauf] ${count} Nachrichten',
 			'chat.great' => 'Ausgezeichnet',
 			'chat.groupFile' => 'Gruppendateien',
 			'chat.groupFileImagePreview' => 'Bildvorschau',
@@ -3974,10 +3978,10 @@ extension on TranslationsDeDe {
 			'chat.viewAttachments' => 'Anhänge anzeigen',
 			'chat.viewLargeImage' => 'Großes Bild ansehen',
 			'chat.voice' => 'Sprache',
-			'chat.voiceMessage' => 'Sprachnachricht',
-			'chat.youWithdrewAMessage' => 'Sie haben eine Nachricht widerrufen',
 			_ => null,
 		} ?? switch (path) {
+			'chat.voiceMessage' => 'Sprachnachricht',
+			'chat.youWithdrewAMessage' => 'Sie haben eine Nachricht widerrufen',
 			'chat.formatCheck' => 'Formatprüfung',
 			'chat.featureRequest' => 'Funktionsanfrage',
 			'chat.chatResend' => 'Erneut senden',
@@ -4488,10 +4492,10 @@ extension on TranslationsDeDe {
 			'common.clearChatRecordsDesc' => 'Alle Chat-Verläufe löschen, diese Aktion kann nicht rückgängig gemacht werden',
 			'common.deleteAccountAction' => 'Konto löschen',
 			'common.deleteAccountActionDesc' => 'Konto und alle Daten dauerhaft löschen, diese Aktion kann nicht rückgängig gemacht werden',
-			'common.chatHistoryCleared' => 'Chat-Verlauf gelöscht',
-			'common.chatDeleteMessage' => 'Nachricht löschen',
 			_ => null,
 		} ?? switch (path) {
+			'common.chatHistoryCleared' => 'Chat-Verlauf gelöscht',
+			'common.chatDeleteMessage' => 'Nachricht löschen',
 			'common.chatCopy' => 'Kopieren',
 			'common.chatSaveImage' => 'Bild speichern',
 			'common.chatDeleteLocalOnly' => 'Nur lokal löschen',
@@ -5002,10 +5006,10 @@ extension on TranslationsDeDe {
 			'common.redPacketCurrentLucky' => 'Aktuell: Zufallsbetrag',
 			'common.redPacketCurrentNormal' => 'Aktuell: Festbetrag',
 			'common.redPacketDialogSubtitle' => 'Viel Glück und großen Reichtum',
-			'common.redPacketDialogTitle' => 'Ein Geschenk für Sie',
-			'common.redPacketFetchError' => 'Fehler beim Laden der Geschenk-Details',
 			_ => null,
 		} ?? switch (path) {
+			'common.redPacketDialogTitle' => 'Ein Geschenk für Sie',
+			'common.redPacketFetchError' => 'Fehler beim Laden der Geschenk-Details',
 			'common.redPacketFetchFailed' => 'Geschenk-Details konnten nicht geladen werden',
 			'common.redPacketGreetingLabel' => 'Nachricht / Glückwünsche',
 			'common.redPacketNotFound' => 'Geschenk nicht gefunden oder bereits gelöscht',
@@ -5516,10 +5520,10 @@ extension on TranslationsDeDe {
 			'main.selectFromAlbum' => 'Aus Album auswählen',
 			'main.volumeUp' => 'Lautstärke erhöhen',
 			'main.volumeDown' => 'Lautstärke verringern',
-			'main.fastRewind' => ({required Object seconds}) => 'Schnell zurück ${seconds} Sekunden',
-			'main.pleaseTryAgain' => 'Bitte versuchen Sie es erneut',
 			_ => null,
 		} ?? switch (path) {
+			'main.fastRewind' => ({required Object seconds}) => 'Schnell zurück ${seconds} Sekunden',
+			'main.pleaseTryAgain' => 'Bitte versuchen Sie es erneut',
 			'main.secret' => 'Geheim',
 			'main.takePhoto' => 'Foto aufnehmen',
 			'main.deletingInProgressPleaseWait' => 'Wird gelöscht, bitte warten...',
@@ -6030,10 +6034,10 @@ extension on TranslationsDeDe {
 			'passport.hintVerifyCode' => 'Bitte Bestätigungscode eingeben',
 			'passport.getVerifyCode' => 'Code anfordern',
 			'passport.oneKeyLogin' => 'Schnellanmeldung',
-			'passport.qrCodeExpired' => 'QR-Code abgelaufen, bitte neu scannen',
-			'passport.qrCodeUsed' => 'Dieser QR-Code wurde bereits verwendet',
 			_ => null,
 		} ?? switch (path) {
+			'passport.qrCodeExpired' => 'QR-Code abgelaufen, bitte neu scannen',
+			'passport.qrCodeUsed' => 'Dieser QR-Code wurde bereits verwendet',
 			'passport.qrConnecting' => 'Verbindung wird hergestellt...',
 			'passport.qrLoginAction' => 'Anmeldung bestätigen',
 			'passport.qrLoginCancelled' => 'Anmeldung wurde abgebrochen',

@@ -30,6 +30,8 @@ batchForwardProgress(completed, total): "Weiterleitung $completed/$total"
 batchForwardDone(success, failed): "Weiterleitung abgeschlossen: $success erfolgreich, $failed fehlgeschlagen"
 batchForwardRetryFailed: Nur fehlgeschlagene wiederholen
 batchForwardLimitMessages(max): Maximal $max Nachrichten weiterleiten
+bundleTitle: Chatverlauf
+bundlePreview(count): "[Chatverlauf] $count Nachrichten"
 great: Ausgezeichnet
 groupFile: Gruppendateien
 groupFileImagePreview: Bildvorschau

@@ -30,6 +30,8 @@ batchForwardProgress(completed, total): "正在转发 $completed/$total"
 batchForwardDone(success, failed): "转发完成：成功 $success，失败 $failed"
 batchForwardRetryFailed: 仅重试失败
 batchForwardLimitMessages(max): 最多转发 $max 条消息
+bundleTitle: 聊天记录
+bundlePreview(count): "[聊天记录] $count 条"
 great: 非常棒
 groupFile: 群文件
 groupFileImagePreview: 图片预览
