@@ -1,0 +1,76 @@
+/// HistoryBundleV1 DTO 验收测试：JSON 形态冻结（与后端合同 §2 对齐）、
+/// 可选字段省略语义、bundle_version 恒 1。
+library;
+
+import 'package:flutter_test/flutter_test.dart';
+import 'package:imboy/modules/messaging/application/history_bundle/history_bundle_v1.dart';
+
+void main() {
+  test('最小形态：bundle_version + entries（title/exported_at 缺省省略）', () {
+    final bundle = HistoryBundleV1(
+      entries: <HistoryBundleEntryV1>[
+        HistoryBundleEntryV1(
+          msgType: 'text',
+          payload: <String, dynamic>{'text': 'hi'},
+        ),
+      ],
+    );
+    expect(bundle.toJson(), <String, dynamic>{
+      'bundle_version': 1,
+      'entries': <dynamic>[
+        <String, dynamic>{
+          'msg_type': 'text',
+          'payload': <String, dynamic>{'text': 'hi'},
+        },
+      ],
+    });
+  });
+
+  test('完整形态：title/exported_at/sender_name/sent_at 全字段', () {
+    final bundle = HistoryBundleV1(
+      title: '与张三的聊天记录',
+      exportedAt: 1760000000000,
+      entries: <HistoryBundleEntryV1>[
+        HistoryBundleEntryV1(
+          msgType: 'text',
+          senderName: '张三',
+          sentAt: 1760000001000,
+          payload: <String, dynamic>{'text': '正文'},
+        ),
+      ],
+    );
+    expect(bundle.toJson(), <String, dynamic>{
+      'bundle_version': 1,
+      'title': '与张三的聊天记录',
+      'exported_at': 1760000000000,
+      'entries': <dynamic>[
+        <String, dynamic>{
+          'msg_type': 'text',
+          'sender_name': '张三',
+          'sent_at': 1760000001000,
+          'payload': <String, dynamic>{'text': '正文'},
+        },
+      ],
+    });
+  });
+
+  test('bundle_version 恒为 1（其他值/缺失后端拒绝）', () {
+    final bundle = HistoryBundleV1(entries: <HistoryBundleEntryV1>[]);
+    expect(bundle.bundleVersion, HistoryBundleContract.bundleVersion);
+    expect(bundle.bundleVersion, 1);
+  });
+
+  test('空 senderName 条目序列化省略 sender_name 键', () {
+    final entry = HistoryBundleEntryV1(
+      msgType: 'text',
+      senderName: null,
+      payload: <String, dynamic>{'text': 'x'},
+    );
+    expect(entry.toJson().containsKey('sender_name'), isFalse);
+  });
+
+  test('entries 空列表允许构造（条数校验由 builder 负责）', () {
+    final bundle = HistoryBundleV1(entries: <HistoryBundleEntryV1>[]);
+    expect((bundle.toJson()['entries'] as List), isEmpty);
+  });
+}
