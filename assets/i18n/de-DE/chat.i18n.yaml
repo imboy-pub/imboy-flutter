@@ -274,3 +274,4 @@ unknownSender: Unbekannter Absender
 fileWithNameSize(name,size): "$name ($size)"
 voiceDurationSeconds(seconds): "$seconds s"
 bundleInvalidOrEmpty: Ungültiger oder leerer Chatverlauf
+bundleForwardedBy(name): "Weitergeleitet von $name"

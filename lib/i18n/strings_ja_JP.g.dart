@@ -782,6 +782,7 @@ class _Translations$chat$ja_JP extends Translations$chat$zh_CN {
 	@override String fileWithNameSize({required Object name, required Object size}) => '${name}（${size}）';
 	@override String voiceDurationSeconds({required Object seconds}) => '${seconds}秒';
 	@override String get bundleInvalidOrEmpty => '無効または空のチャット履歴';
+	@override String bundleForwardedBy({required Object name}) => '${name} が転送';
 }
 
 // Path: common
@@ -4157,6 +4158,7 @@ extension on TranslationsJaJp {
 			'chat.fileWithNameSize' => ({required Object name, required Object size}) => '${name}（${size}）',
 			'chat.voiceDurationSeconds' => ({required Object seconds}) => '${seconds}秒',
 			'chat.bundleInvalidOrEmpty' => '無効または空のチャット履歴',
+			'chat.bundleForwardedBy' => ({required Object name}) => '${name} が転送',
 			'common.about' => '概要',
 			'common.aboutApp' => 'このアプリについて',
 			'common.accept' => '承認',
@@ -4511,9 +4513,9 @@ extension on TranslationsJaJp {
 			'common.groupAnnouncementDeleteConfirm' => 'この公告を削除してもよろしいですか？',
 			'common.groupAnnouncementDelete' => '削除',
 			'common.groupAnnouncementLoadFailed' => 'お知らせの読み込みに失敗しました。後でもう一度お試しください',
-			'common.groupAnnouncementPublishFailed' => 'お知らせの公開に失敗しました',
 			_ => null,
 		} ?? switch (path) {
+			'common.groupAnnouncementPublishFailed' => 'お知らせの公開に失敗しました',
 			'common.groupAnnouncementPublishSuccess' => 'お知らせを公開しました',
 			'common.groupAnnouncementDeleteFailed' => 'お知らせの削除に失敗しました',
 			'common.groupAnnouncementDeleteSuccess' => 'お知らせを削除しました',
@@ -5025,9 +5027,9 @@ extension on TranslationsJaJp {
 			'common.momentsHasFailedUploads' => 'アップロードに失敗したメディアがあります。再試行するか削除してから公開してください',
 			'common.transferAccepted' => '受け取りました',
 			'common.transferAmountLabel' => '送金金額',
-			'common.transferConfirm' => '送金を確認',
 			_ => null,
 		} ?? switch (path) {
+			'common.transferConfirm' => '送金を確認',
 			'common.transferDefaultRemark' => '友達へ送金',
 			'common.transferMinAmountError' => '送金の最低金額は0.01元です',
 			'common.transferPending' => '相手の確認待ち',
@@ -5539,9 +5541,9 @@ extension on TranslationsJaJp {
 			'main.bound' => '登録済み',
 			'main.correct' => '正しい',
 			'main.pendingInput' => '入力待ち',
-			'main.lengthCheck' => '長さチェック',
 			_ => null,
 		} ?? switch (path) {
+			'main.lengthCheck' => '長さチェック',
 			'main.bugReport' => 'バグ報告',
 			'main.deleting' => '削除中...',
 			'main.publish' => '公開',
@@ -6053,9 +6055,9 @@ extension on TranslationsJaJp {
 			'organization.chart.fit' => 'ウィンドウに合わせる',
 			'organization.chart.expand' => '下位部門を展開',
 			'organization.chart.collapse' => '下位部門を折りたたむ',
-			'organization.chart.gestureHint' => 'ドラッグで移動 · ピンチで拡大縮小',
 			_ => null,
 		} ?? switch (path) {
+			'organization.chart.gestureHint' => 'ドラッグで移動 · ピンチで拡大縮小',
 			'organization.chart.directMembers' => ({required Object count}) => '直属 ${count} 人',
 			'organization.experienceUi.switchSpace' => 'スペースを切り替え',
 			'organization.experienceUi.personalSpace' => '個人スペース',

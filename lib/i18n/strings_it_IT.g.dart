@@ -782,6 +782,7 @@ class _Translations$chat$it_IT extends Translations$chat$zh_CN {
 	@override String fileWithNameSize({required Object name, required Object size}) => '${name} (${size})';
 	@override String voiceDurationSeconds({required Object seconds}) => '${seconds} s';
 	@override String get bundleInvalidOrEmpty => 'Cronologia non valida o vuota';
+	@override String bundleForwardedBy({required Object name}) => 'Inoltrato da ${name}';
 }
 
 // Path: common
@@ -4160,6 +4161,7 @@ extension on TranslationsItIt {
 			'chat.fileWithNameSize' => ({required Object name, required Object size}) => '${name} (${size})',
 			'chat.voiceDurationSeconds' => ({required Object seconds}) => '${seconds} s',
 			'chat.bundleInvalidOrEmpty' => 'Cronologia non valida o vuota',
+			'chat.bundleForwardedBy' => ({required Object name}) => 'Inoltrato da ${name}',
 			'common.about' => 'Informazioni',
 			'common.aboutApp' => 'Informazioni sull\'app',
 			'common.accept' => 'Accetta',
@@ -4514,9 +4516,9 @@ extension on TranslationsItIt {
 			'common.groupAnnouncementDeleteConfirm' => 'Sei sicuro di voler eliminare questo annuncio?',
 			'common.groupAnnouncementDelete' => 'Elimina',
 			'common.groupAnnouncementLoadFailed' => 'Caricamento annuncio fallito. Riprova più tardi.',
-			'common.groupAnnouncementPublishFailed' => 'Pubblicazione annuncio fallita',
 			_ => null,
 		} ?? switch (path) {
+			'common.groupAnnouncementPublishFailed' => 'Pubblicazione annuncio fallita',
 			'common.groupAnnouncementPublishSuccess' => 'Annuncio pubblicato',
 			'common.groupAnnouncementDeleteFailed' => 'Eliminazione annuncio fallita',
 			'common.groupAnnouncementDeleteSuccess' => 'Annuncio eliminato',
@@ -5028,9 +5030,9 @@ extension on TranslationsItIt {
 			'common.e2eeRecoveryKeyTitle' => 'Chiave di recupero',
 			'common.e2eeUseRecoveryKey' => 'Genera chiave di recupero (strumento di riserva in caso di passphrase dimenticata)',
 			'common.enterAmount' => 'Inserisci l\'importo',
-			'common.expandFull' => 'Espandi',
 			_ => null,
 		} ?? switch (path) {
+			'common.expandFull' => 'Espandi',
 			'common.f2fEnteringGroup' => ({required Object count}) => '${count} persone si sono unite alla chat di gruppo',
 			'common.f2fSecretCode' => 'Codice segreto',
 			'common.hoursAgo' => 'ore fa',
@@ -5542,9 +5544,9 @@ extension on TranslationsItIt {
 			'main.bound' => 'Collegato',
 			'main.correct' => 'Corretto',
 			'main.pendingInput' => 'In attesa di input',
-			'main.lengthCheck' => 'Controllo lunghezza',
 			_ => null,
 		} ?? switch (path) {
+			'main.lengthCheck' => 'Controllo lunghezza',
 			'main.bugReport' => 'Segnalazione errore',
 			'main.deleting' => 'Eliminazione in corso...',
 			'main.publish' => 'Pubblica',
@@ -6056,9 +6058,9 @@ extension on TranslationsItIt {
 			'organization.chart.fit' => 'Adatta alla finestra',
 			'organization.chart.expand' => 'Espandi i reparti subordinati',
 			'organization.chart.collapse' => 'Comprimi i reparti subordinati',
-			'organization.chart.gestureHint' => 'Trascina per spostarti · Pizzica per lo zoom',
 			_ => null,
 		} ?? switch (path) {
+			'organization.chart.gestureHint' => 'Trascina per spostarti · Pizzica per lo zoom',
 			'organization.chart.directMembers' => ({required Object count}) => '${count} membri di questo livello',
 			'organization.experienceUi.switchSpace' => 'Cambia spazio',
 			'organization.experienceUi.personalSpace' => 'Spazio personale',

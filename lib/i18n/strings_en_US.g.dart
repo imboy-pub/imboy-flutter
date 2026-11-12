@@ -848,6 +848,7 @@ class _Translations$chat$en_US extends Translations$chat$zh_CN {
 	@override String fileWithNameSize({required Object name, required Object size}) => '${name} (${size})';
 	@override String voiceDurationSeconds({required Object seconds}) => '${seconds} s';
 	@override String get bundleInvalidOrEmpty => 'Invalid or empty chat history';
+	@override String bundleForwardedBy({required Object name}) => 'Forwarded by ${name}';
 }
 
 // Path: common
@@ -4848,6 +4849,7 @@ extension on TranslationsEnUs {
 			'chat.fileWithNameSize' => ({required Object name, required Object size}) => '${name} (${size})',
 			'chat.voiceDurationSeconds' => ({required Object seconds}) => '${seconds} s',
 			'chat.bundleInvalidOrEmpty' => 'Invalid or empty chat history',
+			'chat.bundleForwardedBy' => ({required Object name}) => 'Forwarded by ${name}',
 			'common.about' => 'About',
 			'common.aboutApp' => 'About App',
 			'common.accept' => 'Accept',
@@ -5147,9 +5149,9 @@ extension on TranslationsEnUs {
 			'common.uploadSuccess' => 'Upload successful',
 			'common.uploadFailed' => 'Upload failed',
 			'common.userDataTips' => 'Includes app runtime files and all user data like chat messages and friend connections.',
-			'common.userDisabledOrDeleted' => 'User is disabled or deleted',
 			_ => null,
 		} ?? switch (path) {
+			'common.userDisabledOrDeleted' => 'User is disabled or deleted',
 			'common.userNotExist' => 'User does not exist',
 			'common.version' => 'Version',
 			'common.videoCall' => 'Video call',
@@ -5661,9 +5663,9 @@ extension on TranslationsEnUs {
 			'common.insufficientBalance' => 'Insufficient Balance',
 			'common.withdrawSuccess' => 'Withdrawal Successful',
 			'common.withdrawConfirm' => 'Confirm Withdrawal',
-			'common.withdrawFeeNotice' => 'Fees and arrival time are subject to actual settlement',
 			_ => null,
 		} ?? switch (path) {
+			'common.withdrawFeeNotice' => 'Fees and arrival time are subject to actual settlement',
 			'common.withdrawAmountError' => 'Amount must be at least ¥0.01',
 			'common.withdrawAccountEmpty' => 'Please enter your withdrawal account',
 			'common.withdrawMethod' => 'Withdrawal Method',
@@ -6175,9 +6177,9 @@ extension on TranslationsEnUs {
 			'group.e2eeKeyManagementSubtitle' => 'Backup, restore and manage end-to-end encryption keys',
 			'group.e2eeTitle' => 'End-to-End Encryption',
 			'group.e2eeEnableConfirm' => 'Once enabled, group messages will be end-to-end encrypted and only readable on members\' devices. This cannot be undone. Enable?',
-			'group.transferAndLeave' => 'Transfer and leave',
 			_ => null,
 		} ?? switch (path) {
+			'group.transferAndLeave' => 'Transfer and leave',
 			'group.sureToTransferAndLeave' => 'You will transfer ownership and leave this group. Continue?',
 			'group.transferredButLeaveFailed' => 'Ownership transferred, but leaving failed. Please retry leaving.',
 			'group.noEligibleSuccessor' => 'No member available to transfer to',
@@ -6689,9 +6691,9 @@ extension on TranslationsEnUs {
 			'organization.picker.noneSelected' => 'No enterprise selected',
 			'organization.picker.emptyHint' => 'You have not joined any enterprise yet.\nTap "Join enterprise" below and enter the invite code',
 			'organization.picker.joinEnterprise' => 'Join enterprise',
-			'organization.picker.joinOrgIdLabel' => 'Enterprise ID',
 			_ => null,
 		} ?? switch (path) {
+			'organization.picker.joinOrgIdLabel' => 'Enterprise ID',
 			'organization.picker.joinOrgIdHint' => 'Provided by an enterprise admin (numeric ID)',
 			'organization.picker.joinOrgIdInvalid' => 'Enter a valid enterprise ID (numeric)',
 			'organization.picker.joinCodeLabel' => 'Enterprise invite code',
@@ -7203,9 +7205,9 @@ extension on TranslationsEnUs {
 			'talkRecord.exportBlockedUnknown' => 'Current export policy could not be confirmed; export is unavailable.',
 			'talkRecord.exportIndependentCopyTitle' => 'Independent copy notice',
 			'talkRecord.exportIndependentCopyBody' => 'Exporting creates an independent copy; it cannot be taken back by deleting the note or revoking access.',
-			'talkRecord.exportIndependentCopyAck' => 'I understand the exported copy cannot be taken back',
 			_ => null,
 		} ?? switch (path) {
+			'talkRecord.exportIndependentCopyAck' => 'I understand the exported copy cannot be taken back',
 			'talkRecord.exportGenerate' => 'Generate export',
 			'talkRecord.exportGenerating' => 'Generating…',
 			'talkRecord.exportQueuedTitle' => 'Export queued',

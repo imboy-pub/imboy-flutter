@@ -276,3 +276,4 @@ unknownSender: Неизвестный отправитель
 fileWithNameSize(name,size): "$name ($size)"
 voiceDurationSeconds(seconds): "$seconds с"
 bundleInvalidOrEmpty: Неверная или пустая история чата
+bundleForwardedBy(name): "Переслано: $name"

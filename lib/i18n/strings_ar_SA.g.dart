@@ -782,6 +782,7 @@ class _Translations$chat$ar_SA extends Translations$chat$zh_CN {
 	@override String fileWithNameSize({required Object name, required Object size}) => '${name} (${size})';
 	@override String voiceDurationSeconds({required Object seconds}) => '${seconds} ث';
 	@override String get bundleInvalidOrEmpty => 'سجل محادثة غير صالح أو فارغ';
+	@override String bundleForwardedBy({required Object name}) => 'أُعيد توجيهه بواسطة ${name}';
 }
 
 // Path: common
@@ -4169,6 +4170,7 @@ extension on TranslationsArSa {
 			'chat.fileWithNameSize' => ({required Object name, required Object size}) => '${name} (${size})',
 			'chat.voiceDurationSeconds' => ({required Object seconds}) => '${seconds} ث',
 			'chat.bundleInvalidOrEmpty' => 'سجل محادثة غير صالح أو فارغ',
+			'chat.bundleForwardedBy' => ({required Object name}) => 'أُعيد توجيهه بواسطة ${name}',
 			'common.about' => 'حول',
 			'common.aboutApp' => 'حول التطبيق',
 			'common.accept' => 'قبول',
@@ -4523,9 +4525,9 @@ extension on TranslationsArSa {
 			'common.groupAnnouncementDeleteConfirm' => 'هل أنت متأكد من حذف هذا الإعلان؟',
 			'common.groupAnnouncementDelete' => 'حذف',
 			'common.groupAnnouncementLoadFailed' => 'تعذّر تحميل الإعلان، حاول لاحقاً',
-			'common.groupAnnouncementPublishFailed' => 'تعذّر نشر الإعلان',
 			_ => null,
 		} ?? switch (path) {
+			'common.groupAnnouncementPublishFailed' => 'تعذّر نشر الإعلان',
 			'common.groupAnnouncementPublishSuccess' => 'تم نشر الإعلان',
 			'common.groupAnnouncementDeleteFailed' => 'تعذّر حذف الإعلان',
 			'common.groupAnnouncementDeleteSuccess' => 'تم حذف الإعلان',
@@ -5037,9 +5039,9 @@ extension on TranslationsArSa {
 			'common.purchaseConfirming' => 'جارٍ تأكيد الدفع، تحقق من حالة الطلب لاحقاً',
 			'common.uploadPartialFailed' => ({required Object count}) => 'فشل رفع ${count} عنصراً',
 			'common.momentsHasFailedUploads' => 'فشل رفع بعض الوسائط، أعد المحاولة أو أزلها ثم انشر',
-			'common.f2fEnteringGroup' => ({required Object count}) => 'انضم ${count} أشخاص إلى الدردشة الجماعية',
 			_ => null,
 		} ?? switch (path) {
+			'common.f2fEnteringGroup' => ({required Object count}) => 'انضم ${count} أشخاص إلى الدردشة الجماعية',
 			'common.f2fSecretCode' => 'الرمز السري',
 			'common.complianceKeyChangedTitle' => 'تم تغيير مفتاح تدقيق الامتثال',
 			'common.complianceKeyChangedActionConfirm' => 'تأكيد التدوير',
@@ -5551,9 +5553,9 @@ extension on TranslationsArSa {
 			'main.bound' => 'تم الربط',
 			'main.correct' => 'صحيح',
 			'main.pendingInput' => 'في انتظار الإدخال',
-			'main.lengthCheck' => 'فحص الطول',
 			_ => null,
 		} ?? switch (path) {
+			'main.lengthCheck' => 'فحص الطول',
 			'main.bugReport' => 'تقرير خطأ',
 			'main.deleting' => 'جارٍ الحذف...',
 			'main.publish' => 'نشر',
@@ -6065,9 +6067,9 @@ extension on TranslationsArSa {
 			'organization.chart.fit' => 'ملاءمة النافذة',
 			'organization.chart.expand' => 'توسيع الأقسام الفرعية',
 			'organization.chart.collapse' => 'طي الأقسام الفرعية',
-			'organization.chart.gestureHint' => 'اسحب للتنقل · اقرص للتكبير والتصغير',
 			_ => null,
 		} ?? switch (path) {
+			'organization.chart.gestureHint' => 'اسحب للتنقل · اقرص للتكبير والتصغير',
 			'organization.chart.directMembers' => ({required Object count}) => 'المرتبطون المباشرون: ${count}',
 			'organization.experienceUi.switchSpace' => 'تبديل المساحة',
 			'organization.experienceUi.personalSpace' => 'المساحة الشخصية',

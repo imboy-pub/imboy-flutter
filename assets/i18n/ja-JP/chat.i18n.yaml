@@ -277,3 +277,4 @@ unknownSender: 不明な送信者
 fileWithNameSize(name,size): "$name（$size）"
 voiceDurationSeconds(seconds): "$seconds秒"
 bundleInvalidOrEmpty: 無効または空のチャット履歴
+bundleForwardedBy(name): "$name が転送"

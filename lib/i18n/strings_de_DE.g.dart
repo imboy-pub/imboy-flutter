@@ -782,6 +782,7 @@ class _Translations$chat$de_DE extends Translations$chat$zh_CN {
 	@override String fileWithNameSize({required Object name, required Object size}) => '${name} (${size})';
 	@override String voiceDurationSeconds({required Object seconds}) => '${seconds} s';
 	@override String get bundleInvalidOrEmpty => 'Ungültiger oder leerer Chatverlauf';
+	@override String bundleForwardedBy({required Object name}) => 'Weitergeleitet von ${name}';
 }
 
 // Path: common
@@ -4160,6 +4161,7 @@ extension on TranslationsDeDe {
 			'chat.fileWithNameSize' => ({required Object name, required Object size}) => '${name} (${size})',
 			'chat.voiceDurationSeconds' => ({required Object seconds}) => '${seconds} s',
 			'chat.bundleInvalidOrEmpty' => 'Ungültiger oder leerer Chatverlauf',
+			'chat.bundleForwardedBy' => ({required Object name}) => 'Weitergeleitet von ${name}',
 			'common.about' => 'Über',
 			'common.aboutApp' => 'Über die App',
 			'common.accept' => 'Akzeptieren',
@@ -4514,9 +4516,9 @@ extension on TranslationsDeDe {
 			'common.groupAnnouncementDeleteConfirm' => 'Diese Ankündigung wirklich löschen?',
 			'common.groupAnnouncementDelete' => 'Löschen',
 			'common.groupAnnouncementLoadFailed' => 'Ankündigung konnte nicht geladen werden. Bitte später erneut versuchen.',
-			'common.groupAnnouncementPublishFailed' => 'Ankündigung konnte nicht veröffentlicht werden',
 			_ => null,
 		} ?? switch (path) {
+			'common.groupAnnouncementPublishFailed' => 'Ankündigung konnte nicht veröffentlicht werden',
 			'common.groupAnnouncementPublishSuccess' => 'Ankündigung veröffentlicht',
 			'common.groupAnnouncementDeleteFailed' => 'Ankündigung konnte nicht gelöscht werden',
 			'common.groupAnnouncementDeleteSuccess' => 'Ankündigung gelöscht',
@@ -5028,9 +5030,9 @@ extension on TranslationsDeDe {
 			'common.purchaseConfirming' => 'Zahlung wird bestätigt. Bitte später den Bestellstatus prüfen',
 			'common.timeNowShort' => 'jetzt',
 			'common.timeMinutesShort' => ({required Object count}) => '${count} Min.',
-			'common.timeHoursShort' => ({required Object count}) => '${count} Std.',
 			_ => null,
 		} ?? switch (path) {
+			'common.timeHoursShort' => ({required Object count}) => '${count} Std.',
 			'common.timeDaysShort' => ({required Object count}) => '${count} T',
 			'common.transferAccepted' => 'Empfangen',
 			'common.transferAmountLabel' => 'Überweisungsbetrag',
@@ -5542,9 +5544,9 @@ extension on TranslationsDeDe {
 			'main.bound' => 'Gebunden',
 			'main.correct' => 'Korrekt',
 			'main.pendingInput' => 'Eingabe ausstehend',
-			'main.lengthCheck' => 'Längenprüfung',
 			_ => null,
 		} ?? switch (path) {
+			'main.lengthCheck' => 'Längenprüfung',
 			'main.bugReport' => 'Fehlerbericht',
 			'main.deleting' => 'Wird gelöscht...',
 			'main.publish' => 'Veröffentlichen',
@@ -6056,9 +6058,9 @@ extension on TranslationsDeDe {
 			'organization.chart.fit' => 'An Fenster anpassen',
 			'organization.chart.expand' => 'Unterabteilungen ausklappen',
 			'organization.chart.collapse' => 'Unterabteilungen einklappen',
-			'organization.chart.gestureHint' => 'Ziehen zum Verschieben · Zusammen-/Auseinanderziehen zum Zoomen',
 			_ => null,
 		} ?? switch (path) {
+			'organization.chart.gestureHint' => 'Ziehen zum Verschieben · Zusammen-/Auseinanderziehen zum Zoomen',
 			'organization.chart.directMembers' => ({required Object count}) => '${count} Mitglieder auf dieser Ebene',
 			'organization.experienceUi.switchSpace' => 'Space wechseln',
 			'organization.experienceUi.personalSpace' => 'Persönlicher Space',

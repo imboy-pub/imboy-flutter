@@ -276,3 +276,4 @@ unknownSender: Expéditeur inconnu
 fileWithNameSize(name,size): "$name ($size)"
 voiceDurationSeconds(seconds): "$seconds s"
 bundleInvalidOrEmpty: Historique invalide ou vide
+bundleForwardedBy(name): "Transféré par $name"

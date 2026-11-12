@@ -276,3 +276,4 @@ unknownSender: 알 수 없는 발신자
 fileWithNameSize(name,size): "$name ($size)"
 voiceDurationSeconds(seconds): "$seconds초"
 bundleInvalidOrEmpty: 잘못되었거나 비어 있는 채팅 기록
+bundleForwardedBy(name): "$name님이 전달함"

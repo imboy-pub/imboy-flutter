@@ -274,3 +274,4 @@ unknownSender: 未知发送者
 fileWithNameSize(name,size): "$name（$size）"
 voiceDurationSeconds(seconds): "$seconds″"
 bundleInvalidOrEmpty: 聊天记录无效或为空
+bundleForwardedBy(name): "由 $name 转发"

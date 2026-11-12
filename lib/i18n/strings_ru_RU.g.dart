@@ -782,6 +782,7 @@ class _Translations$chat$ru_RU extends Translations$chat$zh_CN {
 	@override String fileWithNameSize({required Object name, required Object size}) => '${name} (${size})';
 	@override String voiceDurationSeconds({required Object seconds}) => '${seconds} с';
 	@override String get bundleInvalidOrEmpty => 'Неверная или пустая история чата';
+	@override String bundleForwardedBy({required Object name}) => 'Переслано: ${name}';
 }
 
 // Path: common
@@ -4166,6 +4167,7 @@ extension on TranslationsRuRu {
 			'chat.fileWithNameSize' => ({required Object name, required Object size}) => '${name} (${size})',
 			'chat.voiceDurationSeconds' => ({required Object seconds}) => '${seconds} с',
 			'chat.bundleInvalidOrEmpty' => 'Неверная или пустая история чата',
+			'chat.bundleForwardedBy' => ({required Object name}) => 'Переслано: ${name}',
 			'common.about' => 'О приложении',
 			'common.aboutApp' => 'О приложении',
 			'common.accept' => 'Принять',
@@ -4520,9 +4522,9 @@ extension on TranslationsRuRu {
 			'common.groupAnnouncementDeleteConfirm' => 'Удалить это объявление?',
 			'common.groupAnnouncementDelete' => 'Удалить',
 			'common.groupAnnouncementLoadFailed' => 'Не удалось загрузить объявление, попробуйте позже',
-			'common.groupAnnouncementPublishFailed' => 'Не удалось опубликовать объявление',
 			_ => null,
 		} ?? switch (path) {
+			'common.groupAnnouncementPublishFailed' => 'Не удалось опубликовать объявление',
 			'common.groupAnnouncementPublishSuccess' => 'Объявление опубликовано',
 			'common.groupAnnouncementDeleteFailed' => 'Не удалось удалить объявление',
 			'common.groupAnnouncementDeleteSuccess' => 'Объявление удалено',
@@ -5034,9 +5036,9 @@ extension on TranslationsRuRu {
 			'common.e2eeRecoveryKeyTitle' => 'Ключ восстановления',
 			'common.e2eeUseRecoveryKey' => 'Создать ключ восстановления (запасной доступ при забытой парольной фразе)',
 			'common.enterAmount' => 'Введите сумму',
-			'common.expandFull' => 'Развернуть',
 			_ => null,
 		} ?? switch (path) {
+			'common.expandFull' => 'Развернуть',
 			'common.f2fEnteringGroup' => ({required Object count}) => 'К групповому чату присоединились: ${count} чел.',
 			'common.f2fSecretCode' => 'Секретный код',
 			'common.hoursAgo' => 'ч. назад',
@@ -5548,9 +5550,9 @@ extension on TranslationsRuRu {
 			'main.bound' => 'Привязано',
 			'main.correct' => 'Верно',
 			'main.pendingInput' => 'Ожидание ввода',
-			'main.lengthCheck' => 'Проверка длины',
 			_ => null,
 		} ?? switch (path) {
+			'main.lengthCheck' => 'Проверка длины',
 			'main.bugReport' => 'Сообщить об ошибке',
 			'main.deleting' => 'Удаление...',
 			'main.publish' => 'Опубликовать',
@@ -6062,9 +6064,9 @@ extension on TranslationsRuRu {
 			'organization.chart.fit' => 'По размеру окна',
 			'organization.chart.expand' => 'Развернуть отделы',
 			'organization.chart.collapse' => 'Свернуть отделы',
-			'organization.chart.gestureHint' => 'Перетаскивайте для просмотра · Масштаб щипком',
 			_ => null,
 		} ?? switch (path) {
+			'organization.chart.gestureHint' => 'Перетаскивайте для просмотра · Масштаб щипком',
 			'organization.chart.directMembers' => ({required Object count}) => 'Прямые подчинённые: ${count}',
 			'organization.experienceUi.switchSpace' => 'Переключить пространство',
 			'organization.experienceUi.personalSpace' => 'Личное пространство',

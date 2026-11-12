@@ -782,6 +782,7 @@ class Translations$chat$zh_Hant extends Translations$chat$zh_CN {
 	@override String fileWithNameSize({required Object name, required Object size}) => '${name}（${size}）';
 	@override String voiceDurationSeconds({required Object seconds}) => '${seconds}″';
 	@override String get bundleInvalidOrEmpty => '聊天記錄無效或為空';
+	@override String bundleForwardedBy({required Object name}) => '由 ${name} 轉發';
 }
 
 // Path: common
@@ -4157,6 +4158,7 @@ extension on TranslationsZhHant {
 			'chat.fileWithNameSize' => ({required Object name, required Object size}) => '${name}（${size}）',
 			'chat.voiceDurationSeconds' => ({required Object seconds}) => '${seconds}″',
 			'chat.bundleInvalidOrEmpty' => '聊天記錄無效或為空',
+			'chat.bundleForwardedBy' => ({required Object name}) => '由 ${name} 轉發',
 			'common.about' => '關於',
 			'common.aboutApp' => '關於應用',
 			'common.accept' => '同意',
@@ -4511,9 +4513,9 @@ extension on TranslationsZhHant {
 			'common.pleaseEnterAnnouncementContent' => '請輸入公告內容',
 			'common.selectExpirationDateOptional' => '選擇有效期（可選）',
 			'common.groupAnnouncementDeleteConfirm' => '確定要刪除這則公告嗎？',
-			'common.groupAnnouncementDelete' => '刪除',
 			_ => null,
 		} ?? switch (path) {
+			'common.groupAnnouncementDelete' => '刪除',
 			'common.groupAnnouncementLoadFailed' => '公告載入失敗，請稍後重試',
 			'common.groupAnnouncementPublishFailed' => '公告發布失敗',
 			'common.groupAnnouncementPublishSuccess' => '公告已釋出',
@@ -5025,9 +5027,9 @@ extension on TranslationsZhHant {
 			'common.e2eeModeCompliance' => '合規加密',
 			'common.e2eeModeStrict' => '端對端加密',
 			'common.e2eeRecoveryKeySaveNote' => '請立即儲存這串恢復金鑰（截圖或存入密碼管理員）。忘記密碼時，它是解密備份的唯一憑據；一旦遺失，備份將永久無法還原。',
-			'common.e2eeRecoveryKeyTitle' => '恢復金鑰',
 			_ => null,
 		} ?? switch (path) {
+			'common.e2eeRecoveryKeyTitle' => '恢復金鑰',
 			'common.e2eeUseRecoveryKey' => '產生恢復金鑰（忘記密碼時的備用憑據）',
 			'common.enterAmount' => '請輸入金額',
 			'common.expandFull' => '展開',
@@ -5539,9 +5541,9 @@ extension on TranslationsZhHant {
 			'main.bound' => '已綁定',
 			'main.correct' => '正確',
 			'main.pendingInput' => '待輸入',
-			'main.lengthCheck' => '長度檢查',
 			_ => null,
 		} ?? switch (path) {
+			'main.lengthCheck' => '長度檢查',
 			'main.bugReport' => '錯誤報告',
 			'main.deleting' => '刪除中...',
 			'main.publish' => '發布',
@@ -6053,9 +6055,9 @@ extension on TranslationsZhHant {
 			'organization.chart.fit' => '適應視窗',
 			'organization.chart.expand' => '展開下級部門',
 			'organization.chart.collapse' => '收起下級部門',
-			'organization.chart.gestureHint' => '拖曳查看 · 雙指縮放',
 			_ => null,
 		} ?? switch (path) {
+			'organization.chart.gestureHint' => '拖曳查看 · 雙指縮放',
 			'organization.chart.directMembers' => ({required Object count}) => '本級 ${count} 人',
 			'organization.experienceUi.switchSpace' => '切換空間',
 			'organization.experienceUi.personalSpace' => '個人空間',

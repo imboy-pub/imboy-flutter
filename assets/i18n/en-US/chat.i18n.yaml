@@ -272,3 +272,4 @@ unknownSender: Unknown sender
 fileWithNameSize(name,size): "$name ($size)"
 voiceDurationSeconds(seconds): "$seconds s"
 bundleInvalidOrEmpty: Invalid or empty chat history
+bundleForwardedBy(name): "Forwarded by $name"

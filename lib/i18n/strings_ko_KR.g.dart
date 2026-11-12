@@ -782,6 +782,7 @@ class _Translations$chat$ko_KR extends Translations$chat$zh_CN {
 	@override String fileWithNameSize({required Object name, required Object size}) => '${name} (${size})';
 	@override String voiceDurationSeconds({required Object seconds}) => '${seconds}초';
 	@override String get bundleInvalidOrEmpty => '잘못되었거나 비어 있는 채팅 기록';
+	@override String bundleForwardedBy({required Object name}) => '${name}님이 전달함';
 }
 
 // Path: common
@@ -4157,6 +4158,7 @@ extension on TranslationsKoKr {
 			'chat.fileWithNameSize' => ({required Object name, required Object size}) => '${name} (${size})',
 			'chat.voiceDurationSeconds' => ({required Object seconds}) => '${seconds}초',
 			'chat.bundleInvalidOrEmpty' => '잘못되었거나 비어 있는 채팅 기록',
+			'chat.bundleForwardedBy' => ({required Object name}) => '${name}님이 전달함',
 			'common.about' => '정보',
 			'common.aboutApp' => '앱 정보',
 			'common.accept' => '수락',
@@ -4511,9 +4513,9 @@ extension on TranslationsKoKr {
 			'common.groupAnnouncementDeleteConfirm' => '이 공지를 삭제하시겠습니까?',
 			'common.groupAnnouncementDelete' => '삭제',
 			'common.groupAnnouncementLoadFailed' => '공지를 불러오지 못했습니다. 나중에 다시 시도해주세요',
-			'common.groupAnnouncementPublishFailed' => '공지 게시 실패',
 			_ => null,
 		} ?? switch (path) {
+			'common.groupAnnouncementPublishFailed' => '공지 게시 실패',
 			'common.groupAnnouncementPublishSuccess' => '공지가 게시되었습니다',
 			'common.groupAnnouncementDeleteFailed' => '공지 삭제 실패',
 			'common.groupAnnouncementDeleteSuccess' => '공지가 삭제되었습니다',
@@ -5025,9 +5027,9 @@ extension on TranslationsKoKr {
 			'common.e2eeRecoveryKeyTitle' => '복구 키',
 			'common.e2eeUseRecoveryKey' => '복구 키 생성(암호 분실 시 대비용)',
 			'common.enterAmount' => '금액을 입력해 주세요',
-			'common.expandFull' => '펼치기',
 			_ => null,
 		} ?? switch (path) {
+			'common.expandFull' => '펼치기',
 			'common.f2fEnteringGroup' => ({required Object count}) => '${count}명이 그룹 채팅에 참여했습니다',
 			'common.f2fSecretCode' => '암호',
 			'common.hoursAgo' => '시간 전',
@@ -5539,9 +5541,9 @@ extension on TranslationsKoKr {
 			'main.bound' => '연결됨',
 			'main.correct' => '올바름',
 			'main.pendingInput' => '입력 대기 중',
-			'main.lengthCheck' => '길이 검사',
 			_ => null,
 		} ?? switch (path) {
+			'main.lengthCheck' => '길이 검사',
 			'main.bugReport' => '오류 보고',
 			'main.deleting' => '삭제 중...',
 			'main.publish' => '게시',
@@ -6053,9 +6055,9 @@ extension on TranslationsKoKr {
 			'organization.chart.fit' => '창에 맞추기',
 			'organization.chart.expand' => '하위 부서 펼치기',
 			'organization.chart.collapse' => '하위 부서 접기',
-			'organization.chart.gestureHint' => '드래그하여 이동 · 핀치로 확대/축소',
 			_ => null,
 		} ?? switch (path) {
+			'organization.chart.gestureHint' => '드래그하여 이동 · 핀치로 확대/축소',
 			'organization.chart.directMembers' => ({required Object count}) => '직속 ${count}명',
 			'organization.experienceUi.switchSpace' => '스페이스 전환',
 			'organization.experienceUi.personalSpace' => '개인 스페이스',

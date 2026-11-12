@@ -2258,6 +2258,9 @@ class Translations$chat$zh_CN {
 
 	/// zh-CN: '聊天记录无效或为空'
 	String get bundleInvalidOrEmpty => '聊天记录无效或为空';
+
+	/// zh-CN: '由 $name 转发'
+	String bundleForwardedBy({required Object name}) => '由 ${name} 转发';
 }
 
 // Path: common
@@ -11920,6 +11923,7 @@ extension on Translations {
 			'chat.fileWithNameSize' => ({required Object name, required Object size}) => '${name}（${size}）',
 			'chat.voiceDurationSeconds' => ({required Object seconds}) => '${seconds}″',
 			'chat.bundleInvalidOrEmpty' => '聊天记录无效或为空',
+			'chat.bundleForwardedBy' => ({required Object name}) => '由 ${name} 转发',
 			'common.about' => '关于',
 			'common.aboutApp' => '关于应用',
 			'common.accept' => '接受',
@@ -12217,9 +12221,9 @@ extension on Translations {
 			'common.tipDeviceSpace' => ({required Object param1, required Object param2}) => '占设备 ${param1}% 存储空间(${param2})',
 			'common.tipDraft' => '草稿',
 			'common.tipFailed' => '操作失败！',
-			'common.tipSuccess' => '操作成功！',
 			_ => null,
 		} ?? switch (path) {
+			'common.tipSuccess' => '操作成功！',
 			'common.tipTips' => '小贴士',
 			'common.titleContact' => '联系人',
 			'common.today' => '今天',
@@ -12731,9 +12735,9 @@ extension on Translations {
 			'common.e2eeBackupSetupLaterConfirmBody' => '暂不设置的话，换设备或重装后这些加密聊天记录将无法解密，也无法找回。下次启动仍会提醒你。',
 			'common.e2eeBackupSetupLaterConfirmStay' => '继续设置',
 			'common.e2eeBackupSetupLaterConfirmLeave' => '暂不设置',
-			'common.e2eeBackupSetupSavedNote' => '恢复口令已存入本机安全存储；今后密钥变化时会自动用它重新上传备份，无需再次输入。',
 			_ => null,
 		} ?? switch (path) {
+			'common.e2eeBackupSetupSavedNote' => '恢复口令已存入本机安全存储；今后密钥变化时会自动用它重新上传备份，无需再次输入。',
 			'common.e2eeBackupCloudRestoreTitle' => '从云端备份恢复',
 			'common.e2eeBackupCloudRestoreHint' => ({required Object version}) => '检测到云端备份（版本 ${version}）',
 			'common.e2eeBackupCloudRestoreBtn' => '从云端恢复',
@@ -13245,9 +13249,9 @@ extension on Translations {
 			'group.sureToLeaveGroup' => '确定要退出本群吗？',
 			'group.groupAlbumNameHint' => '请输入相册名称',
 			'group.groupAlbumRenameTitle' => '重命名相册',
-			'group.groupAlbumRenamed' => '相册名称已更新',
 			_ => null,
 		} ?? switch (path) {
+			'group.groupAlbumRenamed' => '相册名称已更新',
 			'group.groupAlbumUnnamed' => '未命名相册',
 			'group.groupAlbumPhotoCount' => ({required Object count}) => '${count} 张图片',
 			'group.groupAlbumPhotoIdMissing' => '图片ID缺失，无法查看详情',
@@ -13759,9 +13763,9 @@ extension on Translations {
 			'organization.departments.archiveConfirmBody' => ({required Object name}) => '归档「${name}」后该部门进入只读态（成员关系保留）。',
 			'organization.departments.archiveFailed' => '归档失败',
 			'organization.departments.emptyWithHint' => '暂无部门，点击右上角新建',
-			'organization.departments.empty' => '暂无部门',
 			_ => null,
 		} ?? switch (path) {
+			'organization.departments.empty' => '暂无部门',
 			'organization.departments.emptySubtitle' => '兼职模型：同一成员可属多个部门；部门成员须先是本企业成员。',
 			'organization.departments.casConflictHint' => '部门已被并发修改，已刷新为最新部门树，请重试操作',
 			'organization.departments.expandNode' => ({required Object name}) => '展开「${name}」',
@@ -14273,9 +14277,9 @@ extension on Translations {
 			'talkRecord.grantEditExpiresSectionTitle' => '到期时间',
 			'talkRecord.grantEditExpiresOn' => ({required Object date}) => '${date} 到期',
 			'talkRecord.grantEditExpiresHint' => '可选；设置后对方到期自动失去访问。',
-			'talkRecord.grantEditSave' => '保存权限',
 			_ => null,
 		} ?? switch (path) {
+			'talkRecord.grantEditSave' => '保存权限',
 			'talkRecord.grantEditSaving' => '处理中…',
 			'talkRecord.grantEditConflict' => '授权已被他人更新，请返回刷新名单后重试；你的设置已保留。',
 			'talkRecord.grantEditSaveFailed' => '保存失败，请稍后重试；你的设置已保留。',

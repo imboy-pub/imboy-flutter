@@ -782,6 +782,7 @@ class _Translations$chat$fr_FR extends Translations$chat$zh_CN {
 	@override String fileWithNameSize({required Object name, required Object size}) => '${name} (${size})';
 	@override String voiceDurationSeconds({required Object seconds}) => '${seconds} s';
 	@override String get bundleInvalidOrEmpty => 'Historique invalide ou vide';
+	@override String bundleForwardedBy({required Object name}) => 'Transféré par ${name}';
 }
 
 // Path: common
@@ -4160,6 +4161,7 @@ extension on TranslationsFrFr {
 			'chat.fileWithNameSize' => ({required Object name, required Object size}) => '${name} (${size})',
 			'chat.voiceDurationSeconds' => ({required Object seconds}) => '${seconds} s',
 			'chat.bundleInvalidOrEmpty' => 'Historique invalide ou vide',
+			'chat.bundleForwardedBy' => ({required Object name}) => 'Transféré par ${name}',
 			'common.about' => 'À propos',
 			'common.aboutApp' => 'À propos de l\'application',
 			'common.accept' => 'Accepter',
@@ -4514,9 +4516,9 @@ extension on TranslationsFrFr {
 			'common.groupAnnouncementDeleteConfirm' => 'Confirmer la suppression de cette annonce ?',
 			'common.groupAnnouncementDelete' => 'Supprimer',
 			'common.groupAnnouncementLoadFailed' => 'Chargement de l\'annonce impossible. Réessayez plus tard.',
-			'common.groupAnnouncementPublishFailed' => 'Publication de l\'annonce impossible',
 			_ => null,
 		} ?? switch (path) {
+			'common.groupAnnouncementPublishFailed' => 'Publication de l\'annonce impossible',
 			'common.groupAnnouncementPublishSuccess' => 'Annonce publiée',
 			'common.groupAnnouncementDeleteFailed' => 'Suppression de l\'annonce impossible',
 			'common.groupAnnouncementDeleteSuccess' => 'Annonce supprimée',
@@ -5028,9 +5030,9 @@ extension on TranslationsFrFr {
 			'common.e2eeRecoveryKeyTitle' => 'Clé de récupération',
 			'common.e2eeUseRecoveryKey' => 'Générer une clé de récupération (secours en cas d\'oubli de la phrase secrète)',
 			'common.enterAmount' => 'Veuillez saisir le montant',
-			'common.expandFull' => 'Développer',
 			_ => null,
 		} ?? switch (path) {
+			'common.expandFull' => 'Développer',
 			'common.f2fEnteringGroup' => ({required Object count}) => '${count} personnes ont rejoint le groupe',
 			'common.f2fSecretCode' => 'Code secret',
 			'common.hoursAgo' => 'h',
@@ -5542,9 +5544,9 @@ extension on TranslationsFrFr {
 			'main.bound' => 'Lié',
 			'main.correct' => 'Correcte',
 			'main.pendingInput' => 'En attente de saisie',
-			'main.lengthCheck' => 'Vérification de la longueur',
 			_ => null,
 		} ?? switch (path) {
+			'main.lengthCheck' => 'Vérification de la longueur',
 			'main.bugReport' => 'Rapport d\'erreur',
 			'main.deleting' => 'Suppression en cours...',
 			'main.publish' => 'Publier',
@@ -6056,9 +6058,9 @@ extension on TranslationsFrFr {
 			'organization.chart.fit' => 'Ajuster à la fenêtre',
 			'organization.chart.expand' => 'Développer les sous-services',
 			'organization.chart.collapse' => 'Réduire les sous-services',
-			'organization.chart.gestureHint' => 'Glisser pour déplacer · Pincer pour zoomer',
 			_ => null,
 		} ?? switch (path) {
+			'organization.chart.gestureHint' => 'Glisser pour déplacer · Pincer pour zoomer',
 			'organization.chart.directMembers' => ({required Object count}) => '${count} membres à ce niveau',
 			'organization.experienceUi.switchSpace' => 'Changer d\'espace',
 			'organization.experienceUi.personalSpace' => 'Espace personnel',

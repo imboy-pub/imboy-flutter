@@ -276,3 +276,4 @@ unknownSender: مُرسل غير معروف
 fileWithNameSize(name,size): "$name ($size)"
 voiceDurationSeconds(seconds): "$seconds ث"
 bundleInvalidOrEmpty: سجل محادثة غير صالح أو فارغ
+bundleForwardedBy(name): "أُعيد توجيهه بواسطة $name"
