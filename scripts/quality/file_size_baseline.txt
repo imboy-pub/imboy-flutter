@@ -29,7 +29,7 @@
 856	lib/page/chat/chat/services/chat_archive_service.dart
 1366	lib/page/chat/chat/services/chat_network_service.dart
 1409	lib/page/chat/p2p_call_screen/p2p_call_screen_page.dart
-1416	lib/page/chat/widget/chat_input.dart
+1419	lib/page/chat/widget/chat_input.dart
 1273	lib/page/conversation/conversation_provider.dart
 1073	lib/page/mine/user_collect/user_collect_page.dart
 1364	lib/page/mine/user_collect/user_collect_provider.dart

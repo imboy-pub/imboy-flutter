@@ -75,6 +75,7 @@ import 'package:imboy/page/personal_info/widget/more_page.dart';
 import 'package:imboy/page/qrcode/user_qrcode_page.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/service/cache/region_cache.dart';
+import 'region_acceptance_helper.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:photo_manager/photo_manager.dart' show AssetEntity;
 import 'package:photo_view/photo_view.dart';
@@ -742,41 +743,15 @@ void main() {
     );
     expect(enabled, isTrue, reason: '选到叶子后「完成」应激活');
     await tester.tap(doneText.first, warnIfMissed: false);
-    const expectedRegion = '中国大陆 北京 东城';
-    // 保存成功应退出整个地区编辑流程，返回 MorePage（不是地区选择首页）。
-    expect(
-      await _waitFor(
-        tester,
-        () =>
-            tester.any(find.byType(MorePage)) &&
-            !tester.any(find.byType(SetRegionPage)) &&
-            tester.any(find.text(expectedRegion)),
-        seconds: 15,
-      ),
-      isTrue,
-      reason: '保存成功应返回 MorePage 并显示完整三级地区',
+    await expectRegionSave(
+      tester,
+      expectedRegion: '中国大陆 北京 东城',
+      cachedRegion: UserRepoLocal.to.current.region,
+      loadDbRegion: () async => (await TestPg.scalar(
+        'SELECT region FROM "user" WHERE id = @id',
+        {'id': int.parse(_uid)},
+      )).toString(),
     );
-
-    final cached = UserRepoLocal.to.current.region;
-    iPrint('[MF06] 保存后本地缓存 region=$cached');
-    expect(cached, expectedRegion, reason: '本地用户缓存应保存完整三级路径');
-    final dbRegion = (await TestPg.scalar(
-      'SELECT region FROM "user" WHERE id = @id',
-      {'id': int.parse(_uid)},
-    )).toString();
-    expect(dbRegion, expectedRegion, reason: '服务端 region 应精确保存完整三级路径');
-    expect(UserRepoLocal.to.current.region, dbRegion, reason: '用户缓存应与服务端一致');
-
-    expect(
-      await RegionCache.loadSelectedRegion(),
-      expectedRegion,
-      reason: '地区字符串缓存应与服务端一致',
-    );
-    expect(await RegionCache.loadRegionPath(), [
-      '中国大陆',
-      '北京',
-      '东城',
-    ], reason: '地区路径缓存应保留全部三级节点');
   });
 
   testWidgets('AT-MF08 签名编辑保存与本地缓存同步', (tester) async {
