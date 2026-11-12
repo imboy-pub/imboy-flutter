@@ -33,6 +33,7 @@ import 'package:flutter/widgets.dart' show Key;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 
+import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/chat/chat/chat_page.dart';
 import 'package:imboy/service/encryption_mode.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
@@ -54,8 +55,10 @@ void main() {
 
   testWidgets('W3-K P3：E2EE 导出确认弹窗取消 = 零副作用', (tester) async {
     installPluginErrorFilter();
+    ChatMultiDriverRunStats.reset();
     await ensureAppLaunched(tester, maxSeconds: 10);
-    if (!await checkPreconditions(tester)) return;
+    // G6-11：后端探活/登录失败 = 环境契约破坏，fail 而非静默 SKIP。
+    if (!await checkPreconditions(tester, failOnEnvMissing: true)) return;
     if (!requireBusinessWriteAuthorization()) return;
 
     // E2EE 前置：非 strict 部署下加密会话不存在，弹窗场景不可达（DEV-01
@@ -121,25 +124,20 @@ void main() {
       tester,
       chatMultiItemContaining(m2),
       messageId: messageOfMarker(tester, m2)?.id,
+      journey: 'W3K-EXP',
     );
     expectSelectionCount(tester, 2);
     await takeScreenshot(tester, 'w3kexp_01_selected_2');
 
-    await tapActionBar(tester, ChatMultiKeys.export);
-
-    // ③ 确认弹窗出现（Central Wiring onExport 已接线时）。
-    final dialogShown = await waitForFinder(
+    // G6-3：tapViaNewGesture + 效果校验重试（效果 = 确认弹窗出现；tap 未
+    // 注册即 DEGRADED fail —— Central Wiring onExport 未接线（计划 §12.3）
+    // 或 W3-J 确认弹窗未集成时同样在此暴露）。
+    await tapActionBar(
       tester,
-      find.byKey(_dialogConfirmKey),
-      maxSeconds: 8,
-      screenshotName: 'w3kexp_diag_no_confirm_dialog',
+      ChatMultiKeys.export,
+      journey: 'W3K-EXP',
+      effectCheck: () => tester.any(find.byKey(_dialogConfirmKey)),
     );
-    if (!dialogShown) {
-      fail(
-        'E2EE 会话点导出后 8s 未出现 export_e2ee_confirm 弹窗 —— '
-        'Central Wiring onExport 未接线（计划 §12.3）或 W3-J 确认弹窗未集成',
-      );
-    }
     expect(
       tester.any(find.byKey(_dialogCancelKey)),
       isTrue,
@@ -147,8 +145,15 @@ void main() {
     );
     await takeScreenshot(tester, 'w3kexp_02_confirm_dialog');
 
-    // 取消 = 零副作用。
-    await tester.tap(find.byKey(_dialogCancelKey).first, warnIfMissed: false);
+    // 取消 = 零副作用（G6-3：取消 tap 同样走独立指针 + 效果校验重试，
+    // 效果 = 确认弹窗关闭）。
+    await tapFinderWithEffect(
+      tester,
+      find.byKey(_dialogCancelKey),
+      journey: 'W3K-EXP',
+      targetDescription: '确认弹窗「取消」按钮（export_confirm_cancel）',
+      effectCheck: () => !tester.any(find.byKey(_dialogConfirmKey)),
+    );
     await settle(tester, maxSeconds: 3);
 
     expect(
@@ -167,16 +172,24 @@ void main() {
       reason: '取消导出后多选应仍激活（零副作用：不动多选状态）',
     );
     expectSelectionCount(tester, 2);
+    // G6-12：反断言用当前 locale 的 i18n 真值（生产 toast 文案取自同一
+    // t.chat.exportShared，硬编码「已分享」在其他 locale 下恒假断言失效）。
     expect(
-      tester.any(find.textContaining('已分享')),
+      tester.any(find.textContaining(t.chat.exportShared)),
       isFalse,
-      reason: '取消路径不得出现分享成功 toast（exportShared）',
+      reason: '取消路径不得出现分享成功 toast（exportShared=${t.chat.exportShared}）',
     );
     await takeScreenshot(tester, 'w3kexp_03_cancel_zero_side_effect');
 
-    // 退出多选，pop ChatPage，保持会话栈干净。
-    await tapActionBar(tester, ChatMultiKeys.cancel);
+    // 退出多选，pop ChatPage，保持会话栈干净；通道终局对账（G6-2）。
+    await tapActionBar(
+      tester,
+      ChatMultiKeys.cancel,
+      journey: 'W3K-EXP',
+      effectCheck: () => !tester.any(find.byKey(ChatMultiKeys.cancel)),
+    );
     await popTopPage(tester, chatPage);
+    finishChatMultiJourney('W3K-EXP');
     drainKnownFrameworkExceptions(tester);
   }, timeout: const Timeout(Duration(minutes: 8)));
 }

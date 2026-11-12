@@ -10,11 +10,11 @@
 //   ③ 发送端本地回显：等待 history_bundle_bubble_* 气泡（W3-I 稳定 Key），
 //      点气泡 → /chat/history_bundle 详情页 → 断言 title 与 3 条 entry 渲染
 //   ④ 对端接收解析：peer 经 /api/v1/msg/history 拉取（ flows FlowApiClient，
-//      需 CHAT_MULTI_PEER_ACCOUNT/PASSWORD；缺省 SKIP 对端侧），
+//      需 CHAT_MULTI_PEER_ACCOUNT/PASSWORD + API_BASE_URL；凭证缺省 SKIP
+//      对端侧，API_BASE_URL 缺省 SKIP（ENV_MISSING 口径）），
 //      msg_type=chat_history_bundle 行出现后：
 //      - 明文部署：payload JSON 解析断言 bundle_version=1、entries 顺序与
-//        源选择顺序一致、title 一致（与 HistoryBundleBuilder 本地重建的
-//        期望快照对齐）；
+//        源选择顺序一致、title 与发送端气泡读到的真实生产 title 一致；
 //      - E2EE 部署：payload 为密文 —— 只断言 msg_type 出现 + 明文 marker
 //        不出现在 payload（密文落库语义），结构解析交给发送端详情页断言。
 //
@@ -27,11 +27,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 
-import 'package:imboy/modules/messaging/application/history_bundle/history_bundle_builder.dart';
-import 'package:imboy/service/message_type_constants.dart';
-import 'package:imboy/modules/messaging/application/history_bundle/history_bundle_source.dart';
 import 'package:imboy/modules/messaging/application/history_bundle/history_bundle_types.dart';
-import 'package:imboy/modules/messaging/domain/message_status.dart';
 import 'package:imboy/page/chat/chat/chat_page.dart';
 import 'package:imboy/component/chat/message_history_bundle_builder.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
@@ -50,8 +46,10 @@ void main() {
 
   testWidgets('W3-K P2：合并转发收发快照一致 + 详情页渲染断言', (tester) async {
     installPluginErrorFilter();
+    ChatMultiDriverRunStats.reset();
     await ensureAppLaunched(tester, maxSeconds: 10);
-    if (!await checkPreconditions(tester)) return;
+    // G6-11：后端探活/登录失败 = 环境契约破坏，fail 而非静默 SKIP。
+    if (!await checkPreconditions(tester, failOnEnvMissing: true)) return;
     if (!requireBusinessWriteAuthorization()) return;
 
     final selfUid = UserRepoLocal.to.currentUid;
@@ -103,13 +101,41 @@ void main() {
         tester,
         chatMultiItemContaining(marker),
         messageId: messageOfMarker(tester, marker)?.id,
+        journey: 'W3K-BND',
       );
     }
     expectSelectionCount(tester, 3);
 
-    final bundleTitle = 'W3K-BND-$nonce';
-    await tapActionBar(tester, ChatMultiKeys.forwardBundle);
-    if (isOnSendToPage(tester)) {
+    // G6-3：tapViaNewGesture + 效果校验重试。效果 = SendToPage 出现（目标
+    // 选择形态）/ 多选 action bar 消失（直发形态已受理并退出多选）/ 本轮
+    // bundle 气泡回显（回环直发形态）—— 三者其一即证明 tap 已注册。
+    await tapActionBar(
+      tester,
+      ChatMultiKeys.forwardBundle,
+      journey: 'W3K-BND',
+      effectCheck: () =>
+          isOnSendToPage(tester) ||
+          !tester.any(find.byKey(ChatMultiKeys.count)) ||
+          tester.any(
+            find.byWidgetPredicate(
+              (w) =>
+                  w is HistoryBundleMessageBuilder &&
+                  '${w.message.metadata?['entries'] ?? ''}'.contains(m1),
+            ),
+          ),
+    );
+    // G6-16：SendToPage 形态判定加 1-2s 重试窗口（最多 3 次采样）再定性
+    // 直发形态 —— 直发形态下 tap 后路由切换可能有帧级延迟，单次采样会
+    // 误判（误跳目标选择段，气泡永远不出现）。
+    var sendToForm = false;
+    for (var i = 0; i < 3; i++) {
+      if (isOnSendToPage(tester)) {
+        sendToForm = true;
+        break;
+      }
+      await pacedWait(tester, 700);
+    }
+    if (sendToForm) {
       final dstTitle = await resolveTargetTitle(
         type: 'C2C',
         peerId: dstUid,
@@ -123,8 +149,8 @@ void main() {
       await waitBatchForwardSettled(tester, journey: 'W3K-BND');
     } else {
       flowLog(
-        'W3K-BND forward_bundle 无目标页（直发形态）；若气泡 30s 未出现'
-        '请核对 Central Wiring onForwardBundle 接线',
+        'W3K-BND forward_bundle 无目标页（直发形态，3×700ms 采样窗口后定性）；'
+        '若气泡 30s 未出现请核对 Central Wiring onForwardBundle 接线',
       );
     }
 
@@ -134,8 +160,7 @@ void main() {
     // startsWith("Key('") 在真机上永远匹配不到已渲染气泡）。
     final bubble = find.byWidgetPredicate(
       (w) =>
-          w.key != null &&
-          w.key!.toString().contains('history_bundle_bubble_'),
+          w.key != null && w.key!.toString().contains('history_bundle_bubble_'),
     );
     final bubbleShown = await waitForFinder(
       tester,
@@ -174,22 +199,23 @@ void main() {
             ?.toString() ??
         '';
     await takeScreenshot(tester, 'w3kbnd_02_bubble_echo');
-    await tester.tap(
-      find
-          .descendant(
-            of: currentBubble,
-            matching: bubble,
-          )
-          .first,
-      warnIfMissed: false,
+    // G6-3：气泡 tap 统一 tapViaNewGesture + 效果校验重试（单发 tester.tap
+    // 违背 driver 指针卫生结论）；效果 = 详情页出现。
+    final detailPageFinder = find.byWidgetPredicate(
+      (w) => w.runtimeType.toString() == 'HistoryBundleDetailPage',
+    );
+    await tapFinderWithEffect(
+      tester,
+      find.descendant(of: currentBubble, matching: bubble),
+      journey: 'W3K-BND',
+      targetDescription: '本轮 bundle 气泡（marker=$m1）',
+      effectCheck: () => tester.any(detailPageFinder),
     );
     await settle(tester, maxSeconds: 4);
 
     final detailShown = await waitForFinder(
       tester,
-      find.byWidgetPredicate(
-        (w) => w.runtimeType.toString() == 'HistoryBundleDetailPage',
-      ),
+      detailPageFinder,
       maxSeconds: 8,
       screenshotName: 'w3kbnd_diag_no_detail_page',
     );
@@ -218,35 +244,54 @@ void main() {
         reason: '详情页应渲染 entry 文本 $marker（快照顺序内容）',
       );
     }
+    // 跨组契约（G2×G6）：详情页真实缩略图 ValueKey('bundle_detail_thumb_<index>')
+    // （index=entry 序号，G2 生产侧接线）。find.byKey 不支持 RegExp —— 用
+    // byWidgetPredicate 对 ValueKey<String>.value 做正则匹配（等效「按正则
+    // key 找」，此处选该可实现写法并注明）。缩略图仅对 image/imageMulti
+    // entry 渲染：本轮 bundle 为纯文本 entries，断言按「entries 含图片」
+    // 门控；含图片时要求至少一个 thumb key 匹配（fallback：至少一个 Image
+    // widget 存在且非 errorBuilder 占位由 G2 侧 detail page 自测承担）。
+    final bundleMeta = Map<String, dynamic>.from(
+      tester
+              .widget<HistoryBundleMessageBuilder>(currentBubble.first)
+              .message
+              .metadata ??
+          const <String, dynamic>{},
+    );
+    final hasImageEntry = historyBundleEntries(bundleMeta).any(
+      (e) =>
+          e['msg_type'] == 'image' ||
+          e['msg_type'] == 'image_multi' ||
+          e['msg_type'] == 'imageMulti',
+    );
+    if (hasImageEntry) {
+      final thumbFinder = find.byWidgetPredicate(
+        (w) =>
+            w.key is ValueKey<String> &&
+            RegExp('^bundle_detail_thumb_[0-9]+\$')
+                .hasMatch((w.key as ValueKey<String>).value),
+      );
+      expect(
+        tester.any(thumbFinder),
+        isTrue,
+        reason:
+            '详情页含图片 entry 时应渲染真实缩略图'
+            '（ValueKey bundle_detail_thumb_<index>，G2 契约）',
+      );
+    } else {
+      flowLog('W3K-BND 本轮 bundle 无图片 entry，缩略图契约断言按门控跳过（G2×G6）');
+    }
     await takeScreenshot(tester, 'w3kbnd_03_detail_rendered');
     // 返回聊天页，保持会话栈干净。
     final nav = tester.state<NavigatorState>(find.byType(Navigator).first);
     nav.pop();
     await settle(tester, maxSeconds: 2);
-
-    // 本地重建期望快照（W2-G 真构建器）：与对端收到的 payload 对账基准。
-    final expected = HistoryBundleBuilder.buildForTarget(
-      'w3k-expected-target',
-      [
-        for (final marker in [m1, m2, m3])
-          HistoryBundleSourceMessage(
-            msgType: MessageType.text,
-            sourceMessageId: 'w3k-exp-${marker.length}',
-            sourceChatType: 'C2C',
-            sourceFromUid: selfUid,
-            sourceToUid: peerUid,
-            sentAtMs: 0,
-            status: MessageStatus.sent,
-            payload: {'msg_type': 'text', 'text': marker},
-          ),
-      ],
-      title: bundleTitle,
+    // G6-13：pop 后详情页不得残留（路由栈泄漏会让后续 ChatPage 断言误判）。
+    expect(
+      tester.any(detailPageFinder),
+      isFalse,
+      reason: 'pop 后 HistoryBundleDetailPage 应已关闭（无路由残留）',
     );
-    final expectedBundle = switch (expected) {
-      HistoryBundleBuildSuccessResult(:final success) => success.bundle,
-      _ => null,
-    };
-    expect(expectedBundle, isNotNull, reason: '期望快照本地重建应成功');
 
     // ④ 对端接收解析（凭证缺省时 SKIP 对端侧，不伪通过也不失败）。
     final peerAccount = const String.fromEnvironment('CHAT_MULTI_PEER_ACCOUNT');
@@ -256,13 +301,23 @@ void main() {
     if (peerAccount.isEmpty || peerPassword.isEmpty) {
       flowLog('W3K-BND 未配置 CHAT_MULTI_PEER_ACCOUNT/PASSWORD，跳过对端侧断言');
       await popTopPage(tester, find.byType(ChatPage).first);
+      finishChatMultiJourney('W3K-BND');
       drainKnownFrameworkExceptions(tester);
       return;
     }
 
-    final base = FlowApiConfig.apiBaseUrl.isNotEmpty
-        ? FlowApiConfig.apiBaseUrl
-        : 'http://127.0.0.1:9800';
+    // G6-8：API_BASE_URL 为空时显式 SKIP —— 127.0.0.1 兜底在真机上永远
+    // 不通（host 回环指向设备自身），静默降级只会把对端断言悄悄吞掉。
+    final base = FlowApiConfig.apiBaseUrl;
+    if (base.isEmpty) {
+      markTestSkipped(
+        'ENV_MISSING: API_BASE_URL（对端断言需要显式后端地址；'
+        '127.0.0.1 兜底已移除 —— 真机不可达）',
+      );
+      await popTopPage(tester, find.byType(ChatPage).first);
+      drainKnownFrameworkExceptions(tester);
+      return;
+    }
     final peer = FlowApiClient(baseUrl: base, deviceId: 'w3kbnd-peer');
     final loginRes = await peer.login(
       account: peerAccount,
@@ -273,6 +328,7 @@ void main() {
     if (loginRes['code'] != 0) {
       flowLog('W3K-BND 对端登录失败: ${loginRes['msg']} —— 跳过对端侧断言');
       await popTopPage(tester, find.byType(ChatPage).first);
+      finishChatMultiJourney('W3K-BND');
       drainKnownFrameworkExceptions(tester);
       return;
     }
@@ -304,12 +360,10 @@ void main() {
                 payloadRaw.isNotEmpty && !payloadRaw.contains('bundle_version');
             break;
           }
-          if (payloadRaw.contains(bundleTitle)) {
-            bundleRow = row;
-            break;
-          }
         }
-      } catch (e) {
+      } on Exception catch (e) {
+        // G6-7：只捕 Exception —— Error（类型错误/断言失败等）必须冒泡，
+        // 不能被轮询当瞬时噪声吞掉。
         flowLog('W3K-BND 对端 history 第${i + 1}轮异常: $e');
       }
     }
@@ -334,6 +388,13 @@ void main() {
         '${payload['bundle_version'] ?? ''}',
         '1',
         reason: 'bundle_version 应为 1（冻结合同 §4.5）',
+      );
+      // G6-4：title 用发送端气泡读到的真实生产 title 对账（生产 title=
+      // 会话名，与测试 nonce 无关；本地重建期望快照的死脚手架已删除）。
+      expect(
+        '${payload['title'] ?? ''}',
+        expectedTitle,
+        reason: '对端 bundle 行 title 应与发送端一致（期望 $expectedTitle）',
       );
       final entries = (payload['entries'] as List?) ?? const [];
       expect(entries.length, 3, reason: 'entries 应为 3 条（实际 ${entries.length}）');
@@ -360,6 +421,7 @@ void main() {
     }
 
     await popTopPage(tester, find.byType(ChatPage).first);
+    finishChatMultiJourney('W3K-BND');
     drainKnownFrameworkExceptions(tester);
   }, timeout: const Timeout(Duration(minutes: 12)));
 }

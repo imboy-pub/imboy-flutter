@@ -595,7 +595,20 @@ Future<bool> performLogin(
 
 /// 若需要登录则自动登录，否则直接返回 true。
 /// 前置未配置或登录失败时标记 SKIP 并返回 false。
-Future<bool> autoLoginOrSkip(WidgetTester tester) async {
+///
+/// [failOnEnvMissing]（G6-11，仅追加可选参数，缺省 false 保持既有行为）：
+/// 为 true 时各 SKIP 分支改为 fail（ENV_MISSING 口径）。
+Future<bool> autoLoginOrSkip(
+  WidgetTester tester, {
+  bool failOnEnvMissing = false,
+}) async {
+  void skipOrFail(String reason) {
+    if (failOnEnvMissing) {
+      fail('ENV_MISSING: $reason（failOnEnvMissing=true，不降级 SKIP）');
+    }
+    markTestSkipped(reason);
+  }
+
   // SplashPage 会在首帧后异步跳到 WelcomePage；登录页判定不能抢在这次
   // 路由切换前完成，否则会把旧路由当成稳定登录页。
   var loginSeen = 0;
@@ -614,7 +627,7 @@ Future<bool> autoLoginOrSkip(WidgetTester tester) async {
   if (isOnWelcomePage(tester)) {
     final movedToLogin = await leaveWelcomePage(tester);
     if (!movedToLogin) {
-      markTestSkipped('欢迎页未找到进入登录页的操作入口，跳过');
+      skipOrFail('欢迎页未找到进入登录页的操作入口，跳过');
       return false;
     }
     for (var i = 0; i < 15; i++) {
@@ -623,21 +636,21 @@ Future<bool> autoLoginOrSkip(WidgetTester tester) async {
       await tester.pump(const Duration(milliseconds: 100));
     }
     if (!isOnLoginPage(tester)) {
-      markTestSkipped('欢迎页无法进入登录页，跳过');
+      skipOrFail('欢迎页无法进入登录页，跳过');
       return false;
     }
   }
   // WelcomePage 可能与旧路由短暂共存；若仍可见欢迎页，不能继续调用
   // performLogin，否则会把欢迎页上的按钮误当成登录提交控件。
   if (isOnWelcomePage(tester)) {
-    markTestSkipped('欢迎页仍在前台，跳过登录操作');
+    skipOrFail('欢迎页仍在前台，跳过登录操作');
     return false;
   }
   if (!isOnLoginPage(tester)) return true;
   // 版本 check 异步返回可能晚于入口判定，登录操作前再关一次升级弹窗。
   await dismissUpgradeDialog(tester);
   if (!FlowConfig.hasCredentials) {
-    markTestSkipped('未配置 TEST_PHONE / TEST_PASSWORD，跳过');
+    skipOrFail('未配置 TEST_PHONE / TEST_PASSWORD，跳过');
     return false;
   }
   final ok = await performLogin(
@@ -646,12 +659,12 @@ Future<bool> autoLoginOrSkip(WidgetTester tester) async {
     password: FlowConfig.testPassword,
   );
   if (!ok) {
-    markTestSkipped('自动登录失败，跳过');
+    skipOrFail('自动登录失败，跳过');
     return false;
   }
   if (!await waitForMainShell(tester)) {
     logEntryDiagnostics(tester);
-    markTestSkipped('登录接口成功，但主 Shell 未在等待窗口内挂载，跳过');
+    skipOrFail('登录接口成功，但主 Shell 未在等待窗口内挂载，跳过');
     return false;
   }
   return true;
@@ -761,25 +774,29 @@ void installPluginErrorFilter() {
 /// 标准前置检查：后端可达 → App 进入入口 → 自动登录。
 /// 失败时调用 markTestSkipped 并返回 false；调用方必须立即 return。
 ///
-/// 使用示例：
-/// ```dart
-/// testWidgets('会话列表', (tester) async {
-///   app.main();
-///   await settle(tester, maxSeconds: 3);
-///   if (!await checkPreconditions(tester)) return;
-///   // ... 实际断言
-/// });
-/// ```
-Future<bool> checkPreconditions(WidgetTester tester) async {
+/// [failOnEnvMissing]（G6-11，仅追加可选参数，缺省 false 保持既有旅程
+/// 行为零变化）：为 true 时，后端探活失败 / 入口未就绪 / 登录失败等环境
+/// 缺失不再降级 SKIP，而是直接 fail —— chat_multi 等旅程的环境前置是
+/// 用例契约的一部分，静默跳过会掩盖「没跑成」。
+Future<bool> checkPreconditions(
+  WidgetTester tester, {
+  bool failOnEnvMissing = false,
+}) async {
   if (!await ensureBackendAvailable()) {
+    if (failOnEnvMissing) {
+      fail('ENV_MISSING: 后端不可达（failOnEnvMissing=true，不降级 SKIP）');
+    }
     markTestSkipped('后端不可达，跳过');
     return false;
   }
   if (!await waitForEntryState(tester)) {
+    if (failOnEnvMissing) {
+      fail('ENV_MISSING: App 入口状态超时（failOnEnvMissing=true，不降级 SKIP）');
+    }
     markTestSkipped('App 入口状态超时，跳过');
     return false;
   }
-  return autoLoginOrSkip(tester);
+  return autoLoginOrSkip(tester, failOnEnvMissing: failOnEnvMissing);
 }
 
 /// E2EE 恢复指南弹窗/备份设置页出现时选择稍后处理。
