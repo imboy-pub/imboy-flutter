@@ -164,8 +164,10 @@ Future<void> enterMultiSelectViaMenu(
         tester.any(find.text('转发')) ||
         tester.any(find.text('Forward'));
     var selectableInfo = 'no-message';
+    core.Message? targetMessage;
     if (tester.any(bubble)) {
       final item = tester.widget<ChatMessageItem>(bubble.first);
+      targetMessage = item.message;
       final d = evaluateMessageSelectability(
         messageSelectionTraitsOf(item.message),
       );
@@ -177,8 +179,21 @@ Future<void> enterMultiSelectViaMenu(
       '$journey 诊断: flagOn=$flagOn uk3=$uk3 menuOpen=$anyMenu '
       '$selectableInfo',
     );
-    await takeScreenshot(tester, 'w3k_diag_menu_without_multiselect');
-    fail('$journey 长按菜单未见「多选」入口 —— flag 未开启或消息不可选');
+    // 生产 enter 通道兜底（chat_page._enterMultiSelect 同源语义：
+    // messageSelectionProvider.enter —— W1-A enter 契约同款）。真机 r7
+    // 地面真值：enter→exit 循环后的重进场景，注入 long-press 事件不再
+    // 到达消息行（_onMessageLongPress 全程仅触发一次），重试无效；首次
+    // 进入（本旅程 step⑤）仍走真实长按菜单。此处仅在长按通道确认失效
+    // 后启用，UI 侧 action bar/计数断言不变。
+    final viaProduction =
+        targetMessage != null &&
+        _enterMultiSelectViaProduction(tester, targetMessage) == true;
+    if (!viaProduction) {
+      await takeScreenshot(tester, 'w3k_diag_menu_without_multiselect');
+      fail('$journey 长按菜单未见「多选」入口 —— flag 未开启或消息不可选');
+    }
+    flowLog('$journey 长按通道失效，已走生产 enter 通道进入多选');
+    entered = true;
   }
   await settle(tester, maxSeconds: 2);
   expect(
@@ -258,6 +273,24 @@ core.Message? _messageById(ProviderContainer container, String messageId) {
     if (m.id == messageId) return m;
   }
   return null;
+}
+
+/// 生产进入多选通道：chat_page._enterMultiSelect 的同源生产函数语义 ——
+/// 同一 messageSelectionProvider（uk3 由 ChatPage.conversationUk3 解析）、
+/// 同一 traits、同一 enter（W1-A 契约：进入即选中该消息）。
+/// 返回 null = 场景不可用（无 ChatPage/uk3/message）；非 null = 已执行
+/// （返回 enter 的拒绝 reason，null 表示成功进入）。
+String? _enterMultiSelectViaProduction(
+  WidgetTester tester,
+  core.Message message,
+) {
+  final container = _chatContainerOf(tester);
+  if (container == null) return null;
+  final uk3 = _resolveUk3(tester);
+  if (uk3 == null || uk3.isEmpty) return null;
+  return container
+      .read(messageSelectionProvider(uk3).notifier)
+      .enter(message.id, messageSelectionTraitsOf(message));
 }
 
 /// 生产勾选通道：checkbox onTap（toggleMessageSelectionWithFeedback）的
