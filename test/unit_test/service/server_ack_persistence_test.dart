@@ -145,6 +145,25 @@ void main() {
     expect(await state(), [IMBoyMessageStatus.sent, 'committed', 'sent']);
   });
 
+  test('锚点仅含 NULL-intent journal 行时 ACK 照常落账置 sent', () async {
+    // business_intent 为 NULL 的行是纯上传 journal（转发明文附件重上传
+    // 形态），不属于 outbox 派发协议：ACK 提交校验与状态推进须跳过它们
+    // 照常落账（与 repo 层 _isOutboxManaged 同口径的接收侧回归防线）。
+    await db.update('attachment_upload_task', {'business_intent': null});
+    expect(await ack(), isTrue);
+    expect(
+      (await db.query('msg_c2c')).single['status'],
+      IMBoyMessageStatus.sent,
+    );
+    expect(
+      (await db.query('attachment_upload_task')).single['business_intent'],
+      isNull,
+      reason: 'NULL-intent 行不被 ACK 路径编码改写',
+    );
+    expect((await db.query('crypto_outbox')).single['status'], 'sent');
+    expect(await db.query('server_ack_receipt'), hasLength(1));
+  });
+
   test('落账失败回滚消息及附件状态', () async {
     await db.execute('DROP TABLE crypto_outbox');
     await db.execute('CREATE TABLE crypto_outbox (id TEXT PRIMARY KEY)');
