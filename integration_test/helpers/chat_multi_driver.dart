@@ -22,6 +22,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart'
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:imboy/modules/messaging/domain/selection/message_selection.dart';
+import 'package:imboy/modules/messaging/domain/selection/message_selectability.dart';
+import 'package:imboy/app_core/feature_flags/app_feature_registry.dart';
 import 'package:imboy/page/chat/chat/chat_message_item.dart';
 import 'package:imboy/page/chat/chat/chat_page.dart';
 import 'package:imboy/page/chat/chat/chat_provider.dart';
@@ -150,6 +152,31 @@ Future<void> enterMultiSelectViaMenu(
     }
   }
   if (!entered) {
+    // 地面真值诊断：区分三个失败面 —— flag 被运行时刷新冲掉 / 消息不可选 /
+    // 长按菜单根本没开（注入被吞）。
+    final flagOn = AppFeatureRegistry.isRolloutFlagEnabled(
+      ChatMultiFlags.multiSelect,
+    );
+    final uk3 = _resolveUk3(tester);
+    final anyMenu =
+        tester.any(find.text('复制')) ||
+        tester.any(find.text('Copy')) ||
+        tester.any(find.text('转发')) ||
+        tester.any(find.text('Forward'));
+    var selectableInfo = 'no-message';
+    if (tester.any(bubble)) {
+      final item = tester.widget<ChatMessageItem>(bubble.first);
+      final d = evaluateMessageSelectability(
+        messageSelectionTraitsOf(item.message),
+      );
+      selectableInfo =
+          'selectable=${d.selectable} reason=${d.reasonCode} '
+          'status=${item.message.status}';
+    }
+    flowLog(
+      '$journey 诊断: flagOn=$flagOn uk3=$uk3 menuOpen=$anyMenu '
+      '$selectableInfo',
+    );
     await takeScreenshot(tester, 'w3k_diag_menu_without_multiselect');
     fail('$journey 长按菜单未见「多选」入口 —— flag 未开启或消息不可选');
   }
