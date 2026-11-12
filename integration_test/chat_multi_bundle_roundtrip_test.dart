@@ -33,6 +33,7 @@ import 'package:imboy/modules/messaging/application/history_bundle/history_bundl
 import 'package:imboy/modules/messaging/application/history_bundle/history_bundle_types.dart';
 import 'package:imboy/modules/messaging/domain/message_status.dart';
 import 'package:imboy/page/chat/chat/chat_page.dart';
+import 'package:imboy/component/chat/message_history_bundle_builder.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 
 import 'chat/support/c2c_journey_support.dart';
@@ -148,8 +149,32 @@ void main() {
         'Central Wiring onForwardBundle 未接线 / W3-I 注册未集成 / 发送失败',
       );
     }
+    // 会话内可能残留历史轮次的 bundle 气泡（设备 SQLite 跨轮持久）：按本轮
+    // title 精确定位当前气泡再点，避免点开旧轮快照导致 title 对账失败。
+    final currentBubble = find.byWidgetPredicate(
+      (w) =>
+          w is HistoryBundleMessageBuilder &&
+          (w.message.metadata?['title']?.toString() ?? '').contains(bundleTitle),
+    );
+    final currentShown = await waitForFinder(
+      tester,
+      currentBubble,
+      maxSeconds: 8,
+      screenshotName: 'w3kbnd_diag_no_current_bubble',
+    );
+    if (!currentShown) {
+      fail('未找到本轮 title=$bundleTitle 对应的 history_bundle 气泡');
+    }
     await takeScreenshot(tester, 'w3kbnd_02_bubble_echo');
-    await tester.tap(bubble.first, warnIfMissed: false);
+    await tester.tap(
+      find
+          .descendant(
+            of: currentBubble,
+            matching: bubble,
+          )
+          .first,
+      warnIfMissed: false,
+    );
     await settle(tester, maxSeconds: 4);
 
     final detailShown = await waitForFinder(
