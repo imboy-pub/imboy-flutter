@@ -324,8 +324,17 @@ void main() {
       copies = readCopies();
     }
     flowLog('W3K-MS 目标副本落位: ${copies.length}/5');
+    // chatService.messages 存储序为「新→旧」（reverse 列表 index 0=最新）；
+    // 合同 §4.3 考察副本 createdAt 旧→新，排序后再断言（DEV-01 真机 r1：
+    // 原始序 [m3..m1]，派发序与 createdAt 序均正确）。
+    List<core.Message> orderedCopies() => copies.toList()
+      ..sort(
+        (a, b) => (a.createdAt?.millisecondsSinceEpoch ?? 0).compareTo(
+          b.createdAt?.millisecondsSinceEpoch ?? 0,
+        ),
+      );
     expect(
-      copies.whereType<core.TextMessage>().map((m) => m.text),
+      orderedCopies().whereType<core.TextMessage>().map((m) => m.text),
       containsAllInOrder([m1, m2, m3]),
       reason: '目标会话应含 3 条转发文本副本（旧→新）',
     );
@@ -357,7 +366,7 @@ void main() {
       core.FileMessage() => 'file',
       _ => 'other',
     };
-    final kinds = copies.map(kindOf).toList();
+    final kinds = orderedCopies().map(kindOf).toList();
     expect(
       kinds,
       expectedKinds,
@@ -368,7 +377,7 @@ void main() {
 
     // 内容隔离：副本不得携带源会话归属（peer_id 重写为目标）。
     final targetUk3Prefix = 'C2C_';
-    for (final m in copies) {
+    for (final m in orderedCopies()) {
       expect(
         '${m.metadata?['peer_id'] ?? ''}',
         dstUid,

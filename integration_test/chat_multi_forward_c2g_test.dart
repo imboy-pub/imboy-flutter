@@ -168,7 +168,16 @@ void main() {
 
     String kindOf(core.Message m) =>
         m is core.TextMessage ? (m.text == m1 ? 'm1' : 'm2') : 'other';
-    final kinds = copies.map(kindOf).toList();
+    // chatService.messages 的存储序是「新→旧」（reverse 列表 index 0=最新），
+    // 合同 §4.3 考察的是副本 createdAt 旧→新 —— 排序后再映射（DEV-01 真机
+    // r1 实证：原始序为 [m2, m1]，派发序 m1→m2 与 createdAt 序均正确）。
+    final orderedCopies = copies.toList()
+      ..sort(
+        (a, b) => (a.createdAt?.millisecondsSinceEpoch ?? 0).compareTo(
+          b.createdAt?.millisecondsSinceEpoch ?? 0,
+        ),
+      );
+    final kinds = orderedCopies.map(kindOf).toList();
     expect(kinds, [
       'm1',
       'm2',
