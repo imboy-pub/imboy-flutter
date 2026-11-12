@@ -1,9 +1,11 @@
 /// 合并转发发送编排（chat_history_bundle_v1 / Central Wiring）。
 ///
 /// 把 W2-G 的 [HistoryBundleBuilder]/[bindBundleAttachmentTasks] 与既有
-/// 单条转发出网机制（MessageRepo.insert(outbound:true) → MessageRetry
-/// 扫描出网）接到多选 action bar 的 `onForwardBundle` typed callback
-/// （计划 §12 第 2/3 步）。发送语义与 send_to_provider 单条转发同构：
+/// 单条转发出网机制（MessageRepo.insert(outbound:true) → 立即经
+/// `ChatNetworkService.sendWsMsg` 主动派发；未及出网的 sending 行仍由
+/// MessageRetry 扫描 / 会话页补发兜底）接到多选 action bar 的
+/// `onForwardBundle` typed callback（计划 §12 第 2/3 步）。发送语义与
+/// send_to_provider 单条转发同构：
 /// - 每目标会话单独构建 bundle（§4.5），附件经
 ///   [BundleAttachmentForwarder] 适配器重传/重封装（E2EE 接
 ///   `AttachmentForward.reSeal/reSealImages`，明文接
@@ -15,7 +17,6 @@
 library;
 
 import 'package:flutter/cupertino.dart';
-
 import 'package:flutter_chat_core/flutter_chat_core.dart' as core;
 import 'package:xid/xid.dart';
 
@@ -24,10 +25,10 @@ import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/chat/chat/attachment_handler.dart';
 import 'package:imboy/page/chat/send_to/send_to_page.dart';
 import 'package:imboy/page/chat/send_to/send_to_provider.dart';
-import 'package:imboy/service/event_bus.dart';
+import 'package:imboy/component/helper/func.dart' show iPrint;
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
-import 'package:imboy/service/events/message_events.dart';
+import 'package:imboy/page/chat/chat/services/chat_network_service.dart';
 import 'package:imboy/service/message_type_constants.dart';
 import 'package:imboy/store/model/message_model.dart';
 import 'package:imboy/store/model/conversation_model.dart';
@@ -178,6 +179,16 @@ bool exportActionAllowedFor(Iterable<MessageSelectionTraits> traits) {
 }
 
 /// 合并转发发送编排器。
+/// 转发副本出网派发口（方案 B 变体，chat-multi-20261111 产品缺陷修复）。
+///
+/// 缺陷：管线落库（status=10）后只 fire `MessageSendRequestedEvent`——
+/// 该事件全仓无消费者，副本只能靠重进会话页 / 重启 / 重连的补发通道
+/// 偶然出网，UI 却报成功。修复：落库后立即经
+/// [BundleForwardDispatcher.defaultForwardDispatch]（即
+/// `ChatNetworkService.sendWsMsg`）主动派发，加密判定 / 策略门 /
+/// deep-seal 闸 / 上传认领 / 重试闭环全部复用现行链路，零旁路。
+typedef ForwardCopyDispatch = Future<bool> Function(MessageModel model);
+
 class BundleForwardDispatcher {
   BundleForwardDispatcher({
     BundleAttachmentForwarder? attachmentForwarder,
@@ -187,13 +198,15 @@ class BundleForwardDispatcher {
     String Function()? forwarderUidResolver,
     Future<bool> Function(String chatType, String peerId)?
     targetEncryptedResolver,
+    ForwardCopyDispatch? wsDispatcher,
   }) : _attachmentForwarder =
            attachmentForwarder ?? const DefaultBundleAttachmentForwarder(),
        _messageFetcher = messageFetcher ?? _defaultMessageFetcher,
        _messageInserter = messageInserter ?? _defaultMessageInserter,
        _forwarderUidResolver = forwarderUidResolver ?? _defaultForwarderUid,
        _targetEncryptedResolver =
-           targetEncryptedResolver ?? _defaultTargetEncrypted;
+           targetEncryptedResolver ?? _defaultTargetEncrypted,
+       _wsDispatcher = wsDispatcher ?? defaultForwardDispatch;
 
   static Future<MessageModel?> _defaultMessageFetcher(
     String messageId,
@@ -218,6 +231,14 @@ class BundleForwardDispatcher {
     );
   }
 
+  /// 副本出网派发默认实现：走 `ChatNetworkService.sendWsMsg` —— 与聊天页
+  /// 加载补发 status=10 行（`_pageMessages`）同一条现行链路。bundle 的
+  /// msg_type 由 sendWsMsg / encryptPayload 的 bundle 感知分支处理
+  /// （A4FIX F3 终检 / 群级 E2EE 强制门原样生效）。
+  @visibleForTesting
+  static Future<bool> defaultForwardDispatch(MessageModel model) =>
+      const ChatNetworkService().sendWsMsg(model);
+
   final BundleAttachmentForwarder _attachmentForwarder;
   final Future<MessageModel?> Function(String messageId, String chatType)
   _messageFetcher;
@@ -226,6 +247,7 @@ class BundleForwardDispatcher {
   final String Function() _forwarderUidResolver;
   final Future<bool> Function(String chatType, String peerId)
   _targetEncryptedResolver;
+  final ForwardCopyDispatch _wsDispatcher;
 
   /// 多选 action bar「合并转发」入口（计划 §12 第 2 步）。
   ///
@@ -463,9 +485,19 @@ class BundleForwardDispatcher {
       msgType: HistoryBundleContract.msgType,
     );
     await _messageInserter(model, targetChatType);
-    AppEventBus.fire(
-      MessageSendRequestedEvent(message: model, conversationUk3: target.uk3),
-    );
+    // 方案 B 变体：落库后立即主动派发（原 MessageSendRequestedEvent 全仓
+    // 无消费者，副本只能靠重进会话页/重启的补发通道偶然出网）。派发结果
+    // 不改判转发成败（E2EE-062 口径：策略/加密失败行保持 sending 留库，
+    // 由补发通道在策略恢复后补发；瞬时 WS 失败已由 sendWithRetry 入重试
+    // 闭环），只记类型不输出异常对象（Finding 014）。
+    try {
+      await _wsDispatcher(model);
+    } on Object catch (e) {
+      iPrint(
+        '⚠️ [BundleForwardDispatcher] 副本派发提交失败(不影响落库): '
+        'msgId=${model.id}, errType=${e.runtimeType}',
+      );
+    }
   }
 }
 

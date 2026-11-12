@@ -23,8 +23,7 @@ import 'package:imboy/service/e2ee_service.dart';
 import 'package:imboy/service/encryption_mode.dart';
 import 'package:imboy/service/group_session_service.dart';
 import 'package:imboy/page/chat/chat/attachment_handler.dart';
-
-import 'package:imboy/service/events/events.dart';
+import 'package:imboy/page/chat/chat/services/chat_network_service.dart';
 
 /// 发送给 页面状态
 class SendToState {
@@ -350,13 +349,22 @@ class SendToNotifier extends Notifier<SendToState> {
       if (isCurrent != null && !isCurrent()) return false;
       onQueued?.call(msgModel);
 
-      // 通过事件总线触发消息发送
-      AppEventBus.fire(
-        MessageSendRequestedEvent(
-          message: msgModel,
-          conversationUk3: conversation.uk3,
-        ),
-      );
+      // 方案 B 变体（chat-multi-20261111 产品缺陷修复）：副本落库后立即
+      // 经现行出网链路主动派发。原 MessageSendRequestedEvent 全仓无消费者，
+      // 非文本副本（image/file/…）只能靠重进会话页（_pageMessages 补发）/
+      // 重启 / 重连扫描偶然出网，UI 却报成功。派发走
+      // ChatNetworkService.sendWsMsg：加密判定 / 策略门 / deep-seal 闸 /
+      // 上传认领 / 重试闭环零旁路；派发结果不改判转发成败（E2EE-062 口径：
+      // 策略/加密失败行保持 sending 留库待补发；瞬时 WS 失败已由
+      // sendWithRetry 入重试闭环），异常只记类型（Finding 014）。
+      try {
+        await const ChatNetworkService().sendWsMsg(msgModel);
+      } on Object catch (e) {
+        debugPrint(
+          '[send_to_provider] forward dispatch submit failed, '
+          'msgId=${msgModel.id}, errType=${e.runtimeType}',
+        );
+      }
 
       return true;
     } on AttachmentForwardException catch (e) {
