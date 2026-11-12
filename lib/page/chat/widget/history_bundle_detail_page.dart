@@ -65,6 +65,7 @@ class HistoryBundleDetailPage extends StatelessWidget {
                 title: title,
                 exportedAt: exportedAt,
                 count: entries.length,
+                senderName: (bundle['sender_name']?.toString() ?? '').trim(),
               );
             }
             final entry = entries[index - 1];
@@ -85,11 +86,16 @@ class _BundleHeader extends StatelessWidget {
     required this.title,
     required this.exportedAt,
     required this.count,
+    required this.senderName,
   });
 
   final String title;
   final String exportedAt;
   final int count;
+
+  /// 顶层 `sender_name`（转发者展示名）：仅展示面，不参与授权/校验
+  /// （S1-L5 信任模型与条目级 sender_name 同级）；空 = 键省略，无来源行。
+  final String senderName;
 
   @override
   Widget build(BuildContext context) {
@@ -109,6 +115,13 @@ class _BundleHeader extends StatelessWidget {
               fontWeight: FontWeight.w600,
             ),
           ),
+          if (senderName.isNotEmpty) ...[
+            const SizedBox(height: AppSpacing.tiny),
+            Text(
+              t.chat.bundleForwardedBy(name: senderName),
+              style: context.textStyle(FontSizeType.small, color: sub),
+            ),
+          ],
           const SizedBox(height: AppSpacing.tiny),
           Text(
             exportedAt.isEmpty

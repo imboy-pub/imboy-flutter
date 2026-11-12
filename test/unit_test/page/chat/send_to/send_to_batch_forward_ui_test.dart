@@ -445,6 +445,7 @@ void main() {
           notifier: fake,
           page: SendToPage(
             msg: chatMsg('only', 1000),
+            enforceTargetLimit: true,
             onConfirmedSend: (targets) async {
               captured = targets;
               return true;

@@ -35,14 +35,25 @@ class SendToPage extends ConsumerStatefulWidget {
 
   final Future<bool> Function(List<ConversationModel>)? onConfirmedSend;
 
-  const SendToPage({super.key, required Message this.msg, this.onConfirmedSend})
-    : batchMessages = null;
+  /// 单条构造专用开关（S1-L3 / W5-R2 复审 M-2）：合并转发（bundle）入口
+  /// 置 true 强制 9 目标选择闸——bundle 每目标独立构建 + 附件逐目标重传，
+  /// 无上限会资源放大。talk_record 卡片分享等其他 onConfirmedSend 注入流
+  /// 保持既有不限量行为，闸不外溢到无关特性。
+  final bool enforceTargetLimit;
+
+  const SendToPage({
+    super.key,
+    required Message this.msg,
+    this.onConfirmedSend,
+    this.enforceTargetLimit = false,
+  }) : batchMessages = null;
 
   /// 批量逐条转发构造（chat_multi_select_v1 / W2-F）。
   const SendToPage.batch({super.key, required List<Message> messages})
     : msg = null,
       batchMessages = messages,
-      onConfirmedSend = null;
+      onConfirmedSend = null,
+      enforceTargetLimit = false;
 
   /// 是否批量逐条转发模式。
   bool get isBatch => batchMessages != null;
@@ -332,15 +343,16 @@ class _SendToPageState extends ConsumerState<SendToPage> {
   /// 目标上限兜底（冻结合同 §4.2：第 10 个拒绝选择并提示）。
   /// 返回 true 表示本次点击被拒绝（不改选择状态）。
   ///
-  /// 适用范围（S1-L3）：批量逐条转发（isBatch）与合并转发
-  /// （onConfirmedSend 注入，bundle 每目标独立构建+附件逐目标重传，
-  /// 无上限会资源放大）共用同一 9 目标闸；普通单条转发
-  /// （无 onConfirmedSend 的 msg 构造）保持既有不限量行为。
+  /// 适用范围（S1-L3 / W5-R2 复审 M-2）：批量逐条转发（isBatch）与合并
+  /// 转发（[SendToPage.enforceTargetLimit] 置 true 的 bundle 入口，每目标
+  /// 独立构建+附件逐目标重传，无上限会资源放大）共用同一 9 目标闸；
+  /// talk_record 卡片分享等其他单条 onConfirmedSend 注入流与普通单条
+  /// 转发保持既有不限量行为。
   bool _rejectBatchTargetSelection(
     ConversationModel contact,
     List<ConversationModel> selectedContacts,
   ) {
-    if (!widget.isBatch && widget.onConfirmedSend == null) return false;
+    if (!widget.isBatch && !widget.enforceTargetLimit) return false;
     final already = selectedContacts.any((e) => e.id == contact.id);
     if (already || selectedContacts.length < kBatchForwardMaxTargets) {
       return false;

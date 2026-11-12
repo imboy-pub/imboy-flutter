@@ -315,6 +315,7 @@ void main() {
         '127.0.0.1 兜底已移除 —— 真机不可达）',
       );
       await popTopPage(tester, find.byType(ChatPage).first);
+      finishChatMultiJourney('W3K-BND');
       drainKnownFrameworkExceptions(tester);
       return;
     }
@@ -333,9 +334,14 @@ void main() {
       return;
     }
 
-    Map<String, dynamic>? bundleRow;
-    var payloadLooksEncrypted = false;
-    for (var i = 0; i < 15 && bundleRow == null; i++) {
+    // 本轮甄别（W5-R2 复审 HIGH-1）：复用环境（设备/后端跨 run 复用）的
+    // 对端历史含旧轮 bundle（asc 取最老 50 行优先），此前"首条 bundle 行
+    // 即 break"会锁死旧轮行 → 本轮 bundle 未到即确定性假失败。按轮甄别：
+    // payload 含本轮 nonce（m1）才认作本轮行并提前收卷；密文形态行仅作
+    // 存在性兜底（E2EE 部署明文 nonce 永不命中，45s 后回落）。
+    Map<String, dynamic>? thisRunBundleRow;
+    Map<String, dynamic>? encryptedBundleRow;
+    for (var i = 0; i < 15 && thisRunBundleRow == null; i++) {
       await Future<void>.delayed(const Duration(seconds: 3));
       try {
         final resp = await peer.get(
@@ -353,12 +359,18 @@ void main() {
           final row = m is Map ? Map<String, dynamic>.from(m) : null;
           if (row == null) continue;
           final payloadRaw = '${row['payload'] ?? ''}';
-          if ('${row['msg_type']}' == HistoryBundleContract.msgType ||
-              payloadRaw.contains(HistoryBundleContract.msgType)) {
-            bundleRow = row;
-            payloadLooksEncrypted =
-                payloadRaw.isNotEmpty && !payloadRaw.contains('bundle_version');
+          final isBundle =
+              '${row['msg_type']}' == HistoryBundleContract.msgType ||
+              payloadRaw.contains(HistoryBundleContract.msgType);
+          if (!isBundle) continue;
+          if (payloadRaw.contains(m1)) {
+            thisRunBundleRow = row;
             break;
+          }
+          final looksEncrypted =
+              payloadRaw.isNotEmpty && !payloadRaw.contains('bundle_version');
+          if (looksEncrypted) {
+            encryptedBundleRow ??= row;
           }
         }
       } on Exception catch (e) {
@@ -368,14 +380,16 @@ void main() {
       }
     }
 
+    final bundleRow = thisRunBundleRow ?? encryptedBundleRow;
     if (bundleRow == null) {
-      fail('45 秒内对端历史未出现 chat_history_bundle 行 —— WS/落库/离线链路断裂');
+      fail('45 秒内对端历史未出现本轮 chat_history_bundle 行 —— WS/落库/离线链路断裂');
     }
     final payloadRaw = '${bundleRow['payload'] ?? ''}';
+    final payloadLooksEncrypted = thisRunBundleRow == null;
     expect(
       payloadRaw.contains(m1) || payloadLooksEncrypted,
       isTrue,
-      reason: '对端 bundle 行应含源内容或为密文（明文丢失=合同破坏）',
+      reason: '对端 bundle 行应含本轮源内容或为密文（明文丢失=合同破坏）',
     );
 
     if (!payloadLooksEncrypted) {

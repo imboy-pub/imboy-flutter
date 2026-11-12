@@ -69,6 +69,11 @@ abstract final class BundleSanitizer {
   ///
   /// 口径：顶层 map 不计层，其下第 16 层容器仍合法，第 17 层起
   /// fail-closed。业务 payload（含附件 descriptor）远浅于该上限。
+  ///
+  /// 口径注（W5-R2 复审 I-4）：本闸 16 层容器 vs
+  /// [AttachmentSealPolicy.isSealedPayloadDeep] 的 8 层 wrapper——9-16 层
+  /// 干净嵌套可过 sanitize 但会被出网 deep 扫描永久拒发（fail-closed
+  /// 方向安全）；真实构建器只产生 ≤2 层。
   static const int defaultMaxDepth = 16;
 
   /// 原消息 id 快照键。

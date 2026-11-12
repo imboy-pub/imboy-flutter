@@ -95,6 +95,11 @@ class AttachmentSealPolicy {
   ///
   /// 递归带 [maxDepth] 深度上限（默认 8）：超出即按「带钥匙」拦截
   /// （fail-closed），病态深嵌套 payload 不能把终检推成栈溢出（DoS 点）。
+  ///
+  /// 口径注（W5-R2 复审 I-4）：本扫描按 wrapper 层计 8 层；
+  /// [BundleSanitizer.defaultMaxDepth]（sanitizer 侧）为 16 层容器——
+  /// 9-16 层的干净嵌套可过 sanitize 但会被本闸永久拒发。真实构建器
+  /// 只产生 ≤2 层（root wrapper + entries[].payload），误伤面≈0。
   static bool isSealedPayloadDeep(
     Object? payload, {
     String? msgType,

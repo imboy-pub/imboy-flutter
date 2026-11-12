@@ -82,6 +82,30 @@ void main() {
     expect((payload['nested'] as Map)['k'], 'v');
   });
 
+  test('S1-L5：senderName 参数进顶层 sender_name；缺省省略键（字节形态兼容）', () {
+    final withName = _ok(
+      HistoryBundleBuilder.buildForTarget('C2C_1_2', [
+        _msg(MessageType.text, 1000, payload: const {'text': 'hi'}),
+      ], senderName: '李四'),
+    ).success;
+    expect(
+      withName.bundle.toJson()['sender_name'],
+      '李四',
+      reason: '合同顶层预留键（详情页来源行数据源）',
+    );
+
+    final without = _ok(
+      HistoryBundleBuilder.buildForTarget('C2C_1_2', [
+        _msg(MessageType.text, 1000, payload: const {'text': 'hi'}),
+      ]),
+    ).success;
+    expect(
+      without.bundle.toJson().containsKey('sender_name'),
+      isFalse,
+      reason: '缺省省略键——既有快照字节形态零变化',
+    );
+  });
+
   test('copy-on-write：withEntryPayload 只影响新 bundle', () {
     final a = _ok(HistoryBundleBuilder.buildForTarget('C2C_1_2', messages))
         .success;

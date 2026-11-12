@@ -621,6 +621,7 @@ Future<void> undoWrongSelections(WidgetTester tester, String? messageId) async {
       container
           .read(messageSelectionProvider(uk3).notifier)
           .toggle(id, messageSelectionTraitsOf(message));
+      ChatMultiDriverRunStats.productionToggleUsed++;
       await settle(tester, maxSeconds: 1);
     }
     return;

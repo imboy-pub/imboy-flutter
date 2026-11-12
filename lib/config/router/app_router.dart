@@ -101,6 +101,11 @@ bool isTrustedResourceUrl(String rawUrl) {
 /// - 所有路由必须有清晰的 name 用于程序化导航
 final goRouterProvider = Provider<GoRouter>((ref) => createAppRouter());
 
+/// 空 bundle 提示一次性守卫（进程级）：go_router rebuild 会重跑
+/// pageBuilder，同一 pageKey 只提示一次（W5-R2 复审 L-1，空页停留期
+/// 防重复 toast）。仅空 bundle 路径写入，量级有界。
+final Set<String> _emptyBundleToastKeys = <String>{};
+
 /// 创建应用 GoRouter / Create the app GoRouter.
 ///
 /// 生产环境用默认参数（initialLocation=/，全局 navigatorKey）。
@@ -334,7 +339,7 @@ GoRouter createAppRouter({
         },
       ),
       // 合并转发聊天记录详情页（chat_history_bundle_v1，W3-I）：
-      // extra 携带 bundle 快照 Map（来自消息 metadata，详情页不回查原会话）。
+      // extra 携带 bundle 快照 Map（来自消息 metadata，详情页不路由重查）。
       // 必须注册在 `/chat/:peerId` 之前，避免被 path 参数路由吞掉。
       GoRoute(
         path: '/chat/history_bundle',
@@ -343,7 +348,8 @@ GoRouter createAppRouter({
           final bundle = state.extra is Map<String, dynamic>
               ? state.extra as Map<String, dynamic>
               : const <String, dynamic>{};
-          if (bundle.isEmpty) {
+          if (bundle.isEmpty &&
+              _emptyBundleToastKeys.add(state.pageKey.toString())) {
             // extra 非法/空（深链误入、调用方漏传快照）：不再静默渲染空
             // 详情页——toast 提示后退回。pageBuilder 构建期同步 pop 会打断
             // 路由装配，与 redirect 内 loginExpired 延迟 toast 同模式延后。

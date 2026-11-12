@@ -208,6 +208,7 @@ class BundleForwardDispatcher {
       String targetUk3,
       List<HistoryBundleSourceMessage> sources, {
       String? title,
+      String? senderName,
     })?
     bundleBuilder,
   }) : _attachmentForwarder =
@@ -267,6 +268,7 @@ class BundleForwardDispatcher {
     String targetUk3,
     List<HistoryBundleSourceMessage> sources, {
     String? title,
+    String? senderName,
   })
   _bundleBuilder;
 
@@ -294,12 +296,14 @@ class BundleForwardDispatcher {
         padding: const EdgeInsets.only(top: AppSpacing.xLarge),
         child: SendToPage(
           msg: messages.first,
+          enforceTargetLimit: true,
           onConfirmedSend: (targets) async {
             final report = await BundleForwardDispatcher().sendToTargets(
               targets,
               messages,
               sourceChatType: sourceChatType,
               title: title,
+              forwarderName: _currentForwarderName(),
             );
             if (report.allSuccess) {
               AppLoading.showToast(
@@ -329,6 +333,7 @@ class BundleForwardDispatcher {
     List<core.Message> sourceMessages, {
     required String sourceChatType,
     String? title,
+    String? forwarderName,
   }) async {
     final failures = <BundleForwardTargetFailure>[];
     final chatType = MessageFlowType.normalize(sourceChatType);
@@ -407,7 +412,8 @@ class BundleForwardDispatcher {
     } on Object catch (e) {
       // W5 G4-3（阶段 1）：DB 异常不得穿透本方法（否则未处理异步错误 +
       // 模态卡死）；归一到 F4 sendFailed 同口径稳定码，日志只记类型
-      // （Finding 014）。整体放弃，无半转发状态。
+      // （Finding 014）。整体放弃，无半转发状态。`on Object` 含 Error 族
+      // （on Exception 捕不到）——编程缺陷型 Error 同样换 fail-closed 稳定。
       iPrint(
         '⚠️ [BundleForwardDispatcher] 源行快照失败(整体放弃): '
         'errType=${e.runtimeType}',
@@ -424,7 +430,12 @@ class BundleForwardDispatcher {
     // 2. 准入预检（目标无关，一次失败全部放弃；无半转发状态）。
     final firstUk3 = targets.first.uk3;
     try {
-      final probe = _bundleBuilder(firstUk3, sources, title: title);
+      final probe = _bundleBuilder(
+        firstUk3,
+        sources,
+        title: title,
+        senderName: forwarderName,
+      );
       if (probe is HistoryBundleBuildFailureResult) {
         failures.add(
           BundleForwardTargetFailure(firstUk3, probe.failure.errorCode),
@@ -451,14 +462,23 @@ class BundleForwardDispatcher {
     var successCount = 0;
     for (final target in targets) {
       try {
-        await _sendToTarget(target, sources, title: title);
+        await _sendToTarget(
+          target,
+          sources,
+          title: title,
+          forwarderName: forwarderName,
+        );
         successCount++;
       } on BundleForwardException catch (e) {
         failures.add(BundleForwardTargetFailure(target.uk3, e.code));
-      } on Exception catch (_) {
+      } on Object catch (_) {
         // F4（A4FIX 复审）：附件下载/上传等基础设施失败（含 resolver 的
         // policy_not_initialized）归一专用稳定码——不再误标 payloadTooLarge
         // （尺寸语义有专属判定），也不向日志泄漏异常对象（Finding 014）。
+        // `on Object` 与阶段 1/2 同口径：Error 族（on Exception 捕不到）
+        // 也换 fail-closed 稳定——k>1 目标的 builder/forwarder 抛编程缺陷
+        // 型 Error 时不得穿透成「部分转发 + 模态无反馈滞留」（W5-R2 复审
+        // M-1），已落库的前序目标保持既有语义不回滚。
         // 不落库、无半转发状态。
         failures.add(
           BundleForwardTargetFailure(
@@ -475,6 +495,7 @@ class BundleForwardDispatcher {
     ConversationModel target,
     List<HistoryBundleSourceMessage> sources, {
     String? title,
+    String? forwarderName,
   }) async {
     // F2（A4FIX 复审）：scope/resolver/落库一律按**目标**会话类型归一
     // （与单条转发 send_to_provider 的 conversation.type 同口径）。
@@ -482,7 +503,12 @@ class BundleForwardDispatcher {
     // 目标可为跨类型（源 C2C → 目标 C2G），把源类型灌进这里会同时污染
     // 上传 scope、加密判定（resolver）与插表。
     final targetChatType = MessageFlowType.normalize(target.type);
-    final result = _bundleBuilder(target.uk3, sources, title: title);
+    final result = _bundleBuilder(
+      target.uk3,
+      sources,
+      title: title,
+      senderName: forwarderName,
+    );
     if (result is HistoryBundleBuildFailureResult) {
       throw BundleForwardException(result.failure.errorCode);
     }
@@ -612,10 +638,29 @@ MessageStatus _domainStatusFromCore(core.MessageStatus? status) {
 /// Map.unmodifiable），本函数对清理产物**重建新 map/list 再整体替换**，
 /// 禁止原地改写任何嵌套结构；顶层 descriptor 回填也走重建式（双保险，
 /// 两个 sanitizer 版本下均正确）。
+/// 转发者展示名（bundle 顶层 `sender_name` 快照字段，合同预留键）：仅供
+/// 详情页来源行展示，不参与任何授权/校验（S1-L5 信任模型：payload 内
+/// 名字与条目 sender_name 同级，均为展示面）。未初始化环境（纯单测/
+/// 未登录）安全回落 null——键省略，快照字节形态向后兼容。
+String? _currentForwarderName() {
+  try {
+    final name = UserRepoLocal.to.current.nickname;
+    return name.trim().isEmpty ? null : name;
+  } on Object {
+    return null;
+  }
+}
+
 Map<String, dynamic> sanitizeAttachmentWriteback(Map<String, dynamic> payload) {
-  final sanitized = BundleSanitizer.sanitize(payload).cleaned;
+  final sanitized = BundleSanitizer.sanitize(payload);
+  if (sanitized.depthExceeded) {
+    // S1-M1 接线（W5-R2 复审闭环）：写回产物深度理论上界受构建期深度闸
+    // 约束（深树源行在准入阶段已整体拒绝），此处为不可达兜底——仍按
+    // 稳定码失败，不让深树产物随写回进入 bundle JSON（与 §4.5 同门户）。
+    throw const BundleForwardException(HistoryBundleBuildErrorCode.sendFailed);
+  }
   // 顶层重建式回填：不在 sanitized 顶层原位插 key（双保险）。
-  final out = Map<String, dynamic>.of(sanitized);
+  final out = Map<String, dynamic>.of(sanitized.cleaned);
   final desc = payload[AttachmentSealPolicy.descriptorPayloadKey];
   if (desc != null) {
     out[AttachmentSealPolicy.descriptorPayloadKey] = desc;
@@ -625,7 +670,8 @@ Map<String, dynamic> sanitizeAttachmentWriteback(Map<String, dynamic> payload) {
     // W5 G4-5：非 Map 元素不得原引用透传（未净化 + 与输入共享可变引用），
     // 一律取 cleaned images 里的净化后版本；仅 Map 元素做 descriptor
     // 豁免回填。整体重建新 list，不原地改写 sanitized 的嵌套结构。
-    final sanitizedImages = sanitized[AttachmentSealPolicy.imagesPayloadKey];
+    final sanitizedImages =
+        sanitized.cleaned[AttachmentSealPolicy.imagesPayloadKey];
     final cleanedElements = sanitizedImages is List ? sanitizedImages : null;
     final rebuiltImages = <Object?>[
       for (var i = 0; i < images.length; i++)

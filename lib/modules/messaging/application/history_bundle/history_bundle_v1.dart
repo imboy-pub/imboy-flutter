@@ -74,6 +74,7 @@ class HistoryBundleV1 {
   HistoryBundleV1({
     required List<HistoryBundleEntryV1> entries,
     this.title,
+    this.senderName,
     this.exportedAt,
   }) : entries = List.unmodifiable(entries);
 
@@ -82,6 +83,10 @@ class HistoryBundleV1 {
 
   /// 可选标题（如来源会话名快照，由上层决定是否填写）。
   final String? title;
+
+  /// 可选转发者展示名（S1-L5：详情页来源行数据源；仅展示面，不参与
+  /// 授权/校验。null = 键整体省略，既有快照字节形态零变化）。
+  final String? senderName;
 
   /// 导出/构建时间（毫秒时间戳）；可为空。
   final int? exportedAt;
@@ -92,6 +97,7 @@ class HistoryBundleV1 {
   Map<String, dynamic> toJson() => <String, dynamic>{
     'bundle_version': bundleVersion,
     if (title != null) 'title': title,
+    if (senderName != null) 'sender_name': senderName,
     if (exportedAt != null) 'exported_at': exportedAt,
     'entries': entries.map((e) => e.toJson()).toList(),
   };
@@ -134,6 +140,11 @@ class HistoryBundleV1 {
     }
     final next = List<HistoryBundleEntryV1>.of(entries);
     next[index] = entries[index].withPayload(newPayload);
-    return HistoryBundleV1(title: title, exportedAt: exportedAt, entries: next);
+    return HistoryBundleV1(
+      title: title,
+      senderName: senderName,
+      exportedAt: exportedAt,
+      entries: next,
+    );
   }
 }

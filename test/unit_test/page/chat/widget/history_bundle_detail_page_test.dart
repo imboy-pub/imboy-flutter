@@ -89,6 +89,24 @@ void main() {
     await tester.pumpAndSettle();
   }
 
+  testWidgets('S1-L5：顶层 sender_name 渲染「由 <转发者> 转发」来源行；缺省无', (tester) async {
+    final withSender = bundleFixture();
+    withSender['sender_name'] = '张三';
+    await pumpPage(tester, withSender);
+    expect(
+      find.text(t.chat.bundleForwardedBy(name: '张三')),
+      findsOneWidget,
+      reason: '合同顶层预留键渲染来源行（S1-L5 来源行）',
+    );
+
+    await pumpPage(tester, bundleFixture());
+    expect(
+      find.text(t.chat.bundleForwardedBy(name: '张三')),
+      findsNothing,
+      reason: '键省略时无来源行（快照字节形态向后兼容）',
+    );
+  });
+
   testWidgets('头部展示标题、条数与导出时间', (tester) async {
     await pumpPage(tester, bundleFixture());
 

@@ -455,9 +455,10 @@ class SendToNotifier extends Notifier<SendToState> {
   ///
   /// 把协调器单元转接到**唯一单条发送入口 [sendMsg]**：目标字段覆盖、
   /// `burn_read_at` 剥离、明文附件重传、E2EE 重封装判定全部与单条转发
-  /// 走同一份代码，本层零复制。sendMsg 全捕获异常并返回 bool，不会把
-  /// 异常抛回协调器；`isCurrent` 按 W1-B handoff 约定包成闭包语义
-  /// （sendMsg 在落库前多点检查）。
+  /// 走同一份代码，本层零复制。sendMsg 全捕获 **Exception** 并返回 bool；
+  /// Error 族穿透协调器，由页面 `_runBatchSafely` 的 `on Object` 兜底
+  /// （G4-4 / W5-R2 复审 L-3 口径）。`isCurrent` 按 W1-B handoff 约定包成
+  /// 闭包语义（sendMsg 在落库前多点检查）。
   ///
   /// [messagesById] 由调用方从原 `Message` 列表构建（id → 原消息）。
   /// 查不到 id 属于调用方接线错误：按本单元失败（false）处理，不崩溃。

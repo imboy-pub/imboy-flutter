@@ -190,12 +190,14 @@ abstract final class HistoryBundleBuilder {
   ///
   /// [targetConversationUk3] 目标会话标识（每目标单独构建，附件任务绑定）；
   /// [messages] 待合并消息（进入构建必须全部可合并）；[title] 可选标题
-  /// （如来源会话名快照）；[exportedAtMs] 可选导出时间（默认当前不填，
-  /// 由上层决定）。
+  /// （如来源会话名快照）；[senderName] 可选转发者展示名（顶层
+  /// `sender_name` 预留键，详情页来源行，空白省略键）；[exportedAtMs]
+  /// 可选导出时间（默认当前不填，由上层决定）。
   static HistoryBundleBuildResult buildForTarget(
     String targetConversationUk3,
     List<HistoryBundleSourceMessage> messages, {
     String? title,
+    String? senderName,
     int? exportedAtMs,
   }) {
     if (targetConversationUk3.trim().isEmpty) {
@@ -227,8 +229,14 @@ abstract final class HistoryBundleBuilder {
     }
 
     // 4. 组装 + 尺寸守护（UTF-8 字节长度，边界 256×1024 合法）。
+    // senderName = 转发者展示名（合同顶层预留键，详情页来源行；S1-L5）。
+    // 空白归一为 null——键整体省略，既有快照字节形态零变化。
+    final normalizedSenderName = (senderName?.trim().isEmpty ?? true)
+        ? null
+        : senderName;
     final bundle = HistoryBundleV1(
       title: title,
+      senderName: normalizedSenderName,
       exportedAt: exportedAtMs,
       entries: entries,
     );

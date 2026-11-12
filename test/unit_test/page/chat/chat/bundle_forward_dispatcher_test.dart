@@ -437,6 +437,70 @@ void main() {
       expect(inserted, hasLength(9), reason: '上限内逐目标独立构建不受影响');
     });
 
+    test('S1-L5：forwarderName 进顶层 sender_name（详情页来源行数据源）', () async {
+      final rows = <String, MessageModel>{'m1': _sourceRow('m1', 1000)};
+      final inserted = <MessageModel>[];
+      final dispatcher = BundleForwardDispatcher(
+        messageFetcher: (id, chatType) async => rows[id],
+        messageInserter: (model, chatType) async => inserted.add(model),
+        forwarderUidResolver: () => _uid,
+        attachmentForwarder: _RecordingForwarder(),
+      );
+
+      final report = await dispatcher.sendToTargets(
+        [_target(1, '1000000056')],
+        [_uiMessage('m1')],
+        sourceChatType: 'C2C',
+        forwarderName: '李四',
+      );
+
+      expect(report.allSuccess, isTrue);
+      expect(
+        inserted.single.payloadMap['sender_name'],
+        '李四',
+        reason: '合同顶层预留键：转发者展示名仅供详情页来源行展示',
+      );
+    });
+
+    test('S1-M1 写回兜底：附件写回产物深度超限 → sendFailed 整目标失败零落库', () async {
+      // 理论不可达（构建期深度闸已拒深树源行），防御写回通路自身：
+      // forwarder 产物若为深树（>maxDepth），sanitizeAttachmentWriteback
+      // 不得让 depthExceeded 产物静默进入 bundle JSON。
+      Map<String, dynamic> deep = <String, dynamic>{'leaf': true};
+      for (var i = 0; i < 20; i++) {
+        deep = <String, dynamic>{'nested': deep};
+      }
+      final rows = <String, MessageModel>{
+        'm1': _sourceRow(
+          'm1',
+          1000,
+          msgType: 'file',
+          payload: <String, dynamic>{'uri': 'obj/old-key'},
+        ),
+      };
+      final inserted = <MessageModel>[];
+      final dispatcher = BundleForwardDispatcher(
+        messageFetcher: (id, chatType) async => rows[id],
+        messageInserter: (model, chatType) async => inserted.add(model),
+        forwarderUidResolver: () => _uid,
+        attachmentForwarder: _RecordingForwarder(script: [deep]),
+      );
+
+      final report = await dispatcher.sendToTargets(
+        [_target(1, '1000000056')],
+        [_uiMessage('m1')],
+        sourceChatType: 'C2C',
+      );
+
+      expect(report.successCount, 0);
+      expect(
+        report.failures.single.errorCode,
+        HistoryBundleBuildErrorCode.sendFailed,
+        reason: '深度超限写回按稳定码整目标失败（不静默不落库）',
+      );
+      expect(inserted, isEmpty);
+    });
+
     test(
       'W5 G4-3：阶段 1 fetcher 抛 Exception → sendFailed 归一，不产生未处理异步错误',
       () async {
@@ -472,7 +536,7 @@ void main() {
         messageInserter: (model, chatType) async => inserted.add(model),
         forwarderUidResolver: () => _uid,
         attachmentForwarder: _RecordingForwarder(),
-        bundleBuilder: (uk3, sources, {title}) =>
+        bundleBuilder: (uk3, sources, {title, senderName}) =>
             throw Exception('probe exploded'),
       );
 

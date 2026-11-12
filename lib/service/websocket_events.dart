@@ -120,7 +120,8 @@ final class WebSocketStatusChangedEvent extends AppEvent {
 ///
 /// 当需要通过 WebSocket 发送原始 JSON 字符串时使用
 /// 注意：这是 WebSocket 层面的低级事件，用于直接发送 JSON 字符串
-/// 业务层的消息发送应使用 message_events.dart 中的 MessageSendRequestedEvent
+/// 业务层的消息发送走「落库后主动 sendWsMsg 派发」（variant B，
+/// chat-multi-20261111 缺陷修复）——MessageSendRequestedEvent 已废弃无消费者
 final class WebSocketMessageSendRequestEvent extends AppEvent {
   /// 要发送的消息内容（JSON 字符串）
   final String message;
