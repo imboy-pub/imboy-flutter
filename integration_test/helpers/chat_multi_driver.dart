@@ -133,9 +133,22 @@ Future<void> enterMultiSelectViaMenu(
   String journey = 'W3K',
 }) async {
   expect(tester.any(bubble), isTrue, reason: '$journey 长按目标气泡应在列表');
-  await tester.longPress(bubble.first);
-  await settle(tester, maxSeconds: 2);
-  final entered = await tapAny(tester, chatMultiMenuEntryFinders());
+  // 真机注入 long-press 同样会被吞/迟到（DEV-01 r4：step⑧ 重进多选时长按
+  // 未弹出菜单或菜单未含「多选」入口）→ 重试 3 次，每次重新解析 finder 取
+  // 最新几何，间隔跨 kDoubleTapTimeout；菜单若仍开着（上次入口 tap 被吞），
+  // 重试的长按会命中介障并先关菜单，下下次自然收敛。
+  var entered = false;
+  for (var attempt = 1; attempt <= 3 && !entered; attempt++) {
+    if (attempt > 1) await pacedWait(tester, 400);
+    await settle(tester, maxSeconds: 2);
+    if (!tester.any(bubble)) continue;
+    await tester.longPress(bubble.first);
+    await settle(tester, maxSeconds: 2);
+    entered = await tapAny(tester, chatMultiMenuEntryFinders());
+    if (!entered) {
+      flowLog('$journey 长按进多选未成功（尝试 $attempt/3）');
+    }
+  }
   if (!entered) {
     await takeScreenshot(tester, 'w3k_diag_menu_without_multiselect');
     fail('$journey 长按菜单未见「多选」入口 —— flag 未开启或消息不可选');
