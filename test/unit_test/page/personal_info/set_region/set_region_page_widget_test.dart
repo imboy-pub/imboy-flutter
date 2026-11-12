@@ -43,19 +43,48 @@ Future<void> _pumpRegionFlow(
   );
   await tester.tap(find.byKey(const Key('open-region-editor')));
   await tester.pumpAndSettle();
-  await tester.runAsync(
-    () => Future<void>.delayed(const Duration(milliseconds: 100)),
-  );
-  await tester.pump();
+  await _waitForRegionData(tester);
+}
+
+Future<void> _waitForRegionData(WidgetTester tester) async {
+  final mainland = find.text('中国大陆');
+  for (var attempt = 0; attempt < 40; attempt++) {
+    if (mainland.evaluate().isNotEmpty) return;
+    await tester.runAsync(
+      () => Future<void>.delayed(const Duration(milliseconds: 50)),
+    );
+    await tester.pump();
+  }
+  expect(mainland, findsOneWidget, reason: '地区数据应从 assets/data/region.json 加载');
+}
+
+Future<void> _tapRegion(WidgetTester tester, String title) async {
+  final finder = find.text(title);
+  for (var attempt = 0; attempt < 40; attempt++) {
+    if (finder.evaluate().isNotEmpty) break;
+    await tester.runAsync(
+      () => Future<void>.delayed(const Duration(milliseconds: 50)),
+    );
+    await tester.pump();
+  }
+  expect(finder, findsOneWidget, reason: '地区列表应显示 $title');
+  await tester.pumpAndSettle();
+  await tester.tap(finder);
+  await tester.pumpAndSettle();
+}
+
+Future<void> _popRegionRoute(WidgetTester tester) async {
+  // IosPageTemplate 使用 GlassBackButton，而不是 Cupertino 默认返回按钮；
+  // 直接 pop 当前 Navigator，避免 WidgetTester.pageBack 的组件类型假设。
+  final rootPage = find.byType(SetRegionPage, skipOffstage: false);
+  Navigator.of(tester.element(rootPage)).pop();
+  await tester.pumpAndSettle();
 }
 
 Future<void> _selectBeijingDongcheng(WidgetTester tester) async {
-  await tester.tap(find.text('中国大陆'));
-  await tester.pumpAndSettle();
-  await tester.tap(find.text('北京'));
-  await tester.pumpAndSettle();
-  await tester.tap(find.text('东城'));
-  await tester.pumpAndSettle();
+  await _tapRegion(tester, '中国大陆');
+  await _tapRegion(tester, '北京');
+  await _tapRegion(tester, '东城');
 }
 
 ProviderContainer _container(WidgetTester tester) {
@@ -73,14 +102,10 @@ void main() {
     expect(state.selectedRegion, '中国大陆 北京 东城');
     expect(state.regionPath, ['中国大陆', '北京', '东城']);
 
-    await tester.pageBack();
-    await tester.pumpAndSettle();
-    await tester.pageBack();
-    await tester.pumpAndSettle();
-    await tester.tap(find.text('中国香港'));
-    await tester.pumpAndSettle();
-    await tester.tap(find.text('中西区'));
-    await tester.pumpAndSettle();
+    await _popRegionRoute(tester);
+    await _popRegionRoute(tester);
+    await _tapRegion(tester, '中国香港');
+    await _tapRegion(tester, '中西区');
 
     state = _container(tester).read(setRegionProvider);
     expect(state.selectedRegion, '中国香港 中西区');
