@@ -384,7 +384,12 @@ class ChatNetworkService {
     );
     _requireOutboundSession(uid, generation);
     if (!required) {
-      if (AttachmentSealPolicy.carriesContentKey(obj.payload)) {
+      // 终检用 bundle 感知谓词（A4FIX F3）：chat_history_bundle 的
+      // descriptor 嵌在 entries[].payload 内，顶层检测不可见。
+      if (AttachmentSealPolicy.isSealedPayloadDeep(
+        obj.payload,
+        msgType: obj.msgType,
+      )) {
         throw const E2eeSecurityException('encryption_required_not_applied');
       }
       return obj;
@@ -556,7 +561,13 @@ class ChatNetworkService {
       // E2EE-061：descriptor 里躺着 content key。封装判定发生在**上传时**，
       // 到这里可能已经过了几秒——策略若在这中间翻成明文，照发就等于把
       // 解开附件的钥匙明文送出去，比明文附件本身更糟。故最后一刻再拦一次。
-      if (AttachmentSealPolicy.carriesContentKey(payloadWithTs)) {
+      // A4FIX F3：终检用 bundle 感知谓词——chat_history_bundle wrapper 顶层
+      // 是合同字段，重封装的新 descriptor 嵌在 entries[].payload 内，顶层
+      // 检测不可见；递归扫描命中即 fail-closed 拒发（消息留库待策略恢复）。
+      if (AttachmentSealPolicy.isSealedPayloadDeep(
+        payloadWithTs,
+        msgType: msgType,
+      )) {
         iPrint('🚫 [E2EE] 带 content key 的 payload 不得明文发送: msgId=${obj.id}');
         AppLoading.showToast(getE2EEErrorMessage('policy_not_initialized'));
         return false;
@@ -683,7 +694,12 @@ class ChatNetworkService {
       } else {
         // E2EE-061 对齐（RT-P3-01）：与 sendWsMsg 的明文分支同一道终检——
         // descriptor 里的 content key 绝不允许在明文 payload 中出网。
-        if (AttachmentSealPolicy.carriesContentKey(payload)) {
+        // A4FIX F3：bundle 感知——chat_history_bundle 的密钥在
+        // entries[].payload 内，须递归检测（命中即拒发，消息留库）。
+        if (AttachmentSealPolicy.isSealedPayloadDeep(
+          payload,
+          msgType: msg['msg_type']?.toString(),
+        )) {
           iPrint(
             '🚫 [E2EE] sendMessage: 带 content key 的 payload 不得明文发送: '
             'msgId=${msg['id']}',

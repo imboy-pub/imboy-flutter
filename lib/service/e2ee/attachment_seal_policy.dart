@@ -17,6 +17,8 @@
 /// 判定散落在多处时，新增的那处漏判不会有任何测试变红。
 library;
 
+import 'package:imboy/modules/messaging/application/history_bundle/history_bundle_types.dart';
+
 /// 不封装的原因。用于日志与测试断言；**不进 UI**。
 enum SealSkipReason {
   /// 会话的 payload 不会被加密——**绝不能**封装（content key 会明文出网）
@@ -71,6 +73,45 @@ class AttachmentSealPolicy {
     final images = payload[imagesPayloadKey];
     if (images is! List) return false;
     return images.any((e) => e is Map && e[descriptorPayloadKey] != null);
+  }
+
+  /// 出网/重发**终检**的 bundle 感知谓词（A4FIX 复审 F3）。
+  ///
+  /// 单条消息的 descriptor 在 payload 顶层或 images[i] 内（[carriesContentKey]
+  /// 可见）；`chat_history_bundle` wrapper 的顶层是合同字段
+  /// （bundle_version/title/entries），重封装产生的新 descriptor 嵌在
+  /// entries[].payload 内——顶层检测对它**不可见**。封装判定发生在 compose
+  /// 期（bundle_forward_dispatcher 闸），消息真正出网在 MessageRetry 派发
+  /// 时；两者之间策略可能翻成明文，出网终检（chat_network_service 明文
+  /// 分支）与重发守卫（message_retry）若只做顶层检测，带新密钥的 bundle
+  /// 便可在该窗口内明文出网。漏判嵌套钥匙与漏判顶层钥匙是同级别的失效，
+  /// 故出网/重试终检一律走本谓词：
+  ///
+  /// - msgType == [HistoryBundleContract.msgType]：递归扫描
+  ///   entries[].payload（含 images[] 与假想的嵌套 bundle，防御纵深）；
+  /// - msgType 缺失但 payload 自带 entries 结构的脏行：同样递归
+  ///   （fail-closed，不赌行的 msgType 干净）；
+  /// - 其余：与 [carriesContentKey] 同口径（单条 payload 顶层 + images[]）。
+  static bool isSealedPayloadDeep(Object? payload, {String? msgType}) {
+    if (payload is! Map) return false;
+    final bool isBundleType =
+        msgType != null && msgType.trim() == HistoryBundleContract.msgType;
+    final bool bundleShaped = payload['entries'] is List;
+    if (!isBundleType && !bundleShaped) return carriesContentKey(payload);
+    return _carriesContentKeyInEntries(payload);
+  }
+
+  static bool _carriesContentKeyInEntries(Object? node) {
+    if (node is! Map) return false;
+    // wrapper 自身顶层兜底检测（合同上不会有，出现即 fail-closed）。
+    if (carriesContentKey(node)) return true;
+    final entries = node['entries'];
+    if (entries is! List) return false;
+    for (final entry in entries) {
+      if (entry is! Map) continue;
+      if (_carriesContentKeyInEntries(entry['payload'])) return true;
+    }
+    return false;
   }
 
   /// E2EE-061 Slice 7：主体与缩略图**必须同生同灭**。

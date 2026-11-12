@@ -562,8 +562,14 @@ class MessageRetry with EventSubscriptionManager {
     if (shouldBlockPlaintextRetry(
       encryptionRequired: encryptionRequired,
       e2ee: msg.e2ee,
-      // E2EE-061：带 content key 的行，无论策略怎么说都不得明文重发
-      carriesContentKey: AttachmentSealPolicy.carriesContentKey(msg.payload),
+      // E2EE-061：带 content key 的行，无论策略怎么说都不得明文重发。
+      // A4FIX F3：chat_history_bundle 行的密钥嵌在 entries[].payload 内，
+      // 终检须 bundle 感知递归（compose 期放行后策略翻明文的窗口内，
+      // 顶层检测会漏判嵌套 descriptor → 带新密钥的 bundle 明文重发）。
+      carriesContentKey: AttachmentSealPolicy.isSealedPayloadDeep(
+        msg.payload,
+        msgType: msg.msgType,
+      ),
     )) {
       return true;
     }
