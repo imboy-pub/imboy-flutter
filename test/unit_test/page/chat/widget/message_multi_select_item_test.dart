@@ -235,6 +235,32 @@ void main() {
     );
   });
 
+  testWidgets('W5-G1 G1-3：勾选框 Semantics 带 label 且保留 button/enabled/checked', (
+    tester,
+  ) async {
+    final container = ProviderContainer();
+    addTearDown(container.dispose);
+    await _pumpItem(tester, container, _text('m1'));
+    _selection(container).enter(
+      'm1',
+      const MessageSelectionTraits(
+        msgType: 'text',
+        status: domain_msg.MessageStatus.sent,
+      ),
+    );
+    await tester.pump();
+
+    final semanticsFinder = find.byWidgetPredicate(
+      (widget) =>
+          widget is Semantics && widget.properties.label == t.chat.multiSelect,
+    );
+    expect(semanticsFinder, findsOneWidget, reason: '读屏可播报「多选」标签');
+    final semantics = tester.widget<Semantics>(semanticsFinder);
+    expect(semantics.properties.button, isTrue);
+    expect(semantics.properties.enabled, isTrue);
+    expect(semantics.properties.checked, isTrue, reason: 'enter 首条已选中');
+  });
+
   testWidgets('不可选消息（发送中）：置灰 + 点击无效', (tester) async {
     final container = ProviderContainer();
     addTearDown(container.dispose);

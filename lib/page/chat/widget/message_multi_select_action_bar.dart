@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart' show Message;
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/theme/default/app_radius.dart';
+import 'package:imboy/theme/default/app_sizes.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:imboy/theme/default/font_types.dart';
 
@@ -85,7 +86,7 @@ class MessageMultiSelectActionBar extends StatelessWidget {
                       child: Center(
                         child: Icon(
                           CupertinoIcons.xmark,
-                          size: 20,
+                          size: AppSizes.iconSizeSmall,
                           color: colorScheme.onSurface,
                           semanticLabel: t.chat.multiSelectCancel,
                         ),
@@ -108,8 +109,9 @@ class MessageMultiSelectActionBar extends StatelessWidget {
                       onTap: _hasSelection ? onClearSelection : null,
                       child: ConstrainedBox(
                         constraints: const BoxConstraints(
-                          minWidth: 44,
-                          minHeight: 44,
+                          // 复用同文件 kCancelTouchTarget（≥44×44pt 触达）。
+                          minWidth: kCancelTouchTarget,
+                          minHeight: kCancelTouchTarget,
                         ),
                         child: Center(
                           child: Padding(
@@ -206,8 +208,8 @@ class MessageMultiSelectActionBar extends StatelessWidget {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(icon, size: 20, color: foreground),
-                  const SizedBox(height: 4),
+                  Icon(icon, size: AppSizes.iconSizeSmall, color: foreground),
+                  AppSpacing.verticalTiny,
                   Text(
                     label,
                     textAlign: TextAlign.center,
