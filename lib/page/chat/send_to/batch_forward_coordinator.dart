@@ -328,50 +328,46 @@ class BatchForwardCoordinator {
     }
 
     final isCurrent = !_cancelRequested && !_disposed;
+    return _executeUnit(unit, isCurrent);
+  }
+
+  /// 调用 forwardOne 执行转发；未送达或抛 Exception 时按
+  /// dispose/cancel 状态归档（单元级失败隔离，不中断整批）。
+  Future<ForwardItemResult> _executeUnit(
+    _PlannedUnit unit,
+    bool isCurrent,
+  ) async {
     try {
       final sent = await forwardOne(unit.target, unit.message, isCurrent);
       if (sent) return _done(unit, ForwardUnitStatus.success, '');
-      if (_disposed) {
-        return _done(
-          unit,
-          ForwardUnitStatus.cancelled,
-          BatchForwardErrorCode.coordinatorDisposed,
-        );
-      }
-      if (_cancelRequested) {
-        return _done(
-          unit,
-          ForwardUnitStatus.cancelled,
-          BatchForwardErrorCode.forwardCancelled,
-        );
-      }
-      return _done(
-        unit,
-        ForwardUnitStatus.failed,
-        BatchForwardErrorCode.forwardFailed,
-      );
+      return _settleUnit(unit);
     } on Exception {
       // 单元级异常隔离：本单元按 failed 记录，继续后续单元。
-      if (_disposed) {
-        return _done(
-          unit,
-          ForwardUnitStatus.cancelled,
-          BatchForwardErrorCode.coordinatorDisposed,
-        );
-      }
-      if (_cancelRequested) {
-        return _done(
-          unit,
-          ForwardUnitStatus.cancelled,
-          BatchForwardErrorCode.forwardCancelled,
-        );
-      }
+      return _settleUnit(unit);
+    }
+  }
+
+  /// 未送达时的归档：dispose 优先于 cancel，其次按单元失败记录。
+  ForwardItemResult _settleUnit(_PlannedUnit unit) {
+    if (_disposed) {
       return _done(
         unit,
-        ForwardUnitStatus.failed,
-        BatchForwardErrorCode.forwardFailed,
+        ForwardUnitStatus.cancelled,
+        BatchForwardErrorCode.coordinatorDisposed,
       );
     }
+    if (_cancelRequested) {
+      return _done(
+        unit,
+        ForwardUnitStatus.cancelled,
+        BatchForwardErrorCode.forwardCancelled,
+      );
+    }
+    return _done(
+      unit,
+      ForwardUnitStatus.failed,
+      BatchForwardErrorCode.forwardFailed,
+    );
   }
 
   ForwardItemResult _skipped(_PlannedUnit unit, String errorCode) =>

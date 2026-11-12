@@ -93,13 +93,7 @@ class HistoryBundleMessageBuilder extends StatelessWidget {
     final String title = (meta['title']?.toString() ?? '').trim().isNotEmpty
         ? (meta['title']!.toString())
         : t.chat.bundleTitle;
-    // entry 类型小图标：按首次出现顺序去重，最多展示 6 个
-    final List<IconData> icons = <IconData>[];
-    for (final e in entries) {
-      final icon = historyBundleEntryIcon(e['msg_type']?.toString() ?? '');
-      if (!icons.contains(icon)) icons.add(icon);
-      if (icons.length >= 6) break;
-    }
+    final List<IconData> icons = _collectTypeIcons(entries);
 
     return GestureDetector(
       key: Key('history_bundle_bubble_${message.id}'),
@@ -111,66 +105,98 @@ class HistoryBundleMessageBuilder extends StatelessWidget {
       child: Container(
         width: 240,
         padding: const EdgeInsets.all(AppSpacing.medium),
-        decoration: BoxDecoration(
-          color: AppColors.getChatBubbleBackground(
-            sentByMe,
-            false,
-            Theme.of(context).brightness,
-          ),
-          borderRadius: MessageSpacing.getBubbleBorderRadius(sentByMe),
-          border: !sentByMe && !isDark
-              ? Border.all(color: AppColors.iosGray5, width: 0.5)
-              : null,
+        decoration: _bubbleDecoration(
+          sentByMe,
+          isDark,
+          Theme.of(context).brightness,
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Icon(
-                  CupertinoIcons.square_stack_3d_up,
-                  size: AppSpacing.xLarge,
-                  color: textColor,
-                ),
-                const SizedBox(width: AppSpacing.small),
-                Expanded(
-                  child: Text(
-                    title,
-                    style: context.textStyle(
-                      FontSizeType.medium,
-                      color: textColor,
-                      fontWeight: FontWeight.w600,
-                    ),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-              ],
-            ),
+            _buildHeader(context, title, textColor),
             const SizedBox(height: AppSpacing.tiny),
-            Text(
-              t.chat.bundlePreview(count: entries.length),
-              style: context.textStyle(FontSizeType.small, color: subTextColor),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
-            if (icons.isNotEmpty) ...[
-              const SizedBox(height: AppSpacing.small),
-              Wrap(
-                spacing: AppSpacing.small,
-                runSpacing: AppSpacing.tiny,
-                children: [
-                  for (final icon in icons)
-                    Icon(icon, size: AppSpacing.regular, color: subTextColor),
-                ],
-              ),
-            ],
+            _buildPreview(context, entries.length, subTextColor),
+            ..._buildTypeIcons(icons, subTextColor),
           ],
         ),
       ),
     );
+  }
+
+  /// entry 类型小图标：按首次出现顺序去重，最多展示 6 个。
+  List<IconData> _collectTypeIcons(List<Map<String, dynamic>> entries) {
+    final List<IconData> icons = <IconData>[];
+    for (final e in entries) {
+      final icon = historyBundleEntryIcon(e['msg_type']?.toString() ?? '');
+      if (!icons.contains(icon)) icons.add(icon);
+      if (icons.length >= 6) break;
+    }
+    return icons;
+  }
+
+  /// 气泡容器装饰：气泡底色 + 圆角 + 接收侧浅色模式细边框。
+  BoxDecoration _bubbleDecoration(
+    bool sentByMe,
+    bool isDark,
+    Brightness brightness,
+  ) => BoxDecoration(
+    color: AppColors.getChatBubbleBackground(sentByMe, false, brightness),
+    borderRadius: MessageSpacing.getBubbleBorderRadius(sentByMe),
+    border: !sentByMe && !isDark
+        ? Border.all(color: AppColors.iosGray5, width: 0.5)
+        : null,
+  );
+
+  /// 头部：bundle 图标 + title（最多两行省略）。
+  Widget _buildHeader(BuildContext context, String title, Color textColor) =>
+      Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(
+            CupertinoIcons.square_stack_3d_up,
+            size: AppSpacing.xLarge,
+            color: textColor,
+          ),
+          const SizedBox(width: AppSpacing.small),
+          Expanded(
+            child: Text(
+              title,
+              style: context.textStyle(
+                FontSizeType.medium,
+                color: textColor,
+                fontWeight: FontWeight.w600,
+              ),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+        ],
+      );
+
+  /// 条数预览文案（单行省略）。
+  Widget _buildPreview(BuildContext context, int count, Color subTextColor) =>
+      Text(
+        t.chat.bundlePreview(count: count),
+        style: context.textStyle(FontSizeType.small, color: subTextColor),
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+      );
+
+  /// entry 类型小图标流（空列表时不占位）。
+  List<Widget> _buildTypeIcons(List<IconData> icons, Color subTextColor) {
+    if (icons.isEmpty) return const <Widget>[];
+    return [
+      const SizedBox(height: AppSpacing.small),
+      Wrap(
+        spacing: AppSpacing.small,
+        runSpacing: AppSpacing.tiny,
+        children: [
+          for (final icon in icons)
+            Icon(icon, size: AppSpacing.regular, color: subTextColor),
+        ],
+      ),
+    ];
   }
 }
 
