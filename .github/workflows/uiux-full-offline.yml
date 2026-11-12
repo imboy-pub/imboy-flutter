@@ -5,6 +5,7 @@ on:
     paths:
       - '.github/workflows/uiux-full-offline.yml'
       - '.github/scripts/uiux_full_*'
+      - 'test/tooling/auto_test/test_uiux_full_matrix.py'
   workflow_dispatch:
 
 permissions:
@@ -24,7 +25,7 @@ jobs:
         with:
           fetch-depth: 0
       - name: Check partition contract
-        run: python3 .github/scripts/uiux_full_matrix_test.py
+        run: python3 test/tooling/auto_test/test_uiux_full_matrix.py
       - name: Freeze plans and derive product workers
         id: matrix
         shell: bash

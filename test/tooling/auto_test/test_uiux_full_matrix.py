@@ -1,8 +1,12 @@
 """Behavioral checks for the full/offline partition contract."""
 import copy
+from pathlib import Path
+import sys
 import unittest
 
-from uiux_full_matrix import matrix
+ROOT = Path(__file__).resolve().parents[3]
+sys.path.insert(0, str(ROOT / '.github/scripts'))
+from uiux_full_matrix import matrix  # noqa: E402
 
 
 def plan():
