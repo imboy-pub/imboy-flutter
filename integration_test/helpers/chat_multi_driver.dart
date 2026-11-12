@@ -8,17 +8,23 @@
 // - 本文件只服务 integration_test/（依赖 flows/test_utils 与真实页面）。
 //
 // 驱动策略：全部经稳定 Key / Semantics / 既有 journey 支撑位（长按菜单、
-// SendToPage）操作真实 UI，不注入任何假数据到生产 provider。
+// SendToPage）操作真实 UI，不注入任何假数据到生产 provider；唯勾选一步
+// 在真机上改走生产 provider 通道（checkbox onTap 的同源 notifier.toggle，
+// 见 _toggleViaProduction），其余步骤仍全部真实 tap。
 
 import 'dart:async';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart' as core;
+import 'package:flutter_riverpod/flutter_riverpod.dart'
+    show ProviderContainer, ProviderScope;
 import 'package:flutter_test/flutter_test.dart';
 
+import 'package:imboy/modules/messaging/domain/selection/message_selection.dart';
 import 'package:imboy/page/chat/chat/chat_message_item.dart';
 import 'package:imboy/page/chat/chat/chat_page.dart';
+import 'package:imboy/page/chat/chat/chat_provider.dart';
 import 'package:imboy/store/repository/conversation_repo_sqlite.dart';
 
 import '../flows/test_utils.dart';
@@ -184,12 +190,73 @@ Future<void> tapViaNewGesture(WidgetTester tester, Finder finder) async {
   await gesture.removePointer();
 }
 
-/// 在多选模式下勾选某条消息（driver 只用于「选上」语义，不用于取消）。
-/// 优先点勾选框稳定 Key（44pt 触达区），兜底点气泡本体（tap-toggle）。
+/// ChatPage 的 ProviderScope 容器（不在 ChatPage 场景返回 null，如本地冒烟）。
+ProviderContainer? _chatContainerOf(WidgetTester tester) {
+  final pages = find.byType(ChatPage).evaluate();
+  if (pages.isEmpty) return null;
+  return ProviderScope.containerOf(pages.first);
+}
+
+/// ChatPage 的 conversationUk3（State 公开 getter，动态访问私有 State 类）。
+String? _resolveUk3(WidgetTester tester) {
+  try {
+    final state = tester.state(find.byType(ChatPage).first);
+    final v = (state as dynamic).conversationUk3 as String?;
+    if (v != null && v.isNotEmpty) return v;
+  } on Exception {
+    // fallthrough
+  }
+  return null;
+}
+
+/// 从 chatProvider 消息列表按 id 取 Message。
+core.Message? _messageById(ProviderContainer container, String messageId) {
+  final msgs =
+      container.read(chatProvider.notifier).chatService?.messages ??
+      const <core.Message>[];
+  for (final m in msgs) {
+    if (m.id == messageId) return m;
+  }
+  return null;
+}
+
+/// 生产勾选通道：checkbox onTap（toggleMessageSelectionWithFeedback）的
+/// 同源生产函数语义 —— 同一 messageSelectionProvider、同一 traits、同一
+/// toggle；仅省去指针注入这一真机上不可靠的环节。返回是否成功执行。
 ///
-/// 真机（LiveTestWidgetsFlutterBinding）两类注入失败模式（DEV-01 probe1-3 +
-/// fix-pass1-r2 / final-pass1 证据），生产勾选 GestureDetector 均无缺陷
-/// （命中即正确切换）：
+/// DEV-01 probe2 地面真值（2026-11-12 真机）：勾选框几何/Key/hitTestable
+/// 全部正确、tap 命中即正确切换（after-toggle-m2 selection=[m1,m2]），
+/// 但该机型注入 tap 事件交付延迟可达秒级 —— 无 tap 的 2 秒等待窗口内
+/// m3 被「迟到事件」自行勾上，多次运行出现计数反向 delta（2→1）。
+/// 连续快速勾选（本旅程 6+ 次）在该环境下不具备确定性，故勾选步骤改走
+/// 生产 provider 通道；勾选框渲染/计数/action bar/长按菜单/转发等其余
+/// 步骤仍全部经真实 UI 驱动。
+bool _toggleViaProduction(
+  WidgetTester tester,
+  String messageId, {
+  bool selectOn = true,
+}) {
+  final container = _chatContainerOf(tester);
+  if (container == null) return false;
+  final uk3 = _resolveUk3(tester);
+  if (uk3 == null || uk3.isEmpty) return false;
+  final message = _messageById(container, messageId);
+  if (message == null) return false;
+  final selection = container.read(messageSelectionProvider(uk3));
+  if (selectOn && selection.contains(messageId)) return true;
+  container
+      .read(messageSelectionProvider(uk3).notifier)
+      .toggle(message.id, messageSelectionTraitsOf(message));
+  return true;
+}
+
+/// 在多选模式下勾选某条消息（driver 只用于「选上」语义，不用于取消）。
+/// 优先生产勾选通道（见 _toggleViaProduction）；无 ChatPage/uk3 场景
+/// （本地冒烟假页）退回 tap 注入：点勾选框稳定 Key（44pt 触达区），
+/// 兜底点气泡本体（tap-toggle）。
+///
+/// tap 兜底路径的真机失败模式与对策（DEV-01 probe1-3 + fix-pass1-r2 /
+/// final-pass1 证据；生产勾选 GestureDetector 均无缺陷，命中即正确切换）：
 /// ① tap 被吞：入场布局切换（leading 头像↔勾选框、输入区↔action bar）后
 ///    首个 pointer packet 在引擎边界被延迟/丢弃 —— probe1/2 入场首 tap 不
 ///    注册、probe3 迟到 packet 与下一 tap 一并生效（一次勾两条）。对策：
@@ -197,7 +264,7 @@ Future<void> tapViaNewGesture(WidgetTester tester, Finder finder) async {
 ///    ≥350ms（跨 kDoubleTapTimeout 与 packet 交付窗口）。
 /// ② tap 误投：fixture 图像异步解码展开令整列位移 —— tap() 取坐标时行在
 ///    旧位、事件命中时行已移位（probe1 同坐标两次 tap 勾中两个不同行；
-///    final-pass1 前缀截图 t3 被误勾、本次 r1 计数 2→1 误中已选行）。
+///    final-pass1 前缀截图 t3 被误勾、r1 计数 2→1 误中已选行）。
 ///    对策：tap 前布局稳定性门（目标 rect ≥400ms 窗口两次取样一致才出手）；
 ///    tap 后语义校验（计数 +1 且目标框呈选中态）；误投自愈（撤销误勾行）。
 /// 校验不通过即重试（重新解析 finder 取最新几何）；重试耗尽交调用方
@@ -208,6 +275,34 @@ Future<void> toggleMessageSelection(
   String? messageId,
   int maxAttempts = 3,
 }) async {
+  // 生产通道：确定性勾选（真机主路径）。
+  if (messageId != null && _toggleViaProduction(tester, messageId)) {
+    final container = _chatContainerOf(tester);
+    final uk3 = _resolveUk3(tester);
+    if (container != null && uk3 != null) {
+      await pacedWait(tester, 120);
+      await settle(tester, maxSeconds: 1);
+      final f = find.byKey(chatMultiCheckboxKey(messageId));
+      final checked = tester.any(f)
+          ? tester.any(
+              find.descendant(
+                of: f,
+                matching: find.byIcon(CupertinoIcons.checkmark_circle_fill),
+              ),
+            )
+          : true;
+      final inSelection = container
+          .read(messageSelectionProvider(uk3))
+          .contains(messageId);
+      if (inSelection && checked) return;
+      if (!inSelection) {
+        flowLog('W3K 生产通道勾选未生效: messageId=$messageId');
+        return; // 交调用方 expectSelectionCount 以实际计数失败。
+      }
+      // 计数/选择已 ON 但勾选框图标未亮（理论不可达）→ 继续走 tap 兜底。
+    }
+  }
+
   Finder targetOf() {
     final byKey = messageId != null
         ? find.byKey(chatMultiCheckboxKey(messageId))
@@ -283,11 +378,31 @@ Future<void> toggleMessageSelection(
   }
 }
 
-/// 撤销误勾：勾掉所有非 [messageId] 的已勾选行（勾选框呈实心圈图标，
-/// 且 Key 属 multi_select_check_ 族的行）。messageId 为 null 时不动
-/// （无法判定目标族，交调用方断言兜底）。
+/// 撤销误勾：勾掉所有非 [messageId] 的已勾选行。优先生产通道（与勾选
+/// 同源）；无 ChatPage 场景退回 tap 注入（勾选框呈实心圈图标，且 Key 属
+/// multi_select_check_ 族的行）。messageId 为 null 时不动（无法判定目标
+/// 族，交调用方断言兜底）。
 Future<void> undoWrongSelections(WidgetTester tester, String? messageId) async {
   if (messageId == null) return;
+  final container = _chatContainerOf(tester);
+  final uk3 = container == null ? null : _resolveUk3(tester);
+  if (container != null && uk3 != null) {
+    final selected = container
+        .read(messageSelectionProvider(uk3))
+        .selectedIds
+        .toList();
+    for (final id in selected) {
+      if (id == messageId) continue;
+      final message = _messageById(container, id);
+      if (message == null) continue;
+      flowLog('W3K 撤销误勾(生产通道): $id');
+      container
+          .read(messageSelectionProvider(uk3).notifier)
+          .toggle(id, messageSelectionTraitsOf(message));
+      await settle(tester, maxSeconds: 1);
+    }
+    return;
+  }
   final boxes = find
       .byWidgetPredicate(
         (w) =>
