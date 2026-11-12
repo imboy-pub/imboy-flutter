@@ -215,11 +215,18 @@ class SendToNotifier extends Notifier<SendToState> {
     ..['total'] = images.length;
 
   /// 发送消息
+  ///
+  /// [silent]（W5 G4-9）：失败分支不逐单元 toast。默认 false 保持单条
+  /// 转发既有行为（sendToSelected 每失败目标一个 toast）；批量路径
+  /// （[forwardOneForBatch]，最多 9 目标 × 50 消息）必须传 true——逐单元
+  /// toast 在批量规模下刷屏，失败呈现由 SendToPage 汇总卡统一负责。
+  /// 日志不受该参数影响。
   Future<bool> sendMsg(
     ConversationModel conversation,
     Message msg, {
     void Function(MessageModel)? onQueued,
     bool Function()? isCurrent,
+    bool silent = false,
   }) async {
     try {
       if (isCurrent != null && !isCurrent()) return false;
@@ -389,14 +396,18 @@ class SendToNotifier extends Notifier<SendToState> {
       // 无半转发状态；重试 = 全新消息 id + 全新密钥重封装，幂等。
       // 日志按 Finding 014 口径只落稳定码，不输出异常对象。
       debugPrint('[send_to_provider] forward blocked, reason=${e.reason}');
-      AppLoading.showError(forwardFailureToast(e.reason));
+      if (!silent) {
+        AppLoading.showError(forwardFailureToast(e.reason));
+      }
     } on PlainAttachmentForwardException catch (e) {
       // 明文附件重上传失败：同样在落库前失败。稳定码与加密路径同一组映射，
       // 用户看到的文案一致（下载/上传失败 → 通用发送失败）。
       debugPrint(
         '[send_to_provider] plain forward blocked, reason=${e.reason}',
       );
-      AppLoading.showError(forwardFailureToast(e.reason));
+      if (!silent) {
+        AppLoading.showError(forwardFailureToast(e.reason));
+      }
     } on Exception catch (e) {
       debugPrint('[send_to_provider] block error: $e');
     }
@@ -426,8 +437,9 @@ class SendToNotifier extends Notifier<SendToState> {
         MessageModel(
           m.id,
           autoId: 0,
+          // 占位值：协调器仅消费 id / createdAt，勿消费本字段。
           type: 'C2C',
-          status: 0,
+          status: 0, // 占位值：同上，协调器不读 status。
           fromId: m.authorId,
           toId: 0,
           payload: const <String, dynamic>{},
@@ -457,7 +469,9 @@ class SendToNotifier extends Notifier<SendToState> {
   }) {
     final origin = messagesById[message.id];
     if (origin == null) return Future<bool>.value(false);
-    return sendMsg(target, origin, isCurrent: () => isCurrent);
+    // W5 G4-9：批量路径静默——失败 toast 由 SendToPage 汇总卡统一呈现，
+    // 不逐单元刷屏（批量规模最多 9×50）。
+    return sendMsg(target, origin, isCurrent: () => isCurrent, silent: true);
   }
 
   /// 搜索

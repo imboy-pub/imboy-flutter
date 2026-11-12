@@ -429,11 +429,28 @@ class _SendToPageState extends ConsumerState<SendToPage> {
     try {
       return await body();
     } on BatchForwardException catch (e) {
+      // W5 G4-4：BatchForwardException 之外的 Error（如 send 路径透传的
+      // StateError，协调器只捕 Exception）也会走到 on Object 兜底；
+      // 无论哪个分支，finally 统一复位 _batchRunning，否则按钮永久卡在
+      // 「取消」态。
       if (mounted) {
-        setState(() => _batchRunning = false);
         AppLoading.showError(_batchErrorCodeText(e.code));
       }
       return null;
+    } on Object catch (e) {
+      // 未知错误兜底（含 Error 族）：按既有通用发送失败文案呈现；
+      // 只记类型不输出异常对象（Finding 014 口径）。
+      debugPrint(
+        '[send_to_page] batch forward crashed, errType=${e.runtimeType}',
+      );
+      if (mounted) {
+        AppLoading.showError(t.common.sendFailed);
+      }
+      return null;
+    } finally {
+      if (mounted) {
+        setState(() => _batchRunning = false);
+      }
     }
   }
 

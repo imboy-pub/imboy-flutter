@@ -353,6 +353,20 @@ void main() {
       expect(retryReport.results.every((r) => r.attempt == 2), isTrue);
     });
 
+    test('W5 G4-8：retryableUnitKeys 不可变（外部不得原地增删重试集合）', () async {
+      final c = coordinatorWith((target, message, _) async => false);
+      final report = await c.run([t1], [m1]);
+      expect(report.failedCount, 1);
+      expect(
+        () => report.retryableUnitKeys.add('tampered-key'),
+        throwsUnsupportedError,
+        reason: 'report 是跨回调的结果快照，集合加不可变壳与 results 同口径',
+      );
+      expect(report.retryableUnitKeys, {
+        unitKey(t1.uk3, 'm1'),
+      }, reason: '原有内容不受篡改尝试影响');
+    });
+
     test('无可重试单元：零调用、空报告', () async {
       final c = coordinatorWith((target, message, _) async => true);
       final report = await c.run([t1, t2], [m1, m2]);

@@ -134,6 +134,13 @@ void main() {
         ),
         t.common.sendFailed,
       );
+      // W5 G4-7：源行缺失专用码同样落通用文案（默认分支覆盖，无需新键）。
+      expect(
+        SendToNotifier.forwardFailureToast(
+          HistoryBundleBuildErrorCode.sourceMissing,
+        ),
+        t.common.sendFailed,
+      );
     });
   });
 }

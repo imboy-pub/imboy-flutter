@@ -135,10 +135,12 @@ class BatchForwardReport {
     required this.finishedAt,
     this.cancelled = false,
   }) : results = List.unmodifiable(results),
-       retryableUnitKeys = {
+       // W5 G4-8：与 results 同口径的不可变壳——report 是跨回调传递的
+       // 结果快照，外部不得原地增删重试集合（会污染 retryFailed 精确性）。
+       retryableUnitKeys = Set.unmodifiable({
          for (final r in results)
            if (r.status == ForwardUnitStatus.failed) r.key,
-       };
+       });
 
   int get totalCount => results.length;
   int get successCount => count(ForwardUnitStatus.success);

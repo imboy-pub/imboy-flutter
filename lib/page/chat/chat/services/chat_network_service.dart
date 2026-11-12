@@ -792,7 +792,8 @@ class ChatNetworkService {
       return true;
     } catch (e) {
       if (!current()) return false;
-      // Finding 014：WS 发送异常可能回显报文内容，只记类型
+      // Finding 014：WS 发送异常可能回显报文内容；此处只落异常类型 +
+      // Error stack 前 5 行（不含报文内容），Exception 不落 stack。
       iPrint(
         '❌ [sendWithRetry] 消息发送失败: msgId=$messageId, errType=${e.runtimeType}, '
         'stack=${e is Error ? e.stackTrace.toString().split('\n').take(5).join(' | ') : ''}',

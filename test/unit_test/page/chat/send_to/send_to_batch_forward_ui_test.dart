@@ -156,6 +156,8 @@ void main() {
       ]);
       expect(report.successCount, 4);
       expect(fake.calls.every((c) => c.$3), isTrue);
+      // W5 G4-9：批量路径（forwardOneForBatch → sendMsg）必须全部静默。
+      expect(fake.silentCalls, fake.calls.length);
     });
 
     test('部分失败不回滚：失败单元标记、后续继续；仅重试失败单元，成功单元零重复', () async {
@@ -340,6 +342,39 @@ void main() {
         reason: '未产生任何单元结果，无重试入口',
       );
     });
+
+    testWidgets('W5 G4-4：send 路径抛 StateError（协调器透传 Error）→ 按钮状态恢复，不卡「取消」', (
+      tester,
+    ) async {
+      final fake = _RecordingSendToNotifier()
+        ..conversations = [conv('10002')]
+        ..errorUnits.add('10002/m1');
+      final messages = [chatMsg('m1', 1000), chatMsg('m2', 2000)];
+      await _pumpSendTo(
+        tester,
+        notifier: fake,
+        page: SendToPage.batch(messages: messages),
+      );
+
+      await tester.tap(find.text('peer-10002'));
+      await tester.pump();
+      await tester.tap(find.text(t.common.buttonSend));
+      // StateError 在纯 microtask 链内即传播完毕（无真实计时器），
+      // 首帧 pump 后即处于「已捕获 + 已复位」的终态。
+      await tester.pumpAndSettle();
+
+      expect(fake.calls, hasLength(1), reason: '首个单元已进入 send 路径并抛 StateError');
+      // 关键断言：_runBatchSafely 的 finally 复位 _batchRunning，
+      // Error 逃逸不再让按钮永久卡在「取消」态。
+      expect(find.text(t.common.cancel), findsNothing, reason: '按钮已离开取消态');
+      expect(find.text(t.common.buttonSend), findsOneWidget, reason: '按钮回到发送态');
+      expect(find.text('peer-10002'), findsOneWidget, reason: '页面保留');
+      expect(
+        find.text(t.chat.batchForwardRetryFailed),
+        findsNothing,
+        reason: 'crash 路径无单元报告，不出现重试入口',
+      );
+    });
   });
 
   group('单条模式零回归（页面级）', () {
@@ -361,6 +396,8 @@ void main() {
 
       expect(fake.calls.map((c) => c.$1).toList(), ['10002', '10003']);
       expect(fake.calls.every((c) => identical(c.$2, msg)), isTrue);
+      // W5 G4-9 回归锚：单条路径保持默认非静默（失败 toast 行为零变化）。
+      expect(fake.silentCalls, 0);
       expect(
         find.text(t.chat.forwardedToChats(count: 2)),
         findsOneWidget,
@@ -405,8 +442,15 @@ class _RecordingSendToNotifier extends SendToNotifier {
   /// `peerId/messageId` 集合：命中的单元 sendMsg 返回 false。
   final Set<String> failUnits = {};
 
+  /// `peerId/messageId` 集合：命中的单元 sendMsg 抛 StateError
+  /// （W5 G4-4：Error 不被协调器的 on Exception 捕获，会透传到页面层）。
+  final Set<String> errorUnits = {};
+
   /// 非空时，下一次 sendMsg 调用先等待该 gate（用于观察执行中 UI）。
   Completer<void>? holdGate;
+
+  /// sendMsg 收到 silent=true 的调用次数（W5 G4-9：批量路径必须静默）。
+  int silentCalls = 0;
 
   /// 每次真实 sendMsg 调用：(目标 peerId, 原消息对象, 调用时 isCurrent())。
   final List<(String, Message, bool)> calls = [];
@@ -425,8 +469,13 @@ class _RecordingSendToNotifier extends SendToNotifier {
     Message msg, {
     void Function(MessageModel)? onQueued,
     bool Function()? isCurrent,
+    bool silent = false,
   }) async {
     calls.add((conversation.peerId, msg, isCurrent?.call() ?? true));
+    if (silent) silentCalls++;
+    if (errorUnits.contains('${conversation.peerId}/${msg.id}')) {
+      throw StateError('injected state error');
+    }
     final gate = holdGate;
     if (gate != null) {
       holdGate = null;
