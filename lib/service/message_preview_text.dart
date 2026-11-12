@@ -1,5 +1,6 @@
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/service/group_collaboration_summary.dart';
+import 'package:imboy/service/message_type_alias.dart';
 import 'package:imboy/service/message_type_constants.dart';
 
 /// 会话列表 / 通知等「聊天页之外」的消息预览文案 —— 单一事实源。
@@ -34,7 +35,14 @@ String messagePreviewText(
 
   final subtitle = _readableFallbackSubtitle(fallbackSubtitle);
 
-  switch (msgType) {
+  // 历史脏数据可能用下划线命名持久化（webrtc_audio/webrtc_video），
+  // 常量是驼峰——经共享别称表（MessageTypeAlias.underscoreWebrtc，
+  // W5-G3-4 收口，替代原双 case）归一后匹配。
+  // ⚠️ 仅归一这一类：audio 由 voice 分支显式双 case 接住，
+  // channel_message 等其余别称的列表口径维持各自分支现状
+  // （特征化测试锁定，不 trim）。
+  final type = MessageTypeAlias.underscoreWebrtc[msgType] ?? msgType;
+  switch (type) {
     case MessageType.text:
     case MessageType.textStream:
       // textStream 与 text 同构（payload['text'] 承载当前分片正文）
@@ -89,14 +97,6 @@ String messagePreviewText(
       return '[${t.common.voiceCall}]';
 
     case MessageType.webrtcVideo:
-      return '[${t.common.videoCall}]';
-
-    // ⚠️ 历史脏数据可能用下划线命名持久化，常量是驼峰——双 case 都接住，
-    // 避免新旧数据都 fallback 成「[消息]」（原 message._messageTypeLabel 同款）
-    case 'webrtc_audio':
-      return '[${t.common.voiceCall}]';
-
-    case 'webrtc_video':
       return '[${t.common.videoCall}]';
 
     case 'revoked':

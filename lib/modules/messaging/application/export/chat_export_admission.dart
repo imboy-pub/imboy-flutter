@@ -24,6 +24,7 @@ library;
 
 import 'package:imboy/modules/messaging/application/export/chat_export_entry.dart';
 import 'package:imboy/modules/messaging/domain/message_status.dart';
+import 'package:imboy/service/message_type_alias.dart';
 import 'package:imboy/service/message_type_constants.dart';
 
 /// 导出准入结果（不可变）。
@@ -80,25 +81,14 @@ class ChatExportAdmission {
       ChatExportAdmission._(false, 'rejected_realtime_acl_card');
 }
 
-/// 协议/历史别称归一表。真源是 `MessageTypeNormalizer.aliasOf` +
-/// `_canonical`（service/message_type_normalizer.dart），此处本地内联同一
-/// 映射以保持导出核心纯 Dart、零日志副作用（normalize() 会 iPrint）。
-/// 新增别称时两处同步。
-const Map<String, String> _kTypeAliases = <String, String>{
-  // 'audio'：protobuf 通道/收藏链路的协议别称，渲染真值为 voice
-  MessageType.audio: MessageType.voice,
-  // 2026-10-30 前「频道消息→分享到聊天」的历史私有 msg_type
-  MessageType.legacyChannelMessage: MessageType.channelCard,
-  // 历史脏数据可能以下划线命名持久化（messagePreviewText 同款双 case）
-  'webrtc_audio': MessageType.webrtcAudio,
-  'webrtc_video': MessageType.webrtcVideo,
-};
-
-/// 归一导出用 msg_type：trim + 协议别称映射（audio→voice 等）。
-String normalizeChatExportMsgType(String raw) {
-  final t = raw.trim();
-  return _kTypeAliases[t] ?? t;
-}
+/// 归一导出用 msg_type：trim + 协议/历史别称映射（audio→voice、
+/// channel_message→channel_card、webrtc 下划线脏值→驼峰等）。
+///
+/// 别称表真源 = `MessageTypeAlias.all`（service/message_type_alias.dart，
+/// W5-G3-4 收口；与 Normalizer / messagePreviewText 共用同一映射源），
+/// 纯 Dart、零日志副作用（normalize() 才会 iPrint）。
+String normalizeChatExportMsgType(String raw) =>
+    MessageTypeAlias.canonicalOf(raw);
 
 /// 系统/控制类型全集：C2S/S2C action 值（历史版本可能落库为 msg_type）
 /// + 'revoked' 撤回占位。这些类型没有可导出的用户内容。
