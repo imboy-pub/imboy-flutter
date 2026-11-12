@@ -250,6 +250,41 @@ void main() {
     }
   });
 
+  test('纯上传 journal 行（business_intent NULL）不阻断 outbox 认领/派发', () async {
+    // 转发的明文附件重上传经 ResumableAttachmentUploader 落 journal 行，
+    // messageIntent 缺省 → business_intent 为 NULL。该类行不属于 outbox
+    // 协议：认领与发送前置必须与「无行」同判（修复前
+    // jsonDecode(null as String) 抛 _TypeError，转发副本被误标 error 且
+    // 永不派发——chat-multi-20261111 DEV-01 image 副本缺陷根因）。
+    await _seedRow(
+      'plain-journal-img',
+      uid: _uidA,
+      stage: AttachmentUploadStage.confirmed,
+      objectKey: 'obj/img-key',
+    );
+    await db.update(
+      'attachment_upload_task',
+      {'anchor_msg_id': 'fwd-copy-img', 'business_intent': null},
+      where: 'id = ?',
+      whereArgs: ['plain-journal-img'],
+    );
+
+    expect(
+      await repo.claimOutboxDispatch(
+        'fwd-copy-img',
+        _uidA,
+        isCurrent: () => true,
+      ),
+      isTrue,
+      reason: 'NULL intent 行不参与协议，认领须与无行同判放行',
+    );
+    expect(
+      await repo.beginOutboxSend('fwd-copy-img', _uidA, isCurrent: () => true),
+      isTrue,
+      reason: '发送前置（beginOutboxSend）同样放行',
+    );
+  });
+
   test('独立 SQLite 连接上的发送和任务创建竞争保持互斥', () async {
     final path = '${_uploadCache.path}/fence.sqlite';
     final firstDb = await _openDb(path);

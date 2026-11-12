@@ -679,6 +679,13 @@ class AttachmentUploadTaskRepo {
     });
   }
 
+  /// V5 日志行里 `business_intent` 为 NULL 的行是「纯上传 journal」
+  /// （ResumableAttachmentUploader 在 messageIntent 缺省时写入——转发
+  /// 明文附件重上传正是这一形态），不属于 outbox 派发协议：认领/派发/
+  /// 复原判定一律忽略它们，等价于「该锚点无 outbox 任务」。
+  static bool _isOutboxManaged(Map<String, Object?> row) =>
+      row['business_intent'] != null;
+
   Future<bool> claimOutboxDispatch(
     String anchor,
     String userId, {
@@ -693,7 +700,8 @@ class AttachmentUploadTaskRepo {
         where: 'anchor_msg_id = ? AND user_id = ?',
         whereArgs: [anchor, userId],
       );
-      if (rows.isEmpty) {
+      final managed = rows.where(_isOutboxManaged).toList();
+      if (managed.isEmpty) {
         await _ensureSendGate(txn);
         await txn.insert('attachment_send_gate', {
           'user_id': userId,
@@ -702,7 +710,7 @@ class AttachmentUploadTaskRepo {
         if (!isCurrent()) throw StateError('outbox account changed');
         return true;
       }
-      final intents = rows
+      final intents = managed
           .map(
             (r) =>
                 jsonDecode(r['business_intent'] as String)
@@ -710,7 +718,7 @@ class AttachmentUploadTaskRepo {
           )
           .toList();
       if (intents.every((i) => i['state'] == 'dispatch_reserved_v2') &&
-          rows.every(
+          managed.every(
             (r) =>
                 r['stage'] == AttachmentUploadStage.confirmed.value &&
                 (r['last_error'] as String?)?.startsWith('legacy_migrating:') !=
@@ -719,7 +727,7 @@ class AttachmentUploadTaskRepo {
         return true;
       }
       if (intents.any((i) => i['state'] != 'outbox_ready') ||
-          rows.any(
+          managed.any(
             (r) =>
                 r['stage'] != AttachmentUploadStage.confirmed.value ||
                 (r['last_error'] as String?)?.startsWith('legacy_migrating:') ==
@@ -727,7 +735,7 @@ class AttachmentUploadTaskRepo {
           )) {
         return false;
       }
-      for (var index = 0; index < rows.length; index++) {
+      for (var index = 0; index < managed.length; index++) {
         await txn.update(
           tableName,
           {
@@ -737,7 +745,7 @@ class AttachmentUploadTaskRepo {
             }),
           },
           where: 'id = ? AND user_id = ?',
-          whereArgs: [rows[index]['id'], userId],
+          whereArgs: [managed[index]['id'], userId],
         );
       }
       if (!isCurrent()) throw StateError('outbox account changed');
@@ -767,7 +775,8 @@ class AttachmentUploadTaskRepo {
         '(user_id TEXT NOT NULL, anchor TEXT NOT NULL, token TEXT NOT NULL, '
         'PRIMARY KEY (user_id, anchor, token))',
       );
-      if (rows.isEmpty) {
+      final managed = rows.where(_isOutboxManaged).toList();
+      if (managed.isEmpty) {
         if (attemptToken != null) {
           await tx.insert('message_send_attempt', {
             'user_id': userId,
@@ -778,14 +787,14 @@ class AttachmentUploadTaskRepo {
         if (!isCurrent()) throw StateError('outbox account changed');
         return true;
       }
-      final intents = rows
+      final intents = managed
           .map(
             (row) =>
                 jsonDecode(row['business_intent'] as String)
                     as Map<String, dynamic>,
           )
           .toList();
-      if (rows.any(
+      if (managed.any(
             (row) =>
                 row['stage'] != AttachmentUploadStage.confirmed.value ||
                 (row['last_error'] as String?)?.startsWith(
@@ -796,7 +805,7 @@ class AttachmentUploadTaskRepo {
           intents.any((intent) => intent['state'] != 'dispatch_reserved_v2')) {
         return false;
       }
-      for (var i = 0; i < rows.length; i++) {
+      for (var i = 0; i < managed.length; i++) {
         await tx.update(
           tableName,
           {
@@ -807,7 +816,7 @@ class AttachmentUploadTaskRepo {
             }),
           },
           where: 'id = ? AND user_id = ?',
-          whereArgs: [rows[i]['id'], userId],
+          whereArgs: [managed[i]['id'], userId],
         );
       }
       if (attemptToken != null) {
@@ -838,7 +847,8 @@ class AttachmentUploadTaskRepo {
         where: 'anchor_msg_id = ? AND user_id = ?',
         whereArgs: [anchor, userId],
       );
-      if (rows.isEmpty) {
+      final managed = rows.where(_isOutboxManaged).toList();
+      if (managed.isEmpty) {
         await tx.delete(
           'message_send_attempt',
           where: 'user_id = ? AND anchor = ? AND token = ?',
@@ -846,7 +856,7 @@ class AttachmentUploadTaskRepo {
         );
         return true;
       }
-      final intents = rows
+      final intents = managed
           .map(
             (row) =>
                 jsonDecode(row['business_intent'] as String)
@@ -860,14 +870,14 @@ class AttachmentUploadTaskRepo {
       )) {
         return false;
       }
-      for (var i = 0; i < rows.length; i++) {
+      for (var i = 0; i < managed.length; i++) {
         final next = {...intents[i], 'state': 'dispatch_reserved_v2'}
           ..remove('dispatch_attempt');
         await tx.update(
           tableName,
           {'business_intent': jsonEncode(next)},
           where: 'id = ? AND user_id = ?',
-          whereArgs: [rows[i]['id'], userId],
+          whereArgs: [managed[i]['id'], userId],
         );
       }
       await tx.delete(
@@ -895,8 +905,10 @@ class AttachmentUploadTaskRepo {
         whereArgs: [anchor, userId],
       );
       if (rows.isEmpty) return false;
+      final managed = rows.where(_isOutboxManaged).toList();
+      if (managed.isEmpty) return false;
       String? chatType;
-      for (final row in rows) {
+      for (final row in managed) {
         final intent = jsonDecode(
           row['business_intent'] as String,
         ) as Map<String, dynamic>;
@@ -943,7 +955,7 @@ class AttachmentUploadTaskRepo {
           }.contains(message['status'])) {
         return false;
       }
-      for (final row in rows) {
+      for (final row in managed) {
         final intent = jsonDecode(
           row['business_intent'] as String,
         ) as Map<String, dynamic>;
@@ -1001,7 +1013,9 @@ class AttachmentUploadTaskRepo {
         whereArgs: [anchor, userId],
       );
       if (rows.isEmpty) return false;
-      final intents = rows
+      final managed = rows.where(_isOutboxManaged).toList();
+      if (managed.isEmpty) return false;
+      final intents = managed
           .map(
             (row) =>
                 jsonDecode(row['business_intent'] as String)
@@ -1026,7 +1040,7 @@ class AttachmentUploadTaskRepo {
           messages.single['status'] == IMBoyMessageStatus.sent) {
         return false;
       }
-      for (var i = 0; i < rows.length; i++) {
+      for (var i = 0; i < managed.length; i++) {
         await tx.update(
           tableName,
           {
@@ -1036,7 +1050,7 @@ class AttachmentUploadTaskRepo {
             }),
           },
           where: 'id = ? AND user_id = ?',
-          whereArgs: [rows[i]['id'], userId],
+          whereArgs: [managed[i]['id'], userId],
         );
       }
       await tx.update(

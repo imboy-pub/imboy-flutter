@@ -620,13 +620,16 @@ class MessageRetry with EventSubscriptionManager {
     final uploads = AttachmentUploadTaskRepo();
     final rows = await uploads.findByAnchor(message.id, uid);
     if (!sessionValid()) return true;
-    if (rows.isEmpty) {
-      return false; // Historical attachments have no V5 journal.
+    // V5 日志行的 business_intent 可为 NULL（纯上传 journal，如转发的明文
+    // 附件重上传）——不属于 outbox 协议，与「无 V5 上传任务」同判，不阻断
+    // 派发，也不走 isCommitted 复原（复原只对受协议管理的行有意义）。
+    final managed = rows.where((row) => row.businessIntent != null).toList();
+    if (managed.isEmpty) {
+      return false; // Historical/plain-journal attachments have no V5 intent.
     }
-    if (rows.every(
+    if (managed.every(
       (row) =>
           row.stage == AttachmentUploadStage.confirmed &&
-          row.businessIntent != null &&
           {
             'outbox_ready',
             'dispatch_reserved_v2',
