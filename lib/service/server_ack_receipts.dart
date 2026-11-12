@@ -183,7 +183,13 @@ class ServerAckReceipts {
           where: 'anchor_msg_id = ? AND user_id = ?',
           whereArgs: [ackId, ownerUid],
         );
-        for (final upload in uploads) {
+        // business_intent 为 NULL 的行是纯上传 journal（messageIntent 缺省，
+        // 如转发的明文附件重上传），不属于 outbox 派发协议：ACK 提交校验与
+        // 状态推进一律跳过（与 repo 层 _isOutboxManaged 同口径）。
+        final managed = uploads
+            .where((upload) => upload['business_intent'] != null)
+            .toList();
+        for (final upload in managed) {
           final intent = jsonDecode(
             upload['business_intent'] as String,
           ) as Map<String, dynamic>;
@@ -197,7 +203,7 @@ class ServerAckReceipts {
             return false;
           }
         }
-        for (final upload in uploads) {
+        for (final upload in managed) {
           final intent = jsonDecode(
             upload['business_intent'] as String,
           ) as Map<String, dynamic>;
