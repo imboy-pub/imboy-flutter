@@ -52,12 +52,12 @@ enum ChatExportStatus {
 
 /// 一次导出的结果（不可变）。
 class ChatExportResult {
-  const ChatExportResult({
+  ChatExportResult({
     required this.status,
     this.errorCode,
     this.exportedCount = 0,
-    this.rejectionCounts = const <String, int>{},
-  });
+    Map<String, int> rejectionCounts = const <String, int>{},
+  }) : rejectionCounts = Map<String, int>.unmodifiable(rejectionCounts);
 
   final ChatExportStatus status;
 
@@ -71,6 +71,10 @@ class ChatExportResult {
   final int exportedCount;
 
   /// 被拒条目按 reason code 聚合计数（直映 i18n 提示）。
+  ///
+  /// 构造时做 unmodifiable 快照（W5-G3 复审 INFO：文档自称不可变，
+  /// 实现同步兜住——调用方后续改传入 map 不影响本结果，写操作抛
+  /// UnsupportedError）。
   final Map<String, int> rejectionCounts;
 }
 
@@ -105,6 +109,7 @@ class ChatExportController {
     this._isEncryptedConversation,
     this._confirmLeaveEncryptedEnvironment,
     this._translations,
+    this._diagnosticLogger,
     DateTime Function()? now,
   }) : _tempFilePolicy = tempFilePolicy ?? const DefaultExportTempFilePolicy(),
        _isFlagEnabled = isFlagEnabled ?? _defaultFlagDisabled,
@@ -117,6 +122,12 @@ class ChatExportController {
   final Future<bool> Function()? _isEncryptedConversation;
   final Future<bool> Function()? _confirmLeaveEncryptedEnvironment;
   final Map<String, String> Function()? _translations;
+
+  /// 诊断日志缝（W5-G3 复审 LOW）：确认回调异常静默降级线上无从排查，
+  /// 注入 iPrint 后与 flow 的错误码日志同惯例。保持本层纯 Dart
+  /// （不 import Flutter），由 presentation 层（chat_export_flow）接线；
+  /// 缺省 null = 无日志（纯 Dart 调用方/测试不受影响）。
+  final void Function(String message)? _diagnosticLogger;
   final DateTime Function() _now;
 
   /// flag 判定缺省：fail-closed（rollout flag 默认关闭语义）。
@@ -131,7 +142,8 @@ class ChatExportController {
   Future<ChatExportResult> export(ChatExportRequest request) async {
     // 1. 灰度开关：关闭即拒绝（fail-closed），不进入任何后续步骤。
     if (!_isFlagEnabled()) {
-      return const ChatExportResult(status: ChatExportStatus.flagDisabled);
+      // 构造函数非 const（rejectionCounts 做 unmodifiable 快照）。
+      return ChatExportResult(status: ChatExportStatus.flagDisabled);
     }
 
     // 2. 类型准入（W1-C 冻结矩阵），拒绝项不进入正文与分享。
@@ -197,7 +209,8 @@ class ChatExportController {
   /// - 确认回调缺失 = 无法取得用户同意 = 拒绝（fail-closed）；
   /// - 确认回调抛异常（如 UI context 已卸载的路由查找失败）同样无法
   ///   取得用户同意：防御捕获映射拒绝（W5-G3-1），异常不再穿透
-  ///   `unawaited` 的导出调用链。
+  ///   `unawaited` 的导出调用链；日志只记异常类型（ADR 15 §5 同款口径，
+  ///   不含 payload/密钥/会话细节），经 [_diagnosticLogger] 缝输出。
   Future<bool> _confirmedLeaveEncryptedEnvironment() async {
     final isEncrypted = _isEncryptedConversation;
     final encrypted = isEncrypted != null && await isEncrypted();
@@ -206,7 +219,10 @@ class ChatExportController {
     if (confirm == null) return false;
     try {
       return await confirm();
-    } on Object {
+    } on Object catch (e) {
+      _diagnosticLogger?.call(
+        '⚠️ [chat_export] E2EE 确认回调异常，按拒绝处理: ${e.runtimeType}',
+      );
       return false;
     }
   }

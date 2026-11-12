@@ -54,15 +54,20 @@ Future<ChatExportResult> runChatExportFlow(
   // 不做逐消息映射（每条一次 DB 发送者名查询）等无谓工作。controller
   // 内的同款判定保留，作注入型调用的防御（双保险）。
   if (!AppFeatureRegistry.isRolloutFlagEnabled(FeatureKeys.chatExportShareV1)) {
-    return const ChatExportResult(status: ChatExportStatus.flagDisabled);
+    return ChatExportResult(status: ChatExportStatus.flagDisabled);
   }
   final controller = ChatExportController(
     gateway: const SharePlusChatShareGateway(),
     tempFileWriter: IoChatExportTempFileWriter(),
     isFlagEnabled: () =>
         AppFeatureRegistry.isRolloutFlagEnabled(FeatureKeys.chatExportShareV1),
-    isEncryptedConversation: () =>
-        isEncryptedConversationForExport(chatType: chatType, toId: toId),
+    isEncryptedConversation: () => isEncryptedConversationForExport(
+      chatType: chatType,
+      toId: toId,
+      // S1-L4：历史 E2EE 行判定用本次导出消息级 metadata（无新 DB 查询）——
+      // 部署策略翻为不加密时，历史密文行仍必须走「离开加密环境」确认。
+      messages: messages,
+    ),
     confirmLeaveEncryptedEnvironment: () async {
       // 本闭包在 controller 第 3 步才被调用——此前已跨过逐消息映射
       // （每条 DB 查询）与加密判定的多次 await，context 可能已卸载。
@@ -72,6 +77,9 @@ Future<ChatExportResult> runChatExportFlow(
       return showChatExportE2eeConfirmDialog(context);
     },
     translations: currentChatExportPlaceholderTranslations,
+    // 诊断日志缝（W5-G3 复审）：application 层保持纯 Dart 不 import
+    // Flutter，iPrint 在此（presentation 层）接线，与下方错误码日志同惯例。
+    diagnosticLogger: iPrint,
   );
   final entries = await chatExportEntriesFromMessages(
     messages,

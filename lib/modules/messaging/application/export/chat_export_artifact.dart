@@ -55,13 +55,19 @@ class ChatExportArtifact {
   }
 }
 
+/// 扩展名枚举白名单（W5-G3 复审 S1-L6）：替代旧正则 `^[a-z0-9]{1,8}$`——
+/// 旧实现宽于注释声称的 txt/html；收紧为枚举集，防注入面最小化
+/// （v1 导出只产这两类产物）。
+const Set<String> _kAllowedExportExtensions = <String>{'txt', 'html'};
+
 /// 生成导出临时文件名：`imboy-chat-export-<yyyyMMdd>-<6位hex>.<ext>`。
 ///
 /// 隐私不变量（文件名安全）：**函数签名不接收任何用户/会话数据**，
 /// 文件名只含固定前缀 + 日期 + 随机后缀，结构上不可能泄漏昵称、uid、
 /// 手机号或会话名。
 ///
-/// - [extension] 仅允许 `^[a-z0-9]{1,8}$`（txt/html），防注入。
+/// - [extension] 仅允许 `txt` / `html`（枚举集白名单，见
+///   [_kAllowedExportExtensions]）。
 /// - [now] 缺省取当前本地时间（测试注入固定值）。
 /// - [random] 缺省 `Random.secure()`（测试注入固定种子）。
 String generateChatExportFileName({
@@ -69,13 +75,8 @@ String generateChatExportFileName({
   DateTime? now,
   Random? random,
 }) {
-  final allowedExtension = RegExp(r'^[a-z0-9]{1,8}$');
-  if (!allowedExtension.hasMatch(extension)) {
-    throw ArgumentError.value(
-      extension,
-      'extension',
-      '导出文件名扩展名仅允许小写字母数字（txt/html）',
-    );
+  if (!_kAllowedExportExtensions.contains(extension)) {
+    throw ArgumentError.value(extension, 'extension', '导出文件名扩展名仅允许 txt/html');
   }
   final d = now ?? DateTime.now();
   final rnd = random ?? Random.secure();

@@ -124,6 +124,7 @@ void main() {
     Future<bool> Function()? isEncrypted,
     Future<bool> Function()? confirm,
     Map<String, String> Function()? translations,
+    void Function(String message)? diagnosticLogger,
   }) {
     return ChatExportController(
       gateway: gateway,
@@ -132,6 +133,7 @@ void main() {
       isEncryptedConversation: isEncrypted,
       confirmLeaveEncryptedEnvironment: confirm,
       translations: translations,
+      diagnosticLogger: diagnosticLogger,
       now: () => DateTime(2026, 11, 11, 10, 0, 0),
     );
   }
@@ -291,6 +293,48 @@ void main() {
     expect(gateway.calls, 0);
     expect(writer.writeCalls, 0);
     expect(_exportFilesIn(dir), isEmpty);
+  });
+
+  test('E2EE 确认回调抛异常：诊断日志缝输出异常类型（复审 LOW，不含敏感内容）', () async {
+    final gateway = _RecordingGateway();
+    final logs = <String>[];
+    final result = await controller(
+      gateway,
+      isEncrypted: () async => true,
+      confirm: () async => throw StateError('dialog context unmounted'),
+      diagnosticLogger: logs.add,
+    ).export(request([_text('张三', t1, '机密')]));
+
+    expect(result.status, ChatExportStatus.e2eeDeclined);
+    expect(logs, hasLength(1));
+    expect(logs.single, contains('E2EE 确认回调异常'));
+    expect(logs.single, contains('StateError')); // 异常类型口径
+    expect(logs.single, isNot(contains('dialog context unmounted'))); // 不落异常消息
+  });
+
+  test('rejectionCounts 不可变（复审 INFO）：构造时 unmodifiable 快照', () async {
+    // 值对象直测：外部 map 传入后被快照，后续改动不影响结果；写操作抛错。
+    final source = <String, int>{
+      ChatExportAdmission.rejectedStatusSending.reasonCode: 1,
+    };
+    final result = ChatExportResult(
+      status: ChatExportStatus.nothingToExport,
+      rejectionCounts: source,
+    );
+    source['injected'] = 99;
+    expect(result.rejectionCounts, {
+      ChatExportAdmission.rejectedStatusSending.reasonCode: 1,
+    });
+    expect(result.rejectionCounts.containsKey('injected'), isFalse);
+    expect(() => result.rejectionCounts['x'] = 1, throwsUnsupportedError);
+
+    // 全流程路径同样返回不可变 map（准入拒绝计数）。
+    final gateway = _RecordingGateway();
+    final flow = await controller(gateway).export(
+      request([_text('张三', t1, '发送中', status: domain.MessageStatus.sending)]),
+    );
+    expect(flow.status, ChatExportStatus.nothingToExport);
+    expect(() => flow.rejectionCounts['x'] = 1, throwsUnsupportedError);
   });
 
   test('E2EE 会话 + 用户确认：继续导出，分享后仍清理', () async {

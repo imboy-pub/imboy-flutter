@@ -79,6 +79,34 @@ void main() {
         throwsArgumentError,
       );
     });
+
+    test('扩展名白名单 = 枚举集 {txt, html}（S1-L6 收紧：旧正则内的合法值一并拒绝）', () {
+      // 'json'/'md'/'pdf' 在旧正则 ^[a-z0-9]{1,8}$ 下合法——收紧后必须拒绝。
+      for (final ext in const ['json', 'md', 'pdf', 'log', 'txtx']) {
+        expect(
+          () => generateChatExportFileName(extension: ext),
+          throwsArgumentError,
+          reason: '扩展名 $ext 不在枚举白名单内',
+        );
+      }
+      // 仅有的两个合法值照常放行。
+      expect(
+        () => generateChatExportFileName(
+          extension: 'txt',
+          now: fixedNow,
+          random: Random(1),
+        ),
+        returnsNormally,
+      );
+      expect(
+        () => generateChatExportFileName(
+          extension: 'html',
+          now: fixedNow,
+          random: Random(1),
+        ),
+        returnsNormally,
+      );
+    });
   });
 
   group('ChatExportArtifact', () {
