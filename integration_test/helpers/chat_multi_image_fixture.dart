@@ -49,10 +49,34 @@ class ChatMultiImageFixture {
   /// （C2C → `c2c:<minUid>:<maxUid>`，保证登录账号与对端都有读授权；
   /// [type] 为权威源，[conversationUk3] 仅作 type 缺失时的兜底）。
   /// 上传失败直接抛错 —— fixture 缺失就该让用例失败，不降级回占位 uri。
+  ///
+  /// ⚠️ 必须传 `process: false`（DEV-01 fix-pass1 r1 根因）：direct 上传管道
+  /// 在 process=true 时构造 UploadProgressSession → AppLoading/EasyLoading
+  /// 浮层，PUT 进度回调 showProgress、上传完成 dispose() await EasyLoading
+  /// dismiss —— 其内部 AnimationController.reverse().orCancel 在
+  /// LiveTestWidgetsFlutterBinding（integration_test）下测试体 await 期间
+  /// 永不完成 → uploadPng 挂死（dev01-fix-pass1-chat_multi_select.log：
+  /// finalize 200 后无输出，10min TimeoutException）。process=false 时管道
+  /// 不构造 progress session，关键路径零 UI await，上传编排
+  /// （register/declare/grant/PUT/finalize → object_key）完全不变。
+  /// 外层再套 60s 超时兜底：残留挂起将以用例失败快速暴露，不再吃满 10min。
   static Future<String> uploadPng({
     required String peerId,
     required String type,
     String conversationUk3 = '',
+  }) async {
+    final objectKey = await ChatMultiImageFixture._upload(
+      peerId: peerId,
+      type: type,
+      conversationUk3: conversationUk3,
+    ).timeout(const Duration(seconds: 60));
+    return objectKey;
+  }
+
+  static Future<String> _upload({
+    required String peerId,
+    required String type,
+    required String conversationUk3,
   }) {
     final scope = ChatAttachmentHandler.deriveUploadScope(
       conversationUk3: conversationUk3,
@@ -64,6 +88,7 @@ class ChatMultiImageFixture {
       pngBytes,
       'w3k-fixture-${DateTime.now().millisecondsSinceEpoch}.png',
       'image/png',
+      process: false,
       scope: scope.scope,
       scopeRef: scope.scopeRef,
     );
