@@ -236,6 +236,7 @@ class MessageSearchNotifier extends _$MessageSearchNotifier {
     // 设置搜索状态
     state = state.copyWith(
       currentQuery: effectiveQuery,
+      searchResults: loadMore ? state.searchResults : [],
       isLoading: true,
       isSearching: true,
       errorMessage: '',

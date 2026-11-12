@@ -16,6 +16,7 @@ import 'package:imboy/store/model/channel_message_model.dart';
 import 'package:imboy/store/model/channel_model.dart';
 
 import '../../../golden_baseline_guard.dart';
+import '../../../uiux/support/golden_font_loader.dart';
 
 ChannelModel _channel({bool managed = false}) => ChannelModel(
   id: 1001,
@@ -88,6 +89,7 @@ Future<void> _pump(
   double scale = 1,
   Brightness brightness = Brightness.light,
   bool empty = false,
+  ThemeData? theme,
   String messageType = ChannelMessageType.text,
 }) async {
   tester.view.physicalSize = Size(width, 844);
@@ -128,7 +130,7 @@ Future<void> _pump(
         ],
         child: MaterialApp.router(
           routerConfig: router,
-          theme: ThemeData(brightness: brightness),
+          theme: theme ?? ThemeData(brightness: brightness),
           builder: (context, child) => MediaQuery(
             data: MediaQuery.of(context)
                 .copyWith(textScaler: TextScaler.linear(scale)),
@@ -260,17 +262,20 @@ void main() {
           '${profile.scale.toInt()}_${profile.brightness.name}';
       testWidgets(
         'golden: t09_$name',
-        skip: !goldenBaselineExists(
+        skip: !goldenBaselinesReady([
           'test/unit_test/page/channel/goldens/t09_$name.png',
-        ),
+        ]),
         (tester) async {
+          final font = await prepareGoldenFonts(tester);
           await _pump(
             tester,
             width: profile.width,
             scale: profile.scale,
             brightness: profile.brightness,
+            theme: goldenAppTheme(profile.brightness),
             empty: empty,
           );
+          expectGoldenTextGlyphs(tester, font);
           await expectLater(
             find.byType(Scaffold).first,
             matchesGoldenFile('goldens/t09_$name.png'),

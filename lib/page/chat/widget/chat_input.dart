@@ -500,22 +500,21 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
         return ValueListenableBuilder<List<String>>(
           valueListenable: _quickReplies,
           builder: (context, replies, _) {
+            final topBorder = BorderSide(
+              color: _themeColor('outline').withValues(alpha: 0.1),
+              width: 0.5,
+            );
             return Container(
               key: const Key('chat_quick_replies'),
               height: max(
-                AppSizes.touchTarget + AppSpacing.regular,
+                AppSizes.touchTarget + AppSpacing.regular + topBorder.width,
                 MediaQuery.textScalerOf(context)
                         .scale(_themeFontSize(FontSizeType.footnote)) +
                     AppSpacing.xxLarge,
               ),
               decoration: BoxDecoration(
                 color: _themeColor('surface'),
-                border: Border(
-                  top: BorderSide(
-                    color: _themeColor('outline').withValues(alpha: 0.1),
-                    width: 0.5,
-                  ),
-                ),
+                border: Border(top: topBorder),
               ),
               // BUG#101: 「管理」原来是这条横向 ListView 的末尾一项，8 条默认
               // 快捷回复在 360pt 逻辑宽下把它顶出屏幕；而横滑手势会让输入框
@@ -569,6 +568,7 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
                     ),
                     child: CupertinoButton(
                       key: const Key('quick_reply_manage_button'),
+                      minimumSize: const Size.square(AppSizes.touchTarget),
                       padding: EdgeInsets.zero,
                       onPressed: _openQuickReplyManage,
                       child: Icon(
@@ -1079,7 +1079,7 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
                 updateState(InputType.voice);
               }
             },
-            minimumSize: Size(44, 44),
+            minimumSize: const Size.square(AppSizes.touchTarget),
             child: Icon(
               isVoice ? CupertinoIcons.keyboard : CupertinoIcons.mic,
               size: AppSizes.iconSizeMedium,
@@ -1104,7 +1104,7 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
         key: const Key('chat_mention_button'),
         padding: EdgeInsets.zero,
         onPressed: showMentionPicker,
-        minimumSize: const Size(44, 44),
+        minimumSize: const Size.square(AppSizes.touchTarget),
         child: Icon(
           CupertinoIcons.at,
           size: AppSizes.iconSizeMedium,
@@ -1128,7 +1128,7 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
             onPressed: () {
               updateState(isEmoji ? InputType.text : InputType.emoji);
             },
-            minimumSize: Size(44, 44),
+            minimumSize: const Size.square(AppSizes.touchTarget),
             child: Icon(
               isEmoji ? CupertinoIcons.keyboard : CupertinoIcons.smiley,
               size: AppSizes.iconSizeMedium,
@@ -1166,7 +1166,7 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
                             : InputType.text,
                       );
                     },
-                    minimumSize: Size(44, 44),
+                    minimumSize: const Size.square(AppSizes.touchTarget),
                     child: Icon(
                       CupertinoIcons.plus_circle,
                       size: AppSizes.iconSizeMedium,
@@ -1195,7 +1195,7 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
                   child: CupertinoButton(
                     key: const ValueKey('send_button'),
                     padding: EdgeInsets.zero,
-                    minimumSize: const Size(44, 44),
+                    minimumSize: const Size.square(AppSizes.touchTarget),
                     onPressed: _handleSendPressed,
                     child: Container(
                       key: const ValueKey('send_button_inner'),

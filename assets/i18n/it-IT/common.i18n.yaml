@@ -945,3 +945,10 @@ legacyUploadReturnToOriginalPage: "Il caricamento è incompleto. Torna alla pagi
 
 f2fLocationRequired: "Attiva il permesso e i servizi di localizzazione e riprova con gli amici vicini."
 f2fMemberHint: "Tocca un avatar per vedere il profilo e aggiungere la persona agli amici."
+
+pleaseSelectLocation: "Seleziona una posizione"
+myLocation: "La mia posizione"
+
+searchConversations: "Conversazioni"
+
+webpageLoadProblem: "Si è verificato un problema nel caricamento della pagina. Riprova."

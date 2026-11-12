@@ -64,7 +64,23 @@ def _counts(parsed):
 
 
 def _verdict(attempts):
+    if not isinstance(attempts, list):
+        return dict(test_status='BLOCKED', reason_code='INCOMPLETE_EVIDENCE', attempt_count=0)
     verdict = classify_attempts(attempts)
+    for attempt in attempts:
+        try:
+            _validate_context_binding(attempt)
+        except (ValueError, KeyError, TypeError):
+            return dict(verdict, test_status='BLOCKED', reason_code='EXECUTION_CONTEXT_MISSING_OR_INVALID')
+    for attempt in attempts:
+        if (isinstance(attempt, dict) and isinstance(attempt.get('instance'), dict) and
+                attempt['instance'].get('suite') == 'backend-contract'):
+            meta = attempt.get('backend_manifest_evidence')
+            errors = attempt.get('execution_errors', [])
+            if (not isinstance(errors, list) or any(not isinstance(error, str) for error in errors) or
+                    not isinstance(meta, dict) or meta not in (attempt.get('related_evidence') or []) or
+                    any(str(error).startswith('BACKEND_MANIFEST') for error in errors)):
+                return dict(verdict, test_status='BLOCKED', reason_code='BACKEND_MANIFEST_EVIDENCE_MISSING_OR_INVALID')
     if verdict['test_status'] in ('PASS', 'FLAKY', 'PASS_WITH_SKIPS'):
         # The parser's cached exit code and the process receipt are independent
         # fields. Both must exist and agree; checking just the parsed claim lets
@@ -233,8 +249,14 @@ def reconcile(plan, results, upstream=None, *, worker_platform=None, worker_suit
                 row = _base(plan, instance, 'BLOCKED', 'STALE_PLAN_RESULT')
             elif row.get('product_contract', {}) != instance.get('product_contract', {}):
                 row = _base(plan, instance, 'BLOCKED', 'PRODUCT_CONTRACT_MISMATCH')
+            elif (not isinstance(row.get('attempts', []), list) or
+                  any(not isinstance(a, dict) for a in row.get('attempts', []))):
+                row = _base(plan, instance, 'BLOCKED', 'INCOMPLETE_EVIDENCE')
             elif _missing_product_evidence(instance, row):
                 row = _base(plan, instance, 'BLOCKED', 'PRODUCT_EVIDENCE_MISSING')
+            elif any(not _saved_instance_matches(a.get('instance'), instance)
+                     for a in row.get('attempts', [])):
+                row = _base(plan, instance, 'BLOCKED', 'RESULT_INSTANCE_MISMATCH')
             elif row.get('status') in ('PASS', 'FLAKY', 'PASS_WITH_SKIPS'):
                 verdict = _verdict(row.get('attempts', []))
                 row.update(status=verdict['test_status'], reason_code=verdict['reason_code'])
@@ -319,14 +341,87 @@ def split_machine_events(root, targets, lines, aliases=None):
     return {target: stream + global_lines for target, stream in streams.items()}
 
 
-def _fingerprint(root, plan, instance):
+def _validate_execution_context(value):
+    keys = {'schema_version', 'host_platform', 'euid', 'egid',
+            'linux_cap_eff', 'linux_pid1_comm'}
+    if (not isinstance(value, dict) or set(value) != keys or
+            type(value['schema_version']) is not int or value['schema_version'] != 1 or
+            not isinstance(value['host_platform'], str) or
+            not re.fullmatch(r'[a-z0-9_-]+', value['host_platform']) or
+            any(type(value[key]) is not int or value[key] < 0 for key in ('euid', 'egid'))):
+        raise ValueError('invalid execution context schema')
+    if value['host_platform'] == 'linux':
+        if (not isinstance(value['linux_cap_eff'], str) or
+                not re.fullmatch(r'[0-9a-f]{16}', value['linux_cap_eff']) or
+                not isinstance(value['linux_pid1_comm'], str) or
+                not value['linux_pid1_comm'] or len(value['linux_pid1_comm']) > 15 or
+                any(c in value['linux_pid1_comm'] for c in ('\n', '\r', '\0'))):
+            raise ValueError('invalid Linux execution context')
+    elif value['linux_cap_eff'] is not None or value['linux_pid1_comm'] is not None:
+        raise ValueError('Linux execution context must be not applicable on other hosts')
+
+
+def _capture_execution_context(evidence_dir):
+    # Measure the controller's inherited OS identity before Popen, never ENV claims.
+    value = dict(schema_version=1, host_platform=sys.platform,
+                 euid=os.geteuid(), egid=os.getegid(), linux_cap_eff=None, linux_pid1_comm=None)
+    if sys.platform == 'linux':
+        status = Path('/proc/self/status').read_text(encoding='utf-8')
+        match = re.search(r'^CapEff:\s*([0-9a-fA-F]+)\s*$', status, re.M)
+        if match is None:
+            raise ValueError('missing CapEff in /proc/self/status')
+        value['linux_cap_eff'] = match.group(1).lower()
+        value['linux_pid1_comm'] = Path('/proc/1/comm').read_text(encoding='utf-8').rstrip('\n')
+    _validate_execution_context(value)
+    path = Path(evidence_dir) / 'execution-context.json'
+    _write_json(path, value)
+    return {'path': str(path), 'sha256': _file_sha256(path), 'value': value}
+
+
+def execution_config_sha256(instance, context):
+    _validate_execution_context(context)
+    if not isinstance(instance, dict):
+        raise ValueError('missing saved execution instance')
+    return hashlib.sha256(json.dumps({'instance': instance, 'context': context},
+                                     sort_keys=True).encode()).hexdigest()
+
+
+def _validate_context_binding(attempt):
+    if not isinstance(attempt, dict):
+        raise ValueError('invalid execution attempt')
+    meta = attempt.get('execution_context')
+    if (not isinstance(meta, dict) or set(meta) != {'path', 'sha256', 'value'} or
+            not isinstance(meta['path'], str) or not meta['path'] or
+            not isinstance(meta['sha256'], str) or not re.fullmatch(r'[0-9a-f]{64}', meta['sha256'])):
+        raise ValueError('missing or invalid execution context binding')
+    expected = execution_config_sha256(attempt.get('instance'), meta['value'])
+    fingerprint = attempt.get('fingerprint')
+    if not isinstance(fingerprint, dict) or fingerprint.get('config_sha256') != expected:
+        raise ValueError('execution context config fingerprint mismatch')
+    related = attempt.get('related_evidence')
+    if (not isinstance(related, list) or any(not isinstance(item, dict) for item in related) or
+            {'path': meta['path'], 'sha256': meta['sha256']} not in related):
+        raise ValueError('execution context is not bound as related evidence')
+
+
+def _saved_instance_matches(saved, expected):
+    if not isinstance(saved, dict):
+        return False
+    actual, declared = dict(saved), dict(expected)
+    runtime_coverage = actual.pop('coverage', False)
+    declared.pop('coverage', None)
+    return (type(runtime_coverage) is bool and actual == declared and
+            (not runtime_coverage or bool(expected.get('coverage_eligible', expected.get('coverage')))))
+
+
+def _fingerprint(root, plan, instance, context):
     content = (Path(root) / instance['target']).read_bytes()
     digest = lambda value: hashlib.sha256(value).hexdigest()
     dependencies = set(instance.get('dependencies', []))
     backend = ('UNVERIFIED_SERVICE_VERSION' if dependencies & {'backend', 'isolated-backend'} else
                'UNVERIFIED_SOURCE_VERSION' if 'backend-source' in dependencies else 'NOT_USED')
     return {'app_head': str(plan.get('commit', 'unknown')), 'backend_head': backend,
-            'target_sha256': digest(content), 'config_sha256': digest(json.dumps(instance, sort_keys=True).encode()),
+            'target_sha256': digest(content), 'config_sha256': execution_config_sha256(instance, context),
             'fixture_fingerprint': str(plan.get('source_fingerprint') or 'synthetic'),
             'device_fingerprint': digest(f"{instance.get('platform')}:{instance.get('role')}".encode())}
 
@@ -351,7 +446,8 @@ def _file_sha256(path):
 
 def _persist_process_receipt(receipt, evidence_dir):
     """Bind the original process outcome to its saved output before adapting it."""
-    payload = {key: receipt.get(key) for key in ('command', 'exit_code', 'log', 'machine', 'error')}
+    payload = {key: receipt.get(key) for key in ('command', 'exit_code', 'log', 'machine', 'error', 'execution_context',
+            'backend_manifest_evidence', 'product_artifact')}
     for key in ('log', 'machine'):
         payload[key + '_sha256'] = _file_sha256(payload[key])
     path = Path(evidence_dir) / 'process.json'
@@ -362,7 +458,7 @@ def _persist_process_receipt(receipt, evidence_dir):
 
 
 def execute_process(command, env, evidence_dir, *, cwd=None, timeout=900, log_path=None,
-                    separate_stderr=False, observer=None):
+                    separate_stderr=False, observer=None, invocation_evidence=None):
     """Keep live logs, then freeze evidence after stopping a timed-out process group."""
     evidence_dir = Path(evidence_dir)
     evidence_dir.mkdir(parents=True, exist_ok=True)
@@ -370,6 +466,7 @@ def execute_process(command, env, evidence_dir, *, cwd=None, timeout=900, log_pa
     log.parent.mkdir(parents=True, exist_ok=True)
     error = None
     interrupted = False
+    execution_context = None
     machine = evidence_dir / 'machine.jsonl' if separate_stderr else log
     if separate_stderr and log == machine:
         log = evidence_dir / 'process.log'
@@ -379,6 +476,18 @@ def execute_process(command, env, evidence_dir, *, cwd=None, timeout=900, log_pa
         try:
             if os.name != 'posix':
                 raise OSError('PROCESS_SUPERVISION_UNAVAILABLE: a POSIX host is required for owned process groups')
+            try:
+                execution_context = _capture_execution_context(evidence_dir)
+            except (OSError, ValueError, AttributeError) as exc:
+                raise OSError('EXECUTION_CONTEXT_CAPTURE_FAILED: ' + str(exc)) from exc
+            if invocation_evidence:
+                from .execution_adapters import validate_backend_manifest_evidence
+                try:
+                    validate_backend_manifest_evidence(invocation_evidence['instance'],
+                        invocation_evidence['product_artifact'],
+                        invocation_evidence['backend_manifest_evidence'], Path)
+                except (OSError, ValueError, KeyError, TypeError) as exc:
+                    raise OSError('BACKEND_MANIFEST_STARTUP_EVIDENCE_INVALID:' + str(exc)) from exc
             with subprocess.Popen(command, cwd=cwd, env=env, stdout=output,
                                   stderr=errors, text=True, start_new_session=True) as process:
                 deadline = time.monotonic() + timeout
@@ -420,15 +529,44 @@ def execute_process(command, env, evidence_dir, *, cwd=None, timeout=900, log_pa
             finally:
                 snapshot.unlink(missing_ok=True)
     receipt = {'command': _display_command(command), 'exit_code': code, 'log': str(log), 'machine': str(machine), 'error': error,
-               'lines': machine.read_text(encoding='utf-8', errors='replace').splitlines()}
+               'lines': machine.read_text(encoding='utf-8', errors='replace').splitlines(),
+               'execution_context': execution_context}
+    if invocation_evidence:
+        receipt.update({key: invocation_evidence.get(key) for key in
+                       ('backend_manifest_evidence', 'product_artifact')})
     return _persist_process_receipt(receipt, evidence_dir)
 
 
 def _record_attempt(root, plan, instance, receipt, lines):
     parsed = parse_machine_events(lines, receipt.get('exit_code')).to_dict()
-    fingerprint = _fingerprint(root, plan, instance)
+    meta = receipt.get('execution_context')
+    execution_errors = []
+    try:
+        if (not isinstance(meta, dict) or set(meta) != {'path', 'sha256', 'value'} or
+                _file_sha256(meta['path']) != meta['sha256'] or
+                json.loads(Path(meta['path']).read_text(encoding='utf-8')) != meta['value']):
+            raise ValueError('startup execution context missing or changed')
+        fingerprint = _fingerprint(root, plan, instance, meta['value'])
+    except (OSError, ValueError, KeyError, TypeError):
+        fingerprint = {}
+        execution_errors.append('EXECUTION_CONTEXT_MISSING_OR_INVALID')
+    related = list(receipt.get('related_evidence', []))
+    if isinstance(meta, dict):
+        related.append({'path': meta.get('path'), 'sha256': meta.get('sha256')})
     product = receipt.get('product_artifact', {})
-    if product.get('fingerprint'):
+    backend_meta = receipt.get('backend_manifest_evidence')
+    if instance.get('suite') == 'backend-contract':
+        try:
+            from .execution_adapters import validate_backend_manifest_evidence
+            validate_backend_manifest_evidence(instance, product, backend_meta, Path)
+            if backend_meta not in related:
+                raise ValueError('BACKEND_MANIFEST_RELATED_EVIDENCE_MISSING')
+            saved = json.loads(Path(receipt['process_receipt']).read_text())
+            if saved.get('backend_manifest_evidence') != backend_meta or saved.get('product_artifact') != product:
+                raise ValueError('BACKEND_MANIFEST_PROCESS_MISMATCH')
+        except (OSError, ValueError, KeyError, TypeError):
+            execution_errors.append('BACKEND_MANIFEST_EVIDENCE_MISSING_OR_INVALID')
+    if product.get('fingerprint') and fingerprint:
         fingerprint['fixture_fingerprint'] = hashlib.sha256(
             (fingerprint['fixture_fingerprint'] + product['fingerprint']).encode()).hexdigest()
     # A batch stream cannot be reparsed as one target. Preserve exactly the
@@ -437,6 +575,8 @@ def _record_attempt(root, plan, instance, receipt, lines):
         'target-' + hashlib.sha256(instance['id'].encode()).hexdigest()[:20] + '.jsonl')
     evidence.write_text('\n'.join(line.rstrip('\r\n') for line in lines) + '\n', encoding='utf-8')
     return {'fingerprint': fingerprint, 'parsed': parsed,
+            'instance': json.loads(json.dumps(instance)),
+            'execution_context': json.loads(json.dumps(meta)),
             'log': receipt.get('log'), 'log_sha256': receipt.get('log_sha256'),
             'evidence': str(evidence), 'evidence_sha256': _file_sha256(evidence),
             'process_receipt': receipt.get('process_receipt'),
@@ -444,10 +584,11 @@ def _record_attempt(root, plan, instance, receipt, lines):
             'process_exit_code': receipt.get('exit_code'),
             'command': receipt.get('command', []),
             'product_artifact': receipt.get('product_artifact', {}),
+            'backend_manifest_evidence': backend_meta,
             'coverage': receipt.get('coverage'), 'coverage_sha256': receipt.get('coverage_sha256'),
             'native_evidence': receipt.get('native_evidence'),
             'native_evidence_sha256': receipt.get('native_evidence_sha256'),
-            'related_evidence': receipt.get('related_evidence', []), 'execution_errors': []}
+            'related_evidence': related, 'execution_errors': execution_errors}
 
 
 def _finish(plan, instance, attempts):
@@ -531,7 +672,7 @@ def _default_preflight(root, instance, env):
     return missing
 
 
-def _host_command(root, group, env, output, stack, adapters=None):
+def _host_command(root, group, env, output, stack, adapters=None, *, prepared_evidence=None):
     first = group[0]
     command = ['flutter', 'test', '--machine', '--no-pub']
     aliases, paths = {}, []
@@ -550,9 +691,15 @@ def _host_command(root, group, env, output, stack, adapters=None):
             path = alias
         paths.append(path)
     if adapters is not None:
-        prepared = adapters.build_invocation(root, dict(first, target=paths[0]), env, output)
+        prepared_instance = dict(first, target=paths[0])
+        if first.get('suite') == 'backend-contract':
+            prepared_instance['required_features'] = sorted({feature for item in group
+                for feature in item.get('required_features', [])})
+        prepared = adapters.build_invocation(root, prepared_instance, env, output)
         if prepared.get('errors'):
             raise ValueError('; '.join(prepared['errors']))
+        if prepared_evidence is not None:
+            prepared_evidence.update(prepared)
         command = prepared['command']
         command[2:3] = paths
         # --name is a regexp contract; the adapter's single-target plain filter
@@ -644,9 +791,13 @@ def run_plan(root, plan, artifact_dir, *, env=None, worker_platform=None, covera
         destination = Path(invocation['log_path']).parent
         receipt = execute_process(invocation['command'], invocation['env'], destination,
                                   cwd=invocation.get('cwd', root), log_path=invocation['log_path'],
-                                  separate_stderr=invocation.get('evidence_kind') == 'python-machine')
+                                  separate_stderr=invocation.get('evidence_kind') == 'python-machine',
+                                  invocation_evidence=({'instance': instance, **invocation}
+                                      if instance.get('suite') == 'backend-contract' else None))
         receipt['product_artifact'] = invocation.get('product_artifact', {})
         receipt['related_evidence'] = invocation.get('evidence_artifacts', [])
+        receipt['backend_manifest_evidence'] = invocation.get('backend_manifest_evidence')
+        _persist_process_receipt(receipt, destination)
         if invocation.get('evidence_kind') == 'junit':
             receipt['lines'] = _patrol_events(adapters, root, invocation, receipt, instance['target'])
         streams = split_machine_events(root, [instance['target']], receipt['lines'])
@@ -721,8 +872,10 @@ def run_plan(root, plan, artifact_dir, *, env=None, worker_platform=None, covera
                 aliases = {}
                 if runner == 'flutter-machine':
                     try:
-                        command, aliases, process_env = _host_command(root, pending, runtime_env, output, stack, adapters)
-                        invocation = {'command': command, 'env': process_env, 'evidence_kind': 'flutter-machine'}
+                        invocation = {}
+                        command, aliases, process_env = _host_command(root, pending, runtime_env, output, stack, adapters,
+                                                                     prepared_evidence=invocation)
+                        invocation.update(command=command, env=process_env, evidence_kind='flutter-machine')
                     except ValueError as error:
                         invocation = {'errors': [str(error)]}
                 elif runner in ('python-unittest', 'python-cases', 'python-recovery'):
@@ -749,9 +902,14 @@ def run_plan(root, plan, artifact_dir, *, env=None, worker_platform=None, covera
                     (output / 'lcov.info').unlink()
                 receipt = execute_process(invocation['command'], invocation.get('env', runtime_env), output,
                                           cwd=invocation.get('cwd', root), log_path=invocation.get('log_path'),
-                                          separate_stderr=invocation.get('evidence_kind') == 'python-machine')
-                receipt['product_artifact'] = adapters.product_artifact_evidence(root, group[0], runtime_env)
+                                          separate_stderr=invocation.get('evidence_kind') == 'python-machine',
+                                          invocation_evidence=({'instance': dict(pending[0], required_features=sorted({
+                                              f for item in pending for f in item.get('required_features', [])})), **invocation}
+                                              if pending[0].get('suite') == 'backend-contract' else None))
+                receipt['product_artifact'] = invocation.get('product_artifact', {})
                 receipt['related_evidence'] = invocation.get('evidence_artifacts', [])
+                receipt['backend_manifest_evidence'] = invocation.get('backend_manifest_evidence')
+                _persist_process_receipt(receipt, output)
                 if group[0].get('coverage') and (output / 'lcov.info').is_file():
                     receipt['coverage'] = str(output / 'lcov.info')
                     receipt['coverage_sha256'] = _file_sha256(output / 'lcov.info')

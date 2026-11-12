@@ -1500,6 +1500,15 @@ class Translations$channel$zh_CN {
 
 	/// zh-CN: '有 ${count} 条新更新'
 	String unseenUpdatesBanner({required Object count}) => '有 ${count} 条新更新';
+
+	/// zh-CN: '修改尚未保存，确定放弃并离开？'
+	String get editLeaveUnsaved => '修改尚未保存，确定放弃并离开？';
+
+	/// zh-CN: '头像尚未上传，重试或还原后再保存。'
+	String get avatarNotUploaded => '头像尚未上传，重试或还原后再保存。';
+
+	/// zh-CN: '还原头像'
+	String get restoreAvatar => '还原头像';
 }
 
 // Path: chat
@@ -5018,6 +5027,18 @@ class Translations$common$zh_CN {
 
 	/// zh-CN: '点击朋友头像查看资料并添加好友'
 	String get f2fMemberHint => '点击朋友头像查看资料并添加好友';
+
+	/// zh-CN: '请选择位置'
+	String get pleaseSelectLocation => '请选择位置';
+
+	/// zh-CN: '我的位置'
+	String get myLocation => '我的位置';
+
+	/// zh-CN: '会话'
+	String get searchConversations => '会话';
+
+	/// zh-CN: '网页内容加载遇到问题，请重试。'
+	String get webpageLoadProblem => '网页内容加载遇到问题，请重试。';
 }
 
 // Path: complaint
@@ -6181,6 +6202,9 @@ class Translations$group$zh_CN {
 
 	/// zh-CN: '暂无可转让的成员'
 	String get noEligibleSuccessor => '暂无可转让的成员';
+
+	/// zh-CN: '仅搜索已加载成员'
+	String get searchLoadedMembers => '仅搜索已加载成员';
 }
 
 // Path: groupCategory
@@ -11537,6 +11561,9 @@ extension on Translations {
 			'channel.subscribePending' => '已订阅，正在刷新',
 			'channel.subscribeRefresh' => '刷新订阅状态',
 			'channel.unseenUpdatesBanner' => ({required Object count}) => '有 ${count} 条新更新',
+			'channel.editLeaveUnsaved' => '修改尚未保存，确定放弃并离开？',
+			'channel.avatarNotUploaded' => '头像尚未上传，重试或还原后再保存。',
+			'channel.restoreAvatar' => '还原头像',
 			'chat.bankCard' => '银行卡',
 			'chat.messageInputHint' => '说点什么...',
 			'chat.receivePayment' => '收付款',
@@ -11584,11 +11611,11 @@ extension on Translations {
 			'chat.groupFileCategoryOther' => '其他',
 			'chat.groupChat' => '群聊',
 			'chat.image' => '图片',
+			_ => null,
+		} ?? switch (path) {
 			'chat.imageMessage' => '[图片]',
 			'chat.initiateChat' => '发起群聊',
 			'chat.exportMyData' => '导出我的数据',
-			_ => null,
-		} ?? switch (path) {
 			'chat.exportDataDesc' => '导出你的个人信息、联系人和聊天记录',
 			'chat.customMessage' => '自定义消息',
 			'chat.card' => '名片',
@@ -12098,11 +12125,11 @@ extension on Translations {
 			'common.confirmChange' => '确认更换',
 			'common.verificationCodeSentToEmail' => '验证码将发送至该邮箱，请在有效期内完成验证',
 			'common.verificationCodeSentToMobile' => '验证码将发送至该手机，请在有效期内完成验证',
+			_ => null,
+		} ?? switch (path) {
 			'common.sendFailed' => '发送失败',
 			'common.forceOffline' => '下线',
 			'common.forceDeviceOffline' => '让该设备下线',
-			_ => null,
-		} ?? switch (path) {
 			'common.forceDeviceOfflineConfirm' => '将向该设备发送下线指令，确认继续？',
 			'common.confirmForceOffline' => '确认下线',
 			'common.forceOfflineCommandSent' => '已发送下线指令',
@@ -12612,11 +12639,11 @@ extension on Translations {
 			'common.featureDisabledName' => ({required Object name}) => '${name} 功能未启用，暂时无法访问',
 			'common.imageLoadFailed' => '加载失败',
 			'common.loadFailedWithError' => ({required Object error}) => '加载失败: ${error}',
+			_ => null,
+		} ?? switch (path) {
 			'common.webAudioNotSupported' => 'Web 平台暂不支持语音消息播放',
 			'common.e2eeKeyRecreationFailed' => ({required Object error}) => '密钥创建失败: ${error}',
 			'common.redPacket' => '红包',
-			_ => null,
-		} ?? switch (path) {
 			'common.transfer' => '转账',
 			'common.withdraw' => '提现',
 			'common.redPacketSend' => '发红包',
@@ -12722,6 +12749,10 @@ extension on Translations {
 			'common.legacyUploadReturnToOriginalPage' => '原上传未完成，请返回原页面重新选择文件并提交；原记录已保留。',
 			'common.f2fLocationRequired' => '请开启定位权限和定位服务，和身边的朋友一起重试',
 			'common.f2fMemberHint' => '点击朋友头像查看资料并添加好友',
+			'common.pleaseSelectLocation' => '请选择位置',
+			'common.myLocation' => '我的位置',
+			'common.searchConversations' => '会话',
+			'common.webpageLoadProblem' => '网页内容加载遇到问题，请重试。',
 			'complaint.complaint' => '投诉',
 			'complaint.e2eeConsentTitle' => '提交加密消息证据',
 			'complaint.e2eeConsentBody' => '该消息为端到端加密消息，服务器无法查看其内容。提交内容摘录会将你选择的消息明文随工单披露给审核员用于核实举报。是否同意提交？',
@@ -13113,6 +13144,7 @@ extension on Translations {
 			'group.sureToTransferAndLeave' => '转让后你将退出本群并失去群主权限，确定继续吗？',
 			'group.transferredButLeaveFailed' => '已转让群主，但退出失败，请重试退出',
 			'group.noEligibleSuccessor' => '暂无可转让的成员',
+			'group.searchLoadedMembers' => '仅搜索已加载成员',
 			'groupCategory.title' => '群分组',
 			'groupCategory.createCategory' => '创建分组',
 			'groupCategory.categoryName' => '分组名称',
@@ -13121,6 +13153,8 @@ extension on Translations {
 			'groupCategory.deleteCategoryConfirm' => '确定要删除该分组吗？群聊不会被删除。',
 			'groupCategory.categoryDeleted' => '分组已删除',
 			'groupCategory.renameCategory' => '重命名分组',
+			_ => null,
+		} ?? switch (path) {
 			'groupCategory.categoryRenamed' => '分组重命名成功',
 			'groupCategory.renameFailed' => '重命名失败，请重试',
 			'groupCategory.deleteFailed' => '删除失败，请重试',
@@ -13129,8 +13163,6 @@ extension on Translations {
 			'groupDiscovery.searchHint' => '搜索公开群',
 			'groupDiscovery.allCategories' => '全部',
 			'groupDiscovery.sortPopular' => '热门',
-			_ => null,
-		} ?? switch (path) {
 			'groupDiscovery.sortNewest' => '最新',
 			'groupDiscovery.emptyTitle' => '暂无公开群，稍后再来看看',
 			'groupDiscovery.searchEmpty' => '无匹配的公开群',
@@ -13635,6 +13667,8 @@ extension on Translations {
 			'organization.picker.joinCodeOnlyHint' => '输入 8 位企业邀请码',
 			'organization.picker.joinConfirmTitle' => '确认加入企业',
 			'organization.picker.joinConfirmWith' => ({required Object name}) => '将加入企业「${name}」',
+			_ => null,
+		} ?? switch (path) {
 			'organization.picker.joinConfirmWithRole' => ({required Object role, required Object name}) => '确认以 ${role} 身份加入「${name}」？',
 			'organization.picker.joinRoleMember' => '普通成员',
 			'organization.picker.joinRoleAdmin' => '管理员',
@@ -13643,8 +13677,6 @@ extension on Translations {
 			'organization.picker.joinQrHint' => '对准企业邀请二维码即可自动加入',
 			'organization.picker.joinQrInvalid' => '不是有效的企业邀请二维码',
 			'organization.inviteColleagues.title' => '邀请同事',
-			_ => null,
-		} ?? switch (path) {
 			'organization.inviteColleagues.tabInvite' => '邀请同事',
 			'organization.inviteColleagues.tabPossible' => '可能的同事',
 			'organization.inviteColleagues.wechatInvite' => '微信邀请同事',
@@ -14149,6 +14181,8 @@ extension on Translations {
 			'talkRecord.exportRemaining' => ({required Object minutes}) => '剩余约 ${minutes} 分钟',
 			'talkRecord.exportDownload' => '保存导出文件',
 			'talkRecord.exportDownloading' => '正在下载并准备保存…',
+			_ => null,
+		} ?? switch (path) {
 			'talkRecord.exportDownloadReady' => '文件已保存；这是独立副本，撤销权限不会删除该副本。',
 			'talkRecord.exportDownloadFailed' => '下载或保存失败，可重试',
 			'talkRecord.exportExpiredTitle' => '导出已到期',
@@ -14157,8 +14191,6 @@ extension on Translations {
 			'talkRecord.exportFailedBody' => '生成导出失败，可重试。',
 			'talkRecord.exportConflictHint' => '记录已被他人更新，请刷新后重试。',
 			'talkRecord.exportFixtureHint' => '组件阶段：下载链接为 fixture 示例，不产生真实文件。',
-			_ => null,
-		} ?? switch (path) {
 			'talkRecord.transferTitle' => '移交管理责任',
 			'talkRecord.transferScopeHint' => '移交仅变更管理责任人；记录归属（企业与工作区）保持不变。',
 			'talkRecord.transferCreatedByHint' => '创建者记录保持不变；此动作与分享权限相互独立。',

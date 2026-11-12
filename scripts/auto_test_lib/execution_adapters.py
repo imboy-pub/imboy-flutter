@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import base64
 import hashlib
+import http.client
 import importlib.util
 import json
 import math
@@ -107,22 +108,23 @@ def backend_environment_errors(instance: dict, env: dict, *, probe: bool = False
     """A local opt-in and explicit literal loopback URLs precede any network I/O."""
     if not needs_backend(instance):
         return []
+    role = str(instance.get('account_role') or instance.get('role') or '')
     errors: list[str] = []
     if env.get('IMBOY_TEST_ISOLATED') != 'true':
         errors.append('ISOLATED_FIXTURE_OPT_IN_MISSING:IMBOY_TEST_ISOLATED=true')
-    if _value(env, 'APP_ENV') != 'local':
+    if _value(env, 'APP_ENV', role) != 'local':
         errors.append('APP_ENV_LOCAL_REQUIRED')
-    urls = {'API_BASE_URL': _value(env, 'API_BASE_URL')}
+    urls = {'API_BASE_URL': _value(env, 'API_BASE_URL', role)}
     if instance.get('runner') in DEVICE_RUNNERS or 'backend-ws' in instance.get('dependencies', []):
-        urls['WS_URL_OVERRIDE'] = _value(env, 'WS_URL_OVERRIDE')
+        urls['WS_URL_OVERRIDE'] = _value(env, 'WS_URL_OVERRIDE', role)
     if 'livekit' in instance.get('dependencies', []):
-        urls['LK_RTC_WS_OVERRIDE'] = _value(env, 'LK_RTC_WS_OVERRIDE')
+        urls['LK_RTC_WS_OVERRIDE'] = _value(env, 'LK_RTC_WS_OVERRIDE', role)
     endpoints = []
     for name, value in urls.items():
         try:
             parsed = urlsplit(value)
             allowed = ('http', 'https') if name == 'API_BASE_URL' else ('ws', 'wss')
-            if (not value or parsed.scheme not in allowed or parsed.username or parsed.password
+            if (not value or parsed.scheme not in allowed or parsed.username is not None or parsed.password is not None
                     or not is_loopback_host(parsed.hostname)):
                 errors.append(f'ISOLATED_LOOPBACK_URL_REQUIRED:{name}')
                 continue
@@ -130,17 +132,16 @@ def backend_environment_errors(instance: dict, env: dict, *, probe: bool = False
             endpoints.append((name, parsed.hostname, port))
         except ValueError:
             errors.append(f'ISOLATED_LOOPBACK_URL_REQUIRED:{name}')
-    role = str(instance.get('account_role') or instance.get('role') or '')
     if instance.get('session_mode') != 'mc-owned' and (not _value(env, 'TEST_PHONE', role) or not (
         _value(env, 'TEST_PASSWORD', role) or _value(env, 'TEST_CODE', role)
     )):
         errors.append('ISOLATED_TEST_ACCOUNT_MISSING')
-    if not _value(env, 'SOLIDIFIED_KEY_OVERRIDE'):
+    if not _value(env, 'SOLIDIFIED_KEY_OVERRIDE', role):
         errors.append('ISOLATED_SIGNING_KEY_MISSING')
-    if instance.get('runner') in DEVICE_RUNNERS and not _value(env, 'SOLIDIFIED_KEY_IV_OVERRIDE'):
+    if instance.get('runner') in DEVICE_RUNNERS and not _value(env, 'SOLIDIFIED_KEY_IV_OVERRIDE', role):
         errors.append('ISOLATED_SIGNING_IV_MISSING')
     if 'business-writes' in instance.get('dependencies', []):
-        if _value(env, 'TEST_ALLOW_BUSINESS_WRITES') != 'true':
+        if _value(env, 'TEST_ALLOW_BUSINESS_WRITES', role) != 'true':
             errors.append('ISOLATED_BUSINESS_WRITES_OPT_IN_MISSING')
     if probe and not errors:
         for name, hostname, port in endpoints:
@@ -203,6 +204,7 @@ def _validated_product_artifacts(root: str, backend: str, signature: tuple) -> d
                 if name not in rendered or content != rendered[name].encode():
                     errors.append('PRODUCT_GENERATED_ARTIFACT_DRIFT:' + name)
         identity = {'manifest_profile': manifest.get('profile'),
+                    'manifest_schema_version': contract['schema_version'],
                     'manifest_hash': contract['manifest_hash'],
                     'compiled_features': contract['compiled_features'],
                     'artifacts': artifacts, 'validation_inputs': dict(signature)}
@@ -239,6 +241,116 @@ def product_artifact_evidence(root: Path, instance: dict, env: dict) -> dict:
     evidence['required_features'] = sorted(features)
     evidence['errors'] = errors
     return evidence
+
+
+def backend_manifest_identity(raw: dict, product: dict, instance: dict) -> dict:
+    """Validate the public runtime view against the verified app and frozen target."""
+    if not isinstance(raw, dict) or not isinstance(product, dict):
+        raise ValueError('BACKEND_MANIFEST_INVALID_SCHEMA')
+    contract = instance.get('product_contract')
+    required = instance.get('required_features', [])
+    if (not isinstance(contract, dict) or not isinstance(required, list) or
+            not isinstance(contract.get('required_features', []), list) or
+            any(not isinstance(f, str) or not re.fullmatch(r'[a-z][a-z0-9_]*', f)
+                for f in required + contract.get('required_features', [])) or
+            not isinstance(product.get('compiled_features'), list)):
+        raise ValueError('BACKEND_MANIFEST_EXPECTATION_INVALID_SCHEMA')
+    compiled, features, policy = raw.get('compiled_features'), raw.get('features'), raw.get('policy')
+    if (type(raw.get('manifest_schema_version')) is not int or
+            not isinstance(raw.get('manifest_hash'), str) or
+            not re.fullmatch(r'sha256:[a-f0-9]{64}', raw['manifest_hash']) or
+            not isinstance(compiled, list) or not compiled or
+            any(not isinstance(f, str) or not re.fullmatch(r'[a-z][a-z0-9_]*', f) for f in compiled) or
+            len(compiled) != len(set(compiled)) or not isinstance(features, dict) or not features or
+            any(not isinstance(f, str) or not re.fullmatch(r'[a-z][a-z0-9_]*', f) or
+                type(enabled) is not bool for f, enabled in features.items()) or
+            not isinstance(policy, dict) or not isinstance(policy.get('profile'), str)):
+        raise ValueError('BACKEND_MANIFEST_INVALID_SCHEMA')
+    if (raw['manifest_schema_version'] != product.get('manifest_schema_version') or
+            raw['manifest_hash'] != product.get('manifest_hash') or
+            sorted(compiled) != sorted(product.get('compiled_features', []))):
+        raise ValueError('BACKEND_APP_MANIFEST_MISMATCH')
+    for feature in sorted(set(required + contract.get('required_features', [])) - set(compiled)):
+        raise ValueError('BACKEND_COMPILED_FEATURE_MISSING:' + feature)
+    expected = contract.get('backend_runtime_profile')
+    if not isinstance(expected, str) or not expected or policy['profile'] != expected:
+        raise ValueError('BACKEND_RUNTIME_PROFILE_MISMATCH')
+    for feature in required:
+        if feature not in compiled or features.get(feature) is not True:
+            raise ValueError('BACKEND_RUNTIME_FEATURE_DISABLED:' + feature)
+    return {'manifest_schema_version': raw['manifest_schema_version'],
+            'manifest_hash': raw['manifest_hash'], 'compiled_features': sorted(compiled),
+            'features': features, 'runtime_profile': policy['profile']}
+
+
+def backend_product_evidence(product: dict, identity: dict) -> dict:
+    """Only canonical identity enters the existing product fingerprint."""
+    result = dict(product, app_fingerprint=product['fingerprint'], backend_manifest=identity)
+    # Target requirements remain on each frozen instance, not the shared product.
+    result.pop('required_features', None)
+    result['fingerprint'] = hashlib.sha256(json.dumps(
+        {'app_fingerprint': result['app_fingerprint'], 'backend_manifest': identity},
+        sort_keys=True).encode()).hexdigest()
+    return result
+
+
+def capture_backend_manifest(instance: dict, env: dict, product: dict, output: Path) -> dict:
+    """One bounded direct loopback read, only after all original fixture gates."""
+    if instance.get('suite') != 'backend-contract':
+        return {'errors': ['BACKEND_CONTRACT_MANIFEST_ONLY']}
+    errors = backend_environment_errors(dict(instance, offline=False), env) + list(product.get('errors', []))
+    if errors:
+        return {'errors': errors}
+    connection = None
+    try:
+        url = urlsplit(_value(env, 'API_BASE_URL', str(instance.get('account_role') or instance.get('role') or '')))
+        connection_type = http.client.HTTPSConnection if url.scheme == 'https' else http.client.HTTPConnection
+        # Direct connections do not consult HTTP(S)_PROXY and never follow redirects.
+        connection = connection_type(url.hostname, url.port, timeout=3)
+        connection.request('GET', '/api/v1/app/manifest', headers={'Accept': 'application/json'})
+        response = connection.getresponse()
+        if response.status != 200:
+            raise ValueError('BACKEND_MANIFEST_HTTP_STATUS:' + str(response.status))
+        content = response.read(1024 * 1024 + 1)
+        if len(content) > 1024 * 1024:
+            raise ValueError('BACKEND_MANIFEST_TOO_LARGE')
+        raw = json.loads(content)
+        identity = backend_manifest_identity(raw, product, instance)
+        output = Path(output)
+        output.mkdir(parents=True, exist_ok=True)
+        path = output / 'backend-manifest.json'
+        path.write_bytes(content)
+        return {'errors': [], 'product_artifact': backend_product_evidence(product, identity),
+                'evidence': {'kind': 'backend-manifest', 'path': str(path),
+                             'sha256': hashlib.sha256(content).hexdigest()}}
+    except (OSError, ValueError, TypeError, http.client.HTTPException) as exc:
+        return {'errors': ['BACKEND_MANIFEST_INVALID:' + str(exc)]}
+    finally:
+        if connection is not None:
+            connection.close()
+
+
+def validate_backend_manifest_evidence(instance: dict, product: dict, meta: dict, resolve) -> None:
+    """Offline receipt verification; never load local products or contact a server."""
+    if not isinstance(meta, dict) or set(meta) != {'kind', 'path', 'sha256'} or meta['kind'] != 'backend-manifest':
+        raise ValueError('BACKEND_MANIFEST_EVIDENCE_MISSING')
+    content = resolve(meta['path']).read_bytes()
+    if hashlib.sha256(content).hexdigest() != meta['sha256']:
+        raise ValueError('BACKEND_MANIFEST_EVIDENCE_DIGEST_MISMATCH')
+    if not isinstance(product, dict):
+        raise ValueError('BACKEND_PRODUCT_EVIDENCE_INVALID')
+    identity = backend_manifest_identity(json.loads(content), product, instance)
+    base = {key: product.get(key) for key in ('manifest_profile', 'manifest_schema_version',
+            'manifest_hash', 'compiled_features', 'artifacts', 'validation_inputs')}
+    if (base['manifest_profile'] != (instance.get('product_contract') or {}).get('manifest_profile') or
+            not isinstance(base['artifacts'], dict) or set(base['artifacts']) != set(PRODUCT_ARTIFACTS) or
+            any(not isinstance(value, str) or not re.fullmatch(r'[a-f0-9]{64}', value)
+                for value in base['artifacts'].values())):
+        raise ValueError('BACKEND_APP_PRODUCT_EVIDENCE_INVALID')
+    app_hash = hashlib.sha256(json.dumps(base, sort_keys=True).encode()).hexdigest()
+    expected = backend_product_evidence({'fingerprint': app_hash}, identity)
+    if any(product.get(key) != expected[key] for key in ('app_fingerprint', 'backend_manifest', 'fingerprint')):
+        raise ValueError('BACKEND_PRODUCT_FINGERPRINT_MISMATCH')
 
 
 def product_environment_errors(root: Path, instance: dict, env: dict) -> list[str]:
@@ -491,6 +603,7 @@ def acceptance_environment_evidence(root: Path, instance: dict, env: dict) -> di
 
 
 def _acceptance_bound_inputs(instance: dict, env: dict, row: dict, records: dict) -> tuple[dict, list[str]]:
+    role = str(instance.get('account_role') or instance.get('role') or '')
     frozen, authorization, runtime, fixture, device = (records[name] for name in
         ('frozen', 'authorization', 'runtime', 'fixture', 'device'))
     errors = []
@@ -534,8 +647,9 @@ def _acceptance_bound_inputs(instance: dict, env: dict, row: dict, records: dict
         url = runtime.get(name, '')
         parsed = urlsplit(url)
         if (parsed.scheme not in schemes or not is_loopback_host(parsed.hostname)
-                or parsed.port is None or parsed.username or parsed.password or parsed.query or parsed.fragment
-                or url != _value(env, env_name)):
+                or parsed.port is None or parsed.username is not None or parsed.password is not None
+                or parsed.query or parsed.fragment
+                or url != _value(env, env_name, role)):
             errors.append('ACCEPTANCE_RUNTIME_ENDPOINT_MISMATCH:' + name)
     heads = {repo: candidate['head'] for repo, candidate in frozen['candidates'].items()}
     if (runtime.get('app_env') != 'local' or runtime.get('external_services_disabled') is not True
@@ -772,7 +886,7 @@ def build_invocation(root: Path, instance: dict, env: dict, output_dir: Path,
         # Legacy define names remain, while backend_environment_errors enforces loopback.
         flag = ('TEST_ALLOW_DUAL_GROUP_PROD_WRITES' if 'group_dual_' in target
                 else 'TEST_ALLOW_DUAL_ACCOUNT_PROD_WRITES')
-        defines[flag] = _value(env, 'TEST_ALLOW_BUSINESS_WRITES')
+        defines[flag] = _value(env, 'TEST_ALLOW_BUSINESS_WRITES', role)
         if orchestration == 'dual-sequential':
             defines['TEST_STOP_AFTER_OUTGOING_ACK'] = 'true' if role == 'sender' else 'false'
             defines['TEST_FORCE_LOGOUT_BEFORE_LOGIN'] = 'true'
@@ -801,20 +915,30 @@ def build_invocation(root: Path, instance: dict, env: dict, output_dir: Path,
     command.extend(f'--dart-define={name}={str(value).lower() if isinstance(value, bool) else value}'
                    for name, value in sorted(defines.items()))
     product_evidence = product_artifact_evidence(root, instance, env)
+    errors = preflight_instance(root, instance, env, devices)
+    evidence_artifacts = []
+    backend_evidence = None
+    if instance.get('suite') == 'backend-contract' and not errors:
+        captured = capture_backend_manifest(instance, env, product_evidence, output_dir)
+        errors.extend(captured['errors'])
+        if not captured['errors']:
+            product_evidence = captured['product_artifact']
+            backend_evidence = captured['evidence']
+            evidence_artifacts.append(backend_evidence)
     if product_evidence.get('fingerprint'):
         (output_dir / 'product-artifact.json').write_text(
             json.dumps(product_evidence, sort_keys=True, indent=2) + '\n')
-    evidence_artifacts = []
     if acceptance_evidence.get('context'):
         path = output_dir / 'acceptance-environment.json'
         path.write_text(json.dumps(acceptance_evidence, sort_keys=True, indent=2) + '\n')
         evidence_artifacts.append({'path': str(path), 'sha256': hashlib.sha256(path.read_bytes()).hexdigest()})
     return {'command': command, 'env': process_env, 'cwd': str(root), 'evidence_kind': kind,
             'product_artifact': product_evidence,
+            'backend_manifest_evidence': backend_evidence,
             'evidence_artifacts': evidence_artifacts,
             'log_path': str(output_dir / 'process.log'),
             'junit_before': junit_snapshot(root) if kind == 'junit' else {},
-            'errors': preflight_instance(root, instance, env, devices)}
+            'errors': errors}
 
 
 def junit_snapshot(root: Path) -> dict[str, tuple[int, int]]:

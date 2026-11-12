@@ -525,6 +525,9 @@ class _Translations$channel$it_IT extends Translations$channel$zh_CN {
 	@override String get subscribePending => 'Iscrizione riuscita; aggiornamento in corso';
 	@override String get subscribeRefresh => 'Aggiorna iscrizione';
 	@override String unseenUpdatesBanner({required Object count}) => '${count} nuovi aggiornamenti';
+	@override String get editLeaveUnsaved => 'Le modifiche non sono salvate. Scartarle e uscire?';
+	@override String get avatarNotUploaded => 'La foto del profilo non è stata caricata. Riprova o ripristinala prima di salvare.';
+	@override String get restoreAvatar => 'Ripristina foto';
 }
 
 // Path: chat
@@ -1697,6 +1700,10 @@ class _Translations$common$it_IT extends Translations$common$zh_CN {
 	@override String get legacyUploadReturnToOriginalPage => 'Il caricamento è incompleto. Torna alla pagina originale, seleziona il file e invia.';
 	@override String get f2fLocationRequired => 'Attiva il permesso e i servizi di localizzazione e riprova con gli amici vicini.';
 	@override String get f2fMemberHint => 'Tocca un avatar per vedere il profilo e aggiungere la persona agli amici.';
+	@override String get pleaseSelectLocation => 'Seleziona una posizione';
+	@override String get myLocation => 'La mia posizione';
+	@override String get searchConversations => 'Conversazioni';
+	@override String get webpageLoadProblem => 'Si è verificato un problema nel caricamento della pagina. Riprova.';
 }
 
 // Path: complaint
@@ -2020,6 +2027,7 @@ class _Translations$group$it_IT extends Translations$group$zh_CN {
 	@override String get sureToTransferAndLeave => 'Trasferirai la proprietà e uscirai dal gruppo. Continuare?';
 	@override String get transferredButLeaveFailed => 'Proprietà trasferita, ma uscita non riuscita. Riprova';
 	@override String get noEligibleSuccessor => 'Nessun membro disponibile per il trasferimento';
+	@override String get searchLoadedMembers => 'Cerca solo tra i membri caricati';
 }
 
 // Path: groupCategory
@@ -3857,6 +3865,9 @@ extension on TranslationsItIt {
 			'channel.subscribePending' => 'Iscrizione riuscita; aggiornamento in corso',
 			'channel.subscribeRefresh' => 'Aggiorna iscrizione',
 			'channel.unseenUpdatesBanner' => ({required Object count}) => '${count} nuovi aggiornamenti',
+			'channel.editLeaveUnsaved' => 'Le modifiche non sono salvate. Scartarle e uscire?',
+			'channel.avatarNotUploaded' => 'La foto del profilo non è stata caricata. Riprova o ripristinala prima di salvare.',
+			'channel.restoreAvatar' => 'Ripristina foto',
 			'chat.bankCard' => 'Carta bancaria',
 			'chat.receivePayment' => 'Ricevi & Paga',
 			'chat.alreadyMember' => 'Già membro',
@@ -3959,11 +3970,11 @@ extension on TranslationsItIt {
 			'chat.youWithdrewAMessage' => 'Hai revocato un messaggio',
 			'chat.formatCheck' => 'Controllo formato',
 			'chat.featureRequest' => 'Richiesta funzionalità',
+			_ => null,
+		} ?? switch (path) {
 			'chat.chatResend' => 'Invia di nuovo',
 			'chat.profileExportProfile' => 'Esporta profilo',
 			'chat.momentsSend' => 'Invia',
-			_ => null,
-		} ?? switch (path) {
 			'chat.loginExpiredMessage' => 'Sessione scaduta, accedi di nuovo',
 			'chat.customImage' => 'Immagine personalizzata',
 			'chat.burnAfterReading' => 'Distruggi dopo la lettura',
@@ -4473,11 +4484,11 @@ extension on TranslationsItIt {
 			'common.chatInitFailed' => 'Inizializzazione chat non riuscita',
 			'common.cameraShootFailed' => 'Foto non riuscita',
 			'common.cameraCapture' => 'Fotocamera',
+			_ => null,
+		} ?? switch (path) {
 			'common.cameraModePhoto' => 'Foto',
 			'common.cameraModeVideo' => 'Video',
 			'common.cameraRetake' => 'Riprova',
-			_ => null,
-		} ?? switch (path) {
 			'common.cameraUse' => 'Usa',
 			'common.cameraNoDevice' => 'Nessuna fotocamera disponibile',
 			'common.avatarEditAvatar' => 'Modifica avatar',
@@ -4987,11 +4998,11 @@ extension on TranslationsItIt {
 			'common.redPacketSwitchToNormal' => 'Passa a busta normale',
 			'common.redPacketTotalAmount' => 'Importo totale',
 			'common.redPacketView' => 'Vedi busta rossa',
+			_ => null,
+		} ?? switch (path) {
 			'common.switchCamera' => 'Cambia fotocamera',
 			'common.timeDaysShort' => ({required Object count}) => '${count}g',
 			'common.timeHoursShort' => ({required Object count}) => '${count}h',
-			_ => null,
-		} ?? switch (path) {
 			'common.timeMinutesShort' => ({required Object count}) => '${count}m',
 			'common.timeNowShort' => 'adesso',
 			'common.transferAccepted' => 'Ricevuto',
@@ -5022,6 +5033,10 @@ extension on TranslationsItIt {
 			'common.legacyUploadReturnToOriginalPage' => 'Il caricamento è incompleto. Torna alla pagina originale, seleziona il file e invia.',
 			'common.f2fLocationRequired' => 'Attiva il permesso e i servizi di localizzazione e riprova con gli amici vicini.',
 			'common.f2fMemberHint' => 'Tocca un avatar per vedere il profilo e aggiungere la persona agli amici.',
+			'common.pleaseSelectLocation' => 'Seleziona una posizione',
+			'common.myLocation' => 'La mia posizione',
+			'common.searchConversations' => 'Conversazioni',
+			'common.webpageLoadProblem' => 'Si è verificato un problema nel caricamento della pagina. Riprova.',
 			'complaint.complaint' => 'Reclamo',
 			'complaint.e2eeConsentTitle' => 'Invia prove crittografate',
 			'complaint.e2eeConsentBody' => 'Questo messaggio è cifrato end-to-end; il server non può vederne il contenuto. Inviare un estratto renderà visibile il testo selezionato ai moderatori per la revisione. Acconsenti?',
@@ -5273,6 +5288,7 @@ extension on TranslationsItIt {
 			'group.sureToTransferAndLeave' => 'Trasferirai la proprietà e uscirai dal gruppo. Continuare?',
 			'group.transferredButLeaveFailed' => 'Proprietà trasferita, ma uscita non riuscita. Riprova',
 			'group.noEligibleSuccessor' => 'Nessun membro disponibile per il trasferimento',
+			'group.searchLoadedMembers' => 'Cerca solo tra i membri caricati',
 			'groupCategory.title' => 'Categorie di gruppo',
 			'groupCategory.createCategory' => 'Crea categoria',
 			'groupCategory.categoryName' => 'Nome categoria',
@@ -5496,6 +5512,8 @@ extension on TranslationsItIt {
 			'main.collecting' => 'Raccolta in corso...',
 			'main.user' => 'Utente',
 			'main.recommended' => 'Consigliato',
+			_ => null,
+		} ?? switch (path) {
 			'main.larger' => 'Più grande',
 			'main.fillIn' => 'Compila',
 			'main.msgProtectedByComplianceKey' => 'Messaggio protetto da chiave di conformità',
@@ -5504,8 +5522,6 @@ extension on TranslationsItIt {
 			'main.mySentTab' => 'Inviati',
 			'main.reject' => 'Rifiuta',
 			'main.myOrders' => 'Ordini',
-			_ => null,
-		} ?? switch (path) {
 			'main.purchaseUnlockHint' => 'Dopo l\'acquisto, accedi allo storico e agli aggiornamenti del canale.',
 			'main.payingDots' => 'Pagamento...',
 			'main.purchaseAndUnlock' => 'Acquista e sblocca',
@@ -6010,6 +6026,8 @@ extension on TranslationsItIt {
 			'passport.qrLoginCancelledByMe' => 'Accesso annullato',
 			'passport.qrLoginConfirming' => 'Accesso in corso...',
 			'passport.qrLoginSuccess' => 'Accesso riuscito',
+			_ => null,
+		} ?? switch (path) {
 			'passport.qrWebLoginDesc' => 'Conferma se accedere a questo account dal client Web',
 			'passport.qrWebLoginTitle' => 'Conferma accesso dal Web',
 			'passport.alipayNotSupportedWeb' => 'Login Alipay non supportato sul web',
@@ -6018,8 +6036,6 @@ extension on TranslationsItIt {
 			'passport.oneKeyNoSimCard' => 'Rete non supportata o telefono senza SIM',
 			'passport.cannotGetScreenSize' => 'Impossibile ottenere le dimensioni dello schermo',
 			'passport.oneKeyFailedRetry' => 'Login one-tap non riuscito, controlla la rete e riprova',
-			_ => null,
-		} ?? switch (path) {
 			'splash.slogan' => 'Parla liberamente, comunica con facilità',
 			'talkRecord.uploadProgressRegister' => 'Preparazione del caricamento',
 			'talkRecord.uploadProgressUpload' => 'Caricamento audio',

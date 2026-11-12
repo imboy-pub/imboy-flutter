@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -12,21 +13,12 @@ import 'package:imboy/config/env.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/chat/widget/chat_input.dart';
 import 'package:imboy/page/chat/widget/chat_input_types.dart';
+import 'package:imboy/page/chat/widget/chat_input_height_listener.dart';
 import 'package:imboy/service/storage.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 
-/// ChatInput widget 契约测试
-///
-/// ChatInput 是 1262 行 StatefulWidget + TickerProviderStateMixin，依赖：
-///   - mention_provider Riverpod
-///   - emoji_picker_flutter 资源
-///   - 多个动画 controller / focus node
-///   - SendButtonVisibilityMode / 文本状态
-///
-/// 完整交互测试超出 ROI 范围，本文件聚焦：
-///   1. **构造参数契约**（type / peerId / 默认值）— 不 pump widget
-///   2. **isMuted=true 禁言态简化分支**（绕开 mention/emoji 复杂渲染）
-///   3. **类型断言**（StatefulWidget / 默认值不变）
+/// ChatInput 契约与交互回归：构造、禁言、工具语义、异步发送，以及
+/// C2C/C2G 在 3 宽 × 3 字号 × 明暗下的真实底部布局和键盘避让。
 Future<void> _pump(
   WidgetTester tester, {
   required bool isMuted,
@@ -64,27 +56,46 @@ Future<void> _pumpType(
   String type, {
   Brightness brightness = Brightness.light,
   double textScale = 1,
+  bool bottomAligned = false,
+  String peerId = 'peer_1',
+  Future<bool> Function(String)? onSendPressed,
 }) async {
   final composerHeight = ValueNotifier<double>(52);
   addTearDown(composerHeight.dispose);
 
+  final input = ChatInput(
+    type: type,
+    peerId: peerId,
+    onSendPressed: onSendPressed ?? (_) async => true,
+    composerHeight: composerHeight,
+  );
   await tester.pumpWidget(
     ProviderScope(
       child: TranslationProvider(
         child: MaterialApp(
-          theme: ThemeData(brightness: brightness),
+          theme: ThemeData(
+            brightness: brightness,
+            platform: TargetPlatform.android,
+          ),
           builder: (context, child) => MediaQuery(
             data: MediaQuery.of(context)
                 .copyWith(textScaler: TextScaler.linear(textScale)),
             child: child!,
           ),
           home: Scaffold(
-            body: ChatInput(
-              type: type,
-              peerId: 'peer_1',
-              onSendPressed: (text) async => true,
-              composerHeight: composerHeight,
-            ),
+            // 与 ChatPage 相同：输入栏自行占据 View.viewInsets 的键盘高度。
+            resizeToAvoidBottomInset: !bottomAligned,
+            body: bottomAligned
+                ? Column(
+                    children: [
+                      const Expanded(child: SizedBox()),
+                      ChatInputHeightListener(
+                        composerHeight: composerHeight,
+                        child: input,
+                      ),
+                    ],
+                  )
+                : input,
           ),
         ),
       ),
@@ -153,51 +164,98 @@ void main() {
     await _unmount(tester);
   });
 
-  for (final (brightness, type) in [
-    for (final b in Brightness.values)
-      for (final type in ['C2C', 'C2G']) (b, type),
+  for (final (width, scale, brightness, type) in [
+    for (final width in [320.0, 360.0, 390.0])
+      for (final scale in [1.0, 1.5, 2.0])
+        for (final b in Brightness.values)
+          for (final type in ['C2C', 'C2G']) (width, scale, b, type),
   ]) {
-    testWidgets('窄屏放大文字时多行输入、快捷回复和发送保持可达 $brightness $type', (tester) async {
+    testWidgets('底部输入 $width × $scale $brightness $type 键盘上方可发送多行', (
+      tester,
+    ) async {
       tester.view.devicePixelRatio = 1;
-      tester.view.physicalSize = const Size(320, 900);
+      tester.view.physicalSize = Size(width, 900);
       addTearDown(tester.view.reset);
-      await _pumpType(tester, type, brightness: brightness, textScale: 1.6);
+      final sent = <String>[];
+      await _pumpType(
+        tester,
+        type,
+        brightness: brightness,
+        textScale: scale,
+        bottomAligned: true,
+        peerId: 'matrix_${width}_${scale}_${brightness.name}_$type',
+        onSendPressed: (text) async {
+          sent.add(text);
+          return true;
+        },
+      );
       await tester.pumpAndSettle();
-      tester
-          .state<ChatInputState>(find.byType(ChatInput))
-          .textController
-          .clear();
-      await tester.pump(const Duration(milliseconds: 350));
       final input = find.byKey(const Key('chat_message_input'));
       await tester.tap(input);
+      // 使用真实 View metrics，覆盖 ChatInput 自行避让键盘的生产路径。
+      tester.view.viewInsets = const FakeViewPadding(bottom: 320);
       await tester.pumpAndSettle();
-      expect(
-        find.byKey(const Key('quick_reply_manage_button')).hitTestable(),
-        findsOneWidget,
-      );
-      expect(
-        tester.getSize(find.byKey(const Key('chat_quick_replies'))).height,
-        greaterThanOrEqualTo(44),
-      );
+      const keyboardTop = 900.0 - 320.0;
+      final manage = find.byKey(const Key('quick_reply_manage_button'));
+      expect(defaultTargetPlatform, TargetPlatform.android);
+      expect(Theme.of(tester.element(input)).platform, TargetPlatform.android);
+      expect(manage.hitTestable(), findsOneWidget);
+      final replies = find.byKey(const Key('chat_quick_replies'));
+      expect(tester.getSize(replies).height, greaterThanOrEqualTo(48));
+      for (final button in [
+        manage,
+        find
+            .descendant(of: replies, matching: find.byType(CupertinoButton))
+            .first,
+        for (final icon in [
+          CupertinoIcons.mic,
+          CupertinoIcons.smiley,
+          CupertinoIcons.plus_circle,
+          if (type == 'C2G') CupertinoIcons.at,
+        ])
+          find
+              .ancestor(
+                of: find.byIcon(icon),
+                matching: find.byType(CupertinoButton),
+              )
+              .first,
+      ]) {
+        expect(button.hitTestable(), findsOneWidget);
+        final target = tester.getRect(button);
+        expect(target.width, greaterThanOrEqualTo(48));
+        expect(target.height, greaterThanOrEqualTo(48));
+      }
+      expect(tester.getRect(manage).bottom, lessThanOrEqualTo(keyboardTop));
+      expect(tester.getRect(find.byType(ChatInput)).bottom, 900);
       final fieldSurface = find.byKey(const Key('chat_composer_field_surface'));
+      // C2G 窄屏大字时空提示也会折行；用真实一行内容比较多行增长。
+      await tester.enterText(input, '短');
+      await tester.pump(const Duration(milliseconds: 350));
+      await tester.pump(const Duration(milliseconds: 350));
       final singleHeight = tester.getSize(fieldSurface).height;
-      await tester.enterText(input, '第一行\n第二行\n第三行\n第四行\n第五行\n第六行');
+      const payload = '第一行👋\n第二行\n第三行\n第四行\n第五行\n第六行';
+      await tester.enterText(input, payload);
       await tester.pump(const Duration(milliseconds: 350));
       await tester.pump(const Duration(milliseconds: 350));
       expect(tester.getSize(fieldSurface).height, greaterThan(singleHeight));
-      expect(
-        find.byKey(const ValueKey('send_button')).hitTestable(),
-        findsOneWidget,
-      );
+      final send = find.byKey(const ValueKey('send_button'));
+      expect(send.hitTestable(), findsOneWidget);
+      final rect = tester.getRect(send);
+      expect(rect.bottom, lessThanOrEqualTo(keyboardTop));
+      expect(rect.top, greaterThanOrEqualTo(0));
+      expect(rect.width, greaterThanOrEqualTo(48));
+      expect(rect.height, greaterThanOrEqualTo(48));
       expect(find.byKey(const Key('chat_quick_replies')), findsNothing);
+      await tester.tap(send);
+      await tester.pumpAndSettle();
+      expect(sent, [payload], reason: '实际点击只能发送一次，并保留多行与 Unicode');
+      expect(
+        tester.widget<CupertinoTextField>(input).controller!.text,
+        isEmpty,
+      );
       expect(tester.takeException(), isNull);
-      tester
-          .state<ChatInputState>(find.byType(ChatInput))
-          .textController
-          .clear();
-      await tester.pump(const Duration(milliseconds: 350));
       await _unmount(tester);
-    });
+    }, variant: TargetPlatformVariant.only(TargetPlatform.android));
   }
 
   group('ChatInput construction contract', () {
@@ -433,7 +491,9 @@ void main() {
   });
 
   group('ChatInput 发送按钮触达区域与语义 / Send button hit target & semantics', () {
-    testWidgets('发送按钮可点击区域 ≥ 44x44，且声明 button 语义 + label', (tester) async {
+    testWidgets('发送按钮可点击区域 Android ≥ 48x48dp，且声明 button 语义 + label', (
+      tester,
+    ) async {
       await _pumpType(tester, 'C2C');
 
       // 输入文本使发送按钮可见（默认 sendButtonVisibilityMode = editing）
@@ -448,8 +508,8 @@ void main() {
       final sendButton = find.byKey(const ValueKey('send_button'));
       expect(sendButton, findsOneWidget);
       final rect = tester.getRect(sendButton);
-      expect(rect.width, greaterThanOrEqualTo(44));
-      expect(rect.height, greaterThanOrEqualTo(44));
+      expect(rect.width, greaterThanOrEqualTo(48));
+      expect(rect.height, greaterThanOrEqualTo(48));
 
       final sem = tester.getSemantics(sendButton);
       expect(sem.flagsCollection.isButton, isTrue);
@@ -630,7 +690,7 @@ void main() {
       await _unmount(tester);
     });
 
-    testWidgets('三个图标按钮命中区均 ≥ 44x44', (tester) async {
+    testWidgets('三个图标按钮命中区均 Android ≥ 48x48dp', (tester) async {
       await _pumpType(tester, 'C2C');
 
       for (final icon in [
@@ -645,8 +705,8 @@ void main() {
             )
             .first;
         final rect = tester.getRect(button);
-        expect(rect.width, greaterThanOrEqualTo(44), reason: '$icon 宽度不足');
-        expect(rect.height, greaterThanOrEqualTo(44), reason: '$icon 高度不足');
+        expect(rect.width, greaterThanOrEqualTo(48), reason: '$icon 宽度不足');
+        expect(rect.height, greaterThanOrEqualTo(48), reason: '$icon 高度不足');
       }
 
       await _unmount(tester);

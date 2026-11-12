@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:imboy/page/chat/widget/message_bubble_style.dart';
+import 'package:imboy/theme/default/app_colors.dart';
 
 /// MessageBubbleStyle 纯样式逻辑契约测试（TypeB）
 ///
@@ -99,6 +100,23 @@ void main() {
       });
       expect(style.color, Colors.white);
       expect(style.fontSize, 16);
+    });
+    testWidgets('暗色发送方文本保留柔白，接收方跟随暗色文本', (tester) async {
+      late TextStyle sent;
+      late TextStyle received;
+      await withContext(tester, Brightness.dark, (context) {
+        sent = MessageBubbleStyle.getMessageTextStyle(
+          context: context,
+          isSentByMe: true,
+        );
+        received = MessageBubbleStyle.getMessageTextStyle(
+          context: context,
+          isSentByMe: false,
+        );
+      });
+      expect(sent.color, AppColors.sentMessageText);
+      expect(sent.color, isNot(Colors.white));
+      expect(received.color, AppColors.getTextColor(Brightness.dark));
     });
   });
 }

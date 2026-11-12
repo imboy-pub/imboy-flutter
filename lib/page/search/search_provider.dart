@@ -289,21 +289,19 @@ class SearchNotifier extends _$SearchNotifier {
     state = state.copyWith(isLoading: false);
   }
 
-  void updateSearchResults(List<Message> results, {bool loadMore = false}) {
-    if (loadMore) {
-      state = state.copyWith(
-        searchResults: [...state.searchResults, ...results],
-        hasMore: results.length >= 20,
-        currentPage: state.currentPage + 1,
-      );
-    } else {
-      state = state.copyWith(
-        searchResults: results,
-        hasMore: results.length >= 20,
-        totalResults: results.length,
-        currentPage: state.currentPage + 1,
-      );
-    }
+  void updateSearchResults(
+    List<Message> results, {
+    required int page,
+    required bool hasMore,
+    bool loadMore = false,
+  }) {
+    final items = loadMore ? [...state.searchResults, ...results] : results;
+    state = state.copyWith(
+      searchResults: items,
+      currentPage: page,
+      hasMore: hasMore,
+      totalResults: items.length,
+    );
   }
 
   void updateTypeDistribution(List<Message> results) {

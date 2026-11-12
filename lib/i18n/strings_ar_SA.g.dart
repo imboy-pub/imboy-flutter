@@ -525,6 +525,9 @@ class _Translations$channel$ar_SA extends Translations$channel$zh_CN {
 	@override String get subscribePending => 'تم الاشتراك، جارٍ التحديث';
 	@override String get subscribeRefresh => 'تحديث الاشتراك';
 	@override String unseenUpdatesBanner({required Object count}) => '${count} تحديثات جديدة';
+	@override String get editLeaveUnsaved => 'لم يتم حفظ التغييرات. هل تريد تجاهلها والمغادرة؟';
+	@override String get avatarNotUploaded => 'لم يتم رفع الصورة الشخصية. أعد المحاولة أو استعد الصورة قبل الحفظ.';
+	@override String get restoreAvatar => 'استعادة الصورة الشخصية';
 }
 
 // Path: chat
@@ -1706,6 +1709,10 @@ class _Translations$common$ar_SA extends Translations$common$zh_CN {
 	@override String get legacyUploadReturnToOriginalPage => 'لم يكتمل الرفع. عُد إلى الصفحة الأصلية واختر الملف مجدداً ثم أرسله.';
 	@override String get f2fLocationRequired => 'فعّل إذن الموقع وخدمات الموقع، ثم حاول مجددًا مع الأصدقاء القريبين.';
 	@override String get f2fMemberHint => 'اضغط على صورة صديق لعرض ملفه الشخصي وإضافته.';
+	@override String get pleaseSelectLocation => 'يرجى اختيار موقع';
+	@override String get myLocation => 'موقعي';
+	@override String get searchConversations => 'المحادثات';
+	@override String get webpageLoadProblem => 'حدثت مشكلة أثناء تحميل محتوى الصفحة. يرجى إعادة المحاولة.';
 }
 
 // Path: complaint
@@ -2029,6 +2036,7 @@ class _Translations$group$ar_SA extends Translations$group$zh_CN {
 	@override String get sureToTransferAndLeave => 'ستنقل ملكية المجموعة وتغادرها. هل تريد المتابعة؟';
 	@override String get transferredButLeaveFailed => 'تم نقل الملكية، لكن فشلت المغادرة. حاول مجددًا';
 	@override String get noEligibleSuccessor => 'لا يوجد عضو متاح للنقل';
+	@override String get searchLoadedMembers => 'البحث في الأعضاء المحمّلين فقط';
 }
 
 // Path: groupCategory
@@ -3866,6 +3874,9 @@ extension on TranslationsArSa {
 			'channel.subscribePending' => 'تم الاشتراك، جارٍ التحديث',
 			'channel.subscribeRefresh' => 'تحديث الاشتراك',
 			'channel.unseenUpdatesBanner' => ({required Object count}) => '${count} تحديثات جديدة',
+			'channel.editLeaveUnsaved' => 'لم يتم حفظ التغييرات. هل تريد تجاهلها والمغادرة؟',
+			'channel.avatarNotUploaded' => 'لم يتم رفع الصورة الشخصية. أعد المحاولة أو استعد الصورة قبل الحفظ.',
+			'channel.restoreAvatar' => 'استعادة الصورة الشخصية',
 			'chat.bankCard' => 'بطاقة بنكية',
 			'chat.receivePayment' => 'استلام ودفع',
 			'chat.alreadyMember' => 'عضو بالفعل',
@@ -3968,11 +3979,11 @@ extension on TranslationsArSa {
 			'chat.youWithdrewAMessage' => 'قمت بسحب رسالة',
 			'chat.formatCheck' => 'فحص التنسيق',
 			'chat.featureRequest' => 'طلب ميزة',
+			_ => null,
+		} ?? switch (path) {
 			'chat.chatResend' => 'إعادة الإرسال',
 			'chat.profileExportProfile' => 'تصدير الملف الشخصي',
 			'chat.momentsSend' => 'إرسال',
-			_ => null,
-		} ?? switch (path) {
 			'chat.loginExpiredMessage' => 'انتهت صلاحية تسجيل الدخول، يرجى تسجيل الدخول مرة أخرى',
 			'chat.customImage' => 'صورة مخصصة',
 			'chat.burnAfterReading' => 'الحرق بعد القراءة',
@@ -4482,11 +4493,11 @@ extension on TranslationsArSa {
 			'common.chatInitFailed' => 'فشل تهيئة الدردشة',
 			'common.cameraShootFailed' => 'فشل التقاط الصورة',
 			'common.cameraCapture' => 'الكاميرا',
+			_ => null,
+		} ?? switch (path) {
 			'common.cameraModePhoto' => 'صورة',
 			'common.cameraModeVideo' => 'فيديو',
 			'common.cameraRetake' => 'إعادة التصوير',
-			_ => null,
-		} ?? switch (path) {
 			'common.cameraUse' => 'استخدام',
 			'common.cameraNoDevice' => 'لا توجد كاميرا متاحة',
 			'common.avatarEditAvatar' => 'تعديل الصورة الرمزية',
@@ -4996,11 +5007,11 @@ extension on TranslationsArSa {
 			'common.redPacketAmountTooSmall' => 'يجب أن يكون المبلغ الإجمالي على الأقل عدد المغلفات × 0.01 يوان',
 			'common.redPacketGreetingLabel' => 'رسالة / تهنئة',
 			'common.redPacketCurrentLucky' => 'الوضع الحالي: مغلف الحظ',
+			_ => null,
+		} ?? switch (path) {
 			'common.redPacketCurrentNormal' => 'الوضع الحالي: مغلف عادي',
 			'common.redPacketSwitchToLucky' => 'التحويل إلى مغلف حظ',
 			'common.redPacketSwitchToNormal' => 'التحويل إلى مغلف عادي',
-			_ => null,
-		} ?? switch (path) {
 			'common.redPacketStuffLucky' => 'إرسال مغلف حظ',
 			'common.redPacketStuffNormal' => 'إرسال من المحفظة',
 			'common.redPacketFetchError' => 'خطأ في جلب تفاصيل المغلف',
@@ -5031,6 +5042,10 @@ extension on TranslationsArSa {
 			'common.legacyUploadReturnToOriginalPage' => 'لم يكتمل الرفع. عُد إلى الصفحة الأصلية واختر الملف مجدداً ثم أرسله.',
 			'common.f2fLocationRequired' => 'فعّل إذن الموقع وخدمات الموقع، ثم حاول مجددًا مع الأصدقاء القريبين.',
 			'common.f2fMemberHint' => 'اضغط على صورة صديق لعرض ملفه الشخصي وإضافته.',
+			'common.pleaseSelectLocation' => 'يرجى اختيار موقع',
+			'common.myLocation' => 'موقعي',
+			'common.searchConversations' => 'المحادثات',
+			'common.webpageLoadProblem' => 'حدثت مشكلة أثناء تحميل محتوى الصفحة. يرجى إعادة المحاولة.',
 			'complaint.complaint' => 'شكوى',
 			'complaint.e2eeConsentTitle' => 'تقديم دليل مشفّر',
 			'complaint.e2eeConsentBody' => 'هذه الرسالة مشفّرة من الطرف إلى الطرف ولا يمكن للخادم الاطلاع على محتواها. سيكشف تقديم مقتطف النص محتوى الرسالة المحدد للمشرفين لمراجعة البلاغ. هل توافق؟',
@@ -5282,6 +5297,7 @@ extension on TranslationsArSa {
 			'group.sureToTransferAndLeave' => 'ستنقل ملكية المجموعة وتغادرها. هل تريد المتابعة؟',
 			'group.transferredButLeaveFailed' => 'تم نقل الملكية، لكن فشلت المغادرة. حاول مجددًا',
 			'group.noEligibleSuccessor' => 'لا يوجد عضو متاح للنقل',
+			'group.searchLoadedMembers' => 'البحث في الأعضاء المحمّلين فقط',
 			'groupCategory.title' => 'مجلدات المجموعات',
 			'groupCategory.createCategory' => 'إنشاء مجلد',
 			'groupCategory.categoryName' => 'اسم المجلد',
@@ -5505,6 +5521,8 @@ extension on TranslationsArSa {
 			'main.collecting' => 'جارٍ الإضافة إلى المفضلة...',
 			'main.user' => 'مستخدم',
 			'main.recommended' => 'مُوصى به',
+			_ => null,
+		} ?? switch (path) {
 			'main.larger' => 'أكبر',
 			'main.fillIn' => 'ملء',
 			'main.msgProtectedByComplianceKey' => 'الرسائل محمية بمفتاح الامتثال',
@@ -5513,8 +5531,6 @@ extension on TranslationsArSa {
 			'main.mySentTab' => 'المُرسلة',
 			'main.reject' => 'رفض',
 			'main.myOrders' => 'طلباتي',
-			_ => null,
-		} ?? switch (path) {
 			'main.purchaseUnlockHint' => 'بعد الشراء يُفتح سجل رسائل القناة والتحديثات القادمة.',
 			'main.payingDots' => 'جارٍ الدفع...',
 			'main.purchaseAndUnlock' => 'شراء وفتح',
@@ -6019,6 +6035,8 @@ extension on TranslationsArSa {
 			'passport.qrConnecting' => 'جارٍ الاتصال...',
 			'passport.qrWebLoginTitle' => 'تأكيد تسجيل الدخول عبر الويب',
 			'passport.qrWebLoginDesc' => 'يرجى تأكيد ما إذا كنت تريد تسجيل الدخول إلى هذا الحساب على الويب',
+			_ => null,
+		} ?? switch (path) {
 			'passport.qrLoginAction' => 'تأكيد تسجيل الدخول',
 			'passport.qrLoginSuccess' => 'تم تسجيل الدخول بنجاح',
 			'passport.alipayNotSupportedWeb' => 'تسجيل الدخول عبر Alipay غير مدعوم على الويب',
@@ -6027,8 +6045,6 @@ extension on TranslationsArSa {
 			'passport.oneKeyNoSimCard' => 'الشبكة الحالية غير مدعومة أو لا توجد شريحة SIM في الهاتف',
 			'passport.cannotGetScreenSize' => 'تعذر الحصول على حجم الشاشة',
 			'passport.oneKeyFailedRetry' => 'فشل تسجيل الدخول بنقرة واحدة، تحقق من الشبكة وحاول مجددًا',
-			_ => null,
-		} ?? switch (path) {
 			'splash.slogan' => 'تواصل بحرية وبدون قيود',
 			'talkRecord.uploadProgressRegister' => 'جارٍ تحضير الرفع',
 			'talkRecord.uploadProgressUpload' => 'جارٍ رفع الصوت',

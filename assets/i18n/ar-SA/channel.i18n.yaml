@@ -227,3 +227,7 @@ enterpriseChannelLabel: "قناة داخلية للمؤسسة"
 subscribePending: تم الاشتراك، جارٍ التحديث
 subscribeRefresh: تحديث الاشتراك
 unseenUpdatesBanner(count): "${count} تحديثات جديدة"
+
+editLeaveUnsaved: "لم يتم حفظ التغييرات. هل تريد تجاهلها والمغادرة؟"
+avatarNotUploaded: "لم يتم رفع الصورة الشخصية. أعد المحاولة أو استعد الصورة قبل الحفظ."
+restoreAvatar: "استعادة الصورة الشخصية"

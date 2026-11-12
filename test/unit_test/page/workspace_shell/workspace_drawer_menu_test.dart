@@ -40,9 +40,12 @@ import 'package:imboy/store/model/workspace_model.dart';
 import 'package:imboy/store/repository/user_repo_provider.dart';
 import 'package:imboy/store/api/workspace_api.dart';
 import 'package:imboy/theme/default/app_colors.dart';
+import 'package:imboy/theme/default/font_types.dart';
+import 'package:imboy/theme/default/theme.dart';
 
 import '../../../ux_matrix/ux_harness.dart';
 import '../../../golden_baseline_guard.dart';
+import '../../../uiux/support/golden_font_loader.dart';
 
 const _account = '91001';
 const _orgA = '7001';
@@ -80,17 +83,20 @@ Map<String, dynamic> _ok(dynamic payload) => {
   'payload': payload,
 };
 
-Map<String, dynamic> _mineOf(List<String> ids, {String role = 'member'}) =>
-    _ok({
-      'list': [
-        for (final id in ids)
-          {'id': int.parse(id), 'name': '组织$id', 'member_role': role},
-      ],
-      'page': 1,
-      'size': 100,
-      'total': ids.length,
-      'total_page': 1,
-    });
+Map<String, dynamic> _mineOf(
+  List<String> ids, {
+  String role = 'member',
+  Map<String, String> names = const {},
+}) => _ok({
+  'list': [
+    for (final id in ids)
+      {'id': int.parse(id), 'name': names[id] ?? '组织$id', 'member_role': role},
+  ],
+  'page': 1,
+  'size': 100,
+  'total': ids.length,
+  'total_page': 1,
+});
 
 /// WS API Fake：mine 可控（两阶段切换预载/落位），不触网。
 class _WsFakeApi extends WorkspaceApi {
@@ -123,6 +129,7 @@ Future<(ProviderContainer, GoRouter, _Experience)> _pumpDrawer(
   List<WorkspaceModel> workspaces = const [],
   HttpClientAdapter? httpAdapter,
   bool compact = false,
+  bool golden = false,
   double compactMaxHeight = 600,
   VoidCallback? onClose,
   _Experience? experienceOverride,
@@ -140,7 +147,13 @@ Future<(ProviderContainer, GoRouter, _Experience)> _pumpDrawer(
         (
           'organizations/mine',
           [
-            (200, _mineOf(neutral ? [] : [_orgA, _orgB])),
+            (
+              200,
+              _mineOf(
+                neutral ? [] : [_orgA, _orgB],
+                names: scenario == 'long' ? {_orgA: organization} : const {},
+              ),
+            ),
           ],
         ),
       ]);
@@ -200,7 +213,13 @@ Future<(ProviderContainer, GoRouter, _Experience)> _pumpDrawer(
       container: container,
       child: MaterialApp.router(
         routerConfig: router,
-        theme: ThemeData(brightness: combo.brightness),
+        theme: golden
+            ? applyGoldenFont(
+                combo.brightness == Brightness.light
+                    ? AppTheme.getLightThemeFromOption(FontSizeOption.normal)
+                    : AppTheme.getDarkThemeFromOption(FontSizeOption.normal),
+              )
+            : ThemeData(brightness: combo.brightness),
         builder: AppLoading.init(
           builder: (context, child) => MediaQuery(
             data: MediaQuery.of(context)
@@ -279,16 +298,26 @@ void main() {
     for (final scenario in ['organization', 'neutral', 'long']) {
       testWidgets(
         'golden: T14 $scenario $label',
-        skip: !goldenBaselineExists(
+        skip: !goldenBaselinesReady([
           'test/unit_test/page/workspace_shell/goldens/t14_${scenario}_$label.png',
-        ),
+        ]),
         (tester) async {
+          final font = await prepareGoldenFonts(tester);
           final (container, _, experience) = await _pumpDrawer(
             tester,
             scenario: scenario,
             combo: combo,
+            golden: true,
           );
           expect(find.byType(Drawer), findsOneWidget);
+          expectGoldenTextGlyphs(
+            tester,
+            font,
+            sample: find.text(t.workspace.myCard),
+          );
+          if (scenario == 'long') {
+            expect(find.text('合成企业名称' * 12).hitTestable(), findsOneWidget);
+          }
           expect(find.text(t.workspace.myCard), findsOneWidget);
           expect(find.text(t.workspace.createOrJoinEnterprise), findsOneWidget);
           expect(find.text(t.main.setting), findsOneWidget);
@@ -314,6 +343,17 @@ void main() {
       );
     }
   }
+
+  testWidgets('长企业名称从 mine 真源进入可见企业行', (tester) async {
+    await _pumpDrawer(tester, scenario: 'long');
+    final longName = find.descendant(
+      of: find.byKey(const ValueKey('drawer-space-$_orgA')),
+      matching: find.text('合成企业名称' * 12),
+    );
+    expect(longName, findsOneWidget);
+    expect(longName.hitTestable(), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
 
   testWidgets('空间区渲染：个人行 + 企业列表，当前勾选语义唯一（企业模式）', (tester) async {
     await _pumpDrawer(tester);
@@ -386,43 +426,63 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
-  for (final compact in [false, true]) {
-    testWidgets('个人→企业：两阶段切换移动指针、壳重载并切体验模式 (compact=$compact)', (tester) async {
-      final adapter = _DetailAdapter();
-      var closed = 0;
-      final (container, _, _) = await _pumpDrawer(
-        tester,
-        initialExperience: ProductExperience.personal,
-        workspaces: const [
-          WorkspaceModel(
-            id: '9002',
-            name: 'WS乙',
-            ownerId: '1',
-            organizationId: _orgB,
+  for (final (compact, combo) in [
+    for (final width in [320.0, 360.0, 390.0])
+      for (final scale in [1.0, 1.5, 2.0])
+        for (final brightness in Brightness.values)
+          (
+            false,
+            UxCombo(Size(width, 800), textScale: scale, brightness: brightness),
           ),
-        ],
-        httpAdapter: adapter,
-        compact: compact,
-        onClose: () => closed++,
-      );
-      final orgB = find.byKey(const ValueKey('drawer-space-$_orgB'));
-      await tester.pumpAndSettle();
-      await tester.ensureVisible(orgB);
-      await tester.tap(orgB);
-      await tester.pumpAndSettle();
-      expect(adapter.detailCalls, greaterThanOrEqualTo(1));
-      expect(CurrentOrganizationStore.forAccount(_account).value?.id, _orgB);
-      expect(container.read(workspaceShellProvider).currentWorkspaceId, '9002');
-      expect(
-        container.read(productExperienceProvider),
-        ProductExperience.workspace,
-      );
-      if (compact) {
-        expect(closed, 1);
-        expect(find.byType(WorkspaceDrawerMenu), findsNothing);
-      }
-      expect(tester.takeException(), isNull);
-    });
+    (true, const UxCombo(Size(360, 800))),
+  ]) {
+    testWidgets(
+      '个人→企业：两阶段切换移动指针、壳重载并切体验模式 '
+      '(compact=$compact, ${combo.viewport.width}×${combo.textScale}×${combo.brightness.name})',
+      (tester) async {
+        final adapter = _DetailAdapter();
+        var closed = 0;
+        final (container, _, experience) = await _pumpDrawer(
+          tester,
+          initialExperience: ProductExperience.personal,
+          combo: combo,
+          workspaces: const [
+            WorkspaceModel(
+              id: '9002',
+              name: 'WS乙',
+              ownerId: '1',
+              organizationId: _orgB,
+            ),
+          ],
+          httpAdapter: adapter,
+          compact: compact,
+          onClose: () => closed++,
+        );
+        final orgB = find.byKey(const ValueKey('drawer-space-$_orgB'));
+        await tester.pumpAndSettle();
+        await tester.ensureVisible(orgB);
+        expect(orgB.hitTestable(), findsOneWidget);
+        expect(tester.takeException(), isNull);
+        await tester.tap(orgB);
+        await tester.pumpAndSettle();
+        expect(adapter.detailCalls, greaterThanOrEqualTo(1));
+        expect(experience.selections, [ProductExperience.workspace]);
+        expect(CurrentOrganizationStore.forAccount(_account).value?.id, _orgB);
+        expect(
+          container.read(workspaceShellProvider).currentWorkspaceId,
+          '9002',
+        );
+        expect(
+          container.read(productExperienceProvider),
+          ProductExperience.workspace,
+        );
+        if (compact) {
+          expect(closed, 1);
+          expect(find.byType(WorkspaceDrawerMenu), findsNothing);
+        }
+        expect(tester.takeException(), isNull);
+      },
+    );
   }
 
   for (final (label, path) in [

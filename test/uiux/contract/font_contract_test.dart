@@ -8,8 +8,8 @@
 ///  5. golden_missing_font_is_visual_blocked_only
 library;
 
-import 'dart:io' show File;
-import 'dart:typed_data' show Uint8List;
+import 'dart:io' show File, IOOverrides;
+import 'dart:typed_data' show ByteData, Uint8List;
 
 import 'package:flutter_test/flutter_test.dart';
 
@@ -18,7 +18,38 @@ import '../support/golden_font_loader.dart';
 /// 合成字体字节：非 TrueType 魔数，仅用于"缺字体/hash 不匹配"分支。
 final Uint8List fakeFontBytes = Uint8List.fromList(<int>[0, 1, 2, 3]);
 
+class _MissingIconFontFile implements File {
+  @override
+  bool existsSync() => false;
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+}
+
 void main() {
+  test('golden_missing_icon_font_fails_before_any_engine_registration', () async {
+    final bytes = ByteData(1);
+    expect(bytes.lengthInBytes, greaterThan(0));
+    final resolution = GoldenFontResolution(
+      status: GoldenFontStatus.ok,
+      fontBytes: bytes,
+      reason: 'synthetic icon preflight fixture',
+    );
+    await IOOverrides.runZoned(
+      () async => expectLater(
+        () => loadGoldenFont(resolution),
+        throwsA(
+          isA<StateError>().having(
+            (error) => error.message,
+            'message',
+            'ENV_MISSING: GOLDEN_ICON_FONT_MISSING:${kGoldenIconFontAssets.first.$1}',
+          ),
+        ),
+      ),
+      createFile: (_) => _MissingIconFontFile(),
+    );
+  });
+
   test('golden_font_has_required_cjk_glyphs：登记字体覆盖全部必需 CJK 码点', () async {
     final GoldenFontResolution r = resolveGoldenFont();
     // 本机探测登记了 Arial Unicode；换机器缺字体时此用例按 VISUAL_BLOCKED
@@ -33,6 +64,12 @@ void main() {
       File(r.asset!.path).readAsBytesSync(),
     );
     expect(missing, isNull, reason: '必需 CJK 码点必须全部有非 0 glyph id');
+    final bytes = File(r.asset!.path).readAsBytesSync();
+    expect(missingRequiredGlyphs(bytes, codepoints: '合成企业名称'.runes), isNull);
+    expect(
+      missingRequiredGlyphs(bytes, codepoints: [0x10FFFF]),
+      contains('U+10FFFF'),
+    );
     // 真实可渲染性：FontLoader 注册成功（字节可被引擎解析）。
     await loadGoldenFont(r);
   });

@@ -525,6 +525,9 @@ class _Translations$channel$ko_KR extends Translations$channel$zh_CN {
 	@override String get subscribePending => '구독 완료, 새로고침 중';
 	@override String get subscribeRefresh => '구독 상태 새로고침';
 	@override String unseenUpdatesBanner({required Object count}) => '새 업데이트 ${count}개';
+	@override String get editLeaveUnsaved => '변경 사항이 저장되지 않았습니다. 버리고 나가시겠습니까?';
+	@override String get avatarNotUploaded => '프로필 사진이 업로드되지 않았습니다. 다시 시도하거나 복원한 후 저장하세요.';
+	@override String get restoreAvatar => '프로필 사진 복원';
 }
 
 // Path: chat
@@ -1694,6 +1697,10 @@ class _Translations$common$ko_KR extends Translations$common$zh_CN {
 	@override String get legacyUploadReturnToOriginalPage => '업로드가 완료되지 않았습니다. 원래 화면에서 파일을 다시 선택하고 제출하세요。';
 	@override String get f2fLocationRequired => '위치 권한과 서비스를 켠 후 주변 친구와 다시 시도하세요.';
 	@override String get f2fMemberHint => '친구의 프로필 사진을 눌러 프로필을 보고 친구로 추가하세요.';
+	@override String get pleaseSelectLocation => '위치를 선택하세요';
+	@override String get myLocation => '내 위치';
+	@override String get searchConversations => '대화';
+	@override String get webpageLoadProblem => '페이지 콘텐츠를 불러오는 중 문제가 발생했습니다. 다시 시도하세요.';
 }
 
 // Path: complaint
@@ -2017,6 +2024,7 @@ class _Translations$group$ko_KR extends Translations$group$zh_CN {
 	@override String get sureToTransferAndLeave => '양도 후 이 그룹에서 나가며 소유자 권한을 잃습니다. 계속할까요?';
 	@override String get transferredButLeaveFailed => '소유자는 양도되었지만 나가기에 실패했습니다. 다시 시도하세요';
 	@override String get noEligibleSuccessor => '양도할 수 있는 멤버가 없습니다';
+	@override String get searchLoadedMembers => '불러온 멤버만 검색';
 }
 
 // Path: groupCategory
@@ -3854,6 +3862,9 @@ extension on TranslationsKoKr {
 			'channel.subscribePending' => '구독 완료, 새로고침 중',
 			'channel.subscribeRefresh' => '구독 상태 새로고침',
 			'channel.unseenUpdatesBanner' => ({required Object count}) => '새 업데이트 ${count}개',
+			'channel.editLeaveUnsaved' => '변경 사항이 저장되지 않았습니다. 버리고 나가시겠습니까?',
+			'channel.avatarNotUploaded' => '프로필 사진이 업로드되지 않았습니다. 다시 시도하거나 복원한 후 저장하세요.',
+			'channel.restoreAvatar' => '프로필 사진 복원',
 			'chat.bankCard' => '은행 카드',
 			'chat.receivePayment' => '송금·결제',
 			'chat.alreadyMember' => '이미 구성원',
@@ -3956,11 +3967,11 @@ extension on TranslationsKoKr {
 			'chat.youWithdrewAMessage' => '메시지를 회수했습니다',
 			'chat.formatCheck' => '형식 검사',
 			'chat.featureRequest' => '기능 요청',
+			_ => null,
+		} ?? switch (path) {
 			'chat.chatResend' => '재전송',
 			'chat.profileExportProfile' => '프로필 내보내기',
 			'chat.momentsSend' => '전송',
-			_ => null,
-		} ?? switch (path) {
 			'chat.loginExpiredMessage' => '로그인이 만료되었습니다. 다시 로그인하세요',
 			'chat.customImage' => '사용자 지정 이미지',
 			'chat.burnAfterReading' => '읽은 후 자동 삭제',
@@ -4470,11 +4481,11 @@ extension on TranslationsKoKr {
 			'common.chatInitFailed' => '채팅 초기화 실패',
 			'common.cameraShootFailed' => '촬영 실패',
 			'common.cameraCapture' => '촬영',
+			_ => null,
+		} ?? switch (path) {
 			'common.cameraModePhoto' => '사진',
 			'common.cameraModeVideo' => '동영상',
 			'common.cameraRetake' => '다시 촬영',
-			_ => null,
-		} ?? switch (path) {
 			'common.cameraUse' => '사용',
 			'common.cameraNoDevice' => '사용 가능한 카메라가 없습니다',
 			'common.avatarEditAvatar' => '프로필 사진 편집',
@@ -4984,11 +4995,11 @@ extension on TranslationsKoKr {
 			'common.redPacketSwitchToNormal' => '일반 복주머니로 변경',
 			'common.redPacketTotalAmount' => '총 금액',
 			'common.redPacketView' => '복주머니 보기',
+			_ => null,
+		} ?? switch (path) {
 			'common.switchCamera' => '카메라 전환',
 			'common.timeDaysShort' => ({required Object count}) => '${count}일',
 			'common.timeHoursShort' => ({required Object count}) => '${count}시간',
-			_ => null,
-		} ?? switch (path) {
 			'common.timeMinutesShort' => ({required Object count}) => '${count}분',
 			'common.timeNowShort' => '지금',
 			'common.transferAccepted' => '받기 완료',
@@ -5019,6 +5030,10 @@ extension on TranslationsKoKr {
 			'common.legacyUploadReturnToOriginalPage' => '업로드가 완료되지 않았습니다. 원래 화면에서 파일을 다시 선택하고 제출하세요。',
 			'common.f2fLocationRequired' => '위치 권한과 서비스를 켠 후 주변 친구와 다시 시도하세요.',
 			'common.f2fMemberHint' => '친구의 프로필 사진을 눌러 프로필을 보고 친구로 추가하세요.',
+			'common.pleaseSelectLocation' => '위치를 선택하세요',
+			'common.myLocation' => '내 위치',
+			'common.searchConversations' => '대화',
+			'common.webpageLoadProblem' => '페이지 콘텐츠를 불러오는 중 문제가 발생했습니다. 다시 시도하세요.',
 			'complaint.complaint' => '신고',
 			'complaint.e2eeConsentTitle' => '암호화 메시지 증거 제출',
 			'complaint.e2eeConsentBody' => '이 메시지는 종단 간 암호화되어 있어 서버가 내용을 볼 수 없습니다. 발췌를 제출하면 선택한 평문이 검토자에게 공개됩니다. 동의하시겠습니까?',
@@ -5270,6 +5285,7 @@ extension on TranslationsKoKr {
 			'group.sureToTransferAndLeave' => '양도 후 이 그룹에서 나가며 소유자 권한을 잃습니다. 계속할까요?',
 			'group.transferredButLeaveFailed' => '소유자는 양도되었지만 나가기에 실패했습니다. 다시 시도하세요',
 			'group.noEligibleSuccessor' => '양도할 수 있는 멤버가 없습니다',
+			'group.searchLoadedMembers' => '불러온 멤버만 검색',
 			'groupCategory.title' => '그룹 폴더',
 			'groupCategory.createCategory' => '폴더 만들기',
 			'groupCategory.categoryName' => '폴더 이름',
@@ -5493,6 +5509,8 @@ extension on TranslationsKoKr {
 			'main.collecting' => '수집 중...',
 			'main.user' => '사용자',
 			'main.recommended' => '추천',
+			_ => null,
+		} ?? switch (path) {
 			'main.larger' => '더 크게',
 			'main.fillIn' => '입력',
 			'main.msgProtectedByComplianceKey' => '메시지는 규정 준수 키로 보호됩니다',
@@ -5501,8 +5519,6 @@ extension on TranslationsKoKr {
 			'main.mySentTab' => '보낸 초대',
 			'main.reject' => '거절',
 			'main.myOrders' => '내 주문',
-			_ => null,
-		} ?? switch (path) {
 			'main.purchaseUnlockHint' => '구매 시 채널의 과거 메시지와 향후 업데이트를 볼 수 있습니다.',
 			'main.payingDots' => '결제 중...',
 			'main.purchaseAndUnlock' => '구매하고 잠금 해제',
@@ -6007,6 +6023,8 @@ extension on TranslationsKoKr {
 			'passport.qrLoginCancelledByMe' => '로그인을 취소했습니다',
 			'passport.qrLoginConfirming' => '로그인 중...',
 			'passport.qrLoginSuccess' => '로그인 성공',
+			_ => null,
+		} ?? switch (path) {
 			'passport.qrWebLoginDesc' => '웹에서 이 계정으로 로그인하려 합니다. 확인해 주세요',
 			'passport.qrWebLoginTitle' => '웹 로그인 확인',
 			'passport.alipayNotSupportedWeb' => '웹에서는 Alipay 로그인을 지원하지 않습니다',
@@ -6015,8 +6033,6 @@ extension on TranslationsKoKr {
 			'passport.oneKeyNoSimCard' => '현재 네트워크가 지원되지 않거나 SIM카드가 없습니다',
 			'passport.cannotGetScreenSize' => '화면 크기를 가져올 수 없습니다',
 			'passport.oneKeyFailedRetry' => '원탭 로그인에 실패했습니다. 네트워크를 확인 후 다시 시도해 주세요',
-			_ => null,
-		} ?? switch (path) {
 			'splash.slogan' => '자유롭게 대화하세요',
 			'talkRecord.uploadProgressRegister' => '업로드 준비 중',
 			'talkRecord.uploadProgressUpload' => '오디오 업로드 중',

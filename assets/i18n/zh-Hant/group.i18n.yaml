@@ -49,3 +49,4 @@ transferAndLeave: 轉讓後退出
 sureToTransferAndLeave: 轉讓後你將退出本群並失去群主權限，確定繼續嗎？
 transferredButLeaveFailed: 已轉讓群主，但退出失敗，請重試退出
 noEligibleSuccessor: 暫無可轉讓的成員
+searchLoadedMembers: "僅搜尋已載入成員"

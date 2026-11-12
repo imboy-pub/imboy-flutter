@@ -230,3 +230,7 @@ enterpriseChannelLabel: "企業內部頻道"
 subscribePending: 已訂閱，正在重新整理
 subscribeRefresh: 重新整理訂閱狀態
 unseenUpdatesBanner(count): "有 ${count} 條新更新"
+
+editLeaveUnsaved: "修改尚未儲存，確定放棄並離開？"
+avatarNotUploaded: "頭像尚未上傳，請重試或還原後再儲存。"
+restoreAvatar: "還原頭像"

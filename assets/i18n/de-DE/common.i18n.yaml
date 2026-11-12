@@ -945,3 +945,10 @@ legacyUploadReturnToOriginalPage: "Der Upload ist unvollständig. Kehre zur ursp
 
 f2fLocationRequired: "Aktiviere Standortberechtigung und Standortdienste und versuche es mit Freunden in der Nähe erneut."
 f2fMemberHint: "Tippe auf ein Profilbild, um das Profil anzusehen und die Person hinzuzufügen."
+
+pleaseSelectLocation: "Bitte einen Ort auswählen"
+myLocation: "Mein Standort"
+
+searchConversations: "Unterhaltungen"
+
+webpageLoadProblem: "Beim Laden der Seiteninhalte ist ein Problem aufgetreten. Bitte erneut versuchen."

@@ -591,6 +591,9 @@ class _Translations$channel$en_US extends Translations$channel$zh_CN {
 	@override String get subscribePending => 'Subscribed; refreshing';
 	@override String get subscribeRefresh => 'Refresh subscription';
 	@override String unseenUpdatesBanner({required Object count}) => '${count} new updates';
+	@override String get editLeaveUnsaved => 'Your changes are not saved. Discard them and leave?';
+	@override String get avatarNotUploaded => 'The avatar has not uploaded. Retry or restore it before saving.';
+	@override String get restoreAvatar => 'Restore avatar';
 }
 
 // Path: chat
@@ -1763,6 +1766,10 @@ class _Translations$common$en_US extends Translations$common$zh_CN {
 	@override String get legacyUploadReturnToOriginalPage => 'The upload is incomplete. Return to the original screen, select the file again and submit; the old record is kept.';
 	@override String get f2fLocationRequired => 'Enable location permission and services, then try again with nearby friends.';
 	@override String get f2fMemberHint => 'Tap a friend’s avatar to view their profile and add them.';
+	@override String get pleaseSelectLocation => 'Please select a location';
+	@override String get myLocation => 'My location';
+	@override String get searchConversations => 'Conversations';
+	@override String get webpageLoadProblem => 'There was a problem loading page content. Please retry.';
 }
 
 // Path: complaint
@@ -2205,6 +2212,7 @@ class _Translations$group$en_US extends Translations$group$zh_CN {
 	@override String get sureToTransferAndLeave => 'You will transfer ownership and leave this group. Continue?';
 	@override String get transferredButLeaveFailed => 'Ownership transferred, but leaving failed. Please retry leaving.';
 	@override String get noEligibleSuccessor => 'No member available to transfer to';
+	@override String get searchLoadedMembers => 'Search loaded members only';
 }
 
 // Path: groupCategory
@@ -4545,6 +4553,9 @@ extension on TranslationsEnUs {
 			'channel.subscribePending' => 'Subscribed; refreshing',
 			'channel.subscribeRefresh' => 'Refresh subscription',
 			'channel.unseenUpdatesBanner' => ({required Object count}) => '${count} new updates',
+			'channel.editLeaveUnsaved' => 'Your changes are not saved. Discard them and leave?',
+			'channel.avatarNotUploaded' => 'The avatar has not uploaded. Retry or restore it before saving.',
+			'channel.restoreAvatar' => 'Restore avatar',
 			'chat.bankCard' => 'Bank Card',
 			'chat.receivePayment' => 'Receive & Pay',
 			'chat.alreadyMember' => 'Already a member',
@@ -4592,11 +4603,11 @@ extension on TranslationsEnUs {
 			'chat.exportMyData' => 'Export My Data',
 			'chat.exportDataDesc' => 'Export your personal info, contacts, and chat history',
 			'chat.customMessage' => 'Custom message',
+			_ => null,
+		} ?? switch (path) {
 			'chat.card' => 'Card',
 			'chat.messageWasWithdrawn' => 'recalled a message',
 			'chat.messageWasWithdrawnWithTitle' => ({required Object param}) => '${param} recalled a message',
-			_ => null,
-		} ?? switch (path) {
 			'chat.offline' => 'Offline',
 			'chat.online' => 'Online',
 			'chat.paramAlreadyExist' => ({required Object param}) => '${param} already exists',
@@ -5106,11 +5117,11 @@ extension on TranslationsEnUs {
 			'common.confirmDelete' => 'Confirm delete',
 			'common.verificationCode' => 'Verification code',
 			'common.feedbackContent' => 'Feedback content',
+			_ => null,
+		} ?? switch (path) {
 			'common.officialReply' => 'Official reply',
 			'common.setPasswordSecurityTips' => 'Set a login password to enhance security and ensure you can always access your account.',
 			'common.locationHidden' => 'Your location has been hidden',
-			_ => null,
-		} ?? switch (path) {
 			'common.locationVisible' => 'Your location has been shown',
 			'common.noNearbyPeople' => 'No nearby people yet',
 			'common.clickSearchButtonToFind' => 'Click the search button above to find nearby people',
@@ -5620,11 +5631,11 @@ extension on TranslationsEnUs {
 			'common.fontSizeOptionExtraLarge' => 'Extra large',
 			'common.fontSizeOptionHuge' => 'Huge',
 			'common.searchFailedRetry' => 'Search failed, please try again',
+			_ => null,
+		} ?? switch (path) {
 			'common.searchDisabledTitle' => 'Message search unavailable',
 			'common.searchDisabledByEncryption' => 'End-to-end encryption is on, so the server cannot read your messages and full-text search is not available',
 			'common.amountMustPositive' => 'Amount must be greater than 0',
-			_ => null,
-		} ?? switch (path) {
 			'common.answer' => 'Answer',
 			'common.collapse' => 'Collapse',
 			'common.declineCall' => 'Decline',
@@ -5710,6 +5721,10 @@ extension on TranslationsEnUs {
 			'common.legacyUploadReturnToOriginalPage' => 'The upload is incomplete. Return to the original screen, select the file again and submit; the old record is kept.',
 			'common.f2fLocationRequired' => 'Enable location permission and services, then try again with nearby friends.',
 			'common.f2fMemberHint' => 'Tap a friend’s avatar to view their profile and add them.',
+			'common.pleaseSelectLocation' => 'Please select a location',
+			'common.myLocation' => 'My location',
+			'common.searchConversations' => 'Conversations',
+			'common.webpageLoadProblem' => 'There was a problem loading page content. Please retry.',
 			'complaint.complaint' => 'Complaint',
 			'complaint.e2eeConsentTitle' => 'Submit encrypted evidence',
 			'complaint.e2eeConsentBody' => 'This message is end-to-end encrypted and the server cannot see its content. Submitting an excerpt will disclose the selected plaintext to moderators for review. Do you consent?',
@@ -6101,6 +6116,7 @@ extension on TranslationsEnUs {
 			'group.sureToTransferAndLeave' => 'You will transfer ownership and leave this group. Continue?',
 			'group.transferredButLeaveFailed' => 'Ownership transferred, but leaving failed. Please retry leaving.',
 			'group.noEligibleSuccessor' => 'No member available to transfer to',
+			'group.searchLoadedMembers' => 'Search loaded members only',
 			'groupCategory.title' => 'Group Categories',
 			'groupCategory.createCategory' => 'Create Category',
 			'groupCategory.categoryName' => 'Category Name',
@@ -6129,6 +6145,8 @@ extension on TranslationsEnUs {
 			'groupSchedule.createSchedule' => 'Create Schedule',
 			'groupSchedule.scheduleTitle' => 'Title',
 			'groupSchedule.selectDate' => 'Select Date',
+			_ => null,
+		} ?? switch (path) {
 			'groupSchedule.selectTime' => 'Select Time',
 			'groupSchedule.location' => 'Location',
 			'groupSchedule.noSchedule' => 'No schedules yet',
@@ -6137,8 +6155,6 @@ extension on TranslationsEnUs {
 			'groupSchedule.participants' => 'Participants',
 			'groupSchedule.statusCancelled' => 'Cancelled',
 			'groupSchedule.statusInProgress' => 'In Progress',
-			_ => null,
-		} ?? switch (path) {
 			'groupSchedule.statusNotStarted' => 'Not Started',
 			'groupSchedule.statusEnded' => 'Ended',
 			'groupSchedule.cancelSuccess' => 'Schedule cancelled',
@@ -6643,6 +6659,8 @@ extension on TranslationsEnUs {
 			'organization.inviteColleagues.shareToWechat' => 'Share invite to WeChat',
 			'organization.inviteColleagues.copyInviteCode' => 'Copy invite code',
 			'organization.inviteColleagues.codeValidityHint' => 'The invite code is valid for 7 days; regenerating invalidates the old code immediately',
+			_ => null,
+		} ?? switch (path) {
 			'organization.inviteColleagues.possibleLoadFailed' => 'Failed to load possible colleagues, please retry',
 			'organization.inviteColleagues.revokeFailed' => 'Failed to revoke, please retry later',
 			'organization.inviteColleagues.guideCodeMissing' => 'No active invite code yet; ask an enterprise admin to generate one first',
@@ -6651,8 +6669,6 @@ extension on TranslationsEnUs {
 			'organization.inviteColleagues.codeMissingHint' => 'No active invite code yet; generate one to share',
 			'organization.inviteColleagues.generateCode' => 'Generate code',
 			'organization.inviteColleagues.generateForbidden' => 'Only enterprise admins can generate the invite code',
-			_ => null,
-		} ?? switch (path) {
 			'organization.inviteColleagues.possibleEmpty' => 'No pending colleagues',
 			'organization.inviteColleagues.possibleEmptyHint' => 'Invite your colleagues to join',
 			'organization.inviteColleagues.invitedBy' => ({required Object name}) => 'Invited by ${name}',
@@ -7157,6 +7173,8 @@ extension on TranslationsEnUs {
 			'talkRecord.transferKeepOnHint' => 'If kept, you can still view and play, but sharing and deletion belong to the new owner.',
 			'talkRecord.transferSubmit' => 'Transfer ownership',
 			'talkRecord.transferSubmitting' => 'Transferring…',
+			_ => null,
+		} ?? switch (path) {
 			'talkRecord.transferConfirmTitle' => 'Transfer ownership?',
 			'talkRecord.transferConfirmTarget' => ({required Object name}) => 'Management responsibility will be transferred to: ${name}',
 			'talkRecord.transferConfirmKeepOff' => 'After transfer you keep no view access and can no longer manage this note.',
@@ -7165,8 +7183,6 @@ extension on TranslationsEnUs {
 			'talkRecord.transferSuccessTitle' => 'Ownership transferred',
 			'talkRecord.transferSuccessOwner' => ({required Object name}) => 'New owner: ${name}',
 			'talkRecord.transferSuccessKeptAccess' => 'You still have view access; sharing is managed by the new owner.',
-			_ => null,
-		} ?? switch (path) {
 			'talkRecord.transferSuccessScopeUnchanged' => 'The note\'s organization and workspace are unchanged.',
 			'talkRecord.transferFailedBody' => 'Transfer failed, retry later.',
 			'talkRecord.transferConflictHint' => 'The note was updated by someone else. Refresh and retry.',

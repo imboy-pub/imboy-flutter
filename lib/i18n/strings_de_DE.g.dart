@@ -525,6 +525,9 @@ class _Translations$channel$de_DE extends Translations$channel$zh_CN {
 	@override String get subscribePending => 'Abonniert; wird aktualisiert';
 	@override String get subscribeRefresh => 'Abonnement aktualisieren';
 	@override String unseenUpdatesBanner({required Object count}) => '${count} neue Updates';
+	@override String get editLeaveUnsaved => 'Die Änderungen sind nicht gespeichert. Verwerfen und verlassen?';
+	@override String get avatarNotUploaded => 'Das Profilbild wurde nicht hochgeladen. Vor dem Speichern erneut versuchen oder wiederherstellen.';
+	@override String get restoreAvatar => 'Profilbild wiederherstellen';
 }
 
 // Path: chat
@@ -1697,6 +1700,10 @@ class _Translations$common$de_DE extends Translations$common$zh_CN {
 	@override String get legacyUploadReturnToOriginalPage => 'Der Upload ist unvollständig. Kehre zur ursprünglichen Seite zurück, wähle die Datei erneut und sende sie ab.';
 	@override String get f2fLocationRequired => 'Aktiviere Standortberechtigung und Standortdienste und versuche es mit Freunden in der Nähe erneut.';
 	@override String get f2fMemberHint => 'Tippe auf ein Profilbild, um das Profil anzusehen und die Person hinzuzufügen.';
+	@override String get pleaseSelectLocation => 'Bitte einen Ort auswählen';
+	@override String get myLocation => 'Mein Standort';
+	@override String get searchConversations => 'Unterhaltungen';
+	@override String get webpageLoadProblem => 'Beim Laden der Seiteninhalte ist ein Problem aufgetreten. Bitte erneut versuchen.';
 }
 
 // Path: complaint
@@ -2020,6 +2027,7 @@ class _Translations$group$de_DE extends Translations$group$zh_CN {
 	@override String get sureToTransferAndLeave => 'Du überträgst die Eigentümerschaft und verlässt die Gruppe. Fortfahren?';
 	@override String get transferredButLeaveFailed => 'Eigentümerschaft übertragen, aber das Verlassen ist fehlgeschlagen. Bitte erneut versuchen';
 	@override String get noEligibleSuccessor => 'Kein Mitglied zum Übertragen verfügbar';
+	@override String get searchLoadedMembers => 'Nur geladene Mitglieder durchsuchen';
 }
 
 // Path: groupCategory
@@ -3857,6 +3865,9 @@ extension on TranslationsDeDe {
 			'channel.subscribePending' => 'Abonniert; wird aktualisiert',
 			'channel.subscribeRefresh' => 'Abonnement aktualisieren',
 			'channel.unseenUpdatesBanner' => ({required Object count}) => '${count} neue Updates',
+			'channel.editLeaveUnsaved' => 'Die Änderungen sind nicht gespeichert. Verwerfen und verlassen?',
+			'channel.avatarNotUploaded' => 'Das Profilbild wurde nicht hochgeladen. Vor dem Speichern erneut versuchen oder wiederherstellen.',
+			'channel.restoreAvatar' => 'Profilbild wiederherstellen',
 			'chat.bankCard' => 'Bankkarte',
 			'chat.receivePayment' => 'Empfangen & Zahlen',
 			'chat.alreadyMember' => 'Bereits Mitglied',
@@ -3959,11 +3970,11 @@ extension on TranslationsDeDe {
 			'chat.youWithdrewAMessage' => 'Sie haben eine Nachricht widerrufen',
 			'chat.formatCheck' => 'Formatprüfung',
 			'chat.featureRequest' => 'Funktionsanfrage',
+			_ => null,
+		} ?? switch (path) {
 			'chat.chatResend' => 'Erneut senden',
 			'chat.profileExportProfile' => 'Profil exportieren',
 			'chat.momentsSend' => 'Senden',
-			_ => null,
-		} ?? switch (path) {
 			'chat.loginExpiredMessage' => 'Anmeldung abgelaufen, bitte erneut anmelden',
 			'chat.customImage' => 'Benutzerdefiniertes Bild',
 			'chat.burnAfterReading' => 'Nach dem Lesen vernichten',
@@ -4473,11 +4484,11 @@ extension on TranslationsDeDe {
 			'common.chatInitFailed' => 'Chat-Initialisierung fehlgeschlagen',
 			'common.cameraShootFailed' => 'Aufnahme fehlgeschlagen',
 			'common.cameraCapture' => 'Kamera',
+			_ => null,
+		} ?? switch (path) {
 			'common.cameraModePhoto' => 'Foto',
 			'common.cameraModeVideo' => 'Video',
 			'common.cameraRetake' => 'Neu aufnehmen',
-			_ => null,
-		} ?? switch (path) {
 			'common.cameraUse' => 'Verwenden',
 			'common.cameraNoDevice' => 'Keine Kamera verfügbar',
 			'common.avatarEditAvatar' => 'Avatar bearbeiten',
@@ -4987,11 +4998,11 @@ extension on TranslationsDeDe {
 			'common.redPacketSwitchToNormal' => 'Zu Festbetrag wechseln',
 			'common.redPacketTotalAmount' => 'Gesamtbetrag',
 			'common.redPacketView' => 'Geschenk ansehen',
+			_ => null,
+		} ?? switch (path) {
 			'common.e2eeErrPeerNotOnboarded' => 'Die Gegenseite war noch auf keinem Gerät angemeldet, verschlüsseltes Senden derzeit nicht möglich. Bitte warten Sie, bis sich die Gegenseite angemeldet hat, und versuchen Sie es erneut',
 			'common.e2eeRecoveryKeyTitle' => 'Wiederherstellungsschlüssel',
 			'common.e2eeRecoveryKeyCopiedAutoClear' => ({required Object seconds}) => 'Wiederherstellungsschlüssel kopiert. Die Zwischenablage wird in ${seconds} Sek. automatisch geleert. Bitte schnellstmöglich sichern',
-			_ => null,
-		} ?? switch (path) {
 			'common.e2eeErrAttachmentSeal' => 'Versiegeln der verschlüsselten Datei fehlgeschlagen, die Datei wurde nicht hochgeladen. Bitte später erneut versuchen',
 			'common.e2eeErrForwardPlaintextTarget' => 'Der Ziel-Chat ist nicht Ende-zu-Ende-verschlüsselt; die verschlüsselte Datei kann nicht weitergeleitet werden',
 			'common.e2eeErrForwardUndecryptable' => 'Die ursprüngliche verschlüsselte Datei kann auf diesem Gerät nicht entschlüsselt werden; Weiterleitung fehlgeschlagen',
@@ -5022,6 +5033,10 @@ extension on TranslationsDeDe {
 			'common.legacyUploadReturnToOriginalPage' => 'Der Upload ist unvollständig. Kehre zur ursprünglichen Seite zurück, wähle die Datei erneut und sende sie ab.',
 			'common.f2fLocationRequired' => 'Aktiviere Standortberechtigung und Standortdienste und versuche es mit Freunden in der Nähe erneut.',
 			'common.f2fMemberHint' => 'Tippe auf ein Profilbild, um das Profil anzusehen und die Person hinzuzufügen.',
+			'common.pleaseSelectLocation' => 'Bitte einen Ort auswählen',
+			'common.myLocation' => 'Mein Standort',
+			'common.searchConversations' => 'Unterhaltungen',
+			'common.webpageLoadProblem' => 'Beim Laden der Seiteninhalte ist ein Problem aufgetreten. Bitte erneut versuchen.',
 			'complaint.complaint' => 'Beschwerde',
 			'complaint.e2eeConsentTitle' => 'Verschlüsselte Beweise einreichen',
 			'complaint.e2eeConsentBody' => 'Diese Nachricht ist Ende-zu-Ende-verschlüsselt; der Server kann ihren Inhalt nicht einsehen. Durch das Einreichen eines Auszugs wird der ausgewählte Klartext den Moderatoren zur Prüfung offengelegt. Stimmen Sie zu?',
@@ -5273,6 +5288,7 @@ extension on TranslationsDeDe {
 			'group.sureToTransferAndLeave' => 'Du überträgst die Eigentümerschaft und verlässt die Gruppe. Fortfahren?',
 			'group.transferredButLeaveFailed' => 'Eigentümerschaft übertragen, aber das Verlassen ist fehlgeschlagen. Bitte erneut versuchen',
 			'group.noEligibleSuccessor' => 'Kein Mitglied zum Übertragen verfügbar',
+			'group.searchLoadedMembers' => 'Nur geladene Mitglieder durchsuchen',
 			'groupCategory.title' => 'Gruppenkategorien',
 			'groupCategory.createCategory' => 'Kategorie erstellen',
 			'groupCategory.categoryName' => 'Kategorie-Name',
@@ -5496,6 +5512,8 @@ extension on TranslationsDeDe {
 			'main.collecting' => 'Wird favorisiert...',
 			'main.user' => 'Benutzer',
 			'main.recommended' => 'Empfohlen',
+			_ => null,
+		} ?? switch (path) {
 			'main.larger' => 'Größer',
 			'main.fillIn' => 'Ausfüllen',
 			'main.msgProtectedByComplianceKey' => 'Nachricht durch Compliance-Schlüssel geschützt',
@@ -5504,8 +5522,6 @@ extension on TranslationsDeDe {
 			'main.mySentTab' => 'Gesendet',
 			'main.reject' => 'Ablehnen',
 			'main.myOrders' => 'Bestellungen',
-			_ => null,
-		} ?? switch (path) {
 			'main.purchaseUnlockHint' => 'Nach Kauf werden Verlauf und neue Nachrichten freigeschaltet.',
 			'main.payingDots' => 'Zahlung...',
 			'main.purchaseAndUnlock' => 'Jetzt kaufen & freischalten',
@@ -6010,6 +6026,8 @@ extension on TranslationsDeDe {
 			'passport.qrLoginCancelledByMe' => 'Sie haben die Anmeldung abgebrochen',
 			'passport.qrLoginConfirming' => 'Anmeldung läuft...',
 			'passport.qrLoginSuccess' => 'Angemeldet',
+			_ => null,
+		} ?? switch (path) {
 			'passport.qrWebLoginDesc' => 'Bitte bestätigen Sie die Anmeldung dieses Kontos im Web',
 			'passport.qrWebLoginTitle' => 'Web-Anmeldung bestätigen',
 			'passport.alipayNotSupportedWeb' => 'Alipay-Anmeldung wird im Web nicht unterstützt',
@@ -6018,8 +6036,6 @@ extension on TranslationsDeDe {
 			'passport.oneKeyNoSimCard' => 'Das aktuelle Netzwerk wird nicht unterstützt oder das Handy hat keine SIM-Karte',
 			'passport.cannotGetScreenSize' => 'Bildschirmgröße konnte nicht ermittelt werden',
 			'passport.oneKeyFailedRetry' => 'One-Tap-Login fehlgeschlagen, bitte Netzwerk prüfen und erneut versuchen',
-			_ => null,
-		} ?? switch (path) {
 			'splash.slogan' => 'Frei kommunizieren.',
 			'talkRecord.uploadProgressRegister' => 'Upload wird vorbereitet',
 			'talkRecord.uploadProgressUpload' => 'Audio wird hochgeladen',

@@ -10,14 +10,17 @@
   "products": {
     "phase1_delivery": {
       "manifest_profile": "phase1_delivery",
-      "description": "Current generated product artifact; verify against sibling backend manifest, never mutate it for a test."
+      "description": "Current generated product artifact; verify against sibling backend manifest, never mutate it for a test.",
+      "backend_runtime_profile": "phase1_delivery"
     },
     "full-selected": {
       "manifest_profile": "full-selected",
       "required_features": [
-        "rtc"
+        "rtc",
+        "e2ee"
       ],
-      "description": "Existing full-selected build profile; requires a separately prepared matching artifact with RTC. A dart-define does not change generated compile-time features."
+      "description": "Existing full-selected build profile; requires a separately prepared matching artifact with RTC. A dart-define does not change generated compile-time features.",
+      "backend_runtime_profile": "community"
     },
     "phase1_delivery-channel-enabled": {
       "manifest_profile": "phase1_delivery",
@@ -1272,7 +1275,7 @@
       "basis": [
         "Uses real native vodozemac with synthetic sessions/storage and mocked secure storage; source explicitly performs no login/backend/business requests."
       ],
-      "reviewed_source_sha256": "bfccb4c455766e4eaa2975ba4a3f9f4a612be31c6d7de6449edbcf9f67056073"
+      "reviewed_source_sha256": "4ce412d59b38c515166cc2d2c6f49de25257f31672a1b8cb4148f9a83caf50e1"
     },
     "integration_test/e2ee_group_outbound_frame_test.dart": {
       "suite": "device-single",
@@ -1289,7 +1292,7 @@
       "basis": [
         "Uses real native vodozemac with synthetic sessions/storage and mocked secure storage; source explicitly performs no login/backend/business requests."
       ],
-      "reviewed_source_sha256": "0a56ea26291ffc7aedf109e9b518af42a2c3bf37db0093f9a27353423dcc0450"
+      "reviewed_source_sha256": "3f2c563c2fcc20795cd06a7365b523111cad095f1386488be0d37f0b4e21508a"
     },
     "integration_test/two_client/h2_c2c_android_a_side_test.dart": {
       "suite": "device-pair",
@@ -2097,6 +2100,92 @@
       "basis": [
         "Owned loopback fixture tokens from backend face_to_face_http_tests:setup/0; native SQLite, matching, member refresh, real profile and friend request/acceptance APIs. Synthetic coordinates do not certify GPS permissions. The chat destination checks route parameters and local group persistence, not messaging. Use an isolated QA flavor; never replace the standard user application."
       ]
+    },
+    "integration_test/demo_flow/group_local_message_flow_test.dart": {
+      "products": [
+        "full-selected"
+      ],
+      "required_features": [
+        "e2ee"
+      ],
+      "basis": "Positive API contract requires compiled and runtime-enabled e2ee; phase1_delivery trims or locks these capabilities."
+    },
+    "integration_test/demo_flow/paid_channel_flow_api_test.dart": {
+      "products": [
+        "full-selected"
+      ],
+      "required_features": [
+        "channel_order",
+        "wallet"
+      ],
+      "basis": "Positive API contract requires compiled and runtime-enabled channel_order, wallet; phase1_delivery trims or locks these capabilities."
+    },
+    "integration_test/demo_flow/red_packet_flow_test.dart": {
+      "products": [
+        "full-selected"
+      ],
+      "required_features": [
+        "wallet"
+      ],
+      "basis": "Positive API contract requires compiled and runtime-enabled wallet; phase1_delivery trims or locks these capabilities."
+    },
+    "integration_test/demo_flow/wallet_transfer_flow_test.dart": {
+      "products": [
+        "full-selected"
+      ],
+      "required_features": [
+        "wallet"
+      ],
+      "basis": "Positive API contract requires compiled and runtime-enabled wallet; phase1_delivery trims or locks these capabilities."
+    },
+    "test/unit_test/api/channel_order_api_test.dart": {
+      "products": [
+        "full-selected"
+      ],
+      "required_features": [
+        "channel_order"
+      ],
+      "basis": "Positive API contract requires compiled and runtime-enabled channel_order; phase1_delivery trims or locks these capabilities."
+    },
+    "test/unit_test/api/e2ee_api_test.dart": {
+      "products": [
+        "full-selected"
+      ],
+      "required_features": [
+        "e2ee"
+      ],
+      "basis": "Positive API contract requires compiled and runtime-enabled e2ee; phase1_delivery trims or locks these capabilities."
+    },
+    "test/unit_test/api/rtc_room_api_test.dart": {
+      "products": [
+        "full-selected"
+      ],
+      "required_features": [
+        "rtc",
+        "rtc_group"
+      ],
+      "basis": "Positive API contract requires compiled and runtime-enabled rtc, rtc_group; phase1_delivery trims or locks these capabilities."
+    },
+    "test/unit_test/api/wallet_api_test.dart": {
+      "products": [
+        "full-selected"
+      ],
+      "required_features": [
+        "wallet"
+      ],
+      "basis": "Positive API contract requires compiled and runtime-enabled wallet; phase1_delivery trims or locks these capabilities."
+    },
+    "test/unit_test/api/e2ee_backup_api_test.dart": {
+      "products": [
+        "phase1_delivery",
+        "full-selected"
+      ],
+      "required_features_by_product": {
+        "full-selected": [
+          "e2ee"
+        ]
+      },
+      "basis": "Preserve phase1 exact-manifest/404 trim contract and full-selected native positive backup API assertions; runtime e2ee is required only for the compiled positive branch."
     }
   },
   "profiles": {

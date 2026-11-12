@@ -10,6 +10,7 @@ library;
 import 'dart:async';
 
 import 'package:imboy/theme/default/app_spacing.dart';
+import 'package:imboy/theme/default/app_sizes.dart';
 import 'package:imboy/theme/default/font_types.dart';
 
 import 'dart:convert';
@@ -35,6 +36,8 @@ import 'package:imboy/theme/default/app_colors.dart';
 import 'web_search_state.dart';
 import 'web_search_result_tile.dart';
 import 'search_result_expiry.dart';
+
+part 'web_search_sources.dart';
 
 @visibleForTesting
 String searchMessageRoute(String conversationId, String? type) =>
@@ -62,7 +65,7 @@ Future<(List<SearchItem>, WebMessageSearchFailure?)> runWebMessageSearch(
     return (await search(), null);
   } on FtsFeatureDisabledException {
     return (<SearchItem>[], WebMessageSearchFailure.disabled);
-  } on Exception {
+  } catch (_) {
     return (<SearchItem>[], WebMessageSearchFailure.unavailable);
   }
 }
@@ -101,15 +104,19 @@ class WebSearchPage extends ConsumerStatefulWidget {
   ConsumerState<WebSearchPage> createState() => _WebSearchPageState();
 }
 
-class _WebSearchPageState extends ConsumerState<WebSearchPage> {
+class _WebSearchPageState extends ConsumerState<WebSearchPage>
+    with _WebSearchSources {
   final TextEditingController _searchController = TextEditingController();
   final FocusNode _searchFocusNode = FocusNode();
   final ScrollController _scrollController = ScrollController();
+  @override
+  ScrollController get _searchScrollController => _scrollController;
 
   Timer? _debounceTimer;
   late final SearchResultExpiry _resultExpiry;
+  @override
   WebSearchState _state = const WebSearchState();
-  WebMessageSearchFailure? _messageSearchFailure;
+  @override
   int _searchGeneration = 0;
   int _visibilityGeneration = 0;
   static Future<void> _historyWrites = Future.value();
@@ -170,7 +177,9 @@ class _WebSearchPageState extends ConsumerState<WebSearchPage> {
     _searchController.clear();
     setState(() {
       _state = const WebSearchState();
-      _messageSearchFailure = null;
+      _sourceFailures.clear();
+      _retryingSources.clear();
+      _authSearchBlocked = false;
     });
     _reloadHistoryAfterWrites();
   }
@@ -197,6 +206,7 @@ class _WebSearchPageState extends ConsumerState<WebSearchPage> {
     return historyKeyForScope(Env().apiBaseUrl, user.currentUid);
   }
 
+  @override
   bool get _isAuthTransitioning =>
       widget.authTransitioningForTest?.call() ??
       UserRepoLocal.to.isAuthTransitioning;
@@ -242,7 +252,9 @@ class _WebSearchPageState extends ConsumerState<WebSearchPage> {
       _resultExpiry.cancel();
       setState(() {
         _state = WebSearchState(recentSearches: _state.recentSearches);
-        _messageSearchFailure = null;
+        _sourceFailures.clear();
+        _retryingSources.clear();
+        _authSearchBlocked = false;
       });
       return;
     }
@@ -255,7 +267,9 @@ class _WebSearchPageState extends ConsumerState<WebSearchPage> {
         showRecent: false,
         isLoading: true,
       );
-      _messageSearchFailure = null;
+      _sourceFailures.clear();
+      _retryingSources.clear();
+      _authSearchBlocked = false;
     });
 
     _debounceTimer = Timer(const Duration(milliseconds: 300), () {
@@ -264,6 +278,7 @@ class _WebSearchPageState extends ConsumerState<WebSearchPage> {
   }
 
   /// 执行搜索
+  @override
   Future<void> _performSearch(String query) async {
     if (query.trim().isEmpty) return;
     _debounceTimer?.cancel();
@@ -277,7 +292,11 @@ class _WebSearchPageState extends ConsumerState<WebSearchPage> {
           isLoading: false,
           showRecent: false,
         );
-        _messageSearchFailure = WebMessageSearchFailure.unavailable;
+        _sourceFailures
+          ..clear()
+          ..[SearchItemType.message] = WebMessageSearchFailure.unavailable;
+        _retryingSources.clear();
+        _authSearchBlocked = true;
       });
       return;
     }
@@ -289,52 +308,37 @@ class _WebSearchPageState extends ConsumerState<WebSearchPage> {
         isLoading: true,
         showRecent: false,
       );
-      _messageSearchFailure = null;
+      _sourceFailures.clear();
+      _retryingSources.clear();
+      _authSearchBlocked = false;
     });
     final user = UserRepoLocal.to;
     final session = user.sessionGeneration;
+    final uid = user.currentUid;
+    final endpoint = Env().apiBaseUrl;
     bool current() =>
         mounted &&
         generation == _searchGeneration &&
+        user.currentUid == uid &&
+        Env().apiBaseUrl == endpoint &&
         user.isCurrentSession(session) &&
         !_isAuthTransitioning;
 
     try {
-      final results = <SearchItem>[];
-      WebMessageSearchFailure? messageFailure;
-
-      // 并行执行所有搜索
-      final futures = await Future.wait([
-        // 1. 搜索消息（使用 FTS API）
-        runWebMessageSearch(
-          () =>
-              widget.messageSearchForTest?.call(query) ??
-              _searchMessages(query),
-        ).then((result) {
-          messageFailure = result.$2;
-          return result.$1;
-        }),
-        // 2. 搜索联系人
-        widget.otherSearchForTest?.call(query) ?? _searchContacts(query),
-        // 3. 搜索群组
-        widget.otherSearchForTest == null
-            ? _searchGroups(query)
-            : Future.value(<SearchItem>[]),
-        // 4. 搜索会话
-        widget.otherSearchForTest == null
-            ? _searchConversations(query)
-            : Future.value(<SearchItem>[]),
-      ]);
-
-      // 合并所有搜索结果
-      for (final items in futures) {
-        results.addAll(items);
-      }
-
+      final responses = await Future.wait(
+        _searchesFor(query).entries.map(
+          (entry) async => (entry.key, await runWebMessageSearch(entry.value)),
+        ),
+      );
       if (!current()) return;
       setState(() {
+        _sourceFailures.clear();
+        final results = <SearchItem>[];
+        for (final (source, (items, failure)) in responses) {
+          results.addAll(items);
+          if (failure != null) _sourceFailures[source] = failure;
+        }
         _state = _state.copyWith(results: results, isLoading: false);
-        _messageSearchFailure = messageFailure;
       });
       _removeExpiredResults();
 
@@ -347,131 +351,6 @@ class _WebSearchPageState extends ConsumerState<WebSearchPage> {
         _state = _state.copyWith(isLoading: false, error: t.common.searchError);
       });
     }
-  }
-
-  /// 搜索消息
-  Future<List<SearchItem>> _searchMessages(String query) async {
-    final results = <SearchItem>[];
-    final response = await ref
-        .read(ftsApiProvider)
-        .searchMessages(keyword: query, page: 1, size: 10, type: 'all');
-
-    if (response == null) {
-      throw const FormatException('Invalid message search response');
-    }
-
-    if (response.items.isNotEmpty) {
-      for (final item in response.items) {
-        final uid = UserRepoLocal.to.currentUid;
-        if (!item.isVisibleAt(DateTimeHelper.millisecond(), uid)) continue;
-        // 判断消息的发送者/接收者
-        final isAuthor = item.fromId == UserRepoLocal.to.currentUid;
-        final peerId = isAuthor ? item.toId : item.fromId;
-
-        results.add(
-          SearchItem(
-            type: SearchItemType.message,
-            id: item.id,
-            title: peerId, // 后续需要获取联系人名称
-            subtitle: item.content,
-            avatar: '',
-            highlightText: query,
-            message: item,
-            metadata: {
-              'timestamp': item.createdAt * 1000,
-              'conversationId': item.type == 'C2G' ? item.toId : peerId,
-              'type': item.type,
-              'fromId': item.fromId,
-              'toId': item.toId,
-            },
-          ),
-        );
-      }
-    }
-    return results;
-  }
-
-  /// 搜索联系人
-  Future<List<SearchItem>> _searchContacts(String query) async {
-    final results = <SearchItem>[];
-    try {
-      final contactRepo = ContactRepo();
-      final contacts = await contactRepo.search(kwd: query, limit: 20);
-
-      for (final contact in contacts) {
-        results.add(
-          SearchItem(
-            type: SearchItemType.contact,
-            id: contact.peerId.toString(),
-            title: (contact.remark.isNotEmpty)
-                ? contact.remark
-                : contact.nickname,
-            subtitle: contact.sign,
-            avatar: contact.avatar,
-            highlightText: query,
-          ),
-        );
-      }
-    } on Exception catch (e) {
-      if (kDebugMode) debugPrint('Search contacts error: ${e.runtimeType}');
-    }
-    return results;
-  }
-
-  /// 搜索群组
-  Future<List<SearchItem>> _searchGroups(String query) async {
-    final results = <SearchItem>[];
-    try {
-      final groupRepo = GroupRepo();
-      final groups = await groupRepo.search(kwd: query, limit: 20);
-
-      for (final group in groups) {
-        results.add(
-          SearchItem(
-            type: SearchItemType.group,
-            id: group.groupId.toString(),
-            title: group.title,
-            subtitle: group.introduction.isNotEmpty
-                ? group.introduction
-                : '${group.memberCount} ${t.group.groupMembers}',
-            avatar: group.avatar,
-            highlightText: query,
-          ),
-        );
-      }
-    } on Exception catch (e) {
-      if (kDebugMode) debugPrint('Search groups error: ${e.runtimeType}');
-    }
-    return results;
-  }
-
-  /// 搜索会话
-  Future<List<SearchItem>> _searchConversations(String query) async {
-    final results = <SearchItem>[];
-    try {
-      final convRepo = ConversationRepo();
-      final conversations = await convRepo.search(
-        "${ConversationRepo.title} LIKE ?",
-        ['%$query%'],
-      );
-
-      for (final conv in conversations) {
-        results.add(
-          SearchItem(
-            type: SearchItemType.conversation,
-            id: conv.peerId.toString(),
-            title: conv.title,
-            subtitle: conv.subtitle,
-            avatar: conv.avatar,
-            highlightText: query,
-            metadata: {'type': conv.type, 'lastTime': conv.lastTime},
-          ),
-        );
-      }
-    } on Exception {
-      if (kDebugMode) {}
-    }
-    return results;
   }
 
   /// 保存搜索记录
@@ -767,97 +646,8 @@ class _WebSearchPageState extends ConsumerState<WebSearchPage> {
     );
   }
 
-  /// 构建搜索结果
-  Widget _buildSearchResults(bool isDark) {
-    if (_state.error != null) {
-      return NoDataView(
-        text: _state.error!,
-        icon: CupertinoIcons.exclamationmark_circle,
-        iconSize: 64,
-        iconColor: isDark ? AppColors.iosRedDark : AppColors.iosRed,
-        onTop: () => _performSearch(_state.query),
-      );
-    }
-
-    if (_state.results.isEmpty &&
-        _state.query.isNotEmpty &&
-        _messageSearchFailure == null) {
-      return NoDataView(
-        text: '${t.common.search}: "${_state.query}"',
-        icon: CupertinoIcons.slash_circle,
-        iconSize: 64,
-        iconColor: isDark
-            ? AppColors.chatWebDividerDark
-            : AppColors.chatWebDividerLight,
-      );
-    }
-
-    // 按类型分组结果
-    final conversations = _state.results
-        .where((r) => r.type == SearchItemType.conversation)
-        .toList();
-    final messages = _state.results
-        .where((r) => r.type == SearchItemType.message)
-        .toList();
-    final contacts = _state.results
-        .where((r) => r.type == SearchItemType.contact)
-        .toList();
-    final groups = _state.results
-        .where((r) => r.type == SearchItemType.group)
-        .toList();
-
-    return ListView(
-      controller: _scrollController,
-      children: [
-        if (_messageSearchFailure != null) ...[
-          _buildSectionHeader(t.channel.messages, isDark),
-          Padding(
-            padding: AppSpacing.allMedium,
-            child: Text(
-              _messageSearchFailure == WebMessageSearchFailure.disabled
-                  ? t.common.searchDisabledByEncryption
-                  : t.common.searchFailedRetry,
-              key: const ValueKey('web_message_search_failure'),
-            ),
-          ),
-          if (_messageSearchFailure == WebMessageSearchFailure.unavailable)
-            CupertinoButton(
-              onPressed: () => _performSearch(_state.query),
-              child: Text(t.common.retry),
-            ),
-        ],
-        if (conversations.isNotEmpty) ...[
-          _buildSectionHeader('conversations', isDark),
-          ...conversations.map((item) => _buildSearchItem(item, isDark)),
-        ],
-        if (messages.isNotEmpty) ...[
-          _buildSectionHeader('messages', isDark),
-          ...messages.map((item) => _buildSearchItem(item, isDark)),
-        ],
-        if (contacts.isNotEmpty) ...[
-          _buildSectionHeader('contacts', isDark),
-          ...contacts.map((item) => _buildSearchItem(item, isDark)),
-        ],
-        if (groups.isNotEmpty) ...[
-          _buildSectionHeader('groups', isDark),
-          ...groups.map((item) => _buildSearchItem(item, isDark)),
-        ],
-      ],
-    );
-  }
-
-  /// 构建分组标题
-  Widget _buildSectionHeader(String title, bool isDark) =>
-      WebSearchSectionHeader(title: title, isDark: isDark);
-
-  /// 构建搜索结果项
-  Widget _buildSearchItem(SearchItem item, bool isDark) => WebSearchResultTile(
-    item: item,
-    isDark: isDark,
-    onTap: () => _onItemTap(item),
-  );
-
   /// 处理结果项点击
+  @override
   Future<void> _onItemTap(SearchItem item) async {
     if (_isAuthTransitioning) return;
     final user = UserRepoLocal.to;
@@ -986,6 +776,7 @@ class _WebSearchPageState extends ConsumerState<WebSearchPage> {
         true;
   }
 
+  @override
   void _removeExpiredResults() {
     if (!mounted || _isAuthTransitioning) return;
     final nowMs = DateTimeHelper.millisecond();

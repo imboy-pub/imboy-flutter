@@ -6,6 +6,7 @@ import 'package:imboy/modules/customer_service/presentation/cs_session_action_co
 import '../ux_matrix/ux_harness.dart';
 import 'cs_session_action_confirmation_test.dart' as fixture;
 import '../golden_baseline_guard.dart';
+import '../uiux/support/golden_font_loader.dart';
 
 void main() {
   // await + setUpAll：setLocale 的异步补发若在上一用例卸载后才抵达，
@@ -31,10 +32,11 @@ void main() {
       final action = transfer ? 'transfer' : 'close';
       testWidgets(
         'golden: T18 $action $label',
-        skip: !goldenBaselineExists(
+        skip: !goldenBaselinesReady([
           'test/customer_service/goldens/t18_${action}_$label.png',
-        ),
+        ]),
         (tester) async {
+          final font = await prepareGoldenFonts(tester);
           tester.view.physicalSize = combo.viewport;
           tester.view.devicePixelRatio = 1;
           if (combo.viewport.width == 360) {
@@ -55,6 +57,7 @@ void main() {
                 },
               ),
               combo,
+              theme: goldenAppTheme(combo.brightness),
             ),
           );
           final api = fixture.ActionApi();
@@ -87,6 +90,7 @@ void main() {
               await tester.tap(find.byType(SimpleDialogOption));
               await tester.pumpAndSettle();
             }
+            expectGoldenTextGlyphs(tester, font);
             final layoutError = tester.takeException();
             await expectLater(
               find.byType(AlertDialog),

@@ -50,3 +50,4 @@ transferAndLeave: نقل الملكية والمغادرة
 sureToTransferAndLeave: ستنقل ملكية المجموعة وتغادرها. هل تريد المتابعة؟
 transferredButLeaveFailed: تم نقل الملكية، لكن فشلت المغادرة. حاول مجددًا
 noEligibleSuccessor: لا يوجد عضو متاح للنقل
+searchLoadedMembers: "البحث في الأعضاء المحمّلين فقط"

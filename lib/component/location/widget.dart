@@ -8,6 +8,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:imboy/config/env.dart';
 import 'package:imboy/component/http/http_response.dart';
+import 'package:imboy/component/ui/async_state_view.dart';
+import 'package:imboy/component/ui/cell_pressable.dart';
+import 'package:imboy/theme/default/app_sizes.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_radius.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
@@ -16,7 +19,7 @@ import 'package:imboy/component/ui/app_loading.dart';
 
 import 'amap_helper.dart';
 
-import 'package:imboy/i18n/strings.g.dart'; // 确保这个文件中没有使用 niku
+import 'package:imboy/i18n/strings.g.dart';
 
 class SearchBarStyle {
   final Color backgroundColor;
@@ -59,10 +62,15 @@ class _MapLocationPickerState extends State<MapLocationPicker> with _BLoCMixin {
       DraggableScrollableController();
   FocusNode focusNode = FocusNode();
   double _fabHeight = 16.0;
-  bool _isKeyword = false;
   bool _animate = false;
   int page = 1;
-  int _seLindex = 0;
+  int _seLindex = -1;
+  int _generation = 0;
+  bool _loading = true;
+  bool _loadingMore = false;
+  bool _hasMore = true;
+  bool _sending = false;
+  Object? _searchError;
   final _searchQueryController = TextEditingController();
   // 地图当前居中的坐标（默认=设备当前定位，拖动地图/选中 POI/点「我的位置」时更新）
   LatLng _currentCenterCoordinate = const LatLng(39.909187, 116.397451);
@@ -82,14 +90,14 @@ class _MapLocationPickerState extends State<MapLocationPicker> with _BLoCMixin {
 
   @override
   void dispose() {
+    _generation++;
+    focusNode.dispose();
+    _searchQueryController.dispose();
     _sheetController.removeListener(_onSheetExtentChanged);
     _sheetController.dispose();
     super.dispose();
   }
 
-  @override
-  // ignore: overridden_fields
-  final poiStream = StreamController<List<AMapPosition>>();
   List<AMapPosition> poiInfoList = [];
   String searchType =
       "010000|020000|030000|040000|050000|060000|070000|080000|090000|100000|110000|120201|120300|140000|150400|190600|190301";
@@ -100,6 +108,7 @@ class _MapLocationPickerState extends State<MapLocationPicker> with _BLoCMixin {
     _currentCenterCoordinate = widget.latLng!;
     _sheetController.addListener(_onSheetExtentChanged);
     focusNode.addListener(() {
+      if (!_sheetController.isAttached) return;
       if (focusNode.hasFocus) {
         _sheetController.animateTo(
           _kMaxChildSize,
@@ -148,13 +157,20 @@ class _MapLocationPickerState extends State<MapLocationPicker> with _BLoCMixin {
       final rawData = payload['data'];
       final data = rawData is Map<String, dynamic> ? rawData : null;
       if (type == 'moveend' && data != null) {
+        if (_sending || data['lat'] is! num || data['lng'] is! num) return;
         final lat = (data['lat'] as num).toDouble();
         final lng = (data['lng'] as num).toDouble();
+        if (!lat.isFinite ||
+            !lng.isFinite ||
+            lat.abs() > 90 ||
+            lng.abs() > 180) {
+          return;
+        }
         setState(() {
           _currentCenterCoordinate = LatLng(lat, lng);
         });
         _onMyLocation.add(false);
-        poiInfoList = [];
+        _searchQueryController.clear();
         _search(_currentCenterCoordinate);
       }
     } catch (e) {
@@ -233,13 +249,14 @@ class _MapLocationPickerState extends State<MapLocationPicker> with _BLoCMixin {
                         backgroundColor: AppColors.getSurfaceColor(
                           Theme.of(context).brightness,
                         ),
-                        onPressed: _showMyLocation,
+                        onPressed: _sending ? null : _showMyLocation,
                         child: StreamBuilder<bool>(
                           stream: _onMyLocation.stream,
                           initialData: true,
                           builder: (context, snapshot) {
                             return Icon(
                               CupertinoIcons.location,
+                              semanticLabel: t.common.myLocation,
                               size: 26,
                               color: snapshot.data!
                                   ? AppColors.primary
@@ -268,7 +285,6 @@ class _MapLocationPickerState extends State<MapLocationPicker> with _BLoCMixin {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Semantics(
-                                button: true,
                                 label: MaterialLocalizations.of(context)
                                     .backButtonTooltip,
                                 child: _frostedIconButton(
@@ -308,16 +324,19 @@ class _MapLocationPickerState extends State<MapLocationPicker> with _BLoCMixin {
               return ClipRRect(
                 borderRadius: AppRadius.bottomSheet,
                 // 顶部圆角：这是贴底部的面板，只有上边缘该圆角，四角全圆是错误语义
-                child: ColoredBox(
+                child: Material(
                   color: Theme.of(context).colorScheme.surface,
                   child: StreamBuilder<List<AMapPosition>>(
                     stream: poiStream.stream,
+                    initialData: poiInfoList,
                     builder: (context, snapshot) {
                       if (snapshot.hasData) {
                         final data = snapshot.data!;
                         return EasyRefresh(
                           footer: const MaterialFooter(),
-                          onLoad: _handleLoadMore,
+                          onLoad: _loading || !_hasMore || _sending
+                              ? null
+                              : _handleLoadMore,
                           child: Column(
                             children: [
                               // 拖拽把手：提示面板可上下拖动，此前完全没有可视化提示
@@ -346,7 +365,9 @@ class _MapLocationPickerState extends State<MapLocationPicker> with _BLoCMixin {
                                   bottom: AppSpacing.small,
                                 ),
                                 alignment: Alignment.center,
-                                height: 39,
+                                constraints: const BoxConstraints(
+                                  minHeight: AppSizes.inputHeight,
+                                ),
                                 decoration: BoxDecoration(
                                   color: AppColors.getSurfaceGrouped(
                                     brightness,
@@ -377,6 +398,7 @@ class _MapLocationPickerState extends State<MapLocationPicker> with _BLoCMixin {
                                             left: 10,
                                           ),
                                           child: TextField(
+                                            enabled: !_sending,
                                             enableSuggestions: false,
                                             autocorrect: false,
                                             focusNode: focusNode,
@@ -445,53 +467,13 @@ class _MapLocationPickerState extends State<MapLocationPicker> with _BLoCMixin {
                                   ],
                                 ),
                               ),
-                              Expanded(
-                                child: ListView.builder(
-                                  padding: EdgeInsets.zero,
-                                  controller: scrollController,
-                                  shrinkWrap: true,
-                                  itemCount: data.length,
-                                  itemBuilder: (context, index) {
-                                    String distance = data[index].distance;
-                                    if (distance.isNotEmpty) {
-                                      distance = "${distance}m | ";
-                                    }
-                                    final isSelected = _seLindex == index;
-                                    return GestureDetector(
-                                      onTap: () {
-                                        setState(() {
-                                          _seLindex = index;
-                                          _sendMsg = data[index];
-                                          _currentCenterCoordinate =
-                                              data[index].latLng;
-                                        });
-                                        _onMyLocation.add(false);
-                                        _panMapTo(data[index].latLng);
-                                      },
-                                      child: Container(
-                                        // 选中态背景高亮：此前只有末尾一个对号，
-                                        // 整行没有任何「已选中」的视觉反馈
-                                        color: isSelected
-                                            ? AppColors.primary.withValues(
-                                                alpha: 0.08,
-                                              )
-                                            : Colors.transparent,
-                                        child: ListTile(
-                                          title: Text(data[index].name),
-                                          subtitle: Text(
-                                            "$distance${data[index].address}",
-                                          ),
-                                          trailing: isSelected
-                                              ? Icon(
-                                                  CupertinoIcons.checkmark,
-                                                  color: AppColors.primary,
-                                                )
-                                              : const SizedBox.shrink(),
-                                        ),
-                                      ),
-                                    );
-                                  },
+                              if (_sendMsg == null)
+                                Text(
+                                  t.common.pleaseSelectLocation,
+                                  style: context.textStyle(FontSizeType.small),
                                 ),
+                              Expanded(
+                                child: _buildResults(scrollController, data),
                               ),
                             ],
                           ),
@@ -513,105 +495,61 @@ class _MapLocationPickerState extends State<MapLocationPicker> with _BLoCMixin {
     );
   }
 
-  /// 44×44 命中区域的圆形毛玻璃按钮：满足最小触达区，且用中性 surface 底色
-  /// + 阴影而非直接透明，保证浮在任意地图配色上都有稳定对比度
   Widget _frostedIconButton({
     required VoidCallback onTap,
     required Widget icon,
-  }) {
-    final surface = AppColors.getSurfaceColor(Theme.of(context).brightness);
-    return GestureDetector(
-      behavior: HitTestBehavior.opaque,
-      onTap: onTap,
-      child: SizedBox(
-        width: 44,
-        height: 44,
-        child: Center(
-          child: Container(
-            width: 36,
-            height: 36,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: surface.withValues(alpha: 0.9),
-              boxShadow: [
-                BoxShadow(
-                  color: Theme.of(context).shadowColor.withValues(alpha: 0.12),
-                  blurRadius: 8,
-                  offset: const Offset(0, 2),
-                ),
-              ],
-            ),
-            child: Center(child: icon),
-          ),
-        ),
-      ),
-    );
-  }
+  }) => CupertinoButton(
+    padding: EdgeInsets.zero,
+    minimumSize: const Size.square(AppSizes.touchTarget),
+    color: AppColors.getSurfaceColor(Theme.of(context).brightness),
+    borderRadius: AppRadius.borderRadiusRegular,
+    onPressed: onTap,
+    child: icon,
+  );
 
-  /// 发送按钮：未选中 POI 时用置灰样式表达「暂不可用」而非看起来和平时一样，
-  /// 但仍可点击——点击时走 _handleSend 的空值兜底提示，而不是变成真正禁用
-  /// 拿不到任何反馈
   Widget _sendButton(BuildContext context) {
-    final enabled = _sendMsg != null;
-    return Material(
-      color: enabled ? AppColors.primary : AppColors.iosGray3,
-      borderRadius: AppRadius.borderRadiusRegular,
-      elevation: enabled ? 2 : 0,
-      shadowColor: Theme.of(context).shadowColor.withValues(alpha: 0.2),
-      child: GestureDetector(
-        onTap: _handleSend,
-        child: Container(
-          constraints: const BoxConstraints(minWidth: 64, minHeight: 44),
-          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.regular),
-          alignment: Alignment.center,
-          child: Text(
-            t.common.buttonSend,
-            style: TextStyle(
-              color: enabled ? AppColors.onPrimary : AppColors.iosGray,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-        ),
+    final enabled = _sendMsg != null && !_loading && !_sending;
+    return Semantics(
+      enabled: enabled,
+      label: _sending ? t.common.buttonSend : null,
+      child: CupertinoButton(
+        color: AppColors.primaryDark,
+        minimumSize: const Size.square(AppSizes.touchTarget),
+        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.regular),
+        borderRadius: AppRadius.borderRadiusRegular,
+        onPressed: enabled ? _handleSend : null,
+        child: _sending
+            ? const CupertinoActivityIndicator()
+            : Text(t.common.buttonSend),
       ),
     );
   }
 
   Future<void> _handleSend() async {
-    // POI 搜索尚未返回结果时点发送：给出反馈而不是静默无反应
-    if (_sendMsg == null) {
-      AppLoading.showToast(t.common.selectLocationFailed);
-      return;
-    }
+    final position = _sendMsg;
+    if (position == null || _loading || _sending) return;
+    setState(() => _sending = true);
     final map = <String, dynamic>{
-      "id": _sendMsg!.id,
-      "image": null,
-      "address": _sendMsg!.address,
-      "title": _sendMsg!.name,
-      "latitude": _sendMsg!.latLng.latitude,
-      "longitude": _sendMsg!.latLng.longitude,
-      "adCode": _sendMsg!.adCode,
+      'id': position.id,
+      'image': null,
+      'address': position.address,
+      'title': position.name,
+      'latitude': position.latLng.latitude,
+      'longitude': position.latLng.longitude,
+      'adCode': position.adCode,
     };
-    if (!widget.isMapImage) {
-      // 不需要地图截图：直接返回结果
-      Navigator.pop(context, map);
-      return;
-    }
-    await takeSnapshotReturn(map);
-  }
-
-  /// 内嵌地图预览图：直接拉官方静态地图图片二进制，marker 已经烤在图里，
-  /// 不再需要（也不再可能）等交互式地图渲染完 marker 再截屏
-  Future<void> takeSnapshotReturn(Map<String, dynamic> map) async {
-    if (!mounted) return;
-    final bytes = await AMapApi.fetchStaticMapBytes(
-      latitude: _sendMsg!.latLng.latitude,
-      longitude: _sendMsg!.latLng.longitude,
-    );
-    // bytes 可能为 null（网络失败）：调用方已按 result["image"] == null
-    // 走「获取地图失败，请重试」提示分支，不再让用户卡在选点页无任何反馈。
-    map["image"] = bytes;
-    if (mounted) {
-      Navigator.pop(context, map);
+    try {
+      if (widget.isMapImage) {
+        map['image'] = await AMapApi.fetchStaticMapBytes(
+          latitude: position.latLng.latitude,
+          longitude: position.latLng.longitude,
+        );
+      }
+      if (mounted) Navigator.pop(context, map);
+    } catch (_) {
+      if (mounted) AppLoading.showToast(t.common.selectLocationFailed);
+    } finally {
+      if (mounted) setState(() => _sending = false);
     }
   }
 
@@ -619,10 +557,8 @@ class _MapLocationPickerState extends State<MapLocationPicker> with _BLoCMixin {
     _recenterTo(widget.latLng!); // 我的位置
     _panMapTo(widget.latLng!);
     _onMyLocation.add(true);
-    if (!_isKeyword) {
-      //如果不在文字搜索中
-      _search(widget.latLng!);
-    }
+    _searchQueryController.clear();
+    await _search(widget.latLng!);
   }
 
   /// 更新地图中心坐标状态（供 FAB 高亮/预览等 UI 使用）
@@ -641,11 +577,12 @@ class _MapLocationPickerState extends State<MapLocationPicker> with _BLoCMixin {
   }
 
   void _cancel() {
+    if (_sending) return;
     _animate = false;
-    _isKeyword = false;
-    _seLindex = 0;
+    _seLindex = -1;
     _searchQueryController.clear();
     focusNode.unfocus();
+    unawaited(_search(_currentCenterCoordinate));
     _sheetController.animateTo(
       _kMinChildSize,
       duration: const Duration(milliseconds: 300),
@@ -653,130 +590,203 @@ class _MapLocationPickerState extends State<MapLocationPicker> with _BLoCMixin {
     );
   }
 
-  void _onTextChanged(String newText) async {
-    _searchKeyword(newText);
+  void _onTextChanged(String newText) {
+    unawaited(_loadPoi());
     _animate = true;
   }
 
-  Future<void> _search(LatLng location, {bool more = false}) async {
-    var response = await AMapApi.getAmapPoi(
-      "${location.latitude},${location.longitude}",
-      searchType,
-      10,
-      page,
-    );
-    // 安全日志：不输出完整响应数据
-    // on amap_search {"count":"10","infocode":"10000","pois":[
-    // {"parent":"",
-    // "address":"宝田一路与臣田三路交叉口东南100米","distance":"22","pcode":"440000","adcode":"440306","pname":"广东省","cityname":"深圳市",
-    // "type":"餐饮服务;快餐厅;快餐厅","typecode":"050300","adname":"宝安区","citycode":"0755","name":"影朵自选快餐",
-    // "location":"113.876030,22.591599","id":"B0ID7UCWEP"},
-    List<dynamic> poiList = [];
-    String status = response.data["status"] as String? ?? '0';
-    if (response.statusCode == 200 && status == "1") {
-      poiList = response.data["pois"] as List<dynamic>;
-    }
-    for (var e in poiList) {
-      // e['location'] "116.310905,39.992806",
-      // longitude 经度坐标 -180,180
-      // latitude '纬度坐标 -90,90
-      poiInfoList.add(
-        AMapPosition(
-          id: e['id'] as String,
-          name: e['name'] as String,
-          latLng: LatLng(
-            double.parse(e['location'].toString().split(",")[1]), // latitude
-            double.parse(e['location'].toString().split(",")[0]), // longitude
-          ),
-          address: (e['address'] ?? '') as String,
-          // pcode: e['pcode'],
-          adCode: (e['adcode'] ?? '') as String,
-          distance: (e['distance'] ?? '') as String,
-        ),
-      );
-    }
-    if (!more) {
-      if (poiInfoList.isNotEmpty) {
-        _sendMsg = poiInfoList[0];
+  Future<void> _search(LatLng location, {bool more = false}) {
+    _currentCenterCoordinate = location;
+    return _loadPoi(more: more);
+  }
+
+  Future<void> _handleLoadMore() => _loadPoi(more: true);
+
+  Future<void> _loadPoi({bool more = false}) async {
+    if (_sending || (more && (_loading || _loadingMore || !_hasMore))) return;
+    final generation = more ? _generation : ++_generation;
+    final nextPage = more ? page + 1 : 1;
+    final keyword = _searchQueryController.text.trim();
+    final center = _currentCenterCoordinate;
+    setState(() {
+      _searchError = null;
+      _loading = !more;
+      _loadingMore = more;
+      if (!more) {
+        poiInfoList = [];
+        _seLindex = -1;
+        _sendMsg = null;
+        _hasMore = true;
       }
-      page = 1;
+    });
+    poiStream.add(List.unmodifiable(poiInfoList));
+    try {
+      final incoming = await _requestPoi(keyword, center, nextPage);
+      if (!mounted || generation != _generation) return;
+      setState(() {
+        poiInfoList = more ? [...poiInfoList, ...incoming] : incoming;
+        page = nextPage;
+        _hasMore = incoming.length == 10;
+      });
+    } catch (error) {
+      if (mounted && generation == _generation) {
+        setState(() => _searchError = error);
+      }
+    } finally {
+      if (mounted && generation == _generation) {
+        setState(() {
+          _loading = false;
+          _loadingMore = false;
+        });
+        poiStream.add(List.unmodifiable(poiInfoList));
+      }
     }
-    poiStream.add(poiInfoList);
   }
 
-  Future<void> _searchKeyword(String keyword, {bool more = false}) async {
-    if (keyword.isEmpty) {
-      _isKeyword = true;
-      return;
+  Future<List<AMapPosition>> _requestPoi(
+    String keyword,
+    LatLng center,
+    int page,
+  ) async {
+    final response = keyword.isNotEmpty
+        ? await AMapApi.getMapByKeyword(
+            keyword,
+            searchType,
+            widget.citycode,
+            true,
+            10,
+            page,
+          )
+        : await AMapApi.getAmapPoi(
+            '${center.longitude},${center.latitude}',
+            searchType,
+            10,
+            page,
+          );
+    final data = response.data;
+    if (data is! Map ||
+        data['status']?.toString() != '1' ||
+        data['pois'] is! List) {
+      throw const FormatException('Invalid location search response');
     }
-    if (!more) {
-      poiInfoList = [];
-      _seLindex = -1;
+    return (data['pois'] as List).map(_parsePosition).toList();
+  }
+
+  AMapPosition _parsePosition(dynamic raw) {
+    if (raw is! Map || raw['id'] is! String || raw['name'] is! String) {
+      throw const FormatException('Invalid location result');
     }
-    var response = await AMapApi.getMapByKeyword(
-      keyword,
-      searchType,
-      widget.citycode,
-      true,
-      10,
-      page,
+    final coordinates = raw['location']?.toString().split(',') ?? [];
+    final lng = coordinates.length == 2
+        ? double.tryParse(coordinates[0])
+        : null;
+    final lat = coordinates.length == 2
+        ? double.tryParse(coordinates[1])
+        : null;
+    if (lat == null ||
+        lng == null ||
+        !lat.isFinite ||
+        !lng.isFinite ||
+        lat.abs() > 90 ||
+        lng.abs() > 180) {
+      throw const FormatException('Invalid location coordinate');
+    }
+    return AMapPosition(
+      id: raw['id'] as String,
+      name: raw['name'] as String,
+      latLng: LatLng(lat, lng),
+      address: raw['address']?.toString() ?? '',
+      adCode: raw['adcode']?.toString() ?? '',
+      distance: raw['distance']?.toString() ?? '',
     );
-    List<dynamic> poiList = [];
-    // 高德 v5/place/text 接口的 status 字段是字符串（"1"/"0"），跟
-    // v5/place/around（_search 用的那个）一样；这里此前按 int 强转，
-    // 每次关键字搜索必然抛 "type 'String' is not a subtype of type 'int?'"，
-    // 搜索框输入什么都没有结果返回。
-    String status = response.data["status"] as String? ?? '0';
-    if (response.statusCode == 200 && status == "1") {
-      poiList = response.data["pois"] as List<dynamic>;
-    }
-    for (var e in poiList) {
-      // e['location'] "116.310905,39.992806",
-      // longitude 经度坐标 -180,180
-      // latitude '纬度坐标 -90,90
-      poiInfoList.add(
-        AMapPosition(
-          id: e['id'] as String,
-          name: e['name'] as String,
-          latLng: LatLng(
-            double.parse(e['location'].toString().split(",")[1]), // latitude
-            double.parse(e['location'].toString().split(",")[0]), // longitude
-          ),
-          address: (e['address'] ?? '') as String,
-          // pcode: e['pcode'],
-          adCode: (e['adcode'] ?? '') as String,
-          distance: (e['distance'] ?? '') as String,
-        ),
-      );
-    }
-    if (!more) {
-      page = 1;
-    }
-    poiStream.add(poiInfoList);
   }
 
-  Future<void> _handleLoadMore() async {
-    if (_isKeyword) {
-      page++;
-      _searchKeyword(_searchQueryController.text, more: true);
-    } else {
-      page++;
-      _search(_currentCenterCoordinate, more: true);
-    }
-  }
+  Widget _buildResults(ScrollController controller, List<AMapPosition> data) =>
+      CustomScrollView(
+        controller: controller,
+        slivers: [
+          if (data.isEmpty)
+            SliverFillRemaining(
+              child: AsyncStateView(
+                isLoading: _loading,
+                isEmpty: !_loading && _searchError == null,
+                error: _searchError,
+                emptyText: t.common.searchNoResults,
+                onRetry: () => unawaited(_loadPoi()),
+                child: const SizedBox.shrink(),
+              ),
+            )
+          else ...[
+            SliverList.builder(
+              itemCount: data.length,
+              itemBuilder: (context, index) => _positionRow(data[index], index),
+            ),
+            if (_loadingMore)
+              const SliverToBoxAdapter(
+                child: Center(child: CupertinoActivityIndicator()),
+              ),
+            if (_searchError != null)
+              SliverToBoxAdapter(
+                child: Column(
+                  children: [
+                    Text(t.common.loadError),
+                    CupertinoButton(
+                      minimumSize: const Size.square(AppSizes.touchTarget),
+                      onPressed: () => unawaited(_loadPoi(more: true)),
+                      child: Text(t.common.buttonRetry),
+                    ),
+                  ],
+                ),
+              ),
+          ],
+        ],
+      );
+
+  Widget _positionRow(AMapPosition position, int index) => Semantics(
+    selected: _seLindex == index,
+    child: CellPressable(
+      onTap: _sending
+          ? null
+          : () {
+              setState(() {
+                _seLindex = index;
+                _sendMsg = position;
+                _currentCenterCoordinate = position.latLng;
+              });
+              _onMyLocation.add(false);
+              _panMapTo(position.latLng);
+            },
+      child: Padding(
+        padding: const EdgeInsets.all(AppSpacing.regular),
+        child: Row(
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(position.name),
+                  Text(
+                    [
+                      if (position.distance.isNotEmpty) '${position.distance}m',
+                      position.address,
+                    ].join(' | '),
+                  ),
+                ],
+              ),
+            ),
+            if (_seLindex == index)
+              const Icon(CupertinoIcons.checkmark, color: AppColors.primary),
+          ],
+        ),
+      ),
+    ),
+  );
 }
 
 mixin _BLoCMixin on State<MapLocationPicker> {
   // poi流
   final poiStream = StreamController<List<AMapPosition>>();
-  // 是否在我的位置
-  // ponytail: broadcast 流——StreamBuilder 在 hot reload/重渲染时会重新订阅，
-  // 单订阅流会抛 "Stream has already been listened to"。
-  // 上限：broadcast 不缓存最后一个值，新订阅者在下一次 add 之前拿不到当前态，
-  // 所以 StreamBuilder 必须自带 initialData。
-  // 无升级路径（设计约束，非延期）：重订阅是 StreamBuilder 的框架行为，只要
-  // 用它消费，broadcast 就是硬性要求。改用 ValueNotifier / 状态管理能绕开，
-  // 但那是把这块换掉重写，不是这条注释的升级路径。
+  // Rebuilds may replace listeners; StreamBuilder supplies the initial value.
   final _onMyLocation = StreamController<bool>.broadcast();
   @override
   void dispose() {

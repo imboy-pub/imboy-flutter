@@ -231,3 +231,7 @@ enterpriseChannelLabel: "企業内チャンネル"
 subscribePending: 購読済み、更新中
 subscribeRefresh: 購読状態を更新
 unseenUpdatesBanner(count): "新着更新 ${count} 件"
+
+editLeaveUnsaved: "変更は保存されていません。破棄して戻りますか？"
+avatarNotUploaded: "プロフィール画像は未アップロードです。再試行するか元に戻してから保存してください。"
+restoreAvatar: "画像を元に戻す"

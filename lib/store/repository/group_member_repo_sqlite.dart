@@ -208,7 +208,6 @@ class GroupMemberRepo {
       // 非法值（负数 / 非 int / 0）忽略，避免污染
     }
     // String gid = json[GroupMemberRepo.groupId] ?? (json['group_id'] ?? (json['gid'] ?? ''));
-    iPrint("GroupMemberRepo_update ${data.toString()};");
     if (gid.isNotEmpty && userId.isNotEmpty) {
       if (data.containsKey('id')) {
         data.remove('id');
@@ -235,20 +234,27 @@ class GroupMemberRepo {
     }
   }
 
-  Future<GroupMemberModel> save(Map<String, dynamic> json) async {
+  Future<GroupMemberModel> save(
+    Map<String, dynamic> json, {
+    Transaction? txn,
+  }) async {
     String gid = (json[GroupMemberRepo.groupId] ?? '').toString();
     String userId = (json[GroupMemberRepo.userId] ?? '').toString();
-    // iPrint("GroupMemberRepo_save $tagId");
-    GroupMemberModel? old = await findByUserId(gid, userId);
-    iPrint("GroupMemberRepo_save $gid, ${old?.toJson().toString()};");
-    if (old == null) {
-      GroupMemberModel model = GroupMemberModel.fromJson(json);
-      await insert(model);
-      return model;
-    } else {
-      await update(gid, userId, json);
+    Future<GroupMemberModel> saveInTransaction(Transaction transaction) async {
+      final old = await findByUserId(gid, userId, txn: transaction);
+      if (old == null) {
+        final model = GroupMemberModel.fromJson(json);
+        await insert(model, txn: transaction);
+        return model;
+      }
+      await update(gid, userId, json, txn: transaction);
       return GroupMemberModel.fromJson(json);
     }
+
+    if (txn != null) return saveInTransaction(txn);
+    final result = await _db.transaction<GroupMemberModel>(saveInTransaction);
+    _db.clearQueryCache(tableName);
+    return result;
   }
 
   Future<GroupMemberModel?> findByUserId(

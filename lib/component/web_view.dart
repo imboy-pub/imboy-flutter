@@ -8,7 +8,7 @@ import 'package:flutter/foundation.dart' show defaultTargetPlatform;
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:imboy/component/helper/func.dart' show iPrint;
-import 'package:imboy/component/ui/app_loading.dart';
+import 'package:imboy/component/ui/async_state_view.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/page/chat/chat/chat_page.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -16,6 +16,8 @@ import 'package:webview_flutter/webview_flutter.dart';
 import 'package:webview_flutter_android/webview_flutter_android.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/theme/default/app_colors.dart';
+import 'package:imboy/theme/default/app_sizes.dart';
+import 'package:imboy/theme/default/app_spacing.dart';
 
 /// `getAuthCode` 注入实现的协议面结果（OA 免登按需取码）。
 ///
@@ -324,6 +326,12 @@ class WebViewPageState extends State<WebViewPage> {
   /// 期空断言崩溃（openChat 打开聊天 → 未读徽标更新 → 触发过一次）。
   WebViewController? _controller;
   late String title = widget.title;
+  late String _currentUrl = widget.url;
+  bool _loading = true;
+  bool _failed = false;
+  bool _httpWarning = false;
+  int _progress = 0;
+  int _loadGeneration = 0;
 
   /// 仅允许的 URL scheme。
   ///
@@ -393,46 +401,51 @@ class WebViewPageState extends State<WebViewPage> {
           // 但不会获得自家 H5 桥接能力；桥消息另按当前 origin 复核权限。
           ..setNavigationDelegate(
             NavigationDelegate(
-              onProgress: (int progress) {
-                if (title.isEmpty) {
-                  AppLoading.showProgress(
-                    progress / 100,
-                    status: t.common.webpageLoading,
-                  );
+              onProgress: (progress) {
+                if (mounted && _loading && !_failed) {
+                  setState(() => _progress = progress.clamp(0, 100));
                 }
-                // debugPrint('> WebView is loading (progress : $progress%)');
               },
-              onPageStarted: (String url) {
+              onPageStarted: (url) {
+                if (!mounted || !isSchemeAllowed(url)) return;
+                setState(() {
+                  _currentUrl = url;
+                  _loading = true;
+                  _failed = false;
+                  _httpWarning = false;
+                  _progress = 0;
+                });
                 if (widget.url.contains("weixin.qq.com/r/") ||
                     widget.url.contains("weixin.qq.com/x/")) {
                   widget.errorCallback?.call(widget.url);
                 }
               },
-              onPageFinished: (String url) {
-                AppLoading.dismiss();
-                if (title.isEmpty && _controller != null) {
-                  _controller!.getTitle().then((fetched) {
-                    // getTitle 异步返回时页面可能已 dispose（加载中返回）。
-                    if (!mounted) return;
-                    if (fetched != null && fetched.isNotEmpty) {
-                      setState(() {
-                        title = fetched;
-                      });
-                    }
-                  });
+              onPageFinished: (url) => unawaited(_finishPage(url)),
+              onWebResourceError: (error) {
+                if (error.isForMainFrame == false) return;
+                if (error.url != null && error.url != _currentUrl) return;
+                if (error.isForMainFrame == true || error.url == _currentUrl) {
+                  _failPage();
                 }
               },
-              onWebResourceError: (WebResourceError error) {
-                AppLoading.dismiss();
-                final msg = "\n${widget.url}\n\nerror: \n${error.description}";
-                widget.errorCallback?.call(msg);
+              onHttpError: (error) {
+                // 插件未暴露 HTTP 响应的主框架标记，保留正文供用户判断。
+                if (!mounted ||
+                    _failed ||
+                    (error.response?.statusCode ?? 0) < 400) {
+                  return;
+                }
+                setState(() {
+                  _httpWarning = true;
+                  _loading = false;
+                });
               },
               onNavigationRequest: (NavigationRequest request) {
                 final invite = organizationInviteLocation(request.url);
                 if (request.isMainFrame && invite != null) {
                   final router = GoRouter.maybeOf(context);
                   if (router != null && mounted) {
-                    AppLoading.dismiss();
+                    setState(() => _loading = false);
                     unawaited(router.push<void>(invite));
                   }
                   return NavigationDecision.prevent;
@@ -462,9 +475,10 @@ class WebViewPageState extends State<WebViewPage> {
 
     // 首屏加载不一定经过 onNavigationRequest（各平台实现不一致），单独把闸。
     if (isSchemeAllowed(widget.url)) {
-      unawaited(_loadInitialUrl());
+      unawaited(_loadPage(clearCache: true));
     } else {
-      AppLoading.dismiss();
+      _loading = false;
+      _failed = true;
       widget.errorCallback?.call(widget.url);
     }
 
@@ -482,14 +496,52 @@ class WebViewPageState extends State<WebViewPage> {
     }
   }
 
-  Future<void> _loadInitialUrl() async {
-    // 自家 H5（OA 应用）改版需即时生效：打开前清 HTTP 缓存，避免 WebView
-    // 对无 Cache-Control 响应的启发式缓存滞留旧页面；第三方页面（扫码
-    // 浏览）保持缓存不清理。
-    if (isJsBridgeHost(widget.url)) {
-      await _controller!.clearCache();
+  Future<void> _loadPage({bool clearCache = false}) async {
+    final controller = _controller;
+    final url = _currentUrl;
+    if (controller == null || !isSchemeAllowed(url)) return;
+    if (_loading && !clearCache) return;
+    final generation = ++_loadGeneration;
+    setState(() {
+      _loading = true;
+      _failed = false;
+      _httpWarning = false;
+      _progress = 0;
+    });
+    try {
+      if (clearCache && isJsBridgeHost(url)) await controller.clearCache();
+      if (!mounted || generation != _loadGeneration) return;
+      await controller.loadRequest(Uri.parse(url));
+    } catch (_) {
+      if (mounted && generation == _loadGeneration) _failPage();
     }
-    await _controller!.loadRequest(Uri.parse(widget.url));
+  }
+
+  void _failPage() {
+    if (!mounted || _failed) return;
+    setState(() {
+      _loading = false;
+      _failed = true;
+      _httpWarning = false;
+    });
+    widget.errorCallback?.call(t.common.cannotOpenWebpage);
+  }
+
+  Future<void> _finishPage(String url) async {
+    if (!mounted || _failed || url != _currentUrl) return;
+    setState(() => _loading = false);
+    if (title.isNotEmpty) return;
+    try {
+      final fetched = await _controller?.getTitle();
+      if (mounted &&
+          url == _currentUrl &&
+          fetched != null &&
+          fetched.isNotEmpty) {
+        setState(() => title = fetched);
+      }
+    } catch (_) {
+      // 页面标题不可用时保留原标题，不影响正文。
+    }
   }
 
   /// 桥消息入口：分发并异步回推。
@@ -631,7 +683,7 @@ class WebViewPageState extends State<WebViewPage> {
 
   @override
   void dispose() {
-    AppLoading.dismiss();
+    _loadGeneration++;
     // 通道现在是按域名条件注册的，移除也必须同条件，否则移除未注册的通道
     if (isJsBridgeHost(widget.url)) {
       _controller!.removeJavaScriptChannel('imboyJSBridge');
@@ -661,7 +713,74 @@ class WebViewPageState extends State<WebViewPage> {
         ),
         automaticallyImplyLeading: true,
       ),
-      body: WebViewWidget.fromPlatformCreationParams(params: params),
+      body: LayoutBuilder(
+        builder: (context, constraints) => Column(
+          children: [
+            if (_httpWarning)
+              ConstrainedBox(
+                constraints: BoxConstraints(
+                  maxHeight: constraints.maxHeight / 2,
+                ),
+                child: SingleChildScrollView(
+                  child: Semantics(
+                    key: const ValueKey('webview-load-warning'),
+                    liveRegion: true,
+                    child: Padding(
+                      padding: const EdgeInsets.all(AppSpacing.regular),
+                      child: Row(
+                        children: [
+                          Expanded(child: Text(t.common.webpageLoadProblem)),
+                          TextButton(
+                            style: TextButton.styleFrom(
+                              minimumSize: const Size.square(
+                                AppSizes.touchTarget,
+                              ),
+                            ),
+                            onPressed: () => unawaited(_loadPage()),
+                            child: Text(t.common.buttonRetry),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            Expanded(
+              child: Stack(
+                fit: StackFit.expand,
+                children: [
+                  Offstage(
+                    offstage: _failed,
+                    child: WebViewWidget.fromPlatformCreationParams(
+                      params: params,
+                    ),
+                  ),
+                  if (_failed)
+                    AsyncStateView(
+                      key: const ValueKey('webview-error'),
+                      isLoading: false,
+                      isEmpty: false,
+                      error: true,
+                      errorText: t.common.cannotOpenWebpage,
+                      onRetry: isSchemeAllowed(_currentUrl)
+                          ? () => unawaited(_loadPage())
+                          : null,
+                      child: const SizedBox.shrink(),
+                    ),
+                  if (_loading)
+                    Align(
+                      alignment: Alignment.topCenter,
+                      child: LinearProgressIndicator(
+                        value: _progress == 0 ? null : _progress / 100,
+                        semanticsLabel: t.common.webpageLoading,
+                      ),
+                    ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

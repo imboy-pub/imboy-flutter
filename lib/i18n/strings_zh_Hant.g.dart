@@ -525,6 +525,9 @@ class Translations$channel$zh_Hant extends Translations$channel$zh_CN {
 	@override String get subscribePending => '已訂閱，正在重新整理';
 	@override String get subscribeRefresh => '重新整理訂閱狀態';
 	@override String unseenUpdatesBanner({required Object count}) => '有 ${count} 條新更新';
+	@override String get editLeaveUnsaved => '修改尚未儲存，確定放棄並離開？';
+	@override String get avatarNotUploaded => '頭像尚未上傳，請重試或還原後再儲存。';
+	@override String get restoreAvatar => '還原頭像';
 }
 
 // Path: chat
@@ -1694,6 +1697,10 @@ class Translations$common$zh_Hant extends Translations$common$zh_CN {
 	@override String get legacyUploadReturnToOriginalPage => '原上傳未完成，請返回原頁面重新選擇檔案並提交；原紀錄已保留。';
 	@override String get f2fLocationRequired => '請開啟定位權限與定位服務，和身邊朋友一起重試';
 	@override String get f2fMemberHint => '點選朋友頭像查看資料並加入好友';
+	@override String get pleaseSelectLocation => '請選擇位置';
+	@override String get myLocation => '我的位置';
+	@override String get searchConversations => '對話';
+	@override String get webpageLoadProblem => '網頁內容載入遇到問題，請重試。';
 }
 
 // Path: complaint
@@ -2017,6 +2024,7 @@ class Translations$group$zh_Hant extends Translations$group$zh_CN {
 	@override String get sureToTransferAndLeave => '轉讓後你將退出本群並失去群主權限，確定繼續嗎？';
 	@override String get transferredButLeaveFailed => '已轉讓群主，但退出失敗，請重試退出';
 	@override String get noEligibleSuccessor => '暫無可轉讓的成員';
+	@override String get searchLoadedMembers => '僅搜尋已載入成員';
 }
 
 // Path: groupCategory
@@ -3854,6 +3862,9 @@ extension on TranslationsZhHant {
 			'channel.subscribePending' => '已訂閱，正在重新整理',
 			'channel.subscribeRefresh' => '重新整理訂閱狀態',
 			'channel.unseenUpdatesBanner' => ({required Object count}) => '有 ${count} 條新更新',
+			'channel.editLeaveUnsaved' => '修改尚未儲存，確定放棄並離開？',
+			'channel.avatarNotUploaded' => '頭像尚未上傳，請重試或還原後再儲存。',
+			'channel.restoreAvatar' => '還原頭像',
 			'chat.bankCard' => '銀行卡',
 			'chat.receivePayment' => '收款與付款',
 			'chat.alreadyMember' => '已經是成員',
@@ -3956,11 +3967,11 @@ extension on TranslationsZhHant {
 			'chat.youWithdrewAMessage' => '你撤回了一則訊息',
 			'chat.formatCheck' => '格式檢查',
 			'chat.featureRequest' => '功能請求',
+			_ => null,
+		} ?? switch (path) {
 			'chat.chatResend' => '重新傳送',
 			'chat.releaseConvertToText' => '放開 轉文字',
 			'chat.voiceReleaseCancelSend' => '放開 取消傳送',
-			_ => null,
-		} ?? switch (path) {
 			'chat.voiceReleaseCancel' => '放開 取消',
 			'chat.voiceSlideHint' => '上滑 取消 / 轉文字',
 			'chat.convertToText' => '轉文字',
@@ -4470,11 +4481,11 @@ extension on TranslationsZhHant {
 			'common.chatDeleteOnlyLocal' => '僅在你這裡刪除，對方仍可見',
 			'common.chatDeleteAll' => '從所有人的聊天中刪除，無法撤銷',
 			'common.chatInitFailed' => '聊天初始化失敗',
+			_ => null,
+		} ?? switch (path) {
 			'common.cameraShootFailed' => '拍攝失敗',
 			'common.cameraCapture' => '拍攝',
 			'common.cameraModePhoto' => '照片',
-			_ => null,
-		} ?? switch (path) {
 			'common.cameraModeVideo' => '影片',
 			'common.cameraRetake' => '重拍',
 			'common.cameraUse' => '使用',
@@ -4984,11 +4995,11 @@ extension on TranslationsZhHant {
 			'common.redPacketSwitchToNormal' => '改為普通紅包',
 			'common.redPacketTotalAmount' => '總金額',
 			'common.redPacketView' => '查看紅包',
+			_ => null,
+		} ?? switch (path) {
 			'common.switchCamera' => '切換鏡頭',
 			'common.timeDaysShort' => ({required Object count}) => '${count}d',
 			'common.timeHoursShort' => ({required Object count}) => '${count}h',
-			_ => null,
-		} ?? switch (path) {
 			'common.timeMinutesShort' => ({required Object count}) => '${count}m',
 			'common.timeNowShort' => 'now',
 			'common.transferAccepted' => '已收款',
@@ -5019,6 +5030,10 @@ extension on TranslationsZhHant {
 			'common.legacyUploadReturnToOriginalPage' => '原上傳未完成，請返回原頁面重新選擇檔案並提交；原紀錄已保留。',
 			'common.f2fLocationRequired' => '請開啟定位權限與定位服務，和身邊朋友一起重試',
 			'common.f2fMemberHint' => '點選朋友頭像查看資料並加入好友',
+			'common.pleaseSelectLocation' => '請選擇位置',
+			'common.myLocation' => '我的位置',
+			'common.searchConversations' => '對話',
+			'common.webpageLoadProblem' => '網頁內容載入遇到問題，請重試。',
 			'complaint.complaint' => '投訴',
 			'complaint.e2eeConsentTitle' => '提交加密訊息證據',
 			'complaint.e2eeConsentBody' => '該訊息為端對端加密訊息，伺服器無法查看其內容。提交內容摘錄會將你選擇的訊息明文隨工單披露給審核員用於核實舉報。是否同意提交？',
@@ -5270,6 +5285,7 @@ extension on TranslationsZhHant {
 			'group.sureToTransferAndLeave' => '轉讓後你將退出本群並失去群主權限，確定繼續嗎？',
 			'group.transferredButLeaveFailed' => '已轉讓群主，但退出失敗，請重試退出',
 			'group.noEligibleSuccessor' => '暫無可轉讓的成員',
+			'group.searchLoadedMembers' => '僅搜尋已載入成員',
 			'groupCategory.title' => '群分組',
 			'groupCategory.createCategory' => '建立分組',
 			'groupCategory.categoryName' => '分組名稱',
@@ -5493,6 +5509,8 @@ extension on TranslationsZhHant {
 			'main.collecting' => '加入收藏中...',
 			'main.user' => '使用者',
 			'main.recommended' => '推薦',
+			_ => null,
+		} ?? switch (path) {
 			'main.larger' => '放大',
 			'main.fillIn' => '填寫',
 			'main.msgProtectedByComplianceKey' => '訊息受合規金鑰保護',
@@ -5501,8 +5519,6 @@ extension on TranslationsZhHant {
 			'main.mySentTab' => '我發出的',
 			'main.reject' => '拒絕',
 			'main.myOrders' => '我的訂單',
-			_ => null,
-		} ?? switch (path) {
 			'main.purchaseUnlockHint' => '購買後可解鎖頻道歷史訊息與後續更新內容。',
 			'main.payingDots' => '付款中...',
 			'main.purchaseAndUnlock' => '立即購買並解鎖',
@@ -6007,6 +6023,8 @@ extension on TranslationsZhHant {
 			'passport.qrConnecting' => '連線中...',
 			'passport.qrWebLoginTitle' => 'Web 端登入確認',
 			'passport.qrWebLoginDesc' => '請確認是否在 Web 端登入此帳號',
+			_ => null,
+		} ?? switch (path) {
 			'passport.qrLoginAction' => '確認登入',
 			'passport.qrLoginSuccess' => '登入成功',
 			'passport.alipayNotSupportedWeb' => 'Web 平台不支援支付寶登入',
@@ -6015,8 +6033,6 @@ extension on TranslationsZhHant {
 			'passport.oneKeyNoSimCard' => '目前網路環境不支援，或手機沒有綁定電話卡',
 			'passport.cannotGetScreenSize' => '無法取得螢幕尺寸',
 			'passport.oneKeyFailedRetry' => '一鍵登入失敗，請檢查網路後重試',
-			_ => null,
-		} ?? switch (path) {
 			'splash.slogan' => '暢所欲言，自在溝通',
 			'talkRecord.uploadProgressRegister' => '準備上傳',
 			'talkRecord.uploadProgressUpload' => '上傳音訊',
