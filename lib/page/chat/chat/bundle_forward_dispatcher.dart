@@ -42,6 +42,7 @@ import 'package:imboy/modules/messaging/domain/selection/message_selectability.d
 import 'package:imboy/modules/messaging/application/history_bundle/bundle_attachment_forwarder.dart';
 import 'package:imboy/modules/messaging/application/history_bundle/history_bundle_builder.dart';
 import 'package:imboy/modules/messaging/application/history_bundle/history_bundle_source.dart';
+import 'package:imboy/modules/messaging/application/history_bundle/history_bundle_sanitizer.dart';
 import 'package:imboy/modules/messaging/application/history_bundle/history_bundle_types.dart';
 import 'package:imboy/modules/messaging/domain/message_status.dart';
 import 'package:imboy/service/e2ee/attachment_forward.dart';
@@ -129,8 +130,11 @@ class DefaultBundleAttachmentForwarder implements BundleAttachmentForwarder {
 /// enable/disable，而非统一 selectable）。flag 关闭恒 false；有选中项且
 /// 全部可合并（类型桶 + 状态 + 焚毁 + E2EE 失败）且条数 ≤50 才为 true。
 bool bundleActionAllowedFor(Iterable<MessageSelectionTraits> traits) {
-  if (!AppFeatureRegistry.isRolloutFlagEnabled(FeatureKeys.chatHistoryBundleV1))
+  if (!AppFeatureRegistry.isRolloutFlagEnabled(
+    FeatureKeys.chatHistoryBundleV1,
+  )) {
     return false;
+  }
   var count = 0;
   for (final t in traits) {
     count++;
@@ -154,8 +158,9 @@ bool bundleActionAllowedFor(Iterable<MessageSelectionTraits> traits) {
 /// 多选 action bar「导出」按钮动作策略：flag 开启 + 全部选中项过 W1-C
 /// 导出准入矩阵。
 bool exportActionAllowedFor(Iterable<MessageSelectionTraits> traits) {
-  if (!AppFeatureRegistry.isRolloutFlagEnabled(FeatureKeys.chatExportShareV1))
+  if (!AppFeatureRegistry.isRolloutFlagEnabled(FeatureKeys.chatExportShareV1)) {
     return false;
+  }
   var count = 0;
   for (final t in traits) {
     count++;
@@ -180,11 +185,15 @@ class BundleForwardDispatcher {
     messageFetcher,
     Future<void> Function(MessageModel model, String chatType)? messageInserter,
     String Function()? forwarderUidResolver,
+    Future<bool> Function(String chatType, String peerId)?
+    targetEncryptedResolver,
   }) : _attachmentForwarder =
            attachmentForwarder ?? const DefaultBundleAttachmentForwarder(),
        _messageFetcher = messageFetcher ?? _defaultMessageFetcher,
        _messageInserter = messageInserter ?? _defaultMessageInserter,
-       _forwarderUidResolver = forwarderUidResolver ?? _defaultForwarderUid;
+       _forwarderUidResolver = forwarderUidResolver ?? _defaultForwarderUid,
+       _targetEncryptedResolver =
+           targetEncryptedResolver ?? _defaultTargetEncrypted;
 
   static Future<MessageModel?> _defaultMessageFetcher(
     String messageId,
@@ -202,12 +211,21 @@ class BundleForwardDispatcher {
 
   static String _defaultForwarderUid() => UserRepoLocal.to.currentUid;
 
+  static Future<bool> _defaultTargetEncrypted(String chatType, String peerId) {
+    return SendToNotifier.targetPayloadWillBeEncrypted(
+      chatType: chatType,
+      peerId: peerId,
+    );
+  }
+
   final BundleAttachmentForwarder _attachmentForwarder;
   final Future<MessageModel?> Function(String messageId, String chatType)
   _messageFetcher;
   final Future<void> Function(MessageModel model, String chatType)
   _messageInserter;
   final String Function() _forwarderUidResolver;
+  final Future<bool> Function(String chatType, String peerId)
+  _targetEncryptedResolver;
 
   /// 多选 action bar「合并转发」入口（计划 §12 第 2 步）。
   ///
@@ -361,6 +379,24 @@ class BundleForwardDispatcher {
       peerId: target.peerId,
       type: chatType,
     );
+    // 明文目标闸（A4 审计 CRITICAL）：与单条转发 AttachmentForward.decide →
+    // ForwardRejected 同语义 —— 带 content key 的源附件只允许进入加密目标；
+    // 否则新 descriptor（content key）会以明文随 bundle 出网。判定与单条
+    // 转发共用同一真值（SendToNotifier.targetPayloadWillBeEncrypted）。
+    var sealedSourceSeen = false;
+    for (final task in success.attachmentTasks) {
+      if (AttachmentSealPolicy.carriesContentKey(task.sourcePayload)) {
+        sealedSourceSeen = true;
+      }
+    }
+    if (sealedSourceSeen) {
+      final encrypted = await _targetEncryptedResolver(chatType, target.peerId);
+      if (!encrypted) {
+        throw BundleForwardException(
+          HistoryBundleBuildErrorCode.rejectedPlaintextTarget,
+        );
+      }
+    }
     for (final task in success.attachmentTasks) {
       final request = bindBundleAttachmentTasks(
         tasks: [task],
@@ -372,7 +408,14 @@ class BundleForwardDispatcher {
         forwarderUid: uid,
       ).single;
       final payload = await _attachmentForwarder.forwardAttachment(request);
-      bundle = bundle.withEntryPayload(task.entryIndex, payload);
+      // 写回净化（A4 审计 HIGH）：adapter 产物基于源 payload 拷贝，禁止
+      // 字段不得随写回进入 bundle JSON（合同 §4.5）。唯一豁免 = 本次
+      // 重封装新产生的目标绑定 attachment_descriptor（仅加密目标可达此
+      // 路径，整包随后进密文，接收侧开封依赖它；§4.5 禁止的是源密钥）。
+      bundle = bundle.withEntryPayload(
+        task.entryIndex,
+        sanitizeAttachmentWriteback(payload),
+      );
     }
 
     // 尺寸复检（附件写回后）：先合同 256KiB 硬边界，再客户端 192KiB 软边
@@ -416,6 +459,36 @@ MessageStatus _domainStatusFromCore(core.MessageStatus? status) {
     core.MessageStatus.seen => MessageStatus.seen,
     core.MessageStatus.sent || null => MessageStatus.sent,
   };
+}
+
+/// 附件写回产物净化：BundleSanitizer 全键清理 + 目标绑定新 descriptor
+/// 豁免回填（顶层与 images[] 两处；其余任何嵌套层仍被清理）。
+Map<String, dynamic> sanitizeAttachmentWriteback(Map<String, dynamic> payload) {
+  final cleaned = BundleSanitizer.sanitize(payload).cleaned;
+  final desc = payload[AttachmentSealPolicy.descriptorPayloadKey];
+  if (desc != null) {
+    cleaned[AttachmentSealPolicy.descriptorPayloadKey] = desc;
+  }
+  final images = payload[AttachmentSealPolicy.imagesPayloadKey];
+  if (images is List) {
+    cleaned[AttachmentSealPolicy.imagesPayloadKey] = <Object?>[
+      for (final raw in images)
+        if (raw is Map)
+          _sanitizeImageWriteback(Map<String, dynamic>.from(raw))
+        else
+          raw,
+    ];
+  }
+  return cleaned;
+}
+
+Map<String, dynamic> _sanitizeImageWriteback(Map<String, dynamic> image) {
+  final cleaned = BundleSanitizer.sanitize(image).cleaned;
+  final desc = image[AttachmentSealPolicy.descriptorPayloadKey];
+  if (desc != null) {
+    cleaned[AttachmentSealPolicy.descriptorPayloadKey] = desc;
+  }
+  return cleaned;
 }
 
 /// 发送编排的稳定错误异常（错误码 = [HistoryBundleBuildErrorCode]）。

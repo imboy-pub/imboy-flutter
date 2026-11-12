@@ -16,7 +16,6 @@ import 'package:flutter_test/flutter_test.dart';
 
 import 'package:imboy/app_core/feature_flags/app_feature_registry.dart';
 import 'package:imboy/modules/messaging/application/history_bundle/bundle_attachment_forwarder.dart';
-import 'package:imboy/modules/messaging/application/history_bundle/history_bundle_types.dart';
 import 'package:imboy/modules/messaging/domain/message_status.dart'
     as domain_msg;
 import 'package:imboy/modules/messaging/domain/selection/message_selectability.dart';
@@ -76,10 +75,14 @@ MessageSelectionTraits _traits(
   burnReadAt: burnReadAt,
 );
 
-/// 记录型附件转发 fake（返回改写后的新 uri payload）。
+/// 记录型附件转发 fake（按脚本顺序返回 payload，缺省新 uri payload）。
 class _RecordingForwarder implements BundleAttachmentForwarder {
-  _RecordingForwarder();
+  // ignore: prefer_initializing_formals
+  _RecordingForwarder({List<Map<String, dynamic>> script = const []})
+    : _script = List<Map<String, dynamic>>.of(script);
 
+  final List<Map<String, dynamic>> _script;
+  var _calls = 0;
   final List<BundleAttachmentForwardRequest> requests =
       <BundleAttachmentForwardRequest>[];
 
@@ -88,6 +91,8 @@ class _RecordingForwarder implements BundleAttachmentForwarder {
     BundleAttachmentForwardRequest request,
   ) async {
     requests.add(request);
+    final index = _calls++;
+    if (index < _script.length) return _script[index];
     return <String, dynamic>{
       'uri': 'obj/new-key',
       'file_hash256': 'cafebabe',
@@ -370,6 +375,7 @@ void main() {
         messageInserter: (model, chatType) async => inserted.add(model),
         forwarderUidResolver: () => _uid,
         attachmentForwarder: forwarder,
+        targetEncryptedResolver: (chatType, peerId) async => true,
       );
 
       final report = await dispatcher.sendToTargets(
@@ -399,6 +405,196 @@ void main() {
       final entries = inserted.single.payloadMap['entries'] as List;
       expect((entries[0] as Map)['payload']['uri'], 'obj/new-key');
       expect((entries[0] as Map)['payload']['file_hash256'], 'cafebabe');
+    });
+
+    test(
+      'A4 CRITICAL：sealed 源 + 明文目标 → rejected_plaintext_target，零落库',
+      () async {
+        final rows = <String, MessageModel>{
+          'm1': _sourceRow(
+            'm1',
+            1000,
+            msgType: 'file',
+            payload: <String, dynamic>{
+              'uri': 'obj/old-key',
+              'attachment_descriptor': <String, dynamic>{'k': 'v'},
+            },
+          ),
+        };
+        var resolverCalls = 0;
+        final forwarder = _RecordingForwarder();
+        final inserted = <MessageModel>[];
+        final dispatcher = BundleForwardDispatcher(
+          messageFetcher: (id, chatType) async => rows[id],
+          messageInserter: (model, chatType) async => inserted.add(model),
+          forwarderUidResolver: () => _uid,
+          attachmentForwarder: forwarder,
+          targetEncryptedResolver: (chatType, peerId) async {
+            resolverCalls++;
+            return false;
+          },
+        );
+
+        final report = await dispatcher.sendToTargets(
+          [_target(1, '1000000056')],
+          [_uiMessage('m1')],
+          sourceChatType: 'C2C',
+        );
+
+        expect(report.successCount, 0);
+        expect(
+          report.failures.single.errorCode,
+          HistoryBundleBuildErrorCode.rejectedPlaintextTarget,
+        );
+        expect(resolverCalls, 1);
+        expect(forwarder.requests, isEmpty, reason: '重封装不得开始');
+        expect(inserted, isEmpty, reason: '无半转发状态');
+      },
+    );
+
+    test('A4 CRITICAL：plain 源 + 明文目标不受闸影响（回归锚）', () async {
+      final rows = <String, MessageModel>{
+        'm1': _sourceRow(
+          'm1',
+          1000,
+          msgType: 'file',
+          payload: <String, dynamic>{'uri': 'obj/old-key'},
+        ),
+      };
+      final forwarder = _RecordingForwarder();
+      final inserted = <MessageModel>[];
+      final dispatcher = BundleForwardDispatcher(
+        messageFetcher: (id, chatType) async => rows[id],
+        messageInserter: (model, chatType) async => inserted.add(model),
+        forwarderUidResolver: () => _uid,
+        attachmentForwarder: forwarder,
+        targetEncryptedResolver: (chatType, peerId) async => false,
+      );
+
+      final report = await dispatcher.sendToTargets(
+        [_target(1, '1000000056')],
+        [_uiMessage('m1')],
+        sourceChatType: 'C2C',
+      );
+
+      expect(report.allSuccess, isTrue);
+      expect(forwarder.requests, hasLength(1));
+      expect(inserted, hasLength(1));
+    });
+
+    test('A4 HIGH：写回产物经 sanitizer（junk 清理）且目标绑定 descriptor 保留', () async {
+      final rows = <String, MessageModel>{
+        'm1': _sourceRow(
+          'm1',
+          1000,
+          msgType: 'file',
+          payload: <String, dynamic>{
+            'uri': 'obj/old-key',
+            'attachment_descriptor': <String, dynamic>{'k': 'v'},
+          },
+        ),
+      };
+      final forwarder = _RecordingForwarder(
+        script: <Map<String, dynamic>>[
+          // adapter 产物：新 descriptor（目标绑定）+ 源残留 junk 键
+          <String, dynamic>{
+            'uri': 'obj/new-key',
+            'file_hash256': 'cafebabe',
+            'attachment_descriptor': <String, dynamic>{'new': 'key'},
+            'from_id': '1000000056',
+            'burn_read_at': 999,
+            'e2ee_stale': <String, dynamic>{},
+          },
+        ],
+      );
+      final inserted = <MessageModel>[];
+      final dispatcher = BundleForwardDispatcher(
+        messageFetcher: (id, chatType) async => rows[id],
+        messageInserter: (model, chatType) async => inserted.add(model),
+        forwarderUidResolver: () => _uid,
+        attachmentForwarder: forwarder,
+        targetEncryptedResolver: (chatType, peerId) async => true,
+      );
+
+      final report = await dispatcher.sendToTargets(
+        [_target(1, '1000000056')],
+        [_uiMessage('m1')],
+        sourceChatType: 'C2C',
+      );
+
+      expect(report.allSuccess, isTrue);
+      final entryPayload =
+          (inserted.single.payloadMap['entries'] as List).first as Map;
+      final wp = entryPayload['payload'] as Map;
+      expect(wp['uri'], 'obj/new-key');
+      expect(wp['attachment_descriptor'], <String, dynamic>{
+        'new': 'key',
+      }, reason: '目标绑定新 descriptor 是接收侧开封合法机制（§4.5 禁止源密钥）');
+      expect(wp.containsKey('from_id'), isFalse);
+      expect(wp.containsKey('burn_read_at'), isFalse);
+      expect(wp.containsKey('e2ee_stale'), isFalse);
+    });
+
+    test('A4 HIGH：imageMulti 写回逐图净化，每图 descriptor 保留', () async {
+      final rows = <String, MessageModel>{
+        'm1': _sourceRow(
+          'm1',
+          1000,
+          msgType: 'imageMulti',
+          payload: <String, dynamic>{
+            'images': [
+              <String, dynamic>{
+                'uri': 'obj/old-1',
+                'attachment_descriptor': <String, dynamic>{'k': 1},
+              },
+              <String, dynamic>{'uri': 'obj/old-2', 'peer_id': 'leak'},
+            ],
+          },
+        ),
+      };
+      final forwarder = _RecordingForwarder(
+        script: <Map<String, dynamic>>[
+          <String, dynamic>{
+            'images': [
+              <String, dynamic>{
+                'uri': 'obj/new-1',
+                'attachment_descriptor': <String, dynamic>{'new': 1},
+                'from_id': 'junk',
+              },
+              <String, dynamic>{
+                'uri': 'obj/new-2',
+                'attachment_descriptor': <String, dynamic>{'new': 2},
+              },
+            ],
+            'total': 2,
+          },
+        ],
+      );
+      final inserted = <MessageModel>[];
+      final dispatcher = BundleForwardDispatcher(
+        messageFetcher: (id, chatType) async => rows[id],
+        messageInserter: (model, chatType) async => inserted.add(model),
+        forwarderUidResolver: () => _uid,
+        attachmentForwarder: forwarder,
+        targetEncryptedResolver: (chatType, peerId) async => true,
+      );
+
+      final report = await dispatcher.sendToTargets(
+        [_target(1, '1000000056')],
+        [_uiMessage('m1')],
+        sourceChatType: 'C2C',
+      );
+
+      expect(report.allSuccess, isTrue);
+      final wp =
+          ((inserted.single.payloadMap['entries'] as List).first
+                  as Map)['payload']
+              as Map;
+      final images = wp['images'] as List;
+      expect((images[0] as Map)['attachment_descriptor'], {'new': 1});
+      expect((images[0] as Map).containsKey('from_id'), isFalse);
+      expect((images[1] as Map)['attachment_descriptor'], {'new': 2});
+      expect((images[1] as Map)['uri'], 'obj/new-2');
     });
   });
 }

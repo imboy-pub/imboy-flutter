@@ -76,4 +76,9 @@ abstract final class HistoryBundleBuildErrorCode {
   /// 其余一切：textStream、custom、unsupported、null、未知新类型
   /// （fail-closed，默认不可合并）。
   static const String rejectedUnsupportedType = 'rejected_unsupported_type';
+
+  /// 带内容密钥的源附件发往**明文目标**（Central Wiring 发送编排闸，
+  /// 与单条转发 AttachmentForward.decide → ForwardRejected 同语义）：
+  /// 新 content key/descriptor 不允许进明文 bundle（冻结合同 §4.5）。
+  static const String rejectedPlaintextTarget = 'rejected_plaintext_target';
 }

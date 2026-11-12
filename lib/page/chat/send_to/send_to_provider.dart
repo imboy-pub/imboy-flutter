@@ -126,7 +126,8 @@ class SendToNotifier extends Notifier<SendToState> {
   /// 硬闸前置，P0-B B4）+ `E2EEService.shouldEncryptOutgoingPayload`（二次
   /// 复核口径 `interactiveConfirm=false`：转发是批量动作，不触发 AI 首次
   /// 确认弹窗）。转发重封装的 seal 判定与消息出网加密判定因此完全一致。
-  @visibleForTesting
+  /// Central Wiring bundle 发送编排（bundle_forward_dispatcher）复用本判定，
+  /// 与单条转发共用同一份 seal 真值，不复制实现。
   static Future<bool> targetPayloadWillBeEncrypted({
     required String chatType,
     required String peerId,
