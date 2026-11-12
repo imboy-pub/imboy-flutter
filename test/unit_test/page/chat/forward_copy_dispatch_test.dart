@@ -24,6 +24,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/app_core/feature_flags/app_feature_registry.dart';
 import 'package:imboy/modules/messaging/application/history_bundle/bundle_attachment_forwarder.dart';
 import 'package:imboy/page/chat/chat/bundle_forward_dispatcher.dart';
+import 'package:imboy/service/event_bus.dart';
+import 'package:imboy/service/events/common_events.dart';
 import 'package:imboy/store/model/conversation_model.dart';
 import 'package:imboy/store/model/message_model.dart';
 
@@ -211,6 +213,37 @@ void main() {
         isNot(dispatched[1].id),
         reason: '每目标独立 message id（现有契约）',
       );
+    });
+  });
+
+  group('副本回环可见性（ingestion 事件）', () {
+    test('落库后发布 fireData Message 事件（与入站消息同一形状）', () async {
+      final rows = <String, MessageModel>{'m1': _sourceRow('m1', 1000)};
+      final ingested = <String>[];
+      final sub = AppEventBus.on<DataWrapperEvent<dynamic>>().listen((event) {
+        if (event.dataType.toLowerCase() == 'message') {
+          final m = event.data as core.Message;
+          ingested.add(m.id);
+        }
+      });
+      addTearDown(sub.cancel);
+      final dispatcher = BundleForwardDispatcher(
+        messageFetcher: (id, chatType) async => rows[id],
+        messageInserter: (model, chatType) async {},
+        forwarderUidResolver: () => _uid,
+        attachmentForwarder: _RecordingForwarder(),
+        wsDispatcher: (model) async => true,
+      );
+
+      final report = await dispatcher.sendToTargets(
+        [_target(1, '1000000056')],
+        [_uiMessage('m1')],
+        sourceChatType: 'C2C',
+      );
+
+      await Future<void>.delayed(Duration.zero);
+      expect(report.allSuccess, isTrue);
+      expect(ingested, hasLength(1), reason: '回环打开的会话须立即收到副本 ingestion 事件');
     });
   });
 }

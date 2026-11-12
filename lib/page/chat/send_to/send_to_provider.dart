@@ -24,6 +24,9 @@ import 'package:imboy/service/encryption_mode.dart';
 import 'package:imboy/service/group_session_service.dart';
 import 'package:imboy/page/chat/chat/attachment_handler.dart';
 import 'package:imboy/page/chat/chat/services/chat_network_service.dart';
+import 'package:imboy/modules/messaging/infrastructure/message_model_mapper.dart';
+
+import 'package:imboy/service/events/events.dart';
 
 /// 发送给 页面状态
 class SendToState {
@@ -362,6 +365,20 @@ class SendToNotifier extends Notifier<SendToState> {
       } on Object catch (e) {
         debugPrint(
           '[send_to_provider] forward dispatch submit failed, '
+          'msgId=${msgModel.id}, errType=${e.runtimeType}',
+        );
+      }
+
+      // 回环可见性：目标会话若正是当前打开的会话，直接落库的副本不会自动
+      // 进入内存消息列表（addMessage 的 syncMessagesToState 只覆盖本页输入
+      // 链发送）。复用入站消息同一 ingestion 事件形状（offline_message_
+      // writer 对 S2C 的 fireData 'Message'）：ChatPage 监听按
+      // conversation_uk3 匹配，未打开的目标会话为 no-op。
+      try {
+        AppEventBus.fireData(await msgModel.toTypeMessage(), 'Message');
+      } on Object catch (e) {
+        debugPrint(
+          '[send_to_provider] forward copy ui event failed, '
           'msgId=${msgModel.id}, errType=${e.runtimeType}',
         );
       }

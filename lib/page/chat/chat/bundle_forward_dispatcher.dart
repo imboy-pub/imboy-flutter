@@ -29,6 +29,8 @@ import 'package:imboy/component/helper/func.dart' show iPrint;
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:imboy/page/chat/chat/services/chat_network_service.dart';
+import 'package:imboy/service/event_bus.dart';
+import 'package:imboy/modules/messaging/infrastructure/message_model_mapper.dart';
 import 'package:imboy/service/message_type_constants.dart';
 import 'package:imboy/store/model/message_model.dart';
 import 'package:imboy/store/model/conversation_model.dart';
@@ -495,6 +497,18 @@ class BundleForwardDispatcher {
     } on Object catch (e) {
       iPrint(
         '⚠️ [BundleForwardDispatcher] 副本派发提交失败(不影响落库): '
+        'msgId=${model.id}, errType=${e.runtimeType}',
+      );
+    }
+    // 回环可见性：与单条转发同款（见 send_to_provider.sendMsg）——目标
+    // 会话正打开时，经入站消息同一 ingestion 事件（fireData 'Message'）
+    // 让副本立即进入内存列表；未打开会话由 ChatPage 按 conversation_uk3
+    // 过滤，为 no-op。
+    try {
+      AppEventBus.fireData(await model.toTypeMessage(), 'Message');
+    } on Object catch (e) {
+      iPrint(
+        '⚠️ [BundleForwardDispatcher] 副本 UI 事件失败(不影响落库): '
         'msgId=${model.id}, errType=${e.runtimeType}',
       );
     }
