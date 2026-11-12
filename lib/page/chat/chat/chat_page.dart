@@ -1778,8 +1778,13 @@ class ChatPageState extends ConsumerState<ChatPage>
         _conversationUk3.isNotEmpty &&
         evaluateMessageSelectability(messageSelectionTraitsOf(message))
             .selectable) {
-      onMultiSelect = () =>
-          enterMultiSelectWithFeedback(ref, _conversationUk3, message);
+      onMultiSelect = () {
+        // G1-8（W5 收口）：进入多选会在 build 中卸载 ChatInput（换
+        // action bar），dispose 只 cancel Timer 不落草稿——先 flush 挂起的
+        // ≤300ms 防抖，最后一段输入不丢。
+        _chatInputKey.currentState?.flushDraft();
+        enterMultiSelectWithFeedback(ref, _conversationUk3, message);
+      };
     }
 
     showMessageActionMenu(

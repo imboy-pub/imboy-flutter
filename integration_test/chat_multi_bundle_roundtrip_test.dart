@@ -24,11 +24,13 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart' show ProviderScope;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 
 import 'package:imboy/modules/messaging/application/history_bundle/history_bundle_types.dart';
 import 'package:imboy/page/chat/chat/chat_page.dart';
+import 'package:imboy/page/chat/chat/chat_provider.dart';
 import 'package:imboy/component/chat/message_history_bundle_builder.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 
@@ -38,6 +40,7 @@ import 'flows/app_launcher.dart';
 import 'flows/test_utils.dart';
 import 'helpers/chat_multi_driver.dart';
 import 'helpers/chat_multi_fixtures.dart';
+import 'helpers/chat_multi_image_fixture.dart';
 
 const _markerPrefix = '[W3K-BND]';
 
@@ -89,6 +92,45 @@ void main() {
     await sendTextViaInput(tester, chatPage, m1);
     await sendTextViaInput(tester, chatPage, m2);
     await sendTextViaInput(tester, chatPage, m3);
+
+    // R2-G6-L4 收口：本轮 bundle 增加一条真实上传的图片 entry，激活详情页
+    // 缩略图契约断言（G2×G6：ValueKey bundle_detail_thumb_<index>）——
+    // 此前纯文本旅程该断言恒门控跳过（死断言）。镜像 select 旅程的
+    // 生产上传形态（presign→PUT→confirm，process:false）。
+    final ctx = tester.element(find.byType(ChatPage).first);
+    final container = ProviderScope.containerOf(ctx);
+    final notifier = container.read(chatProvider.notifier);
+    final imgBase = DateTime.now();
+    final imgId = 'w3kbndimg$nonce';
+    final imgObjectKey = await ChatMultiImageFixture.uploadPng(
+      peerId: peerUid,
+      type: 'C2C',
+    );
+    flowLog('W3K-BND fixture image uploaded: $imgObjectKey');
+    final img = ChatMultiMessageFixtures.image(
+      id: imgId,
+      authorId: selfUid,
+      createdAt: imgBase.add(const Duration(milliseconds: 5)),
+      remoteUri: imgObjectKey,
+      width: 8,
+      height: 8,
+      size: ChatMultiImageFixture.pngBytes.length,
+      peerId: peerUid,
+      runNonce: '$nonce',
+    );
+    final imgOk = await notifier.addMessage(
+      selfUid,
+      peerUid,
+      '',
+      peerTitle,
+      'C2C',
+      img,
+    );
+    expect(imgOk, isTrue, reason: 'image fixture 经 provider 发送应成功');
+    await notifier.chatService?.insertMessage(
+      img,
+      index: notifier.chatService?.messages.length ?? 0,
+    );
     await settle(tester, maxSeconds: 2);
     await takeScreenshot(tester, 'w3kbnd_01_source_ready');
 
@@ -104,7 +146,15 @@ void main() {
         journey: 'W3K-BND',
       );
     }
-    expectSelectionCount(tester, 3);
+    // 图片行无文本 marker：按 messageId 定位（driver 生产通道/checkbox key
+    // 双通道，select 旅程同款）。
+    await toggleMessageSelection(
+      tester,
+      find.byType(ChatPage),
+      messageId: imgId,
+      journey: 'W3K-BND',
+    );
+    expectSelectionCount(tester, 4);
 
     // G6-3：tapViaNewGesture + 效果校验重试。效果 = SendToPage 出现（目标
     // 选择形态）/ 多选 action bar 消失（直发形态已受理并退出多选）/ 本轮
@@ -415,7 +465,11 @@ void main() {
         reason: '对端 bundle 行 title 应与发送端一致（期望 $expectedTitle）',
       );
       final entries = (payload['entries'] as List?) ?? const [];
-      expect(entries.length, 3, reason: 'entries 应为 3 条（实际 ${entries.length}）');
+      expect(
+        entries.length,
+        4,
+        reason: 'entries 应为 4 条（3 文本 + 1 图片，实际 ${entries.length}）',
+      );
       final texts = <String?>[
         for (final e in entries)
           () {

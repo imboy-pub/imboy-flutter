@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/i18n/strings.g.dart';
+import 'package:imboy/service/account_draft_store.dart';
 import 'package:imboy/page/chat/widget/chat_input.dart';
 import 'package:imboy/service/account_local_task_registry.dart';
 import 'package:imboy/service/storage.dart';
@@ -48,6 +49,56 @@ void main() {
 
   setUp(() async => StorageService.to.clear());
   tearDown(() async => StorageService.to.clear());
+
+  testWidgets('flushDraft: 不等 300ms 防抖，草稿立即落盘（W5 G1-8 收口）', (tester) async {
+    await tester.pumpWidget(const SizedBox.shrink());
+    await StorageService.to.setString(Keys.currentUid, '1001');
+    final height = ValueNotifier<double>(52);
+    addTearDown(height.dispose);
+    final inputKey = GlobalKey<ChatInputState>();
+    await tester.pumpWidget(
+      ProviderScope(
+        child: TranslationProvider(
+          child: MaterialApp(
+            home: Scaffold(
+              body: ChatInput(
+                key: inputKey,
+                type: 'C2G',
+                peerId: '995301',
+                composerHeight: height,
+                onSendPressed: (_) async => true,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.pump();
+
+    await tester.enterText(
+      find.byKey(const Key('chat_message_input')),
+      '最后一段输入',
+    );
+    await tester.pump(); // 只推进一帧，不跨 300ms 防抖
+    expect(
+      AccountDraftStore.capture('C2G', '995301').read().text,
+      isNot('最后一段输入'),
+      reason: '防抖未到期，草稿不应已落盘',
+    );
+
+    inputKey.currentState!.flushDraft();
+    // 草稿落盘链是异步（persistPreference→StorageService.setString）：给
+    // 足帧预算让 Future 链走完（等价既有用例 350ms 的处理预算）。断言走
+    // AccountDraftStore.read()（键名经 ChatDraftKeys 命名空间，不用裸字面量）。
+    await tester.pump(const Duration(milliseconds: 150));
+    await tester.pump(const Duration(milliseconds: 150));
+    await tester.pump(const Duration(milliseconds: 150));
+    expect(
+      AccountDraftStore.capture('C2G', '995301').read().text,
+      '最后一段输入',
+      reason: 'flushDraft 立即执行挂起的防抖回调（进多选前不丢最后输入）',
+    );
+  });
 
   testWidgets('conversation summary reads only the current account draft', (
     tester,
