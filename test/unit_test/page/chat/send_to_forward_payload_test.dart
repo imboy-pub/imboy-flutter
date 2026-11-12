@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:imboy/modules/messaging/application/history_bundle/history_bundle_types.dart';
 import 'package:imboy/page/chat/send_to/send_to_provider.dart';
 import 'package:imboy/i18n/strings.g.dart';
 
@@ -104,6 +105,33 @@ void main() {
       );
       expect(
         SendToNotifier.forwardFailureToast('attachment_forward_upload_failed'),
+        t.common.sendFailed,
+      );
+    });
+
+    // A4FIX 复审 F1：合并转发（bundle_forward_dispatcher）的同一语义拒绝
+    // 走 HistoryBundleBuildErrorCode.rejectedPlaintextTarget，须与单条转发
+    // 复用同一专属文案（无新 i18n 键），策略性永久拒绝才可被用户辨识。
+    test('合并转发明文目标拒绝（rejected_plaintext_target）→ 同一专属文案', () {
+      expect(
+        SendToNotifier.forwardFailureToast(
+          HistoryBundleBuildErrorCode.rejectedPlaintextTarget,
+        ),
+        t.common.e2eeErrForwardPlaintextTarget,
+      );
+    });
+
+    test('合并转发其余构建侧错误码 → 通用 sendFailed（不误配专属文案）', () {
+      expect(
+        SendToNotifier.forwardFailureToast(
+          HistoryBundleBuildErrorCode.payloadTooLarge,
+        ),
+        t.common.sendFailed,
+      );
+      expect(
+        SendToNotifier.forwardFailureToast(
+          HistoryBundleBuildErrorCode.rejectedStatusSending,
+        ),
         t.common.sendFailed,
       );
     });

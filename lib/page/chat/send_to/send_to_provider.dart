@@ -12,6 +12,7 @@ import 'package:imboy/store/repository/conversation_repo_sqlite.dart';
 import 'package:imboy/store/repository/message_repo_sqlite.dart';
 import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/i18n/strings.g.dart';
+import 'package:imboy/modules/messaging/application/history_bundle/history_bundle_types.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/service/message_type_constants.dart';
 import 'package:imboy/service/message_type_normalizer.dart';
@@ -140,15 +141,24 @@ class SendToNotifier extends Notifier<SendToState> {
     return E2EEService.shouldEncryptOutgoingPayload(chatType, toId: peerId);
   }
 
-  /// 加密附件转发失败 → 用户可见文案（既有 i18n 机制）。
+  /// 转发失败稳定码 → 用户可见文案（既有 i18n 机制）。
   ///
-  /// - 明文目标域拒绝 / 源不可解密 → 专用键（10 locale）；
-  /// - 下载/上传等基础设施失败 → 既有通用 [Translatables.common.sendFailed]
-  ///   （send_to_page 对 failCount 的汇总提示同源）。
-  @visibleForTesting
+  /// 生产入口：单条转发（sendMsg）与合并转发
+  /// （bundle_forward_dispatcher.forwardAsHistoryBundle，A4FIX F1）共用，
+  /// 策略性拒绝与基础设施失败因此可辨识。测试经同函数断言映射。
+  ///
+  /// - 明文目标域拒绝（单条 `attachment_forward_plaintext_target` /
+  ///   合并 `rejected_plaintext_target`）/ 源不可解密 → 专用键（10 locale）；
+  /// - 其余（下载/上传等基础设施失败、bundle 构建侧错误码）→ 既有通用
+  ///   [Translatables.common.sendFailed]（send_to_page 对 failCount 的
+  ///   汇总提示同源）。
   static String forwardFailureToast(String reason) {
     switch (reason) {
       case 'attachment_forward_plaintext_target':
+      // A4FIX 复审 F1：合并转发（bundle_forward_dispatcher）同一语义拒绝
+      // 走 HistoryBundleBuildErrorCode.rejectedPlaintextTarget，复用同一
+      // 专属文案（无新 i18n 键），与单条转发可辨识性对齐。
+      case HistoryBundleBuildErrorCode.rejectedPlaintextTarget:
         return t.common.e2eeErrForwardPlaintextTarget;
       case 'attachment_forward_undecryptable':
       case 'attachment_forward_open_failed':

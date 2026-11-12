@@ -101,6 +101,18 @@ class _RecordingForwarder implements BundleAttachmentForwarder {
   }
 }
 
+/// 抛普通 Exception 的转发 fake（附件下载/上传等基础设施失败形态）。
+class _ThrowingForwarder implements BundleAttachmentForwarder {
+  const _ThrowingForwarder();
+
+  @override
+  Future<Map<String, dynamic>> forwardAttachment(
+    BundleAttachmentForwardRequest request,
+  ) async {
+    throw Exception('attachment upload failed');
+  }
+}
+
 void main() {
   setUp(() {
     AppFeatureRegistry.replaceSnapshotForTest(<String, dynamic>{
@@ -667,6 +679,90 @@ void main() {
       // 落库：model.type=C2G 且插表走 msg_c2g（chatType=C2G）
       expect(inserted.single.type, 'C2G');
       expect(insertChatTypes, everyElement('C2G'));
+    });
+
+    test(
+      'F4：非 Bundle 异常（附件上传失败）→ bundle_send_failed，不误标 payloadTooLarge',
+      () async {
+        final rows = <String, MessageModel>{
+          // 明文附件源（无 descriptor）：不触发加密判定，异常来自转发适配器
+          'm1': _sourceRow(
+            'm1',
+            1000,
+            msgType: 'file',
+            payload: <String, dynamic>{'uri': 'obj/old-key'},
+          ),
+        };
+        final inserted = <MessageModel>[];
+        final dispatcher = BundleForwardDispatcher(
+          messageFetcher: (id, chatType) async => rows[id],
+          messageInserter: (model, chatType) async => inserted.add(model),
+          forwarderUidResolver: () => _uid,
+          attachmentForwarder: const _ThrowingForwarder(),
+          targetEncryptedResolver: (chatType, peerId) async => true,
+        );
+
+        final report = await dispatcher.sendToTargets(
+          [_target(1, '1000000056')],
+          [_uiMessage('m1')],
+          sourceChatType: 'C2C',
+        );
+
+        expect(report.successCount, 0);
+        expect(
+          report.failures.single.errorCode,
+          HistoryBundleBuildErrorCode.sendFailed,
+          reason:
+              '基础设施失败须归一专用稳定码（含 resolver 的 '
+              'policy_not_initialized 等非 bundle 异常）',
+        );
+        expect(
+          report.failures.single.errorCode,
+          isNot(HistoryBundleBuildErrorCode.payloadTooLarge),
+          reason: '尺寸语义不得被借用为泛化失败码（F4 误标本体）',
+        );
+        expect(inserted, isEmpty, reason: '失败目标零落库（无半转发状态）');
+      },
+    );
+
+    test('F4 负向：BundleForwardException 保留原码（不被归一覆盖）', () async {
+      final rows = <String, MessageModel>{
+        'm1': _sourceRow(
+          'm1',
+          1000,
+          msgType: 'file',
+          payload: <String, dynamic>{
+            'uri': 'obj/old-key',
+            'attachment_descriptor': <String, dynamic>{'k': 'v'},
+          },
+        ),
+      };
+      final inserted = <MessageModel>[];
+      final dispatcher = BundleForwardDispatcher(
+        messageFetcher: (id, chatType) async => rows[id],
+        messageInserter: (model, chatType) async => inserted.add(model),
+        forwarderUidResolver: () => _uid,
+        attachmentForwarder: _RecordingForwarder(),
+        targetEncryptedResolver: (chatType, peerId) async => false,
+      );
+
+      final report = await dispatcher.sendToTargets(
+        [_target(1, '1000000056')],
+        [_uiMessage('m1')],
+        sourceChatType: 'C2C',
+      );
+
+      expect(report.successCount, 0);
+      expect(
+        report.failures.single.errorCode,
+        HistoryBundleBuildErrorCode.rejectedPlaintextTarget,
+        reason: '策略性拒绝的原码语义优先于基础设施归一码',
+      );
+      expect(
+        report.failures.single.errorCode,
+        isNot(HistoryBundleBuildErrorCode.sendFailed),
+      );
+      expect(inserted, isEmpty);
     });
   });
 }

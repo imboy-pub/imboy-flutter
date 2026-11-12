@@ -81,4 +81,11 @@ abstract final class HistoryBundleBuildErrorCode {
   /// 与单条转发 AttachmentForward.decide → ForwardRejected 同语义）：
   /// 新 content key/descriptor 不允许进明文 bundle（冻结合同 §4.5）。
   static const String rejectedPlaintextTarget = 'rejected_plaintext_target';
+
+  /// 发送编排侧的基础设施失败归一码（A4FIX 复审 F4）：附件下载/上传、
+  /// resolver 策略未就绪（policy_not_initialized）等**非 bundle 构建**
+  /// 异常。不与「payload 尺寸超限」（[payloadTooLarge]）混用，也不向
+  /// UI/日志泄漏异常细节；仅发送编排（BundleForwardDispatcher）产生，
+  /// 不进入 bundle 构建侧判定。**只增不改语义**。
+  static const String sendFailed = 'bundle_send_failed';
 }

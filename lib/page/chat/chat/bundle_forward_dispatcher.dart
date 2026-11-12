@@ -263,7 +263,15 @@ class BundleForwardDispatcher {
                 t.chat.forwardedToChats(count: targets.length),
               );
             } else {
-              AppLoading.showError(t.common.sendFailed);
+              // F1（A4FIX 复审）：失败文案与单条转发同一映射口径
+              // （SendToNotifier.forwardFailureToast）——策略性永久拒绝
+              // （rejected_plaintext_target → e2eeErrForwardPlaintextTarget，
+              // 既有键复用、无新 i18n）与瞬时基础设施失败（→ sendFailed）
+              // 可辨识，避免用户对恒拒目标盲目重试。
+              final code = report.failures.isEmpty
+                  ? ''
+                  : report.failures.first.errorCode;
+              AppLoading.showError(SendToNotifier.forwardFailureToast(code));
             }
             return report.allSuccess;
           },
@@ -342,11 +350,14 @@ class BundleForwardDispatcher {
       } on BundleForwardException catch (e) {
         failures.add(BundleForwardTargetFailure(target.uk3, e.code));
       } on Exception catch (_) {
-        // 附件下载/上传等异常：稳定码归一（不落库、无半转发状态）。
+        // F4（A4FIX 复审）：附件下载/上传等基础设施失败（含 resolver 的
+        // policy_not_initialized）归一专用稳定码——不再误标 payloadTooLarge
+        // （尺寸语义有专属判定），也不向日志泄漏异常对象（Finding 014）。
+        // 不落库、无半转发状态。
         failures.add(
           BundleForwardTargetFailure(
             target.uk3,
-            HistoryBundleBuildErrorCode.payloadTooLarge,
+            HistoryBundleBuildErrorCode.sendFailed,
           ),
         );
       }
