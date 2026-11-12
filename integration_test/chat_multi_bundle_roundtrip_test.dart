@@ -198,6 +198,16 @@ void main() {
             .metadata?['title']
             ?.toString() ??
         '';
+    // 缩略图契约的 bubble 元数据必须在 **tap 之前** 读取：详情页打开后
+    // 聊天页气泡已不在树上，回头读 currentBubble 会 StateError（W5-D r1
+    // 实证：详情页断言全过后在 :256 处 No element → 整旅程挂死）。
+    final bundleMetaBeforeTap = Map<String, dynamic>.from(
+      tester
+              .widget<HistoryBundleMessageBuilder>(currentBubble.first)
+              .message
+              .metadata ??
+          const <String, dynamic>{},
+    );
     await takeScreenshot(tester, 'w3kbnd_02_bubble_echo');
     // G6-3：气泡 tap 统一 tapViaNewGesture + 效果校验重试（单发 tester.tap
     // 违背 driver 指针卫生结论）；效果 = 详情页出现。
@@ -251,13 +261,7 @@ void main() {
     // entry 渲染：本轮 bundle 为纯文本 entries，断言按「entries 含图片」
     // 门控；含图片时要求至少一个 thumb key 匹配（fallback：至少一个 Image
     // widget 存在且非 errorBuilder 占位由 G2 侧 detail page 自测承担）。
-    final bundleMeta = Map<String, dynamic>.from(
-      tester
-              .widget<HistoryBundleMessageBuilder>(currentBubble.first)
-              .message
-              .metadata ??
-          const <String, dynamic>{},
-    );
+    final bundleMeta = bundleMetaBeforeTap;
     final hasImageEntry = historyBundleEntries(bundleMeta).any(
       (e) =>
           e['msg_type'] == 'image' ||
