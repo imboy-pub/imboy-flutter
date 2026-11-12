@@ -794,7 +794,8 @@ class ChatNetworkService {
       if (!current()) return false;
       // Finding 014：WS 发送异常可能回显报文内容，只记类型
       iPrint(
-        '❌ [sendWithRetry] 消息发送失败: msgId=$messageId, errType=${e.runtimeType}',
+        '❌ [sendWithRetry] 消息发送失败: msgId=$messageId, errType=${e.runtimeType}, '
+        'stack=${e is Error ? e.stackTrace.toString().split('\n').take(5).join(' | ') : ''}',
       );
       await updateMessageStatus(messageId, IMBoyMessageStatus.error);
       return false;
