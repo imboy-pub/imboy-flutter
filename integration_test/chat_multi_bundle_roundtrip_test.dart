@@ -150,11 +150,12 @@ void main() {
       );
     }
     // 会话内可能残留历史轮次的 bundle 气泡（设备 SQLite 跨轮持久）：按本轮
-    // title 精确定位当前气泡再点，避免点开旧轮快照导致 title 对账失败。
+    // 独有的源 marker（nonce 内嵌）定位当前气泡再点。生产 title 取
+    // widget.peerTitle（会话名），与测试 nonce 无关，不得按 title 找。
     final currentBubble = find.byWidgetPredicate(
       (w) =>
           w is HistoryBundleMessageBuilder &&
-          (w.message.metadata?['title']?.toString() ?? '').contains(bundleTitle),
+          '${w.message.metadata?['entries'] ?? ''}'.contains(m1),
     );
     final currentShown = await waitForFinder(
       tester,
@@ -163,8 +164,15 @@ void main() {
       screenshotName: 'w3kbnd_diag_no_current_bubble',
     );
     if (!currentShown) {
-      fail('未找到本轮 title=$bundleTitle 对应的 history_bundle 气泡');
+      fail('未找到本轮（marker=$m1）对应的 history_bundle 气泡');
     }
+    final expectedTitle =
+        tester
+            .widget<HistoryBundleMessageBuilder>(currentBubble.first)
+            .message
+            .metadata?['title']
+            ?.toString() ??
+        '';
     await takeScreenshot(tester, 'w3kbnd_02_bubble_echo');
     await tester.tap(
       find
@@ -194,9 +202,14 @@ void main() {
     // 详情页断言：title 与 3 条 entry 文本渲染（W3-I detailPage 渲染 bundle
     // 快照；快照来自消息 metadata，不回查原会话）。
     expect(
-      tester.any(find.textContaining(bundleTitle)),
+      expectedTitle.isNotEmpty,
       isTrue,
-      reason: '详情页应渲染 bundle title=$bundleTitle',
+      reason: '气泡 metadata 应携带 bundle title（生产=会话名）',
+    );
+    expect(
+      tester.any(find.textContaining(expectedTitle)),
+      isTrue,
+      reason: '详情页应渲染 bundle title=$expectedTitle',
     );
     for (final marker in [m1, m2, m3]) {
       expect(
