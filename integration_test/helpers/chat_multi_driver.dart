@@ -141,6 +141,36 @@ Future<void> enterMultiSelectViaMenu(
     reason: '$journey 进入多选后 action bar（multi_select_cancel）应出现',
   );
   expectSelectionCount(tester, 1);
+  await flushPendingPointerPacket(tester);
+}
+
+/// 冲刷进入多选转场后引擎侧挂起的 pointer packet（真机 live binding 特有）。
+///
+/// DEV-01 probe1-3 证据：进入多选（leading 头像↔勾选框、输入区↔action bar
+/// 双重布局切换）后，首个注入 tap 间歇性在引擎 packet 边界被延迟/丢弃 ——
+/// probe1/probe2 入场后首个 tap 不注册（计数不变），probe3 迟到的 packet 与
+/// 下一次 tap 一并生效（一次勾了两条）。生产侧勾选 GestureDetector 无缺陷
+/// （命中即正确切换，probe2 traits 全 selectable=true），修复在 driver 层：
+/// 以 action bar 计数文本（无任何手势处理器，tap 零副作用）作牺牲 tap 吸收
+/// 首个挂起 packet；随后真延时 > kDoubleTapTimeout（300ms）排帧，保证后续
+/// 勾选 tap 全部落在稳定的手势管线上。
+Future<void> flushPendingPointerPacket(WidgetTester tester) async {
+  final warm = find.byKey(ChatMultiKeys.count);
+  if (tester.any(warm)) {
+    await tester.tap(warm.first, warnIfMissed: false);
+  }
+  await pacedWait(tester, 350);
+  await settle(tester, maxSeconds: 1);
+}
+
+/// 双时钟安全等待 [ms] 毫秒：真机 live binding 走真实时钟（Future.delayed
+/// 生效）；本地 widget 冒烟走 fake binding —— pump 推进假时钟触发同一
+/// timer。顺序必须「先建 timer → pump 推进 → await」，先 await 后 pump 会
+/// 在 fake binding 死锁（pumpAndSettle 在无挂起帧时不推进假时钟）。
+Future<void> pacedWait(WidgetTester tester, int ms) async {
+  final waiter = Future<void>.delayed(Duration(milliseconds: ms));
+  await tester.pump(Duration(milliseconds: ms));
+  await waiter;
 }
 
 /// 在多选模式下切换某条消息的勾选态。
@@ -170,6 +200,13 @@ Future<void> toggleMessageSelection(
 
   final before = actionBarSelectedCount(tester);
   for (var attempt = 1; attempt <= maxAttempts; attempt++) {
+    if (attempt > 1) {
+      // 重试间隔必须跨过 kDoubleTapTimeout（300ms）与引擎 packet 交付窗口：
+      // fix-pass1-r2/final-pass1 中 270-300ms 间隔的连续重试三次全吞
+      // （probe3 证实机器速度连续 tap 会被合并/误投），350ms 节流等待
+      // 让每次重试都是独立 tap。
+      await pacedWait(tester, 350);
+    }
     // tap 前排帧：入场动画/弹层退出/图片加载循环挂起的帧先落定，
     // 保证命中在稳定布局上（首次勾选间歇性丢失的主因）。
     await settle(tester, maxSeconds: 2);
