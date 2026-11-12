@@ -270,3 +270,9 @@ exportLabelExportedAt: "Exporté le"
 exportLabelCount: "Nombre"
 exportHtmlTitle: "Historique de chat IMBoy"
 exportHtmlLang: "fr-FR"
+
+# W5 代码审查修复波次新增键（RUN chat-multi-20261111 / 2026-11-12）。
+unknownSender: Expéditeur inconnu
+fileWithNameSize(name,size): "$name ($size)"
+voiceDurationSeconds(seconds): "$seconds s"
+bundleInvalidOrEmpty: Historique invalide ou vide

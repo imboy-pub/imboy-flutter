@@ -270,3 +270,9 @@ exportLabelExportedAt: "Время экспорта"
 exportLabelCount: "Количество"
 exportHtmlTitle: "История чата IMBoy"
 exportHtmlLang: "ru-RU"
+
+# W5 代码审查修复波次新增键（RUN chat-multi-20261111 / 2026-11-12）。
+unknownSender: Неизвестный отправитель
+fileWithNameSize(name,size): "$name ($size)"
+voiceDurationSeconds(seconds): "$seconds с"
+bundleInvalidOrEmpty: Неверная или пустая история чата

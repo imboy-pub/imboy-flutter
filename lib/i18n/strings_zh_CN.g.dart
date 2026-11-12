@@ -2246,6 +2246,18 @@ class Translations$chat$zh_CN {
 
 	/// zh-CN: 'zh-CN'
 	String get exportHtmlLang => 'zh-CN';
+
+	/// zh-CN: '未知发送者'
+	String get unknownSender => '未知发送者';
+
+	/// zh-CN: '$name（$size）'
+	String fileWithNameSize({required Object name, required Object size}) => '${name}（${size}）';
+
+	/// zh-CN: '$seconds″'
+	String voiceDurationSeconds({required Object seconds}) => '${seconds}″';
+
+	/// zh-CN: '聊天记录无效或为空'
+	String get bundleInvalidOrEmpty => '聊天记录无效或为空';
 }
 
 // Path: common
@@ -11904,6 +11916,10 @@ extension on Translations {
 			'chat.exportLabelCount' => '条数',
 			'chat.exportHtmlTitle' => 'IMBoy 聊天记录',
 			'chat.exportHtmlLang' => 'zh-CN',
+			'chat.unknownSender' => '未知发送者',
+			'chat.fileWithNameSize' => ({required Object name, required Object size}) => '${name}（${size}）',
+			'chat.voiceDurationSeconds' => ({required Object seconds}) => '${seconds}″',
+			'chat.bundleInvalidOrEmpty' => '聊天记录无效或为空',
 			'common.about' => '关于',
 			'common.aboutApp' => '关于应用',
 			'common.accept' => '接受',
@@ -12202,12 +12218,12 @@ extension on Translations {
 			'common.tipDraft' => '草稿',
 			'common.tipFailed' => '操作失败！',
 			'common.tipSuccess' => '操作成功！',
+			_ => null,
+		} ?? switch (path) {
 			'common.tipTips' => '小贴士',
 			'common.titleContact' => '联系人',
 			'common.today' => '今天',
 			'common.unknown' => '未知',
-			_ => null,
-		} ?? switch (path) {
 			'common.unknownMessage' => '未知消息',
 			'common.updateLog' => '更新日志',
 			'common.updateNow' => '立即更新',
@@ -12716,12 +12732,12 @@ extension on Translations {
 			'common.e2eeBackupSetupLaterConfirmStay' => '继续设置',
 			'common.e2eeBackupSetupLaterConfirmLeave' => '暂不设置',
 			'common.e2eeBackupSetupSavedNote' => '恢复口令已存入本机安全存储；今后密钥变化时会自动用它重新上传备份，无需再次输入。',
+			_ => null,
+		} ?? switch (path) {
 			'common.e2eeBackupCloudRestoreTitle' => '从云端备份恢复',
 			'common.e2eeBackupCloudRestoreHint' => ({required Object version}) => '检测到云端备份（版本 ${version}）',
 			'common.e2eeBackupCloudRestoreBtn' => '从云端恢复',
 			'common.e2eeBackupCloudRestoreConfirmNote' => '恢复后将覆盖本设备当前的 E2EE 密钥',
-			_ => null,
-		} ?? switch (path) {
 			'common.e2eeBackupCloudPwdHint' => '请输入备份口令',
 			'common.e2eeBackupErrNoCloudBackup' => '云端暂无备份',
 			'common.e2eeBackupErrCloudPwd' => '口令错误或备份损坏',
@@ -13230,12 +13246,12 @@ extension on Translations {
 			'group.groupAlbumNameHint' => '请输入相册名称',
 			'group.groupAlbumRenameTitle' => '重命名相册',
 			'group.groupAlbumRenamed' => '相册名称已更新',
+			_ => null,
+		} ?? switch (path) {
 			'group.groupAlbumUnnamed' => '未命名相册',
 			'group.groupAlbumPhotoCount' => ({required Object count}) => '${count} 张图片',
 			'group.groupAlbumPhotoIdMissing' => '图片ID缺失，无法查看详情',
 			'group.groupAlbumPhotoListTitle' => '相册图片',
-			_ => null,
-		} ?? switch (path) {
 			'group.groupAlbumPhotoSelectedCount' => ({required Object count}) => '已选择 ${count} 项',
 			'group.groupAlbumPhotoEmpty' => '暂无图片',
 			'group.groupAlbumPhotoUrlMissing' => '图片地址缺失，无法打开',
@@ -13744,12 +13760,12 @@ extension on Translations {
 			'organization.departments.archiveFailed' => '归档失败',
 			'organization.departments.emptyWithHint' => '暂无部门，点击右上角新建',
 			'organization.departments.empty' => '暂无部门',
+			_ => null,
+		} ?? switch (path) {
 			'organization.departments.emptySubtitle' => '兼职模型：同一成员可属多个部门；部门成员须先是本企业成员。',
 			'organization.departments.casConflictHint' => '部门已被并发修改，已刷新为最新部门树，请重试操作',
 			'organization.departments.expandNode' => ({required Object name}) => '展开「${name}」',
 			'organization.departments.collapseNode' => ({required Object name}) => '收起「${name}」',
-			_ => null,
-		} ?? switch (path) {
 			'organization.departments.removeMemberUid' => ({required Object userId}) => '移除成员 ${userId}',
 			'organization.departments.removeMemberConfirm' => ({required Object userId, required Object name}) => '将把成员 ${userId} 移出「${name}」。其企业成员资格与在其他部门的身份不受影响（兼职模型）。',
 			'organization.departments.removeMemberFailed' => '移除部门成员失败',
@@ -14258,12 +14274,12 @@ extension on Translations {
 			'talkRecord.grantEditExpiresOn' => ({required Object date}) => '${date} 到期',
 			'talkRecord.grantEditExpiresHint' => '可选；设置后对方到期自动失去访问。',
 			'talkRecord.grantEditSave' => '保存权限',
+			_ => null,
+		} ?? switch (path) {
 			'talkRecord.grantEditSaving' => '处理中…',
 			'talkRecord.grantEditConflict' => '授权已被他人更新，请返回刷新名单后重试；你的设置已保留。',
 			'talkRecord.grantEditSaveFailed' => '保存失败，请稍后重试；你的设置已保留。',
 			'talkRecord.invalidTitle' => '暂时无法查看',
-			_ => null,
-		} ?? switch (path) {
 			'talkRecord.invalidBody' => '该内容当前无法查看，可能不存在或你没有查看权限。',
 			'talkRecord.invalidBack' => '返回',
 			'talkRecord.resultBack' => '返回',

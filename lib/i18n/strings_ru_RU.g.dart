@@ -778,6 +778,10 @@ class _Translations$chat$ru_RU extends Translations$chat$zh_CN {
 	@override String get exportLabelCount => 'Количество';
 	@override String get exportHtmlTitle => 'История чата IMBoy';
 	@override String get exportHtmlLang => 'ru-RU';
+	@override String get unknownSender => 'Неизвестный отправитель';
+	@override String fileWithNameSize({required Object name, required Object size}) => '${name} (${size})';
+	@override String voiceDurationSeconds({required Object seconds}) => '${seconds} с';
+	@override String get bundleInvalidOrEmpty => 'Неверная или пустая история чата';
 }
 
 // Path: common
@@ -4158,6 +4162,10 @@ extension on TranslationsRuRu {
 			'chat.exportLabelCount' => 'Количество',
 			'chat.exportHtmlTitle' => 'История чата IMBoy',
 			'chat.exportHtmlLang' => 'ru-RU',
+			'chat.unknownSender' => 'Неизвестный отправитель',
+			'chat.fileWithNameSize' => ({required Object name, required Object size}) => '${name} (${size})',
+			'chat.voiceDurationSeconds' => ({required Object seconds}) => '${seconds} с',
+			'chat.bundleInvalidOrEmpty' => 'Неверная или пустая история чата',
 			'common.about' => 'О приложении',
 			'common.aboutApp' => 'О приложении',
 			'common.accept' => 'Принять',
@@ -4513,12 +4521,12 @@ extension on TranslationsRuRu {
 			'common.groupAnnouncementDelete' => 'Удалить',
 			'common.groupAnnouncementLoadFailed' => 'Не удалось загрузить объявление, попробуйте позже',
 			'common.groupAnnouncementPublishFailed' => 'Не удалось опубликовать объявление',
+			_ => null,
+		} ?? switch (path) {
 			'common.groupAnnouncementPublishSuccess' => 'Объявление опубликовано',
 			'common.groupAnnouncementDeleteFailed' => 'Не удалось удалить объявление',
 			'common.groupAnnouncementDeleteSuccess' => 'Объявление удалено',
 			'common.privacyClearChatHistory' => 'Очистить историю чата',
-			_ => null,
-		} ?? switch (path) {
 			'common.privacyClearChatHistoryConfirm' => 'Вы уверены, что хотите очистить всю историю чата? Это действие нельзя отменить.',
 			'common.privacyLogoutAccountConfirm' => 'Удалить аккаунт? Это действие окончательно удалит аккаунт и все данные. Его нельзя отменить.',
 			'common.privacySettings' => 'Настройки конфиденциальности',
@@ -5027,12 +5035,12 @@ extension on TranslationsRuRu {
 			'common.e2eeUseRecoveryKey' => 'Создать ключ восстановления (запасной доступ при забытой парольной фразе)',
 			'common.enterAmount' => 'Введите сумму',
 			'common.expandFull' => 'Развернуть',
+			_ => null,
+		} ?? switch (path) {
 			'common.f2fEnteringGroup' => ({required Object count}) => 'К групповому чату присоединились: ${count} чел.',
 			'common.f2fSecretCode' => 'Секретный код',
 			'common.hoursAgo' => 'ч. назад',
 			'common.minutesAgo' => 'мин. назад',
-			_ => null,
-		} ?? switch (path) {
 			'common.initConfigDecryptFailed' => 'Не удалось расшифровать конфигурацию: ключ безопасности приложения не совпадает с серверным. Обновите приложение или обратитесь к администратору',
 			'common.justNow' => 'Только что',
 			'common.me' => 'Я',
@@ -5541,12 +5549,12 @@ extension on TranslationsRuRu {
 			'main.correct' => 'Верно',
 			'main.pendingInput' => 'Ожидание ввода',
 			'main.lengthCheck' => 'Проверка длины',
+			_ => null,
+		} ?? switch (path) {
 			'main.bugReport' => 'Сообщить об ошибке',
 			'main.deleting' => 'Удаление...',
 			'main.publish' => 'Опубликовать',
 			'main.privacyPolicy' => 'Политика конфиденциальности',
-			_ => null,
-		} ?? switch (path) {
 			'main.termsOfService' => 'Условия использования',
 			'main.saving' => _root.common.loading,
 			'main.systemDefault' => 'По умолчанию системы',
@@ -6055,12 +6063,12 @@ extension on TranslationsRuRu {
 			'organization.chart.expand' => 'Развернуть отделы',
 			'organization.chart.collapse' => 'Свернуть отделы',
 			'organization.chart.gestureHint' => 'Перетаскивайте для просмотра · Масштаб щипком',
+			_ => null,
+		} ?? switch (path) {
 			'organization.chart.directMembers' => ({required Object count}) => 'Прямые подчинённые: ${count}',
 			'organization.experienceUi.switchSpace' => 'Переключить пространство',
 			'organization.experienceUi.personalSpace' => 'Личное пространство',
 			'organization.experienceUi.enterpriseSpaces' => 'Корпоративные пространства',
-			_ => null,
-		} ?? switch (path) {
 			'organization.experienceUi.currentSpace' => 'Текущее пространство',
 			'organization.experienceUi.enterpriseInfo' => 'Данные организации',
 			'organization.experienceUi.collaborationSpace' => 'Пространства для совместной работы',

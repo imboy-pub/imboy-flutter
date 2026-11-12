@@ -269,3 +269,9 @@ exportLabelExportedAt: "導出時間"
 exportLabelCount: "條數"
 exportHtmlTitle: "IMBoy 聊天記錄"
 exportHtmlLang: "zh-Hant"
+
+# W5 代码审查修复波次新增键（RUN chat-multi-20261111 / 2026-11-12）。
+unknownSender: 未知發送者
+fileWithNameSize(name,size): "$name（$size）"
+voiceDurationSeconds(seconds): "$seconds″"
+bundleInvalidOrEmpty: 聊天記錄無效或為空

@@ -778,6 +778,10 @@ class _Translations$chat$ar_SA extends Translations$chat$zh_CN {
 	@override String get exportLabelCount => 'العدد';
 	@override String get exportHtmlTitle => 'سجل محادثات IMBoy';
 	@override String get exportHtmlLang => 'ar-SA';
+	@override String get unknownSender => 'مُرسل غير معروف';
+	@override String fileWithNameSize({required Object name, required Object size}) => '${name} (${size})';
+	@override String voiceDurationSeconds({required Object seconds}) => '${seconds} ث';
+	@override String get bundleInvalidOrEmpty => 'سجل محادثة غير صالح أو فارغ';
 }
 
 // Path: common
@@ -4161,6 +4165,10 @@ extension on TranslationsArSa {
 			'chat.exportLabelCount' => 'العدد',
 			'chat.exportHtmlTitle' => 'سجل محادثات IMBoy',
 			'chat.exportHtmlLang' => 'ar-SA',
+			'chat.unknownSender' => 'مُرسل غير معروف',
+			'chat.fileWithNameSize' => ({required Object name, required Object size}) => '${name} (${size})',
+			'chat.voiceDurationSeconds' => ({required Object seconds}) => '${seconds} ث',
+			'chat.bundleInvalidOrEmpty' => 'سجل محادثة غير صالح أو فارغ',
 			'common.about' => 'حول',
 			'common.aboutApp' => 'حول التطبيق',
 			'common.accept' => 'قبول',
@@ -4516,12 +4524,12 @@ extension on TranslationsArSa {
 			'common.groupAnnouncementDelete' => 'حذف',
 			'common.groupAnnouncementLoadFailed' => 'تعذّر تحميل الإعلان، حاول لاحقاً',
 			'common.groupAnnouncementPublishFailed' => 'تعذّر نشر الإعلان',
+			_ => null,
+		} ?? switch (path) {
 			'common.groupAnnouncementPublishSuccess' => 'تم نشر الإعلان',
 			'common.groupAnnouncementDeleteFailed' => 'تعذّر حذف الإعلان',
 			'common.groupAnnouncementDeleteSuccess' => 'تم حذف الإعلان',
 			'common.privacyClearChatHistory' => 'مسح سجل الدردشة',
-			_ => null,
-		} ?? switch (path) {
 			'common.privacyClearChatHistoryConfirm' => 'هل أنت متأكد من مسح جميع سجلات الدردشة؟ هذا الإجراء لا يمكن التراجع عنه.',
 			'common.privacyLogoutAccountConfirm' => 'هل أنت متأكد من إلغاء الحساب؟ سيتم حذف حسابك وجميع بياناتك بشكل دائم، ولا يمكن التراجع عن هذا الإجراء.',
 			'common.privacySettings' => 'إعدادات الخصوصية',
@@ -5030,12 +5038,12 @@ extension on TranslationsArSa {
 			'common.uploadPartialFailed' => ({required Object count}) => 'فشل رفع ${count} عنصراً',
 			'common.momentsHasFailedUploads' => 'فشل رفع بعض الوسائط، أعد المحاولة أو أزلها ثم انشر',
 			'common.f2fEnteringGroup' => ({required Object count}) => 'انضم ${count} أشخاص إلى الدردشة الجماعية',
+			_ => null,
+		} ?? switch (path) {
 			'common.f2fSecretCode' => 'الرمز السري',
 			'common.complianceKeyChangedTitle' => 'تم تغيير مفتاح تدقيق الامتثال',
 			'common.complianceKeyChangedActionConfirm' => 'تأكيد التدوير',
 			'common.complianceKeyChangedActionKeep' => 'تأكيد لاحقاً',
-			_ => null,
-		} ?? switch (path) {
 			'common.complianceKeyChangedBody' => 'المفتاح العام لتدقيق الامتثال الصادر من الخادم لا يطابق القيمة المثبتة محلياً. إذا كان هذا تدويراً مقصوداً للمفتاح من المسؤول، فانقر على «تأكيد التدوير»؛ وإلا فلا تُكمل إرسال الرسائل المشفّرة، واتصل بالمسؤول للتحقق.',
 			'common.e2eeErrPeerNotOnboarded' => 'لم يسجّل الطرف الآخر الدخول على أي جهاز بعد، فلا يمكن الإرسال المشفّر مؤقتاً؛ انتظر تسجيل دخوله ثم أعد المحاولة',
 			'common.e2eeRecoveryKeyTitle' => 'مفتاح الاستعادة',
@@ -5544,12 +5552,12 @@ extension on TranslationsArSa {
 			'main.correct' => 'صحيح',
 			'main.pendingInput' => 'في انتظار الإدخال',
 			'main.lengthCheck' => 'فحص الطول',
+			_ => null,
+		} ?? switch (path) {
 			'main.bugReport' => 'تقرير خطأ',
 			'main.deleting' => 'جارٍ الحذف...',
 			'main.publish' => 'نشر',
 			'main.privacyPolicy' => 'سياسة الخصوصية',
-			_ => null,
-		} ?? switch (path) {
 			'main.termsOfService' => 'شروط الخدمة',
 			'main.saving' => _root.common.loading,
 			'main.systemDefault' => 'الافتراضي للنظام',
@@ -6058,12 +6066,12 @@ extension on TranslationsArSa {
 			'organization.chart.expand' => 'توسيع الأقسام الفرعية',
 			'organization.chart.collapse' => 'طي الأقسام الفرعية',
 			'organization.chart.gestureHint' => 'اسحب للتنقل · اقرص للتكبير والتصغير',
+			_ => null,
+		} ?? switch (path) {
 			'organization.chart.directMembers' => ({required Object count}) => 'المرتبطون المباشرون: ${count}',
 			'organization.experienceUi.switchSpace' => 'تبديل المساحة',
 			'organization.experienceUi.personalSpace' => 'المساحة الشخصية',
 			'organization.experienceUi.enterpriseSpaces' => 'مساحات المؤسسة',
-			_ => null,
-		} ?? switch (path) {
 			'organization.experienceUi.currentSpace' => 'المساحة الحالية',
 			'organization.experienceUi.enterpriseInfo' => 'بيانات المؤسسة',
 			'organization.experienceUi.collaborationSpace' => 'مساحات التعاون',

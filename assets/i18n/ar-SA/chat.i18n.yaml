@@ -270,3 +270,9 @@ exportLabelExportedAt: "وقت التصدير"
 exportLabelCount: "العدد"
 exportHtmlTitle: "سجل محادثات IMBoy"
 exportHtmlLang: "ar-SA"
+
+# W5 代码审查修复波次新增键（RUN chat-multi-20261111 / 2026-11-12）。
+unknownSender: مُرسل غير معروف
+fileWithNameSize(name,size): "$name ($size)"
+voiceDurationSeconds(seconds): "$seconds ث"
+bundleInvalidOrEmpty: سجل محادثة غير صالح أو فارغ

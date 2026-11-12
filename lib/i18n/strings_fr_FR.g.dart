@@ -778,6 +778,10 @@ class _Translations$chat$fr_FR extends Translations$chat$zh_CN {
 	@override String get exportLabelCount => 'Nombre';
 	@override String get exportHtmlTitle => 'Historique de chat IMBoy';
 	@override String get exportHtmlLang => 'fr-FR';
+	@override String get unknownSender => 'Expéditeur inconnu';
+	@override String fileWithNameSize({required Object name, required Object size}) => '${name} (${size})';
+	@override String voiceDurationSeconds({required Object seconds}) => '${seconds} s';
+	@override String get bundleInvalidOrEmpty => 'Historique invalide ou vide';
 }
 
 // Path: common
@@ -4152,6 +4156,10 @@ extension on TranslationsFrFr {
 			'chat.exportLabelCount' => 'Nombre',
 			'chat.exportHtmlTitle' => 'Historique de chat IMBoy',
 			'chat.exportHtmlLang' => 'fr-FR',
+			'chat.unknownSender' => 'Expéditeur inconnu',
+			'chat.fileWithNameSize' => ({required Object name, required Object size}) => '${name} (${size})',
+			'chat.voiceDurationSeconds' => ({required Object seconds}) => '${seconds} s',
+			'chat.bundleInvalidOrEmpty' => 'Historique invalide ou vide',
 			'common.about' => 'À propos',
 			'common.aboutApp' => 'À propos de l\'application',
 			'common.accept' => 'Accepter',
@@ -4507,12 +4515,12 @@ extension on TranslationsFrFr {
 			'common.groupAnnouncementDelete' => 'Supprimer',
 			'common.groupAnnouncementLoadFailed' => 'Chargement de l\'annonce impossible. Réessayez plus tard.',
 			'common.groupAnnouncementPublishFailed' => 'Publication de l\'annonce impossible',
+			_ => null,
+		} ?? switch (path) {
 			'common.groupAnnouncementPublishSuccess' => 'Annonce publiée',
 			'common.groupAnnouncementDeleteFailed' => 'Suppression de l\'annonce impossible',
 			'common.groupAnnouncementDeleteSuccess' => 'Annonce supprimée',
 			'common.privacyClearChatHistory' => 'Effacer l\'historique de conversation',
-			_ => null,
-		} ?? switch (path) {
 			'common.privacyClearChatHistoryConfirm' => 'Confirmer l\'effacement de tout l\'historique de conversation ? Cette action est irréversible.',
 			'common.privacyLogoutAccountConfirm' => 'Confirmer la suppression du compte ? Cette action supprimera définitivement votre compte et toutes vos données, et ne peut pas être annulée.',
 			'common.privacySettings' => 'Paramètres de confidentialité',
@@ -5021,12 +5029,12 @@ extension on TranslationsFrFr {
 			'common.e2eeUseRecoveryKey' => 'Générer une clé de récupération (secours en cas d\'oubli de la phrase secrète)',
 			'common.enterAmount' => 'Veuillez saisir le montant',
 			'common.expandFull' => 'Développer',
+			_ => null,
+		} ?? switch (path) {
 			'common.f2fEnteringGroup' => ({required Object count}) => '${count} personnes ont rejoint le groupe',
 			'common.f2fSecretCode' => 'Code secret',
 			'common.hoursAgo' => 'h',
 			'common.initConfigDecryptFailed' => 'Échec du déchiffrement de la configuration : la clé de sécurité de l\'application et celle du serveur ne correspondent pas. Mettez à jour l\'application ou contactez l\'administrateur',
-			_ => null,
-		} ?? switch (path) {
 			'common.justNow' => 'À l\'instant',
 			'common.me' => 'Moi',
 			'common.minimize' => 'Réduire',
@@ -5535,12 +5543,12 @@ extension on TranslationsFrFr {
 			'main.correct' => 'Correcte',
 			'main.pendingInput' => 'En attente de saisie',
 			'main.lengthCheck' => 'Vérification de la longueur',
+			_ => null,
+		} ?? switch (path) {
 			'main.bugReport' => 'Rapport d\'erreur',
 			'main.deleting' => 'Suppression en cours...',
 			'main.publish' => 'Publier',
 			'main.privacyPolicy' => 'Politique de confidentialité',
-			_ => null,
-		} ?? switch (path) {
 			'main.termsOfService' => 'Conditions d\'utilisation',
 			'main.saving' => _root.common.loading,
 			'main.systemDefault' => 'Par défaut du système',
@@ -6049,12 +6057,12 @@ extension on TranslationsFrFr {
 			'organization.chart.expand' => 'Développer les sous-services',
 			'organization.chart.collapse' => 'Réduire les sous-services',
 			'organization.chart.gestureHint' => 'Glisser pour déplacer · Pincer pour zoomer',
+			_ => null,
+		} ?? switch (path) {
 			'organization.chart.directMembers' => ({required Object count}) => '${count} membres à ce niveau',
 			'organization.experienceUi.switchSpace' => 'Changer d\'espace',
 			'organization.experienceUi.personalSpace' => 'Espace personnel',
 			'organization.experienceUi.enterpriseSpaces' => 'Espaces d\'entreprise',
-			_ => null,
-		} ?? switch (path) {
 			'organization.experienceUi.currentSpace' => 'Espace actuel',
 			'organization.experienceUi.enterpriseInfo' => 'Informations sur l\'entreprise',
 			'organization.experienceUi.collaborationSpace' => 'Espaces de collaboration',

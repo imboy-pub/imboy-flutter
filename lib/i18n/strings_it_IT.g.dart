@@ -778,6 +778,10 @@ class _Translations$chat$it_IT extends Translations$chat$zh_CN {
 	@override String get exportLabelCount => 'Numero';
 	@override String get exportHtmlTitle => 'Cronologia chat IMBoy';
 	@override String get exportHtmlLang => 'it-IT';
+	@override String get unknownSender => 'Mittente sconosciuto';
+	@override String fileWithNameSize({required Object name, required Object size}) => '${name} (${size})';
+	@override String voiceDurationSeconds({required Object seconds}) => '${seconds} s';
+	@override String get bundleInvalidOrEmpty => 'Cronologia non valida o vuota';
 }
 
 // Path: common
@@ -4152,6 +4156,10 @@ extension on TranslationsItIt {
 			'chat.exportLabelCount' => 'Numero',
 			'chat.exportHtmlTitle' => 'Cronologia chat IMBoy',
 			'chat.exportHtmlLang' => 'it-IT',
+			'chat.unknownSender' => 'Mittente sconosciuto',
+			'chat.fileWithNameSize' => ({required Object name, required Object size}) => '${name} (${size})',
+			'chat.voiceDurationSeconds' => ({required Object seconds}) => '${seconds} s',
+			'chat.bundleInvalidOrEmpty' => 'Cronologia non valida o vuota',
 			'common.about' => 'Informazioni',
 			'common.aboutApp' => 'Informazioni sull\'app',
 			'common.accept' => 'Accetta',
@@ -4507,12 +4515,12 @@ extension on TranslationsItIt {
 			'common.groupAnnouncementDelete' => 'Elimina',
 			'common.groupAnnouncementLoadFailed' => 'Caricamento annuncio fallito. Riprova più tardi.',
 			'common.groupAnnouncementPublishFailed' => 'Pubblicazione annuncio fallita',
+			_ => null,
+		} ?? switch (path) {
 			'common.groupAnnouncementPublishSuccess' => 'Annuncio pubblicato',
 			'common.groupAnnouncementDeleteFailed' => 'Eliminazione annuncio fallita',
 			'common.groupAnnouncementDeleteSuccess' => 'Annuncio eliminato',
 			'common.privacyClearChatHistory' => 'Cancella cronologia delle chat',
-			_ => null,
-		} ?? switch (path) {
 			'common.privacyClearChatHistoryConfirm' => 'Sei sicuro di voler cancellare tutta la cronologia delle chat? Questa azione non può essere annullata.',
 			'common.privacyLogoutAccountConfirm' => 'Sei sicuro di voler disattivare l\'account? Questa azione eliminerà permanentemente il tuo account e tutti i dati e non può essere annullata.',
 			'common.privacySettings' => 'Impostazioni privacy',
@@ -5021,12 +5029,12 @@ extension on TranslationsItIt {
 			'common.e2eeUseRecoveryKey' => 'Genera chiave di recupero (strumento di riserva in caso di passphrase dimenticata)',
 			'common.enterAmount' => 'Inserisci l\'importo',
 			'common.expandFull' => 'Espandi',
+			_ => null,
+		} ?? switch (path) {
 			'common.f2fEnteringGroup' => ({required Object count}) => '${count} persone si sono unite alla chat di gruppo',
 			'common.f2fSecretCode' => 'Codice segreto',
 			'common.hoursAgo' => 'ore fa',
 			'common.initConfigDecryptFailed' => 'Decifratura della configurazione non riuscita: la chiave di sicurezza dell\'app non corrisponde a quella del server, aggiorna l\'app o contatta l\'amministratore',
-			_ => null,
-		} ?? switch (path) {
 			'common.justNow' => 'Proprio ora',
 			'common.me' => 'Io',
 			'common.minimize' => 'Riduci a icona',
@@ -5535,12 +5543,12 @@ extension on TranslationsItIt {
 			'main.correct' => 'Corretto',
 			'main.pendingInput' => 'In attesa di input',
 			'main.lengthCheck' => 'Controllo lunghezza',
+			_ => null,
+		} ?? switch (path) {
 			'main.bugReport' => 'Segnalazione errore',
 			'main.deleting' => 'Eliminazione in corso...',
 			'main.publish' => 'Pubblica',
 			'main.privacyPolicy' => 'Informativa sulla privacy',
-			_ => null,
-		} ?? switch (path) {
 			'main.termsOfService' => 'Termini di servizio',
 			'main.saving' => _root.common.loading,
 			'main.systemDefault' => 'Predefinito di sistema',
@@ -6049,12 +6057,12 @@ extension on TranslationsItIt {
 			'organization.chart.expand' => 'Espandi i reparti subordinati',
 			'organization.chart.collapse' => 'Comprimi i reparti subordinati',
 			'organization.chart.gestureHint' => 'Trascina per spostarti · Pizzica per lo zoom',
+			_ => null,
+		} ?? switch (path) {
 			'organization.chart.directMembers' => ({required Object count}) => '${count} membri di questo livello',
 			'organization.experienceUi.switchSpace' => 'Cambia spazio',
 			'organization.experienceUi.personalSpace' => 'Spazio personale',
 			'organization.experienceUi.enterpriseSpaces' => 'Spazi aziendali',
-			_ => null,
-		} ?? switch (path) {
 			'organization.experienceUi.currentSpace' => 'Spazio attuale',
 			'organization.experienceUi.enterpriseInfo' => 'Informazioni aziendali',
 			'organization.experienceUi.collaborationSpace' => 'Spazi di collaborazione',

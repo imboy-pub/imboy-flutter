@@ -778,6 +778,10 @@ class _Translations$chat$ja_JP extends Translations$chat$zh_CN {
 	@override String get exportLabelCount => '件数';
 	@override String get exportHtmlTitle => 'IMBoy チャット履歴';
 	@override String get exportHtmlLang => 'ja-JP';
+	@override String get unknownSender => '不明な送信者';
+	@override String fileWithNameSize({required Object name, required Object size}) => '${name}（${size}）';
+	@override String voiceDurationSeconds({required Object seconds}) => '${seconds}秒';
+	@override String get bundleInvalidOrEmpty => '無効または空のチャット履歴';
 }
 
 // Path: common
@@ -4149,6 +4153,10 @@ extension on TranslationsJaJp {
 			'chat.exportLabelCount' => '件数',
 			'chat.exportHtmlTitle' => 'IMBoy チャット履歴',
 			'chat.exportHtmlLang' => 'ja-JP',
+			'chat.unknownSender' => '不明な送信者',
+			'chat.fileWithNameSize' => ({required Object name, required Object size}) => '${name}（${size}）',
+			'chat.voiceDurationSeconds' => ({required Object seconds}) => '${seconds}秒',
+			'chat.bundleInvalidOrEmpty' => '無効または空のチャット履歴',
 			'common.about' => '概要',
 			'common.aboutApp' => 'このアプリについて',
 			'common.accept' => '承認',
@@ -4504,12 +4512,12 @@ extension on TranslationsJaJp {
 			'common.groupAnnouncementDelete' => '削除',
 			'common.groupAnnouncementLoadFailed' => 'お知らせの読み込みに失敗しました。後でもう一度お試しください',
 			'common.groupAnnouncementPublishFailed' => 'お知らせの公開に失敗しました',
+			_ => null,
+		} ?? switch (path) {
 			'common.groupAnnouncementPublishSuccess' => 'お知らせを公開しました',
 			'common.groupAnnouncementDeleteFailed' => 'お知らせの削除に失敗しました',
 			'common.groupAnnouncementDeleteSuccess' => 'お知らせを削除しました',
 			'common.privacyClearChatHistory' => 'チャット履歴を消去',
-			_ => null,
-		} ?? switch (path) {
 			'common.privacyClearChatHistoryConfirm' => 'すべてのチャット履歴を消去してもよろしいですか？この操作は取り消せません。',
 			'common.privacyLogoutAccountConfirm' => 'アカウントを削除してもよろしいですか？この操作によりアカウントとすべてのデータが永久に削除され、復元することはできません。',
 			'common.privacySettings' => 'プライバシー設定',
@@ -5018,12 +5026,12 @@ extension on TranslationsJaJp {
 			'common.transferAccepted' => '受け取りました',
 			'common.transferAmountLabel' => '送金金額',
 			'common.transferConfirm' => '送金を確認',
+			_ => null,
+		} ?? switch (path) {
 			'common.transferDefaultRemark' => '友達へ送金',
 			'common.transferMinAmountError' => '送金の最低金額は0.01元です',
 			'common.transferPending' => '相手の確認待ち',
 			'common.transferReceiving' => '受取処理中...',
-			_ => null,
-		} ?? switch (path) {
 			'common.transferRefunded' => '返金されました',
 			'common.transferRemarkLabel' => '送金メモ',
 			'common.transferTapToReceive' => 'タップして受け取る',
@@ -5532,12 +5540,12 @@ extension on TranslationsJaJp {
 			'main.correct' => '正しい',
 			'main.pendingInput' => '入力待ち',
 			'main.lengthCheck' => '長さチェック',
+			_ => null,
+		} ?? switch (path) {
 			'main.bugReport' => 'バグ報告',
 			'main.deleting' => '削除中...',
 			'main.publish' => '公開',
 			'main.privacyPolicy' => 'プライバシーポリシー',
-			_ => null,
-		} ?? switch (path) {
 			'main.termsOfService' => '利用規約',
 			'main.saving' => _root.common.loading,
 			'main.systemDefault' => 'システムデフォルト',
@@ -6046,12 +6054,12 @@ extension on TranslationsJaJp {
 			'organization.chart.expand' => '下位部門を展開',
 			'organization.chart.collapse' => '下位部門を折りたたむ',
 			'organization.chart.gestureHint' => 'ドラッグで移動 · ピンチで拡大縮小',
+			_ => null,
+		} ?? switch (path) {
 			'organization.chart.directMembers' => ({required Object count}) => '直属 ${count} 人',
 			'organization.experienceUi.switchSpace' => 'スペースを切り替え',
 			'organization.experienceUi.personalSpace' => '個人スペース',
 			'organization.experienceUi.enterpriseSpaces' => '企業スペース',
-			_ => null,
-		} ?? switch (path) {
 			'organization.experienceUi.currentSpace' => '現在のスペース',
 			'organization.experienceUi.enterpriseInfo' => '企業情報',
 			'organization.experienceUi.collaborationSpace' => 'コラボレーションスペース',

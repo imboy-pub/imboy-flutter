@@ -270,3 +270,9 @@ exportLabelExportedAt: "Esportato il"
 exportLabelCount: "Numero"
 exportHtmlTitle: "Cronologia chat IMBoy"
 exportHtmlLang: "it-IT"
+
+# W5 代码审查修复波次新增键（RUN chat-multi-20261111 / 2026-11-12）。
+unknownSender: Mittente sconosciuto
+fileWithNameSize(name,size): "$name ($size)"
+voiceDurationSeconds(seconds): "$seconds s"
+bundleInvalidOrEmpty: Cronologia non valida o vuota

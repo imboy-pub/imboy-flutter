@@ -778,6 +778,10 @@ class Translations$chat$zh_Hant extends Translations$chat$zh_CN {
 	@override String get exportLabelCount => '條數';
 	@override String get exportHtmlTitle => 'IMBoy 聊天記錄';
 	@override String get exportHtmlLang => 'zh-Hant';
+	@override String get unknownSender => '未知發送者';
+	@override String fileWithNameSize({required Object name, required Object size}) => '${name}（${size}）';
+	@override String voiceDurationSeconds({required Object seconds}) => '${seconds}″';
+	@override String get bundleInvalidOrEmpty => '聊天記錄無效或為空';
 }
 
 // Path: common
@@ -4149,6 +4153,10 @@ extension on TranslationsZhHant {
 			'chat.exportLabelCount' => '條數',
 			'chat.exportHtmlTitle' => 'IMBoy 聊天記錄',
 			'chat.exportHtmlLang' => 'zh-Hant',
+			'chat.unknownSender' => '未知發送者',
+			'chat.fileWithNameSize' => ({required Object name, required Object size}) => '${name}（${size}）',
+			'chat.voiceDurationSeconds' => ({required Object seconds}) => '${seconds}″',
+			'chat.bundleInvalidOrEmpty' => '聊天記錄無效或為空',
 			'common.about' => '關於',
 			'common.aboutApp' => '關於應用',
 			'common.accept' => '同意',
@@ -4504,12 +4512,12 @@ extension on TranslationsZhHant {
 			'common.selectExpirationDateOptional' => '選擇有效期（可選）',
 			'common.groupAnnouncementDeleteConfirm' => '確定要刪除這則公告嗎？',
 			'common.groupAnnouncementDelete' => '刪除',
+			_ => null,
+		} ?? switch (path) {
 			'common.groupAnnouncementLoadFailed' => '公告載入失敗，請稍後重試',
 			'common.groupAnnouncementPublishFailed' => '公告發布失敗',
 			'common.groupAnnouncementPublishSuccess' => '公告已釋出',
 			'common.groupAnnouncementDeleteFailed' => '公告刪除失敗',
-			_ => null,
-		} ?? switch (path) {
 			'common.groupAnnouncementDeleteSuccess' => '公告已刪除',
 			'common.privacyClearChatHistory' => '清除聊天記錄',
 			'common.privacyClearChatHistoryConfirm' => '確定要清除所有聊天記錄嗎？此操作不可恢復。',
@@ -5018,12 +5026,12 @@ extension on TranslationsZhHant {
 			'common.e2eeModeStrict' => '端對端加密',
 			'common.e2eeRecoveryKeySaveNote' => '請立即儲存這串恢復金鑰（截圖或存入密碼管理員）。忘記密碼時，它是解密備份的唯一憑據；一旦遺失，備份將永久無法還原。',
 			'common.e2eeRecoveryKeyTitle' => '恢復金鑰',
+			_ => null,
+		} ?? switch (path) {
 			'common.e2eeUseRecoveryKey' => '產生恢復金鑰（忘記密碼時的備用憑據）',
 			'common.enterAmount' => '請輸入金額',
 			'common.expandFull' => '展開',
 			'common.hoursAgo' => '小時前',
-			_ => null,
-		} ?? switch (path) {
 			'common.justNow' => '剛剛',
 			'common.me' => '本人',
 			'common.minimize' => '縮到最小',
@@ -5532,12 +5540,12 @@ extension on TranslationsZhHant {
 			'main.correct' => '正確',
 			'main.pendingInput' => '待輸入',
 			'main.lengthCheck' => '長度檢查',
+			_ => null,
+		} ?? switch (path) {
 			'main.bugReport' => '錯誤報告',
 			'main.deleting' => '刪除中...',
 			'main.publish' => '發布',
 			'main.privacyPolicy' => '隱私政策',
-			_ => null,
-		} ?? switch (path) {
 			'main.termsOfService' => '服務條款',
 			'main.saving' => _root.common.loading,
 			'main.systemDefault' => '系統預設',
@@ -6046,12 +6054,12 @@ extension on TranslationsZhHant {
 			'organization.chart.expand' => '展開下級部門',
 			'organization.chart.collapse' => '收起下級部門',
 			'organization.chart.gestureHint' => '拖曳查看 · 雙指縮放',
+			_ => null,
+		} ?? switch (path) {
 			'organization.chart.directMembers' => ({required Object count}) => '本級 ${count} 人',
 			'organization.experienceUi.switchSpace' => '切換空間',
 			'organization.experienceUi.personalSpace' => '個人空間',
 			'organization.experienceUi.enterpriseSpaces' => '企業空間',
-			_ => null,
-		} ?? switch (path) {
 			'organization.experienceUi.currentSpace' => '目前空間',
 			'organization.experienceUi.enterpriseInfo' => '企業資料',
 			'organization.experienceUi.collaborationSpace' => '協作空間',

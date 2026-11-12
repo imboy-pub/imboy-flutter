@@ -270,3 +270,9 @@ exportLabelExportedAt: "내보낸 시간"
 exportLabelCount: "건수"
 exportHtmlTitle: "IMBoy 채팅 기록"
 exportHtmlLang: "ko-KR"
+
+# W5 代码审查修复波次新增键（RUN chat-multi-20261111 / 2026-11-12）。
+unknownSender: 알 수 없는 발신자
+fileWithNameSize(name,size): "$name ($size)"
+voiceDurationSeconds(seconds): "$seconds초"
+bundleInvalidOrEmpty: 잘못되었거나 비어 있는 채팅 기록

@@ -844,6 +844,10 @@ class _Translations$chat$en_US extends Translations$chat$zh_CN {
 	@override String get exportLabelCount => 'Messages';
 	@override String get exportHtmlTitle => 'IMBoy Chat History';
 	@override String get exportHtmlLang => 'en-US';
+	@override String get unknownSender => 'Unknown sender';
+	@override String fileWithNameSize({required Object name, required Object size}) => '${name} (${size})';
+	@override String voiceDurationSeconds({required Object seconds}) => '${seconds} s';
+	@override String get bundleInvalidOrEmpty => 'Invalid or empty chat history';
 }
 
 // Path: common
@@ -4840,6 +4844,10 @@ extension on TranslationsEnUs {
 			'chat.exportLabelCount' => 'Messages',
 			'chat.exportHtmlTitle' => 'IMBoy Chat History',
 			'chat.exportHtmlLang' => 'en-US',
+			'chat.unknownSender' => 'Unknown sender',
+			'chat.fileWithNameSize' => ({required Object name, required Object size}) => '${name} (${size})',
+			'chat.voiceDurationSeconds' => ({required Object seconds}) => '${seconds} s',
+			'chat.bundleInvalidOrEmpty' => 'Invalid or empty chat history',
 			'common.about' => 'About',
 			'common.aboutApp' => 'About App',
 			'common.accept' => 'Accept',
@@ -5140,12 +5148,12 @@ extension on TranslationsEnUs {
 			'common.uploadFailed' => 'Upload failed',
 			'common.userDataTips' => 'Includes app runtime files and all user data like chat messages and friend connections.',
 			'common.userDisabledOrDeleted' => 'User is disabled or deleted',
+			_ => null,
+		} ?? switch (path) {
 			'common.userNotExist' => 'User does not exist',
 			'common.version' => 'Version',
 			'common.videoCall' => 'Video call',
 			'common.viewAllGroupMember' => 'View all group members',
-			_ => null,
-		} ?? switch (path) {
 			'common.voiceCall' => 'Voice call',
 			'common.groupCall' => 'Group call',
 			'common.callDisconnected' => 'Call disconnected',
@@ -5654,12 +5662,12 @@ extension on TranslationsEnUs {
 			'common.withdrawSuccess' => 'Withdrawal Successful',
 			'common.withdrawConfirm' => 'Confirm Withdrawal',
 			'common.withdrawFeeNotice' => 'Fees and arrival time are subject to actual settlement',
+			_ => null,
+		} ?? switch (path) {
 			'common.withdrawAmountError' => 'Amount must be at least ¥0.01',
 			'common.withdrawAccountEmpty' => 'Please enter your withdrawal account',
 			'common.withdrawMethod' => 'Withdrawal Method',
 			'common.withdrawAmountLabel' => 'Withdrawal Amount',
-			_ => null,
-		} ?? switch (path) {
 			'common.withdrawAlipay' => 'Alipay',
 			'common.withdrawWechat' => 'WeChat',
 			'common.walletBalanceLabel' => ({required Object balance}) => 'Wallet Balance ￥${balance}',
@@ -6168,12 +6176,12 @@ extension on TranslationsEnUs {
 			'group.e2eeTitle' => 'End-to-End Encryption',
 			'group.e2eeEnableConfirm' => 'Once enabled, group messages will be end-to-end encrypted and only readable on members\' devices. This cannot be undone. Enable?',
 			'group.transferAndLeave' => 'Transfer and leave',
+			_ => null,
+		} ?? switch (path) {
 			'group.sureToTransferAndLeave' => 'You will transfer ownership and leave this group. Continue?',
 			'group.transferredButLeaveFailed' => 'Ownership transferred, but leaving failed. Please retry leaving.',
 			'group.noEligibleSuccessor' => 'No member available to transfer to',
 			'groupCategory.title' => 'Group Categories',
-			_ => null,
-		} ?? switch (path) {
 			'groupCategory.createCategory' => 'Create Category',
 			'groupCategory.categoryName' => 'Category Name',
 			'groupCategory.noCategory' => 'No categories yet',
@@ -6682,12 +6690,12 @@ extension on TranslationsEnUs {
 			'organization.picker.emptyHint' => 'You have not joined any enterprise yet.\nTap "Join enterprise" below and enter the invite code',
 			'organization.picker.joinEnterprise' => 'Join enterprise',
 			'organization.picker.joinOrgIdLabel' => 'Enterprise ID',
+			_ => null,
+		} ?? switch (path) {
 			'organization.picker.joinOrgIdHint' => 'Provided by an enterprise admin (numeric ID)',
 			'organization.picker.joinOrgIdInvalid' => 'Enter a valid enterprise ID (numeric)',
 			'organization.picker.joinCodeLabel' => 'Enterprise invite code',
 			'organization.picker.joinSubmit' => 'Join',
-			_ => null,
-		} ?? switch (path) {
 			'organization.picker.joinInvalidCode' => 'The enterprise invite code is invalid or revoked',
 			'organization.picker.joinExpiredCode' => 'The enterprise invite code has expired',
 			'organization.picker.joinFailed' => ({required Object msg}) => 'Join failed: ${msg}',
@@ -7196,12 +7204,12 @@ extension on TranslationsEnUs {
 			'talkRecord.exportIndependentCopyTitle' => 'Independent copy notice',
 			'talkRecord.exportIndependentCopyBody' => 'Exporting creates an independent copy; it cannot be taken back by deleting the note or revoking access.',
 			'talkRecord.exportIndependentCopyAck' => 'I understand the exported copy cannot be taken back',
+			_ => null,
+		} ?? switch (path) {
 			'talkRecord.exportGenerate' => 'Generate export',
 			'talkRecord.exportGenerating' => 'Generating…',
 			'talkRecord.exportQueuedTitle' => 'Export queued',
 			'talkRecord.exportQueuedBody' => 'Request submitted; being queued does not mean the file is ready. Refresh later.',
-			_ => null,
-		} ?? switch (path) {
 			'talkRecord.exportRefreshState' => 'Refresh status',
 			'talkRecord.exportReadyTitle' => 'Export ready',
 			'talkRecord.exportReadyBody' => 'The file is ready to download; the link is short-lived and must be regenerated after expiry.',

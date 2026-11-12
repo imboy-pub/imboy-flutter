@@ -266,3 +266,9 @@ exportLabelExportedAt: "Exported at"
 exportLabelCount: "Messages"
 exportHtmlTitle: "IMBoy Chat History"
 exportHtmlLang: "en-US"
+
+# W5 代码审查修复波次新增键（RUN chat-multi-20261111 / 2026-11-12）。
+unknownSender: Unknown sender
+fileWithNameSize(name,size): "$name ($size)"
+voiceDurationSeconds(seconds): "$seconds s"
+bundleInvalidOrEmpty: Invalid or empty chat history

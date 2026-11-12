@@ -778,6 +778,10 @@ class _Translations$chat$de_DE extends Translations$chat$zh_CN {
 	@override String get exportLabelCount => 'Anzahl';
 	@override String get exportHtmlTitle => 'IMBoy-Chatverlauf';
 	@override String get exportHtmlLang => 'de-DE';
+	@override String get unknownSender => 'Unbekannter Absender';
+	@override String fileWithNameSize({required Object name, required Object size}) => '${name} (${size})';
+	@override String voiceDurationSeconds({required Object seconds}) => '${seconds} s';
+	@override String get bundleInvalidOrEmpty => 'Ungültiger oder leerer Chatverlauf';
 }
 
 // Path: common
@@ -4152,6 +4156,10 @@ extension on TranslationsDeDe {
 			'chat.exportLabelCount' => 'Anzahl',
 			'chat.exportHtmlTitle' => 'IMBoy-Chatverlauf',
 			'chat.exportHtmlLang' => 'de-DE',
+			'chat.unknownSender' => 'Unbekannter Absender',
+			'chat.fileWithNameSize' => ({required Object name, required Object size}) => '${name} (${size})',
+			'chat.voiceDurationSeconds' => ({required Object seconds}) => '${seconds} s',
+			'chat.bundleInvalidOrEmpty' => 'Ungültiger oder leerer Chatverlauf',
 			'common.about' => 'Über',
 			'common.aboutApp' => 'Über die App',
 			'common.accept' => 'Akzeptieren',
@@ -4507,12 +4515,12 @@ extension on TranslationsDeDe {
 			'common.groupAnnouncementDelete' => 'Löschen',
 			'common.groupAnnouncementLoadFailed' => 'Ankündigung konnte nicht geladen werden. Bitte später erneut versuchen.',
 			'common.groupAnnouncementPublishFailed' => 'Ankündigung konnte nicht veröffentlicht werden',
+			_ => null,
+		} ?? switch (path) {
 			'common.groupAnnouncementPublishSuccess' => 'Ankündigung veröffentlicht',
 			'common.groupAnnouncementDeleteFailed' => 'Ankündigung konnte nicht gelöscht werden',
 			'common.groupAnnouncementDeleteSuccess' => 'Ankündigung gelöscht',
 			'common.privacyClearChatHistory' => 'Chat-Verlauf löschen',
-			_ => null,
-		} ?? switch (path) {
 			'common.privacyClearChatHistoryConfirm' => 'Wirklich gesamten Chat-Verlauf löschen? Diese Aktion kann nicht rückgängig gemacht werden.',
 			'common.privacyLogoutAccountConfirm' => 'Konto wirklich löschen? Diese Aktion wird Ihr Konto und alle Daten dauerhaft löschen und kann nicht rückgängig gemacht werden.',
 			'common.privacySettings' => 'Datenschutz-Einstellungen',
@@ -5021,12 +5029,12 @@ extension on TranslationsDeDe {
 			'common.timeNowShort' => 'jetzt',
 			'common.timeMinutesShort' => ({required Object count}) => '${count} Min.',
 			'common.timeHoursShort' => ({required Object count}) => '${count} Std.',
+			_ => null,
+		} ?? switch (path) {
 			'common.timeDaysShort' => ({required Object count}) => '${count} T',
 			'common.transferAccepted' => 'Empfangen',
 			'common.transferAmountLabel' => 'Überweisungsbetrag',
 			'common.transferConfirm' => 'Überweisung bestätigen',
-			_ => null,
-		} ?? switch (path) {
 			'common.transferDefaultRemark' => 'Überweisung an Freund',
 			'common.transferMinAmountError' => 'Mindestbetrag für Überweisungen: 0.01 Yuan',
 			'common.transferPending' => 'Warten auf Bestätigung der Gegenseite',
@@ -5535,12 +5543,12 @@ extension on TranslationsDeDe {
 			'main.correct' => 'Korrekt',
 			'main.pendingInput' => 'Eingabe ausstehend',
 			'main.lengthCheck' => 'Längenprüfung',
+			_ => null,
+		} ?? switch (path) {
 			'main.bugReport' => 'Fehlerbericht',
 			'main.deleting' => 'Wird gelöscht...',
 			'main.publish' => 'Veröffentlichen',
 			'main.privacyPolicy' => 'Datenschutzrichtlinie',
-			_ => null,
-		} ?? switch (path) {
 			'main.termsOfService' => 'Nutzungsbedingungen',
 			'main.saving' => _root.common.loading,
 			'main.systemDefault' => 'Systemstandard',
@@ -6049,12 +6057,12 @@ extension on TranslationsDeDe {
 			'organization.chart.expand' => 'Unterabteilungen ausklappen',
 			'organization.chart.collapse' => 'Unterabteilungen einklappen',
 			'organization.chart.gestureHint' => 'Ziehen zum Verschieben · Zusammen-/Auseinanderziehen zum Zoomen',
+			_ => null,
+		} ?? switch (path) {
 			'organization.chart.directMembers' => ({required Object count}) => '${count} Mitglieder auf dieser Ebene',
 			'organization.experienceUi.switchSpace' => 'Space wechseln',
 			'organization.experienceUi.personalSpace' => 'Persönlicher Space',
 			'organization.experienceUi.enterpriseSpaces' => 'Unternehmens-Spaces',
-			_ => null,
-		} ?? switch (path) {
 			'organization.experienceUi.currentSpace' => 'Aktueller Space',
 			'organization.experienceUi.enterpriseInfo' => 'Unternehmensinfo',
 			'organization.experienceUi.collaborationSpace' => 'Kollaborations-Spaces',
