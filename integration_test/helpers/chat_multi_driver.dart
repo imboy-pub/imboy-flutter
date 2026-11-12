@@ -157,7 +157,7 @@ Future<void> enterMultiSelectViaMenu(
 Future<void> flushPendingPointerPacket(WidgetTester tester) async {
   final warm = find.byKey(ChatMultiKeys.count);
   if (tester.any(warm)) {
-    await tester.tap(warm.first, warnIfMissed: false);
+    await tapViaNewGesture(tester, warm);
   }
   await pacedWait(tester, 350);
   await settle(tester, maxSeconds: 1);
@@ -171,6 +171,17 @@ Future<void> pacedWait(WidgetTester tester, int ms) async {
   final waiter = Future<void>.delayed(Duration(milliseconds: ms));
   await tester.pump(Duration(milliseconds: ms));
   await waiter;
+}
+
+/// 唯一指针 tap：tester.tap 复用 pointer=0 —— 真机上被吞/迟到的 packet 会
+/// 令 pointer 0 的 down/up 配对错乱，后续 tap 与悬挂的旧指针状态串线
+/// （probe3 同坐标两次 tap 勾中两条不同消息、final-pass1 r2-v3 计数反向
+/// 2→1 误中已选行的证据）。startGesture 为每次 tap 分配独立 pointer，
+/// down/up 成对交付，杜绝跨 tap 指针串扰。
+Future<void> tapViaNewGesture(WidgetTester tester, Finder finder) async {
+  final gesture = await tester.startGesture(tester.getCenter(finder));
+  await gesture.up();
+  await gesture.removePointer();
 }
 
 /// 在多选模式下勾选某条消息（driver 只用于「选上」语义，不用于取消）。
@@ -232,7 +243,7 @@ Future<void> toggleMessageSelection(
     final tappedCheckbox =
         messageId != null &&
         tester.any(find.byKey(chatMultiCheckboxKey(messageId)));
-    await tester.tap(target.first, warnIfMissed: false);
+    await tapViaNewGesture(tester, target);
     await settle(tester, maxSeconds: 2);
     final after = actionBarSelectedCount(tester);
     final bool verified;
@@ -297,7 +308,7 @@ Future<void> undoWrongSelections(WidgetTester tester, String? messageId) async {
     );
     if (!checked) continue;
     flowLog('W3K 撤销误勾: ${key.value}');
-    await tester.tap(find.byKey(key).first, warnIfMissed: false);
+    await tapViaNewGesture(tester, find.byKey(key));
     await settle(tester, maxSeconds: 1);
   }
 }
