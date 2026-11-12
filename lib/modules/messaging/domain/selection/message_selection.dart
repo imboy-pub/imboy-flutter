@@ -22,6 +22,15 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'message_selectability.dart';
 
 /// 多选状态快照（不可变值对象）。
+///
+/// 值相等（W5-G1 G1-5）：`active` 相同且 `selectedIds` 集合相等即相等
+///（与插入顺序无关）—— 供测试断言与 riverpod `select` 等按值比较的场景
+/// 使用。
+///
+/// 注：本想复用 `package:collection` 的 `SetEquality`，但 `collection`
+/// 在 pubspec 中仅为传递依赖，直接 import 触发
+/// `depend_on_referenced_packages` 告警（pubspec 不在本波次改动范围），
+/// 故按集合等价（长度一致 + 互相包含）手写，语义与 SetEquality 相同。
 class MessageSelectionState {
   MessageSelectionState({this.active = false, Set<String>? selectedIds})
     : selectedIds = Set.unmodifiable(selectedIds ?? const <String>{});
@@ -35,11 +44,28 @@ class MessageSelectionState {
   /// 已选数量。
   int get count => selectedIds.length;
 
-  /// 是否已选中某条。
+  /// 是否选中某条。
   bool contains(String messageId) => selectedIds.contains(messageId);
 
   /// 选中集合是否为空。
   bool get isEmpty => selectedIds.isEmpty;
+
+  @override
+  bool operator ==(Object other) {
+    if (other is! MessageSelectionState) return false;
+    if (other.active != active) return false;
+    // 集合等价（无视插入序）：长度一致 + 互相包含。
+    final otherIds = other.selectedIds;
+    return selectedIds.length == otherIds.length &&
+        selectedIds.containsAll(otherIds);
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    active,
+    // 与 == 同口径的序无关散列：对排序后的 id 求hash。
+    Object.hashAllUnordered(selectedIds),
+  );
 }
 
 /// 每会话多选状态 Notifier（构造参数即 family key：conversationUk3）。

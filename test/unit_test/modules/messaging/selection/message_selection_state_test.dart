@@ -336,4 +336,64 @@ void main() {
       expect(stateOf(container, 'convA').contains('m3'), false);
     });
   });
+
+  group('值相等 ==/hashCode（W5-G1 G1-5）', () {
+    test('同态相等：active 与选中集合一致（插入顺序不同）即 == 且 hashCode 相同', () {
+      final a = MessageSelectionState(
+        active: true,
+        selectedIds: {'m1', 'm2', 'm3'},
+      );
+      final b = MessageSelectionState(
+        active: true,
+        selectedIds: {'m3', 'm1', 'm2'}, // 集合相等、插入序不同
+      );
+      expect(a, equals(b));
+      expect(b, equals(a));
+      expect(a.hashCode, b.hashCode, reason: '相等对象 hashCode 必须一致');
+    });
+
+    test('初始空态彼此相等', () {
+      expect(
+        MessageSelectionState(),
+        equals(MessageSelectionState(active: false, selectedIds: const {})),
+      );
+      expect(
+        MessageSelectionState().hashCode,
+        MessageSelectionState().hashCode,
+      );
+    });
+
+    test('不同态不等：active 不同 / 选中集不同 / 子集不同', () {
+      final base = MessageSelectionState(
+        active: true,
+        selectedIds: {'m1', 'm2'},
+      );
+      expect(
+        MessageSelectionState(active: false, selectedIds: {'m1', 'm2'}),
+        isNot(equals(base)),
+        reason: 'active 不同',
+      );
+      expect(
+        MessageSelectionState(active: true, selectedIds: {'m1', 'm3'}),
+        isNot(equals(base)),
+        reason: '选中集合不同',
+      );
+      expect(
+        MessageSelectionState(active: true, selectedIds: {'m1'}),
+        isNot(equals(base)),
+        reason: '子集（长度不同）不等',
+      );
+      expect(base, isNot(equals(Object())), reason: '与非同类型对象不等');
+    });
+
+    test('no-op 路径的同一实例恒等（既有 same 断言仍成立）', () {
+      final container = ProviderContainer();
+      addTearDown(container.dispose);
+      final notifier = notifierOf(container, 'convA');
+      notifier.enter('m1', okTraits());
+      final before = stateOf(container, 'convA');
+      notifier.reconcile(const ['m1', 'm2']);
+      expect(stateOf(container, 'convA'), same(before));
+    });
+  });
 }
