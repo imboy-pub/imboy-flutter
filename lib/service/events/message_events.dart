@@ -9,6 +9,13 @@ import 'package:imboy/store/model/message_model.dart';
 /// 请求发送消息事件
 ///
 /// 当用户请求发送消息时触发，消息进入发送流程
+///
+/// 已废弃：W5 改为消息落库后立即主动派发 sendWsMsg（variant B），
+/// 本事件不再有 producer/consumer，保留仅为过渡参考，待移除。
+@Deprecated(
+  'W5: replaced by immediate sendWsMsg dispatch after insert (variant B); '
+  'this event has no producer/consumer and will be removed',
+)
 final class MessageSendRequestedEvent extends AppEvent {
   @override
   List<Object> get props => [message, conversationUk3, isOffline, priority];

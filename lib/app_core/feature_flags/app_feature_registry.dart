@@ -151,7 +151,8 @@ class AppFeatureRegistry {
   /// - 测试经 [replaceSnapshotForTest] 覆盖（与 isEnabled 同一 snapshot）。
   ///
   /// 仅供 FeatureKeys 中注明为 rollout flag 的键使用
-  /// （当前：[FeatureKeys.chatMultiSelectV1]、[FeatureKeys.chatExportShareV1]）；
+  /// （当前：[FeatureKeys.chatMultiSelectV1]、[FeatureKeys.chatHistoryBundleV1]、
+  /// [FeatureKeys.chatExportShareV1]）；
   /// 产品组合域键仍走 [isEnabled]。
   static bool isRolloutFlagEnabled(String featureKey) {
     if (featureKey.isEmpty) {
