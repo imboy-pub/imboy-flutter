@@ -109,6 +109,26 @@ void main() {
     router.dispose();
   });
 
+  testWidgets('气泡语义：Semantics(button) 包裹，label 为 bundle 标题', (tester) async {
+    await LocaleSettings.setLocale(AppLocale.zhCn);
+    final router = buildRouter(bubbleHost('b4', bundlePayload(title: '设计评审')));
+    await tester.pumpWidget(MaterialApp.router(routerConfig: router));
+    await tester.pumpAndSettle();
+
+    final bubbleFinder = find.byKey(const Key('history_bundle_bubble_b4'));
+    // GestureDetector 外包的 Semantics：button 语义 + 标题 label（G2-7）
+    final buttonSemantics = tester
+        .widgetList<Semantics>(
+          find.ancestor(of: bubbleFinder, matching: find.byType(Semantics)),
+        )
+        .where((s) => s.properties.button == true)
+        .toList();
+    expect(buttonSemantics, hasLength(1));
+    expect(buttonSemantics.single.properties.label, '设计评审');
+    await tester.pumpWidget(const SizedBox());
+    router.dispose();
+  });
+
   testWidgets('title 缺省回退「聊天记录」，entries 畸形按 0 条展示', (tester) async {
     await LocaleSettings.setLocale(AppLocale.zhCn);
     final router = buildRouter(

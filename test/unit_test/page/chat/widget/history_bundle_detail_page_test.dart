@@ -1,13 +1,15 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:imboy/component/ui/imboy_cached_image_provider.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/chat/widget/history_bundle_detail_page.dart';
 
 /// W3-I / BND-04：chat_history_bundle 详情页。
 ///
 /// 数据全部来自 bundle 快照（不回查原会话）；多类型 entry 类型安全渲染；
-/// 未知 entry 类型 fallback；图片经 AssetsService.viewUrl 授权（禁止直连）。
+/// 未知 entry 类型 fallback；图片经 IMBoyCachedImageProvider 授权管线
+/// （object_key 原样透传，下载边界异步签发；禁止 network 直连）。
 void main() {
   // 固定旧时间戳：>7 天 → dateTimeFmt 走完整 'y-MM-dd HH:mm' 分支，
   // 断言可稳定（相对时间分支依赖当前时钟）。
@@ -34,11 +36,9 @@ void main() {
         'msg_type': 'image',
         'sender_name': '王五',
         'sent_at': sentAt,
-        // 转发器回写后的新引用（应经 viewUrl 授权渲染）
-        'payload': {
-          'uri': 'https://cdn.example.com/u1/img.png',
-          'name': 'img.png',
-        },
+        // 转发器回写后的新引用：Garage object_key 形态（授权由下载边界
+        // 异步签发，渲染侧原样透传给 IMBoyCachedImageProvider）
+        'payload': {'uri': 'u1/2026/11/img_abc.png', 'name': 'img.png'},
       },
       {
         'msg_type': 'imageMulti',
@@ -82,6 +82,11 @@ void main() {
       MaterialApp(home: HistoryBundleDetailPage(bundle: bundle)),
     );
     await tester.pumpAndSettle();
+    // 图片走 IMBoyCachedImageProvider（失败重试 3 次、间隔 200/400ms 延时
+    // Timer）：推进 fake clock 排空重试链并落地 errorBuilder 帧，避免
+    // pending timer 挂测试。
+    await tester.pump(const Duration(milliseconds: 700));
+    await tester.pumpAndSettle();
   }
 
   testWidgets('头部展示标题、条数与导出时间', (tester) async {
@@ -109,22 +114,33 @@ void main() {
     expect(find.byKey(const Key('history_bundle_entry_6')), findsOneWidget);
   });
 
-  testWidgets('图片条目：有 uri 经 viewUrl 授权（URL 带签名参数，不直连）', (tester) async {
+  testWidgets('图片条目：object_key 经 IMBoyCachedImageProvider 透传（非 network 直连）', (
+    tester,
+  ) async {
     await pumpPage(tester, bundleFixture());
 
     final images = tester.widgetList<Image>(find.byType(Image)).toList();
-    // imageMulti 无 uri → 占位图（Icon），只有 image 条目走 Image.network
-    expect(images, isNotEmpty);
-    final networkImages = images
+    // imageMulti 无 uri → 占位图（Container+Icon），只有 image 条目有 Image
+    expect(images, hasLength(1));
+
+    // G2-1 P0 回归锚：禁止 Image.network 直连（viewUrl 对 object_key 返回
+    // 无 scheme 相对 Uri，NetworkImage 必然抛错 → 永远占位）
+    expect(images.map((i) => i.image).whereType<NetworkImage>(), isEmpty);
+    // 解码缩放经 ResizeImage 包裹（等价 cacheWidth），内层必须是授权 provider
+    final resized = images
         .map((i) => i.image)
-        .whereType<NetworkImage>()
+        .whereType<ResizeImage>()
         .toList();
-    expect(networkImages, isNotEmpty);
-    for (final net in networkImages) {
-      // 授权后 URL ≠ 原始直连（viewUrl 追加签名查询参数）
-      expect(net.url, isNot('https://cdn.example.com/u1/img.png'));
-      expect(Uri.parse(net.url).queryParameters.containsKey('v'), isTrue);
-    }
+    expect(resized, hasLength(1));
+    expect(resized.single.width, 96); // 容器宽 96 × DPR(1.0)
+    final inner = resized.single.imageProvider;
+    expect(inner, isA<IMBoyCachedImageProvider>());
+    // object_key 原样透传（短时 URL 由下载边界异步签发）
+    expect((inner as IMBoyCachedImageProvider).url, 'u1/2026/11/img_abc.png');
+
+    // 真实图片 widget 的 ValueKey（G6 设备旅程定位锚，key 名冻结）
+    expect(find.byKey(const ValueKey('bundle_detail_thumb_2')), findsOneWidget);
+
     // imageMulti 占位：sender 行类型小图标 + 96x96 占位图各一个 photo 图标
     expect(
       find.descendant(
@@ -140,6 +156,44 @@ void main() {
       ),
       findsOneWidget,
     );
+    // 授权管线的加载异常由 errorBuilder 消化，不进测试异常通道
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('语音条目：秒数用 voiceDurationSeconds 格式化', (tester) async {
+    await pumpPage(tester, <String, dynamic>{
+      'bundle_version': 1,
+      'entries': [
+        {
+          'msg_type': 'voice',
+          'sender_name': '阿声',
+          'sent_at': sentAt,
+          'payload': {'duration_ms': 2500},
+        },
+      ],
+    });
+
+    expect(find.byIcon(CupertinoIcons.waveform), findsNWidgets(2));
+    // 2500ms → 3 秒（G2-5：不再手拼 '$seconds″'）
+    expect(find.text(t.chat.voiceDurationSeconds(seconds: 3)), findsOneWidget);
+  });
+
+  testWidgets('sender 缺省回退 unknownSender（不再用 bundleTitle）', (tester) async {
+    await pumpPage(tester, <String, dynamic>{
+      'bundle_version': 1,
+      'entries': [
+        {
+          'msg_type': 'text',
+          'sent_at': sentAt,
+          'payload': {'text': '匿名发言'},
+        },
+      ],
+    });
+
+    expect(find.text('匿名发言'), findsOneWidget);
+    // G2-4：sender 空时展示「未知发送者」；「聊天记录」仅剩导航栏 + 头部两处
+    expect(find.text(t.chat.unknownSender), findsOneWidget);
+    expect(find.text('聊天记录'), findsNWidgets(2));
   });
 
   testWidgets('未知 entry 类型 → fallback 描述，不崩溃', (tester) async {

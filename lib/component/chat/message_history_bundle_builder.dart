@@ -25,6 +25,12 @@ import 'package:imboy/theme/default/font_types.dart';
 /// 详情页路由（extra 传 bundle 快照 Map；注册见 app_router.dart）。
 const String kHistoryBundleDetailRoute = '/chat/history_bundle';
 
+/// 气泡卡片宽度（逻辑像素）。
+///
+/// 聊天记录卡片是多行结构（头部 + 条数 + 图标流），与链接卡片同宽约束：
+/// 上限 240，避免长标题/多图标把气泡撑到整屏宽。
+const double kHistoryBundleBubbleWidth = 240;
+
 /// bubble/详情页共用的 entry 类型小图标。
 ///
 /// 归一口径与 `MessageTypeNormalizer` 一致（audio→voice）；未知类型给
@@ -90,35 +96,41 @@ class HistoryBundleMessageBuilder extends StatelessWidget {
         : (isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary);
 
     // bundle title 缺省回退通用标签（发送方可选填，如来源会话名快照）
-    final String title = (meta['title']?.toString() ?? '').trim().isNotEmpty
-        ? (meta['title']!.toString())
+    final String rawTitle = meta['title']?.toString() ?? '';
+    final String title = rawTitle.trim().isNotEmpty
+        ? rawTitle
         : t.chat.bundleTitle;
     final List<IconData> icons = _collectTypeIcons(entries);
 
-    return GestureDetector(
-      key: Key('history_bundle_bubble_${message.id}'),
-      behavior: HitTestBehavior.opaque,
-      onTap: () => context.push(
-        kHistoryBundleDetailRoute,
-        extra: Map<String, dynamic>.from(meta),
-      ),
-      child: Container(
-        width: 240,
-        padding: const EdgeInsets.all(AppSpacing.medium),
-        decoration: _bubbleDecoration(
-          sentByMe,
-          isDark,
-          Theme.of(context).brightness,
+    // Semantics 外包：读屏用户听到「<标题>，按钮」而非整卡片内容
+    return Semantics(
+      button: true,
+      label: title,
+      child: GestureDetector(
+        key: Key('history_bundle_bubble_${message.id}'),
+        behavior: HitTestBehavior.opaque,
+        onTap: () => context.push(
+          kHistoryBundleDetailRoute,
+          extra: Map<String, dynamic>.from(meta),
         ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            _buildHeader(context, title, textColor),
-            const SizedBox(height: AppSpacing.tiny),
-            _buildPreview(context, entries.length, subTextColor),
-            ..._buildTypeIcons(icons, subTextColor),
-          ],
+        child: Container(
+          width: kHistoryBundleBubbleWidth,
+          padding: const EdgeInsets.all(AppSpacing.medium),
+          decoration: _bubbleDecoration(
+            sentByMe,
+            isDark,
+            Theme.of(context).brightness,
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _buildHeader(context, title, textColor),
+              const SizedBox(height: AppSpacing.tiny),
+              _buildPreview(context, entries.length, subTextColor),
+              ..._buildTypeIcons(icons, subTextColor),
+            ],
+          ),
         ),
       ),
     );
