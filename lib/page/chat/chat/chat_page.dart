@@ -2459,6 +2459,11 @@ class ChatPageState extends ConsumerState<ChatPage>
                   // 授权（见根 CLAUDE.md「附件 URL 必须经授权」），任何 widget 的
                   // 默认网络加载就都不可用。换掉 flyer_chat 也仍要注入授权 provider。
                   customImageProvider: cachedImageProvider(message.source),
+                  // 破图显式容错：provider 重试耗尽 rethrow（如 DioException）
+                  // 时渲染占位而非走 reportError —— integration_test 下异常会
+                  // 进入 _pendingExceptionDetails 挂死用例（DEV-01 修复，
+                  // chat_image_error_builder.dart 头注释有完整签名链）。
+                  errorBuilder: chatImageErrorBuilder,
                 ),
               ),
             );

@@ -2,6 +2,7 @@
 library;
 
 // 本地 widget (在 lib/page/chat/widget/ 目录)
+export '../../widget/chat_image_error_builder.dart';
 export '../../widget/chat_input.dart';
 export '../../widget/extra_item.dart';
 export '../../widget/quote_tips.dart';
