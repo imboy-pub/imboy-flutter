@@ -92,24 +92,44 @@ class AttachmentSealPolicy {
   /// - msgType 缺失但 payload 自带 entries 结构的脏行：同样递归
   ///   （fail-closed，不赌行的 msgType 干净）；
   /// - 其余：与 [carriesContentKey] 同口径（单条 payload 顶层 + images[]）。
-  static bool isSealedPayloadDeep(Object? payload, {String? msgType}) {
+  ///
+  /// 递归带 [maxDepth] 深度上限（默认 8）：超出即按「带钥匙」拦截
+  /// （fail-closed），病态深嵌套 payload 不能把终检推成栈溢出（DoS 点）。
+  static bool isSealedPayloadDeep(
+    Object? payload, {
+    String? msgType,
+    int maxDepth = 8,
+  }) {
     if (payload is! Map) return false;
     final bool isBundleType =
         msgType != null && msgType.trim() == HistoryBundleContract.msgType;
     final bool bundleShaped = payload['entries'] is List;
     if (!isBundleType && !bundleShaped) return carriesContentKey(payload);
-    return _carriesContentKeyInEntries(payload);
+    return _carriesContentKeyInEntries(payload, maxDepth: maxDepth);
   }
 
-  static bool _carriesContentKeyInEntries(Object? node) {
+  static bool _carriesContentKeyInEntries(
+    Object? node, {
+    required int maxDepth,
+  }) {
     if (node is! Map) return false;
     // wrapper 自身顶层兜底检测（合同上不会有，出现即 fail-closed）。
     if (carriesContentKey(node)) return true;
+    if (maxDepth <= 0) {
+      // 超出深度上限：递归无界时病态深嵌套 payload 可把扫描推成栈溢出
+      // （DoS 点）。无法证明不带钥匙 → 按「带钥匙」处理，fail-closed。
+      return true;
+    }
     final entries = node['entries'];
     if (entries is! List) return false;
     for (final entry in entries) {
       if (entry is! Map) continue;
-      if (_carriesContentKeyInEntries(entry['payload'])) return true;
+      if (_carriesContentKeyInEntries(
+        entry['payload'],
+        maxDepth: maxDepth - 1,
+      )) {
+        return true;
+      }
     }
     return false;
   }

@@ -202,6 +202,43 @@ void main() {
         isFalse,
       );
     });
+
+    test('病态深嵌套（50 层 > maxDepth）→ 超限即拦（fail-closed）且不栈溢出', () {
+      // 修复前 _carriesContentKeyInEntries 无深度上限：每层 entries[].payload
+      // 都是无界自递归，深嵌套 payload 可把终检推成 StackOverflowError
+      // （DoS 点）。修复后超出 maxDepth（默认 8）直接按「带钥匙」返回 true，
+      // 递归同时终止——本用例构造 50 层干净嵌套，断言不溢出且被 fail-closed
+      // 拦截（旧代码会因全程无 descriptor 而误放行 false）。
+      Map<String, dynamic> deep = _wrapper([
+        <String, dynamic>{'text': 'bottom'},
+      ]);
+      for (var i = 0; i < 50; i++) {
+        deep = _wrapper([deep]);
+      }
+      expect(
+        AttachmentSealPolicy.isSealedPayloadDeep(
+          deep,
+          msgType: HistoryBundleContract.msgType,
+        ),
+        isTrue,
+        reason: '超出深度上限无法证明不带钥匙 → fail-closed 拦截',
+      );
+      // maxDepth 可调：上限内（深层但 ≤ maxDepth）的干净嵌套仍放行。
+      Map<String, dynamic> shallow = _wrapper([
+        <String, dynamic>{'text': 'bottom'},
+      ]);
+      for (var i = 0; i < 3; i++) {
+        shallow = _wrapper([shallow]);
+      }
+      expect(
+        AttachmentSealPolicy.isSealedPayloadDeep(
+          shallow,
+          msgType: HistoryBundleContract.msgType,
+        ),
+        isFalse,
+        reason: '≤ maxDepth 的干净嵌套不受深度上限误伤',
+      );
+    });
   });
 
   group('出网/重试终检接线（源码契约：三处全换 deep 谓词，无旁路）', () {
