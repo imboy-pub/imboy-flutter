@@ -285,6 +285,96 @@ void main() {
     );
   });
 
+  test(
+    'enqueueBusinessOutbox 混合行（NULL + 非 NULL intent）不崩且只编码 managed 行',
+    () async {
+      // 与 claimOutboxDispatch 同族防御纵深：enqueue 对 business_intent 的
+      // 解码同样要先过滤 NULL 行（修复前 jsonDecode(null as String) 抛
+      // _TypeError，整组事务失败）。混入的纯上传 journal 行既不崩、也不被
+      // 改写；组完整性/身份判定只看 managed 行。
+      await _createMessageOutboxTables(db);
+      const anchor = 'mixed-enqueue-anchor';
+      final handler = ChatAttachmentHandler(
+        peerId: _uidB,
+        conversationUk3: 'c2c-101-202',
+        type: 'C2C',
+        currentUserOverride: const User(id: _uidA),
+        onMessageCreated: (_) async => true,
+      );
+      final intent = jsonEncode(handler.pendingMessageIntent(anchor, 'image'));
+      final managedBase = await _seedRow(
+        'mixed-managed-img',
+        uid: _uidA,
+        stage: AttachmentUploadStage.confirmed,
+        objectKey: 'obj/managed-key',
+      );
+      await repo.insert(
+        AttachmentUploadTask.fromMap({
+          ...managedBase.toMap(),
+          'anchor_msg_id': anchor,
+          'business_intent': intent,
+          'mime': 'image/jpeg',
+        }),
+      );
+      final plainBase = await _seedRow(
+        'mixed-plain-img',
+        uid: _uidA,
+        stage: AttachmentUploadStage.confirmed,
+        objectKey: 'obj/plain-key',
+      );
+      await repo.insert(
+        AttachmentUploadTask.fromMap({
+          ...plainBase.toMap(),
+          'anchor_msg_id': anchor,
+          'business_intent': null,
+          'mime': 'image/jpeg',
+        }),
+      );
+      final message = MessageModel(
+        anchor,
+        autoId: 0,
+        type: 'C2C',
+        status: IMBoyMessageStatus.sending,
+        fromId: 101,
+        toId: 202,
+        payload: '',
+        e2ee: {'protocol': 'olm', 'meta_version': 3},
+        isAuthor: 1,
+        conversationUk3: 'c2c-101-202',
+        msgType: 'image',
+        createdAt: DateTime.now().millisecondsSinceEpoch,
+      );
+
+      expect(
+        await repo.enqueueBusinessOutbox(
+          message,
+          userId: _uidA,
+          isCurrent: () => true,
+        ),
+        isTrue,
+        reason: '混合行不得让 enqueue 解码崩溃或整组失败',
+      );
+      final rows = await db.query(
+        'attachment_upload_task',
+        where: 'anchor_msg_id = ?',
+        whereArgs: [anchor],
+      );
+      final byId = {for (final row in rows) row['id'] as String: row};
+      final encoded = jsonDecode(
+        byId['mixed-managed-img']!['business_intent'] as String,
+      ) as Map<String, dynamic>;
+      expect(encoded['state'], 'outbox_ready');
+      expect(
+        byId['mixed-plain-img']!['business_intent'],
+        isNull,
+        reason: 'NULL intent 行不属于 outbox 协议，必须保持原样',
+      );
+      expect(await db.rawQuery('SELECT id FROM msg_c2c'), [
+        {'id': anchor},
+      ]);
+    },
+  );
+
   test('独立 SQLite 连接上的发送和任务创建竞争保持互斥', () async {
     final path = '${_uploadCache.path}/fence.sqlite';
     final firstDb = await _openDb(path);

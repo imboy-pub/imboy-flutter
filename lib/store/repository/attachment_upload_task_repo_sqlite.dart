@@ -591,7 +591,12 @@ class AttachmentUploadTaskRepo {
         whereArgs: [message.id, userId],
       );
       if (rows.isEmpty) throw StateError('outbox upload group missing');
-      final intents = rows
+      // business_intent 为 NULL 的行是纯上传 journal，不属于 outbox 派发
+      // 协议（与 claimOutboxDispatch 同口径，防御纵深：NULL 行不得进入
+      // jsonDecode，也不参与组完整性/身份判定）。
+      final managed = rows.where(_isOutboxManaged).toList();
+      if (managed.isEmpty) throw StateError('outbox upload group missing');
+      final intents = managed
           .map(
             (r) =>
                 jsonDecode(r['business_intent'] as String)
@@ -608,7 +613,7 @@ class AttachmentUploadTaskRepo {
         if (existing.length != 1) throw StateError('outbox message missing');
         return true;
       }
-      if (rows.any(
+      if (managed.any(
             (r) =>
                 r['stage'] != AttachmentUploadStage.confirmed.value ||
                 (r['last_error'] as String?)?.startsWith('legacy_migrating:') ==
@@ -620,7 +625,7 @@ class AttachmentUploadTaskRepo {
       if (existing.isNotEmpty) {
         throw StateError('outbox message result unknown');
       }
-      if (rows.length != intents.first['expected_objects'] ||
+      if (managed.length != intents.first['expected_objects'] ||
           intents.any(
             (i) =>
                 i['author_id'] != userId ||
@@ -631,7 +636,7 @@ class AttachmentUploadTaskRepo {
       }
       await MessageRepo(tableName: table)
           .insert(message, txn: txn, outbound: true, attachmentCommit: true);
-      for (var index = 0; index < rows.length; index++) {
+      for (var index = 0; index < managed.length; index++) {
         await txn.update(
           tableName,
           {
@@ -642,7 +647,7 @@ class AttachmentUploadTaskRepo {
             }),
           },
           where: 'id = ? AND user_id = ?',
-          whereArgs: [rows[index]['id'], userId],
+          whereArgs: [managed[index]['id'], userId],
         );
       }
       if (!isCurrent()) throw StateError('outbox account changed');
