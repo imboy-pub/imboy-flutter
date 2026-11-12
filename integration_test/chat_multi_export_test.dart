@@ -4,16 +4,22 @@
 // 「取消 = 零副作用」。
 //
 // 旅程：
-//   ① 登录 → push C2C ChatPage → 真实输入链发 2 条 marker 文本（部署真实
-//      模式，明文链路）
-//   ② EncryptionModeService.debugSet 置 strictE2ee（DEV-01 修复：合成部署
-//      无 strict policy，原实现整条 SKIP；与既有真机 E2EE 用例同款测试注入）
-//   ③ 多选勾选 2 条 → action bar「导出」→ W3-J E2EE 确认弹窗
-//      （export_e2ee_confirm）出现
+//   ① 登录 → push C2C ChatPage → 真实输入链发 2 条 marker 文本
+//   ② 多选勾选 2 条 → action bar「导出」
+//   ③ strict E2EE 部署：W3-J E2EE 确认弹窗（export_e2ee_confirm）出现
 //      → 点「取消」（export_confirm_cancel）→ 弹窗关闭且零副作用断言：
 //      - 多选仍激活、已选计数不变（2）
 //      - 仍在 ChatPage（无路由漂移）
 //      - 无「已分享」成功 toast（exportShared 文案不出现）
+//   ④ 非 strict 部署：SKIP（E2EE 确认弹窗场景只存在于加密会话；
+//      ENV_MISSING 口径，不伪通过）。
+//
+//      DEV-01（chat-multi-20261111）决策：保持 ENV 门控 SKIP —— strict E2EE
+//      启用需要 product-feature-manifest + 后端重建 + 对端密钥引导，且 strict
+//      模式会拒绝明文 C2C/C2G 写入、破坏明文种子用例（risk_if_adopted）；
+//      归档决策见 receipts/fixes/strict-e2ee-decision.json
+//      （NOT_ADOPTED / DOCUMENTED_SKIP_ACCEPTED）。补偿证据：EXP-02/03 本地
+//      widget 冒烟 + COMP-01 fixture 测试。
 //
 // gateway fake 注入：设备侧无法替换 SharePlusChatShareGateway（W3-J
 // runChatExportFlow 内部构造），fake 注入断言由本地 widget 冒烟
@@ -52,14 +58,29 @@ void main() {
     if (!await checkPreconditions(tester)) return;
     if (!requireBusinessWriteAuthorization()) return;
 
-    // E2EE 前置（DEV-01 修复）：本机合成部署为 plaintext，服务端 policy 出
-    // 不来 strict E2EE —— 原先整条用例 SKIP。与既有真机 E2EE 用例
-    // （e2ee_c2c_outbound_frame_test.dart:155）同款 @visibleForTesting 注入：
-    // 2 条 marker 文本先按真实明文链路发出，之后把 EncryptionModeService 置
-    // 为 strictE2ee —— 导出确认门 isEncryptedConversationForExport →
-    // PolicyGate.requireReadyForSend 即 EncryptRequired，W3-J E2EE 确认弹窗
-    // 真实出现；teardown 复位。这不是伪通过：弹窗判定、取消语义、零副作用
-    // 断言全部走生产代码路径（文本发送不注入，仍是部署真实模式）。
+    // E2EE 前置：非 strict 部署下加密会话不存在，弹窗场景不可达（DEV-01
+    // 决策保持 ENV 门控 SKIP，见文件头注释与 strict-e2ee-decision receipt；
+    // 不用测试注入伪通过）。
+    var policyReady = false;
+    for (var i = 0; i < 10 && !policyReady; i++) {
+      policyReady = EncryptionModeService.isInitialized;
+      if (!policyReady) {
+        await Future<void>.delayed(const Duration(seconds: 1));
+      }
+    }
+    if (!policyReady) {
+      markTestSkipped('加密策略未就绪（EncryptionModeService 未初始化）');
+      return;
+    }
+    if (EncryptionModeService.current != EncryptionMode.strictE2ee) {
+      markTestSkipped(
+        '当前部署非 strict E2EE（current=${EncryptionModeService.current}），'
+        'E2EE 导出确认弹窗场景只存在于加密会话'
+        '（决策归档：receipts/fixes/strict-e2ee-decision.json）',
+      );
+      return;
+    }
+
     final selfUid = UserRepoLocal.to.currentUid;
     final peerUid = () {
       final defined = const String.fromEnvironment('CHAT_MULTI_SRC_PEER_UID');
@@ -91,19 +112,6 @@ void main() {
     await sendTextViaInput(tester, chatPage, m1);
     await sendTextViaInput(tester, chatPage, m2);
     await settle(tester, maxSeconds: 2);
-
-    // 文本发送完成后才切 strict：发送链的 PolicyGate 判定仍按部署真实模式
-    // （plaintext）走，不注入；注入只影响导出确认门的加密会话判定。
-    EncryptionModeService.debugSet(
-      mode: EncryptionMode.strictE2ee,
-      initialized: true,
-    );
-    addTearDown(() {
-      EncryptionModeService.debugSet(
-        mode: EncryptionMode.plaintext,
-        initialized: false,
-      );
-    });
 
     // ② 多选 2 条 → 导出。
     // W1-A enter 契约：长按 m1 进入多选即选中 m1（driver 断言计数=1），
@@ -176,10 +184,11 @@ void main() {
 /*
 运行契约（真机 DEV-01）：同 chat_multi_select_test.dart 头注释配方。
 
-E2EE 前置（DEV-01 修复后）：不依赖部署 policy —— 文本发出后经
-EncryptionModeService.debugSet(mode: strictE2ee, initialized: true) 注入
-（@visibleForTesting，与 e2ee_c2c_outbound_frame_test.dart 同款），teardown
-复位 plaintext。确认弹窗判定/取消/零副作用全走生产代码路径。
+E2EE 前置：strict E2EE 部署（EncryptionModeService.current == strictE2ee），
+否则用例 SKIP —— E2EE 导出确认弹窗只存在于加密会话（W3-J 判定）。DEV-01
+（chat-multi-20261111）明确保持该 ENV 门控 SKIP，不做测试注入伪通过
+（决策归档：receipts/fixes/strict-e2ee-decision.json，
+DOCUMENTED_SKIP_ACCEPTED）。
 gateway fake 注入断言在本地冒烟
 test/unit_test/page/chat/integration_smoke/chat_multi_export_smoke_test.dart。
 */
