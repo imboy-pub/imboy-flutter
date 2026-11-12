@@ -12,6 +12,7 @@
 // 真 messageSelectionProvider + 真 TextMessage fixtures（与 W3-K 设备用例
 // 同一 toggle 链路）。
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart' as core;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -83,10 +84,12 @@ class _FakeChatMultiPageState extends ConsumerState<_FakeChatMultiPage> {
               child: SizedBox(
                 width: 44,
                 height: 44,
+                // 与生产 _MessageSelectCheckbox 同图标语义（实心圈=已选），
+                // driver 的「目标行被勾上」语义校验依赖该图标。
                 child: Icon(
                   selection.contains(id)
-                      ? Icons.check_circle
-                      : Icons.radio_button_unchecked,
+                      ? CupertinoIcons.checkmark_circle_fill
+                      : CupertinoIcons.circle,
                 ),
               ),
             ),

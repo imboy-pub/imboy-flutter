@@ -173,17 +173,24 @@ Future<void> pacedWait(WidgetTester tester, int ms) async {
   await waiter;
 }
 
-/// 在多选模式下切换某条消息的勾选态。
+/// 在多选模式下勾选某条消息（driver 只用于「选上」语义，不用于取消）。
 /// 优先点勾选框稳定 Key（44pt 触达区），兜底点气泡本体（tap-toggle）。
 ///
-/// 真机（integration_test 的 LiveTestWidgetsFlutterBinding）上，进入多选后
-/// 前几秒的 tap 会被入场布局切换（leading 头像↔勾选框、输入区↔action bar）
-/// 与 image fixture 加载循环等帧间噪声间歇性吞掉 —— DEV-01 pass1/pass2 双轮
-/// 同签名失败（`multi_select_check_<id>` 首轮勾选不注册，expectSelectionCount
-/// 即败）。生产侧勾选区 GestureDetector（HitTestBehavior.opaque + 44pt）无
-/// 缺陷，修复在 driver 层：每次 tap 前重新 settle 排帧，tap 后校验 action
-/// bar 计数是否变化，未变化即重试（重新解析 finder 取最新几何）；重试耗尽
-/// 后交由调用方 expectSelectionCount 以实际计数失败 —— 不在 driver 层吞断言。
+/// 真机（LiveTestWidgetsFlutterBinding）两类注入失败模式（DEV-01 probe1-3 +
+/// fix-pass1-r2 / final-pass1 证据），生产勾选 GestureDetector 均无缺陷
+/// （命中即正确切换）：
+/// ① tap 被吞：入场布局切换（leading 头像↔勾选框、输入区↔action bar）后
+///    首个 pointer packet 在引擎边界被延迟/丢弃 —— probe1/2 入场首 tap 不
+///    注册、probe3 迟到 packet 与下一 tap 一并生效（一次勾两条）。对策：
+///    enter 后 flushPendingPointerPacket 牺牲 tap + 重试间隔 pacedWait
+///    ≥350ms（跨 kDoubleTapTimeout 与 packet 交付窗口）。
+/// ② tap 误投：fixture 图像异步解码展开令整列位移 —— tap() 取坐标时行在
+///    旧位、事件命中时行已移位（probe1 同坐标两次 tap 勾中两个不同行；
+///    final-pass1 前缀截图 t3 被误勾、本次 r1 计数 2→1 误中已选行）。
+///    对策：tap 前布局稳定性门（目标 rect ≥400ms 窗口两次取样一致才出手）；
+///    tap 后语义校验（计数 +1 且目标框呈选中态）；误投自愈（撤销误勾行）。
+/// 校验不通过即重试（重新解析 finder 取最新几何）；重试耗尽交调用方
+/// expectSelectionCount 以实际计数失败 —— 不在 driver 层吞断言。
 Future<void> toggleMessageSelection(
   WidgetTester tester,
   Finder bubble, {
@@ -201,22 +208,50 @@ Future<void> toggleMessageSelection(
   final before = actionBarSelectedCount(tester);
   for (var attempt = 1; attempt <= maxAttempts; attempt++) {
     if (attempt > 1) {
-      // 重试间隔必须跨过 kDoubleTapTimeout（300ms）与引擎 packet 交付窗口：
-      // fix-pass1-r2/final-pass1 中 270-300ms 间隔的连续重试三次全吞
-      // （probe3 证实机器速度连续 tap 会被合并/误投），350ms 节流等待
-      // 让每次重试都是独立 tap。
+      // 对策①重试节流：见函数头。重试是「独立 tap」，不与前一 tap 合并。
       await pacedWait(tester, 350);
     }
-    // tap 前排帧：入场动画/弹层退出/图片加载循环挂起的帧先落定，
-    // 保证命中在稳定布局上（首次勾选间歇性丢失的主因）。
+    // tap 前排帧：入场动画/弹层退出/图片加载循环挂起的帧先落定。
     await settle(tester, maxSeconds: 2);
+
+    // 对策②布局稳定性门：目标 rect 在 ≥400ms 窗口内两次取样一致才 tap，
+    // 杜绝「取坐标时行在旧位、命中时行已移位」。最多重取样 5 次（~1s），
+    // 覆盖 fixture 图像解码展开的整列位移；仍不稳则带病 tap，交语义校验兜底。
+    Rect? rectA;
+    for (var i = 0; i < 5; i++) {
+      rectA = tester.any(targetOf()) ? tester.getRect(targetOf().first) : null;
+      await pacedWait(tester, 200);
+      final rectB = tester.any(targetOf())
+          ? tester.getRect(targetOf().first)
+          : null;
+      if (rectA != null && rectB != null && rectA == rectB) break;
+      rectA = null;
+      await settle(tester, maxSeconds: 1);
+    }
     final target = targetOf();
+    final tappedCheckbox =
+        messageId != null &&
+        tester.any(find.byKey(chatMultiCheckboxKey(messageId)));
     await tester.tap(target.first, warnIfMissed: false);
     await settle(tester, maxSeconds: 2);
     final after = actionBarSelectedCount(tester);
     final bool verified;
     if (before != null && after != null) {
-      verified = after != before;
+      final delta = after - before;
+      if (delta == 1 && tappedCheckbox) {
+        // 语义校验：必须是「目标行被勾上」—— 目标勾选框呈选中态（实心圈）。
+        verified = tester.any(
+          find.descendant(
+            of: target,
+            matching: find.byIcon(CupertinoIcons.checkmark_circle_fill),
+          ),
+        );
+      } else {
+        // delta==1 且兜底路径（气泡 tap，无勾选框可验）：计数 +1 即认。
+        // delta<=0：tap 被吞或误中已选行（r1 证据 2→1）；delta>=2：一次
+        // 勾了两条（probe3 迟到 packet 合并）—— 均视为未注册，重试。
+        verified = delta == 1;
+      }
     } else if (before == null && after == null) {
       // 多选栏不可校验（兜底路径）：交由调用方 expectSelectionCount 判定。
       verified = true;
@@ -226,9 +261,44 @@ Future<void> toggleMessageSelection(
     }
     if (verified) return;
     flowLog(
-      'W3K 勾选 tap 未注册（尝试 $attempt/$maxAttempts）: '
-      '计数 $before → $after',
+      'W3K 勾选 tap 未注册/误投（尝试 $attempt/$maxAttempts）: '
+      '计数 $before → $after tappedCheckbox=$tappedCheckbox',
     );
+    if (before != null && after != null && after > before) {
+      // 对策②误投自愈：有非目标行被误勾（计数涨了但目标没亮）。撤销全部
+      // 误勾行，再进入下一次重试 —— 防误勾污染后续累计断言。
+      await undoWrongSelections(tester, messageId);
+    }
+  }
+}
+
+/// 撤销误勾：勾掉所有非 [messageId] 的已勾选行（勾选框呈实心圈图标，
+/// 且 Key 属 multi_select_check_ 族的行）。messageId 为 null 时不动
+/// （无法判定目标族，交调用方断言兜底）。
+Future<void> undoWrongSelections(WidgetTester tester, String? messageId) async {
+  if (messageId == null) return;
+  final boxes = find
+      .byWidgetPredicate(
+        (w) =>
+            w is GestureDetector &&
+            w.key is ValueKey<String> &&
+            (w.key as ValueKey<String>).value.startsWith('multi_select_check_'),
+      )
+      .evaluate()
+      .toList();
+  for (final el in boxes) {
+    final key = (el.widget as GestureDetector).key as ValueKey<String>;
+    if (key.value == 'multi_select_check_$messageId') continue;
+    final checked = tester.any(
+      find.descendant(
+        of: find.byKey(key),
+        matching: find.byIcon(CupertinoIcons.checkmark_circle_fill),
+      ),
+    );
+    if (!checked) continue;
+    flowLog('W3K 撤销误勾: ${key.value}');
+    await tester.tap(find.byKey(key).first, warnIfMissed: false);
+    await settle(tester, maxSeconds: 1);
   }
 }
 
