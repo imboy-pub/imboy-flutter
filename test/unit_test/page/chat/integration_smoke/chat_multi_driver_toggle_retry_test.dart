@@ -1,12 +1,15 @@
 // test/unit_test/page/chat/integration_smoke/chat_multi_driver_toggle_retry_test.dart
 //
 // DEV-01 修复锚（RUN_ID=chat-multi-20261111）——
-// integration_test/helpers/chat_multi_driver.dart 的两条行为在本机 widget 级
+// integration_test/helpers/chat_multi_driver.dart 的行为在本机 widget 级
 // 验证：
 // 1. enterMultiSelectViaMenu 后计数=1（W1-A enter 契约：进入即选中长按消息）
 //    —— 计数 Text 键约定与生产 action bar 同源（multi_select_count）；
 // 2. toggleMessageSelection 的「tap 未注册 → 校验计数 → 重试」：假页把
-//    首个 tap 吞掉（模拟真机入场噪声），driver 必须重试并注册勾选。
+//    首个 tap 吞掉（模拟真机入场噪声），driver 必须重试并注册勾选；
+// 3. G6-2 通道统计：无 ChatPage 场景（本地冒烟）生产勾选通道不可用 →
+//    productionToggleUsed 不增长；finishChatMultiJourney 在「真实长按 0 次
+//    且发生过兜底」的显式构造场景下必须 DEGRADED fail。
 //
 // 勾选回调接真 production 函数 toggleMessageSelectionWithFeedback +
 // 真 messageSelectionProvider + 真 TextMessage fixtures（与 W3-K 设备用例
@@ -155,5 +158,60 @@ void main() {
       reason: 'tap 应注册',
     );
     expect(find.text('已选 2 条'), findsOneWidget);
+  });
+
+  testWidgets('G6-2 通道统计：无 ChatPage 场景生产勾选计数不增长', (tester) async {
+    await pumpPage(tester, '__none__');
+    ChatMultiDriverRunStats.reset();
+
+    await toggleMessageSelection(
+      tester,
+      find.byType(Scaffold),
+      messageId: 'm2',
+    );
+
+    // 本地冒烟页无 ChatPage/uk3 —— _toggleViaProduction 场景不可用返回
+    // false，勾选由 tap 通道完成，生产通道计数必须保持 0（不误报 DEGRADED）。
+    expect(
+      ChatMultiDriverRunStats.productionToggleUsed,
+      0,
+      reason: '无 ChatPage 场景不应计入生产勾选通道',
+    );
+    expect(
+      ChatMultiDriverRunStats.productionEnterFallback,
+      0,
+      reason: '冒烟场景不走 enter 兜底',
+    );
+    // 真实长按 0 次 + 兜底 0 次 = 正常未降级旅程，终局对账不抛。
+    finishChatMultiJourney('smoke');
+  });
+
+  test('G6-2 终局对账：真实长按 0 次且发生过兜底 → DEGRADED fail', () {
+    ChatMultiDriverRunStats.reset();
+    // 显式构造降级场景（真机 enterMultiSelectViaMenu 首轮失败时不得静默
+    // 走生产通道，此处直接验证终局对账对「0 真实长按 + 兜底」的拦截）。
+    ChatMultiDriverRunStats.productionEnterFallback = 1;
+    expect(
+      () => finishChatMultiJourney('smoke-degraded'),
+      throwsA(
+        isA<TestFailure>().having(
+          (e) => e.message ?? '',
+          'message',
+          stringContainsInOrder(['DEGRADED', 'smoke-degraded']),
+        ),
+      ),
+      reason: '兜底掩盖长按链路回归时终局对账必须失败（G6-2）',
+    );
+    ChatMultiDriverRunStats.reset();
+  });
+
+  test('G6-2 终局对账：真实长按成功后的兜底只进摘要不判失败', () {
+    ChatMultiDriverRunStats.reset();
+    ChatMultiDriverRunStats.realLongPressEnterOk = 1;
+    ChatMultiDriverRunStats.productionEnterFallback = 1;
+    // 首轮真实长按成功后的重进兜底 = 允许的降级（DEGRADED-summary 留档）。
+    finishChatMultiJourney('smoke-reentry');
+    expect(ChatMultiDriverRunStats.summary, contains('realLongPressEnterOk=1'));
+    ChatMultiDriverRunStats.reset();
   });
 }
