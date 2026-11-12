@@ -425,6 +425,65 @@ void main() {
     expect(_fail(r).errorCode, HistoryBundleBuildErrorCode.invalidTarget);
   });
 
+  group('S1-M1 深度守护（payload 嵌套 ≤16 层，fail-closed）', () {
+    Object nest(int levels) {
+      Object node = <String, dynamic>{'text': 'leaf'};
+      for (var i = 1; i < levels; i++) {
+        node = <String, dynamic>{'nested': node};
+      }
+      return node;
+    }
+
+    Object deepList(int levels) {
+      Object node = <dynamic>[1];
+      for (var i = 1; i < levels; i++) {
+        node = <dynamic>[node];
+      }
+      return node;
+    }
+
+    test('病态深嵌套 text payload（5000 层）整体拒绝，不栈溢出', () {
+      final r = HistoryBundleBuilder.buildForTarget(target, [
+        _msg(
+          MessageType.text,
+          payload: <String, dynamic>{'text': 'hi', 'deep': deepList(5000)},
+        ),
+      ]);
+      final f = _fail(r);
+      expect(f.errorCode, bundlePayloadDepthExceeded);
+      expect(f.errorCode, 'bundle_payload_depth_exceeded'); // 机器契约冻结
+      expect(f.messageIndex, 0);
+    });
+
+    test('附件路径：deep 树藏在占位不采集的键下同样拒绝（深拷贝前置闸）', () {
+      final r = HistoryBundleBuilder.buildForTarget(target, [
+        _msg(
+          MessageType.image,
+          payload: <String, dynamic>{
+            'name': 'a.png',
+            'junk': deepList(5000), // 不在 name/size/width/height 白名单键
+          },
+        ),
+      ]);
+      expect(_fail(r).errorCode, bundlePayloadDepthExceeded);
+      expect(_fail(r).messageIndex, 0);
+    });
+
+    test('边界：顶层下 16 层容器合法构建，17 层拒绝', () {
+      final ok = _ok(
+        HistoryBundleBuilder.buildForTarget(target, [
+          _msg(MessageType.text, payload: <String, dynamic>{'deep': nest(16)}),
+        ]),
+      );
+      expect(ok.bundle.entries, hasLength(1));
+
+      final bad = HistoryBundleBuilder.buildForTarget(target, [
+        _msg(MessageType.text, payload: <String, dynamic>{'deep': nest(17)}),
+      ]);
+      expect(_fail(bad).errorCode, bundlePayloadDepthExceeded);
+    });
+  });
+
   test('bundle JSON 不含目标会话标识与源消息 id（目标无关信息隔离）', () {
     final r = HistoryBundleBuilder.buildForTarget(target, [
       _msg(

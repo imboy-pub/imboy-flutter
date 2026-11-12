@@ -24,6 +24,8 @@ library;
 
 import 'dart:convert';
 
+import 'package:imboy/modules/messaging/application/history_bundle/history_bundle_sanitizer.dart'
+    show BundleSanitizer;
 import 'package:imboy/modules/messaging/application/history_bundle/history_bundle_types.dart';
 
 export 'package:imboy/modules/messaging/application/history_bundle/history_bundle_types.dart'
@@ -98,7 +100,22 @@ class HistoryBundleV1 {
   ///
   /// 必须与后端一致：后端对整个 payload JSON 做 `byte_size`，此处对
   /// `jsonEncode(toJson())` 的 UTF-8 编码取长度，边界值 256×1024 合法。
-  int get serializedByteLength => utf8.encode(jsonEncode(toJson())).length;
+  ///
+  /// 深度前置闸（S1-M1）：`jsonEncode` 对深嵌套 map/list 递归下栈，
+  /// 病态深 payload（不受 256 KiB 尺寸闸保护）可把序列化推成栈溢出。
+  /// 与 [BundleSanitizer.sanitize] **同一口径**逐 entry 检查 payload
+  /// （payload 顶层不计层、其下超过 [BundleSanitizer.defaultMaxDepth]
+  /// 层容器即超限；其余字段均为标量，无嵌套面）。超限时保守返回
+  /// `maxPayloadBytes + 1`——走既有 payloadTooLarge 尺寸守护**稳定
+  /// 失败**，绝不栈溢出、绝不静默放行。
+  int get serializedByteLength {
+    for (final entry in entries) {
+      if (BundleSanitizer.depthOverLimit(entry.payload)) {
+        return HistoryBundleContract.maxPayloadBytes + 1;
+      }
+    }
+    return utf8.encode(jsonEncode(toJson())).length;
+  }
 
   /// 返回替换某条目 payload 后的新 bundle（copy-on-write）。
   ///

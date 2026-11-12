@@ -172,6 +172,18 @@ const Set<String> _kBusinessCardTypes = <String>{
   MessageType.groupNotice,
 };
 
+/// 深度超限稳定码（S1-M1，契约只增不改语义）：消息 payload 嵌套深度
+/// 超过 [BundleSanitizer.defaultMaxDepth]（默认 16）时构建整体拒绝。
+///
+/// 攻击链：深嵌套 JSON 消息体（不受 bundle 256 KiB 约束）→ 多选合并
+/// 转发 → 无界递归清理/深拷贝/序列化 → 栈溢出（DoS）。上限后走稳定
+/// 失败：构建侧本码拒绝违规条目；dispatcher writeback 路径消费
+/// `BundleSanitizeResult.depthExceeded` 时按 sendFailed 口径整目标失败
+/// （接线在 BundleForwardDispatcher，G4 lane）。命名与
+/// [HistoryBundleBuildErrorCode] 的 `bundle_*` 机器契约风格一致；常量
+/// 定义在 builder 侧是因为 types.dart 归 G4 lane 所有权（集成时可上移）。
+const String bundlePayloadDepthExceeded = 'bundle_payload_depth_exceeded';
+
 /// 快照构建器（无状态，线程安全；每次调用独立产出）。
 abstract final class HistoryBundleBuilder {
   /// 为单个目标会话构建 bundle。
@@ -207,7 +219,12 @@ abstract final class HistoryBundleBuilder {
     }
 
     // 2+3. 稳定排序 + 逐条构建 entry（快照/扁平化/占位+任务）。
-    final (entries, tasks, sanitizedCount) = _buildEntriesAndTasks(messages);
+    //    深度守护失败（S1-M1）时整体拒绝（稳定码 + 违规下标）。
+    final (depthFailure, entries, tasks, sanitizedCount) =
+        _buildEntriesAndTasks(messages);
+    if (depthFailure != null) {
+      return HistoryBundleBuildFailureResult(depthFailure);
+    }
 
     // 4. 组装 + 尺寸守护（UTF-8 字节长度，边界 256×1024 合法）。
     final bundle = HistoryBundleV1(
@@ -251,7 +268,18 @@ abstract final class HistoryBundleBuilder {
   /// 排序 + 构建：按 (sentAtMs, 输入下标) 双键稳定排序后逐条产出
   /// entries 与附件任务（快照/扁平化/占位+任务），并累计 sanitizer
   /// 移除字段总数。
-  static (List<HistoryBundleEntryV1>, List<BundleAttachmentForwardTask>, int)
+  ///
+  /// 深度守护（S1-M1）：任一消息 payload 嵌套深度超过
+  /// [BundleSanitizer.defaultMaxDepth]（快照路径由 sanitize 的
+  /// depthExceeded 标志给出；附件路径对源 payload 前置探测——深树可能
+  /// 藏在占位不采集的键下，仍会在任务深拷贝处无界递归）→ 整体拒绝
+  /// （[bundlePayloadDepthExceeded] + 违规下标），不得栈溢出。
+  static (
+    HistoryBundleBuildFailure?,
+    List<HistoryBundleEntryV1>,
+    List<BundleAttachmentForwardTask>,
+    int,
+  )
   _buildEntriesAndTasks(List<HistoryBundleSourceMessage> messages) {
     // 稳定排序：sentAtMs 升序，同时间戳保持输入顺序（Dart sort 不保证
     // 稳定，用 (sentAtMs, 输入下标) 双键显式稳定）。
@@ -267,17 +295,40 @@ abstract final class HistoryBundleBuilder {
     for (final index in order) {
       final msg = messages[index];
       final normalized = _normalizeType(msg.msgType);
-      final HistoryBundleEntryV1 entry;
-      if (_kAttachmentTypes.contains(normalized)) {
-        final (placeholder, removed) = _attachmentPlaceholder(
-          normalized,
-          msg.payload,
+      final bool isAttachment = _kAttachmentTypes.contains(normalized);
+      if (isAttachment && BundleSanitizer.depthOverLimit(msg.payload)) {
+        return (
+          HistoryBundleBuildFailure(
+            bundlePayloadDepthExceeded,
+            messageIndex: index,
+            detail: msg.msgType,
+          ),
+          const <HistoryBundleEntryV1>[],
+          const <BundleAttachmentForwardTask>[],
+          0,
         );
-        sanitizedCount += removed;
-        entry = _entry(normalized, msg, placeholder);
+      }
+      final (body, removed, depthExceeded) = isAttachment
+          ? _attachmentPlaceholder(normalized, msg.payload)
+          : _snapshotPayload(normalized, msg.payload);
+      if (depthExceeded) {
+        return (
+          HistoryBundleBuildFailure(
+            bundlePayloadDepthExceeded,
+            messageIndex: index,
+            detail: msg.msgType,
+          ),
+          const <HistoryBundleEntryV1>[],
+          const <BundleAttachmentForwardTask>[],
+          0,
+        );
+      }
+      sanitizedCount += removed;
+      entries.add(_entry(normalized, msg, body));
+      if (isAttachment) {
         tasks.add(
           BundleAttachmentForwardTask(
-            entryIndex: entries.length,
+            entryIndex: entries.length - 1,
             sourceMsgType: normalized,
             sourceMessageId: msg.sourceMessageId,
             sourceChatType: msg.sourceChatType,
@@ -289,17 +340,16 @@ abstract final class HistoryBundleBuilder {
             sourcePayload: _deepCopySourcePayload(msg.payload),
           ),
         );
-      } else {
-        final (snapshot, removed) = _snapshotPayload(normalized, msg.payload);
-        sanitizedCount += removed;
-        entry = _entry(normalized, msg, snapshot);
       }
-      entries.add(entry);
     }
-    return (entries, tasks, sanitizedCount);
+    return (null, entries, tasks, sanitizedCount);
   }
 
   /// sourcePayload 深拷贝入口（顶层必为 map）。
+  ///
+  /// ⚠️ 调用方必须先过深度前置闸（[BundleSanitizer.depthOverLimit]，
+  /// S1-M1）：本拷贝与 [_snapshotPayload] 不同，会走遍源 payload 全部
+  /// 键（含占位不采集的键），无界深树可把递归推成栈溢出。
   ///
   /// 不使用 json round-trip 拷贝：TSID 等 64-bit 大整数经
   /// `jsonEncode`/`jsonDecode` 会丢精度。
@@ -401,12 +451,12 @@ abstract final class HistoryBundleBuilder {
     payload: payload,
   );
 
-  /// 快照类 entry payload：
+  /// 快照类 entry payload（第三分量 = 深度超限标志，S1-M1）：
   /// - text：全量 payload 递归清理（真快照，sanitizer 深拷贝）；
   /// - quote：扁平化可见文本（正文 + 被引用文本，仅保留两个纯文本键）；
   /// - location：拷贝安全字段 title/address/latitude/longitude；
   /// - expression：拷贝可见文本 text。
-  static (Map<String, dynamic>, int) _snapshotPayload(
+  static (Map<String, dynamic>, int, bool) _snapshotPayload(
     String normalizedType,
     Map<String, dynamic> payload,
   ) {
@@ -423,7 +473,7 @@ abstract final class HistoryBundleBuilder {
             cleaned['text'] = content;
           }
         }
-        return (cleaned, r.removedFieldCount);
+        return (cleaned, r.removedFieldCount, r.depthExceeded);
       case MessageType.quote:
         final body = _visibleText(payload, prefer: 'text', fallback: 'content');
         final quoted = _stringOf(payload['quote_text']);
@@ -431,7 +481,7 @@ abstract final class HistoryBundleBuilder {
           'text': body,
           'quote_text': quoted,
         });
-        return (r.cleaned, r.removedFieldCount);
+        return (r.cleaned, r.removedFieldCount, r.depthExceeded);
       case MessageType.location:
         final picked = <String, dynamic>{};
         _pick(picked, payload, 'title');
@@ -439,23 +489,23 @@ abstract final class HistoryBundleBuilder {
         _pick(picked, payload, 'latitude');
         _pick(picked, payload, 'longitude');
         final r = BundleSanitizer.sanitize(picked);
-        return (r.cleaned, r.removedFieldCount);
+        return (r.cleaned, r.removedFieldCount, r.depthExceeded);
       case MessageType.expression:
         final r = BundleSanitizer.sanitize(<String, dynamic>{
           'text': _visibleText(payload, prefer: 'text', fallback: null),
         });
-        return (r.cleaned, r.removedFieldCount);
+        return (r.cleaned, r.removedFieldCount, r.depthExceeded);
       default:
         // 理论不可达（_admit 已白名单）；fail-closed 返回空快照。
-        return (const <String, dynamic>{}, 0);
+        return (const <String, dynamic>{}, 0, false);
     }
   }
 
-  /// 附件占位 entry payload：仅显示字段，**不含任何对象引用**
-  /// （uri/url/object_key/file_hash256/descriptor 一律剥离——源引用是
-  /// 源会话 scope 的授权句柄；新引用由 adapter 重传后经
-  /// `withEntryPayload` 写回）。
-  static (Map<String, dynamic>, int) _attachmentPlaceholder(
+  /// 附件占位 entry payload（第三分量 = 深度超限标志，S1-M1）：仅显示
+  /// 字段，**不含任何对象引用**（uri/url/object_key/file_hash256/
+  /// descriptor 一律剥离——源引用是源会话 scope 的授权句柄；新引用由
+  /// adapter 重传后经 `withEntryPayload` 写回）。
+  static (Map<String, dynamic>, int, bool) _attachmentPlaceholder(
     String normalizedType,
     Map<String, dynamic> payload,
   ) {
@@ -475,7 +525,7 @@ abstract final class HistoryBundleBuilder {
         final placeholder = <String, dynamic>{'images': images};
         _pick(placeholder, payload, 'total');
         final r = BundleSanitizer.sanitize(placeholder);
-        return (r.cleaned, r.removedFieldCount);
+        return (r.cleaned, r.removedFieldCount, r.depthExceeded);
       case MessageType.image:
         return _displayPlaceholder(payload, const [
           'name',
@@ -500,16 +550,16 @@ abstract final class HistoryBundleBuilder {
       case MessageType.file:
         return _displayPlaceholder(payload, const ['filename', 'name', 'size']);
       default:
-        return (const <String, dynamic>{}, 0);
+        return (const <String, dynamic>{}, 0, false);
     }
   }
 
-  static (Map<String, dynamic>, int) _displayPlaceholder(
+  static (Map<String, dynamic>, int, bool) _displayPlaceholder(
     Map<String, dynamic> payload,
     List<String> keys,
   ) {
     final r = BundleSanitizer.sanitize(_displayFields(payload, keys));
-    return (r.cleaned, r.removedFieldCount);
+    return (r.cleaned, r.removedFieldCount, r.depthExceeded);
   }
 
   /// 从 [src] 拷贝显示字段（仅存在于 src 的键；值为 null 跳过）。

@@ -102,4 +102,43 @@ void main() {
     // 原 bundle 不受影响
     expect(bundle.entries.single.payload['text'], 'x');
   });
+
+  test('serializedByteLength 深度前置闸：超深 payload 不栈溢出、按超限失败', () {
+    Object deep = <dynamic>[1];
+    for (var i = 0; i < 5000; i++) {
+      deep = <dynamic>[deep];
+    }
+    final bundle = HistoryBundleV1(
+      entries: <HistoryBundleEntryV1>[
+        HistoryBundleEntryV1(
+          msgType: 'text',
+          payload: <String, dynamic>{'deep': deep},
+        ),
+      ],
+    );
+    // 深度超限 → 保守返回超限字节值（走 payloadTooLarge 尺寸守护，
+    // 稳定失败；jsonEncode 不跑，绝不栈溢出）
+    expect(
+      bundle.serializedByteLength,
+      greaterThan(HistoryBundleContract.maxPayloadBytes),
+    );
+
+    // 边界内（16 层）正常序列化不受影响
+    Object nest16 = <String, dynamic>{'text': 'leaf'};
+    for (var i = 1; i < 16; i++) {
+      nest16 = <String, dynamic>{'nested': nest16};
+    }
+    final ok = HistoryBundleV1(
+      entries: <HistoryBundleEntryV1>[
+        HistoryBundleEntryV1(
+          msgType: 'text',
+          payload: <String, dynamic>{'deep': nest16},
+        ),
+      ],
+    );
+    expect(
+      ok.serializedByteLength,
+      lessThan(HistoryBundleContract.maxPayloadBytes),
+    );
+  });
 }

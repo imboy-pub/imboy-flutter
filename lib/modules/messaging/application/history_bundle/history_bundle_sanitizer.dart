@@ -27,24 +27,50 @@
 /// （`Map`/`List.unmodifiable`）。
 library;
 
-/// sanitizer 结果：清理后的新 map + 移除字段计数。
+/// sanitizer 结果：清理后的新 map + 移除字段计数 + 深度超限标志。
 class BundleSanitizeResult {
-  const BundleSanitizeResult(this.cleaned, this.removedFieldCount);
+  const BundleSanitizeResult(
+    this.cleaned,
+    this.removedFieldCount, {
+    this.depthExceeded = false,
+  });
 
   /// 清理后的全新深拷贝。
   ///
   /// 不可变契约：**顶层为普通可变 map**（DTO 层加 `Map.unmodifiable` 壳、
-  /// dispatcher `withEntryPayload` 写回都需要可变输入）；**嵌套层全不可变**
+  /// dispatcher `withEntryPayload` 写回需要可变输入）；**嵌套层全不可变**
   /// （map/list 一律 `Map`/`List.unmodifiable`，修改抛 UnsupportedError），
   /// 且与输入不共享任何可变引用。
   final Map<String, dynamic> cleaned;
 
   /// 在任意嵌套层被移除的禁止字段出现次数（含 list 内元素）。
   final int removedFieldCount;
+
+  /// 深度超限标志（S1-M1）：payload 任意分支的容器嵌套深度超过
+  /// [BundleSanitizer.defaultMaxDepth] 时为 true（超限子树被丢弃）。
+  ///
+  /// **调用方必须检查本标志并稳定拒绝**，不得把超深 payload 当作已清理
+  /// 通过：builder 对应条目整体拒绝（`bundle_payload_depth_exceeded`）；
+  /// dispatcher writeback 路径按 sendFailed 口径整目标失败（接线归
+  /// BundleForwardDispatcher，G4 lane）。默认 false，既有两参构造与
+  /// 调用点不受影响。
+  final bool depthExceeded;
 }
 
 /// 禁止字段判定与递归清理（纯函数，零副作用、零日志）。
+///
+/// 递归带深度上限（[defaultMaxDepth]，默认 16）：攻击者可用深嵌套 JSON
+/// 消息体（不受 bundle 256 KiB 约束）把无界递归推成栈溢出（DoS 点）。
+/// 超限走**稳定失败**——置位 [BundleSanitizeResult.depthExceeded] 并丢弃
+/// 超限子树，绝不栈溢出、绝不静默通过（范式同 e2ee 出站闸
+/// `isSealedPayloadDeep` 的 maxDepth fail-closed，71a15d834）。
 abstract final class BundleSanitizer {
+  /// 递归深度上限：容器（map/list）自顶向下最多嵌套 16 层。
+  ///
+  /// 口径：顶层 map 不计层，其下第 16 层容器仍合法，第 17 层起
+  /// fail-closed。业务 payload（含附件 descriptor）远浅于该上限。
+  static const int defaultMaxDepth = 16;
+
   /// 原消息 id 快照键。
   static const Set<String> _messageIdKeys = <String>{
     'msg_id',
@@ -83,44 +109,91 @@ abstract final class BundleSanitizer {
     return key.startsWith('e2ee');
   }
 
-  /// 递归清理 [input]（任意嵌套 map/list 深度），返回新深拷贝与移除计数。
-  static BundleSanitizeResult sanitize(Map<String, dynamic> input) {
-    final (cleaned, removed) = _sanitizeMap(input);
-    return BundleSanitizeResult(cleaned, removed);
+  /// 递归清理 [input]（任意嵌套 map/list，深度上限 [maxDepth]），返回
+  /// 新深拷贝、移除计数与深度超限标志（见 [BundleSanitizeResult]）。
+  static BundleSanitizeResult sanitize(
+    Map<String, dynamic> input, {
+    int maxDepth = defaultMaxDepth,
+  }) {
+    final (cleaned, removed, depthExceeded) = _sanitizeMap(input, maxDepth);
+    return BundleSanitizeResult(cleaned, removed, depthExceeded: depthExceeded);
   }
 
-  static (Map<String, dynamic>, int) _sanitizeMap(Map<dynamic, dynamic> input) {
+  /// 有界深度探测：[value] 子树内任一容器分支嵌套超过 [maxDepth] 层
+  /// 返回 true（口径与 [sanitize] 一致：顶层容器不计层，其下第
+  /// [maxDepth]+1 层容器即超限）。递归帧数 ≤ maxDepth+2，永不栈溢出。
+  ///
+  /// 共用前置闸（S1-M1）：builder 在附件任务深拷贝前探测源 payload、
+  /// v1 在 jsonEncode 前探测序列化树。
+  static bool depthOverLimit(Object? value, {int maxDepth = defaultMaxDepth}) =>
+      _valueOverLimit(value, maxDepth + 1);
+
+  /// 剩余深度预算归零即超限（容器才消耗预算；标量任意层合法）。
+  static bool _valueOverLimit(Object? value, int remaining) {
+    if (value is Map) {
+      if (remaining <= 0) return true;
+      for (final v in value.values) {
+        if (_valueOverLimit(v, remaining - 1)) return true;
+      }
+      return false;
+    }
+    if (value is List) {
+      if (remaining <= 0) return true;
+      for (final e in value) {
+        if (_valueOverLimit(e, remaining - 1)) return true;
+      }
+      return false;
+    }
+    return false;
+  }
+
+  static (Map<String, dynamic>, int, bool) _sanitizeMap(
+    Map<dynamic, dynamic> input,
+    int remaining,
+  ) {
     final out = <String, dynamic>{};
     var removed = 0;
+    var depthExceeded = false;
     input.forEach((rawKey, value) {
       final key = rawKey is String ? rawKey : rawKey.toString();
       if (isForbiddenKey(key)) {
         removed++;
         return;
       }
-      final (v, r) = _sanitizeValue(value);
+      final (v, r, d) = _sanitizeValue(value, remaining);
       removed += r;
+      depthExceeded = depthExceeded || d;
       out[key] = v;
     });
-    return (out, removed);
+    return (out, removed, depthExceeded);
   }
 
-  static (Object?, int) _sanitizeValue(Object? value) {
+  static (Object?, int, bool) _sanitizeValue(Object? value, int remaining) {
     if (value is Map) {
-      final (map, removed) = _sanitizeMap(value);
+      if (remaining <= 0) {
+        // 深度超限：丢弃整棵子树并置位标志——调用方必须稳定拒绝
+        // （fail-closed；不得栈溢出、不得静默当清理完成）。
+        return (null, 0, true);
+      }
+      final (map, removed, depthExceeded) = _sanitizeMap(value, remaining - 1);
       // 嵌套 map 与 list 一律不可变（契约：顶层可变、嵌套层全不可变）
-      return (Map<String, dynamic>.unmodifiable(map), removed);
+      return (Map<String, dynamic>.unmodifiable(map), removed, depthExceeded);
     }
     if (value is List) {
+      if (remaining <= 0) {
+        return (null, 0, true);
+      }
       final out = <dynamic>[];
       var removed = 0;
+      var depthExceeded = false;
       for (final e in value) {
-        final (v, r) = _sanitizeValue(e);
+        final (v, r, d) = _sanitizeValue(e, remaining - 1);
         removed += r;
+        depthExceeded = depthExceeded || d;
         out.add(v);
       }
-      return (List<dynamic>.unmodifiable(out), removed);
+      return (List<dynamic>.unmodifiable(out), removed, depthExceeded);
     }
-    return (value, 0);
+    return (value, 0, false);
   }
 }

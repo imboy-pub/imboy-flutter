@@ -170,6 +170,72 @@ void main() {
     );
   });
 
+  test('S1-M1 深度上限：顶层下 16 层容器合法，17 层起置位 depthExceeded', () {
+    // 顶层 map 不计层：leaf 为第 1 层，每包一层 +1
+    Object nest(int levels) {
+      Object node = <String, dynamic>{'text': 'leaf'};
+      for (var i = 1; i < levels; i++) {
+        node = <String, dynamic>{'nested': node};
+      }
+      return node;
+    }
+
+    final ok = BundleSanitizer.sanitize(<String, dynamic>{'deep': nest(16)});
+    expect(ok.depthExceeded, isFalse, reason: '16 层容器（顶层不计）合法');
+    expect(ok.cleaned['deep'], isNotNull);
+
+    final over = BundleSanitizer.sanitize(<String, dynamic>{'deep': nest(17)});
+    expect(over.depthExceeded, isTrue, reason: '第 17 层容器 fail-closed');
+    // 超限子树被丢弃（置 null），但浅层输出仍是结构完好的 map
+    expect(over.cleaned['deep'], isA<Map<dynamic, dynamic>>());
+
+    // 既有两参构造兼容：默认 depthExceeded = false
+    expect(
+      const BundleSanitizeResult(<String, dynamic>{}, 0).depthExceeded,
+      isFalse,
+    );
+  });
+
+  test('S1-M1 病态深嵌套（5000 层）不栈溢出：有界递归 + 稳定置位', () {
+    Object deep = <dynamic>[1];
+    for (var i = 0; i < 5000; i++) {
+      deep = <dynamic>[deep];
+    }
+    final r = BundleSanitizer.sanitize(<String, dynamic>{'deep': deep});
+    expect(r.depthExceeded, isTrue);
+  });
+
+  test('S1-M1 depthOverLimit 共用前置闸：与 sanitize 同口径', () {
+    Object nest(int levels) {
+      Object node = <String, dynamic>{'text': 'leaf'};
+      for (var i = 1; i < levels; i++) {
+        node = <String, dynamic>{'nested': node};
+      }
+      return node;
+    }
+
+    expect(
+      BundleSanitizer.depthOverLimit(<String, dynamic>{'a': nest(16)}),
+      isFalse,
+    );
+    expect(
+      BundleSanitizer.depthOverLimit(<String, dynamic>{'a': nest(17)}),
+      isTrue,
+    );
+    // 标量不消耗深度预算（jsonEncode 对标量不递归）
+    expect(BundleSanitizer.depthOverLimit('scalar'), isFalse);
+
+    Object deep = <dynamic>[1];
+    for (var i = 0; i < 5000; i++) {
+      deep = <dynamic>[deep];
+    }
+    // 递归帧数有界（≤ maxDepth+2），永不栈溢出
+    expect(
+      BundleSanitizer.depthOverLimit(<String, dynamic>{'deep': deep}),
+      isTrue,
+    );
+  });
+
   test('干净 payload：零移除、内容等价', () {
     final input = <String, dynamic>{
       'text': 'ok',
