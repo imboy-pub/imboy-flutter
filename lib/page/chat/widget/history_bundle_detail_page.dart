@@ -458,6 +458,10 @@ class _ImageSnapshotThumb extends StatelessWidget {
     // object_key 形态（isObjectKey 白名单），其余完整 URL（含 presigned
     // 伪装——viewUrl 对 presigned 直通任意 host、对普通 URL 会把 s/a
     // 授权参数拼到第三方 host）一律占位图，杜绝不可信 uri 任意 host 出网。
+    // 遗留 go-fastdfs 全 URL bundle 亦在此 fail-closed（不再走同步
+    // viewUrl：Uri.parse 畸形串会在 StatelessWidget build 冒泡
+    // FormatException → 整页白屏；&width= 服务端缩放随分支移除一并
+    // 不适用——legacy 引用安全出网方案确定前不渲染优于错授权出网）。
     if (!AssetsService.isObjectKey(uri)) return placeholder;
 
     // 授权访问：object_key 原样透传给 IMBoyCachedImageProvider（AGENTS

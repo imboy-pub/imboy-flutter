@@ -214,6 +214,40 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
+  testWidgets('S1-M2/M1-a 遗留全 URL 与畸形串 uri：占位兜底，build 不抛 FormatException', (
+    tester,
+  ) async {
+    await pumpPage(tester, <String, dynamic>{
+      'bundle_version': 1,
+      'entries': [
+        {
+          // 遗留 go-fastdfs 全 URL bundle（老客户端历史消息）：S1-M2
+          // fail-closed 占位，不走 viewUrl（legacy 分支行为回归锚）
+          'msg_type': 'image',
+          'sender_name': '老消息',
+          'sent_at': sentAt,
+          'payload': {
+            'uri': 'https://i.imboy.pub/file_1730000000_abcdef/y2.png',
+          },
+        },
+        {
+          // 畸形串：Uri.parse('http://[') 会抛 FormatException——闸必须
+          // 在任何解析前拦截，build 零异常（M1-a 白屏回归锚）
+          'msg_type': 'image',
+          'sender_name': '畸形',
+          'sent_at': sentAt,
+          'payload': {'uri': 'http://['},
+        },
+      ],
+    });
+
+    // 两条均占位：无 Image widget、无任何出网 provider
+    expect(find.byType(Image), findsNothing);
+    expect(find.byIcon(CupertinoIcons.photo), findsNWidgets(4));
+    // 畸形串未把 FormatException 冒泡进测试异常通道
+    expect(tester.takeException(), isNull);
+  });
+
   testWidgets('sender 缺省回退 unknownSender（不再用 bundleTitle）', (tester) async {
     await pumpPage(tester, <String, dynamic>{
       'bundle_version': 1,

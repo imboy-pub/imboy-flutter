@@ -102,7 +102,9 @@ class HistoryBundleMessageBuilder extends StatelessWidget {
         : t.chat.bundleTitle;
     final List<IconData> icons = _collectTypeIcons(entries);
 
-    // Semantics 外包：读屏用户听到「<标题>，按钮」而非整卡片内容
+    // Semantics 外包（默认 container:false，子 Text 仍参与 merge）：读屏
+    // 在此节点获得 button 角色与标题 label，实际朗读为「<标题> + 条数
+    // 预览」等合并内容——不强隔离整卡片语义。
     return Semantics(
       button: true,
       label: title,

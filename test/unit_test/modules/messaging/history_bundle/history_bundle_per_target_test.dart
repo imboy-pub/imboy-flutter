@@ -140,12 +140,16 @@ void main() {
   });
 
   test('附件任务 sourcePayload 深拷贝：构建后改源 payload 全层不影响任务', () {
+    // 2^53+1：json round-trip（double 化）会丢精度的大整数，
+    // 锚定 _deepCopyValue 直传保真（builder 不走 jsonEncode 拷贝）
+    const tsidLike = 9007199254740993;
     final sourcePayload = <String, dynamic>{
       'name': 'a.png',
       'uri': 'u1/a.png',
+      'id': tsidLike,
       'attachment_descriptor': <String, dynamic>{
         'k': 'v',
-        'list': <dynamic>[1, 2],
+        'list': <dynamic>[1, 2, tsidLike],
       },
     };
     final success = _ok(
@@ -162,9 +166,12 @@ void main() {
     final task = success.attachmentTasks.single;
     expect(identical(task.sourcePayload, sourcePayload), isFalse);
     expect(task.sourcePayload['name'], 'a.png');
+    // 64-bit 大整数逐位保真（递归保型拷贝，非 json round-trip）
+    expect(task.sourcePayload['id'], tsidLike);
     final desc = task.sourcePayload['attachment_descriptor'] as Map;
     expect(desc['k'], 'v');
     expect((desc['list'] as List)[0], 1);
+    expect((desc['list'] as List)[2], tsidLike);
     // 两目标共享同一源 payload 时，任务快照也彼此独立
     final other = _ok(
       HistoryBundleBuilder.buildForTarget('C2G_77', [
