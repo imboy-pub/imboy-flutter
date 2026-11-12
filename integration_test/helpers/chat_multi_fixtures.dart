@@ -61,6 +61,10 @@ abstract final class ChatMultiFlags {
 /// restore 时整体还原 —— 不污染登录期服务端下发的真实开关。
 class ChatMultiFlagOverride {
   Map<String, dynamic>? _previous;
+  bool? _multiSelect;
+  bool? _bundle;
+  bool? _export;
+  VoidCallback? _guard;
 
   /// 开启多选 / 合并转发 / 导出三个 rollout flag。
   void enableAll({
@@ -69,16 +73,45 @@ class ChatMultiFlagOverride {
     bool export = true,
   }) {
     _previous = Map<String, dynamic>.from(AppFeatureRegistry.snapshot);
+    _multiSelect = multiSelect;
+    _bundle = bundle;
+    _export = export;
+    _apply();
+    // 真机长旅程守卫（DEV-01 r5 step⑧ 根因）：AppFeatureRegistry.refresh()
+    // 由 RuntimeFeatureRecovery 触发（startup/network/S2C 消息，见
+    // message_s2c.dart），从后端 /api/v1/app-features 拉取并**整体替换**
+    // snapshot —— 测试覆盖（chatMultiSelectV1 等）随之被冲掉，长按菜单
+    // 的「多选」入口随之消失（fail-closed）。监听 revision：每次 snapshot
+    // 变更后校验三个 flag，缺失即重放覆盖（_apply 会再次 bump revision，
+    // 守卫幂等判定防循环）。
+    _guard = () {
+      final s = AppFeatureRegistry.snapshot;
+      if (s[ChatMultiFlags.multiSelect] == _multiSelect &&
+          s[ChatMultiFlags.historyBundle] == _bundle &&
+          s[ChatMultiFlags.exportShare] == _export) {
+        return;
+      }
+      _apply();
+    };
+    AppFeatureRegistry.revision.addListener(_guard!);
+  }
+
+  void _apply() {
     AppFeatureRegistry.replaceSnapshotForTest({
       ...?_previous,
-      ChatMultiFlags.multiSelect: multiSelect,
-      ChatMultiFlags.historyBundle: bundle,
-      ChatMultiFlags.exportShare: export,
+      ChatMultiFlags.multiSelect: _multiSelect ?? true,
+      ChatMultiFlags.historyBundle: _bundle ?? true,
+      ChatMultiFlags.exportShare: _export ?? true,
     });
   }
 
   /// 还原开启前 snapshot（幂等； tearDown 必调）。
   void restore() {
+    final guard = _guard;
+    if (guard != null) {
+      AppFeatureRegistry.revision.removeListener(guard);
+      _guard = null;
+    }
     final prev = _previous;
     if (prev == null) return;
     AppFeatureRegistry.replaceSnapshotForTest(prev);
