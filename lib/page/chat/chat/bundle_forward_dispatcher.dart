@@ -337,7 +337,7 @@ class BundleForwardDispatcher {
     var successCount = 0;
     for (final target in targets) {
       try {
-        await _sendToTarget(target, sources, chatType: chatType, title: title);
+        await _sendToTarget(target, sources, title: title);
         successCount++;
       } on BundleForwardException catch (e) {
         failures.add(BundleForwardTargetFailure(target.uk3, e.code));
@@ -357,9 +357,14 @@ class BundleForwardDispatcher {
   Future<void> _sendToTarget(
     ConversationModel target,
     List<HistoryBundleSourceMessage> sources, {
-    required String chatType,
     String? title,
   }) async {
+    // F2（A4FIX 复审）：scope/resolver/落库一律按**目标**会话类型归一
+    // （与单条转发 send_to_provider 的 conversation.type 同口径）。
+    // 源 chatType 只决定源消息 DB 行 fetch 表（sendToTargets 内）；SendToPage
+    // 目标可为跨类型（源 C2C → 目标 C2G），把源类型灌进这里会同时污染
+    // 上传 scope、加密判定（resolver）与插表。
+    final targetChatType = MessageFlowType.normalize(target.type);
     final result = HistoryBundleBuilder.buildForTarget(
       target.uk3,
       sources,
@@ -377,12 +382,13 @@ class BundleForwardDispatcher {
       conversationUk3: target.uk3,
       currentUid: uid,
       peerId: target.peerId,
-      type: chatType,
+      type: targetChatType,
     );
     // 明文目标闸（A4 审计 CRITICAL）：与单条转发 AttachmentForward.decide →
     // ForwardRejected 同语义 —— 带 content key 的源附件只允许进入加密目标；
     // 否则新 descriptor（content key）会以明文随 bundle 出网。判定与单条
-    // 转发共用同一真值（SendToNotifier.targetPayloadWillBeEncrypted）。
+    // 转发共用同一真值（SendToNotifier.targetPayloadWillBeEncrypted），
+    // 且传**目标** chatType（F2）。
     var sealedSourceSeen = false;
     for (final task in success.attachmentTasks) {
       if (AttachmentSealPolicy.carriesContentKey(task.sourcePayload)) {
@@ -390,7 +396,10 @@ class BundleForwardDispatcher {
       }
     }
     if (sealedSourceSeen) {
-      final encrypted = await _targetEncryptedResolver(chatType, target.peerId);
+      final encrypted = await _targetEncryptedResolver(
+        targetChatType,
+        target.peerId,
+      );
       if (!encrypted) {
         throw BundleForwardException(
           HistoryBundleBuildErrorCode.rejectedPlaintextTarget,
@@ -432,7 +441,7 @@ class BundleForwardDispatcher {
     final model = MessageModel(
       messageId,
       autoId: 0,
-      type: chatType,
+      type: targetChatType,
       status: 10, // 发送中；MessageRetry 扫描出网（与单条转发同机制）
       fromId: uid,
       toId: target.peerId,
@@ -442,7 +451,7 @@ class BundleForwardDispatcher {
       conversationUk3: target.uk3,
       msgType: HistoryBundleContract.msgType,
     );
-    await _messageInserter(model, chatType);
+    await _messageInserter(model, targetChatType);
     AppEventBus.fire(
       MessageSendRequestedEvent(message: model, conversationUk3: target.uk3),
     );

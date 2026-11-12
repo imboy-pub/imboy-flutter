@@ -596,5 +596,77 @@ void main() {
       expect((images[1] as Map)['attachment_descriptor'], {'new': 2});
       expect((images[1] as Map)['uri'], 'obj/new-2');
     });
+
+    test('F2：C2C 源 → C2G 目标：scope/resolver/落库按目标 C2G，fetch 仍走源表', () async {
+      final fetchChatTypes = <String>[];
+      final rows = <String, MessageModel>{
+        'm1': _sourceRow(
+          'm1',
+          1000,
+          msgType: 'file',
+          payload: <String, dynamic>{
+            'uri': 'obj/old-key',
+            'attachment_descriptor': <String, dynamic>{'k': 'v'},
+          },
+        ),
+      };
+      final resolverCalls = <({String chatType, String peerId})>[];
+      final forwarder = _RecordingForwarder();
+      final insertChatTypes = <String>[];
+      final inserted = <MessageModel>[];
+      const gid = '2000000071';
+      final groupTarget = ConversationModel(
+        id: 9,
+        peerId: gid,
+        avatar: '',
+        title: 'g',
+        subtitle: '',
+        type: 'C2G',
+        msgType: 'text',
+        unreadNum: 0,
+      );
+      final dispatcher = BundleForwardDispatcher(
+        messageFetcher: (id, chatType) async {
+          fetchChatTypes.add(chatType);
+          return rows[id];
+        },
+        messageInserter: (model, chatType) async {
+          insertChatTypes.add(chatType);
+          inserted.add(model);
+        },
+        forwarderUidResolver: () => _uid,
+        attachmentForwarder: forwarder,
+        targetEncryptedResolver: (chatType, peerId) async {
+          resolverCalls.add((chatType: chatType, peerId: peerId));
+          return true;
+        },
+      );
+
+      final report = await dispatcher.sendToTargets(
+        [groupTarget],
+        [_uiMessage('m1')],
+        sourceChatType: 'C2C',
+      );
+
+      expect(report.allSuccess, isTrue);
+      // 源消息 DB 行 fetch 仍按**源** chatType（fetch 表按源）
+      expect(fetchChatTypes, everyElement('C2C'));
+      // resolver 收到**目标**派生 chatType + 目标 peerId（与单条转发同口径）
+      expect(resolverCalls, hasLength(1));
+      expect(resolverCalls.single.chatType, 'C2G');
+      expect(resolverCalls.single.peerId, gid);
+      expect(
+        resolverCalls.map((r) => r.chatType),
+        isNot(contains('C2C')),
+        reason: '跨类型目标不得把源 chatType 灌进加密判定',
+      );
+      // 上传 scope 按目标 C2G：scope=group、绑定=gid（deriveUploadScope）
+      expect(forwarder.requests, hasLength(1));
+      expect(forwarder.requests.single.targetScope, 'group');
+      expect(forwarder.requests.single.targetConversationUk3, gid);
+      // 落库：model.type=C2G 且插表走 msg_c2g（chatType=C2G）
+      expect(inserted.single.type, 'C2G');
+      expect(insertChatTypes, everyElement('C2G'));
+    });
   });
 }
