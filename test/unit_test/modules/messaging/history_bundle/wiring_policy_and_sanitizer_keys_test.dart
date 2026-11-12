@@ -35,16 +35,18 @@ void main() {
       expect(input['text'], 'hi');
     });
 
-    test('既有键仍被清理（回归锚：peer_id / e2ee 前缀）', () {
+    test('既有键仍被清理（回归锚：peer_id / e2ee 前缀，含驼峰变体）', () {
       final r = BundleSanitizer.sanitize(<String, dynamic>{
         'peer_id': 'p',
         'e2ee_envelope': <String, dynamic>{},
         'e2ee': <String, dynamic>{},
+        'e2eeRoomKey': <String, dynamic>{}, // 驼峰变体（G2-8）
         'keep': 1,
       });
       expect(r.cleaned.containsKey('peer_id'), isFalse);
       expect(r.cleaned.containsKey('e2ee_envelope'), isFalse);
       expect(r.cleaned.containsKey('e2ee'), isFalse);
+      expect(r.cleaned.containsKey('e2eeRoomKey'), isFalse);
       expect(r.cleaned['keep'], 1);
     });
   });

@@ -13,7 +13,8 @@ void main() {
       // 源会话上下文 / 设备身份
       'peer_id', 'conversation_uk3', 'sender_did', 'sender_dtype',
       // 原 E2EE 外层信封（e2ee 前缀族 + 信封嵌套键）
-      'e2ee', 'e2ee_v3', 'e2ee_room_key', 'devices', 'protected_header',
+      'e2ee', 'e2ee_v3', 'e2ee_room_key', 'e2eeRoomKey', 'e2eeEnvelope',
+      'devices', 'protected_header',
       // 原 content key / descriptor
       'attachment_descriptor', 'content_key',
       // 阅后即焚
@@ -134,9 +135,39 @@ void main() {
     final r = BundleSanitizer.sanitize(input);
     expect(identical(r.cleaned['body'], nested), isFalse);
     expect(nested, snapshotBefore); // 输入原样（含违规键，未被动）
-    // 修改输出不影响输入
-    (r.cleaned['body'] as Map<String, dynamic>)['text'] = 'changed';
+    // 修改输出不影响输入：嵌套层不可变，修改直接拒绝（见下条契约测试）
+    expect(
+      () => (r.cleaned['body'] as Map<String, dynamic>)['text'] = 'changed',
+      throwsUnsupportedError,
+    );
     expect(nested['text'], 'x');
+  });
+
+  test('不可变契约：顶层可变、嵌套层（map/list 全深度）不可变', () {
+    final r = BundleSanitizer.sanitize(<String, dynamic>{
+      'nested': <String, dynamic>{'a': 1},
+      'list': <dynamic>[
+        <String, dynamic>{'b': 2},
+      ],
+    });
+    // 顶层普通可变：DTO 层加 Map.unmodifiable 壳与 dispatcher 写回需要
+    r.cleaned['top'] = 'ok';
+    expect(r.cleaned['top'], 'ok');
+    // 嵌套 map 修改抛异常
+    expect(
+      () => (r.cleaned['nested'] as Map<String, dynamic>)['a'] = 99,
+      throwsUnsupportedError,
+    );
+    // 嵌套 list 修改抛异常（既有行为）
+    expect(
+      () => (r.cleaned['list'] as List<dynamic>).clear(),
+      throwsUnsupportedError,
+    );
+    // list 内 map 同样不可变
+    expect(
+      () => ((r.cleaned['list'] as List<dynamic>).single as Map)['b'] = 99,
+      throwsUnsupportedError,
+    );
   });
 
   test('干净 payload：零移除、内容等价', () {

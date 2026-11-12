@@ -104,7 +104,17 @@ class HistoryBundleV1 {
   ///
   /// 附件转发适配器（`BundleAttachmentForwarder`）执行完成后，发送入口
   /// 用它把新 uri/file_hash256/descriptor 写回对应条目；原 bundle 不受影响。
+  ///
+  /// [index] 越界（<0 或 ≥entries.length）抛 [ArgumentError]（携带
+  /// index/length，防止适配器静默写错位置）。
   HistoryBundleV1 withEntryPayload(int index, Map<String, dynamic> newPayload) {
+    if (index < 0 || index >= entries.length) {
+      throw ArgumentError.value(
+        index,
+        'index',
+        'out of range: index=$index, length=${entries.length}',
+      );
+    }
     final next = List<HistoryBundleEntryV1>.of(entries);
     next[index] = entries[index].withPayload(newPayload);
     return HistoryBundleV1(title: title, exportedAt: exportedAt, entries: next);

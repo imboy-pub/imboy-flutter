@@ -73,4 +73,33 @@ void main() {
     final bundle = HistoryBundleV1(entries: <HistoryBundleEntryV1>[]);
     expect((bundle.toJson()['entries'] as List), isEmpty);
   });
+
+  test('withEntryPayload 越界抛 ArgumentError（携带 index/length）', () {
+    final bundle = HistoryBundleV1(
+      entries: <HistoryBundleEntryV1>[
+        HistoryBundleEntryV1(
+          msgType: 'text',
+          payload: <String, dynamic>{'text': 'x'},
+        ),
+      ],
+    );
+    // 越界正数下标
+    Object? caught;
+    try {
+      bundle.withEntryPayload(3, <String, dynamic>{'uri': 'u'});
+    } on ArgumentError catch (e) {
+      caught = e;
+    }
+    expect(caught, isA<ArgumentError>());
+    final message = caught.toString();
+    expect(message, contains('index=3'));
+    expect(message, contains('length=1'));
+    // 负下标同样拒绝
+    expect(
+      () => bundle.withEntryPayload(-1, <String, dynamic>{'uri': 'u'}),
+      throwsArgumentError,
+    );
+    // 原 bundle 不受影响
+    expect(bundle.entries.single.payload['text'], 'x');
+  });
 }

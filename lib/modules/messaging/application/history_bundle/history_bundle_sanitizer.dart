@@ -21,15 +21,22 @@
 /// | 原会话成员列表 | `member_list` / `members` / `receivers` |
 ///
 /// 清理输出是**全新深拷贝**（map/list 全层新建，不与输入共享任何可变引用），
-/// 输入 payload 不被修改。
+/// 输入 payload 不被修改。不可变契约：**顶层 map 保持普通可变**
+/// （DTO 层 [HistoryBundleEntryV1] 加 Map.unmodifiable 壳与 dispatcher
+/// 写回需要可变输入），**嵌套层（任意深度的 map/list）全不可变**
+/// （`Map`/`List.unmodifiable`）。
 library;
 
 /// sanitizer 结果：清理后的新 map + 移除字段计数。
 class BundleSanitizeResult {
   const BundleSanitizeResult(this.cleaned, this.removedFieldCount);
 
-  /// 清理后的全新深拷贝（顶层为普通可变 map，由 DTO 层决定是否加不可变壳；
-  /// 嵌套层与输入不共享引用）。
+  /// 清理后的全新深拷贝。
+  ///
+  /// 不可变契约：**顶层为普通可变 map**（DTO 层加 `Map.unmodifiable` 壳、
+  /// dispatcher `withEntryPayload` 写回都需要可变输入）；**嵌套层全不可变**
+  /// （map/list 一律 `Map`/`List.unmodifiable`，修改抛 UnsupportedError），
+  /// 且与输入不共享任何可变引用。
   final Map<String, dynamic> cleaned;
 
   /// 在任意嵌套层被移除的禁止字段出现次数（含 list 内元素）。
@@ -67,11 +74,13 @@ abstract final class BundleSanitizer {
     'receivers',
   };
 
-  /// 判定键是否禁止：精确清单命中，或 `e2ee` 前缀（原 E2EE 外层信封族）。
+  /// 判定键是否禁止：精确清单命中，或 `e2ee` 前缀（原 E2EE 外层信封族，
+  /// 前缀匹配覆盖 `e2ee` / `e2ee_v3` / `e2ee_room_key` / `e2eeRoomKey` 等
+  /// 下划线与驼峰变体）。
   static bool isForbiddenKey(String key) {
     if (_exactForbiddenKeys.contains(key)) return true;
     if (_messageIdKeys.contains(key)) return true;
-    return key == 'e2ee' || key.startsWith('e2ee_');
+    return key.startsWith('e2ee');
   }
 
   /// 递归清理 [input]（任意嵌套 map/list 深度），返回新深拷贝与移除计数。
@@ -99,7 +108,8 @@ abstract final class BundleSanitizer {
   static (Object?, int) _sanitizeValue(Object? value) {
     if (value is Map) {
       final (map, removed) = _sanitizeMap(value);
-      return (map, removed);
+      // 嵌套 map 与 list 一律不可变（契约：顶层可变、嵌套层全不可变）
+      return (Map<String, dynamic>.unmodifiable(map), removed);
     }
     if (value is List) {
       final out = <dynamic>[];

@@ -201,28 +201,66 @@ abstract final class HistoryBundleBuilder {
     }
 
     // 1. 准入：全部消息必须可合并（输入顺序；任一违规整体拒绝）。
+    final rejected = _admitAll(messages);
+    if (rejected != null) {
+      return HistoryBundleBuildFailureResult(rejected);
+    }
+
+    // 2+3. 稳定排序 + 逐条构建 entry（快照/扁平化/占位+任务）。
+    final (entries, tasks, sanitizedCount) = _buildEntriesAndTasks(messages);
+
+    // 4. 组装 + 尺寸守护（UTF-8 字节长度，边界 256×1024 合法）。
+    final bundle = HistoryBundleV1(
+      title: title,
+      exportedAt: exportedAtMs,
+      entries: entries,
+    );
+    if (bundle.serializedByteLength > HistoryBundleContract.maxPayloadBytes) {
+      return const HistoryBundleBuildFailureResult(
+        HistoryBundleBuildFailure(HistoryBundleBuildErrorCode.payloadTooLarge),
+      );
+    }
+    return HistoryBundleBuildSuccessResult(
+      HistoryBundleBuildSuccess(
+        targetConversationUk3: targetConversationUk3,
+        bundle: bundle,
+        attachmentTasks: List.unmodifiable(tasks),
+        sanitizedFieldCount: sanitizedCount,
+      ),
+    );
+  }
+
+  /// 准入循环：全部消息必须可合并；任一违规即整体失败（返回携带违规
+  /// 下标与 msg_type 的失败对象），全部可合并返回 null。
+  static HistoryBundleBuildFailure? _admitAll(
+    List<HistoryBundleSourceMessage> messages,
+  ) {
     for (var i = 0; i < messages.length; i++) {
       final code = _admit(messages[i]);
       if (code != null) {
-        return HistoryBundleBuildFailureResult(
-          HistoryBundleBuildFailure(
-            code,
-            messageIndex: i,
-            detail: messages[i].msgType,
-          ),
+        return HistoryBundleBuildFailure(
+          code,
+          messageIndex: i,
+          detail: messages[i].msgType,
         );
       }
     }
+    return null;
+  }
 
-    // 2. 稳定排序：sentAtMs 升序，同时间戳保持输入顺序（Dart sort 不保证
-    //    稳定，用 (sentAtMs, 输入下标) 双键显式稳定）。
+  /// 排序 + 构建：按 (sentAtMs, 输入下标) 双键稳定排序后逐条产出
+  /// entries 与附件任务（快照/扁平化/占位+任务），并累计 sanitizer
+  /// 移除字段总数。
+  static (List<HistoryBundleEntryV1>, List<BundleAttachmentForwardTask>, int)
+  _buildEntriesAndTasks(List<HistoryBundleSourceMessage> messages) {
+    // 稳定排序：sentAtMs 升序，同时间戳保持输入顺序（Dart sort 不保证
+    // 稳定，用 (sentAtMs, 输入下标) 双键显式稳定）。
     final order = List<int>.generate(messages.length, (i) => i);
     order.sort((a, b) {
       final byTime = messages[a].sentAtMs.compareTo(messages[b].sentAtMs);
       return byTime != 0 ? byTime : a.compareTo(b);
     });
 
-    // 3. 逐条构建 entry（快照/扁平化/占位+任务）。
     final entries = <HistoryBundleEntryV1>[];
     final tasks = <BundleAttachmentForwardTask>[];
     var sanitizedCount = 0;
@@ -246,8 +284,9 @@ abstract final class HistoryBundleBuilder {
             sourceFromUid: msg.sourceFromUid,
             sourceToUid: msg.sourceToUid,
             // 源 payload 只进内存任务（adapter 需要 descriptor/uri），
-            // 绝不进入 bundle JSON。
-            sourcePayload: Map<String, dynamic>.of(msg.payload),
+            // 绝不进入 bundle JSON。深拷贝隔离：任务快照与源 payload
+            // 全层不共享可变引用（构建后源侧修改不影响任务）。
+            sourcePayload: _deepCopySourcePayload(msg.payload),
           ),
         );
       } else {
@@ -257,26 +296,36 @@ abstract final class HistoryBundleBuilder {
       }
       entries.add(entry);
     }
+    return (entries, tasks, sanitizedCount);
+  }
 
-    // 4. 组装 + 尺寸守护（UTF-8 字节长度，边界 256×1024 合法）。
-    final bundle = HistoryBundleV1(
-      title: title,
-      exportedAt: exportedAtMs,
-      entries: entries,
-    );
-    if (bundle.serializedByteLength > HistoryBundleContract.maxPayloadBytes) {
-      return const HistoryBundleBuildFailureResult(
-        HistoryBundleBuildFailure(HistoryBundleBuildErrorCode.payloadTooLarge),
-      );
+  /// sourcePayload 深拷贝入口（顶层必为 map）。
+  ///
+  /// 不使用 json round-trip 拷贝：TSID 等 64-bit 大整数经
+  /// `jsonEncode`/`jsonDecode` 会丢精度。
+  static Map<String, dynamic> _deepCopySourcePayload(
+    Map<String, dynamic> payload,
+  ) {
+    final out = <String, dynamic>{};
+    payload.forEach((key, value) => out[key] = _deepCopyValue(value));
+    return out;
+  }
+
+  /// 递归保型拷贝：map → 新 `Map<String, dynamic>`，list → 新
+  /// `List<dynamic>`，标量/引用值原样返回（String/int 等本身不可变）。
+  static Object? _deepCopyValue(Object? value) {
+    if (value is Map) {
+      final out = <String, dynamic>{};
+      value.forEach((rawKey, v) {
+        final key = rawKey is String ? rawKey : rawKey.toString();
+        out[key] = _deepCopyValue(v);
+      });
+      return out;
     }
-    return HistoryBundleBuildSuccessResult(
-      HistoryBundleBuildSuccess(
-        targetConversationUk3: targetConversationUk3,
-        bundle: bundle,
-        attachmentTasks: List.unmodifiable(tasks),
-        sanitizedFieldCount: sanitizedCount,
-      ),
-    );
+    if (value is List) {
+      return <dynamic>[for (final e in value) _deepCopyValue(e)];
+    }
+    return value;
   }
 
   /// 单条准入（优先级与 W1-A `evaluateMessageSelectability` 同口径：
@@ -343,9 +392,11 @@ abstract final class HistoryBundleBuilder {
     Map<String, dynamic> payload,
   ) => HistoryBundleEntryV1(
     msgType: msgType,
-    senderName: (msg.senderName == null || msg.senderName!.isEmpty)
-        ? null
-        : msg.senderName,
+    // null/空串发送者名归一为 null（序列化省略 sender_name 键）
+    senderName: switch (msg.senderName) {
+      null || '' => null,
+      final name => name,
+    },
     sentAt: msg.sentAtMs,
     payload: payload,
   );

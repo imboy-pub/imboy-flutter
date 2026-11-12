@@ -138,4 +138,42 @@ void main() {
     final success = _ok(r).success;
     expect(() => success.attachmentTasks.clear(), throwsUnsupportedError);
   });
+
+  test('附件任务 sourcePayload 深拷贝：构建后改源 payload 全层不影响任务', () {
+    final sourcePayload = <String, dynamic>{
+      'name': 'a.png',
+      'uri': 'u1/a.png',
+      'attachment_descriptor': <String, dynamic>{
+        'k': 'v',
+        'list': <dynamic>[1, 2],
+      },
+    };
+    final success = _ok(
+      HistoryBundleBuilder.buildForTarget('C2C_1_2', [
+        _msg(MessageType.image, 1000, payload: sourcePayload),
+      ]),
+    ).success;
+
+    // 构建后改源 payload（顶层 + 嵌套 map/list）不影响任务快照
+    sourcePayload['name'] = 'mutated.png';
+    (sourcePayload['attachment_descriptor'] as Map)['k'] = 'changed';
+    ((sourcePayload['attachment_descriptor'] as Map)['list'] as List)[0] = 99;
+
+    final task = success.attachmentTasks.single;
+    expect(identical(task.sourcePayload, sourcePayload), isFalse);
+    expect(task.sourcePayload['name'], 'a.png');
+    final desc = task.sourcePayload['attachment_descriptor'] as Map;
+    expect(desc['k'], 'v');
+    expect((desc['list'] as List)[0], 1);
+    // 两目标共享同一源 payload 时，任务快照也彼此独立
+    final other = _ok(
+      HistoryBundleBuilder.buildForTarget('C2G_77', [
+        _msg(MessageType.image, 1000, payload: sourcePayload),
+      ]),
+    ).success;
+    expect(
+      identical(task.sourcePayload, other.attachmentTasks.single.sourcePayload),
+      isFalse,
+    );
+  });
 }
