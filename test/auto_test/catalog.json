@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
   "generated_from": {
-    "app_head": "74c2e1cf093c88ad6410d843033a1093546b8111",
-    "backend_head": "2fd7b569abd3b4bd6c3097491ace63b4f041dea7",
+    "app_head": "a674eb5f8fe22cd6337f2759a5916d6d0cd54d77",
+    "backend_head": "e518c02de21f24435dde19e8fe721d02c14ca963",
     "integration_test_count": 200,
     "lib_page_count": 172,
     "module_page_count": 40,
@@ -798,7 +798,7 @@
     {
       "id": "test:integration_test/chat_multi_bundle_roundtrip_test.dart",
       "target": "integration_test/chat_multi_bundle_roundtrip_test.dart",
-      "target_sha256": "4e1d36667dba7ab0aa9a17d7170ffaf3e2c7a049e32762965c2627913cde92e4",
+      "target_sha256": "738ba36fc5816c129a8073bd06f67a53969725316413d735cd020bf044e324af",
       "sources": [],
       "dependencies": [],
       "risk": "device-readonly",
@@ -812,7 +812,7 @@
     {
       "id": "test:integration_test/chat_multi_export_test.dart",
       "target": "integration_test/chat_multi_export_test.dart",
-      "target_sha256": "57aaa49c377ba9e1064622b380eeea4643ac8e938ada5cfbff2210f8c2bca8ea",
+      "target_sha256": "e9e431e8424b2586e5c76cfb9746a66291855b604e5079fb7193779eec4a3492",
       "sources": [],
       "dependencies": [],
       "risk": "device-readonly",
@@ -826,7 +826,7 @@
     {
       "id": "test:integration_test/chat_multi_forward_c2g_test.dart",
       "target": "integration_test/chat_multi_forward_c2g_test.dart",
-      "target_sha256": "e3777a87e06a9a85aacffc3818092f42ec604798c2266bd8084b0b16e7bd9de7",
+      "target_sha256": "d87c31c0a15359ddbc2dd1741d8e1685dcf522dbdc3297cc0ad27573642411a2",
       "sources": [],
       "dependencies": [],
       "risk": "device-readonly",
@@ -840,7 +840,7 @@
     {
       "id": "test:integration_test/chat_multi_select_test.dart",
       "target": "integration_test/chat_multi_select_test.dart",
-      "target_sha256": "f48f8c722b737dea166c2ae493e4174e1215798ed360d497198040870519bbef",
+      "target_sha256": "3f555ffbdf51efbbcd918257337b59091198660c479474b8aca5e4722bde56c7",
       "sources": [],
       "dependencies": [],
       "risk": "device-readonly",
