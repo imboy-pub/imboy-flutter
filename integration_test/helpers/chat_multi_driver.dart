@@ -187,7 +187,7 @@ Future<void> enterMultiSelectViaMenu(
     // 后启用，UI 侧 action bar/计数断言不变。
     final viaProduction =
         targetMessage != null &&
-        _enterMultiSelectViaProduction(tester, targetMessage) == true;
+        _enterMultiSelectViaProduction(tester, targetMessage) == null;
     if (!viaProduction) {
       await takeScreenshot(tester, 'w3k_diag_menu_without_multiselect');
       fail('$journey 长按菜单未见「多选」入口 —— flag 未开启或消息不可选');
