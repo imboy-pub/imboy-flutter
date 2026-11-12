@@ -276,6 +276,23 @@ void main() {
     expect(gateway.calls, 0);
   });
 
+  test('E2EE 确认回调抛异常：防御捕获映射 e2eeDeclined，异常不穿透（W5-G3-1）', () async {
+    // UI 闭包跨 await（逐条 DB 映射 + 加密判定）后 context 可能已卸载，
+    // 弹窗调用抛异常——controller 必须兜住并按用户拒绝处理，而不是让
+    // 异常穿透 unawaited 的导出调用链。
+    final gateway = _RecordingGateway();
+    final result = await controller(
+      gateway,
+      isEncrypted: () async => true,
+      confirm: () async => throw StateError('dialog context unmounted'),
+    ).export(request([_text('张三', t1, '机密')]));
+
+    expect(result.status, ChatExportStatus.e2eeDeclined);
+    expect(gateway.calls, 0);
+    expect(writer.writeCalls, 0);
+    expect(_exportFilesIn(dir), isEmpty);
+  });
+
   test('E2EE 会话 + 用户确认：继续导出，分享后仍清理', () async {
     final gateway = _RecordingGateway();
     final result = await controller(

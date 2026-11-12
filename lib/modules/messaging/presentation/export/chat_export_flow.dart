@@ -26,6 +26,7 @@ import 'package:flutter_chat_core/flutter_chat_core.dart' as core;
 
 import 'package:imboy/app_core/feature_flags/app_feature_registry.dart';
 import 'package:imboy/app_core/feature_flags/feature_keys.dart';
+import 'package:imboy/component/helper/func.dart' show iPrint;
 import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/modules/messaging/application/export/chat_export_controller.dart';
@@ -49,6 +50,12 @@ Future<ChatExportResult> runChatExportFlow(
   String? toId,
   Future<String> Function(core.UserID authorId)? senderNameResolver,
 }) async {
+  // 灰度前置判定（W5-G3-2）：关闭时直接走既有 flagDisabled 静默路径，
+  // 不做逐消息映射（每条一次 DB 发送者名查询）等无谓工作。controller
+  // 内的同款判定保留，作注入型调用的防御（双保险）。
+  if (!AppFeatureRegistry.isRolloutFlagEnabled(FeatureKeys.chatExportShareV1)) {
+    return const ChatExportResult(status: ChatExportStatus.flagDisabled);
+  }
   final controller = ChatExportController(
     gateway: const SharePlusChatShareGateway(),
     tempFileWriter: IoChatExportTempFileWriter(),
@@ -56,8 +63,14 @@ Future<ChatExportResult> runChatExportFlow(
         AppFeatureRegistry.isRolloutFlagEnabled(FeatureKeys.chatExportShareV1),
     isEncryptedConversation: () =>
         isEncryptedConversationForExport(chatType: chatType, toId: toId),
-    confirmLeaveEncryptedEnvironment: () =>
-        showChatExportE2eeConfirmDialog(context),
+    confirmLeaveEncryptedEnvironment: () async {
+      // 本闭包在 controller 第 3 步才被调用——此前已跨过逐消息映射
+      // （每条 DB 查询）与加密判定的多次 await，context 可能已卸载。
+      // 卸载即无法取得用户同意：fail-closed 返回 false（视同拒绝，
+      // 走 e2eeDeclined 静默零副作用路径，W5-G3-1）。
+      if (!context.mounted) return false;
+      return showChatExportE2eeConfirmDialog(context);
+    },
     translations: currentChatExportPlaceholderTranslations,
   );
   final entries = await chatExportEntriesFromMessages(
@@ -80,6 +93,13 @@ void _toastFor(ChatExportResult result) {
     case ChatExportStatus.shared:
       unawaited(AppLoading.showToast(t.chat.exportShared));
     case ChatExportStatus.error:
+      // 稳定错误码进日志（iPrint，与 messaging 模块其余日志同惯例）便于
+      // 排查；UI 统一 exportFailed（按错误码差异化 i18n 提示留待后续）。
+      iPrint(
+        '⚠️ [chat_export] 导出失败: ${result.errorCode ?? 'unknown'}'
+        '（stable code: temp_file_write_failed / share_failed / '
+        'share_invalid_params）',
+      );
       unawaited(AppLoading.showToast(t.chat.exportFailed));
     case ChatExportStatus.nothingToExport:
       unawaited(AppLoading.showToast(t.chat.exportNothingToExport));
