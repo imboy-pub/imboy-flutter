@@ -18,6 +18,13 @@ vulnerabilities:
     statement: >-
       Vendored Sentry maintainer bundle used by its own Fastlane/Slather tasks;
       IMBoy's Flutter/CocoaPods build does not install or execute this bundle.
+  - id: CVE-2026-126080
+    paths:
+      - macos/Shims/vendor/Sentry/Gemfile.lock
+    expired_at: 2027-02-10
+    statement: >-
+      Same ActiveSupport advisory as GHSA-8474-xrp6-wh69; applies only to the
+      vendored Sentry maintainer bundle, not IMBoy's Flutter/CocoaPods build.
   - id: CVE-2026-35611
     paths:
       - macos/Shims/vendor/Sentry/Gemfile.lock
