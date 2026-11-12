@@ -295,7 +295,7 @@ void main() {
       expect(inserted, isEmpty);
     });
 
-    test('源行缺失 → 整体放弃（invalidTarget），无部分 bundle', () async {
+    test('源行缺失 → 整体放弃（sourceMissing），无部分 bundle', () async {
       final inserted = <MessageModel>[];
       final dispatcher = BundleForwardDispatcher(
         messageFetcher: (id, chatType) async => null,
@@ -313,7 +313,128 @@ void main() {
       expect(report.successCount, 0);
       expect(
         report.failures.single.errorCode,
+        HistoryBundleBuildErrorCode.sourceMissing,
+        reason: 'W5 G4-7：源行缺失与目标标识缺失语义分离，专用稳定码',
+      );
+      expect(inserted, isEmpty);
+    });
+
+    test(
+      'W5 G4-1：burn_read_at 为字符串形态 → rejectedBurnAfterRead（焚毁闸 §4.4）',
+      () async {
+        final rows = <String, MessageModel>{
+          'm1': _sourceRow(
+            'm1',
+            1000,
+            payload: <String, dynamic>{
+              'text': 'burn-me',
+              // 字符串形态的已读时刻：仅按 int 解析会落 0 绕过焚毁闸。
+              'burn_read_at': '1731000000000',
+            },
+          ),
+        };
+        final inserted = <MessageModel>[];
+        final dispatcher = BundleForwardDispatcher(
+          messageFetcher: (id, chatType) async => rows[id],
+          messageInserter: (model, chatType) async => inserted.add(model),
+          forwarderUidResolver: () => _uid,
+          attachmentForwarder: _RecordingForwarder(),
+        );
+
+        final report = await dispatcher.sendToTargets(
+          [_target(1, '1000000056')],
+          [_uiMessage('m1')],
+          sourceChatType: 'C2C',
+        );
+
+        expect(report.successCount, 0);
+        expect(
+          report.failures.single.errorCode,
+          HistoryBundleBuildErrorCode.rejectedBurnAfterRead,
+          reason: '字符串 burn_read_at 必须经 ChatBurnService 宽松解析命中焚毁闸',
+        );
+        expect(inserted, isEmpty, reason: '无半转发状态');
+      },
+    );
+
+    test('W5 G4-2：空 targets → invalidTarget 稳定码返回（不抛 StateError）', () async {
+      var fetcherCalls = 0;
+      final inserted = <MessageModel>[];
+      final dispatcher = BundleForwardDispatcher(
+        messageFetcher: (id, chatType) async {
+          fetcherCalls++;
+          return null;
+        },
+        messageInserter: (model, chatType) async => inserted.add(model),
+        forwarderUidResolver: () => _uid,
+        attachmentForwarder: _RecordingForwarder(),
+      );
+
+      final report = await dispatcher.sendToTargets(<ConversationModel>[], [
+        _uiMessage('m1'),
+      ], sourceChatType: 'C2C');
+
+      expect(report.successCount, 0);
+      expect(report.allSuccess, isFalse);
+      expect(
+        report.failures.single.errorCode,
         HistoryBundleBuildErrorCode.invalidTarget,
+        reason: '与 validateBatch 空目标同语义的稳定码',
+      );
+      expect(fetcherCalls, 0, reason: '入口防御在阶段 1 之前短路');
+      expect(inserted, isEmpty);
+    });
+
+    test(
+      'W5 G4-3：阶段 1 fetcher 抛 Exception → sendFailed 归一，不产生未处理异步错误',
+      () async {
+        final inserted = <MessageModel>[];
+        final dispatcher = BundleForwardDispatcher(
+          messageFetcher: (id, chatType) async => throw Exception('db locked'),
+          messageInserter: (model, chatType) async => inserted.add(model),
+          forwarderUidResolver: () => _uid,
+          attachmentForwarder: _RecordingForwarder(),
+        );
+
+        final report = await dispatcher.sendToTargets(
+          [_target(1, '1000000056')],
+          [_uiMessage('m1')],
+          sourceChatType: 'C2C',
+        );
+
+        expect(report.successCount, 0);
+        expect(
+          report.failures.single.errorCode,
+          HistoryBundleBuildErrorCode.sendFailed,
+          reason: 'DB 异常与 F4 附件基础设施失败同口径归一',
+        );
+        expect(inserted, isEmpty);
+      },
+    );
+
+    test('W5 G4-3：阶段 2 probe 构建抛 Exception → sendFailed 归一，零落库', () async {
+      final rows = <String, MessageModel>{'m1': _sourceRow('m1', 1000)};
+      final inserted = <MessageModel>[];
+      final dispatcher = BundleForwardDispatcher(
+        messageFetcher: (id, chatType) async => rows[id],
+        messageInserter: (model, chatType) async => inserted.add(model),
+        forwarderUidResolver: () => _uid,
+        attachmentForwarder: _RecordingForwarder(),
+        bundleBuilder: (uk3, sources, {title}) =>
+            throw Exception('probe exploded'),
+      );
+
+      final report = await dispatcher.sendToTargets(
+        [_target(1, '1000000056')],
+        [_uiMessage('m1')],
+        sourceChatType: 'C2C',
+      );
+
+      expect(report.successCount, 0);
+      expect(
+        report.failures.single.errorCode,
+        HistoryBundleBuildErrorCode.sendFailed,
+        reason: 'probe 构建异常不得穿透 sendToTargets（未处理异步错误）',
       );
       expect(inserted, isEmpty);
     });
@@ -607,6 +728,69 @@ void main() {
       expect((images[0] as Map).containsKey('from_id'), isFalse);
       expect((images[1] as Map)['attachment_descriptor'], {'new': 2});
       expect((images[1] as Map)['uri'], 'obj/new-2');
+    });
+
+    test('W5 G4-5：images[] 非 Map 元素取净化后版本（不透传原引用/未净化内容）', () async {
+      final rows = <String, MessageModel>{
+        'm1': _sourceRow(
+          'm1',
+          1000,
+          msgType: 'imageMulti',
+          payload: <String, dynamic>{
+            'images': [
+              <String, dynamic>{'uri': 'obj/old-1'},
+            ],
+          },
+        ),
+      };
+      // adapter 产物：images 混入非 Map 元素（嵌套 list 夹带禁止键 + 标量）。
+      final adapterPayload = <String, dynamic>{
+        'images': [
+          <String, dynamic>{'uri': 'obj/new-1'},
+          <dynamic>[
+            <String, dynamic>{'peer_id': 'leak', 'text': 'x'},
+          ],
+          'plain-scalar',
+        ],
+        'total': 3,
+      };
+      final forwarder = _RecordingForwarder(script: [adapterPayload]);
+      final inserted = <MessageModel>[];
+      final dispatcher = BundleForwardDispatcher(
+        messageFetcher: (id, chatType) async => rows[id],
+        messageInserter: (model, chatType) async => inserted.add(model),
+        forwarderUidResolver: () => _uid,
+        attachmentForwarder: forwarder,
+        targetEncryptedResolver: (chatType, peerId) async => true,
+      );
+
+      final report = await dispatcher.sendToTargets(
+        [_target(1, '1000000056')],
+        [_uiMessage('m1')],
+        sourceChatType: 'C2C',
+      );
+
+      expect(report.allSuccess, isTrue);
+      final wp =
+          ((inserted.single.payloadMap['entries'] as List).first
+                  as Map)['payload']
+              as Map;
+      final images = wp['images'] as List;
+      expect(images, hasLength(3));
+      // Map 元素照常净化 + descriptor 回填路径。
+      expect((images[0] as Map)['uri'], 'obj/new-1');
+      // 非 Map 的嵌套 list 元素：必须走 sanitizer 净化（禁止键被清），
+      // 不得原引用透传。
+      final nested = (images[1] as List).single as Map;
+      expect(nested.containsKey('peer_id'), isFalse, reason: '禁止键被清理');
+      expect(nested['text'], 'x');
+      expect(
+        identical(images[1], (adapterPayload['images'] as List)[1]),
+        isFalse,
+        reason: '非 Map 元素也不得与 adapter 产物共享可变引用',
+      );
+      // 标量元素保留。
+      expect(images[2], 'plain-scalar');
     });
 
     test('F2：C2C 源 → C2G 目标：scope/resolver/落库按目标 C2G，fetch 仍走源表', () async {

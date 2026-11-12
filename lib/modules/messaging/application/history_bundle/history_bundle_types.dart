@@ -88,4 +88,10 @@ abstract final class HistoryBundleBuildErrorCode {
   /// UI/日志泄漏异常细节；仅发送编排（BundleForwardDispatcher）产生，
   /// 不进入 bundle 构建侧判定。**只增不改语义**。
   static const String sendFailed = 'bundle_send_failed';
+
+  /// 源消息 DB 行缺失（会话被清/源行已删）：发送编排阶段 1 整体放弃，
+  /// 不做部分 bundle（与「目标会话标识为空」的 [invalidTarget] 语义
+  /// 分离，W5 G4-7）。仅发送编排（BundleForwardDispatcher）产生，
+  /// 不进入 bundle 构建侧判定。**只增不改语义**。
+  static const String sourceMissing = 'bundle_source_missing';
 }

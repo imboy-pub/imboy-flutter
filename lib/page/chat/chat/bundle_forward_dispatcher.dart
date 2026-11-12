@@ -28,6 +28,7 @@ import 'package:imboy/page/chat/send_to/send_to_provider.dart';
 import 'package:imboy/component/helper/func.dart' show iPrint;
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
+import 'package:imboy/page/chat/chat/services/chat_burn_service.dart';
 import 'package:imboy/page/chat/chat/services/chat_network_service.dart';
 import 'package:imboy/service/event_bus.dart';
 import 'package:imboy/modules/messaging/infrastructure/message_model_mapper.dart';
@@ -201,6 +202,12 @@ class BundleForwardDispatcher {
     Future<bool> Function(String chatType, String peerId)?
     targetEncryptedResolver,
     ForwardCopyDispatch? wsDispatcher,
+    HistoryBundleBuildResult Function(
+      String targetUk3,
+      List<HistoryBundleSourceMessage> sources, {
+      String? title,
+    })?
+    bundleBuilder,
   }) : _attachmentForwarder =
            attachmentForwarder ?? const DefaultBundleAttachmentForwarder(),
        _messageFetcher = messageFetcher ?? _defaultMessageFetcher,
@@ -208,7 +215,8 @@ class BundleForwardDispatcher {
        _forwarderUidResolver = forwarderUidResolver ?? _defaultForwarderUid,
        _targetEncryptedResolver =
            targetEncryptedResolver ?? _defaultTargetEncrypted,
-       _wsDispatcher = wsDispatcher ?? defaultForwardDispatch;
+       _wsDispatcher = wsDispatcher ?? defaultForwardDispatch,
+       _bundleBuilder = bundleBuilder ?? HistoryBundleBuilder.buildForTarget;
 
   static Future<MessageModel?> _defaultMessageFetcher(
     String messageId,
@@ -237,7 +245,10 @@ class BundleForwardDispatcher {
   /// 加载补发 status=10 行（`_pageMessages`）同一条现行链路。bundle 的
   /// msg_type 由 sendWsMsg / encryptPayload 的 bundle 感知分支处理
   /// （A4FIX F3 终检 / 群级 E2EE 强制门原样生效）。
-  @visibleForTesting
+  ///
+  /// 生产默认路径（W5 G4-6）：构造未注入 [ForwardCopyDispatch] 时，全部
+  /// 副本都经它派发；故不加 @visibleForTesting（那会禁止生产引用）。
+  /// 测试经构造注入替身 dispatcher，不依赖本入口。
   static Future<bool> defaultForwardDispatch(MessageModel model) =>
       const ChatNetworkService().sendWsMsg(model);
 
@@ -250,6 +261,12 @@ class BundleForwardDispatcher {
   final Future<bool> Function(String chatType, String peerId)
   _targetEncryptedResolver;
   final ForwardCopyDispatch _wsDispatcher;
+  final HistoryBundleBuildResult Function(
+    String targetUk3,
+    List<HistoryBundleSourceMessage> sources, {
+    String? title,
+  })
+  _bundleBuilder;
 
   /// 多选 action bar「合并转发」入口（计划 §12 第 2 步）。
   ///
@@ -314,53 +331,101 @@ class BundleForwardDispatcher {
     final failures = <BundleForwardTargetFailure>[];
     final chatType = MessageFlowType.normalize(sourceChatType);
 
+    // 0. 空目标防御（W5 G4-2）：`targets.first` 对空列表抛 StateError
+    //    （Error 不被 on Exception 捕获 → 未处理异步错误 + 模态卡死）。
+    //    与 validateBatch 空目标同语义的稳定码 invalidTarget（目标标识
+    //    缺失），以报告形态返回，不抛出。
+    if (targets.isEmpty) {
+      failures.add(
+        const BundleForwardTargetFailure(
+          '',
+          HistoryBundleBuildErrorCode.invalidTarget,
+        ),
+      );
+      return BundleForwardReport(successCount: 0, failures: failures);
+    }
+
     // 1. 源消息快照输入：payload 一律取 DB 原行；UI metadata 只提供
     //    E2EE 失败占位标记（mapper 产物，DB 行不含）。
     final e2eeFailedIds = <String>{
       for (final m in sourceMessages)
         if (m.metadata?['_e2ee_failed'] == true) m.id,
     };
-    final sources = <HistoryBundleSourceMessage>[];
-    for (final m in sourceMessages) {
-      final model = await _messageFetcher(m.id, chatType);
-      if (model == null) {
-        // 源行已不存在（会话被清等）：整体放弃，不做部分 bundle。
-        failures.add(
-          BundleForwardTargetFailure(
-            '',
-            HistoryBundleBuildErrorCode.invalidTarget,
+    List<HistoryBundleSourceMessage> sources;
+    try {
+      sources = <HistoryBundleSourceMessage>[];
+      for (final m in sourceMessages) {
+        final model = await _messageFetcher(m.id, chatType);
+        if (model == null) {
+          // 源行已不存在（会话被清等）：整体放弃，不做部分 bundle
+          // （W5 G4-7：专用稳定码 sourceMissing，与目标标识缺失分离）。
+          failures.add(
+            const BundleForwardTargetFailure(
+              '',
+              HistoryBundleBuildErrorCode.sourceMissing,
+            ),
+          );
+          return BundleForwardReport(successCount: 0, failures: failures);
+        }
+        final payload = model.payloadMap;
+        sources.add(
+          HistoryBundleSourceMessage(
+            msgType: model.msgType,
+            sourceMessageId: model.id,
+            sourceChatType: model.type ?? chatType,
+            sourceFromUid: model.fromId,
+            sourceToUid: model.toId,
+            sentAtMs: model.createdAt,
+            status: _domainStatusFromCore(model.typesStatus),
+            payload: payload,
+            e2eeFailedPlaceholder: e2eeFailedIds.contains(model.id),
+            // W5 G4-1（冻结合同 §4.4）：burn_read_at 有 int/String 两种
+            // 落库形态，复用 ChatBurnService 既有宽松解析（禁自造第三套）；
+            // 仅按 int 解析会让字符串形态落 0，绕过 rejectedBurnAfterRead
+            // 焚毁闸。
+            burnReadAtMs: ChatBurnService.burnReadAtMsFromPayload(payload),
           ),
         );
-        return BundleForwardReport(successCount: 0, failures: failures);
       }
-      final payload = model.payloadMap;
-      final burn = payload['burn_read_at'];
-      sources.add(
-        HistoryBundleSourceMessage(
-          msgType: model.msgType,
-          sourceMessageId: model.id,
-          sourceChatType: model.type ?? chatType,
-          sourceFromUid: model.fromId,
-          sourceToUid: model.toId,
-          sentAtMs: model.createdAt,
-          status: _domainStatusFromCore(model.typesStatus),
-          payload: payload,
-          e2eeFailedPlaceholder: e2eeFailedIds.contains(model.id),
-          burnReadAtMs: burn is int ? burn : 0,
+    } on Object catch (e) {
+      // W5 G4-3（阶段 1）：DB 异常不得穿透本方法（否则未处理异步错误 +
+      // 模态卡死）；归一到 F4 sendFailed 同口径稳定码，日志只记类型
+      // （Finding 014）。整体放弃，无半转发状态。
+      iPrint(
+        '⚠️ [BundleForwardDispatcher] 源行快照失败(整体放弃): '
+        'errType=${e.runtimeType}',
+      );
+      failures.add(
+        const BundleForwardTargetFailure(
+          '',
+          HistoryBundleBuildErrorCode.sendFailed,
         ),
       );
+      return BundleForwardReport(successCount: 0, failures: failures);
     }
 
     // 2. 准入预检（目标无关，一次失败全部放弃；无半转发状态）。
     final firstUk3 = targets.first.uk3;
-    final probe = HistoryBundleBuilder.buildForTarget(
-      firstUk3,
-      sources,
-      title: title,
-    );
-    if (probe is HistoryBundleBuildFailureResult) {
+    try {
+      final probe = _bundleBuilder(firstUk3, sources, title: title);
+      if (probe is HistoryBundleBuildFailureResult) {
+        failures.add(
+          BundleForwardTargetFailure(firstUk3, probe.failure.errorCode),
+        );
+        return BundleForwardReport(successCount: 0, failures: failures);
+      }
+    } on Object catch (e) {
+      // W5 G4-3（阶段 2）：probe 构建异常同口径归一（F4 sendFailed），
+      // 只记类型不输出异常对象（Finding 014）。
+      iPrint(
+        '⚠️ [BundleForwardDispatcher] 准入预检异常(整体放弃): '
+        'errType=${e.runtimeType}',
+      );
       failures.add(
-        BundleForwardTargetFailure(firstUk3, probe.failure.errorCode),
+        BundleForwardTargetFailure(
+          firstUk3,
+          HistoryBundleBuildErrorCode.sendFailed,
+        ),
       );
       return BundleForwardReport(successCount: 0, failures: failures);
     }
@@ -400,11 +465,7 @@ class BundleForwardDispatcher {
     // 目标可为跨类型（源 C2C → 目标 C2G），把源类型灌进这里会同时污染
     // 上传 scope、加密判定（resolver）与插表。
     final targetChatType = MessageFlowType.normalize(target.type);
-    final result = HistoryBundleBuilder.buildForTarget(
-      target.uk3,
-      sources,
-      title: title,
-    );
+    final result = _bundleBuilder(target.uk3, sources, title: title);
     if (result is HistoryBundleBuildFailureResult) {
       throw BundleForwardException(result.failure.errorCode);
     }
@@ -529,32 +590,48 @@ MessageStatus _domainStatusFromCore(core.MessageStatus? status) {
 
 /// 附件写回产物净化：BundleSanitizer 全键清理 + 目标绑定新 descriptor
 /// 豁免回填（顶层与 images[] 两处；其余任何嵌套层仍被清理）。
+///
+/// 只读契约（W5 G2 并行）：sanitizer 输出一律视为只读（G2 侧嵌套层为
+/// Map.unmodifiable），本函数对清理产物**重建新 map/list 再整体替换**，
+/// 禁止原地改写任何嵌套结构；顶层 descriptor 回填也走重建式（双保险，
+/// 两个 sanitizer 版本下均正确）。
 Map<String, dynamic> sanitizeAttachmentWriteback(Map<String, dynamic> payload) {
-  final cleaned = BundleSanitizer.sanitize(payload).cleaned;
+  final sanitized = BundleSanitizer.sanitize(payload).cleaned;
+  // 顶层重建式回填：不在 sanitized 顶层原位插 key（双保险）。
+  final out = Map<String, dynamic>.of(sanitized);
   final desc = payload[AttachmentSealPolicy.descriptorPayloadKey];
   if (desc != null) {
-    cleaned[AttachmentSealPolicy.descriptorPayloadKey] = desc;
+    out[AttachmentSealPolicy.descriptorPayloadKey] = desc;
   }
   final images = payload[AttachmentSealPolicy.imagesPayloadKey];
   if (images is List) {
-    cleaned[AttachmentSealPolicy.imagesPayloadKey] = <Object?>[
-      for (final raw in images)
-        if (raw is Map)
-          _sanitizeImageWriteback(Map<String, dynamic>.from(raw))
-        else
-          raw,
+    // W5 G4-5：非 Map 元素不得原引用透传（未净化 + 与输入共享可变引用），
+    // 一律取 cleaned images 里的净化后版本；仅 Map 元素做 descriptor
+    // 豁免回填。整体重建新 list，不原地改写 sanitized 的嵌套结构。
+    final sanitizedImages = sanitized[AttachmentSealPolicy.imagesPayloadKey];
+    final cleanedElements = sanitizedImages is List ? sanitizedImages : null;
+    final rebuiltImages = <Object?>[
+      for (var i = 0; i < images.length; i++)
+        if (images[i] is Map)
+          _sanitizeImageWriteback(Map<String, dynamic>.from(images[i] as Map))
+        else if (cleanedElements != null && i < cleanedElements.length)
+          cleanedElements[i],
+      // cleaned 缺对应下标（异常形态）时丢弃：宁缺毋透传原引用。
     ];
+    out[AttachmentSealPolicy.imagesPayloadKey] = rebuiltImages;
   }
-  return cleaned;
+  return out;
 }
 
 Map<String, dynamic> _sanitizeImageWriteback(Map<String, dynamic> image) {
-  final cleaned = BundleSanitizer.sanitize(image).cleaned;
+  final sanitized = BundleSanitizer.sanitize(image).cleaned;
+  // 顶层重建式回填（同上：不在 sanitize 产物原位插 key）。
+  final out = Map<String, dynamic>.of(sanitized);
   final desc = image[AttachmentSealPolicy.descriptorPayloadKey];
   if (desc != null) {
-    cleaned[AttachmentSealPolicy.descriptorPayloadKey] = desc;
+    out[AttachmentSealPolicy.descriptorPayloadKey] = desc;
   }
-  return cleaned;
+  return out;
 }
 
 /// 发送编排的稳定错误异常（错误码 = [HistoryBundleBuildErrorCode]）。
