@@ -331,11 +331,16 @@ class _SendToPageState extends ConsumerState<SendToPage> {
 
   /// 目标上限兜底（冻结合同 §4.2：第 10 个拒绝选择并提示）。
   /// 返回 true 表示本次点击被拒绝（不改选择状态）。
+  ///
+  /// 适用范围（S1-L3）：批量逐条转发（isBatch）与合并转发
+  /// （onConfirmedSend 注入，bundle 每目标独立构建+附件逐目标重传，
+  /// 无上限会资源放大）共用同一 9 目标闸；普通单条转发
+  /// （无 onConfirmedSend 的 msg 构造）保持既有不限量行为。
   bool _rejectBatchTargetSelection(
     ConversationModel contact,
     List<ConversationModel> selectedContacts,
   ) {
-    if (!widget.isBatch) return false;
+    if (!widget.isBatch && widget.onConfirmedSend == null) return false;
     final already = selectedContacts.any((e) => e.id == contact.id);
     if (already || selectedContacts.length < kBatchForwardMaxTargets) {
       return false;

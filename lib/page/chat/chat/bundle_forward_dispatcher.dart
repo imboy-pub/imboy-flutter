@@ -23,6 +23,8 @@ import 'package:xid/xid.dart';
 import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/chat/chat/attachment_handler.dart';
+import 'package:imboy/page/chat/send_to/batch_forward_coordinator.dart'
+    show kBatchForwardMaxTargets;
 import 'package:imboy/page/chat/send_to/send_to_page.dart';
 import 'package:imboy/page/chat/send_to/send_to_provider.dart';
 import 'package:imboy/component/helper/func.dart' show iPrint;
@@ -336,6 +338,21 @@ class BundleForwardDispatcher {
     //    与 validateBatch 空目标同语义的稳定码 invalidTarget（目标标识
     //    缺失），以报告形态返回，不抛出。
     if (targets.isEmpty) {
+      failures.add(
+        const BundleForwardTargetFailure(
+          '',
+          HistoryBundleBuildErrorCode.invalidTarget,
+        ),
+      );
+      return BundleForwardReport(successCount: 0, failures: failures);
+    }
+
+    // 0b. 目标数上限（S1-L3 LOW）：bundle 每目标独立构建 + 附件逐目标
+    //     重传，目标数无上限 = 资源 N 倍放大。UI 已按同一 9 目标闸拒绝
+    //     选择（send_to_page._rejectBatchTargetSelection 对 bundle 模式
+    //     生效），此处是 dispatcher 纵深防御——与 G4-2 空 targets 同风格
+    //     返回 invalidTarget 稳定码整体拒绝，fail-closed。
+    if (targets.length > kBatchForwardMaxTargets) {
       failures.add(
         const BundleForwardTargetFailure(
           '',

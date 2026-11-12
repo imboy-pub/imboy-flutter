@@ -431,6 +431,46 @@ void main() {
       expect(fake.calls, isEmpty, reason: 'onConfirmedSend 路径不调 sendMsg');
       expect(find.text('home-marker'), findsOneWidget);
     });
+
+    testWidgets(
+      'S1-L3：bundle 模式（onConfirmedSend）9/10 目标闸生效：第 10 个拒绝选择，仅 9 目标进入合并转发',
+      (tester) async {
+        final fake = _RecordingSendToNotifier()
+          ..conversations = [
+            for (var i = 1; i <= 10; i++) conv('${20000 + i}'),
+          ];
+        List<ConversationModel>? captured;
+        await _pumpSendTo(
+          tester,
+          notifier: fake,
+          page: SendToPage(
+            msg: chatMsg('only', 1000),
+            onConfirmedSend: (targets) async {
+              captured = targets;
+              return true;
+            },
+          ),
+        );
+
+        for (var i = 1; i <= 10; i++) {
+          // 测试视口一次放不下 10 行，先滚动到位再点。
+          final row = find.text('peer-${20000 + i}');
+          await tester.ensureVisible(row);
+          await tester.tap(row);
+          await tester.pump();
+        }
+        await tester.tap(find.text(t.common.buttonSend));
+        await tester.pumpAndSettle();
+
+        expect(captured, hasLength(9), reason: '第 10 个目标被拒绝选择，未进合并转发');
+        expect(
+          captured!.map((c) => c.peerId).toSet().contains('20010'),
+          isFalse,
+          reason: '被拒的第 10 个会话不出现在目标列表',
+        );
+        expect(find.text('home-marker'), findsOneWidget);
+      },
+    );
   });
 }
 

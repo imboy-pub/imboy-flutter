@@ -385,6 +385,58 @@ void main() {
       expect(inserted, isEmpty);
     });
 
+    test('S1-L3：>9 目标 → invalidTarget 整体拒绝（9 目标闸纵深防御）', () async {
+      var fetcherCalls = 0;
+      final inserted = <MessageModel>[];
+      final dispatcher = BundleForwardDispatcher(
+        messageFetcher: (id, chatType) async {
+          fetcherCalls++;
+          return _sourceRow('m1', 1000);
+        },
+        messageInserter: (model, chatType) async => inserted.add(model),
+        forwarderUidResolver: () => _uid,
+        attachmentForwarder: _RecordingForwarder(),
+      );
+      final tenTargets = [
+        for (var i = 0; i < 10; i++) _target(i + 1, '20000$i'),
+      ];
+
+      final report = await dispatcher.sendToTargets(tenTargets, [
+        _uiMessage('m1'),
+      ], sourceChatType: 'C2C');
+
+      expect(report.successCount, 0);
+      expect(
+        report.failures.single.errorCode,
+        HistoryBundleBuildErrorCode.invalidTarget,
+        reason: '与 G4-2 空 targets 同风格的入口稳定码拒绝',
+      );
+      expect(fetcherCalls, 0, reason: '目标数闸在源行快照之前短路');
+      expect(inserted, isEmpty, reason: '零构建零重传（资源不放大）');
+    });
+
+    test('S1-L3：9 目标（上限内）→ 全部逐目标成功', () async {
+      final rows = <String, MessageModel>{'m1': _sourceRow('m1', 1000)};
+      final inserted = <MessageModel>[];
+      final dispatcher = BundleForwardDispatcher(
+        messageFetcher: (id, chatType) async => rows[id],
+        messageInserter: (model, chatType) async => inserted.add(model),
+        forwarderUidResolver: () => _uid,
+        attachmentForwarder: _RecordingForwarder(),
+      );
+      final nineTargets = [
+        for (var i = 0; i < 9; i++) _target(i + 1, '20000$i'),
+      ];
+
+      final report = await dispatcher.sendToTargets(nineTargets, [
+        _uiMessage('m1'),
+      ], sourceChatType: 'C2C');
+
+      expect(report.allSuccess, isTrue);
+      expect(report.successCount, 9);
+      expect(inserted, hasLength(9), reason: '上限内逐目标独立构建不受影响');
+    });
+
     test(
       'W5 G4-3：阶段 1 fetcher 抛 Exception → sendFailed 归一，不产生未处理异步错误',
       () async {
