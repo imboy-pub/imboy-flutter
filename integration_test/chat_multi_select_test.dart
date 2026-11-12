@@ -28,6 +28,8 @@ import 'package:integration_test/integration_test.dart';
 
 import 'package:imboy/page/chat/chat/chat_page.dart';
 import 'package:imboy/page/chat/chat/chat_provider.dart';
+import 'package:imboy/store/repository/conversation_repo_sqlite.dart';
+import 'package:imboy/store/repository/message_repo_sqlite.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 
 import 'chat/support/c2c_journey_support.dart';
@@ -44,8 +46,10 @@ void main() {
 
   testWidgets('W3-K P1：C2C 多选勾选/计数/退出 + 逐条转发顺序内容断言', (tester) async {
     installPluginErrorFilter();
+    ChatMultiDriverRunStats.reset();
     await ensureAppLaunched(tester, maxSeconds: 10);
-    if (!await checkPreconditions(tester)) return;
+    // G6-11：后端探活/登录失败 = 环境契约破坏，fail 而非静默 SKIP。
+    if (!await checkPreconditions(tester, failOnEnvMissing: true)) return;
     if (!requireBusinessWriteAuthorization()) return;
 
     final selfUid = UserRepoLocal.to.currentUid;
@@ -86,13 +90,15 @@ void main() {
     );
 
     // ④ 发消息：3 条 marker 文本走真实输入链；image/file 走 provider
-    //    addMessage。image 不再用 fixture.invalid 占位 uri（DEV-01 修复：
-    //    破图 → IMBoyCachedImageProvider 重试耗尽 → FlutterError 进入
-    //    _pendingExceptionDetails → 用例挂起超时，且转发副本在目标页复现
-    //    同款破图）—— setup 阶段经生产附件管道真实上传小图，以返回的
-    //    object_key 作 uri（渲染走 viewUrl 授权链；逐条转发走
-    //    PlainAttachmentForward.reupload 真实重传）。
+    //    addMessage。image/file 均不再用 fixture.invalid 占位 uri（DEV-01
+    //    修复 + G6-6）：setup 阶段经生产附件管道真实上传小图/小文本文件，
+    //    以返回的 object_key 作 uri —— 渲染走 viewUrl 授权链；逐条转发走
+    //    PlainAttachmentForward.reupload 真实重传（http 占位 uri 会被
+    //    _objectKeyOf 判 null → 不重传 → 死 uri 落库）。metadata 带
+    //    w3k_run_nonce=nonce（G6-1：副本识别走内容过滤，不依赖墙钟）。
     final nonce = ChatMultiMessageFixtures.nextNonce();
+    // nonce 的字符串形态（G6-1 内容过滤 / w3k_run_nonce 均按字符串对账）。
+    final nonceStr = '$nonce';
     final m1 = '$_markerPrefix-t1-$nonce';
     final m2 = '$_markerPrefix-t2-$nonce';
     final m3 = '$_markerPrefix-t3-$nonce';
@@ -116,7 +122,9 @@ void main() {
       remoteUri: imgObjectKey,
       width: 8,
       height: 8,
+      size: ChatMultiImageFixture.pngBytes.length,
       peerId: peerUid,
+      runNonce: nonceStr,
     );
     final imgOk = await notifier.addMessage(
       selfUid,
@@ -132,14 +140,25 @@ void main() {
       index: notifier.chatService?.messages.length ?? 0,
     );
 
+    // G6-6：file fixture 真实化 —— 小文本文件经生产管道上传（text/plain
+    // 在服务端白名单内），源消息 size=真实字节数（副本 size 断言基准）。
     final fileId = 'w3kmsfile$nonce';
+    final fileName = 'w3kms-file-$nonce.txt';
+    final fileObjectKey = await ChatMultiImageFixture.uploadTextFile(
+      fileName: fileName,
+      peerId: peerUid,
+      type: 'C2C',
+    );
+    flowLog('W3K-MS fixture file uploaded: $fileObjectKey');
     final file = ChatMultiMessageFixtures.file(
       id: fileId,
       authorId: selfUid,
       createdAt: base.add(const Duration(milliseconds: 20)),
-      remoteUri: 'https://fixture.invalid/w3kms-$fileId.pdf',
-      name: 'w3k-fixture.pdf',
+      remoteUri: fileObjectKey,
+      name: fileName,
+      size: ChatMultiImageFixture.textBytes.length,
       peerId: peerUid,
+      runNonce: nonceStr,
     );
     final fileOk = await notifier.addMessage(
       selfUid,
@@ -157,6 +176,24 @@ void main() {
 
     await sendTextViaInput(tester, chatPage, m3);
     await settle(tester, maxSeconds: 3);
+
+    // G6-9：断言期不再从 widget 树回读 id（列表虚拟化未构建的行会静默丢
+    // key）—— 发送后立即从 provider 数据源（chatService.messages）按文本
+    // 解析缓存，后续勾选/顺序基准一律用缓存 id。
+    String? idOfMarker(String marker) {
+      for (final msg
+          in notifier.chatService?.messages ?? const <core.Message>[]) {
+        if (msg is core.TextMessage && msg.text.contains(marker)) return msg.id;
+      }
+      return null;
+    }
+
+    final m1Id = idOfMarker(m1);
+    final m2Id = idOfMarker(m2);
+    final m3Id = idOfMarker(m3);
+    expect(m1Id, isNotNull, reason: '发送后应能从 provider 数据源解析 m1 id');
+    expect(m2Id, isNotNull, reason: '发送后应能从 provider 数据源解析 m2 id');
+    expect(m3Id, isNotNull, reason: '发送后应能从 provider 数据源解析 m3 id');
     await takeScreenshot(tester, 'w3kms_01_source_ready');
 
     // ⑤ 进入多选（长按 m1 气泡 → 菜单「多选」）。
@@ -166,40 +203,53 @@ void main() {
     await enterMultiSelectViaMenu(tester, chatMultiItemContaining(m1));
 
     // ⑥ 勾选其余 4 条 + 计数（勾选框稳定 Key 优先；driver 带 tap 校验重试）。
-    Future<void> selectByMarker(String marker) async {
-      final msg = messageOfMarker(tester, marker);
+    Future<void> selectByMarker(String marker, String? cachedId) async {
       await toggleMessageSelection(
         tester,
         chatMultiItemContaining(marker),
-        messageId: msg?.id,
+        messageId: cachedId,
+        journey: 'W3K-MS',
       );
     }
 
-    await selectByMarker(m2);
-    await selectByMarker(m3);
+    await selectByMarker(m2, m2Id);
+    await selectByMarker(m3, m3Id);
     expectSelectionCount(tester, 3);
     // image/file 无文本 marker：按 id 勾选（构造器 id 已知）。
     await toggleMessageSelection(
       tester,
       find.byType(ChatPage),
       messageId: imgId,
+      journey: 'W3K-MS',
     );
     expectSelectionCount(tester, 4);
     await toggleMessageSelection(
       tester,
       find.byType(ChatPage),
       messageId: fileId,
+      journey: 'W3K-MS',
     );
     expectSelectionCount(tester, 5);
     await takeScreenshot(tester, 'w3kms_02_selected_5');
 
     // ⑦ 全不选（保持多选激活）→ 重新勾选 2 条 → 取消按钮 = 退出多选。
-    await tapActionBar(tester, ChatMultiKeys.clear);
+    // G6-3：action bar tap 统一 tapViaNewGesture + 效果校验重试。
+    await tapActionBar(
+      tester,
+      ChatMultiKeys.clear,
+      journey: 'W3K-MS',
+      effectCheck: () => actionBarSelectedCount(tester) == 0,
+    );
     expectSelectionCount(tester, 0);
-    await selectByMarker(m1);
-    await selectByMarker(m2);
+    await selectByMarker(m1, m1Id);
+    await selectByMarker(m2, m2Id);
     expectSelectionCount(tester, 2);
-    await tapActionBar(tester, ChatMultiKeys.cancel);
+    await tapActionBar(
+      tester,
+      ChatMultiKeys.cancel,
+      journey: 'W3K-MS',
+      effectCheck: () => !tester.any(find.byKey(ChatMultiKeys.cancel)),
+    );
     await settle(tester, maxSeconds: 2);
     expect(
       tester.any(find.byKey(ChatMultiKeys.cancel)),
@@ -213,14 +263,16 @@ void main() {
       tester,
       find.byType(ChatPage),
       messageId: imgId,
+      journey: 'W3K-MS',
     );
     await toggleMessageSelection(
       tester,
       find.byType(ChatPage),
       messageId: fileId,
+      journey: 'W3K-MS',
     );
-    await selectByMarker(m2);
-    await selectByMarker(m3);
+    await selectByMarker(m2, m2Id);
+    await selectByMarker(m3, m3Id);
     expectSelectionCount(tester, 5);
 
     // 源消息 createdAt 旧→新（冻结合同 §4.3 的顺序基准）：m1/m2/m3 走真实
@@ -231,10 +283,11 @@ void main() {
     // 「副本顺序 == 源顺序」（下方 kinds == expectedKinds 断言），故此处只
     // 钉死集合完整性与首尾（m1 最旧、m3 最新：两者与 fixture 间隔 ≥ 秒级，
     // 不受亚秒级校准影响），中段顺序以动态派生为准。
+    // id 取自 ④ 末尾的 provider 数据源缓存（G6-9）。
     final sourceIdToKind = <String, String>{
-      ?messageOfMarker(tester, m1)?.id: 'm1',
-      ?messageOfMarker(tester, m2)?.id: 'm2',
-      ?messageOfMarker(tester, m3)?.id: 'm3',
+      ?m1Id: 'm1',
+      ?m2Id: 'm2',
+      ?m3Id: 'm3',
       imgId: 'image',
       fileId: 'file',
     };
@@ -269,15 +322,12 @@ void main() {
     );
 
     // ⑨ 逐条转发：action bar「逐条转发」→ SendToPage 批量 → 选目标 → 发送。
-    final forwardStart = DateTime.now();
-    await tapActionBar(tester, ChatMultiKeys.forwardEach);
-    if (!isOnSendToPage(tester)) {
-      await takeScreenshot(tester, 'w3kms_diag_no_send_to_page');
-      fail(
-        'multi_select_forward_each 未打开 SendToPage —— '
-        'Central Wiring（计划 §12）未接线 onForwardEach 或批量入口回归',
-      );
-    }
+    await tapActionBar(
+      tester,
+      ChatMultiKeys.forwardEach,
+      journey: 'W3K-MS',
+      effectCheck: () => isOnSendToPage(tester),
+    );
     final dstTitle = await resolveTargetTitle(
       type: 'C2C',
       peerId: dstUid,
@@ -313,10 +363,23 @@ void main() {
     // 有秒级延迟（真机 r11 实证：后端 3 条文本副本 server_ts 14:17:23-33
     // 已全部落库，而 SendToPage 关闭后 ~3.5s 内存列表仍为空）。轮询等待
     // 落位（与 c2g 用例同款策略），不要读一次就断言。
+    //
+    // G6-1：副本识别改 nonce 内容过滤 —— 文本副本 text 含本轮 nonce；
+    // image/file 副本 metadata['w3k_run_nonce'] == nonce（buildForwardPayload
+    // 的 `{...?sourceMetadata}` 原样保留，reupload 只重写 uri/size/
+    // file_hash256，故不能按源 uri 过滤）。回环配置下源消息也在同一列表，
+    // 以 sourceIds 显式排除（副本 id 为全新 Xid，不与源碰撞）。
+    final sourceIds = <String>{?m1Id, ?m2Id, ?m3Id, imgId, fileId};
+    bool isThisRunCopy(core.Message m) {
+      if (sourceIds.contains(m.id)) return false;
+      if (m is core.TextMessage) return m.text.contains(nonceStr);
+      return '${m.metadata?['w3k_run_nonce'] ?? ''}' == nonceStr;
+    }
+
     List<core.Message> readCopies() =>
         (targetContainer.read(chatProvider.notifier).chatService?.messages ??
                 const <core.Message>[])
-            .where((m) => (m.createdAt?.isAfter(forwardStart) ?? false))
+            .where(isThisRunCopy)
             .toList();
     var copies = readCopies();
     for (var i = 0; i < 20 && copies.length < 5; i++) {
@@ -338,21 +401,33 @@ void main() {
       containsAllInOrder([m1, m2, m3]),
       reason: '目标会话应含 3 条转发文本副本（旧→新）',
     );
-    expect(
-      copies.any(
-        (m) => m is core.ImageMessage && m.metadata?['msg_type'] == 'image',
-      ),
-      isTrue,
-      reason: '目标会话应含转发 image 副本',
-    );
-    expect(
-      copies.any(
-        (m) => m is core.FileMessage && m.metadata?['msg_type'] == 'file',
-      ),
-      isTrue,
-      reason: '目标会话应含转发 file 副本',
-    );
+    final imageCopies = copies.whereType<core.ImageMessage>().toList();
+    expect(imageCopies, isNotEmpty, reason: '目标会话应含转发 image 副本');
+    final fileCopies = copies.whereType<core.FileMessage>().toList();
+    expect(fileCopies, isNotEmpty, reason: '目标会话应含转发 file 副本');
     expect(copies.length, 5, reason: '目标会话副本应恰 5 条（实际 ${copies.length}）');
+
+    // G6-6：副本内容真实对账 —— image 副本 uri 必须是目标 scope 重传后的
+    // **新** objectKey（≠源 uri，证明确实走了 PlainAttachmentForward.reupload
+    // 而非死 uri 原样复制）；file 副本 name/size 与源一致（重传只换 uri，
+    // 展示字段原样保留）。
+    expect(
+      imageCopies.first.metadata?['uri'] == imgObjectKey,
+      isFalse,
+      reason:
+          'image 副本 uri 应为新 objectKey（≠源 uri ${imgObjectKey.length}字符；'
+          '相等 = 未重传，死 uri 复制）',
+    );
+    expect(
+      fileCopies.first.name,
+      fileName,
+      reason: 'file 副本 name 应与源一致（msgId=${fileCopies.first.id}）',
+    );
+    expect(
+      fileCopies.first.size,
+      ChatMultiImageFixture.textBytes.length,
+      reason: 'file 副本 size 应与源字节数一致（msgId=${fileCopies.first.id}）',
+    );
 
     // 顺序：副本按 createdAt 旧→新 = 源消息列表序（expectedKinds 在 ⑧ 派生）。
     String kindOf(core.Message m) => switch (m) {
@@ -375,19 +450,45 @@ void main() {
           '（冻结合同 §4.3；实际 $kinds 期望 $expectedKinds）',
     );
 
-    // 内容隔离：副本不得携带源会话归属（peer_id 重写为目标）。
-    final targetUk3Prefix = 'C2C_';
-    for (final m in orderedCopies()) {
-      expect(
-        '${m.metadata?['peer_id'] ?? ''}',
-        dstUid,
-        reason: '转发副本 peer_id 应重写为目标会话对端（msgId=${m.id}）',
+    // 内容隔离（G6-5）：副本不得携带源会话归属。真第三账号（dstUid != 源
+    // 对端）时经 repo 真值断言副本行 conversation_uk3 == 目标会话 uk3 +
+    // peer_id 重写；回环配置（dst=源对端）下这两条断言恒真（副本归属与源
+    // 相同），显式记录覆盖缺口，不做空断言 —— 激活隔离断言需
+    // CHAT_MULTI_DST_PEER_UID 指向第三合成账号。
+    if (dstUid == peerUid) {
+      flowLog(
+        'LOOPBACK: W3K-MS isolation assertions skipped'
+        '（dst=源对端回环：peer_id/uk3 隔离断言恒真；'
+        '覆盖缺口 —— 以 CHAT_MULTI_DST_PEER_UID=<第三合成账号> 运行可激活）',
       );
+    } else {
+      final targetConversation = await ConversationRepo().findByPeerId(
+        'C2C',
+        dstUid,
+      );
+      expect(targetConversation, isNotNull, reason: '目标会话行应已建立（转发落库后）');
+      final targetUk3 = targetConversation!.uk3;
+      final msgRepo = MessageRepo(tableName: MessageRepo.c2cTable);
+      for (final m in orderedCopies()) {
+        expect(
+          '${m.metadata?['peer_id'] ?? ''}',
+          dstUid,
+          reason: '转发副本 peer_id 应重写为目标会话对端（msgId=${m.id}）',
+        );
+        final row = await msgRepo.find(m.id);
+        expect(row, isNotNull, reason: '副本行应可经 MessageRepo 读到（msgId=${m.id}）');
+        expect(
+          row!.conversationUk3,
+          targetUk3,
+          reason: '副本行 conversation_uk3 应为目标会话 $targetUk3（msgId=${m.id}）',
+        );
+      }
+      flowLog('W3K-MS 隔离断言通过: 副本行 conversation_uk3 == $targetUk3');
     }
-    flowLog('W3K-MS 目标 uk3 前缀校验 $targetUk3Prefix（peer_id 已重写）');
 
-    // 退出：pop ChatPage，保持会话栈干净。
+    // 退出：pop ChatPage，保持会话栈干净；通道终局对账（G6-2）。
     await popTopPage(tester, targetPage);
+    finishChatMultiJourney('W3K-MS');
     drainKnownFrameworkExceptions(tester);
   }, timeout: const Timeout(Duration(minutes: 10)));
 }

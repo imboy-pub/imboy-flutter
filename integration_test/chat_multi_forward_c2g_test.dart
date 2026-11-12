@@ -37,8 +37,10 @@ void main() {
 
   testWidgets('W3-K P1：C2C 多选逐条转发 → C2G 目标顺序内容断言', (tester) async {
     installPluginErrorFilter();
+    ChatMultiDriverRunStats.reset();
     await ensureAppLaunched(tester, maxSeconds: 10);
-    if (!await checkPreconditions(tester)) return;
+    // G6-11：后端探活/登录失败 = 环境契约破坏，fail 而非静默 SKIP。
+    if (!await checkPreconditions(tester, failOnEnvMissing: true)) return;
     if (!requireBusinessWriteAuthorization()) return;
 
     final gid = const String.fromEnvironment('CHAT_MULTI_C2G_GID');
@@ -93,6 +95,7 @@ void main() {
       peerTitle: srcPeerTitle,
     );
     final nonce = ChatMultiMessageFixtures.nextNonce();
+    final nonceStr = '$nonce';
     final m1 = '$_markerPrefix-t1-$nonce';
     final m2 = '$_markerPrefix-t2-$nonce';
     await sendTextViaInput(tester, chatPage, m1);
@@ -108,19 +111,17 @@ void main() {
       tester,
       chatMultiItemContaining(m2),
       messageId: messageOfMarker(tester, m2)?.id,
+      journey: 'W3K-C2G',
     );
     expectSelectionCount(tester, 2);
 
-    // ④ 逐条转发到群。
-    final forwardStart = DateTime.now();
-    await tapActionBar(tester, ChatMultiKeys.forwardEach);
-    if (!isOnSendToPage(tester)) {
-      await takeScreenshot(tester, 'w3kc2g_diag_no_send_to_page');
-      fail(
-        'multi_select_forward_each 未打开 SendToPage —— '
-        'Central Wiring（计划 §12）未接线 onForwardEach 或批量入口回归',
-      );
-    }
+    // ④ 逐条转发到群（G6-3：tapViaNewGesture + 效果校验重试）。
+    await tapActionBar(
+      tester,
+      ChatMultiKeys.forwardEach,
+      journey: 'W3K-C2G',
+      effectCheck: () => isOnSendToPage(tester),
+    );
     final groupTitle = await resolveTargetTitle(
       type: 'C2G',
       peerId: gid,
@@ -144,6 +145,9 @@ void main() {
     );
     await settle(tester, maxSeconds: 3);
 
+    // G6-1：副本识别改 nonce 内容过滤 —— 文本副本 text 含本轮 nonce
+    // （墙钟过滤 createdAt.isAfter(forwardStart) 在设备/服务端时钟微差下
+    // 环境性 flaky；nonce 每轮唯一，旧轮残留/本轮 warmup 均不会误命中）。
     final copies = <core.Message>[];
     for (var i = 0; i < 40; i++) {
       final items = tester
@@ -151,7 +155,7 @@ void main() {
           .map((w) => w.message)
           .toList();
       final fresh = items
-          .where((m) => (m.createdAt?.isAfter(forwardStart) ?? false))
+          .where((m) => m is core.TextMessage && m.text.contains(nonceStr))
           .toList();
       if (fresh.length >= 2) {
         copies
@@ -166,22 +170,23 @@ void main() {
     }
     expect(copies.length, 2, reason: '群会话应恰有 2 条转发副本（实际 ${copies.length}）');
 
-    String kindOf(core.Message m) =>
-        m is core.TextMessage ? (m.text == m1 ? 'm1' : 'm2') : 'other';
     // chatService.messages 的存储序是「新→旧」（reverse 列表 index 0=最新），
-    // 合同 §4.3 考察的是副本 createdAt 旧→新 —— 排序后再映射（DEV-01 真机
-    // r1 实证：原始序为 [m2, m1]，派发序 m1→m2 与 createdAt 序均正确）。
+    // 合同 §4.3 考察的是副本 createdAt 旧→新 —— 排序后按显式文本断言
+    // （G6-10：kindOf 兜底会把任何非 m1 文本映射成 m2，掩盖内容回归）。
     final orderedCopies = copies.toList()
       ..sort(
         (a, b) => (a.createdAt?.millisecondsSinceEpoch ?? 0).compareTo(
           b.createdAt?.millisecondsSinceEpoch ?? 0,
         ),
       );
-    final kinds = orderedCopies.map(kindOf).toList();
-    expect(kinds, [
-      'm1',
-      'm2',
-    ], reason: '群内副本顺序应等于源顺序（旧→新，冻结合同 §4.3；实际 $kinds）');
+    final orderedTexts = orderedCopies
+        .whereType<core.TextMessage>()
+        .map((m) => m.text)
+        .toList();
+    expect(orderedTexts, [
+      m1,
+      m2,
+    ], reason: '群内副本文本与顺序应与源一致（旧→新，冻结合同 §4.3；实际 $orderedTexts）');
     for (final m in copies) {
       expect(
         '${m.metadata?['peer_id'] ?? ''}',
@@ -202,6 +207,7 @@ void main() {
     await takeScreenshot(tester, 'w3kc2g_03_group_asserted');
 
     await popTopPage(tester, targetPage);
+    finishChatMultiJourney('W3K-C2G');
     drainKnownFrameworkExceptions(tester);
   }, timeout: const Timeout(Duration(minutes: 10)));
 }
