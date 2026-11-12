@@ -4,6 +4,11 @@ import 'package:flutter_chat_core/flutter_chat_core.dart'
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:imboy/i18n/strings.g.dart';
+import 'package:imboy/page/chat/chat/chat_multi_select_wiring.dart'
+    show forwardEachActionAllowedFor;
+import 'package:imboy/page/chat/chat/services/message_selection_traits.dart';
+import 'package:imboy/page/chat/send_to/batch_forward_coordinator.dart'
+    show kBatchForwardMaxMessages;
 import 'package:imboy/page/chat/widget/message_multi_select_action_bar.dart';
 
 /// MessageMultiSelectActionBar 契约测试（chat_multi_select_v1 / W2-E）：
@@ -190,5 +195,91 @@ void main() {
       ),
     );
     expect(tester.takeException(), isNull);
+  });
+
+  group('W5-G1 | 逐条转发 50 条上限入口拦截（G1-1）', () {
+    /// 与 ChatMultiSelectPanel 同一接线口径：策略 → null callback → 禁用。
+    MessageMultiSelectActionBar barPerPolicy(
+      List<Message> msgs, {
+      void Function(List<Message>)? onAllowed,
+    }) => MessageMultiSelectActionBar(
+      selectedMessages: msgs,
+      onCancel: () {},
+      onForwardEach:
+          forwardEachActionAllowedFor(msgs.map(messageSelectionTraitsOf))
+          ? (onAllowed ?? (_) {})
+          : null,
+    );
+
+    test('策略：0 条禁用；1..50 可用；>50（51）禁用', () {
+      final max = kBatchForwardMaxMessages;
+      expect(max, 50, reason: 'SendToPage.batch 协调器硬上限');
+      expect(
+        forwardEachActionAllowedFor(_messages(0).map(messageSelectionTraitsOf)),
+        isFalse,
+        reason: '未勾选（0 条）不可逐条转发',
+      );
+      expect(
+        forwardEachActionAllowedFor(_messages(1).map(messageSelectionTraitsOf)),
+        isTrue,
+      );
+      expect(
+        forwardEachActionAllowedFor(
+          _messages(max).map(messageSelectionTraitsOf),
+        ),
+        isTrue,
+        reason: '恰好 50 条应可用（上限含边界）',
+      );
+      expect(
+        forwardEachActionAllowedFor(
+          _messages(max + 1).map(messageSelectionTraitsOf),
+        ),
+        isFalse,
+        reason: '第 51 条起入口禁用（协调器超限前置拦截）',
+      );
+    });
+
+    testWidgets('>50 条：逐条转发按钮禁用且点击不触发（null callback）', (tester) async {
+      var fired = 0;
+      await tester.pumpWidget(
+        _wrap(
+          barPerPolicy(
+            _messages(kBatchForwardMaxMessages + 1),
+            onAllowed: (_) => fired++,
+          ),
+        ),
+      );
+      final gesture = tester.widget<GestureDetector>(
+        find.byKey(const ValueKey('multi_select_forward_each')),
+      );
+      expect(gesture.onTap, isNull, reason: '超限时应传 null（禁用占位）');
+      await tester.tap(find.byKey(const ValueKey('multi_select_forward_each')));
+      await tester.pump();
+      expect(fired, 0, reason: '禁用态不可触发任何行为');
+    });
+
+    testWidgets('<=50 条（50 整）：逐条转发可用并携带全部已选', (tester) async {
+      var fired = 0;
+      var received = 0;
+      await tester.pumpWidget(
+        _wrap(
+          barPerPolicy(
+            _messages(kBatchForwardMaxMessages),
+            onAllowed: (list) {
+              fired++;
+              received = list.length;
+            },
+          ),
+        ),
+      );
+      final gesture = tester.widget<GestureDetector>(
+        find.byKey(const ValueKey('multi_select_forward_each')),
+      );
+      expect(gesture.onTap, isNotNull, reason: '50 条（含边界）应可用');
+      await tester.tap(find.byKey(const ValueKey('multi_select_forward_each')));
+      await tester.pump();
+      expect(fired, 1);
+      expect(received, kBatchForwardMaxMessages);
+    });
   });
 }

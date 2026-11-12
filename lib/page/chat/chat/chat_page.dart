@@ -64,10 +64,11 @@ import 'package:imboy/app_core/feature_flags/app_feature_registry.dart';
 import 'package:imboy/app_core/feature_flags/feature_keys.dart';
 import 'package:imboy/modules/messaging/domain/selection/message_selection.dart';
 import 'package:imboy/modules/messaging/domain/selection/message_selectability.dart';
-import 'package:imboy/page/chat/widget/message_multi_select_action_bar.dart';
-import 'package:imboy/modules/messaging/presentation/export/chat_export_flow.dart';
 
-import 'bundle_forward_dispatcher.dart';
+// 多选接线（W5-G1 G1-9 抽离：策略/handler/对账/action bar 面板）。
+// messageSelectionTraitsOf（G1-7 移至 services/message_selection_traits.dart）
+// 经下方 chat_message_item.dart 的 re-export 解析。
+import 'chat_multi_select_wiring.dart';
 
 // CustomMessageBuilder 需要显式导入（与 flutter_chat_core 冲突）
 import 'package:imboy/component/chat/message.dart'
@@ -1405,7 +1406,7 @@ class ChatPageState extends ConsumerState<ChatPage>
     // flag 关闭时 selection 恒为 inactive，本分支永不命中（零行为变化）。
     if (_conversationUk3.isNotEmpty &&
         ref.read(messageSelectionProvider(_conversationUk3)).active) {
-      _toggleMultiSelect(message);
+      toggleMessageSelectionWithFeedback(ref, _conversationUk3, message);
       return;
     }
 
@@ -1728,125 +1729,20 @@ class ChatPageState extends ConsumerState<ChatPage>
   }
 
   // ===== 多选模式（chat_multi_select_v1 / W2-E）=====
+  //
+  // 接线（动作策略/转发导出 handler/对账/action bar 面板/enter+toggle
+  // 反馈）已抽至 chat_multi_select_wiring.dart（W5-G1 G1-9）；此处只留
+  // 长按菜单入口判定与退出（返回键耦合）。
 
   /// 多选灰度开关（rollout flag）：默认 false（fail-closed）；
   /// 测试经 AppFeatureRegistry.replaceSnapshotForTest 开启。
   bool get _multiSelectFlagEnabled =>
       AppFeatureRegistry.isRolloutFlagEnabled(FeatureKeys.chatMultiSelectV1);
 
-  /// 合并转发按钮动作策略（§12.5）：委托 Central Wiring 纯函数。
-  bool get _bundleActionAllowed => bundleActionAllowedFor(
-    _multiSelectSortedMessages().map(messageSelectionTraitsOf),
-  );
-
-  /// 导出按钮动作策略（§12.5）：委托 Central Wiring 纯函数。
-  bool get _exportActionAllowed => exportActionAllowedFor(
-    _multiSelectSortedMessages().map(messageSelectionTraitsOf),
-  );
-
-  /// 逐条转发（action bar → 批量 SendToPage / W2-F）。
-  void _forwardEachSelected(List<Message> messages) {
-    if (messages.isEmpty) return;
-    _messageActionHandler.forwardMessages(context, messages);
-  }
-
-  /// 合并转发（action bar → bundle 发送编排 / Central Wiring）。
-  void _forwardBundleSelected(List<Message> messages) {
-    if (messages.isEmpty) return;
-    unawaited(
-      BundleForwardDispatcher.forwardAsHistoryBundle(
-        context,
-        messages: messages,
-        sourceChatType: _chatType,
-        title: widget.peerTitle,
-      ),
-    );
-  }
-
-  /// 导出并系统分享（action bar → runChatExportFlow / W3-J）。
-  void _exportSelected(List<Message> messages) {
-    if (messages.isEmpty) return;
-    unawaited(
-      runChatExportFlow(
-        context,
-        conversationUk3: _conversationUk3,
-        conversationTitle: widget.peerTitle,
-        messages: messages,
-        chatType: widget.type,
-        toId: widget.peerId,
-      ),
-    );
-  }
-
-  /// 长按菜单「多选」→ 进入多选并选中被长按的消息（W1-A enter 契约）。
-  void _enterMultiSelect(Message message) {
-    if (_conversationUk3.isEmpty) return;
-    final reason = ref
-        .read(messageSelectionProvider(_conversationUk3).notifier)
-        .enter(message.id, messageSelectionTraitsOf(message));
-    if (reason == null) return;
-    // enter 被拒：不进入多选并按 reason 反馈。菜单入口只在可选时提供，
-    // 实际可达的只有上限与状态并发变化两类。
-    AppLoading.showToast(
-      reason == MessageSelectionReason.limitExceeded
-          ? t.chat.multiSelectLimit(
-              count: MessageSelectionNotifier.maxSelectionCount,
-            )
-          : t.chat.multiSelectUnavailable,
-    );
-  }
-
-  /// 多选模式下点消息 = 切换勾选（不再打开文件/卡片/恢复引导）。
-  void _toggleMultiSelect(Message message) {
-    toggleMessageSelectionWithFeedback(ref, _conversationUk3, message);
-  }
-
   /// 退出多选（返回键优先走这里，而非离开会话页）。
   void _exitMultiSelect() {
     if (_conversationUk3.isEmpty) return;
     ref.read(messageSelectionProvider(_conversationUk3).notifier).exit();
-  }
-
-  /// 消息列表变化（收到/发送/删除/翻页）后对账多选集合：
-  /// 移除已不存在的选中项。reconcile 后选中可能为空但保持 active ——
-  /// 是否自动退出由 UI 决定，v1 保留 active 让用户手动退出（W1-A handoff）。
-  void _reconcileMultiSelection() {
-    if (!mounted || _conversationUk3.isEmpty) return;
-    if (!ref.read(messageSelectionProvider(_conversationUk3)).active) return;
-    final ids =
-        ref
-            .read(chatProvider.notifier)
-            .chatService
-            ?.messages
-            .map((m) => m.id)
-            .toSet() ??
-        const <String>{};
-    ref
-        .read(messageSelectionProvider(_conversationUk3).notifier)
-        .reconcile(ids);
-  }
-
-  /// 多选已选消息，按冻结合同 §4.3 排序：createdAt 旧→新，同时间按当前
-  /// 列表稳定序。selectedIds 只是插入序集合（不保序 createdAt），W1-B
-  /// 批量转发依赖这里输出确定顺序。
-  List<Message> _multiSelectSortedMessages() {
-    final selection = ref.read(messageSelectionProvider(_conversationUk3));
-    final messages =
-        ref.read(chatProvider.notifier).chatService?.messages ??
-        const <Message>[];
-    final picked = <int, Message>{};
-    for (var i = 0; i < messages.length; i++) {
-      if (selection.contains(messages[i].id)) picked[i] = messages[i];
-    }
-    final entries = picked.entries.toList()
-      ..sort((a, b) {
-        final ca = a.value.createdAt?.millisecondsSinceEpoch ?? 0;
-        final cb = b.value.createdAt?.millisecondsSinceEpoch ?? 0;
-        if (ca != cb) return ca.compareTo(cb);
-        // Dart List.sort 非稳定排序：同时间用原列表下标补稳定序。
-        return a.key.compareTo(b.key);
-      });
-    return entries.map((e) => e.value).toList(growable: false);
   }
 
   // 消息长按事件
@@ -1882,7 +1778,8 @@ class ChatPageState extends ConsumerState<ChatPage>
         _conversationUk3.isNotEmpty &&
         evaluateMessageSelectability(messageSelectionTraitsOf(message))
             .selectable) {
-      onMultiSelect = () => _enterMultiSelect(message);
+      onMultiSelect = () =>
+          enterMultiSelectWithFeedback(ref, _conversationUk3, message);
     }
 
     showMessageActionMenu(
@@ -1955,11 +1852,9 @@ class ChatPageState extends ConsumerState<ChatPage>
         ? MessageSelectionState()
         : ref.watch(messageSelectionProvider(_conversationUk3));
     final bool multiSelectActive = multiSelectState.active;
-    // 消息列表镜像变化（收/发/删/翻页关键路径 syncMessagesToState）→
-    // 对账选中集合，删除失效 ID。
-    ref.listen(chatProvider.select((s) => s.messages), (previous, next) {
-      _reconcileMultiSelection();
-    });
+    // 消息列表镜像变化 → 选中集合对账：已在 ChatMultiSelectPanel 内
+    // ref.listen（W5-G1 G1-9 抽离），并叠加 post-frame 对账兜底
+    // remove/revoke 不回写镜像的路径（G1-6）。
 
     final themeNotifier = ref.read(themeProvider.notifier);
     final galleryVisible = ref.watch(
@@ -2109,21 +2004,21 @@ class ChatPageState extends ConsumerState<ChatPage>
             ),
             // 多选模式：输入区让位给操作栏（同时隐藏 TypingIndicator 与
             // ChatInput，避免键盘/引用面板与多选并发出现在屏上）。
+            // 接线（排序/三动作策略/对账）全部在 ChatMultiSelectPanel 内
+            //（W5-G1 G1-9 抽离；逐条转发 ≤50 条入口拦截见 G1-1）。
             if (multiSelectActive)
-              MessageMultiSelectActionBar(
-                selectedMessages: _multiSelectSortedMessages(),
-                onCancel: _exitMultiSelect,
-                onClearSelection: () => ref
-                    .read(messageSelectionProvider(_conversationUk3).notifier)
-                    .clear(),
-                // typed callbacks（Central Wiring §12）：按动作策略分别
-                // enable/disable（§12.5）——flag 关闭或类型矩阵不允许时
-                // 传 null → 按钮禁用占位。
-                onForwardEach: _forwardEachSelected,
-                onForwardBundle: _bundleActionAllowed
-                    ? _forwardBundleSelected
-                    : null,
-                onExport: _exportActionAllowed ? _exportSelected : null,
+              ChatMultiSelectPanel(
+                conversationUk3: _conversationUk3,
+                actions: ChatMultiSelectActions(
+                  conversationUk3: _conversationUk3,
+                  sourceChatType: _chatType,
+                  conversationTitle: widget.peerTitle,
+                  peerId: widget.peerId,
+                  // 延迟解析：_messageActionHandler 为 late final，首帧后
+                  // 才初始化，构造期读取会抛 LateInitializationError。
+                  messageActionHandlerResolver: () => _messageActionHandler,
+                ),
+                onExit: _exitMultiSelect,
               )
             else ...[
               // 输入状态指示器

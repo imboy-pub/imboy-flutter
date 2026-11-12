@@ -22,6 +22,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:imboy/modules/messaging/domain/selection/message_selection.dart';
+// W5-G1 G1-7：messageSelectionTraitsOf 移至 services/，经 chat_message_item.dart
+// 的 re-export 解析；toggle 反馈仍在 chat_message_item.dart。
 import 'package:imboy/page/chat/chat/chat_message_item.dart';
 
 import '../../../../../integration_test/helpers/chat_multi_driver.dart';
