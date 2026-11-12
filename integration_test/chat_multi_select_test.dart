@@ -307,14 +307,23 @@ void main() {
     }
     final targetCtx = tester.element(find.byType(ChatPage).first);
     final targetContainer = ProviderScope.containerOf(targetCtx);
-    final messages =
-        targetContainer.read(chatProvider.notifier).chatService?.messages ??
-        const <core.Message>[];
 
     // 内容：5 条副本全部落位（文本 3 + image 1 + file 1）。
-    final copies = messages
-        .where((m) => (m.createdAt?.isAfter(forwardStart) ?? false))
-        .toList();
+    // ⚠️ 副本落位是异步的：批量发送 → 本地 DB 插入 → 事件 → in-memory 列表
+    // 有秒级延迟（真机 r11 实证：后端 3 条文本副本 server_ts 14:17:23-33
+    // 已全部落库，而 SendToPage 关闭后 ~3.5s 内存列表仍为空）。轮询等待
+    // 落位（与 c2g 用例同款策略），不要读一次就断言。
+    List<core.Message> readCopies() =>
+        (targetContainer.read(chatProvider.notifier).chatService?.messages ??
+                const <core.Message>[])
+            .where((m) => (m.createdAt?.isAfter(forwardStart) ?? false))
+            .toList();
+    var copies = readCopies();
+    for (var i = 0; i < 20 && copies.length < 5; i++) {
+      await tester.pump(const Duration(seconds: 1));
+      copies = readCopies();
+    }
+    flowLog('W3K-MS 目标副本落位: ${copies.length}/5');
     expect(
       copies.whereType<core.TextMessage>().map((m) => m.text),
       containsAllInOrder([m1, m2, m3]),
