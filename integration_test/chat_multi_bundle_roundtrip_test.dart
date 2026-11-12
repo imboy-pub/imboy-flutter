@@ -128,10 +128,13 @@ void main() {
     }
 
     // ③ 发送端本地回显：history_bundle_bubble_* 气泡 → 详情页。
+    // ⚠️ Key('x') 是 ValueKey<String>，toString() 是 "[<'x'>]" 而非
+    // "Key('x')"——用 contains 匹配，形状无关（DEV-01 r 系列实证：
+    // startsWith("Key('") 在真机上永远匹配不到已渲染气泡）。
     final bubble = find.byWidgetPredicate(
       (w) =>
-          w.key is Key &&
-          w.key.toString().startsWith("Key('history_bundle_bubble_"),
+          w.key != null &&
+          w.key!.toString().contains('history_bundle_bubble_'),
     );
     final bubbleShown = await waitForFinder(
       tester,
