@@ -570,7 +570,14 @@ Future<void> selectForwardTargetAndSend(
   await tester.enterText(searchField, targetDisplayTitle);
   await settle(tester, maxSeconds: 2);
 
-  final row = find.textContaining(targetDisplayTitle, findRichText: true);
+  // 行定位必须限定在结果列表内：搜索框 EditableText 的文本同样命中
+  // textContaining（r10 实证：ambiguous 3 widgets → getCenter 抛错）。
+  final row = find
+      .descendant(
+        of: find.byType(Scrollable),
+        matching: find.textContaining(targetDisplayTitle, findRichText: true),
+      )
+      .hitTestable();
   if (!tester.any(row)) {
     await takeScreenshot(tester, 'w3k_diag_target_not_listed');
     fail('$journey 目标页搜索结果无「$targetDisplayTitle」');
