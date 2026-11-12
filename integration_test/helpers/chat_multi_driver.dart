@@ -27,6 +27,7 @@ import 'package:imboy/app_core/feature_flags/app_feature_registry.dart';
 import 'package:imboy/page/chat/chat/chat_message_item.dart';
 import 'package:imboy/page/chat/chat/chat_page.dart';
 import 'package:imboy/page/chat/chat/chat_provider.dart';
+import 'package:imboy/page/chat/send_to/send_to_provider.dart';
 import 'package:imboy/store/repository/conversation_repo_sqlite.dart';
 
 import '../flows/test_utils.dart';
@@ -574,17 +575,50 @@ Future<void> selectForwardTargetAndSend(
     await takeScreenshot(tester, 'w3k_diag_target_not_listed');
     fail('$journey 目标页搜索结果无「$targetDisplayTitle」');
   }
-  await tester.tap(row.first, warnIfMissed: false);
-  await settle(tester, maxSeconds: 1);
+  // 目标行 tap + 选中校验重试（真机 r8 地面真值）：行 tap 被吞时
+  // _sendBatch 的 selectedContacts.isEmpty 分支会静默 pop 目标页 ——
+  // 无发送、无失败痕迹。点「发送」前必须确认 sendToProvider 的选择已生效。
+  int? selectedCount() {
+    final container = _chatContainerOf(tester);
+    if (container == null) return null;
+    try {
+      return container.read(sendToProvider).selectedContacts.length;
+    } on Exception {
+      return null;
+    }
+  }
 
-  final sent = await tapAny(tester, [
+  // 非 const：find.widgetWithText 是运行时构造（非 const 构造器）。
+  final List<Finder> sendFinders = <Finder>[
     find.widgetWithText(CupertinoButton, '发送'),
     find.widgetWithText(CupertinoButton, 'Send'),
     find.widgetWithText(CupertinoButton, 'Senden'),
     find.text('发送'),
     find.text('Send'),
-  ]);
+  ];
+  var selected = 0;
+  for (var attempt = 1; attempt <= 3; attempt++) {
+    if (attempt > 1) await pacedWait(tester, 400);
+    await tapViaNewGesture(tester, row);
+    await settle(tester, maxSeconds: 1);
+    selected = selectedCount() ?? selected;
+    if (selected > 0) break;
+    flowLog('$journey 目标行 tap 未生效（尝试 $attempt/3）selected=$selected');
+  }
+  expect(selected, greaterThan(0), reason: '$journey 目标行选择未生效（真机指针交付不可靠，重试耗尽）');
+
+  // 点「发送」；发送 tap 被吞时页面停留 —— 按钮仍在（批量运行态按钮已变
+  // 「取消」，此时绝不能重点，等协调器自行完成）即重试。
+  var sent = await tapAny(tester, sendFinders);
   expect(sent, isTrue, reason: '$journey 未找到目标页发送按钮');
+  for (var attempt = 1; attempt <= 3 && isOnSendToPage(tester); attempt++) {
+    final stillSendButton = sendFinders.any((f) => tester.any(f));
+    if (!stillSendButton) break;
+    await pacedWait(tester, 800);
+    if (!isOnSendToPage(tester)) break;
+    flowLog('$journey 发送 tap 未生效，重试（尝试 $attempt/3）');
+    await tapAny(tester, sendFinders);
+  }
 }
 
 /// 批量转发完成后等待目标页关闭（全成功 → toast + 自动 pop）。
