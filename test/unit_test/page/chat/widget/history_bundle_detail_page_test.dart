@@ -178,6 +178,42 @@ void main() {
     expect(find.text(t.chat.voiceDurationSeconds(seconds: 3)), findsOneWidget);
   });
 
+  testWidgets('S1-M2 非 object_key uri 一律占位（presigned 伪装/完整 URL 零出网）', (
+    tester,
+  ) async {
+    await pumpPage(tester, <String, dynamic>{
+      'bundle_version': 1,
+      'entries': [
+        {
+          // presigned 伪装：isPresignedUrl 形状齐全，若透传 viewUrl 会
+          // 直通任意 host（S1-M2 攻击面）
+          'msg_type': 'image',
+          'sender_name': '攻击者A',
+          'sent_at': sentAt,
+          'payload': {
+            'uri':
+                'https://evil.com/t.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256'
+                '&X-Amz-Credential=AKIAFAKE/20261112/us-east-1/s3/aws4_request'
+                '&X-Amz-Signature=deadbeef',
+          },
+        },
+        {
+          // 非 presigned 完整 URL：viewUrl 会把 s/a 授权参数拼到第三方 host
+          'msg_type': 'image',
+          'sender_name': '攻击者B',
+          'sent_at': sentAt,
+          'payload': {'uri': 'https://cdn.example.com/u1/img.png'},
+        },
+      ],
+    });
+
+    // 零出网：不构建任何 Image / 图片 provider（fail-closed 一律占位）
+    expect(find.byType(Image), findsNothing);
+    // 每条 entry：sender 行类型图标 + 占位图 photo 图标各一 → 共 4 个
+    expect(find.byIcon(CupertinoIcons.photo), findsNWidgets(4));
+    expect(tester.takeException(), isNull);
+  });
+
   testWidgets('sender 缺省回退 unknownSender（不再用 bundleTitle）', (tester) async {
     await pumpPage(tester, <String, dynamic>{
       'bundle_version': 1,

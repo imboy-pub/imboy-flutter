@@ -6,9 +6,10 @@
 ///
 /// 类型安全口径：
 /// - text/expression/quote → 快照文本；
-/// - image/imageMulti → 缩略图必须经授权图片管线（[IMBoyCachedImageProvider]，
-///   object_key 原样透传由下载边界异步换取短时 URL；禁止直连原始 URL），
-///   无 uri（未回写引用）时渲染占位图；
+/// - image/imageMulti → 缩略图 uri **只接受 Garage object_key 形态**
+///   （isObjectKey 白名单），经授权图片管线 [IMBoyCachedImageProvider]
+///   原样透传、下载边界异步签发；非 object_key 一律占位图（S1-M2
+///   fail-closed，禁止不可信 uri 出网）；
 /// - voice/video/file/location → 图标 + 显示字段（name/filename/size/
 ///   duration_ms，均为 sanitizer 允许的展示字段占位）；
 /// - 其余/未知 entry 类型 → fallback 描述（不崩溃、不猜测）。
@@ -378,14 +379,13 @@ final class _EntryMetaBody extends _EntryBody {
 
 /// 图片条目快照缩略图。
 ///
-/// uri 是转发器按**新 message id/目标会话**重新封装后的引用（Garage
-/// object_key 或完整 URL）；渲染必须走授权图片管线
-/// [IMBoyCachedImageProvider]（与 `cachedImageProvider` 同口径：object_key
-/// 原样透传、由下载边界异步换取短时 presigned URL）。**禁止**
-/// `Image.network(AssetsService.viewUrl(uri))`：viewUrl 对 object_key 只
-/// 返回无 scheme 的相对 `Uri(path:)`，喂给 NetworkImage 必然抛错、被
-/// errorBuilder 吞掉 → 缩略图永远占位。无 uri（构建期仅保留显示字段
-/// 占位、引用未回写）或加载失败时渲染占位图。
+/// uri 是转发器按**新 message id/目标会话**重新封装后的引用，**只接受
+/// Garage object_key 形态**（[AssetsService.isObjectKey] 白名单）：
+/// 经 [IMBoyCachedImageProvider] 原样透传、由下载边界异步换取短时
+/// presigned URL（与 `cachedImageProvider` 同口径）。非 object_key 的
+/// 完整 URL（含 presigned 伪装）一律占位图（S1-M2 fail-closed，杜绝
+/// 不可信 uri 任意 host 出网）。无 uri（构建期仅保留显示字段占位、引用
+/// 未回写）或加载失败时同样渲染占位图。
 class _ImageSnapshotThumb extends StatelessWidget {
   const _ImageSnapshotThumb({
     required this.uri,
@@ -454,17 +454,21 @@ class _ImageSnapshotThumb extends StatelessWidget {
 
     if (uri.isEmpty) return placeholder;
 
-    // 授权访问：附件渲染必须经 IMBoyCachedImageProvider（AGENTS 编码规范；
-    // object_key 原样透传，完整 URL 同步 viewUrl 授权——参考 func.dart 的
-    // cachedImageProvider；Garage 不支持 URL 缩放参数，解码缩放由
-    // cacheWidth 在客户端完成）。
+    // S1-M2 fail-closed 深度闸：bundle entry 的 uri 只接受 Garage
+    // object_key 形态（isObjectKey 白名单），其余完整 URL（含 presigned
+    // 伪装——viewUrl 对 presigned 直通任意 host、对普通 URL 会把 s/a
+    // 授权参数拼到第三方 host）一律占位图，杜绝不可信 uri 任意 host 出网。
+    if (!AssetsService.isObjectKey(uri)) return placeholder;
+
+    // 授权访问：object_key 原样透传给 IMBoyCachedImageProvider（AGENTS
+    // 编码规范；下载边界异步换取短时 presigned URL——func.dart 的
+    // cachedImageProvider 同口径；Garage 不支持 URL 缩放参数，解码缩放
+    // 由 ResizeImage 在客户端完成）。
     final headers = <String, String>{'User-Agent': 'imboy/1.0.0'};
-    final ImageProvider<Object> provider = AssetsService.isObjectKey(uri)
-        ? IMBoyCachedImageProvider(uri, headers)
-        : IMBoyCachedImageProvider(
-            AssetsService.viewUrl(uri).toString(),
-            headers,
-          );
+    final ImageProvider<Object> provider = IMBoyCachedImageProvider(
+      uri,
+      headers,
+    );
 
     return ClipRRect(
       borderRadius: AppRadius.borderRadiusSmall,
