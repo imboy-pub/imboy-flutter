@@ -343,6 +343,18 @@ GoRouter createAppRouter({
           final bundle = state.extra is Map<String, dynamic>
               ? state.extra as Map<String, dynamic>
               : const <String, dynamic>{};
+          if (bundle.isEmpty) {
+            // extra 非法/空（深链误入、调用方漏传快照）：不再静默渲染空
+            // 详情页——toast 提示后退回。pageBuilder 构建期同步 pop 会打断
+            // 路由装配，与 redirect 内 loginExpired 延迟 toast 同模式延后。
+            Future<dynamic>.delayed(Duration.zero, () {
+              if (!context.mounted) return;
+              AppLoading.showToast(t.chat.bundleInvalidOrEmpty);
+              if (context.canPop()) {
+                context.pop();
+              }
+            });
+          }
           return CupertinoPage(
             key: state.pageKey,
             child: HistoryBundleDetailPage(bundle: bundle),
