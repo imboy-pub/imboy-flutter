@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -27,6 +25,12 @@ const _regionFixture = [
   },
 ];
 
+/// 固定地区树仅注入测试；路径、保存和缓存逻辑使用生产 Notifier。
+class _FixtureRegionNotifier extends SetRegionNotifier {
+  @override
+  SetRegionState build() => const SetRegionState(regionList: _regionFixture);
+}
+
 Future<void> _pumpRegionFlow(
   WidgetTester tester, {
   required Future<bool> Function(String) onSave,
@@ -36,15 +40,13 @@ Future<void> _pumpRegionFlow(
   await tester.pumpWidget(const SizedBox.shrink());
   await tester.pump();
 
-  // 不依赖 Flutter test runner 的应用 asset 注入/缓存生命周期。
-  // 每个测试重新建立一份隔离的 RegionCache 数据和 ProviderScope。
-  SharedPreferences.setMockInitialValues({
-    'region_list': jsonEncode(_regionFixture),
-  });
-  expect(await RegionCache.loadRegionList(), isNotEmpty);
+  // 新 ProviderScope 使用测试数据，不依赖 rootBundle 和缓存异步回填。
+  // 真正的地区资产加载由 AT-MF06 隔离数据库集成验收覆盖。
+  SharedPreferences.setMockInitialValues(<String, Object>{});
   await tester.pumpWidget(
     ProviderScope(
       key: UniqueKey(),
+      overrides: [setRegionProvider.overrideWith(_FixtureRegionNotifier.new)],
       child: TranslationProvider(
         child: MaterialApp(
           home: Builder(
@@ -77,14 +79,8 @@ Future<void> _pumpRegionFlow(
 
 Future<void> _waitForRegionData(WidgetTester tester) async {
   final mainland = find.text('中国大陆');
-  for (var attempt = 0; attempt < 40; attempt++) {
-    if (mainland.evaluate().isNotEmpty) return;
-    await tester.runAsync(
-      () => Future<void>.delayed(const Duration(milliseconds: 50)),
-    );
-    await tester.pump();
-  }
-  expect(mainland, findsOneWidget, reason: '地区列表应从 assets 或预置 RegionCache 中加载');
+  await tester.pump();
+  expect(mainland, findsOneWidget, reason: '地区测试夹具应显示中国大陆');
 }
 
 Future<void> _tapRegion(WidgetTester tester, String title) async {
