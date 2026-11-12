@@ -124,6 +124,10 @@ class ChatExportController {
 
   /// 执行导出并分享。任何取消路径都保证零副作用（不落盘、gateway 零调用）；
   /// 任何落盘路径都保证分享结束后清理临时文件（含网关抛异常路径）。
+  ///
+  /// 步骤拆分（W5-G3-3，行为零变化）：准入 `_admitEntries` → E2EE 确认
+  /// `_confirmedLeaveEncryptedEnvironment` → 产物渲染 `_renderArtifacts`
+  /// → 落盘 `_writeArtifacts` → 分享与清理 `_shareAndPurge`。
   Future<ChatExportResult> export(ChatExportRequest request) async {
     // 1. 灰度开关：关闭即拒绝（fail-closed），不进入任何后续步骤。
     if (!_isFlagEnabled()) {
@@ -131,9 +135,51 @@ class ChatExportController {
     }
 
     // 2. 类型准入（W1-C 冻结矩阵），拒绝项不进入正文与分享。
+    final admitted = _admitEntries(request.entries);
+    if (admitted.exportable.isEmpty) {
+      return ChatExportResult(
+        status: ChatExportStatus.nothingToExport,
+        rejectionCounts: admitted.rejectionCounts,
+      );
+    }
+
+    // 3. E2EE 会话必须先过「内容将离开加密环境」确认（PLAN §4.6）。
+    if (!await _confirmedLeaveEncryptedEnvironment()) {
+      // 零副作用：到此为止未写过任何文件，gateway 零调用。
+      return ChatExportResult(
+        status: ChatExportStatus.e2eeDeclined,
+        rejectionCounts: admitted.rejectionCounts,
+      );
+    }
+
+    // 4. 渲染产物（txt + html；翻译缝在此时求值，locale 取导出当下）。
+    final rendered = _renderArtifacts(request, admitted.exportable);
+
+    // 5. 落盘。任一失败：_writeArtifacts 内已清理半成品，返回 error。
+    final paths = await _writeArtifacts(rendered);
+    if (paths == null) {
+      return ChatExportResult(
+        status: ChatExportStatus.error,
+        errorCode: 'temp_file_write_failed',
+        rejectionCounts: admitted.rejectionCounts,
+      );
+    }
+
+    // 6. 分享 + finally 全量清理（成功/取消/异常路径都清，EXP-03）。
+    return _shareAndPurge(
+      rendered,
+      paths,
+      exportedCount: admitted.exportable.length,
+      rejectionCounts: admitted.rejectionCounts,
+    );
+  }
+
+  /// 准入结果（步骤 2 产物，见 [_AdmittedEntries]：
+  /// 可导出条目 + 按 reason code 聚合计数）。
+  static _AdmittedEntries _admitEntries(List<ChatExportEntry> entries) {
     final exportable = <ChatExportEntry>[];
     final rejectionCounts = <String, int>{};
-    for (final entry in request.entries) {
+    for (final entry in entries) {
       final admission = evaluateChatExportAdmission(entry);
       if (admission.allowed) {
         exportable.add(entry);
@@ -142,84 +188,103 @@ class ChatExportController {
             (rejectionCounts[admission.reasonCode] ?? 0) + 1;
       }
     }
-    if (exportable.isEmpty) {
-      return ChatExportResult(
-        status: ChatExportStatus.nothingToExport,
-        rejectionCounts: rejectionCounts,
-      );
-    }
+    return _AdmittedEntries(exportable, rejectionCounts);
+  }
 
-    // 3. E2EE 会话必须先过「内容将离开加密环境」确认（PLAN §4.6）。
-    //    确认回调缺失 = 无法取得用户同意 = 拒绝（fail-closed）。
+  /// E2EE 确认门（步骤 3）。返回 false = 不得继续导出。
+  ///
+  /// - 非加密会话：直接放行；
+  /// - 确认回调缺失 = 无法取得用户同意 = 拒绝（fail-closed）；
+  /// - 确认回调抛异常（如 UI context 已卸载的路由查找失败）同样无法
+  ///   取得用户同意：防御捕获映射拒绝（W5-G3-1），异常不再穿透
+  ///   `unawaited` 的导出调用链。
+  Future<bool> _confirmedLeaveEncryptedEnvironment() async {
     final isEncrypted = _isEncryptedConversation;
     final encrypted = isEncrypted != null && await isEncrypted();
-    if (encrypted) {
-      final confirm = _confirmLeaveEncryptedEnvironment;
-      final confirmed = confirm != null && await confirm();
-      if (!confirmed) {
-        // 零副作用：到此为止未写过任何文件，gateway 零调用。
-        return ChatExportResult(
-          status: ChatExportStatus.e2eeDeclined,
-          rejectionCounts: rejectionCounts,
-        );
-      }
+    if (!encrypted) return true;
+    final confirm = _confirmLeaveEncryptedEnvironment;
+    if (confirm == null) return false;
+    try {
+      return await confirm();
+    } on Object {
+      return false;
     }
+  }
 
-    // 4. 翻译缝：按本次导出的 locale 映射重置全局占位文案（无 provider
-    //    = 显式回落 zh-CN 兜底，避免上次导出残留的 locale 串状态）。
-    ChatExportPlaceholders.applyTranslations(_translations?.call());
-
+  /// 渲染产物（步骤 4，见 [_RenderedArtifact]：产物元数据 + 对应正文，
+  /// 一一对应）。
+  List<_RenderedArtifact> _renderArtifacts(
+    ChatExportRequest request,
+    List<ChatExportEntry> exportable,
+  ) {
+    // 翻译快照（W5-G3-5）：按本次导出构造，无 provider = 纯 zh-CN 兜底，
+    // 无跨导出残留。
+    final placeholders = ChatExportPlaceholders.of(_translations?.call());
     final doc = ChatExportDocument(
       conversationTitle: request.conversationTitle,
       entries: exportable,
       exportedAt: _now(),
     );
-    final txt = ChatExportFormatter.formatAsTxt(doc);
-    final html = ChatExportFormatter.formatAsHtml(doc);
-    final exportedAt = doc.exportedAt;
-    final artifacts = <ChatExportArtifact>[
-      ChatExportArtifact.fromContent(
-        content: txt,
-        extension: 'txt',
-        conversationUk3: request.conversationUk3,
-        now: exportedAt,
+    final txt = ChatExportFormatter.formatAsTxt(
+      doc,
+      placeholders: placeholders,
+    );
+    final html = ChatExportFormatter.formatAsHtml(
+      doc,
+      placeholders: placeholders,
+    );
+    return <_RenderedArtifact>[
+      _RenderedArtifact(
+        ChatExportArtifact.fromContent(
+          content: txt,
+          extension: 'txt',
+          conversationUk3: request.conversationUk3,
+          now: doc.exportedAt,
+        ),
+        txt,
       ),
-      ChatExportArtifact.fromContent(
-        content: html,
-        extension: 'html',
-        conversationUk3: request.conversationUk3,
-        now: exportedAt,
+      _RenderedArtifact(
+        ChatExportArtifact.fromContent(
+          content: html,
+          extension: 'html',
+          conversationUk3: request.conversationUk3,
+          now: doc.exportedAt,
+        ),
+        html,
       ),
     ];
+  }
 
-    // 5. 落盘（txt + html，与 artifacts 一一对应）。任一失败：清理已写
-    //    文件后返回 error。
-    final bodies = <String>[txt, html];
+  /// 落盘（步骤 5）。任一失败：清理已写半成品后返回 null（映射
+  /// `temp_file_write_failed`）。
+  Future<List<String>?> _writeArtifacts(
+    List<_RenderedArtifact> rendered,
+  ) async {
     final paths = <String>[];
-    var writeFailed = false;
-    for (var i = 0; i < artifacts.length; i++) {
+    for (final item in rendered) {
       try {
         paths.add(
           await _tempFileWriter.write(
-            fileName: artifacts[i].fileName,
-            content: bodies[i],
+            fileName: item.artifact.fileName,
+            content: item.body,
           ),
         );
       } on Object {
-        writeFailed = true;
-        break;
+        await _purge(rendered.map((r) => r.artifact).toList(), paths);
+        return null;
       }
     }
-    if (writeFailed) {
-      await _purge(artifacts, paths);
-      return ChatExportResult(
-        status: ChatExportStatus.error,
-        errorCode: 'temp_file_write_failed',
-        rejectionCounts: rejectionCounts,
-      );
-    }
+    return paths;
+  }
 
-    // 6. 分享 + finally 全量清理（成功/取消/异常路径都清，EXP-03）。
+  /// 分享 + finally 全量清理（步骤 6，成功/取消/异常路径都清，EXP-03）。
+  Future<ChatExportResult> _shareAndPurge(
+    List<_RenderedArtifact> rendered,
+    List<String> paths, {
+    required int exportedCount,
+    required Map<String, int> rejectionCounts,
+  }) async {
+    final artifacts = rendered.map((r) => r.artifact).toList();
     try {
       final outcome = await _gateway.shareFiles(
         ChatShareFilesRequest(artifacts: artifacts, filePaths: paths),
@@ -231,14 +296,14 @@ class ChatExportController {
           ChatShareOutcomeStatus.error => ChatExportStatus.error,
         },
         errorCode: outcome.errorCode,
-        exportedCount: exportable.length,
+        exportedCount: exportedCount,
         rejectionCounts: rejectionCounts,
       );
     } on Object {
       return ChatExportResult(
         status: ChatExportStatus.error,
         errorCode: 'share_failed',
-        exportedCount: exportable.length,
+        exportedCount: exportedCount,
         rejectionCounts: rejectionCounts,
       );
     } finally {
@@ -261,4 +326,20 @@ class ChatExportController {
     }
     await _tempFileWriter.deleteAll(doomed);
   }
+}
+
+/// 准入结果（步骤 2 产物）：可导出条目 + 按 reason code 聚合计数。
+class _AdmittedEntries {
+  const _AdmittedEntries(this.exportable, this.rejectionCounts);
+
+  final List<ChatExportEntry> exportable;
+  final Map<String, int> rejectionCounts;
+}
+
+/// 渲染产物（步骤 4 产物）：产物元数据 + 对应正文（一一对应）。
+class _RenderedArtifact {
+  const _RenderedArtifact(this.artifact, this.body);
+
+  final ChatExportArtifact artifact;
+  final String body;
 }

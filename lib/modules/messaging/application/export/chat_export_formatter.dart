@@ -5,8 +5,8 @@
 /// - txt 行格式稳定为 `[时间] 发送者: 内容`，按 createdAt 从旧到新排序，
 ///   相同 createdAt 保持原始传入顺序（稳定排序）。
 /// - html 对 `<>&"'` 全转义，正文换行转 `<br>`，最小内联样式骨架。
-/// - 媒体类型只输出安全描述占位（zh-CN 常量，Wave 2/3 接 i18n，
-///   见 chat_export_placeholders.dart）。
+/// - 媒体类型只输出安全描述占位（zh-CN 常量兜底，翻译经
+///   [ChatExportPlaceholders] 参数显式传入，W5-G3-5）。
 /// - 拒绝导出的类型（见 chat_export_admission.dart）不出现在任何输出。
 /// - 输出不得包含禁止字段（peer_id/conversation_uk3/sender_did/
 ///   sender_dtype/content key/descriptor/burn_read_at/服务端主键/成员列表）。
@@ -35,18 +35,21 @@ abstract final class ChatExportFormatter {
   /// - file → `[文件] 文件名`；location → `[位置] 标题`（缺失仅占位）
   /// - expression → `[表情]`（任务书显式映射，忽略 label 文本）
   /// - 其余允许类型 → 安全描述（description），缺失退 `[消息]`
-  static String bodyText(ChatExportEntry entry) {
+  static String bodyText(
+    ChatExportEntry entry, {
+    ChatExportPlaceholders placeholders = ChatExportPlaceholders.zhCn,
+  }) {
     final type = normalizeChatExportMsgType(entry.msgType);
     switch (type) {
       case MessageType.text:
       case MessageType.textStream:
         final t = (entry.text ?? '').trim();
-        return t.isNotEmpty ? t : ChatExportPlaceholders.messageFallback;
+        return t.isNotEmpty ? t : placeholders.messageFallback;
       case MessageType.quote:
         final own = (entry.text ?? '').trim();
         final quoted = (entry.quotedText ?? '').trim();
         if (own.isEmpty && quoted.isEmpty) {
-          return ChatExportPlaceholders.messageFallback;
+          return placeholders.messageFallback;
         }
         return <String>[
           if (own.isNotEmpty) own,
@@ -54,46 +57,46 @@ abstract final class ChatExportFormatter {
         ].join(' ');
       case MessageType.image:
       case MessageType.imageMulti:
-        return ChatExportPlaceholders.image;
+        return placeholders.image;
       case MessageType.voice:
-        return ChatExportPlaceholders.voice;
+        return placeholders.voice;
       case MessageType.video:
-        return ChatExportPlaceholders.video;
+        return placeholders.video;
       case MessageType.file:
         final name = (entry.description ?? '').trim();
-        return name.isEmpty
-            ? ChatExportPlaceholders.file
-            : '${ChatExportPlaceholders.file} $name';
+        return name.isEmpty ? placeholders.file : '${placeholders.file} $name';
       case MessageType.location:
         final title = (entry.description ?? '').trim();
         return title.isEmpty
-            ? ChatExportPlaceholders.location
-            : '${ChatExportPlaceholders.location} $title';
+            ? placeholders.location
+            : '${placeholders.location} $title';
       case MessageType.expression:
-        return ChatExportPlaceholders.expression;
+        return placeholders.expression;
       default:
         final d = (entry.description ?? '').trim();
-        return d.isNotEmpty ? d : ChatExportPlaceholders.messageFallback;
+        return d.isNotEmpty ? d : placeholders.messageFallback;
     }
   }
 
   /// 格式化为 UTF-8 `.txt` 字符串（纯文本，不转义，换行原样保留）。
-  static String formatAsTxt(ChatExportDocument doc) {
+  static String formatAsTxt(
+    ChatExportDocument doc, {
+    ChatExportPlaceholders placeholders = ChatExportPlaceholders.zhCn,
+  }) {
     final entries = _sortedByCreatedAtStable(exportableEntries(doc));
     final sb = StringBuffer();
     sb
+      ..writeln('${placeholders.conversationLabel}: ${doc.conversationTitle}')
       ..writeln(
-        '${ChatExportPlaceholders.conversationLabel}: ${doc.conversationTitle}',
-      )
-      ..writeln(
-        '${ChatExportPlaceholders.exportedAtLabel}: '
+        '${placeholders.exportedAtLabel}: '
         '${_formatLocalTime(doc.exportedAt)}',
       )
-      ..writeln('${ChatExportPlaceholders.countLabel}: ${entries.length}')
+      ..writeln('${placeholders.countLabel}: ${entries.length}')
       ..writeln('-' * 32);
     for (final e in entries) {
       sb.writeln(
-        '[${_formatLocalTime(e.createdAt)}] ${e.senderName}: ${bodyText(e)}',
+        '[${_formatLocalTime(e.createdAt)}] ${e.senderName}: '
+        '${bodyText(e, placeholders: placeholders)}',
       );
     }
     return sb.toString();
@@ -103,23 +106,54 @@ abstract final class ChatExportFormatter {
   ///
   /// 所有用户可控内容（会话名/发送者/正文）经 `_escapeHtml` 转义
   /// （`<>&"'` 五字符全转义），正文换行转 `<br>`。
-  static String formatAsHtml(ChatExportDocument doc) {
+  static String formatAsHtml(
+    ChatExportDocument doc, {
+    ChatExportPlaceholders placeholders = ChatExportPlaceholders.zhCn,
+  }) {
     final entries = _sortedByCreatedAtStable(exportableEntries(doc));
     final rawTitle = doc.conversationTitle.trim().isNotEmpty
         ? doc.conversationTitle.trim()
-        : ChatExportPlaceholders.htmlTitle;
+        : placeholders.htmlTitle;
     final title = _escapeHtml(rawTitle);
     final sb = StringBuffer();
     sb
       ..writeln('<!DOCTYPE html>')
-      ..writeln('<html lang="${ChatExportPlaceholders.htmlLang}">')
+      ..writeln('<html lang="${placeholders.htmlLang}">')
       ..writeln('<head>')
       ..writeln('<meta charset="utf-8">')
       ..writeln(
         '<meta name="viewport" content="width=device-width, initial-scale=1">',
       )
       ..writeln('<title>$title</title>')
-      // 最小内联样式骨架：单列自适应正文 + 暗色跟随系统
+      ..writeln(_htmlStyle());
+    sb
+      ..writeln('</head>')
+      ..writeln('<body>')
+      ..writeln('<h1>$title</h1>')
+      ..writeln(
+        '<p class="meta">${placeholders.exportedAtLabel}: '
+        '${_escapeHtml(_formatLocalTime(doc.exportedAt))} · '
+        '${placeholders.countLabel}: ${entries.length}</p>',
+      );
+    for (final e in entries) {
+      sb.writeln(
+        '<p class="entry"><span class="time">['
+        '${_escapeHtml(_formatLocalTime(e.createdAt))}]</span> '
+        '<span class="sender">${_escapeHtml(e.senderName)}</span>: '
+        '${_newlinesToBr(_escapeHtml(bodyText(e, placeholders: placeholders)))}'
+        '</p>',
+      );
+    }
+    sb
+      ..writeln('</body>')
+      ..writeln('</html>');
+    return sb.toString();
+  }
+
+  /// 最小内联样式骨架（单列自适应正文 + 暗色跟随系统），W5-G3-3 拆出。
+  static String _htmlStyle() {
+    final sb = StringBuffer();
+    sb
       ..writeln('<style>')
       ..writeln(
         "body{font-family:system-ui,-apple-system,'PingFang SC',"
@@ -138,26 +172,7 @@ abstract final class ChatExportFormatter {
         '@media (prefers-color-scheme:dark){body{background:#000;'
         'color:#f2f2f7}.time,.meta{color:#98989d}}',
       )
-      ..writeln('</style>')
-      ..writeln('</head>')
-      ..writeln('<body>')
-      ..writeln('<h1>$title</h1>')
-      ..writeln(
-        '<p class="meta">${ChatExportPlaceholders.exportedAtLabel}: '
-        '${_escapeHtml(_formatLocalTime(doc.exportedAt))} · '
-        '${ChatExportPlaceholders.countLabel}: ${entries.length}</p>',
-      );
-    for (final e in entries) {
-      sb.writeln(
-        '<p class="entry"><span class="time">['
-        '${_escapeHtml(_formatLocalTime(e.createdAt))}]</span> '
-        '<span class="sender">${_escapeHtml(e.senderName)}</span>: '
-        '${_newlinesToBr(_escapeHtml(bodyText(e)))}</p>',
-      );
-    }
-    sb
-      ..writeln('</body>')
-      ..writeln('</html>');
+      ..writeln('</style>');
     return sb.toString();
   }
 

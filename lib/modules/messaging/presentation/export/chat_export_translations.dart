@@ -1,8 +1,9 @@
 /// 导出占位文案的 i18n 桥接（W3-J / chat_export_share_v1）。
 ///
 /// 把 `t.chat.exportPlaceholder*` / `t.chat.exportLabel*` 映射为
-/// [ChatExportPlaceholders.applyTranslations] 的键空间——W1-C 格式化器
-/// 纯函数签名不变，运行时输出随当前 locale。
+/// [ChatExportPlaceholders.of] 的键空间——controller 每次导出构造
+/// [ChatExportPlaceholders] 快照传入格式化器（W5-G3-5 参数化），
+/// 运行时输出随当前 locale。
 library;
 
 import 'package:imboy/i18n/strings.g.dart';

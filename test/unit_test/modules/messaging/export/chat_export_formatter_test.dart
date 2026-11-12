@@ -183,15 +183,15 @@ void main() {
         entries: entries,
       );
       final out = ChatExportFormatter.formatAsTxt(doc);
-      expect(out, contains(ChatExportPlaceholders.image)); // [图片]
-      expect(out, contains(ChatExportPlaceholders.voice)); // [语音]
-      expect(out, contains(ChatExportPlaceholders.video)); // [视频]
+      expect(out, contains(ChatExportPlaceholders.zhCn.image)); // [图片]
+      expect(out, contains(ChatExportPlaceholders.zhCn.voice)); // [语音]
+      expect(out, contains(ChatExportPlaceholders.zhCn.video)); // [视频]
       expect(
         out,
-        contains('${ChatExportPlaceholders.file} 合同.pdf'), // [文件] 合同.pdf
+        contains('${ChatExportPlaceholders.zhCn.file} 合同.pdf'), // [文件] 合同.pdf
       );
-      expect(out, contains('${ChatExportPlaceholders.location} 北京市朝阳区'));
-      expect(out, contains(': ${ChatExportPlaceholders.expression}'));
+      expect(out, contains('${ChatExportPlaceholders.zhCn.location} 北京市朝阳区'));
+      expect(out, contains(': ${ChatExportPlaceholders.zhCn.expression}'));
       // expression 显式映射为占位，忽略 label 文本
       expect(out, isNot(contains('[微笑]')));
     });
@@ -328,7 +328,7 @@ void main() {
         ],
       );
       final out = ChatExportFormatter.formatAsHtml(doc);
-      expect(out, contains(ChatExportPlaceholders.htmlTitle));
+      expect(out, contains(ChatExportPlaceholders.zhCn.htmlTitle));
       expect(out, contains('条数: 0'));
     });
   });
