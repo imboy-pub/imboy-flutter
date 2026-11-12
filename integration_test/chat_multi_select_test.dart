@@ -225,8 +225,12 @@ void main() {
 
     // 源消息 createdAt 旧→新（冻结合同 §4.3 的顺序基准）：m1/m2/m3 走真实
     // 输入链（createdAt=发送时刻），img/file fixture createdAt=base+10/20ms
-    // （base 在 m2 发送后取）→ 实际顺序 m1 < m2 < image < file < m3。逐条
-    // 转发副本的顺序断言以此为期望（动态派生，不硬编码，防 fixture 时间漂移）。
+    // （base 在 m2 发送后取）。⚠️ m2 的 createdAt 会被服务端 ACK 时间校准
+    // 在 base 之后改写（真机 r9 实证：设备/服务端时钟微差 + 校准把 m2 推到
+    // image/file 之后）—— 中段排序不可用墙钟钉死。合同真正要求的是
+    // 「副本顺序 == 源顺序」（下方 kinds == expectedKinds 断言），故此处只
+    // 钉死集合完整性与首尾（m1 最旧、m3 最新：两者与 fixture 间隔 ≥ 秒级，
+    // 不受亚秒级校准影响），中段顺序以动态派生为准。
     final sourceIdToKind = <String, String>{
       ?messageOfMarker(tester, m1)?.id: 'm1',
       ?messageOfMarker(tester, m2)?.id: 'm2',
@@ -246,12 +250,22 @@ void main() {
     final expectedKinds = selectedSource
         .map((m) => sourceIdToKind[m.id]!)
         .toList();
+    expect(expectedKinds.toSet(), {
+      'm1',
+      'm2',
+      'image',
+      'file',
+      'm3',
+    }, reason: '源顺序基准应恰含 5 类消息（冻结合同 §4.3；实际 $expectedKinds）');
     expect(
-      expectedKinds,
-      ['m1', 'm2', 'image', 'file', 'm3'],
-      reason:
-          '源消息应按 createdAt 旧→新构成顺序基准'
-          '（冻结合同 §4.3；实际 $expectedKinds）',
+      expectedKinds.first,
+      'm1',
+      reason: 'm1 应最旧（顺序基准首元素；实际 $expectedKinds）',
+    );
+    expect(
+      expectedKinds.last,
+      'm3',
+      reason: 'm3 应最新（顺序基准尾元素；实际 $expectedKinds）',
     );
 
     // ⑨ 逐条转发：action bar「逐条转发」→ SendToPage 批量 → 选目标 → 发送。
