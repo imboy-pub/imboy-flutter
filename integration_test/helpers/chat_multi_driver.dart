@@ -115,6 +115,12 @@ core.Message? messageOfMarker(WidgetTester tester, String marker) {
 }
 
 /// 经长按菜单进入多选：长按 [bubble] → 菜单点「多选」→ action bar 出现。
+///
+/// ⚠️ W1-A enter 契约（chat_page._enterMultiSelect → MessageSelectionNotifier
+/// .enter）：长按菜单「多选」会**进入多选并选中被长按的消息** —— 返回后
+/// action bar 计数恒为 1（[bubble] 对应消息已在选中集）。调用方不要再对该
+/// 消息 toggle（会把它勾掉，DEV-01 pass1/pass2 双轮失败的确定性根因之一）；
+/// 本函数尾部对计数=1 做契约断言，防止用例层再犯。
 Future<void> enterMultiSelectViaMenu(
   WidgetTester tester,
   Finder bubble, {
@@ -134,25 +140,67 @@ Future<void> enterMultiSelectViaMenu(
     isTrue,
     reason: '$journey 进入多选后 action bar（multi_select_cancel）应出现',
   );
+  expectSelectionCount(tester, 1);
 }
 
 /// 在多选模式下切换某条消息的勾选态。
 /// 优先点勾选框稳定 Key（44pt 触达区），兜底点气泡本体（tap-toggle）。
+///
+/// 真机（integration_test 的 LiveTestWidgetsFlutterBinding）上，进入多选后
+/// 前几秒的 tap 会被入场布局切换（leading 头像↔勾选框、输入区↔action bar）
+/// 与 image fixture 加载循环等帧间噪声间歇性吞掉 —— DEV-01 pass1/pass2 双轮
+/// 同签名失败（`multi_select_check_<id>` 首轮勾选不注册，expectSelectionCount
+/// 即败）。生产侧勾选区 GestureDetector（HitTestBehavior.opaque + 44pt）无
+/// 缺陷，修复在 driver 层：每次 tap 前重新 settle 排帧，tap 后校验 action
+/// bar 计数是否变化，未变化即重试（重新解析 finder 取最新几何）；重试耗尽
+/// 后交由调用方 expectSelectionCount 以实际计数失败 —— 不在 driver 层吞断言。
 Future<void> toggleMessageSelection(
   WidgetTester tester,
   Finder bubble, {
   String? messageId,
+  int maxAttempts = 3,
 }) async {
-  final byKey = messageId != null
-      ? find.byKey(chatMultiCheckboxKey(messageId))
-      : null;
-  if (byKey != null && tester.any(byKey)) {
-    await tester.tap(byKey.first, warnIfMissed: false);
-    await settle(tester, maxSeconds: 1);
-    return;
+  Finder targetOf() {
+    final byKey = messageId != null
+        ? find.byKey(chatMultiCheckboxKey(messageId))
+        : null;
+    if (byKey != null && tester.any(byKey)) return byKey;
+    return bubble;
   }
-  await tester.tap(bubble.first, warnIfMissed: false);
-  await settle(tester, maxSeconds: 1);
+
+  final before = actionBarSelectedCount(tester);
+  for (var attempt = 1; attempt <= maxAttempts; attempt++) {
+    // tap 前排帧：入场动画/弹层退出/图片加载循环挂起的帧先落定，
+    // 保证命中在稳定布局上（首次勾选间歇性丢失的主因）。
+    await settle(tester, maxSeconds: 2);
+    final target = targetOf();
+    await tester.tap(target.first, warnIfMissed: false);
+    await settle(tester, maxSeconds: 2);
+    final after = actionBarSelectedCount(tester);
+    final bool verified;
+    if (before != null && after != null) {
+      verified = after != before;
+    } else if (before == null && after == null) {
+      // 多选栏不可校验（兜底路径）：交由调用方 expectSelectionCount 判定。
+      verified = true;
+    } else {
+      // 计数文本状态异常（多选栏被误关等）→ 视为未注册，重试。
+      verified = false;
+    }
+    if (verified) return;
+    flowLog(
+      'W3K 勾选 tap 未注册（尝试 $attempt/$maxAttempts）: '
+      '计数 $before → $after',
+    );
+  }
+}
+
+/// 解析 action bar 已选计数（t.chat.multiSelectCount 渲染值里的首个整数）。
+/// 多选栏不在树 / 文本不可解析时返回 null。
+int? actionBarSelectedCount(WidgetTester tester) {
+  final raw = actionBarCountText(tester);
+  final m = RegExp(r'\d+').firstMatch(raw);
+  return m == null ? null : int.parse(m.group(0)!);
 }
 
 /// 读取 action bar 的已选计数原文（t.chat.multiSelectCount 渲染值）。

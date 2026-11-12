@@ -101,13 +101,9 @@ void main() {
     await takeScreenshot(tester, 'w3kc2g_01_source_ready');
 
     // ③ 多选 + 勾选 2 条 + 计数。
+    // W1-A enter 契约：长按 m1 进入多选即选中 m1（driver 断言计数=1），
+    // 这里只勾 m2 —— 再 toggle m1 会把它勾掉（DEV-01 修复）。
     await enterMultiSelectViaMenu(tester, chatMultiItemContaining(m1));
-    await toggleMessageSelection(
-      tester,
-      chatMultiItemContaining(m1),
-      messageId: messageOfMarker(tester, m1)?.id,
-    );
-    expectSelectionCount(tester, 1);
     await toggleMessageSelection(
       tester,
       chatMultiItemContaining(m2),

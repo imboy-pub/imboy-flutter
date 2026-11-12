@@ -94,8 +94,10 @@ void main() {
     await takeScreenshot(tester, 'w3kbnd_01_source_ready');
 
     // ② 多选 3 条 → 合并转发。
+    // W1-A enter 契约：长按 m1 进入多选即选中 m1（driver 断言计数=1），
+    // 这里只勾 m2/m3 —— 再 toggle m1 会把它勾掉（DEV-01 修复）。
     await enterMultiSelectViaMenu(tester, chatMultiItemContaining(m1));
-    for (final marker in [m1, m2, m3]) {
+    for (final marker in [m2, m3]) {
       await toggleMessageSelection(
         tester,
         chatMultiItemContaining(marker),

@@ -6,8 +6,10 @@
 // 旅程（DEV-01 编排，单设备以合成账号执行）：
 //   ① 登录（flows checkPreconditions）→ push 真实 ChatPage（C2C 对端）
 //   ② 经真实输入链发 3 条 marker 文本 + provider 发 image/file 消息
-//   ③ 长按 marker → 菜单「多选」→ action bar 出现（w2-e keys）
-//   ④ 勾选 5 条（勾选框稳定 Key）→ 计数断言 → 全不选 → 重新勾选 → 退出
+//   ③ 长按 marker → 菜单「多选」→ action bar 出现（w2-e keys）。
+//      ⚠️ W1-A enter 契约：进入即选中被长按的消息（计数=1），后续只勾其余
+//      条目 —— 不要对长按消息再 toggle（DEV-01 修复）。
+//   ④ 勾选其余 4 条（勾选框稳定 Key）→ 计数断言 → 全不选 → 重新勾选 → 退出
 //   ⑤ 再次进入多选勾选 5 条 → action bar「逐条转发」→ SendToPage 批量
 //      → 选目标 C2C → 发送 → 目标会话顺序与内容断言（冻结合同 §4.3：
 //      createdAt 旧→新；文本/image/file 全部转发，peer_id/conversation_uk3
@@ -33,6 +35,7 @@ import 'flows/app_launcher.dart';
 import 'flows/test_utils.dart';
 import 'helpers/chat_multi_driver.dart';
 import 'helpers/chat_multi_fixtures.dart';
+import 'helpers/chat_multi_image_fixture.dart';
 
 const _markerPrefix = '[W3K-MS]';
 
@@ -83,7 +86,12 @@ void main() {
     );
 
     // ④ 发消息：3 条 marker 文本走真实输入链；image/file 走 provider
-    //    addMessage（payload 即远端 uri，不需要相册/上传管陪）。
+    //    addMessage。image 不再用 fixture.invalid 占位 uri（DEV-01 修复：
+    //    破图 → IMBoyCachedImageProvider 重试耗尽 → FlutterError 进入
+    //    _pendingExceptionDetails → 用例挂起超时，且转发副本在目标页复现
+    //    同款破图）—— setup 阶段经生产附件管道真实上传小图，以返回的
+    //    object_key 作 uri（渲染走 viewUrl 授权链；逐条转发走
+    //    PlainAttachmentForward.reupload 真实重传）。
     final nonce = ChatMultiMessageFixtures.nextNonce();
     final m1 = '$_markerPrefix-t1-$nonce';
     final m2 = '$_markerPrefix-t2-$nonce';
@@ -96,11 +104,18 @@ void main() {
     final notifier = container.read(chatProvider.notifier);
     final base = DateTime.now();
     final imgId = 'w3kmsimg$nonce';
+    final imgObjectKey = await ChatMultiImageFixture.uploadPng(
+      peerId: peerUid,
+      type: 'C2C',
+    );
+    flowLog('W3K-MS fixture image uploaded: $imgObjectKey');
     final img = ChatMultiMessageFixtures.image(
       id: imgId,
       authorId: selfUid,
       createdAt: base.add(const Duration(milliseconds: 10)),
-      remoteUri: 'https://fixture.invalid/w3kms-$imgId.png',
+      remoteUri: imgObjectKey,
+      width: 8,
+      height: 8,
       peerId: peerUid,
     );
     final imgOk = await notifier.addMessage(
@@ -145,9 +160,12 @@ void main() {
     await takeScreenshot(tester, 'w3kms_01_source_ready');
 
     // ⑤ 进入多选（长按 m1 气泡 → 菜单「多选」）。
+    // W1-A enter 契约：进入即选中被长按的消息 → 计数恒为 1（driver 内断言）。
+    // 因此后续不再对 m1 toggle（会把它勾掉 —— DEV-01 pass1/pass2 双轮失败
+    // 的确定性根因之一），只勾其余 4 条。
     await enterMultiSelectViaMenu(tester, chatMultiItemContaining(m1));
 
-    // ⑥ 勾选 5 条 + 计数（勾选框稳定 Key 优先）。
+    // ⑥ 勾选其余 4 条 + 计数（勾选框稳定 Key 优先；driver 带 tap 校验重试）。
     Future<void> selectByMarker(String marker) async {
       final msg = messageOfMarker(tester, marker);
       await toggleMessageSelection(
@@ -157,8 +175,6 @@ void main() {
       );
     }
 
-    await selectByMarker(m1);
-    expectSelectionCount(tester, 1);
     await selectByMarker(m2);
     await selectByMarker(m3);
     expectSelectionCount(tester, 3);
@@ -191,9 +207,8 @@ void main() {
       reason: '退出多选后 action bar 应消失',
     );
 
-    // ⑧ 再次进入多选并勾选 5 条（旧→新：m1, image, file, m2, m3）。
+    // ⑧ 再次进入多选（m1 由 enter 预选）并勾选其余 4 条 → 5 条全选。
     await enterMultiSelectViaMenu(tester, chatMultiItemContaining(m1));
-    await selectByMarker(m1);
     await toggleMessageSelection(
       tester,
       find.byType(ChatPage),
@@ -207,6 +222,37 @@ void main() {
     await selectByMarker(m2);
     await selectByMarker(m3);
     expectSelectionCount(tester, 5);
+
+    // 源消息 createdAt 旧→新（冻结合同 §4.3 的顺序基准）：m1/m2/m3 走真实
+    // 输入链（createdAt=发送时刻），img/file fixture createdAt=base+10/20ms
+    // （base 在 m2 发送后取）→ 实际顺序 m1 < m2 < image < file < m3。逐条
+    // 转发副本的顺序断言以此为期望（动态派生，不硬编码，防 fixture 时间漂移）。
+    final sourceIdToKind = <String, String>{
+      ?messageOfMarker(tester, m1)?.id: 'm1',
+      ?messageOfMarker(tester, m2)?.id: 'm2',
+      ?messageOfMarker(tester, m3)?.id: 'm3',
+      imgId: 'image',
+      fileId: 'file',
+    };
+    final selectedSource =
+        (notifier.chatService?.messages ?? const <core.Message>[])
+            .where((m) => sourceIdToKind.containsKey(m.id))
+            .toList()
+          ..sort(
+            (a, b) => (a.createdAt?.millisecondsSinceEpoch ?? 0).compareTo(
+              b.createdAt?.millisecondsSinceEpoch ?? 0,
+            ),
+          );
+    final expectedKinds = selectedSource
+        .map((m) => sourceIdToKind[m.id]!)
+        .toList();
+    expect(
+      expectedKinds,
+      ['m1', 'm2', 'image', 'file', 'm3'],
+      reason:
+          '源消息应按 createdAt 旧→新构成顺序基准'
+          '（冻结合同 §4.3；实际 $expectedKinds）',
+    );
 
     // ⑨ 逐条转发：action bar「逐条转发」→ SendToPage 批量 → 选目标 → 发送。
     final forwardStart = DateTime.now();
@@ -276,7 +322,7 @@ void main() {
     );
     expect(copies.length, 5, reason: '目标会话副本应恰 5 条（实际 ${copies.length}）');
 
-    // 顺序：副本按 createdAt 旧→新 = 源顺序 m1 → image → file → m2 → m3。
+    // 顺序：副本按 createdAt 旧→新 = 源消息列表序（expectedKinds 在 ⑧ 派生）。
     String kindOf(core.Message m) => switch (m) {
       core.TextMessage() =>
         m.text == m1
@@ -289,13 +335,13 @@ void main() {
       _ => 'other',
     };
     final kinds = copies.map(kindOf).toList();
-    expect(kinds, [
-      'm1',
-      'image',
-      'file',
-      'm2',
-      'm3',
-    ], reason: '转发副本顺序应等于源选择顺序（冻结合同 §4.3；实际 $kinds）');
+    expect(
+      kinds,
+      expectedKinds,
+      reason:
+          '转发副本顺序应等于源 createdAt 旧→新'
+          '（冻结合同 §4.3；实际 $kinds 期望 $expectedKinds）',
+    );
 
     // 内容隔离：副本不得携带源会话归属（peer_id 重写为目标）。
     final targetUk3Prefix = 'C2C_';
