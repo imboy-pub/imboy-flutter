@@ -558,14 +558,7 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
                   // 固定尾部：不随内容滚动的「管理」入口
                   Container(
                     padding: EdgeInsets.symmetric(horizontal: AppSpacing.tiny),
-                    decoration: BoxDecoration(
-                      border: Border(
-                        left: BorderSide(
-                          color: _themeColor('outline').withValues(alpha: 0.1),
-                          width: 0.5,
-                        ),
-                      ),
-                    ),
+                    decoration: BoxDecoration(border: Border(left: topBorder)),
                     child: CupertinoButton(
                       key: const Key('quick_reply_manage_button'),
                       minimumSize: const Size.square(AppSizes.touchTarget),
