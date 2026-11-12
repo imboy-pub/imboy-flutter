@@ -15,7 +15,10 @@ const _regionFixture = [
   {
     'title': '中国大陆',
     'children': [
-      {'title': '北京', 'children': ['东城']},
+      {
+        'title': '北京',
+        'children': ['东城'],
+      },
     ],
   },
   {
@@ -28,13 +31,20 @@ Future<void> _pumpRegionFlow(
   WidgetTester tester, {
   required Future<bool> Function(String) onSave,
 }) async {
-  // 不依赖 Flutter test runner 是否把应用 assets 注入 rootBundle。
-  // Provider 的生产回退路径会在 assets 不可用时读取 RegionCache 列表。
+  // 前一测试可能仍停留在递归子页面。显式卸载 Navigator 和
+  // autoDispose Provider，避免第二、第三个 Widget 测试复用旧状态。
+  await tester.pumpWidget(const SizedBox.shrink());
+  await tester.pump();
+
+  // 不依赖 Flutter test runner 的应用 asset 注入/缓存生命周期。
+  // 每个测试重新建立一份隔离的 RegionCache 数据和 ProviderScope。
   SharedPreferences.setMockInitialValues({
     'region_list': jsonEncode(_regionFixture),
   });
+  expect(await RegionCache.loadRegionList(), isNotEmpty);
   await tester.pumpWidget(
     ProviderScope(
+      key: UniqueKey(),
       child: TranslationProvider(
         child: MaterialApp(
           home: Builder(
@@ -74,11 +84,7 @@ Future<void> _waitForRegionData(WidgetTester tester) async {
     );
     await tester.pump();
   }
-  expect(
-    mainland,
-    findsOneWidget,
-    reason: '地区列表应从 assets 或预置 RegionCache 中加载',
-  );
+  expect(mainland, findsOneWidget, reason: '地区列表应从 assets 或预置 RegionCache 中加载');
 }
 
 Future<void> _tapRegion(WidgetTester tester, String title) async {
