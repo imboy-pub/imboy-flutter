@@ -156,6 +156,12 @@ abstract final class ChatMultiMessageFixtures {
   }
 
   /// 图片消息（占位 uri；真机用例不做像素断言，仅定位/勾选/转发）。
+  ///
+  /// [runNonce]（G6-1）：写入 metadata['w3k_run_nonce']，转发副本经
+  /// buildForwardPayload 的 `{...?sourceMetadata}` 原样保留（reupload 只
+  /// 重写 uri/size/file_hash256），目标会话侧以此识别本轮副本 —— 替代
+  /// 设备墙钟过滤（createdAt.isAfter(forwardStart) 在设备/服务端时钟微差
+  /// 下环境性 flaky）。
   static core.ImageMessage image({
     required String id,
     required String authorId,
@@ -164,7 +170,9 @@ abstract final class ChatMultiMessageFixtures {
     String? peerId,
     double width = 64,
     double height = 64,
+    int size = 1024,
     core.MessageStatus status = core.MessageStatus.sent,
+    String? runNonce,
   }) {
     return core.ImageMessage(
       id: id,
@@ -173,17 +181,22 @@ abstract final class ChatMultiMessageFixtures {
       source: remoteUri,
       width: width,
       height: height,
-      size: 1024,
+      size: size,
       status: status,
       metadata: {
         'msg_type': MessageType.image,
         'uri': remoteUri,
         'peer_id': ?peerId,
+        'w3k_run_nonce': ?runNonce?.toString(),
       },
     );
   }
 
   /// 文件消息。
+  ///
+  /// metadata 含 'name'/'size'（生产 payload 形状：转发 buildForwardPayload
+  /// 只搬运 metadata，toTypeMessage 的 FileMessage.name/size 读
+  /// payload['name']/['size']）；[runNonce] 同 [image]（G6-1 副本识别）。
   static core.FileMessage file({
     required String id,
     required String authorId,
@@ -191,7 +204,9 @@ abstract final class ChatMultiMessageFixtures {
     required String remoteUri,
     required String name,
     String? peerId,
+    int size = 2048,
     core.MessageStatus status = core.MessageStatus.sent,
+    String? runNonce,
   }) {
     return core.FileMessage(
       id: id,
@@ -199,12 +214,15 @@ abstract final class ChatMultiMessageFixtures {
       createdAt: createdAt,
       source: remoteUri,
       name: name,
-      size: 2048,
+      size: size,
       status: status,
       metadata: {
         'msg_type': MessageType.file,
         'uri': remoteUri,
+        'name': name,
+        'size': size,
         'peer_id': ?peerId,
+        'w3k_run_nonce': ?runNonce?.toString(),
       },
     );
   }
