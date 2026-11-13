@@ -1778,11 +1778,15 @@ class ChatPageState extends ConsumerState<ChatPage>
         _conversationUk3.isNotEmpty &&
         evaluateMessageSelectability(messageSelectionTraitsOf(message))
             .selectable) {
-      onMultiSelect = () {
-        // G1-8（W5 收口）：进入多选会在 build 中卸载 ChatInput（换
-        // action bar），dispose 只 cancel Timer 不落草稿——先 flush 挂起的
-        // ≤300ms 防抖，最后一段输入不丢。
-        _chatInputKey.currentState?.flushDraft();
+      onMultiSelect = () async {
+        // 切换多选时 ChatInput 将被卸载；先等待写入完成，不能只启动 Future。
+        try {
+          await _chatInputKey.currentState?.flushDraft();
+        } catch (error) {
+          iPrint('[chat_page] draft flush failed before multi-select: $error');
+          return; // 存储失败时不卸载输入框，避免丢草稿
+        }
+        if (!mounted) return;
         enterMultiSelectWithFeedback(ref, _conversationUk3, message);
       };
     }

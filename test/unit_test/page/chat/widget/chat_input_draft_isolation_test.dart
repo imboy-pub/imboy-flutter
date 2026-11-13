@@ -12,7 +12,11 @@ import 'package:imboy/store/model/conversation_model.dart';
 import 'package:imboy/utils/chat_draft_keys.dart';
 
 void main() {
-  Future<void> mount(WidgetTester tester, String uid) async {
+  Future<void> mount(
+    WidgetTester tester,
+    String uid, {
+    GlobalKey<ChatInputState>? inputKey,
+  }) async {
     await tester.pumpWidget(const SizedBox.shrink());
     await StorageService.to.setString(Keys.currentUid, uid);
     final height = ValueNotifier<double>(52);
@@ -23,6 +27,7 @@ void main() {
           child: MaterialApp(
             home: Scaffold(
               body: ChatInput(
+                key: inputKey,
                 type: 'C2G',
                 peerId: '995301',
                 composerHeight: height,
@@ -50,54 +55,66 @@ void main() {
   setUp(() async => StorageService.to.clear());
   tearDown(() async => StorageService.to.clear());
 
-  testWidgets('flushDraft: 不等 300ms 防抖，草稿立即落盘（W5 G1-8 收口）', (tester) async {
+  testWidgets('flushDraft: <300ms 持久化后立即卸载，重挂恢复文本与光标', (tester) async {
     await tester.pumpWidget(const SizedBox.shrink());
     await StorageService.to.setString(Keys.currentUid, '1001');
     final height = ValueNotifier<double>(52);
     addTearDown(height.dispose);
     final inputKey = GlobalKey<ChatInputState>();
-    await tester.pumpWidget(
-      ProviderScope(
-        child: TranslationProvider(
-          child: MaterialApp(
-            home: Scaffold(
-              body: ChatInput(
-                key: inputKey,
-                type: 'C2G',
-                peerId: '995301',
-                composerHeight: height,
-                onSendPressed: (_) async => true,
-              ),
+    Widget composer() => ProviderScope(
+      child: TranslationProvider(
+        child: MaterialApp(
+          home: Scaffold(
+            body: ChatInput(
+              key: inputKey,
+              type: 'C2G',
+              peerId: '995301',
+              composerHeight: height,
+              onSendPressed: (_) async => true,
             ),
           ),
         ),
       ),
     );
-    await tester.pump();
 
+    await tester.pumpWidget(composer());
+    await tester.pump();
     await tester.enterText(
       find.byKey(const Key('chat_message_input')),
       '最后一段输入',
     );
-    await tester.pump(); // 只推进一帧，不跨 300ms 防抖
+    field(tester).controller!.selection = const TextSelection.collapsed(
+      offset: 4,
+    );
+    await tester.pump(); // 不推进防抖时钟
     expect(
       AccountDraftStore.capture('C2G', '995301').read().text,
       isNot('最后一段输入'),
-      reason: '防抖未到期，草稿不应已落盘',
+      reason: '300ms 未到时不应由普通防抖落盘',
     );
 
-    inputKey.currentState!.flushDraft();
-    // 草稿落盘链是异步（persistPreference→StorageService.setString）：给
-    // 足帧预算让 Future 链走完（等价既有用例 350ms 的处理预算）。断言走
-    // AccountDraftStore.read()（键名经 ChatDraftKeys 命名空间，不用裸字面量）。
-    await tester.pump(const Duration(milliseconds: 150));
-    await tester.pump(const Duration(milliseconds: 150));
-    await tester.pump(const Duration(milliseconds: 150));
+    final start = tester.binding.clock.now();
+    final oldState = inputKey.currentState!;
+    await oldState.flushDraft(); // 必须等待异步持久化完成，不能只启动写入
+    await tester.pumpWidget(const SizedBox.shrink()); // 模拟多选 action bar 替换输入区
+    expect(oldState.mounted, isFalse);
+    await StorageService.to.reload(); // 丢弃内存缓存的乐观值，检查底层已提交的数据
+    final draft = AccountDraftStore.capture('C2G', '995301').read();
+    expect(draft.text, '最后一段输入');
+    expect(draft.cursor, 4);
+    expect(AccountDraftStore.capture('C2G', '995302').read().text, isEmpty);
+
+    await tester.pumpWidget(composer()); // 退出多选后新建 ChatInputState
+    await tester.pump();
+    expect(inputKey.currentState, isNot(same(oldState)));
+    expect(field(tester).controller!.text, '最后一段输入');
+    expect(field(tester).controller!.selection.baseOffset, 4);
     expect(
-      AccountDraftStore.capture('C2G', '995301').read().text,
-      '最后一段输入',
-      reason: 'flushDraft 立即执行挂起的防抖回调（进多选前不丢最后输入）',
+      tester.binding.clock.now().difference(start),
+      lessThan(const Duration(milliseconds: 300)),
+      reason: '全程不推进 300ms 防抖时钟，不能靠自然到期蒙混过关',
     );
+    await tester.pumpWidget(const SizedBox.shrink());
   });
 
   testWidgets('conversation summary reads only the current account draft', (
@@ -174,6 +191,30 @@ void main() {
     );
     await StorageService.to.setString(Keys.currentUid, '1002');
     await tester.pump(const Duration(milliseconds: 350));
+    await mount(tester, '1002');
+    expect(field(tester).controller!.text, isEmpty);
+    await mount(tester, '1001');
+    expect(field(tester).controller!.text, isEmpty);
+    await tester.pumpWidget(const SizedBox.shrink());
+  });
+
+  testWidgets('flushDraft after account switch never writes the old draft', (
+    tester,
+  ) async {
+    final inputKey = GlobalKey<ChatInputState>();
+    await mount(tester, '1001', inputKey: inputKey);
+    await tester.enterText(
+      find.byKey(const Key('chat_message_input')),
+      'stale A',
+    );
+    await tester.pump();
+    await StorageService.to.setString(Keys.currentUid, '1002');
+    await inputKey.currentState!.flushDraft();
+    await StorageService.to.reload();
+    final a = chatDraftKeys('1001', 'C2G', '995301')!;
+    final b = chatDraftKeys('1002', 'C2G', '995301')!;
+    expect(StorageService.to.getKeys(), isNot(contains(a.text)));
+    expect(StorageService.to.getKeys(), isNot(contains(b.text)));
     await mount(tester, '1002');
     expect(field(tester).controller!.text, isEmpty);
     await mount(tester, '1001');

@@ -652,38 +652,37 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
     }
     _debounceTimer = Timer(const Duration(milliseconds: 300), () {
       if (!mounted) return;
-      _processTextChange();
+      unawaited(_processTextChange());
     });
   }
 
-  /// 立即执行挂起的防抖回调（W5 G1-8 收口）：进入多选等即将卸载
-  /// ChatInput 的路径先调用——dispose 只 cancel Timer 不落草稿，不 flush
-  /// 会丢最后 ≤300ms 的输入。
-  void flushDraft() {
-    if (_debounceTimer?.isActive ?? false) {
-      _debounceTimer?.cancel();
-    }
-    if (!mounted) return;
-    _processTextChange();
+  /// 立即执行挂起的防抖，并返回草稿异步持久化的 Future。
+  /// 进入多选的调用方必须 await 完成后再卸载 ChatInput。
+  Future<void> flushDraft() {
+    _debounceTimer?.cancel();
+    if (!mounted) return Future<void>.value();
+    return _processTextChange();
   }
 
-  void _processTextChange() {
+  Future<void> _processTextChange() {
     final text = _textController.text.trim();
     _sendButtonVisible.value = text.isNotEmpty;
     _characterCount.value = text.characters.length;
     _syncQuickRepliesVisibility();
 
-    // 超长自动裁剪并存储草稿
+    // 超长输入不保存；仍按原时序同步通知 UI / onTextChanged。
+    final Future<void> write;
     if (text.length <= (widget.maxLength ?? 1000)) {
-      unawaited(
-        _drafts.save(
-          _textController.text,
-          cursor: _textController.selection.baseOffset,
-        ),
+      write = _drafts.save(
+        _textController.text,
+        cursor: _textController.selection.baseOffset,
       );
+    } else {
+      write = Future<void>.value();
     }
 
     if (_drafts.isCurrent) widget.onTextChanged?.call(_textController.text);
+    return write;
   }
 
   @override
