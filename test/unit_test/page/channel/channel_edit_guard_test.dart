@@ -13,6 +13,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:imboy/i18n/strings.g.dart';
+import 'package:imboy/config/const.dart';
+import 'package:imboy/service/storage.dart';
 import 'package:imboy/page/channel/channel_edit_page.dart';
 import 'package:imboy/store/model/channel_model.dart';
 
@@ -35,6 +37,8 @@ ChannelModel _channel(ChannelUserRole role) {
 }
 
 Future<void> _pump(WidgetTester tester, ChannelModel channel) async {
+  await StorageService.to.setString(Keys.currentUid, 'channel-guard-test');
+  addTearDown(() => StorageService.to.remove(Keys.currentUid));
   tester.view.physicalSize = const Size(390, 844);
   tester.view.devicePixelRatio = 1.0;
   addTearDown(tester.view.reset);

@@ -525,6 +525,9 @@ class _Translations$channel$ru_RU extends Translations$channel$zh_CN {
 	@override String get subscribePending => 'Подписка оформлена, обновление';
 	@override String get subscribeRefresh => 'Обновить подписку';
 	@override String unseenUpdatesBanner({required Object count}) => 'Новых обновлений: ${count}';
+	@override String get editLeaveUnsaved => 'Изменения не сохранены. Отменить их и выйти?';
+	@override String get avatarNotUploaded => 'Фото профиля не загружено. Повторите попытку или восстановите его перед сохранением.';
+	@override String get restoreAvatar => 'Восстановить фото';
 }
 
 // Path: chat
@@ -1743,6 +1746,10 @@ class _Translations$common$ru_RU extends Translations$common$zh_CN {
 	@override String get legacyUploadReturnToOriginalPage => 'Загрузка не завершена. Вернитесь на исходную страницу, снова выберите файл и отправьте.';
 	@override String get f2fLocationRequired => 'Включите разрешение и службы геолокации и повторите попытку с друзьями рядом.';
 	@override String get f2fMemberHint => 'Нажмите на аватар, чтобы открыть профиль и добавить друга.';
+	@override String get pleaseSelectLocation => 'Выберите место';
+	@override String get myLocation => 'Моё местоположение';
+	@override String get searchConversations => 'Беседы';
+	@override String get webpageLoadProblem => 'Возникла проблема при загрузке содержимого страницы. Повторите попытку.';
 }
 
 // Path: complaint
@@ -3903,6 +3910,9 @@ extension on TranslationsRuRu {
 			'channel.subscribePending' => 'Подписка оформлена, обновление',
 			'channel.subscribeRefresh' => 'Обновить подписку',
 			'channel.unseenUpdatesBanner' => ({required Object count}) => 'Новых обновлений: ${count}',
+			'channel.editLeaveUnsaved' => 'Изменения не сохранены. Отменить их и выйти?',
+			'channel.avatarNotUploaded' => 'Фото профиля не загружено. Повторите попытку или восстановите его перед сохранением.',
+			'channel.restoreAvatar' => 'Восстановить фото',
 			'chat.bankCard' => 'Банковская карта',
 			'chat.receivePayment' => 'Приём и оплата',
 			'chat.alreadyMember' => 'Уже участник',
@@ -4005,11 +4015,11 @@ extension on TranslationsRuRu {
 			'chat.userData' => 'Данные пользователя',
 			'chat.video' => 'Видео',
 			'chat.videoMessage' => '[Видео]',
+			_ => null,
+		} ?? switch (path) {
 			'chat.viewAttachments' => 'Просмотреть вложения',
 			'chat.viewLargeImage' => 'Открыть полностью',
 			'chat.voice' => 'Голос',
-			_ => null,
-		} ?? switch (path) {
 			'chat.voiceMessage' => 'Голосовое сообщение',
 			'chat.youWithdrewAMessage' => 'Вы отозвали сообщение',
 			'chat.formatCheck' => 'Проверка формата',
@@ -4519,11 +4529,11 @@ extension on TranslationsRuRu {
 			'common.groupAnnouncementPublish' => 'Опубликовать объявление',
 			'common.pleaseEnterAnnouncementContent' => 'Пожалуйста, введите содержание объявления',
 			'common.selectExpirationDateOptional' => 'Выберите срок действия (необязательно)',
+			_ => null,
+		} ?? switch (path) {
 			'common.groupAnnouncementDeleteConfirm' => 'Удалить это объявление?',
 			'common.groupAnnouncementDelete' => 'Удалить',
 			'common.groupAnnouncementLoadFailed' => 'Не удалось загрузить объявление, попробуйте позже',
-			_ => null,
-		} ?? switch (path) {
 			'common.groupAnnouncementPublishFailed' => 'Не удалось опубликовать объявление',
 			'common.groupAnnouncementPublishSuccess' => 'Объявление опубликовано',
 			'common.groupAnnouncementDeleteFailed' => 'Не удалось удалить объявление',
@@ -5033,11 +5043,11 @@ extension on TranslationsRuRu {
 			'common.e2eeModeCompliance' => 'Комплаенс-шифрование',
 			'common.e2eeModeStrict' => 'Сквозное шифрование',
 			'common.e2eeRecoveryKeySaveNote' => 'Немедленно сохраните этот ключ восстановления (скриншот или менеджер паролей). Если забудете парольную фразу, это единственная возможность расшифровать резервную копию; без него восстановление станет невозможным навсегда.',
+			_ => null,
+		} ?? switch (path) {
 			'common.e2eeRecoveryKeyTitle' => 'Ключ восстановления',
 			'common.e2eeUseRecoveryKey' => 'Создать ключ восстановления (запасной доступ при забытой парольной фразе)',
 			'common.enterAmount' => 'Введите сумму',
-			_ => null,
-		} ?? switch (path) {
 			'common.expandFull' => 'Развернуть',
 			'common.f2fEnteringGroup' => ({required Object count}) => 'К групповому чату присоединились: ${count} чел.',
 			'common.f2fSecretCode' => 'Секретный код',
@@ -5108,6 +5118,10 @@ extension on TranslationsRuRu {
 			'common.legacyUploadReturnToOriginalPage' => 'Загрузка не завершена. Вернитесь на исходную страницу, снова выберите файл и отправьте.',
 			'common.f2fLocationRequired' => 'Включите разрешение и службы геолокации и повторите попытку с друзьями рядом.',
 			'common.f2fMemberHint' => 'Нажмите на аватар, чтобы открыть профиль и добавить друга.',
+			'common.pleaseSelectLocation' => 'Выберите место',
+			'common.myLocation' => 'Моё местоположение',
+			'common.searchConversations' => 'Беседы',
+			'common.webpageLoadProblem' => 'Возникла проблема при загрузке содержимого страницы. Повторите попытку.',
 			'complaint.complaint' => 'Жалоба',
 			'complaint.e2eeConsentTitle' => 'Отправить зашифрованные доказательства',
 			'complaint.e2eeConsentBody' => 'Это сообщение зашифровано сквозным шифрованием; сервер не видит его содержимое. Отправка выдержки раскроет выбранный открытый текст модераторам для проверки. Согласны?',
@@ -5543,6 +5557,8 @@ extension on TranslationsRuRu {
 			'main.type' => 'Тип',
 			'main.unanswered' => 'Нет ответа',
 			'main.unnamed' => 'Без имени',
+			_ => null,
+		} ?? switch (path) {
 			'main.usedSpace' => 'Использованное место',
 			'main.you' => 'Вы',
 			'main.zhCn' => 'Упрощённый китайский',
@@ -5550,8 +5566,6 @@ extension on TranslationsRuRu {
 			'main.bound' => 'Привязано',
 			'main.correct' => 'Верно',
 			'main.pendingInput' => 'Ожидание ввода',
-			_ => null,
-		} ?? switch (path) {
 			'main.lengthCheck' => 'Проверка длины',
 			'main.bugReport' => 'Сообщить об ошибке',
 			'main.deleting' => 'Удаление...',
@@ -6057,6 +6071,8 @@ extension on TranslationsRuRu {
 			'organization.tools.projectCount' => ({required Object count}) => 'Проектов: ${count}',
 			'organization.tools.projectsEmpty' => 'Проектов пока нет',
 			'organization.tools.projectsError' => ({required Object err}) => 'Не удалось загрузить проекты: ${err}',
+			_ => null,
+		} ?? switch (path) {
 			'organization.tools.moreInWorkspaceShell' => 'Все рабочие пространства',
 			'organization.tools.moreInWorkspaceShellHint' => 'Открыть глобальный переключатель пространств (между организациями).',
 			'organization.chart.zoomIn' => 'Увеличить',
@@ -6064,8 +6080,6 @@ extension on TranslationsRuRu {
 			'organization.chart.fit' => 'По размеру окна',
 			'organization.chart.expand' => 'Развернуть отделы',
 			'organization.chart.collapse' => 'Свернуть отделы',
-			_ => null,
-		} ?? switch (path) {
 			'organization.chart.gestureHint' => 'Перетаскивайте для просмотра · Масштаб щипком',
 			'organization.chart.directMembers' => ({required Object count}) => 'Прямые подчинённые: ${count}',
 			'organization.experienceUi.switchSpace' => 'Переключить пространство',

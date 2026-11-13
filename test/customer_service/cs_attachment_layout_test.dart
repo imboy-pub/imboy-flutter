@@ -10,6 +10,7 @@ import 'package:imboy/theme/default/app_colors.dart';
 
 import '../ux_matrix/ux_harness.dart';
 import '../golden_baseline_guard.dart';
+import '../uiux/support/golden_font_loader.dart';
 
 const _captureKey = ValueKey('t17-attachments');
 
@@ -36,10 +37,11 @@ void main() {
     for (final status in ['active', 'unavailable']) {
       testWidgets(
         'golden: T17 $status $label',
-        skip: !goldenBaselineExists(
+        skip: !goldenBaselinesReady([
           'test/customer_service/goldens/t17_${status}_$label.png',
-        ),
+        ]),
         (tester) async {
+          final font = await prepareGoldenFonts(tester);
           await pumpUxCombo(
             tester,
             RepaintBoundary(
@@ -101,7 +103,9 @@ void main() {
               ),
             ),
             combo,
+            theme: goldenAppTheme(combo.brightness),
           );
+          expectGoldenTextGlyphs(tester, font);
           final layoutError = tester.takeException();
           await expectLater(
             find.byKey(_captureKey),

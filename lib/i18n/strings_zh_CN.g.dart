@@ -1500,6 +1500,15 @@ class Translations$channel$zh_CN {
 
 	/// zh-CN: '有 ${count} 条新更新'
 	String unseenUpdatesBanner({required Object count}) => '有 ${count} 条新更新';
+
+	/// zh-CN: '修改尚未保存，确定放弃并离开？'
+	String get editLeaveUnsaved => '修改尚未保存，确定放弃并离开？';
+
+	/// zh-CN: '头像尚未上传，重试或还原后再保存。'
+	String get avatarNotUploaded => '头像尚未上传，重试或还原后再保存。';
+
+	/// zh-CN: '还原头像'
+	String get restoreAvatar => '还原头像';
 }
 
 // Path: chat
@@ -5138,6 +5147,18 @@ class Translations$common$zh_CN {
 
 	/// zh-CN: '点击朋友头像查看资料并添加好友'
 	String get f2fMemberHint => '点击朋友头像查看资料并添加好友';
+
+	/// zh-CN: '请选择位置'
+	String get pleaseSelectLocation => '请选择位置';
+
+	/// zh-CN: '我的位置'
+	String get myLocation => '我的位置';
+
+	/// zh-CN: '会话'
+	String get searchConversations => '会话';
+
+	/// zh-CN: '网页内容加载遇到问题，请重试。'
+	String get webpageLoadProblem => '网页内容加载遇到问题，请重试。';
 }
 
 // Path: complaint
@@ -11657,6 +11678,9 @@ extension on Translations {
 			'channel.subscribePending' => '已订阅，正在刷新',
 			'channel.subscribeRefresh' => '刷新订阅状态',
 			'channel.unseenUpdatesBanner' => ({required Object count}) => '有 ${count} 条新更新',
+			'channel.editLeaveUnsaved' => '修改尚未保存，确定放弃并离开？',
+			'channel.avatarNotUploaded' => '头像尚未上传，重试或还原后再保存。',
+			'channel.restoreAvatar' => '还原头像',
 			'chat.bankCard' => '银行卡',
 			'chat.messageInputHint' => '说点什么...',
 			'chat.receivePayment' => '收付款',
@@ -11704,11 +11728,11 @@ extension on Translations {
 			'chat.groupFileUnnamed' => '未命名文件',
 			'chat.groupFileCategoryEmpty' => ({required Object category}) => '${category}暂无文件',
 			'chat.groupFileEmpty' => '暂无群文件',
+			_ => null,
+		} ?? switch (path) {
 			'chat.groupFileCategoryDoc' => '文档',
 			'chat.groupFileCategoryImage' => '图片',
 			'chat.groupFileCategoryVideo' => '视频',
-			_ => null,
-		} ?? switch (path) {
 			'chat.groupFileCategoryAudio' => '音频',
 			'chat.groupFileCategoryOther' => '其他',
 			'chat.groupChat' => '群聊',
@@ -12218,11 +12242,11 @@ extension on Translations {
 			'common.tipConnectDesc' => '无网络',
 			'common.tipConnectDescWithParen' => ({required Object param}) => '(${param})',
 			'common.tipDeleteContact' => ({required Object param}) => '将联系人"${param}"删除，同时删除与该联系人的聊天记录',
+			_ => null,
+		} ?? switch (path) {
 			'common.tipDeviceSpace' => ({required Object param1, required Object param2}) => '占设备 ${param1}% 存储空间(${param2})',
 			'common.tipDraft' => '草稿',
 			'common.tipFailed' => '操作失败！',
-			_ => null,
-		} ?? switch (path) {
 			'common.tipSuccess' => '操作成功！',
 			'common.tipTips' => '小贴士',
 			'common.titleContact' => '联系人',
@@ -12732,11 +12756,11 @@ extension on Translations {
 			'common.e2eeBackupSetupBusyHint' => '正在本机加密并上传到云端，请稍候；网络不佳时可以点下方「稍后再说」先跳过',
 			'common.e2eeBackupSetupTimeoutToast' => '上传超时，请检查网络后重试，或稍后再设置',
 			'common.e2eeBackupSetupLaterConfirmTitle' => '暂不设置备份？',
+			_ => null,
+		} ?? switch (path) {
 			'common.e2eeBackupSetupLaterConfirmBody' => '暂不设置的话，换设备或重装后这些加密聊天记录将无法解密，也无法找回。下次启动仍会提醒你。',
 			'common.e2eeBackupSetupLaterConfirmStay' => '继续设置',
 			'common.e2eeBackupSetupLaterConfirmLeave' => '暂不设置',
-			_ => null,
-		} ?? switch (path) {
 			'common.e2eeBackupSetupSavedNote' => '恢复口令已存入本机安全存储；今后密钥变化时会自动用它重新上传备份，无需再次输入。',
 			'common.e2eeBackupCloudRestoreTitle' => '从云端备份恢复',
 			'common.e2eeBackupCloudRestoreHint' => ({required Object version}) => '检测到云端备份（版本 ${version}）',
@@ -12882,6 +12906,10 @@ extension on Translations {
 			'common.legacyUploadReturnToOriginalPage' => '原上传未完成，请返回原页面重新选择文件并提交；原记录已保留。',
 			'common.f2fLocationRequired' => '请开启定位权限和定位服务，和身边的朋友一起重试',
 			'common.f2fMemberHint' => '点击朋友头像查看资料并添加好友',
+			'common.pleaseSelectLocation' => '请选择位置',
+			'common.myLocation' => '我的位置',
+			'common.searchConversations' => '会话',
+			'common.webpageLoadProblem' => '网页内容加载遇到问题，请重试。',
 			'complaint.complaint' => '投诉',
 			'complaint.e2eeConsentTitle' => '提交加密消息证据',
 			'complaint.e2eeConsentBody' => '该消息为端到端加密消息，服务器无法查看其内容。提交内容摘录会将你选择的消息明文随工单披露给审核员用于核实举报。是否同意提交？',
@@ -13242,6 +13270,8 @@ extension on Translations {
 			'group.groupCreated' => '群聊已创建',
 			'group.groupCreatedSuccess' => '群聊创建成功，邀请你完善群信息或直接进入群聊',
 			'group.enterGroupChat' => '进入群聊',
+			_ => null,
+		} ?? switch (path) {
 			'group.perfectionGroupInfo' => '完善群信息',
 			'group.setAdmin' => '设为管理员',
 			'group.selectGroup' => '选择群聊',
@@ -13249,8 +13279,6 @@ extension on Translations {
 			'group.sureToLeaveGroup' => '确定要退出本群吗？',
 			'group.groupAlbumNameHint' => '请输入相册名称',
 			'group.groupAlbumRenameTitle' => '重命名相册',
-			_ => null,
-		} ?? switch (path) {
 			'group.groupAlbumRenamed' => '相册名称已更新',
 			'group.groupAlbumUnnamed' => '未命名相册',
 			'group.groupAlbumPhotoCount' => ({required Object count}) => '${count} 张图片',
@@ -13756,6 +13784,8 @@ extension on Translations {
 			'organization.departments.renameDept' => '重命名部门',
 			'organization.departments.newNameLabel' => '新名称',
 			'organization.departments.renameFailed' => '重命名失败',
+			_ => null,
+		} ?? switch (path) {
 			'organization.departments.moveDept' => '移动部门',
 			'organization.departments.rootLevel' => '企业根目录',
 			'organization.departments.moveFailed' => '移动失败',
@@ -13763,8 +13793,6 @@ extension on Translations {
 			'organization.departments.archiveConfirmBody' => ({required Object name}) => '归档「${name}」后该部门进入只读态（成员关系保留）。',
 			'organization.departments.archiveFailed' => '归档失败',
 			'organization.departments.emptyWithHint' => '暂无部门，点击右上角新建',
-			_ => null,
-		} ?? switch (path) {
 			'organization.departments.empty' => '暂无部门',
 			'organization.departments.emptySubtitle' => '兼职模型：同一成员可属多个部门；部门成员须先是本企业成员。',
 			'organization.departments.casConflictHint' => '部门已被并发修改，已刷新为最新部门树，请重试操作',
@@ -14270,6 +14298,8 @@ extension on Translations {
 			'talkRecord.grantEditGranteeLabel' => '被授权人',
 			'talkRecord.grantEditRoleSectionTitle' => '角色',
 			'talkRecord.grantEditRoleViewerHint' => '可查看记录与回听音频，不能修改内容。',
+			_ => null,
+		} ?? switch (path) {
 			'talkRecord.grantEditRoleEditorHint' => '可校对原文与发言人、编辑共享笔记；不能管理分享或删除。',
 			'talkRecord.grantEditExportSectionTitle' => '允许导出',
 			'talkRecord.grantEditExportBlockedOrg' => '导出已被企业策略禁用，不能在授权中开启。',
@@ -14277,8 +14307,6 @@ extension on Translations {
 			'talkRecord.grantEditExpiresSectionTitle' => '到期时间',
 			'talkRecord.grantEditExpiresOn' => ({required Object date}) => '${date} 到期',
 			'talkRecord.grantEditExpiresHint' => '可选；设置后对方到期自动失去访问。',
-			_ => null,
-		} ?? switch (path) {
 			'talkRecord.grantEditSave' => '保存权限',
 			'talkRecord.grantEditSaving' => '处理中…',
 			'talkRecord.grantEditConflict' => '授权已被他人更新，请返回刷新名单后重试；你的设置已保留。',

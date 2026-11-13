@@ -67,6 +67,20 @@ class ExecutionCatalogTest(unittest.TestCase):
         }
         self.put('test/unit_test/base_test.dart', UNIT)
 
+    def test_product_specific_runtime_feature_mapping_rejects_malformed_values(self):
+        target = 'test/api_test.dart'
+        self.put(target, UNIT)
+        self.cfg['overrides'][target] = {'suite': 'backend-contract', 'basis': 'synthetic positive branch',
+            'products': ['phase1_delivery', 'full-selected'],
+            'required_features_by_product': {'full-selected': ['e2ee']}}
+        self.assertFalse(build_catalog(self.root, contract=self.cfg)['errors'])
+        for mapping in (None, [], {'unknown': ['e2ee']}, {'full-selected': 'e2ee'},
+                        {'full-selected': [False]}, {'full-selected': ['bad capability']}):
+            with self.subTest(mapping=mapping):
+                self.cfg['overrides'][target]['required_features_by_product'] = mapping
+                self.assertTrue(any('INVALID_PRODUCT_REQUIRED_FEATURES' in error
+                    for error in build_catalog(self.root, contract=self.cfg)['errors']))
+
     def git(self, *args):
         return subprocess.run(['git', '-C', str(self.root), *args], check=True,
                               capture_output=True, text=True)
@@ -714,6 +728,27 @@ class ExecutionCatalogTest(unittest.TestCase):
         self.assertIn('fingerprints required', next_profile['product_artifact_validation'])
         (self.root / 'lib/logic.dart').write_text('const value = 2;\n')
         self.assertNotEqual(baseline['source_fingerprint'], self.plan(profile='full')['source_fingerprint'])
+
+
+class BackendProductContractTests(unittest.TestCase):
+    def test_real_full_matrix_pairs_api_targets_with_matching_backend_profiles(self):
+        planned = build_plan(ROOT, profile='full')
+        rows = [r for r in planned['instances'] if r['selected']]
+        self.assertEqual(3457, len(rows))
+        self.assertEqual(1502, len({r['target'] for r in rows}))
+        for platform in ('linux', 'macos'):
+            api = [r for r in rows if r['platform'] == platform and r['suite'] == 'backend-contract']
+            self.assertEqual({'phase1_delivery': 37, 'full-selected': 9},
+                             {p: sum(r['product_profile'] == p for r in api)
+                              for p in ('phase1_delivery', 'full-selected')})
+            for row in api:
+                expected = 'community' if row['product_profile'] == 'full-selected' else 'phase1_delivery'
+                self.assertEqual(expected, row['product_contract']['backend_runtime_profile'])
+            backup = [r for r in api if r['target'].endswith('/e2ee_backup_api_test.dart')]
+            self.assertEqual(2, len(backup))
+            self.assertEqual([[], ['e2ee']],
+                             [r.get('required_features', []) for r in sorted(backup,
+                              key=lambda r: r['product_profile'], reverse=True)])
 
 
 if __name__ == '__main__':

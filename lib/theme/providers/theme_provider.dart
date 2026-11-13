@@ -289,7 +289,9 @@ class ThemeNotifier extends _$ThemeNotifier {
             ? AppColors.darkReceivedMessageBackground
             : AppColors.lightReceivedMessageBackground;
       case 'sentMessageText':
-        return AppColors.sentMessageText;
+        return state.isDarkMode
+            ? AppColors.sentMessageText
+            : AppColors.onPrimary;
       case 'receivedMessageText':
         return state.isDarkMode
             ? AppColors.darkReceivedMessageText

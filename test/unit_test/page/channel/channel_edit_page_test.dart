@@ -12,6 +12,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:imboy/i18n/strings.g.dart';
+import 'package:imboy/config/const.dart';
+import 'package:imboy/service/storage.dart';
 import 'package:imboy/page/channel/channel_di_provider.dart';
 import 'package:imboy/page/channel/channel_edit_page.dart';
 import 'package:imboy/store/api/channel_api.dart';
@@ -47,9 +49,12 @@ Widget _buildTestApp(ChannelApi api, [ChannelModel? channel]) {
 void main() {
   late _MockChannelApi api;
 
-  setUp(() {
+  setUp(() async {
     api = _MockChannelApi();
+    await StorageService.to.setString(Keys.currentUid, 'channel-edit-test');
   });
+
+  tearDown(() => StorageService.to.remove(Keys.currentUid));
 
   testWidgets('初次加载失败没有空白保存表单，重试后显示真实频道', (tester) async {
     final channel = _makeChannel(id: 1001, name: '重试成功的频道');

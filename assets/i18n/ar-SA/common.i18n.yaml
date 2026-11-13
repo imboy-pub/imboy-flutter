@@ -954,3 +954,10 @@ legacyUploadReturnToOriginalPage: "لم يكتمل الرفع. عُد إلى ا�
 
 f2fLocationRequired: "فعّل إذن الموقع وخدمات الموقع، ثم حاول مجددًا مع الأصدقاء القريبين."
 f2fMemberHint: "اضغط على صورة صديق لعرض ملفه الشخصي وإضافته."
+
+pleaseSelectLocation: "يرجى اختيار موقع"
+myLocation: "موقعي"
+
+searchConversations: "المحادثات"
+
+webpageLoadProblem: "حدثت مشكلة أثناء تحميل محتوى الصفحة. يرجى إعادة المحاولة."

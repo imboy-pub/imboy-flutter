@@ -214,36 +214,41 @@ void main() {
     expect(find.text('nickname destination'), findsOneWidget);
   });
   for (final brightness in Brightness.values) {
-    for (final width in [320.0, 390.0]) {
-      testWidgets('资料长字段 $width $brightness 双倍字号无溢出', (tester) async {
-        await _mount(
-          tester,
-          width: width,
-          brightness: brightness,
-          scale: 2,
-          long: true,
-        );
-        expect(tester.takeException(), isNull);
-        final editRect = tester.getRect(
-          find.byKey(const ValueKey('profile-avatar-edit')),
-        );
-        final qrRect = tester.getRect(
-          find.byKey(const ValueKey('profile-qrcode')),
-        );
-        expect(qrRect.top, greaterThanOrEqualTo(editRect.bottom));
-        await tester.ensureVisible(
-          find.byKey(const ValueKey('profile-qrcode')),
-        );
-        expect(
-          find.byKey(const ValueKey('profile-qrcode')).hitTestable(),
-          findsOneWidget,
-        );
-        await tester.scrollUntilVisible(
-          find.text(t.common.privacySettings),
-          240,
-        );
-        expect(tester.takeException(), isNull);
-      });
+    for (final width in [320.0, 360.0, 390.0]) {
+      for (final scale in [1.0, 1.5, 2.0]) {
+        testWidgets('资料长字段 $width $brightness $scale 倍字号无溢出', (tester) async {
+          await _mount(
+            tester,
+            width: width,
+            brightness: brightness,
+            scale: scale,
+            long: true,
+          );
+          expect(tester.takeException(), isNull);
+          final editRect = tester.getRect(
+            find.byKey(const ValueKey('profile-avatar-edit')),
+          );
+          final qrRect = tester.getRect(
+            find.byKey(const ValueKey('profile-qrcode')),
+          );
+          expect(qrRect.overlaps(editRect), isFalse);
+          if (scale == 2) {
+            expect(qrRect.top, greaterThanOrEqualTo(editRect.bottom));
+          }
+          await tester.ensureVisible(
+            find.byKey(const ValueKey('profile-qrcode')),
+          );
+          expect(
+            find.byKey(const ValueKey('profile-qrcode')).hitTestable(),
+            findsOneWidget,
+          );
+          await tester.scrollUntilVisible(
+            find.text(t.common.privacySettings),
+            240,
+          );
+          expect(tester.takeException(), isNull);
+        });
+      }
     }
   }
 }

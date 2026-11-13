@@ -525,6 +525,9 @@ class _Translations$channel$it_IT extends Translations$channel$zh_CN {
 	@override String get subscribePending => 'Iscrizione riuscita; aggiornamento in corso';
 	@override String get subscribeRefresh => 'Aggiorna iscrizione';
 	@override String unseenUpdatesBanner({required Object count}) => '${count} nuovi aggiornamenti';
+	@override String get editLeaveUnsaved => 'Le modifiche non sono salvate. Scartarle e uscire?';
+	@override String get avatarNotUploaded => 'La foto del profilo non è stata caricata. Riprova o ripristinala prima di salvare.';
+	@override String get restoreAvatar => 'Ripristina foto';
 }
 
 // Path: chat
@@ -1737,6 +1740,10 @@ class _Translations$common$it_IT extends Translations$common$zh_CN {
 	@override String get legacyUploadReturnToOriginalPage => 'Il caricamento è incompleto. Torna alla pagina originale, seleziona il file e invia.';
 	@override String get f2fLocationRequired => 'Attiva il permesso e i servizi di localizzazione e riprova con gli amici vicini.';
 	@override String get f2fMemberHint => 'Tocca un avatar per vedere il profilo e aggiungere la persona agli amici.';
+	@override String get pleaseSelectLocation => 'Seleziona una posizione';
+	@override String get myLocation => 'La mia posizione';
+	@override String get searchConversations => 'Conversazioni';
+	@override String get webpageLoadProblem => 'Si è verificato un problema nel caricamento della pagina. Riprova.';
 }
 
 // Path: complaint
@@ -3897,6 +3904,9 @@ extension on TranslationsItIt {
 			'channel.subscribePending' => 'Iscrizione riuscita; aggiornamento in corso',
 			'channel.subscribeRefresh' => 'Aggiorna iscrizione',
 			'channel.unseenUpdatesBanner' => ({required Object count}) => '${count} nuovi aggiornamenti',
+			'channel.editLeaveUnsaved' => 'Le modifiche non sono salvate. Scartarle e uscire?',
+			'channel.avatarNotUploaded' => 'La foto del profilo non è stata caricata. Riprova o ripristinala prima di salvare.',
+			'channel.restoreAvatar' => 'Ripristina foto',
 			'chat.bankCard' => 'Carta bancaria',
 			'chat.receivePayment' => 'Ricevi & Paga',
 			'chat.alreadyMember' => 'Già membro',
@@ -3999,11 +4009,11 @@ extension on TranslationsItIt {
 			'chat.userData' => 'Dati utente',
 			'chat.video' => 'Video',
 			'chat.videoMessage' => '[Video]',
+			_ => null,
+		} ?? switch (path) {
 			'chat.viewAttachments' => 'Visualizza allegati',
 			'chat.viewLargeImage' => 'Vedi ingrandito',
 			'chat.voice' => 'Voce',
-			_ => null,
-		} ?? switch (path) {
 			'chat.voiceMessage' => 'Messaggio vocale',
 			'chat.youWithdrewAMessage' => 'Hai revocato un messaggio',
 			'chat.formatCheck' => 'Controllo formato',
@@ -4513,11 +4523,11 @@ extension on TranslationsItIt {
 			'common.groupAnnouncementPublish' => 'Pubblica annuncio',
 			'common.pleaseEnterAnnouncementContent' => 'Inserisci contenuto annuncio',
 			'common.selectExpirationDateOptional' => 'Seleziona data di scadenza (opzionale)',
+			_ => null,
+		} ?? switch (path) {
 			'common.groupAnnouncementDeleteConfirm' => 'Sei sicuro di voler eliminare questo annuncio?',
 			'common.groupAnnouncementDelete' => 'Elimina',
 			'common.groupAnnouncementLoadFailed' => 'Caricamento annuncio fallito. Riprova più tardi.',
-			_ => null,
-		} ?? switch (path) {
 			'common.groupAnnouncementPublishFailed' => 'Pubblicazione annuncio fallita',
 			'common.groupAnnouncementPublishSuccess' => 'Annuncio pubblicato',
 			'common.groupAnnouncementDeleteFailed' => 'Eliminazione annuncio fallita',
@@ -5027,11 +5037,11 @@ extension on TranslationsItIt {
 			'common.e2eeModeCompliance' => 'Crittografia di conformità',
 			'common.e2eeModeStrict' => 'Crittografia end-to-end',
 			'common.e2eeRecoveryKeySaveNote' => 'Salva subito questa chiave di recupero (screenshot o conservala in un gestore di password). Se dimentichi la passphrase è l\'unico strumento per decifrare il backup; se la perdi, il backup non sarà più recuperabile.',
+			_ => null,
+		} ?? switch (path) {
 			'common.e2eeRecoveryKeyTitle' => 'Chiave di recupero',
 			'common.e2eeUseRecoveryKey' => 'Genera chiave di recupero (strumento di riserva in caso di passphrase dimenticata)',
 			'common.enterAmount' => 'Inserisci l\'importo',
-			_ => null,
-		} ?? switch (path) {
 			'common.expandFull' => 'Espandi',
 			'common.f2fEnteringGroup' => ({required Object count}) => '${count} persone si sono unite alla chat di gruppo',
 			'common.f2fSecretCode' => 'Codice segreto',
@@ -5102,6 +5112,10 @@ extension on TranslationsItIt {
 			'common.legacyUploadReturnToOriginalPage' => 'Il caricamento è incompleto. Torna alla pagina originale, seleziona il file e invia.',
 			'common.f2fLocationRequired' => 'Attiva il permesso e i servizi di localizzazione e riprova con gli amici vicini.',
 			'common.f2fMemberHint' => 'Tocca un avatar per vedere il profilo e aggiungere la persona agli amici.',
+			'common.pleaseSelectLocation' => 'Seleziona una posizione',
+			'common.myLocation' => 'La mia posizione',
+			'common.searchConversations' => 'Conversazioni',
+			'common.webpageLoadProblem' => 'Si è verificato un problema nel caricamento della pagina. Riprova.',
 			'complaint.complaint' => 'Reclamo',
 			'complaint.e2eeConsentTitle' => 'Invia prove crittografate',
 			'complaint.e2eeConsentBody' => 'Questo messaggio è cifrato end-to-end; il server non può vederne il contenuto. Inviare un estratto renderà visibile il testo selezionato ai moderatori per la revisione. Acconsenti?',
@@ -5537,6 +5551,8 @@ extension on TranslationsItIt {
 			'main.type' => 'Tipo',
 			'main.unanswered' => 'Senza risposta',
 			'main.unnamed' => 'Senza nome',
+			_ => null,
+		} ?? switch (path) {
 			'main.usedSpace' => 'Spazio utilizzato',
 			'main.you' => 'Tu',
 			'main.zhCn' => 'Cinese semplificato',
@@ -5544,8 +5560,6 @@ extension on TranslationsItIt {
 			'main.bound' => 'Collegato',
 			'main.correct' => 'Corretto',
 			'main.pendingInput' => 'In attesa di input',
-			_ => null,
-		} ?? switch (path) {
 			'main.lengthCheck' => 'Controllo lunghezza',
 			'main.bugReport' => 'Segnalazione errore',
 			'main.deleting' => 'Eliminazione in corso...',
@@ -6051,6 +6065,8 @@ extension on TranslationsItIt {
 			'organization.tools.projectCount' => ({required Object count}) => 'Progetti ${count}',
 			'organization.tools.projectsEmpty' => 'Nessun progetto',
 			'organization.tools.projectsError' => ({required Object err}) => 'Caricamento progetti non riuscito: ${err}',
+			_ => null,
+		} ?? switch (path) {
 			'organization.tools.moreInWorkspaceShell' => 'Sfoglia tutti gli workspace',
 			'organization.tools.moreInWorkspaceShellHint' => 'Apri il selettore globale degli workspace (tra aziende).',
 			'organization.chart.zoomIn' => 'Ingrandisci',
@@ -6058,8 +6074,6 @@ extension on TranslationsItIt {
 			'organization.chart.fit' => 'Adatta alla finestra',
 			'organization.chart.expand' => 'Espandi i reparti subordinati',
 			'organization.chart.collapse' => 'Comprimi i reparti subordinati',
-			_ => null,
-		} ?? switch (path) {
 			'organization.chart.gestureHint' => 'Trascina per spostarti · Pizzica per lo zoom',
 			'organization.chart.directMembers' => ({required Object count}) => '${count} membri di questo livello',
 			'organization.experienceUi.switchSpace' => 'Cambia spazio',

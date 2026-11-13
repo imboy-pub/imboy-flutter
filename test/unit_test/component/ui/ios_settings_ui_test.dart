@@ -209,67 +209,87 @@ void main() {
       expect(tester.takeException(), isNull);
     });
 
-    for (final flat in [false, true]) {
-      final label = flat ? 'FlatListTile' : 'ImBoyListTile';
-      testWidgets('$label 在 $brightness 的两倍字号下容纳内容并支持键盘激活', (tester) async {
-        tester.view.physicalSize = const Size(320, 480);
-        tester.view.devicePixelRatio = 1;
-        addTearDown(tester.view.reset);
-        var activations = 0;
-        const tileKey = ValueKey('adaptive-settings-row');
-        const title = Text('消息提醒');
-        const subtitle = Text('接收通知\n及时回复');
-        final tile = flat
-            ? FlatListTile(
-                key: tileKey,
-                height: 44,
-                leading: const Icon(Icons.notifications_outlined),
-                title: title,
-                subtitle: subtitle,
-                trailing: const Icon(Icons.chevron_right),
-                onTap: () => activations++,
-              )
-            : ImBoyListTile(
-                key: tileKey,
-                height: 44,
-                leading: const Icon(Icons.notifications_outlined),
-                title: title,
-                subtitle: subtitle,
-                trailing: const Icon(Icons.chevron_right),
-                onTap: () => activations++,
+    for (final width in [320.0, 360.0, 390.0]) {
+      for (final scale in [1.0, 1.5, 2.0]) {
+        for (final flat in [false, true]) {
+          final label = flat ? 'FlatListTile' : 'ImBoyListTile';
+          testWidgets('$label $width $scale $brightness 容纳内容并支持键盘激活', (
+            tester,
+          ) async {
+            final semantics = tester.ensureSemantics();
+            try {
+              tester.view.physicalSize = Size(width, 480);
+              tester.view.devicePixelRatio = 1;
+              addTearDown(tester.view.reset);
+              var activations = 0;
+              const tileKey = ValueKey('adaptive-settings-row');
+              const title = Text('消息提醒');
+              const subtitle = Text('接收通知\n及时回复');
+              final tile = flat
+                  ? FlatListTile(
+                      key: tileKey,
+                      height: 44,
+                      leading: const Icon(Icons.notifications_outlined),
+                      title: title,
+                      subtitle: subtitle,
+                      trailing: const Icon(Icons.chevron_right),
+                      onTap: () => activations++,
+                    )
+                  : ImBoyListTile(
+                      key: tileKey,
+                      height: 44,
+                      leading: const Icon(Icons.notifications_outlined),
+                      title: title,
+                      subtitle: subtitle,
+                      trailing: const Icon(Icons.chevron_right),
+                      onTap: () => activations++,
+                    );
+              await tester.pumpWidget(
+                MaterialApp(
+                  theme: ThemeData(brightness: brightness),
+                  builder: (context, child) => MediaQuery(
+                    data: MediaQuery.of(context)
+                        .copyWith(textScaler: TextScaler.linear(scale)),
+                    child: child!,
+                  ),
+                  home: Scaffold(body: ListView(children: [tile])),
+                ),
               );
-        await tester.pumpWidget(
-          MaterialApp(
-            theme: ThemeData(brightness: brightness),
-            builder: (context, child) => MediaQuery(
-              data: MediaQuery.of(context)
-                  .copyWith(textScaler: const TextScaler.linear(2)),
-              child: child!,
-            ),
-            home: Scaffold(body: ListView(children: [tile])),
-          ),
-        );
-        final row = tester.getRect(find.byKey(tileKey));
-        expect(row.height, greaterThan(44));
-        for (final text in ['消息提醒', '接收通知\n及时回复']) {
-          final finder = find.text(text);
-          final paragraph = tester.renderObject<RenderParagraph>(finder);
-          expect(paragraph.didExceedMaxLines, isFalse);
-          final bounds = tester.getRect(finder);
-          expect(row.inflate(0.01).contains(bounds.topLeft), isTrue);
-          expect(row.inflate(0.01).contains(bounds.bottomRight), isTrue);
+              final row = tester.getRect(find.byKey(tileKey));
+              expect(row.height, greaterThanOrEqualTo(48));
+              expect(find.bySemanticsLabel(RegExp('消息提醒')), findsWidgets);
+              expect(
+                MediaQuery.textScalerOf(tester.element(find.text('消息提醒')))
+                    .scale(10),
+                scale * 10,
+              );
+              for (final text in ['消息提醒', '接收通知\n及时回复']) {
+                final finder = find.text(text);
+                final paragraph = tester.renderObject<RenderParagraph>(finder);
+                expect(paragraph.didExceedMaxLines, isFalse);
+                final bounds = tester.getRect(finder);
+                expect(row.inflate(0.01).contains(bounds.topLeft), isTrue);
+                expect(row.inflate(0.01).contains(bounds.bottomRight), isTrue);
+              }
+              expect(tester.takeException(), isNull);
+              await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+              await tester.pump();
+              await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+              await tester.pump();
+              expect(activations, 1);
+              await tester.sendKeyEvent(LogicalKeyboardKey.space);
+              await tester.pump();
+              expect(activations, 2);
+              await tester.tap(find.byKey(tileKey));
+              await tester.pump();
+              expect(activations, 3);
+              expect(tester.takeException(), isNull);
+            } finally {
+              semantics.dispose();
+            }
+          });
         }
-        expect(tester.takeException(), isNull);
-        await tester.sendKeyEvent(LogicalKeyboardKey.tab);
-        await tester.pump();
-        await tester.sendKeyEvent(LogicalKeyboardKey.enter);
-        await tester.pump();
-        expect(activations, 1);
-        await tester.sendKeyEvent(LogicalKeyboardKey.space);
-        await tester.pump();
-        expect(activations, 2);
-        expect(tester.takeException(), isNull);
-      });
+      }
     }
   }
 }

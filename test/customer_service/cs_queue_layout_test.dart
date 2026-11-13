@@ -10,6 +10,7 @@ import 'package:imboy/modules/customer_service/presentation/cs_queue_view.dart';
 
 import '../ux_matrix/ux_harness.dart';
 import '../golden_baseline_guard.dart';
+import '../uiux/support/golden_font_loader.dart';
 
 const _orgId = '7266418340025468901';
 const _workspaceId = '7266418340025468921';
@@ -90,10 +91,11 @@ void main() {
       final kind = empty ? 'empty' : 'queue';
       testWidgets(
         'golden: T16 $kind $label',
-        skip: !goldenBaselineExists(
+        skip: !goldenBaselinesReady([
           'test/customer_service/goldens/t16_${kind}_$label.png',
-        ),
+        ]),
         (tester) async {
+          final font = await prepareGoldenFonts(tester);
           uxInstallStub(
             RouteStubAdapter([
               ('/sessions/queue', [(200, _queuePage(empty: empty))]),
@@ -108,7 +110,9 @@ void main() {
               ),
             ),
             combo,
+            theme: goldenAppTheme(combo.brightness),
           );
+          expectGoldenTextGlyphs(tester, font);
           final layoutError = tester.takeException();
           await expectLater(
             find.byKey(_captureKey),

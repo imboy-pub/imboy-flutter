@@ -5,9 +5,9 @@
 <!-- AUTO-GENERATED: 本文件由环境变量文档自动维护，真源：
      - example.env（git 跟踪的 .env 模板；本地 .env.* 被 .gitignore 的 `.env*` 忽略，不入库）
      - lib/config/env_*.dart（@Envied 注解读取的 .env.<APP_ENV> 键名）
-     - lib/ 与 integration_test/ 中的 String.fromEnvironment（dart-define 编译期变量）
+     - lib/ 与 integration_test/ 中的 String.fromEnvironment / bool.fromEnvironment（dart-define 编译期变量）
      - scripts/test.env（git 跟踪的集成测试 shell 配置）
-     Last updated: 2026-09-30 -->
+     Last updated: 2026-11-12 -->
 
 变量按注入时机分三层：
 
@@ -85,6 +85,7 @@
 | `TEST_NEW_PASSWORD` | 改密测试的新密码 |
 | `WEB_E2E_TOKEN` / `WEB_E2E_UID` | Web 登录 E2E 注入登录态（生产构建默认空自动走正常流程） |
 | `IMBOY_WL_*`（`IMBOY_WL_APPLICATION_ID`、`IMBOY_WL_DISPLAY_NAME`、`IMBOY_WL_PRIMARY_COLOR`、`IMBOY_WL_ACCENT_COLOR`、`IMBOY_WL_FLAVOR` 等） | 白标（white-label）构建参数 |
+| `IMBOY_PERF` | =1 开启会话页帧耗时采样：进入会话开始采集、退出时打印摘要（默认关闭） |
 
 > TEST_* 长尾变量（双账号、E2EE fixture、群协作造数等）全集以各 `integration_test/` 文件头部注释为准，此处不逐一罗列。
 

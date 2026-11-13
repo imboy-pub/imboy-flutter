@@ -525,6 +525,9 @@ class _Translations$channel$de_DE extends Translations$channel$zh_CN {
 	@override String get subscribePending => 'Abonniert; wird aktualisiert';
 	@override String get subscribeRefresh => 'Abonnement aktualisieren';
 	@override String unseenUpdatesBanner({required Object count}) => '${count} neue Updates';
+	@override String get editLeaveUnsaved => 'Die Änderungen sind nicht gespeichert. Verwerfen und verlassen?';
+	@override String get avatarNotUploaded => 'Das Profilbild wurde nicht hochgeladen. Vor dem Speichern erneut versuchen oder wiederherstellen.';
+	@override String get restoreAvatar => 'Profilbild wiederherstellen';
 }
 
 // Path: chat
@@ -1737,6 +1740,10 @@ class _Translations$common$de_DE extends Translations$common$zh_CN {
 	@override String get legacyUploadReturnToOriginalPage => 'Der Upload ist unvollständig. Kehre zur ursprünglichen Seite zurück, wähle die Datei erneut und sende sie ab.';
 	@override String get f2fLocationRequired => 'Aktiviere Standortberechtigung und Standortdienste und versuche es mit Freunden in der Nähe erneut.';
 	@override String get f2fMemberHint => 'Tippe auf ein Profilbild, um das Profil anzusehen und die Person hinzuzufügen.';
+	@override String get pleaseSelectLocation => 'Bitte einen Ort auswählen';
+	@override String get myLocation => 'Mein Standort';
+	@override String get searchConversations => 'Unterhaltungen';
+	@override String get webpageLoadProblem => 'Beim Laden der Seiteninhalte ist ein Problem aufgetreten. Bitte erneut versuchen.';
 }
 
 // Path: complaint
@@ -3897,6 +3904,9 @@ extension on TranslationsDeDe {
 			'channel.subscribePending' => 'Abonniert; wird aktualisiert',
 			'channel.subscribeRefresh' => 'Abonnement aktualisieren',
 			'channel.unseenUpdatesBanner' => ({required Object count}) => '${count} neue Updates',
+			'channel.editLeaveUnsaved' => 'Die Änderungen sind nicht gespeichert. Verwerfen und verlassen?',
+			'channel.avatarNotUploaded' => 'Das Profilbild wurde nicht hochgeladen. Vor dem Speichern erneut versuchen oder wiederherstellen.',
+			'channel.restoreAvatar' => 'Profilbild wiederherstellen',
 			'chat.bankCard' => 'Bankkarte',
 			'chat.receivePayment' => 'Empfangen & Zahlen',
 			'chat.alreadyMember' => 'Bereits Mitglied',
@@ -3999,11 +4009,11 @@ extension on TranslationsDeDe {
 			'chat.userData' => 'Benutzerdaten',
 			'chat.video' => 'Video',
 			'chat.videoMessage' => '[Video]',
+			_ => null,
+		} ?? switch (path) {
 			'chat.viewAttachments' => 'Anhänge anzeigen',
 			'chat.viewLargeImage' => 'Großes Bild ansehen',
 			'chat.voice' => 'Sprache',
-			_ => null,
-		} ?? switch (path) {
 			'chat.voiceMessage' => 'Sprachnachricht',
 			'chat.youWithdrewAMessage' => 'Sie haben eine Nachricht widerrufen',
 			'chat.formatCheck' => 'Formatprüfung',
@@ -4513,11 +4523,11 @@ extension on TranslationsDeDe {
 			'common.groupAnnouncementPublish' => 'Ankündigung veröffentlichen',
 			'common.pleaseEnterAnnouncementContent' => 'Bitte Ankündigungsinhalt eingeben',
 			'common.selectExpirationDateOptional' => 'Ablaufdatum auswählen (optional)',
+			_ => null,
+		} ?? switch (path) {
 			'common.groupAnnouncementDeleteConfirm' => 'Diese Ankündigung wirklich löschen?',
 			'common.groupAnnouncementDelete' => 'Löschen',
 			'common.groupAnnouncementLoadFailed' => 'Ankündigung konnte nicht geladen werden. Bitte später erneut versuchen.',
-			_ => null,
-		} ?? switch (path) {
 			'common.groupAnnouncementPublishFailed' => 'Ankündigung konnte nicht veröffentlicht werden',
 			'common.groupAnnouncementPublishSuccess' => 'Ankündigung veröffentlicht',
 			'common.groupAnnouncementDeleteFailed' => 'Ankündigung konnte nicht gelöscht werden',
@@ -5027,11 +5037,11 @@ extension on TranslationsDeDe {
 			'common.uploadPartialFailed' => ({required Object count}) => '${count} Uploads fehlgeschlagen',
 			'common.momentsHasFailedUploads' => 'Einige Medien wurden nicht hochgeladen. Bitte erneut versuchen oder entfernen und dann veröffentlichen',
 			'common.payReceiveSuccess' => 'Zahlung empfangen!',
+			_ => null,
+		} ?? switch (path) {
 			'common.purchaseConfirming' => 'Zahlung wird bestätigt. Bitte später den Bestellstatus prüfen',
 			'common.timeNowShort' => 'jetzt',
 			'common.timeMinutesShort' => ({required Object count}) => '${count} Min.',
-			_ => null,
-		} ?? switch (path) {
 			'common.timeHoursShort' => ({required Object count}) => '${count} Std.',
 			'common.timeDaysShort' => ({required Object count}) => '${count} T',
 			'common.transferAccepted' => 'Empfangen',
@@ -5102,6 +5112,10 @@ extension on TranslationsDeDe {
 			'common.legacyUploadReturnToOriginalPage' => 'Der Upload ist unvollständig. Kehre zur ursprünglichen Seite zurück, wähle die Datei erneut und sende sie ab.',
 			'common.f2fLocationRequired' => 'Aktiviere Standortberechtigung und Standortdienste und versuche es mit Freunden in der Nähe erneut.',
 			'common.f2fMemberHint' => 'Tippe auf ein Profilbild, um das Profil anzusehen und die Person hinzuzufügen.',
+			'common.pleaseSelectLocation' => 'Bitte einen Ort auswählen',
+			'common.myLocation' => 'Mein Standort',
+			'common.searchConversations' => 'Unterhaltungen',
+			'common.webpageLoadProblem' => 'Beim Laden der Seiteninhalte ist ein Problem aufgetreten. Bitte erneut versuchen.',
 			'complaint.complaint' => 'Beschwerde',
 			'complaint.e2eeConsentTitle' => 'Verschlüsselte Beweise einreichen',
 			'complaint.e2eeConsentBody' => 'Diese Nachricht ist Ende-zu-Ende-verschlüsselt; der Server kann ihren Inhalt nicht einsehen. Durch das Einreichen eines Auszugs wird der ausgewählte Klartext den Moderatoren zur Prüfung offengelegt. Stimmen Sie zu?',
@@ -5537,6 +5551,8 @@ extension on TranslationsDeDe {
 			'main.type' => 'Typ',
 			'main.unanswered' => 'Unbeantwortet',
 			'main.unnamed' => 'Unbenannt',
+			_ => null,
+		} ?? switch (path) {
 			'main.usedSpace' => 'Verwendeter Speicherplatz',
 			'main.you' => 'Sie',
 			'main.zhCn' => 'Vereinfachtes Chinesisch',
@@ -5544,8 +5560,6 @@ extension on TranslationsDeDe {
 			'main.bound' => 'Gebunden',
 			'main.correct' => 'Korrekt',
 			'main.pendingInput' => 'Eingabe ausstehend',
-			_ => null,
-		} ?? switch (path) {
 			'main.lengthCheck' => 'Längenprüfung',
 			'main.bugReport' => 'Fehlerbericht',
 			'main.deleting' => 'Wird gelöscht...',
@@ -6051,6 +6065,8 @@ extension on TranslationsDeDe {
 			'organization.tools.projectCount' => ({required Object count}) => 'Projekte ${count}',
 			'organization.tools.projectsEmpty' => 'Noch keine Projekte',
 			'organization.tools.projectsError' => ({required Object err}) => 'Projekte laden fehlgeschlagen: ${err}',
+			_ => null,
+		} ?? switch (path) {
 			'organization.tools.moreInWorkspaceShell' => 'Alle Workspaces durchsuchen',
 			'organization.tools.moreInWorkspaceShellHint' => 'Globalen Workspace-Umschalter öffnen (unternehmensübergreifend).',
 			'organization.chart.zoomIn' => 'Vergrößern',
@@ -6058,8 +6074,6 @@ extension on TranslationsDeDe {
 			'organization.chart.fit' => 'An Fenster anpassen',
 			'organization.chart.expand' => 'Unterabteilungen ausklappen',
 			'organization.chart.collapse' => 'Unterabteilungen einklappen',
-			_ => null,
-		} ?? switch (path) {
 			'organization.chart.gestureHint' => 'Ziehen zum Verschieben · Zusammen-/Auseinanderziehen zum Zoomen',
 			'organization.chart.directMembers' => ({required Object count}) => '${count} Mitglieder auf dieser Ebene',
 			'organization.experienceUi.switchSpace' => 'Space wechseln',

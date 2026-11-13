@@ -525,6 +525,9 @@ class _Translations$channel$ja_JP extends Translations$channel$zh_CN {
 	@override String get subscribePending => '購読済み、更新中';
 	@override String get subscribeRefresh => '購読状態を更新';
 	@override String unseenUpdatesBanner({required Object count}) => '新着更新 ${count} 件';
+	@override String get editLeaveUnsaved => '変更は保存されていません。破棄して戻りますか？';
+	@override String get avatarNotUploaded => 'プロフィール画像は未アップロードです。再試行するか元に戻してから保存してください。';
+	@override String get restoreAvatar => '画像を元に戻す';
 }
 
 // Path: chat
@@ -1734,6 +1737,10 @@ class _Translations$common$ja_JP extends Translations$common$zh_CN {
 	@override String get legacyUploadReturnToOriginalPage => 'アップロードが未完了です。元の画面でファイルを選び直して送信してください。';
 	@override String get f2fLocationRequired => '位置情報の権限とサービスを有効にして、近くの友達と再試行してください。';
 	@override String get f2fMemberHint => '友達のアイコンをタップしてプロフィールを表示し、友達を追加します。';
+	@override String get pleaseSelectLocation => '場所を選択してください';
+	@override String get myLocation => '現在地';
+	@override String get searchConversations => '会話';
+	@override String get webpageLoadProblem => 'ページの読み込み中に問題が発生しました。再試行してください。';
 }
 
 // Path: complaint
@@ -3894,6 +3901,9 @@ extension on TranslationsJaJp {
 			'channel.subscribePending' => '購読済み、更新中',
 			'channel.subscribeRefresh' => '購読状態を更新',
 			'channel.unseenUpdatesBanner' => ({required Object count}) => '新着更新 ${count} 件',
+			'channel.editLeaveUnsaved' => '変更は保存されていません。破棄して戻りますか？',
+			'channel.avatarNotUploaded' => 'プロフィール画像は未アップロードです。再試行するか元に戻してから保存してください。',
+			'channel.restoreAvatar' => '画像を元に戻す',
 			'chat.bankCard' => '銀行カード',
 			'chat.receivePayment' => '送金・支払い',
 			'chat.alreadyMember' => '既にメンバーです',
@@ -3996,11 +4006,11 @@ extension on TranslationsJaJp {
 			'chat.userData' => 'ユーザーデータ',
 			'chat.video' => '動画',
 			'chat.videoMessage' => '[動画]',
+			_ => null,
+		} ?? switch (path) {
 			'chat.viewAttachments' => '添付ファイルを表示',
 			'chat.viewLargeImage' => '拡大表示',
 			'chat.voice' => '音声',
-			_ => null,
-		} ?? switch (path) {
 			'chat.voiceMessage' => '音声メッセージ',
 			'chat.youWithdrewAMessage' => 'あなたがメッセージを取り消しました',
 			'chat.formatCheck' => '形式チェック',
@@ -4510,11 +4520,11 @@ extension on TranslationsJaJp {
 			'common.groupAnnouncementPublish' => '公告を公開',
 			'common.pleaseEnterAnnouncementContent' => '公告内容を入力してください',
 			'common.selectExpirationDateOptional' => '有効期限を選択（オプション）',
+			_ => null,
+		} ?? switch (path) {
 			'common.groupAnnouncementDeleteConfirm' => 'この公告を削除してもよろしいですか？',
 			'common.groupAnnouncementDelete' => '削除',
 			'common.groupAnnouncementLoadFailed' => 'お知らせの読み込みに失敗しました。後でもう一度お試しください',
-			_ => null,
-		} ?? switch (path) {
 			'common.groupAnnouncementPublishFailed' => 'お知らせの公開に失敗しました',
 			'common.groupAnnouncementPublishSuccess' => 'お知らせを公開しました',
 			'common.groupAnnouncementDeleteFailed' => 'お知らせの削除に失敗しました',
@@ -5024,11 +5034,11 @@ extension on TranslationsJaJp {
 			'common.minutesAgo' => '分前',
 			'common.f2fEnteringGroup' => ({required Object count}) => '${count}人がグループチャットに参加しました',
 			'common.f2fSecretCode' => '合言葉',
+			_ => null,
+		} ?? switch (path) {
 			'common.momentsHasFailedUploads' => 'アップロードに失敗したメディアがあります。再試行するか削除してから公開してください',
 			'common.transferAccepted' => '受け取りました',
 			'common.transferAmountLabel' => '送金金額',
-			_ => null,
-		} ?? switch (path) {
 			'common.transferConfirm' => '送金を確認',
 			'common.transferDefaultRemark' => '友達へ送金',
 			'common.transferMinAmountError' => '送金の最低金額は0.01元です',
@@ -5099,6 +5109,10 @@ extension on TranslationsJaJp {
 			'common.legacyUploadReturnToOriginalPage' => 'アップロードが未完了です。元の画面でファイルを選び直して送信してください。',
 			'common.f2fLocationRequired' => '位置情報の権限とサービスを有効にして、近くの友達と再試行してください。',
 			'common.f2fMemberHint' => '友達のアイコンをタップしてプロフィールを表示し、友達を追加します。',
+			'common.pleaseSelectLocation' => '場所を選択してください',
+			'common.myLocation' => '現在地',
+			'common.searchConversations' => '会話',
+			'common.webpageLoadProblem' => 'ページの読み込み中に問題が発生しました。再試行してください。',
 			'complaint.complaint' => '通報',
 			'complaint.e2eeConsentTitle' => '暗号化メッセージの証拠を提出',
 			'complaint.e2eeConsentBody' => 'このメッセージはエンドツーエンド暗号化されており、サーバーは内容を確認できません。抜粋を提出すると、選択した平文が審査員に開示されます。同意しますか？',
@@ -5534,6 +5548,8 @@ extension on TranslationsJaJp {
 			'main.type' => 'タイプ',
 			'main.unanswered' => '未応答',
 			'main.unnamed' => '名前なし',
+			_ => null,
+		} ?? switch (path) {
 			'main.usedSpace' => '使用済み容量',
 			'main.you' => 'あなた',
 			'main.zhCn' => '簡体字中国語',
@@ -5541,8 +5557,6 @@ extension on TranslationsJaJp {
 			'main.bound' => '登録済み',
 			'main.correct' => '正しい',
 			'main.pendingInput' => '入力待ち',
-			_ => null,
-		} ?? switch (path) {
 			'main.lengthCheck' => '長さチェック',
 			'main.bugReport' => 'バグ報告',
 			'main.deleting' => '削除中...',
@@ -6048,6 +6062,8 @@ extension on TranslationsJaJp {
 			'organization.tools.projectCount' => ({required Object count}) => 'プロジェクト ${count} 件',
 			'organization.tools.projectsEmpty' => 'プロジェクトはまだありません',
 			'organization.tools.projectsError' => ({required Object err}) => 'プロジェクトの読み込みに失敗：${err}',
+			_ => null,
+		} ?? switch (path) {
 			'organization.tools.moreInWorkspaceShell' => 'すべてのワークスペースを表示',
 			'organization.tools.moreInWorkspaceShellHint' => 'グローバルなワークスペース切替を開く（企業横断）。',
 			'organization.chart.zoomIn' => '拡大',
@@ -6055,8 +6071,6 @@ extension on TranslationsJaJp {
 			'organization.chart.fit' => 'ウィンドウに合わせる',
 			'organization.chart.expand' => '下位部門を展開',
 			'organization.chart.collapse' => '下位部門を折りたたむ',
-			_ => null,
-		} ?? switch (path) {
 			'organization.chart.gestureHint' => 'ドラッグで移動 · ピンチで拡大縮小',
 			'organization.chart.directMembers' => ({required Object count}) => '直属 ${count} 人',
 			'organization.experienceUi.switchSpace' => 'スペースを切り替え',

@@ -525,6 +525,9 @@ class _Translations$channel$fr_FR extends Translations$channel$zh_CN {
 	@override String get subscribePending => 'Abonné ; actualisation en cours';
 	@override String get subscribeRefresh => 'Actualiser l’abonnement';
 	@override String unseenUpdatesBanner({required Object count}) => '${count} nouvelles mises à jour';
+	@override String get editLeaveUnsaved => 'Les modifications ne sont pas enregistrées. Les abandonner et quitter ?';
+	@override String get avatarNotUploaded => 'La photo de profil n’a pas été envoyée. Réessayez ou restaurez-la avant d’enregistrer.';
+	@override String get restoreAvatar => 'Restaurer la photo';
 }
 
 // Path: chat
@@ -1737,6 +1740,10 @@ class _Translations$common$fr_FR extends Translations$common$zh_CN {
 	@override String get legacyUploadReturnToOriginalPage => 'L’envoi est incomplet. Revenez à la page initiale, sélectionnez le fichier et validez.';
 	@override String get f2fLocationRequired => 'Activez la localisation et son autorisation, puis réessayez avec vos amis à proximité.';
 	@override String get f2fMemberHint => 'Touchez un avatar pour voir le profil et ajouter cet ami.';
+	@override String get pleaseSelectLocation => 'Veuillez choisir un lieu';
+	@override String get myLocation => 'Ma position';
+	@override String get searchConversations => 'Conversations';
+	@override String get webpageLoadProblem => 'Un problème est survenu lors du chargement du contenu. Veuillez réessayer.';
 }
 
 // Path: complaint
@@ -3897,6 +3904,9 @@ extension on TranslationsFrFr {
 			'channel.subscribePending' => 'Abonné ; actualisation en cours',
 			'channel.subscribeRefresh' => 'Actualiser l’abonnement',
 			'channel.unseenUpdatesBanner' => ({required Object count}) => '${count} nouvelles mises à jour',
+			'channel.editLeaveUnsaved' => 'Les modifications ne sont pas enregistrées. Les abandonner et quitter ?',
+			'channel.avatarNotUploaded' => 'La photo de profil n’a pas été envoyée. Réessayez ou restaurez-la avant d’enregistrer.',
+			'channel.restoreAvatar' => 'Restaurer la photo',
 			'chat.bankCard' => 'Carte bancaire',
 			'chat.receivePayment' => 'Paiement et réception',
 			'chat.alreadyMember' => 'Déjà membre',
@@ -3999,11 +4009,11 @@ extension on TranslationsFrFr {
 			'chat.userData' => 'Données utilisateur',
 			'chat.video' => 'Vidéo',
 			'chat.videoMessage' => '[Vidéo]',
+			_ => null,
+		} ?? switch (path) {
 			'chat.viewAttachments' => 'Voir les pièces jointes.',
 			'chat.viewLargeImage' => 'Voir en grand',
 			'chat.voice' => 'Vocal',
-			_ => null,
-		} ?? switch (path) {
 			'chat.voiceMessage' => 'Message vocal',
 			'chat.youWithdrewAMessage' => 'Vous avez révoqué un message.',
 			'chat.formatCheck' => 'Vérification du format',
@@ -4513,11 +4523,11 @@ extension on TranslationsFrFr {
 			'common.groupAnnouncementPublish' => 'Publier une annonce',
 			'common.pleaseEnterAnnouncementContent' => 'Entrez le contenu de l\'annonce.',
 			'common.selectExpirationDateOptional' => 'Sélectionner la date d\'expiration (facultatif)',
+			_ => null,
+		} ?? switch (path) {
 			'common.groupAnnouncementDeleteConfirm' => 'Confirmer la suppression de cette annonce ?',
 			'common.groupAnnouncementDelete' => 'Supprimer',
 			'common.groupAnnouncementLoadFailed' => 'Chargement de l\'annonce impossible. Réessayez plus tard.',
-			_ => null,
-		} ?? switch (path) {
 			'common.groupAnnouncementPublishFailed' => 'Publication de l\'annonce impossible',
 			'common.groupAnnouncementPublishSuccess' => 'Annonce publiée',
 			'common.groupAnnouncementDeleteFailed' => 'Suppression de l\'annonce impossible',
@@ -5027,11 +5037,11 @@ extension on TranslationsFrFr {
 			'common.e2eeModeCompliance' => 'Chiffrement de conformité',
 			'common.e2eeModeStrict' => 'Chiffrement de bout en bout',
 			'common.e2eeRecoveryKeySaveNote' => 'Enregistrez immédiatement cette clé de récupération (capture d\'écran ou gestionnaire de mots de passe). Si vous oubliez votre phrase secrète, c\'est le seul moyen de déchiffrer la sauvegarde ; une fois perdue, la sauvegarde sera définitivement irrécupérable.',
+			_ => null,
+		} ?? switch (path) {
 			'common.e2eeRecoveryKeyTitle' => 'Clé de récupération',
 			'common.e2eeUseRecoveryKey' => 'Générer une clé de récupération (secours en cas d\'oubli de la phrase secrète)',
 			'common.enterAmount' => 'Veuillez saisir le montant',
-			_ => null,
-		} ?? switch (path) {
 			'common.expandFull' => 'Développer',
 			'common.f2fEnteringGroup' => ({required Object count}) => '${count} personnes ont rejoint le groupe',
 			'common.f2fSecretCode' => 'Code secret',
@@ -5102,6 +5112,10 @@ extension on TranslationsFrFr {
 			'common.legacyUploadReturnToOriginalPage' => 'L’envoi est incomplet. Revenez à la page initiale, sélectionnez le fichier et validez.',
 			'common.f2fLocationRequired' => 'Activez la localisation et son autorisation, puis réessayez avec vos amis à proximité.',
 			'common.f2fMemberHint' => 'Touchez un avatar pour voir le profil et ajouter cet ami.',
+			'common.pleaseSelectLocation' => 'Veuillez choisir un lieu',
+			'common.myLocation' => 'Ma position',
+			'common.searchConversations' => 'Conversations',
+			'common.webpageLoadProblem' => 'Un problème est survenu lors du chargement du contenu. Veuillez réessayer.',
 			'complaint.complaint' => 'Plainte',
 			'complaint.e2eeConsentTitle' => 'Soumettre des preuves chiffrées',
 			'complaint.e2eeConsentBody' => 'Ce message est chiffré de bout en bout ; le serveur ne peut pas en voir le contenu. Soumettre un extrait divulguera le texte clair sélectionné aux modérateurs pour examen. Êtes-vous d\'accord ?',
@@ -5537,6 +5551,8 @@ extension on TranslationsFrFr {
 			'main.type' => 'Type',
 			'main.unanswered' => 'Sans réponse',
 			'main.unnamed' => 'Sans nom',
+			_ => null,
+		} ?? switch (path) {
 			'main.usedSpace' => 'Espace utilisé',
 			'main.you' => 'Vous',
 			'main.zhCn' => 'Chinois simplifié',
@@ -5544,8 +5560,6 @@ extension on TranslationsFrFr {
 			'main.bound' => 'Lié',
 			'main.correct' => 'Correcte',
 			'main.pendingInput' => 'En attente de saisie',
-			_ => null,
-		} ?? switch (path) {
 			'main.lengthCheck' => 'Vérification de la longueur',
 			'main.bugReport' => 'Rapport d\'erreur',
 			'main.deleting' => 'Suppression en cours...',
@@ -6051,6 +6065,8 @@ extension on TranslationsFrFr {
 			'organization.tools.projectCount' => ({required Object count}) => 'Projets ${count}',
 			'organization.tools.projectsEmpty' => 'Aucun projet',
 			'organization.tools.projectsError' => ({required Object err}) => 'Échec du chargement des projets : ${err}',
+			_ => null,
+		} ?? switch (path) {
 			'organization.tools.moreInWorkspaceShell' => 'Parcourir tous les espaces',
 			'organization.tools.moreInWorkspaceShellHint' => 'Ouvrir le sélecteur global d\'espaces (inter-entreprises).',
 			'organization.chart.zoomIn' => 'Zoom avant',
@@ -6058,8 +6074,6 @@ extension on TranslationsFrFr {
 			'organization.chart.fit' => 'Ajuster à la fenêtre',
 			'organization.chart.expand' => 'Développer les sous-services',
 			'organization.chart.collapse' => 'Réduire les sous-services',
-			_ => null,
-		} ?? switch (path) {
 			'organization.chart.gestureHint' => 'Glisser pour déplacer · Pincer pour zoomer',
 			'organization.chart.directMembers' => ({required Object count}) => '${count} membres à ce niveau',
 			'organization.experienceUi.switchSpace' => 'Changer d\'espace',

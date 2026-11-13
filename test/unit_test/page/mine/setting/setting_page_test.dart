@@ -6,12 +6,14 @@ import 'package:go_router/go_router.dart';
 
 import 'package:imboy/component/extension/imboy_cache_manager.dart';
 import 'package:imboy/component/ui/resource_page_layout.dart';
+import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/config/env.dart';
 import 'package:imboy/config/init.dart' show appVsn;
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/modules/organization/presentation/organization_routes.dart';
 import 'package:imboy/page/mine/setting/setting_page.dart';
+import 'package:imboy/page/mine/font_size/font_size_page.dart';
 import 'package:imboy/service/storage.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 
@@ -44,7 +46,7 @@ GoRouter _stubRouter() {
       ),
       GoRoute(path: '/language', builder: (_, _) => stub('language stub')),
       GoRoute(path: '/dark_model', builder: (_, _) => stub('dark_model stub')),
-      GoRoute(path: '/font_size', builder: (_, _) => stub('font_size stub')),
+      GoRoute(path: '/font_size', builder: (_, _) => const FontSizePage()),
       GoRoute(
         path: '/bottom_navigation',
         builder: (_, _) => stub('bottom_navigation stub'),
@@ -69,11 +71,13 @@ Future<void> _pumpSetting(
     tester.view.resetPhysicalSize();
   });
 
+  final router = _stubRouter();
+  addTearDown(router.dispose);
   await tester.pumpWidget(
     ProviderScope(
       child: TranslationProvider(
         child: MaterialApp.router(
-          routerConfig: _stubRouter(),
+          routerConfig: router,
           theme: ThemeData(brightness: brightness),
           builder: (context, child) => MediaQuery(
             data: MediaQuery.of(context)
@@ -127,23 +131,51 @@ void main() {
     await _unmount(tester);
   });
   for (final brightness in Brightness.values) {
-    for (final width in [320.0, 390.0]) {
-      testWidgets('设置 $width $brightness 双倍字号不溢出', (tester) async {
-        await _pumpSetting(
+    for (final width in [320.0, 360.0, 390.0]) {
+      for (final scale in [1.0, 1.5, 2.0]) {
+        testWidgets('设置 $width × $scale $brightness 字体导航返回且末尾可达', (
           tester,
-          width: width,
-          scale: 2,
-          brightness: brightness,
-        );
-        await tester.pumpAndSettle();
-        expect(tester.takeException(), isNull);
-        await tester.scrollUntilVisible(
-          find.text(t.account.logoutAccount),
-          220,
-        );
-        expect(tester.takeException(), isNull);
-        await _unmount(tester);
-      });
+        ) async {
+          await _pumpSetting(
+            tester,
+            width: width,
+            scale: scale,
+            brightness: brightness,
+          );
+          await tester.pumpAndSettle();
+          expect(tester.takeException(), isNull);
+          final fontSetting = find.text(t.common.fontSettings);
+          await tester.ensureVisible(fontSetting);
+          expect(fontSetting.hitTestable(), findsOneWidget);
+          await tester.tap(find.text(t.common.fontSettings));
+          await tester.pumpAndSettle();
+          expect(find.byType(FontSizePage), findsOneWidget);
+          expect(find.byType(Slider), findsOneWidget);
+          expect(find.text(t.main.thisIsTitleText), findsOneWidget);
+          final context = tester.element(find.byType(FontSizePage));
+          expect(GoRouterState.of(context).uri.path, '/font_size');
+          await tester.tap(find.byType(GlassBackButton));
+          await tester.pumpAndSettle();
+          expect(find.byType(FontSizePage), findsNothing);
+          expect(find.byType(SettingPage), findsOneWidget);
+          expect(
+            find.text(t.common.fontSettings).hitTestable(),
+            findsOneWidget,
+          );
+          expect(tester.takeException(), isNull);
+          await tester.scrollUntilVisible(
+            find.text(t.account.logoutAccount),
+            220,
+          );
+          await tester.pumpAndSettle();
+          expect(
+            find.text(t.account.logoutAccount).hitTestable(),
+            findsOneWidget,
+          );
+          expect(tester.takeException(), isNull);
+          await _unmount(tester);
+        });
+      }
     }
   }
 

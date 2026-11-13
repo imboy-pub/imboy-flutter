@@ -252,6 +252,16 @@ class AcceptancePreparationTests(unittest.TestCase):
             self.assertTrue(adapters.preflight_instance(self.root, item, ENV, DEVICES, probe=True))
             connect.assert_not_called()
 
+    def test_acceptance_runtime_binding_uses_the_same_role_urls_as_the_invocation(self):
+        original = dict(self.env)
+        for key, runtime_key in [('API_BASE_URL', 'api_url'), ('WS_URL_OVERRIDE', 'ws_url')]:
+            with self.subTest(key=key):
+                self.env = {**original, 'IMBOY_PRIMARY_' + key: self.runtime[runtime_key]}
+                self.assertEqual([], self.audit()['errors'])
+                self.env['IMBOY_PRIMARY_' + key] = (
+                    'http://127.0.0.1:9919' if key == 'API_BASE_URL' else 'ws://127.0.0.1:9919/ws')
+                self.assertIn('ACCEPTANCE_RUNTIME_ENDPOINT_MISMATCH:' + runtime_key, self.audit()['errors'])
+
     def test_navigation_expectation_must_match_frozen_real_runtime(self):
         self.item.update(target='integration_test/full_acceptance/navigation/bottom_navigation_device_test.dart',
             product_profile='phase1_delivery-channel-disabled', acceptance_fixture_fields=['TEST_EXPECTED_UID'],
@@ -867,7 +877,8 @@ class KillReplayTests(unittest.TestCase):
         path = Path(log_path) if log_path else output / 'machine.jsonl'
         path.write_text('\n'.join(lines) + '\n')
         return self.runner._persist_process_receipt({'command': list(command), 'exit_code': code,
-            'log': str(path), 'machine': str(path), 'lines': lines, 'error': error}, output)
+            'log': str(path), 'machine': str(path), 'lines': lines, 'error': error,
+            'execution_context': self.runner._capture_execution_context(output)}, output)
 
     def process(self, command, env, output, **kwargs):
         self.commands.append(command)
@@ -1100,6 +1111,217 @@ class KillReplayTests(unittest.TestCase):
         checked = self.cli.verify_result_files(result, {'artifact_root': str(self.output)}, self.output / 'results.json')
         self.assertEqual('BLOCKED', checked['status'])
         self.assertIn('actual test attempt', checked['evidence_error'])
+
+
+class BackendManifestTests(unittest.TestCase):
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.tmp.cleanup)
+        self.output = Path(self.tmp.name)
+        self.item = {**instance(platform='linux', target='test/unit_test/api/e2ee_api_test.dart'),
+                     'suite': 'backend-contract', 'runner': 'flutter-machine', 'offline': False,
+                     'required_features': ['e2ee'], 'product_profile': 'full-selected',
+                     'product_contract': {'manifest_profile': 'full-selected',
+                                          'backend_runtime_profile': 'community',
+                                          'required_features': ['rtc', 'e2ee']}}
+        identity = {'manifest_profile': 'full-selected', 'manifest_schema_version': 1,
+                    'manifest_hash': 'sha256:' + 'a' * 64, 'compiled_features': ['core', 'e2ee', 'rtc'],
+                    'artifacts': {name: 'b' * 64 for name in adapters.PRODUCT_ARTIFACTS},
+                    'validation_inputs': {'synthetic': 'c' * 64}}
+        self.product = {**identity, 'errors': [],
+                        'fingerprint': hashlib.sha256(json.dumps(identity, sort_keys=True).encode()).hexdigest()}
+        self.manifest = {'manifest_schema_version': 1, 'manifest_hash': identity['manifest_hash'],
+                         'compiled_features': identity['compiled_features'],
+                         'features': {'core': True, 'e2ee': True, 'rtc': False},
+                         'policy': {'profile': 'community'}, 'generated_at': 123}
+
+    def capture(self, manifest=None, env=None, status=200, output=None):
+        connection = Mock()
+        response = connection.getresponse.return_value
+        response.status = status
+        response.read.return_value = json.dumps(self.manifest if manifest is None else manifest).encode()
+        with patch('http.client.HTTPConnection', return_value=connection) as factory:
+            result = adapters.capture_backend_manifest(self.item, ENV if env is None else env,
+                                                       self.product, output or self.output)
+        return result, connection, factory
+
+    def test_manifest_preflight_checks_identity_policy_and_target_runtime_features(self):
+        good, connection, _ = self.capture()
+        self.assertEqual([], good['errors'])
+        connection.request.assert_called_once_with('GET', '/api/v1/app/manifest',
+                                                   headers={'Accept': 'application/json'})
+        # Product rtc is a compile requirement; this e2ee target may run with rtc off.
+        self.assertFalse(good['product_artifact']['backend_manifest']['features']['rtc'])
+        for field, value in [('manifest_hash', 'sha256:' + 'd' * 64),
+                             ('manifest_schema_version', 2), ('compiled_features', ['core']),
+                             ('policy', {'profile': 'phase1_delivery'}),
+                             ('features', {'core': True, 'e2ee': False, 'rtc': False})]:
+            with self.subTest(field=field):
+                self.assertEqual([], self.capture()[0]['errors'])
+                bad = {**self.manifest, field: value}
+                self.assertTrue(self.capture(bad)[0]['errors'])
+
+    def test_missing_authorization_is_zero_http_and_redirects_never_follow(self):
+        self.assertEqual([], self.capture()[0]['errors'])
+        for key in ('IMBOY_TEST_ISOLATED', 'TEST_PHONE', 'TEST_PASSWORD', 'IMBOY_SOLIDIFIED_KEY'):
+            env = {k: v for k, v in ENV.items() if k != key}
+            result, _, factory = self.capture(env=env)
+            self.assertTrue(result['errors'])
+            factory.assert_not_called()
+        # An erroneous offline label must never waive API fixture authorization.
+        self.item['offline'] = True
+        result, _, factory = self.capture(env={k: v for k, v in ENV.items() if k != 'TEST_PHONE'})
+        self.assertTrue(result['errors'])
+        factory.assert_not_called()
+        self.item['offline'] = False
+        result, connection, factory = self.capture(status=302)
+        self.assertTrue(result['errors'])
+        self.assertEqual(1, connection.request.call_count)
+        self.assertEqual(1, factory.call_count)
+        with patch.dict(os.environ, {'HTTP_PROXY': 'http://forbidden.invalid:9999'}):
+            result, _, factory = self.capture()
+        self.assertEqual([], result['errors'])
+        self.assertEqual('127.0.0.1', factory.call_args.args[0])
+
+    def test_real_loopback_http_ignores_proxy_and_does_not_follow_redirect(self):
+        from http.server import BaseHTTPRequestHandler
+        from socketserver import TCPServer
+        received = []
+        body = json.dumps(self.manifest).encode()
+        class Handler(BaseHTTPRequestHandler):
+            status = 200
+            def do_GET(handler):
+                received.append(handler.path)
+                handler.send_response(Handler.status)
+                handler.send_header('Content-Length', str(len(body)))
+                handler.send_header('Location', 'http://forbidden.invalid/never')
+                handler.end_headers()
+                handler.wfile.write(body)
+            def log_message(handler, *args):
+                pass
+        server = TCPServer(('127.0.0.1', 0), Handler)
+        thread = threading.Thread(target=server.serve_forever, daemon=True)
+        thread.start()
+        try:
+            env = {**ENV, 'API_BASE_URL': 'http://127.0.0.1:' + str(server.server_address[1])}
+            with patch.dict(os.environ, {'http_proxy': 'http://forbidden.invalid:9999',
+                                         'HTTP_PROXY': 'http://forbidden.invalid:9999', 'NO_PROXY': ''}):
+                good = adapters.capture_backend_manifest(self.item, env, self.product, self.output)
+                self.assertEqual([], good['errors'])
+                Handler.status = 302
+                bad = adapters.capture_backend_manifest(self.item, env, self.product, self.output)
+                self.assertIn('HTTP_STATUS:302', bad['errors'][0])
+            self.assertEqual(['/api/v1/app/manifest'] * 2, received)
+            for url in ('http://localhost:1', 'http://remote.invalid:1', 'http://user@127.0.0.1:1'):
+                blocked = adapters.capture_backend_manifest(self.item, {**env, 'API_BASE_URL': url},
+                                                            self.product, self.output)
+                self.assertTrue(blocked['errors'])
+            self.assertEqual(2, len(received))
+        finally:
+            server.shutdown()
+            server.server_close()
+            thread.join(timeout=2)
+
+    def test_capture_bounds_size_timeout_and_rejects_invalid_schema_without_crashing(self):
+        self.assertEqual([], self.capture()[0]['errors'])
+        for raw in (None, [], {}, {'features': []}, {**self.manifest, 'features': {'e2ee': 1}},
+                    {**self.manifest, 'compiled_features': ['core', 'core']},
+                    {**self.manifest, 'policy': []}):
+            with self.subTest(raw=raw):
+                value = raw if raw is not None else []
+                self.assertTrue(self.capture(value)[0]['errors'])
+        connection = Mock()
+        connection.getresponse.return_value.status = 200
+        connection.getresponse.return_value.read.return_value = b' ' * (1024 * 1024 + 1)
+        with patch('http.client.HTTPConnection', return_value=connection) as factory:
+            result = adapters.capture_backend_manifest(self.item, ENV, self.product, self.output)
+        self.assertIn('BACKEND_MANIFEST_TOO_LARGE', result['errors'][0])
+        self.assertEqual(3, factory.call_args.kwargs['timeout'])
+        connection.getresponse.return_value.read.assert_called_once_with(1024 * 1024 + 1)
+        connection.close.assert_called_once()
+
+    def test_build_invocation_captures_only_after_all_preflight_gates_and_retains_binding(self):
+        with patch.object(adapters, 'preflight_instance', return_value=[]), \
+                patch.object(adapters, 'product_artifact_evidence', return_value=self.product), \
+                patch.object(adapters, 'capture_backend_manifest', wraps=adapters.capture_backend_manifest) as capture, \
+                patch('http.client.HTTPConnection') as factory:
+            response = factory.return_value.getresponse.return_value
+            response.status = 200
+            response.read.return_value = json.dumps(self.manifest).encode()
+            prepared = adapters.build_invocation(ROOT, self.item, ENV, self.output)
+            self.assertEqual([], prepared['errors'])
+            self.assertEqual(1, capture.call_count)
+            self.assertIn(prepared['backend_manifest_evidence'], prepared['evidence_artifacts'])
+            capture.reset_mock()
+            with patch.object(adapters, 'preflight_instance', return_value=['UNAUTHORIZED']):
+                blocked = adapters.build_invocation(ROOT, self.item, ENV, self.output / 'blocked')
+            self.assertEqual(['UNAUTHORIZED'], blocked['errors'])
+            capture.assert_not_called()
+
+    def test_retry_subset_keeps_identical_product_evidence_despite_target_requirements(self):
+        self.product['required_features'] = ['e2ee', 'rtc']
+        first = self.capture()[0]
+        self.assertEqual([], first['errors'])
+        self.product['required_features'] = ['e2ee']
+        retry = self.capture()[0]
+        self.assertEqual([], retry['errors'])
+        self.assertEqual(first['product_artifact'], retry['product_artifact'])
+
+    def test_effective_role_backend_urls_environment_and_credentials_are_gated_before_io(self):
+        from auto_test_lib import execution_runner as runner
+        self.item.update(account_role='sender', dependencies=['backend-ws'], selected=True,
+                         variant='default', upstream=[])
+        valid = {**ENV, 'IMBOY_SENDER_API_BASE_URL': 'http://127.0.0.1:9912',
+                 'IMBOY_SENDER_WS_URL_OVERRIDE': 'ws://127.0.0.1:9912/api/v1/ws',
+                 'IMBOY_SENDER_APP_ENV': 'local'}
+        cases = [
+            ('IMBOY_SENDER_API_BASE_URL', 'http://outside.invalid:1', 'API_BASE_URL'),
+            ('IMBOY_SENDER_API_BASE_URL', 'http://user@127.0.0.1:9912', 'API_BASE_URL'),
+            ('IMBOY_SENDER_API_BASE_URL', 'http://localhost:9912', 'API_BASE_URL'),
+            ('IMBOY_SENDER_API_BASE_URL', 'http://@127.0.0.1:9912', 'API_BASE_URL'),
+            ('IMBOY_SENDER_WS_URL_OVERRIDE', 'ws://outside.invalid:1', 'WS_URL_OVERRIDE'),
+            ('IMBOY_SENDER_WS_URL_OVERRIDE', 'ws://user@127.0.0.1:9912/ws', 'WS_URL_OVERRIDE'),
+            ('IMBOY_SENDER_WS_URL_OVERRIDE', 'ws://@127.0.0.1:9912/ws', 'WS_URL_OVERRIDE'),
+            ('IMBOY_SENDER_APP_ENV', 'pro', 'APP_ENV_LOCAL_REQUIRED')]
+        with patch.object(adapters.shutil, 'which', return_value='/synthetic/flutter'), \
+                patch.object(adapters, 'product_artifact_evidence', return_value=self.product), \
+                patch.object(runner, '_default_preflight', return_value=[]), \
+                patch('http.client.HTTPConnection') as connection, \
+                patch.object(runner.subprocess, 'Popen') as spawn:
+            response = connection.return_value.getresponse.return_value
+            response.status = 200
+            response.read.return_value = json.dumps(self.manifest).encode()
+            for index, (key, value, reason) in enumerate(cases):
+                with self.subTest(key=key, value=value):
+                    # Same complete inputs and path pass before this one mutation.
+                    positive = adapters.build_invocation(ROOT, self.item, valid, self.output / str(index))
+                    self.assertEqual([], positive['errors'])
+                    self.assertEqual('127.0.0.1', connection.call_args.args[0])
+                    self.assertEqual(9912, connection.call_args.args[1])
+                    command = positive['command']
+                    self.assertIn('--dart-define=API_BASE_URL=http://127.0.0.1:9912', command)
+                    self.assertIn('--dart-define=API_BASE_URL_OVERRIDE=http://127.0.0.1:9912', command)
+                    self.assertIn('--dart-define=WS_URL_OVERRIDE=ws://127.0.0.1:9912/api/v1/ws', command)
+                    connection.reset_mock()
+                    invalid = {**valid, key: value}
+                    blocked = adapters.build_invocation(ROOT, self.item, invalid, self.output / str(index))
+                    self.assertTrue(any(reason in error for error in blocked['errors']))
+                    connection.assert_not_called()
+                    planned = {'commit': 'a' * 40, 'profile': 'pr', 'instances': [self.item], 'gates': []}
+                    result = runner.run_plan(ROOT, planned, self.output / ('worker-' + str(index)), env=invalid)
+                    self.assertEqual('BLOCKED', result['results'][0]['status'])
+                    connection.assert_not_called()
+                    spawn.assert_not_called()
+
+    def test_generated_time_and_artifact_relocation_do_not_change_stable_product(self):
+        first = self.capture()[0]
+        self.assertEqual([], first['errors'])
+        changed = {**self.manifest, 'generated_at': 999}
+        second = self.capture(changed, output=self.output / 'moved')[0]
+        self.assertEqual([], second['errors'])
+        self.assertEqual(first['product_artifact'], second['product_artifact'])
+        self.assertNotEqual(first['evidence']['sha256'], second['evidence']['sha256'])
+        self.assertNotEqual(first['evidence']['path'], second['evidence']['path'])
 
 
 if __name__ == '__main__':

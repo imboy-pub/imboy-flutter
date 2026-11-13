@@ -942,3 +942,10 @@ legacyUploadReturnToOriginalPage: "原上傳未完成，請返回原頁面重新
 
 f2fLocationRequired: "請開啟定位權限與定位服務，和身邊朋友一起重試"
 f2fMemberHint: "點選朋友頭像查看資料並加入好友"
+
+pleaseSelectLocation: "請選擇位置"
+myLocation: "我的位置"
+
+searchConversations: "對話"
+
+webpageLoadProblem: "網頁內容載入遇到問題，請重試。"

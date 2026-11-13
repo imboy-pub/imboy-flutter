@@ -525,6 +525,9 @@ class _Translations$channel$ar_SA extends Translations$channel$zh_CN {
 	@override String get subscribePending => 'تم الاشتراك، جارٍ التحديث';
 	@override String get subscribeRefresh => 'تحديث الاشتراك';
 	@override String unseenUpdatesBanner({required Object count}) => '${count} تحديثات جديدة';
+	@override String get editLeaveUnsaved => 'لم يتم حفظ التغييرات. هل تريد تجاهلها والمغادرة؟';
+	@override String get avatarNotUploaded => 'لم يتم رفع الصورة الشخصية. أعد المحاولة أو استعد الصورة قبل الحفظ.';
+	@override String get restoreAvatar => 'استعادة الصورة الشخصية';
 }
 
 // Path: chat
@@ -1746,6 +1749,10 @@ class _Translations$common$ar_SA extends Translations$common$zh_CN {
 	@override String get legacyUploadReturnToOriginalPage => 'لم يكتمل الرفع. عُد إلى الصفحة الأصلية واختر الملف مجدداً ثم أرسله.';
 	@override String get f2fLocationRequired => 'فعّل إذن الموقع وخدمات الموقع، ثم حاول مجددًا مع الأصدقاء القريبين.';
 	@override String get f2fMemberHint => 'اضغط على صورة صديق لعرض ملفه الشخصي وإضافته.';
+	@override String get pleaseSelectLocation => 'يرجى اختيار موقع';
+	@override String get myLocation => 'موقعي';
+	@override String get searchConversations => 'المحادثات';
+	@override String get webpageLoadProblem => 'حدثت مشكلة أثناء تحميل محتوى الصفحة. يرجى إعادة المحاولة.';
 }
 
 // Path: complaint
@@ -3906,6 +3913,9 @@ extension on TranslationsArSa {
 			'channel.subscribePending' => 'تم الاشتراك، جارٍ التحديث',
 			'channel.subscribeRefresh' => 'تحديث الاشتراك',
 			'channel.unseenUpdatesBanner' => ({required Object count}) => '${count} تحديثات جديدة',
+			'channel.editLeaveUnsaved' => 'لم يتم حفظ التغييرات. هل تريد تجاهلها والمغادرة؟',
+			'channel.avatarNotUploaded' => 'لم يتم رفع الصورة الشخصية. أعد المحاولة أو استعد الصورة قبل الحفظ.',
+			'channel.restoreAvatar' => 'استعادة الصورة الشخصية',
 			'chat.bankCard' => 'بطاقة بنكية',
 			'chat.receivePayment' => 'استلام ودفع',
 			'chat.alreadyMember' => 'عضو بالفعل',
@@ -4008,11 +4018,11 @@ extension on TranslationsArSa {
 			'chat.userData' => 'بيانات المستخدم',
 			'chat.video' => 'فيديو',
 			'chat.videoMessage' => '[فيديو]',
+			_ => null,
+		} ?? switch (path) {
 			'chat.viewAttachments' => 'تصفح المرفقات',
 			'chat.viewLargeImage' => 'عرض بالحجم الكامل',
 			'chat.voice' => 'صوت',
-			_ => null,
-		} ?? switch (path) {
 			'chat.voiceMessage' => 'رسالة صوتية',
 			'chat.youWithdrewAMessage' => 'قمت بسحب رسالة',
 			'chat.formatCheck' => 'فحص التنسيق',
@@ -4522,11 +4532,11 @@ extension on TranslationsArSa {
 			'common.groupAnnouncementPublish' => 'نشر إعلان',
 			'common.pleaseEnterAnnouncementContent' => 'يرجى إدخال محتوى الإعلان',
 			'common.selectExpirationDateOptional' => 'اختيار تاريخ انتهاء الصلاحية (اختياري)',
+			_ => null,
+		} ?? switch (path) {
 			'common.groupAnnouncementDeleteConfirm' => 'هل أنت متأكد من حذف هذا الإعلان؟',
 			'common.groupAnnouncementDelete' => 'حذف',
 			'common.groupAnnouncementLoadFailed' => 'تعذّر تحميل الإعلان، حاول لاحقاً',
-			_ => null,
-		} ?? switch (path) {
 			'common.groupAnnouncementPublishFailed' => 'تعذّر نشر الإعلان',
 			'common.groupAnnouncementPublishSuccess' => 'تم نشر الإعلان',
 			'common.groupAnnouncementDeleteFailed' => 'تعذّر حذف الإعلان',
@@ -5036,11 +5046,11 @@ extension on TranslationsArSa {
 			'common.noHistory' => 'لا يوجد سجل',
 			'common.noNewRegisteredUsersTitle' => 'لا يوجد مستخدمون مسجلون جدد',
 			'common.payReceiveSuccess' => 'تم استلام المبلغ بنجاح!',
+			_ => null,
+		} ?? switch (path) {
 			'common.purchaseConfirming' => 'جارٍ تأكيد الدفع، تحقق من حالة الطلب لاحقاً',
 			'common.uploadPartialFailed' => ({required Object count}) => 'فشل رفع ${count} عنصراً',
 			'common.momentsHasFailedUploads' => 'فشل رفع بعض الوسائط، أعد المحاولة أو أزلها ثم انشر',
-			_ => null,
-		} ?? switch (path) {
 			'common.f2fEnteringGroup' => ({required Object count}) => 'انضم ${count} أشخاص إلى الدردشة الجماعية',
 			'common.f2fSecretCode' => 'الرمز السري',
 			'common.complianceKeyChangedTitle' => 'تم تغيير مفتاح تدقيق الامتثال',
@@ -5111,6 +5121,10 @@ extension on TranslationsArSa {
 			'common.legacyUploadReturnToOriginalPage' => 'لم يكتمل الرفع. عُد إلى الصفحة الأصلية واختر الملف مجدداً ثم أرسله.',
 			'common.f2fLocationRequired' => 'فعّل إذن الموقع وخدمات الموقع، ثم حاول مجددًا مع الأصدقاء القريبين.',
 			'common.f2fMemberHint' => 'اضغط على صورة صديق لعرض ملفه الشخصي وإضافته.',
+			'common.pleaseSelectLocation' => 'يرجى اختيار موقع',
+			'common.myLocation' => 'موقعي',
+			'common.searchConversations' => 'المحادثات',
+			'common.webpageLoadProblem' => 'حدثت مشكلة أثناء تحميل محتوى الصفحة. يرجى إعادة المحاولة.',
 			'complaint.complaint' => 'شكوى',
 			'complaint.e2eeConsentTitle' => 'تقديم دليل مشفّر',
 			'complaint.e2eeConsentBody' => 'هذه الرسالة مشفّرة من الطرف إلى الطرف ولا يمكن للخادم الاطلاع على محتواها. سيكشف تقديم مقتطف النص محتوى الرسالة المحدد للمشرفين لمراجعة البلاغ. هل توافق؟',
@@ -5546,6 +5560,8 @@ extension on TranslationsArSa {
 			'main.type' => 'النوع',
 			'main.unanswered' => 'لم يتم الرد',
 			'main.unnamed' => 'بدون اسم',
+			_ => null,
+		} ?? switch (path) {
 			'main.usedSpace' => 'المساحة المستخدمة',
 			'main.you' => 'أنت',
 			'main.zhCn' => 'الصينية المبسطة',
@@ -5553,8 +5569,6 @@ extension on TranslationsArSa {
 			'main.bound' => 'تم الربط',
 			'main.correct' => 'صحيح',
 			'main.pendingInput' => 'في انتظار الإدخال',
-			_ => null,
-		} ?? switch (path) {
 			'main.lengthCheck' => 'فحص الطول',
 			'main.bugReport' => 'تقرير خطأ',
 			'main.deleting' => 'جارٍ الحذف...',
@@ -6060,6 +6074,8 @@ extension on TranslationsArSa {
 			'organization.tools.projectCount' => ({required Object count}) => 'المشاريع ${count}',
 			'organization.tools.projectsEmpty' => 'لا توجد مشاريع',
 			'organization.tools.projectsError' => ({required Object err}) => 'فشل تحميل المشاريع: ${err}',
+			_ => null,
+		} ?? switch (path) {
 			'organization.tools.moreInWorkspaceShell' => 'استعراض كل مساحات العمل',
 			'organization.tools.moreInWorkspaceShellHint' => 'فتح مبدّل مساحات العمل العام (بين المؤسسات).',
 			'organization.chart.zoomIn' => 'تكبير',
@@ -6067,8 +6083,6 @@ extension on TranslationsArSa {
 			'organization.chart.fit' => 'ملاءمة النافذة',
 			'organization.chart.expand' => 'توسيع الأقسام الفرعية',
 			'organization.chart.collapse' => 'طي الأقسام الفرعية',
-			_ => null,
-		} ?? switch (path) {
 			'organization.chart.gestureHint' => 'اسحب للتنقل · اقرص للتكبير والتصغير',
 			'organization.chart.directMembers' => ({required Object count}) => 'المرتبطون المباشرون: ${count}',
 			'organization.experienceUi.switchSpace' => 'تبديل المساحة',

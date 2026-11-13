@@ -13,6 +13,7 @@ import 'package:imboy/page/channel/widgets/channel_role_badge.dart';
 import 'package:imboy/store/model/channel_model.dart';
 
 import '../../../golden_baseline_guard.dart';
+import '../../../uiux/support/golden_font_loader.dart';
 
 ChannelModel _channel({
   required int id,
@@ -111,6 +112,7 @@ Future<_FixedChannelListNotifier> _pumpPage(
   double textScale = 1,
   Brightness brightness = Brightness.light,
   bool managed = false,
+  ThemeData? theme,
 }) async {
   final fixture = notifier ?? _FixedChannelListNotifier();
   tester.view.physicalSize = size;
@@ -133,7 +135,7 @@ Future<_FixedChannelListNotifier> _pumpPage(
         overrides: [channelListProvider.overrideWith(() => fixture)],
         child: MaterialApp.router(
           routerConfig: router,
-          theme: ThemeData(brightness: brightness),
+          theme: theme ?? ThemeData(brightness: brightness),
           builder: (context, child) => MediaQuery(
             data: MediaQuery.of(context)
                 .copyWith(textScaler: TextScaler.linear(textScale)),
@@ -164,18 +166,21 @@ void main() {
           '${managed ? 'managed' : 'subscribed'}_${profile.width.toInt()}_${profile.scale.toInt()}_${profile.brightness.name}';
       testWidgets(
         'golden: $name',
-        skip: !goldenBaselineExists(
+        skip: !goldenBaselinesReady([
           'test/unit_test/page/channel/goldens/channel_list_$name.png',
-        ),
+        ]),
         (tester) async {
+          final font = await prepareGoldenFonts(tester);
           await _pumpPage(
             tester,
             size: Size(profile.width, 844),
             textScale: profile.scale,
             brightness: profile.brightness,
+            theme: goldenAppTheme(profile.brightness),
             managed: managed,
           );
           expect(tester.takeException(), isNull);
+          expectGoldenTextGlyphs(tester, font);
           await expectLater(
             find.byType(ChannelListPage),
             matchesGoldenFile('goldens/channel_list_$name.png'),

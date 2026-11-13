@@ -942,3 +942,10 @@ legacyUploadReturnToOriginalPage: "업로드가 완료되지 않았습니다. �
 
 f2fLocationRequired: "위치 권한과 서비스를 켠 후 주변 친구와 다시 시도하세요."
 f2fMemberHint: "친구의 프로필 사진을 눌러 프로필을 보고 친구로 추가하세요."
+
+pleaseSelectLocation: "위치를 선택하세요"
+myLocation: "내 위치"
+
+searchConversations: "대화"
+
+webpageLoadProblem: "페이지 콘텐츠를 불러오는 중 문제가 발생했습니다. 다시 시도하세요."

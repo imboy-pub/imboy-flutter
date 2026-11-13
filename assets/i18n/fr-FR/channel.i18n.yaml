@@ -227,3 +227,7 @@ enterpriseChannelLabel: "Canal interne de l’entreprise"
 subscribePending: Abonné ; actualisation en cours
 subscribeRefresh: Actualiser l’abonnement
 unseenUpdatesBanner(count): "${count} nouvelles mises à jour"
+
+editLeaveUnsaved: "Les modifications ne sont pas enregistrées. Les abandonner et quitter ?"
+avatarNotUploaded: "La photo de profil n’a pas été envoyée. Réessayez ou restaurez-la avant d’enregistrer."
+restoreAvatar: "Restaurer la photo"

@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/config/chat_theme_config.dart';
 import 'package:imboy/theme/default/theme.dart';
+import 'package:imboy/theme/providers/theme_provider.dart';
 
 void main() {
   group('Dark Mode Ergonomics & Contrast Contract', () {
@@ -121,5 +124,47 @@ void main() {
         greaterThan(baseDark.computeLuminance()),
       );
     });
+  });
+  group('发送气泡前景按实际主题分流', () {
+    for (final isDark in [false, true]) {
+      final expected = isDark ? AppColors.sentMessageText : Colors.white;
+      test('${isDark ? '暗色' : '浅色'}真实聊天主题保持正确发送前景', () {
+        for (final eyeCare in [false, true]) {
+          final theme = ChatThemeConfig.getChatThemeWithScale(
+            isDark: isDark,
+            isEyeCareMode: eyeCare,
+            fontScale: 1.5,
+          );
+          expect(theme.colors.onPrimary, expected);
+          expect(
+            theme.colors.primary,
+            isDark
+                ? AppColors.darkSentMessageBackground
+                : AppColors.lightSentMessageBackground,
+          );
+        }
+      });
+
+      test('${isDark ? '暗色' : '浅色'}真实ThemeNotifier返回对应发送文本色', () async {
+        SharedPreferences.setMockInitialValues({
+          'theme_follow_system': false,
+          'theme_is_dark_mode': false,
+        });
+        final container = ProviderContainer();
+        final subscription = container.listen(themeProvider, (_, _) {});
+        addTearDown(container.dispose);
+        addTearDown(subscription.close);
+        final notifier = container.read(themeProvider.notifier);
+        await notifier.detectDynamicColorSupport();
+        await notifier.loadThemePreference();
+        await container.pump();
+        await notifier.toggleTheme(isDark: isDark, duration: Duration.zero);
+        expect(
+          notifier.currentTheme.brightness,
+          isDark ? Brightness.dark : Brightness.light,
+        );
+        expect(notifier.getChatColor('sentMessageText'), expected);
+      });
+    }
   });
 }

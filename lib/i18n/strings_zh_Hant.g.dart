@@ -525,6 +525,9 @@ class Translations$channel$zh_Hant extends Translations$channel$zh_CN {
 	@override String get subscribePending => '已訂閱，正在重新整理';
 	@override String get subscribeRefresh => '重新整理訂閱狀態';
 	@override String unseenUpdatesBanner({required Object count}) => '有 ${count} 條新更新';
+	@override String get editLeaveUnsaved => '修改尚未儲存，確定放棄並離開？';
+	@override String get avatarNotUploaded => '頭像尚未上傳，請重試或還原後再儲存。';
+	@override String get restoreAvatar => '還原頭像';
 }
 
 // Path: chat
@@ -1734,6 +1737,10 @@ class Translations$common$zh_Hant extends Translations$common$zh_CN {
 	@override String get legacyUploadReturnToOriginalPage => '原上傳未完成，請返回原頁面重新選擇檔案並提交；原紀錄已保留。';
 	@override String get f2fLocationRequired => '請開啟定位權限與定位服務，和身邊朋友一起重試';
 	@override String get f2fMemberHint => '點選朋友頭像查看資料並加入好友';
+	@override String get pleaseSelectLocation => '請選擇位置';
+	@override String get myLocation => '我的位置';
+	@override String get searchConversations => '對話';
+	@override String get webpageLoadProblem => '網頁內容載入遇到問題，請重試。';
 }
 
 // Path: complaint
@@ -3894,6 +3901,9 @@ extension on TranslationsZhHant {
 			'channel.subscribePending' => '已訂閱，正在重新整理',
 			'channel.subscribeRefresh' => '重新整理訂閱狀態',
 			'channel.unseenUpdatesBanner' => ({required Object count}) => '有 ${count} 條新更新',
+			'channel.editLeaveUnsaved' => '修改尚未儲存，確定放棄並離開？',
+			'channel.avatarNotUploaded' => '頭像尚未上傳，請重試或還原後再儲存。',
+			'channel.restoreAvatar' => '還原頭像',
 			'chat.bankCard' => '銀行卡',
 			'chat.receivePayment' => '收款與付款',
 			'chat.alreadyMember' => '已經是成員',
@@ -3996,11 +4006,11 @@ extension on TranslationsZhHant {
 			'chat.userData' => '使用者資料',
 			'chat.video' => '影片',
 			'chat.videoMessage' => '[影片]',
+			_ => null,
+		} ?? switch (path) {
 			'chat.viewAttachments' => '瀏覽附件',
 			'chat.viewLargeImage' => '檢視大圖',
 			'chat.voice' => '語音',
-			_ => null,
-		} ?? switch (path) {
 			'chat.voiceMessage' => '語音訊息',
 			'chat.youWithdrewAMessage' => '你撤回了一則訊息',
 			'chat.formatCheck' => '格式檢查',
@@ -4510,11 +4520,11 @@ extension on TranslationsZhHant {
 			'common.featureInDevelopment' => '功能開發中...',
 			'common.addedToDenylist' => '已加入黑名單',
 			'common.groupAnnouncementPublish' => '發布公告',
+			_ => null,
+		} ?? switch (path) {
 			'common.pleaseEnterAnnouncementContent' => '請輸入公告內容',
 			'common.selectExpirationDateOptional' => '選擇有效期（可選）',
 			'common.groupAnnouncementDeleteConfirm' => '確定要刪除這則公告嗎？',
-			_ => null,
-		} ?? switch (path) {
 			'common.groupAnnouncementDelete' => '刪除',
 			'common.groupAnnouncementLoadFailed' => '公告載入失敗，請稍後重試',
 			'common.groupAnnouncementPublishFailed' => '公告發布失敗',
@@ -5024,11 +5034,11 @@ extension on TranslationsZhHant {
 			'common.e2eeRetryFailedDone' => ({required Object count}) => '已重試 ${count} 條解密失敗的訊息',
 			'common.e2eeRetryFailedNone' => '沒有需要重試的解密失敗訊息',
 			'common.e2eeModeStandard' => '標準模式',
+			_ => null,
+		} ?? switch (path) {
 			'common.e2eeModeCompliance' => '合規加密',
 			'common.e2eeModeStrict' => '端對端加密',
 			'common.e2eeRecoveryKeySaveNote' => '請立即儲存這串恢復金鑰（截圖或存入密碼管理員）。忘記密碼時，它是解密備份的唯一憑據；一旦遺失，備份將永久無法還原。',
-			_ => null,
-		} ?? switch (path) {
 			'common.e2eeRecoveryKeyTitle' => '恢復金鑰',
 			'common.e2eeUseRecoveryKey' => '產生恢復金鑰（忘記密碼時的備用憑據）',
 			'common.enterAmount' => '請輸入金額',
@@ -5099,6 +5109,10 @@ extension on TranslationsZhHant {
 			'common.legacyUploadReturnToOriginalPage' => '原上傳未完成，請返回原頁面重新選擇檔案並提交；原紀錄已保留。',
 			'common.f2fLocationRequired' => '請開啟定位權限與定位服務，和身邊朋友一起重試',
 			'common.f2fMemberHint' => '點選朋友頭像查看資料並加入好友',
+			'common.pleaseSelectLocation' => '請選擇位置',
+			'common.myLocation' => '我的位置',
+			'common.searchConversations' => '對話',
+			'common.webpageLoadProblem' => '網頁內容載入遇到問題，請重試。',
 			'complaint.complaint' => '投訴',
 			'complaint.e2eeConsentTitle' => '提交加密訊息證據',
 			'complaint.e2eeConsentBody' => '該訊息為端對端加密訊息，伺服器無法查看其內容。提交內容摘錄會將你選擇的訊息明文隨工單披露給審核員用於核實舉報。是否同意提交？',
@@ -5534,6 +5548,8 @@ extension on TranslationsZhHant {
 			'main.type' => '類型',
 			'main.unanswered' => '未應答',
 			'main.unnamed' => '無名稱',
+			_ => null,
+		} ?? switch (path) {
 			'main.usedSpace' => '已使用空間',
 			'main.you' => '你',
 			'main.zhCn' => '簡體中文',
@@ -5541,8 +5557,6 @@ extension on TranslationsZhHant {
 			'main.bound' => '已綁定',
 			'main.correct' => '正確',
 			'main.pendingInput' => '待輸入',
-			_ => null,
-		} ?? switch (path) {
 			'main.lengthCheck' => '長度檢查',
 			'main.bugReport' => '錯誤報告',
 			'main.deleting' => '刪除中...',
@@ -6048,6 +6062,8 @@ extension on TranslationsZhHant {
 			'organization.tools.projectCount' => ({required Object count}) => '專案 ${count}',
 			'organization.tools.projectsEmpty' => '暫無專案',
 			'organization.tools.projectsError' => ({required Object err}) => '專案載入失敗：${err}',
+			_ => null,
+		} ?? switch (path) {
 			'organization.tools.moreInWorkspaceShell' => '瀏覽全部工作區',
 			'organization.tools.moreInWorkspaceShellHint' => '開啟全域工作區切換器（跨企業）。',
 			'organization.chart.zoomIn' => '放大',
@@ -6055,8 +6071,6 @@ extension on TranslationsZhHant {
 			'organization.chart.fit' => '適應視窗',
 			'organization.chart.expand' => '展開下級部門',
 			'organization.chart.collapse' => '收起下級部門',
-			_ => null,
-		} ?? switch (path) {
 			'organization.chart.gestureHint' => '拖曳查看 · 雙指縮放',
 			'organization.chart.directMembers' => ({required Object count}) => '本級 ${count} 人',
 			'organization.experienceUi.switchSpace' => '切換空間',

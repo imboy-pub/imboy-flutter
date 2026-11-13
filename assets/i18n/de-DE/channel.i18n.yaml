@@ -227,3 +227,7 @@ enterpriseChannelLabel: "Interner Unternehmenskanal"
 subscribePending: Abonniert; wird aktualisiert
 subscribeRefresh: Abonnement aktualisieren
 unseenUpdatesBanner(count): "${count} neue Updates"
+
+editLeaveUnsaved: "Die Änderungen sind nicht gespeichert. Verwerfen und verlassen?"
+avatarNotUploaded: "Das Profilbild wurde nicht hochgeladen. Vor dem Speichern erneut versuchen oder wiederherstellen."
+restoreAvatar: "Profilbild wiederherstellen"

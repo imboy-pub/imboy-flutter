@@ -117,7 +117,9 @@ class MessageBubbleStyle {
           FontSizeType.medium,
           fontWeight: FontWeight.w400,
           color: isSentByMe
-              ? AppColors.sentMessageText
+              ? (theme.brightness == Brightness.dark
+                    ? AppColors.sentMessageText
+                    : AppColors.onPrimary)
               : AppColors.getTextColor(theme.brightness),
         )
         .copyWith(height: 1.4);

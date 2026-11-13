@@ -525,6 +525,9 @@ class _Translations$channel$ko_KR extends Translations$channel$zh_CN {
 	@override String get subscribePending => '구독 완료, 새로고침 중';
 	@override String get subscribeRefresh => '구독 상태 새로고침';
 	@override String unseenUpdatesBanner({required Object count}) => '새 업데이트 ${count}개';
+	@override String get editLeaveUnsaved => '변경 사항이 저장되지 않았습니다. 버리고 나가시겠습니까?';
+	@override String get avatarNotUploaded => '프로필 사진이 업로드되지 않았습니다. 다시 시도하거나 복원한 후 저장하세요.';
+	@override String get restoreAvatar => '프로필 사진 복원';
 }
 
 // Path: chat
@@ -1734,6 +1737,10 @@ class _Translations$common$ko_KR extends Translations$common$zh_CN {
 	@override String get legacyUploadReturnToOriginalPage => '업로드가 완료되지 않았습니다. 원래 화면에서 파일을 다시 선택하고 제출하세요。';
 	@override String get f2fLocationRequired => '위치 권한과 서비스를 켠 후 주변 친구와 다시 시도하세요.';
 	@override String get f2fMemberHint => '친구의 프로필 사진을 눌러 프로필을 보고 친구로 추가하세요.';
+	@override String get pleaseSelectLocation => '위치를 선택하세요';
+	@override String get myLocation => '내 위치';
+	@override String get searchConversations => '대화';
+	@override String get webpageLoadProblem => '페이지 콘텐츠를 불러오는 중 문제가 발생했습니다. 다시 시도하세요.';
 }
 
 // Path: complaint
@@ -3894,6 +3901,9 @@ extension on TranslationsKoKr {
 			'channel.subscribePending' => '구독 완료, 새로고침 중',
 			'channel.subscribeRefresh' => '구독 상태 새로고침',
 			'channel.unseenUpdatesBanner' => ({required Object count}) => '새 업데이트 ${count}개',
+			'channel.editLeaveUnsaved' => '변경 사항이 저장되지 않았습니다. 버리고 나가시겠습니까?',
+			'channel.avatarNotUploaded' => '프로필 사진이 업로드되지 않았습니다. 다시 시도하거나 복원한 후 저장하세요.',
+			'channel.restoreAvatar' => '프로필 사진 복원',
 			'chat.bankCard' => '은행 카드',
 			'chat.receivePayment' => '송금·결제',
 			'chat.alreadyMember' => '이미 구성원',
@@ -3996,11 +4006,11 @@ extension on TranslationsKoKr {
 			'chat.userData' => '사용자 데이터',
 			'chat.video' => '비디오',
 			'chat.videoMessage' => '[비디오]',
+			_ => null,
+		} ?? switch (path) {
 			'chat.viewAttachments' => '첨부 파일 보기',
 			'chat.viewLargeImage' => '크게 보기',
 			'chat.voice' => '음성',
-			_ => null,
-		} ?? switch (path) {
 			'chat.voiceMessage' => '음성 메시지',
 			'chat.youWithdrewAMessage' => '메시지를 회수했습니다',
 			'chat.formatCheck' => '형식 검사',
@@ -4510,11 +4520,11 @@ extension on TranslationsKoKr {
 			'common.groupAnnouncementPublish' => '공지 게시',
 			'common.pleaseEnterAnnouncementContent' => '공지 내용을 입력해 주세요',
 			'common.selectExpirationDateOptional' => '만료 날짜 선택 (선택 사항)',
+			_ => null,
+		} ?? switch (path) {
 			'common.groupAnnouncementDeleteConfirm' => '이 공지를 삭제하시겠습니까?',
 			'common.groupAnnouncementDelete' => '삭제',
 			'common.groupAnnouncementLoadFailed' => '공지를 불러오지 못했습니다. 나중에 다시 시도해주세요',
-			_ => null,
-		} ?? switch (path) {
 			'common.groupAnnouncementPublishFailed' => '공지 게시 실패',
 			'common.groupAnnouncementPublishSuccess' => '공지가 게시되었습니다',
 			'common.groupAnnouncementDeleteFailed' => '공지 삭제 실패',
@@ -5024,11 +5034,11 @@ extension on TranslationsKoKr {
 			'common.e2eeModeCompliance' => '컴플라이언스 암호화',
 			'common.e2eeModeStrict' => '종단 간 암호화',
 			'common.e2eeRecoveryKeySaveNote' => '이 복구 키를 즉시 저장하세요(스크린샷 또는 비밀번호 관리자에 보관). 암호를 잊었을 때 백업을 복호화할 수 있는 유일한 수단이며, 잃어버리면 백업을 영구히 복구할 수 없습니다.',
+			_ => null,
+		} ?? switch (path) {
 			'common.e2eeRecoveryKeyTitle' => '복구 키',
 			'common.e2eeUseRecoveryKey' => '복구 키 생성(암호 분실 시 대비용)',
 			'common.enterAmount' => '금액을 입력해 주세요',
-			_ => null,
-		} ?? switch (path) {
 			'common.expandFull' => '펼치기',
 			'common.f2fEnteringGroup' => ({required Object count}) => '${count}명이 그룹 채팅에 참여했습니다',
 			'common.f2fSecretCode' => '암호',
@@ -5099,6 +5109,10 @@ extension on TranslationsKoKr {
 			'common.legacyUploadReturnToOriginalPage' => '업로드가 완료되지 않았습니다. 원래 화면에서 파일을 다시 선택하고 제출하세요。',
 			'common.f2fLocationRequired' => '위치 권한과 서비스를 켠 후 주변 친구와 다시 시도하세요.',
 			'common.f2fMemberHint' => '친구의 프로필 사진을 눌러 프로필을 보고 친구로 추가하세요.',
+			'common.pleaseSelectLocation' => '위치를 선택하세요',
+			'common.myLocation' => '내 위치',
+			'common.searchConversations' => '대화',
+			'common.webpageLoadProblem' => '페이지 콘텐츠를 불러오는 중 문제가 발생했습니다. 다시 시도하세요.',
 			'complaint.complaint' => '신고',
 			'complaint.e2eeConsentTitle' => '암호화 메시지 증거 제출',
 			'complaint.e2eeConsentBody' => '이 메시지는 종단 간 암호화되어 있어 서버가 내용을 볼 수 없습니다. 발췌를 제출하면 선택한 평문이 검토자에게 공개됩니다. 동의하시겠습니까?',
@@ -5534,6 +5548,8 @@ extension on TranslationsKoKr {
 			'main.type' => '유형',
 			'main.unanswered' => '응답 없음',
 			'main.unnamed' => '이름 없음',
+			_ => null,
+		} ?? switch (path) {
 			'main.usedSpace' => '사용된 공간',
 			'main.you' => '당신',
 			'main.zhCn' => '중국어 간체',
@@ -5541,8 +5557,6 @@ extension on TranslationsKoKr {
 			'main.bound' => '연결됨',
 			'main.correct' => '올바름',
 			'main.pendingInput' => '입력 대기 중',
-			_ => null,
-		} ?? switch (path) {
 			'main.lengthCheck' => '길이 검사',
 			'main.bugReport' => '오류 보고',
 			'main.deleting' => '삭제 중...',
@@ -6048,6 +6062,8 @@ extension on TranslationsKoKr {
 			'organization.tools.projectCount' => ({required Object count}) => '프로젝트 ${count}개',
 			'organization.tools.projectsEmpty' => '프로젝트가 없습니다',
 			'organization.tools.projectsError' => ({required Object err}) => '프로젝트 로드 실패: ${err}',
+			_ => null,
+		} ?? switch (path) {
 			'organization.tools.moreInWorkspaceShell' => '모든 워크스페이스 탐색',
 			'organization.tools.moreInWorkspaceShellHint' => '전역 워크스페이스 전환기 열기(기업 간).',
 			'organization.chart.zoomIn' => '확대',
@@ -6055,8 +6071,6 @@ extension on TranslationsKoKr {
 			'organization.chart.fit' => '창에 맞추기',
 			'organization.chart.expand' => '하위 부서 펼치기',
 			'organization.chart.collapse' => '하위 부서 접기',
-			_ => null,
-		} ?? switch (path) {
 			'organization.chart.gestureHint' => '드래그하여 이동 · 핀치로 확대/축소',
 			'organization.chart.directMembers' => ({required Object count}) => '직속 ${count}명',
 			'organization.experienceUi.switchSpace' => '스페이스 전환',

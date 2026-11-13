@@ -591,6 +591,9 @@ class _Translations$channel$en_US extends Translations$channel$zh_CN {
 	@override String get subscribePending => 'Subscribed; refreshing';
 	@override String get subscribeRefresh => 'Refresh subscription';
 	@override String unseenUpdatesBanner({required Object count}) => '${count} new updates';
+	@override String get editLeaveUnsaved => 'Your changes are not saved. Discard them and leave?';
+	@override String get avatarNotUploaded => 'The avatar has not uploaded. Retry or restore it before saving.';
+	@override String get restoreAvatar => 'Restore avatar';
 }
 
 // Path: chat
@@ -1803,6 +1806,10 @@ class _Translations$common$en_US extends Translations$common$zh_CN {
 	@override String get legacyUploadReturnToOriginalPage => 'The upload is incomplete. Return to the original screen, select the file again and submit; the old record is kept.';
 	@override String get f2fLocationRequired => 'Enable location permission and services, then try again with nearby friends.';
 	@override String get f2fMemberHint => 'Tap a friend’s avatar to view their profile and add them.';
+	@override String get pleaseSelectLocation => 'Please select a location';
+	@override String get myLocation => 'My location';
+	@override String get searchConversations => 'Conversations';
+	@override String get webpageLoadProblem => 'There was a problem loading page content. Please retry.';
 }
 
 // Path: complaint
@@ -4585,6 +4592,9 @@ extension on TranslationsEnUs {
 			'channel.subscribePending' => 'Subscribed; refreshing',
 			'channel.subscribeRefresh' => 'Refresh subscription',
 			'channel.unseenUpdatesBanner' => ({required Object count}) => '${count} new updates',
+			'channel.editLeaveUnsaved' => 'Your changes are not saved. Discard them and leave?',
+			'channel.avatarNotUploaded' => 'The avatar has not uploaded. Retry or restore it before saving.',
+			'channel.restoreAvatar' => 'Restore avatar',
 			'chat.bankCard' => 'Bank Card',
 			'chat.receivePayment' => 'Receive & Pay',
 			'chat.alreadyMember' => 'Already a member',
@@ -4632,11 +4642,11 @@ extension on TranslationsEnUs {
 			'chat.groupFileCategoryVideo' => 'Videos',
 			'chat.groupFileCategoryAudio' => 'Audio',
 			'chat.groupFileCategoryOther' => 'Other',
+			_ => null,
+		} ?? switch (path) {
 			'chat.groupChat' => 'Group chat',
 			'chat.image' => 'Image',
 			'chat.imageMessage' => '[Image]',
-			_ => null,
-		} ?? switch (path) {
 			'chat.initiateChat' => 'Start group chat',
 			'chat.exportMyData' => 'Export My Data',
 			'chat.exportDataDesc' => 'Export your personal info, contacts, and chat history',
@@ -5146,11 +5156,11 @@ extension on TranslationsEnUs {
 			'common.updateLog' => 'Update log',
 			'common.updateNow' => 'Update now',
 			'common.uploading' => 'Uploading',
+			_ => null,
+		} ?? switch (path) {
 			'common.uploadSuccess' => 'Upload successful',
 			'common.uploadFailed' => 'Upload failed',
 			'common.userDataTips' => 'Includes app runtime files and all user data like chat messages and friend connections.',
-			_ => null,
-		} ?? switch (path) {
 			'common.userDisabledOrDeleted' => 'User is disabled or deleted',
 			'common.userNotExist' => 'User does not exist',
 			'common.version' => 'Version',
@@ -5660,11 +5670,11 @@ extension on TranslationsEnUs {
 			'common.transferSend' => 'Send Transfer',
 			'common.greetingDefault' => 'Best wishes!',
 			'common.transferAmountYuan' => ({required Object amount}) => 'Transfer: ${amount} CNY',
+			_ => null,
+		} ?? switch (path) {
 			'common.insufficientBalance' => 'Insufficient Balance',
 			'common.withdrawSuccess' => 'Withdrawal Successful',
 			'common.withdrawConfirm' => 'Confirm Withdrawal',
-			_ => null,
-		} ?? switch (path) {
 			'common.withdrawFeeNotice' => 'Fees and arrival time are subject to actual settlement',
 			'common.withdrawAmountError' => 'Amount must be at least ¥0.01',
 			'common.withdrawAccountEmpty' => 'Please enter your withdrawal account',
@@ -5790,6 +5800,10 @@ extension on TranslationsEnUs {
 			'common.legacyUploadReturnToOriginalPage' => 'The upload is incomplete. Return to the original screen, select the file again and submit; the old record is kept.',
 			'common.f2fLocationRequired' => 'Enable location permission and services, then try again with nearby friends.',
 			'common.f2fMemberHint' => 'Tap a friend’s avatar to view their profile and add them.',
+			'common.pleaseSelectLocation' => 'Please select a location',
+			'common.myLocation' => 'My location',
+			'common.searchConversations' => 'Conversations',
+			'common.webpageLoadProblem' => 'There was a problem loading page content. Please retry.',
 			'complaint.complaint' => 'Complaint',
 			'complaint.e2eeConsentTitle' => 'Submit encrypted evidence',
 			'complaint.e2eeConsentBody' => 'This message is end-to-end encrypted and the server cannot see its content. Submitting an excerpt will disclose the selected plaintext to moderators for review. Do you consent?',
@@ -6170,6 +6184,8 @@ extension on TranslationsEnUs {
 			'group.groupAlbumPhotoSetCover' => 'Set as cover',
 			'group.groupAlbumPhotoPrev' => 'Previous',
 			'group.groupAlbumPhotoLikeCount' => 'Likes',
+			_ => null,
+		} ?? switch (path) {
 			'group.groupAlbumPhotoCommentCount' => 'Comments',
 			'group.groupAlbumPhotoMyLike' => 'My like',
 			'group.groupAlbumPhotoIdLabel' => 'Photo ID',
@@ -6177,8 +6193,6 @@ extension on TranslationsEnUs {
 			'group.e2eeKeyManagementSubtitle' => 'Backup, restore and manage end-to-end encryption keys',
 			'group.e2eeTitle' => 'End-to-End Encryption',
 			'group.e2eeEnableConfirm' => 'Once enabled, group messages will be end-to-end encrypted and only readable on members\' devices. This cannot be undone. Enable?',
-			_ => null,
-		} ?? switch (path) {
 			'group.transferAndLeave' => 'Transfer and leave',
 			'group.sureToTransferAndLeave' => 'You will transfer ownership and leave this group. Continue?',
 			'group.transferredButLeaveFailed' => 'Ownership transferred, but leaving failed. Please retry leaving.',
@@ -6684,6 +6698,8 @@ extension on TranslationsEnUs {
 			'organization.departments.unsetDeptAdmin' => ({required Object userId}) => 'Revoke department admin from ${userId}',
 			'organization.departments.setAdminFailed' => 'Failed to set department admin',
 			'organization.departments.memberGovernActions' => 'Member governance actions',
+			_ => null,
+		} ?? switch (path) {
 			'organization.picker.title' => 'Switch enterprise',
 			'organization.picker.switchEnterprise' => 'Switch enterprise',
 			'organization.picker.switchFailed' => 'Switch failed',
@@ -6691,8 +6707,6 @@ extension on TranslationsEnUs {
 			'organization.picker.noneSelected' => 'No enterprise selected',
 			'organization.picker.emptyHint' => 'You have not joined any enterprise yet.\nTap "Join enterprise" below and enter the invite code',
 			'organization.picker.joinEnterprise' => 'Join enterprise',
-			_ => null,
-		} ?? switch (path) {
 			'organization.picker.joinOrgIdLabel' => 'Enterprise ID',
 			'organization.picker.joinOrgIdHint' => 'Provided by an enterprise admin (numeric ID)',
 			'organization.picker.joinOrgIdInvalid' => 'Enter a valid enterprise ID (numeric)',
@@ -7198,6 +7212,8 @@ extension on TranslationsEnUs {
 			'talkRecord.exportFormatTxt' => 'Plain text .txt',
 			'talkRecord.exportFormatMd' => 'Markdown .md',
 			'talkRecord.exportFormatHint' => 'Export contains text only; no audio or unauthorized participant info.',
+			_ => null,
+		} ?? switch (path) {
 			'talkRecord.exportCapabilitySectionTitle' => 'Export availability',
 			'talkRecord.exportBlockedNoGrant' => 'Your current role has no export permission; export requires an owner grant or policy allowance.',
 			'talkRecord.exportBlockedOrgPolicy' => 'Export is disabled by organization policy.',
@@ -7205,8 +7221,6 @@ extension on TranslationsEnUs {
 			'talkRecord.exportBlockedUnknown' => 'Current export policy could not be confirmed; export is unavailable.',
 			'talkRecord.exportIndependentCopyTitle' => 'Independent copy notice',
 			'talkRecord.exportIndependentCopyBody' => 'Exporting creates an independent copy; it cannot be taken back by deleting the note or revoking access.',
-			_ => null,
-		} ?? switch (path) {
 			'talkRecord.exportIndependentCopyAck' => 'I understand the exported copy cannot be taken back',
 			'talkRecord.exportGenerate' => 'Generate export',
 			'talkRecord.exportGenerating' => 'Generating…',

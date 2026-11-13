@@ -230,3 +230,7 @@ enterpriseChannelLabel: "Internal enterprise channel"
 subscribePending: Subscribed; refreshing
 subscribeRefresh: Refresh subscription
 unseenUpdatesBanner(count): "${count} new updates"
+
+editLeaveUnsaved: "Your changes are not saved. Discard them and leave?"
+avatarNotUploaded: "The avatar has not uploaded. Retry or restore it before saving."
+restoreAvatar: "Restore avatar"

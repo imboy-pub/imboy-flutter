@@ -2,7 +2,7 @@
 
 # ImBoy App - 架构文档 / Architecture Document
 
-> 最后更新 / Last updated：2026-11-11 CST（校准头部日期；正文上次对齐 2026-11-06 schema v37/Dart 3.13 与 2026-11-10 统一收件箱）| Flutter 客户端 | 双语文档规则见根级 [CLAUDE.md](../CLAUDE.md)；三端术语以后端仓 `docs/glossary.md` 为准
+> 最后更新 / Last updated：2026-11-12 CST（校准 schema v39 与 Dio/slang 版本；正文上次对齐 2026-11-06 Dart 3.13 与 2026-11-10 统一收件箱）| Flutter 客户端 | 双语文档规则见根级 [CLAUDE.md](../CLAUDE.md)；三端术语以后端仓 `docs/glossary.md` 为准
 
 ---
 
@@ -29,9 +29,9 @@
 | 状态管理 | Riverpod（100% 迁移完成，0 GetX） |
 | 路由 | go_router |
 | 本地数据库 | SQLite (sqflite 2.4+ + SQLCipher)，当前 schema v39（v38 FTS 草稿未注册；manifest 单一真源） |
-| 网络 | Dio 5.10 |
+| 网络 | Dio 5.11 |
 | 实时通讯 | WebSocket + WebRTC |
-| 国际化 | slang ^4.18.0，默认语言 zh-CN |
+| 国际化 | slang ^4.19.2，默认语言 zh-CN |
 | 架构模式 | MVVM + Repository |
 
 ---
@@ -85,7 +85,7 @@ scripts/           # 构建/测试脚本
 
 ### SQLite 版本
 
-当前 `_dbVersion = 37`（以 `lib/service/sqlite.dart` 为准；v37 = 频道来源和工作区 ID，旧行保持未知、不推断授权）。
+当前 `_dbVersion = 39`（以 `lib/service/sqlite.dart` 为准；v39 = 账号库内保存个人频道的本机消息页显示偏好（channel_inbox_preference），v38 为未注册的 FTS 草稿）。
 **迁移唯一真源是 `lib/service/migrations/manifest_all.dart` 的类型化清单**（2026-08-27 起）：
 assets/migrations/*.sql 与 embedded 常量都是生成物。改迁移必须改 manifest 后跑
 `dart run tool/generate_sqlite_migrations.dart --check`；统一测试门
