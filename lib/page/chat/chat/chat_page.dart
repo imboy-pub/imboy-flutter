@@ -1775,7 +1775,6 @@ class ChatPageState extends ConsumerState<ChatPage>
         evaluateMessageSelectability(messageSelectionTraitsOf(message))
             .selectable) {
       onMultiSelect = () async {
-
         try {
           await _chatInputKey.currentState?.flushDraft();
         } catch (error) {
