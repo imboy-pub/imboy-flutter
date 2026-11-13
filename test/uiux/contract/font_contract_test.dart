@@ -70,8 +70,9 @@ void main() {
       missingRequiredGlyphs(bytes, codepoints: [0x10FFFF]),
       contains('U+10FFFF'),
     );
-    // 真实可渲染性：FontLoader 注册成功（字节可被引擎解析）。
-    await loadGoldenFont(r);
+    // 真实可渲染性：与完整金图复用文本注册核心（实际字节由引擎解析）。
+    // 图标路径与像素环境仍由 loadGoldenFont 的完整预检负责。
+    await loadGoldenTextFonts(r);
   });
 
   test('golden_rejects_ahem_or_missing_font：hash 不匹配或缺失一律拒绝', () {
@@ -175,6 +176,11 @@ void main() {
       () => loadGoldenFont(blocked),
       throwsStateError,
       reason: '非 ok resolution 不得进入 FontLoader（契约错误即抛）',
+    );
+    expect(
+      () => loadGoldenTextFonts(blocked),
+      throwsStateError,
+      reason: '文本字体合同也必须拒绝非 ok resolution',
     );
   });
 }

@@ -734,8 +734,20 @@ class BackendProductContractTests(unittest.TestCase):
     def test_real_full_matrix_pairs_api_targets_with_matching_backend_profiles(self):
         planned = build_plan(ROOT, profile='full')
         rows = [r for r in planned['instances'] if r['selected']]
-        self.assertEqual(3457, len(rows))
-        self.assertEqual(1502, len({r['target'] for r in rows}))
+        # Match declared obligations, not a total invalidated by adding tests.
+        expected = set()
+        for target in validate_catalog(ROOT)['targets']:
+            for role in target.get('roles', [{'role': 'primary'}]):
+                role = {'role': role} if isinstance(role, str) else role
+                expected.update(
+                    (target['target'], platform, product, role['role'], variant['variant'])
+                    for platform in role.get('platforms', target['platforms'])
+                    for product in target['products']
+                    for variant in target.get('variants', [{'variant': 'default'}]))
+        self.assertEqual(expected, {
+            (r['target'], r['platform'], r['product_profile'], r['role'], r['variant'])
+            for r in rows})
+        self.assertEqual(len(expected), len(rows))
         for platform in ('linux', 'macos'):
             api = [r for r in rows if r['platform'] == platform and r['suite'] == 'backend-contract']
             self.assertEqual({'phase1_delivery': 37, 'full-selected': 9},

@@ -96,6 +96,23 @@ final List<SmokeRoute> smokeRoutes = <SmokeRoute>[
 
   // ==================== 聊天 ====================
   const SmokeRoute(name: 'chat', location: '/chat/1001'),
+  const SmokeRoute(
+    name: 'chat_history_bundle_detail',
+    location: '/chat/history_bundle',
+    extra: {
+      'bundle_version': 1,
+      'title': 'Smoke history bundle',
+      'exported_at': 1579134600000,
+      'entries': [
+        {
+          'msg_type': 'text',
+          'sender_name': 'Smoke sender',
+          'sent_at': 1579048200000,
+          'payload': {'text': 'Smoke bundle entry'},
+        },
+      ],
+    },
+  ),
   const SmokeRoute(name: 'chat_setting', location: '/chat_setting/1001'),
   const SmokeRoute(
     name: 'send_to',

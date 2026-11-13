@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 
-import '../../lib/modules/messaging/application/history_bundle/history_bundle_types.dart';
+import 'package:imboy/modules/messaging/application/history_bundle/history_bundle_types.dart';
 
 /// W3-K P2 history evidence; the caller supplies the existing FlowApiClient.get.
 /// No login, upload, UI, decryption or real HTTP dependency in host regressions.

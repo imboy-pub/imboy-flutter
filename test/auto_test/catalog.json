@@ -1,9 +1,9 @@
 {
   "schema_version": 1,
   "generated_from": {
-    "app_head": "f1ea377c1beea13a84fa801eedfc31824de4d191",
-    "backend_head": "e518c02de21f24435dde19e8fe721d02c14ca963",
-    "integration_test_count": 200,
+    "app_head": "d3a83c073a9e0cde387435232f1a32fdf9f5b947",
+    "backend_head": "d41f06f560e768d9370cbc7cb602d162433ac5e8",
+    "integration_test_count": 201,
     "lib_page_count": 172,
     "module_page_count": 40,
     "route_page_component_count": 166,
@@ -798,7 +798,7 @@
     {
       "id": "test:integration_test/chat_multi_bundle_roundtrip_test.dart",
       "target": "integration_test/chat_multi_bundle_roundtrip_test.dart",
-      "target_sha256": "738ba36fc5816c129a8073bd06f67a53969725316413d735cd020bf044e324af",
+      "target_sha256": "5ae597a0298fba1893c64f9ef2cdb10aeded9df1a5829d7bd4fe07b7a84eb6e7",
       "sources": [],
       "dependencies": [],
       "risk": "device-readonly",
@@ -812,7 +812,7 @@
     {
       "id": "test:integration_test/chat_multi_export_test.dart",
       "target": "integration_test/chat_multi_export_test.dart",
-      "target_sha256": "e9e431e8424b2586e5c76cfb9746a66291855b604e5079fb7193779eec4a3492",
+      "target_sha256": "8108c074201edd66475c988f9791733faaf417f9e6dc4c161e25410911c1b6b4",
       "sources": [],
       "dependencies": [],
       "risk": "device-readonly",
@@ -826,7 +826,7 @@
     {
       "id": "test:integration_test/chat_multi_forward_c2g_test.dart",
       "target": "integration_test/chat_multi_forward_c2g_test.dart",
-      "target_sha256": "d87c31c0a15359ddbc2dd1741d8e1685dcf522dbdc3297cc0ad27573642411a2",
+      "target_sha256": "152c5d65207dcea4e533c5116b1bbde980929c28399e3818eec8ef2370104b19",
       "sources": [],
       "dependencies": [],
       "risk": "device-readonly",
@@ -840,7 +840,7 @@
     {
       "id": "test:integration_test/chat_multi_select_test.dart",
       "target": "integration_test/chat_multi_select_test.dart",
-      "target_sha256": "3f555ffbdf51efbbcd918257337b59091198660c479474b8aca5e4722bde56c7",
+      "target_sha256": "117bcc41a438860de45b8e61c5f6332c385bdc322f5c3fe2d031e19be09525f2",
       "sources": [],
       "dependencies": [],
       "risk": "device-readonly",
@@ -1424,7 +1424,7 @@
     {
       "id": "test:integration_test/e2ee_c2c_outbound_frame_test.dart",
       "target": "integration_test/e2ee_c2c_outbound_frame_test.dart",
-      "target_sha256": "bfccb4c455766e4eaa2975ba4a3f9f4a612be31c6d7de6449edbcf9f67056073",
+      "target_sha256": "4ce412d59b38c515166cc2d2c6f49de25257f31672a1b8cb4148f9a83caf50e1",
       "sources": [],
       "dependencies": [],
       "risk": "device-readonly",
@@ -1466,7 +1466,7 @@
     {
       "id": "test:integration_test/e2ee_group_outbound_frame_test.dart",
       "target": "integration_test/e2ee_group_outbound_frame_test.dart",
-      "target_sha256": "0a56ea26291ffc7aedf109e9b518af42a2c3bf37db0093f9a27353423dcc0450",
+      "target_sha256": "3f2c563c2fcc20795cd06a7365b523111cad095f1386488be0d37f0b4e21508a",
       "sources": [],
       "dependencies": [],
       "risk": "device-readonly",
@@ -2250,7 +2250,7 @@
     {
       "id": "test:integration_test/personal_info/personal_info_acceptance_test.dart",
       "target": "integration_test/personal_info/personal_info_acceptance_test.dart",
-      "target_sha256": "7471336feb0a33883967fde504b02e74b1057f4c0e5a10cc57cc9cb552f18d7e",
+      "target_sha256": "00e9169f8bd58ba00b030ad498dd29363c998c17105e2be018729808be954a0e",
       "sources": [],
       "dependencies": [],
       "risk": "device-readonly",

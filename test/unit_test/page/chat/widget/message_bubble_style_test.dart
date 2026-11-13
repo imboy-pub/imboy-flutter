@@ -90,7 +90,7 @@ void main() {
   });
 
   group('MessageBubbleStyle.getMessageTextStyle', () {
-    testWidgets('发送方文本为白色', (tester) async {
+    testWidgets('浅色发送方文本为品牌底白色', (tester) async {
       late TextStyle style;
       await withContext(tester, Brightness.light, (context) {
         style = MessageBubbleStyle.getMessageTextStyle(
@@ -98,7 +98,7 @@ void main() {
           isSentByMe: true,
         );
       });
-      expect(style.color, AppColors.sentMessageText);
+      expect(style.color, AppColors.onPrimary);
       expect(style.fontSize, 16);
     });
     testWidgets('暗色发送方文本保留柔白，接收方跟随暗色文本', (tester) async {

@@ -422,7 +422,7 @@ void bundleHistoryEvidenceTests() {
       () async {
         for (final bad in [
           {'code': 401},
-          {'code': 0, 'payload': {}},
+          {'code': 0, 'payload': <String, dynamic>{}},
           {
             'code': 0,
             'payload': {...baseline()['payload'] as Map, 'safe_head': 'bad'},
@@ -545,7 +545,7 @@ void bundleHistoryEvidenceTests() {
           {...row('current', 101), 'e2ee': 'not-json'},
           {
             ...row('current', 101),
-            'e2ee': {'meta_version': 3, 'devices': {}},
+            'e2ee': {'meta_version': 3, 'devices': <String, dynamic>{}},
           },
           {
             ...row('current', 101),
