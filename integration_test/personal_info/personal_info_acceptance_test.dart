@@ -79,6 +79,8 @@ import 'package:photo_manager/photo_manager.dart' show AssetEntity;
 import 'package:photo_view/photo_view.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'region_acceptance_helper.dart';
+
 import '../flows/pg_helper.dart';
 import '../flows/test_utils.dart';
 
@@ -741,24 +743,15 @@ void main() {
     );
     expect(enabled, isTrue, reason: '选到叶子后「完成」应激活');
     await tester.tap(doneText.first, warnIfMissed: false);
-    // 产品语义：保存成功 double-pop 回到地区主页（非 MorePage），
-    // 主页「当前选择」回显应更新为组合路径
-    expect(
-      await _waitFor(tester, () => tester.any(find.text('北京 东城')), seconds: 15),
-      isTrue,
-      reason: '保存成功应回到地区主页且回显新选择',
+    await expectRegionSave(
+      tester,
+      expectedRegion: '中国大陆 北京 东城',
+      cachedRegion: UserRepoLocal.to.current.region,
+      loadDbRegion: () async => (await TestPg.scalar(
+        'SELECT region FROM "user" WHERE id = @id',
+        {'id': int.parse(_uid)},
+      )).toString(),
     );
-    // 本地缓存闭环：onSave 成功路径同步 UserRepoLocal（行刷新机制与
-    // MF04 性别行同款 push-后-setState，不再重复验证）
-    final cached = UserRepoLocal.to.current.region;
-    iPrint('[MF06] 保存后本地缓存 region=$cached');
-    expect(cached, '北京 东城', reason: '本地缓存应同步新地区');
-    final dbRegion = (await TestPg.scalar(
-      'SELECT region FROM "user" WHERE id = @id',
-      {'id': int.parse(_uid)},
-    )).toString();
-    expect(dbRegion.isNotEmpty, isTrue, reason: '服务端 region 应已保存');
-    expect(UserRepoLocal.to.current.region, dbRegion, reason: '本地缓存应与服务端一致');
   });
 
   testWidgets('AT-MF08 签名编辑保存与本地缓存同步', (tester) async {

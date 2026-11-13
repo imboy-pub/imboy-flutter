@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:imboy/page/chat/widget/message_bubble_style.dart';
+import 'package:imboy/theme/default/app_colors.dart';
 
 /// MessageBubbleStyle 纯样式逻辑契约测试（TypeB）
 ///
@@ -97,7 +98,7 @@ void main() {
           isSentByMe: true,
         );
       });
-      expect(style.color, Colors.white);
+      expect(style.color, AppColors.sentMessageText);
       expect(style.fontSize, 16);
     });
   });

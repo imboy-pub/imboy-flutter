@@ -32,6 +32,34 @@ class SetRegionPage extends ConsumerStatefulWidget {
 class _SetRegionPageState extends ConsumerState<SetRegionPage> {
   final TextEditingController _searchC = TextEditingController();
   Timer? _debounce;
+  bool _isSaving = false;
+
+  Future<void> _saveAndExit(String value) async {
+    if (_isSaving) return;
+    setState(() => _isSaving = true);
+    try {
+      final saved = await widget.onSave(value);
+      if (!saved || !mounted) return;
+
+      // 只有服务端保存成功后才提交地区缓存，失败时保留旧缓存。
+      try {
+        await ref.read(setRegionProvider.notifier).persistSelection();
+      } catch (error) {
+        // 服务端已成功，缓存异常不能把已保存的数据伪装成保存失败。
+        debugPrint('保存地区缓存失败: $error');
+      }
+      if (!mounted) return;
+
+      // 从任意递归层级统一退出整个地区编辑流程，回到调用方（MorePage）。
+      final navigator = Navigator.of(context);
+      final rootRoute = ModalRoute.of(context);
+      if (rootRoute == null) return;
+      navigator.popUntil((route) => identical(route, rootRoute));
+      if (rootRoute.isActive) navigator.pop();
+    } finally {
+      if (mounted) setState(() => _isSaving = false);
+    }
+  }
 
   @override
   void initState() {
@@ -72,13 +100,8 @@ class _SetRegionPageState extends ConsumerState<SetRegionPage> {
       actions: [
         CupertinoButton(
           padding: EdgeInsets.zero,
-          onPressed: state.hasChanged
-              ? () async {
-                  if (await widget.onSave(state.selectedRegion) &&
-                      context.mounted) {
-                    Navigator.of(context).pop();
-                  }
-                }
+          onPressed: state.hasChanged && !_isSaving
+              ? () => _saveAndExit(state.selectedRegion)
               : null,
           child: Text(
             t.common.buttonAccomplish,
@@ -215,13 +238,16 @@ class _SetRegionPageState extends ConsumerState<SetRegionPage> {
           builder: (_) => _SubRegionPage(
             title: title,
             children: children,
-            onSave: widget.onSave,
+            parentPath: [title],
+            onSaveAndExit: _saveAndExit,
           ),
         ),
       );
     } else {
       // 叶子节点：构建完整路径并更新
-      ref.read(setRegionProvider.notifier).updateSelection([title]);
+      ref
+          .read(setRegionProvider.notifier)
+          .updateSelection(buildRegionPath(const [], title));
     }
   }
 }
@@ -255,12 +281,14 @@ class _SelectionLevelHint extends StatelessWidget {
 class _SubRegionPage extends ConsumerStatefulWidget {
   final String title;
   final List<dynamic> children;
-  final Future<bool> Function(String) onSave;
+  final List<String> parentPath;
+  final Future<void> Function(String) onSaveAndExit;
 
   const _SubRegionPage({
     required this.title,
     required this.children,
-    required this.onSave,
+    required this.parentPath,
+    required this.onSaveAndExit,
   });
 
   @override
@@ -317,14 +345,7 @@ class _SubRegionPageState extends ConsumerState<_SubRegionPage> {
         CupertinoButton(
           padding: EdgeInsets.zero,
           onPressed: state.hasChanged
-              ? () async {
-                  if (await widget.onSave(state.selectedRegion) &&
-                      context.mounted) {
-                    Navigator.of(context)
-                      ..pop()
-                      ..pop(); // 返回到主设置页
-                  }
-                }
+              ? () => widget.onSaveAndExit(state.selectedRegion)
               : null,
           child: Text(
             t.common.buttonAccomplish,
@@ -404,21 +425,20 @@ class _SubRegionPageState extends ConsumerState<_SubRegionPage> {
                             builder: (_) => _SubRegionPage(
                               title: title,
                               children: children,
-                              onSave: widget.onSave,
+                              parentPath: buildRegionPath(
+                                widget.parentPath,
+                                title,
+                              ),
+                              onSaveAndExit: widget.onSaveAndExit,
                             ),
                           ),
                         );
                       } else {
-                        // 假设简单的二级逻辑，实际可扩展
-                        final path = List<String>.from(state.regionPath);
-                        // 逻辑：如果当前标题已在路径中，截断；否则追加
-                        final idx = path.indexOf(widget.title);
-                        final newPath = idx >= 0
-                            ? (path.sublist(0, idx + 1)..add(title))
-                            : [widget.title, title];
                         ref
                             .read(setRegionProvider.notifier)
-                            .updateSelection(newPath);
+                            .updateSelection(
+                              buildRegionPath(widget.parentPath, title),
+                            );
                       }
                     },
                   ),

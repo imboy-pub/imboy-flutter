@@ -9,6 +9,12 @@ import 'package:imboy/service/cache/region_cache.dart';
 
 part 'set_region_provider.g.dart';
 
+/// 将当前节点追加到显式父级路径，避免递归页面通过标题反推祖先。
+List<String> buildRegionPath(List<String> parentPath, String title) => [
+  ...parentPath,
+  title,
+];
+
 /// 设置地区状态
 class SetRegionState {
   final List<dynamic> regionList;
@@ -144,26 +150,35 @@ class SetRegionNotifier extends _$SetRegionNotifier {
     state = state.copyWith(regionList: out);
   }
 
-  /// 更新最终选择
+  /// 更新待保存的选择。缓存只在服务端保存成功后提交。
   void updateSelection(List<String> path) {
+    final normalizedPath = path
+        .map((part) => part.trim())
+        .where((part) => part.isNotEmpty)
+        .toList(growable: false);
+    final value = normalizedPath.join(' ');
     state = state.copyWith(
-      selectedRegion: path.join(' '),
-      regionPath: path,
-      hasChanged: path.join(' ') != _initialValue,
+      selectedRegion: value,
+      regionPath: normalizedPath,
+      hasChanged: value != _initialValue,
     );
-    RegionCache.saveSelectedRegion(path.join(' '));
-    RegionCache.saveRegionPath(path);
   }
 
-  /// 回滚到初始选择值
+  /// 服务端保存成功后，持久化地区字符串与完整路径。
+  Future<void> persistSelection() {
+    return RegionCache.saveSelection(state.selectedRegion, state.regionPath);
+  }
+
+  /// 回滚到初始选择值；未提交的选择不会污染持久化缓存。
   void revertToInitial() {
-    state = state.copyWith(selectedRegion: _initialValue, hasChanged: false);
     final initialPath = _initialValue
         .split(' ')
         .where((e) => e.trim().isNotEmpty)
-        .toList();
-    state = state.copyWith(regionPath: initialPath);
-    RegionCache.saveSelectedRegion(_initialValue);
-    RegionCache.saveRegionPath(initialPath);
+        .toList(growable: false);
+    state = state.copyWith(
+      selectedRegion: _initialValue,
+      regionPath: initialPath,
+      hasChanged: false,
+    );
   }
 }

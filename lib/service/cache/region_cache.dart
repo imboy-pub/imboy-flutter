@@ -15,6 +15,29 @@ class RegionCache {
   static const String _keyDataVersion = 'region_data_version';
   static const String _keyLastUpdateTime = 'region_last_update_time';
 
+  /// 同步保存已提交的地区字符串与完整路径。
+  /// 写入失败时尽力恢复旧值，避免两个缓存键长期不一致。
+  static Future<void> saveSelection(String value, List<String> path) async {
+    final prefs = await SharedPreferences.getInstance();
+    final oldValue = prefs.getString(_keySelectedRegion);
+    final oldPath = prefs.getString(_keyRegionPath);
+    final savedValue = await prefs.setString(_keySelectedRegion, value);
+    final savedPath = await prefs.setString(_keyRegionPath, path.join(' '));
+    if (!savedValue || !savedPath) {
+      if (oldValue == null) {
+        await prefs.remove(_keySelectedRegion);
+      } else {
+        await prefs.setString(_keySelectedRegion, oldValue);
+      }
+      if (oldPath == null) {
+        await prefs.remove(_keyRegionPath);
+      } else {
+        await prefs.setString(_keyRegionPath, oldPath);
+      }
+      throw StateError('保存地区缓存失败');
+    }
+  }
+
   /// 保存选中的地区字符串
   /// 参数：value 地区字符串（如"中国大陆 北京 朝阳区"）
   /// 返回：`Future<void>`
