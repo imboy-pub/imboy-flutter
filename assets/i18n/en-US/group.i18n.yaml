@@ -49,3 +49,4 @@ transferAndLeave: Transfer and leave
 sureToTransferAndLeave: You will transfer ownership and leave this group. Continue?
 transferredButLeaveFailed: Ownership transferred, but leaving failed. Please retry leaving.
 noEligibleSuccessor: No member available to transfer to
+searchLoadedMembers: "Search loaded members only"

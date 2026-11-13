@@ -1,13 +1,12 @@
 import 'dart:math' as math;
 
 import 'package:azlistview/azlistview.dart';
-import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:imboy/component/ui/app_loading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lpinyin/lpinyin.dart';
 
+import 'package:imboy/component/ui/async_state_view.dart';
 import 'package:imboy/component/ui/avatar.dart';
 import 'package:imboy/component/ui/cell_pressable.dart';
 import 'package:imboy/component/ui/common_bar.dart';
@@ -16,8 +15,11 @@ import 'package:imboy/component/ui/shimmer_list.dart';
 
 import 'package:imboy/store/model/contact_model.dart';
 import 'package:imboy/store/repository/contact_repo_sqlite.dart';
+import 'package:imboy/store/repository/user_repo_local.dart';
+import 'package:imboy/config/env.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
+import 'package:imboy/theme/default/app_sizes.dart';
 import 'package:imboy/theme/default/font_types.dart';
 import 'package:imboy/i18n/strings.g.dart';
 
@@ -46,6 +48,30 @@ class _SelectFriendPageState extends ConsumerState<SelectFriendPage> {
 
   List<ContactModel> _contactList = [];
   bool _loading = true;
+  bool _requestBusy = false;
+  Object? _loadError;
+  late final String _ownerUid;
+  late final int _ownerGeneration;
+  late final String _ownerEndpoint;
+
+  bool get _isCurrent =>
+      mounted &&
+      _ownerUid.isNotEmpty &&
+      UserRepoLocal.to.currentUid == _ownerUid &&
+      UserRepoLocal.to.isCurrentSession(_ownerGeneration) &&
+      !UserRepoLocal.to.isAuthTransitioning &&
+      Env().apiBaseUrl == _ownerEndpoint;
+
+  void _onAuthChanged() {
+    if (!mounted) return;
+    setState(() {
+      if (!_isCurrent) {
+        _contactList = [];
+        _loadError = null;
+        _loading = false;
+      }
+    });
+  }
 
   /// 搜索关键词（trim + 小写）；空串 = 未过滤
   String _searchQuery = '';
@@ -60,10 +86,11 @@ class _SelectFriendPageState extends ConsumerState<SelectFriendPage> {
   @override
   void initState() {
     super.initState();
-    // 延迟加载数据，确保 ref 已准备好
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      loadData();
-    });
+    _ownerUid = UserRepoLocal.to.currentUid;
+    _ownerGeneration = UserRepoLocal.to.sessionGeneration;
+    _ownerEndpoint = Env().apiBaseUrl;
+    UserRepoLocal.to.addAuthListener(_onAuthChanged);
+    WidgetsBinding.instance.addPostFrameCallback((_) => _loadData());
   }
 
   /// 标题/拼音本地过滤。query 空返回原列表（同一批对象，保持排序与吸顶标记）。
@@ -96,18 +123,29 @@ class _SelectFriendPageState extends ConsumerState<SelectFriendPage> {
     return [if (hasUp) '↑', ...letters, if (tags.contains('#')) '#'];
   }
 
-  void loadData() async {
-    // 加载联系人列表
-    final contactList = await ContactRepo().findFriend();
-    if (!mounted) return;
-
+  Future<void> _loadData() async {
+    if (_requestBusy || !_isCurrent) return;
     setState(() {
-      _contactList = contactList;
+      _requestBusy = true;
+      _loading = true;
+      _loadError = null;
     });
-
-    _handleList(_contactList);
-    if (!mounted) return;
-    setState(() => _loading = false);
+    try {
+      final contacts = await ContactRepo().findFriend();
+      if (!_isCurrent) return;
+      _handleList(contacts);
+      setState(() => _contactList = contacts);
+    } catch (error) {
+      if (_isCurrent) setState(() => _loadError = error);
+    } finally {
+      if (mounted) {
+        setState(() {
+          _requestBusy = false;
+          _loading = false;
+          if (!_isCurrent) _contactList = [];
+        });
+      }
+    }
   }
 
   void _handleList(List<ContactModel> list) {
@@ -123,10 +161,11 @@ class _SelectFriendPageState extends ConsumerState<SelectFriendPage> {
     }
 
     // A-Z sort.
-    SuspensionUtil.sortListBySuspensionTag(_contactList);
+    SuspensionUtil.sortListBySuspensionTag(list);
   }
 
   void sendToDialog(ContactModel model) {
+    if (!_isCurrent) return;
     final isDarkMode = Theme.of(context).brightness == Brightness.dark;
     final peer = widget.peer;
     final peerIsReceiver = widget.peerIsReceiver;
@@ -215,7 +254,7 @@ class _SelectFriendPageState extends ConsumerState<SelectFriendPage> {
             onPressed: () async {
               var nav = Navigator.of(context);
               nav.pop();
-              nav.pop(model);
+              if (_isCurrent) nav.pop(model);
             },
             child: Text(
               t.common.buttonSend,
@@ -443,48 +482,81 @@ class _SelectFriendPageState extends ConsumerState<SelectFriendPage> {
               placeholder: t.common.search,
             ),
           ),
-          Expanded(
-            child: _loading
-                ? const ShimmerList(itemHeight: _itemHeight)
-                : _contactList.isEmpty
-                ? RefreshIndicator(
-                    onRefresh: _onPullRefresh,
-                    child: ListView(
-                      physics: const AlwaysScrollableScrollPhysics(),
-                      children: [NoDataView(text: t.common.noContacts)],
-                    ),
-                  )
-                : visibleList.isEmpty
-                ? NoDataView(text: t.common.searchNoResults)
-                : RefreshIndicator(
-                    onRefresh: _onPullRefresh,
-                    child: _buildListView(visibleList),
-                  ),
-          ),
+          Expanded(child: _buildContactBody(visibleList)),
         ],
       ),
     );
   }
 
-  /// 下拉刷新：仅离线时提示，成功后重建列表与索引
-  Future<void> _onPullRefresh() async {
-    var connectivityResult = await Connectivity().checkConnectivity();
-    if (connectivityResult.contains(ConnectivityResult.none)) {
-      String msg = t.common.tipConnectDesc;
-      AppLoading.showInfo(' $msg');
-      return;
+  Widget _buildContactBody(List<ContactModel> visibleList) {
+    if (!_isCurrent) {
+      return const AsyncStateView(
+        isLoading: false,
+        isEmpty: false,
+        permissionDenied: true,
+        child: SizedBox.shrink(),
+      );
     }
-    List<ContactModel> contact = await ContactRepo().findFriend();
-    if (contact.isNotEmpty && mounted) {
-      setState(() {
-        _contactList = contact;
-      });
-      _handleList(_contactList);
-    }
+    if (_contactList.isEmpty) return _buildEmptyContacts();
+    return Column(
+      children: [
+        if (_loading)
+          const Padding(
+            padding: EdgeInsets.all(AppSpacing.small),
+            child: CupertinoActivityIndicator(),
+          ),
+        if (_loadError != null) _buildRefreshError(),
+        Expanded(
+          child: visibleList.isEmpty
+              ? NoDataView(text: t.common.searchNoResults)
+              : RefreshIndicator(
+                  onRefresh: _loadData,
+                  child: _buildListView(visibleList),
+                ),
+        ),
+      ],
+    );
   }
+
+  Widget _buildEmptyContacts() {
+    if (_loading) return const ShimmerList(itemHeight: _itemHeight);
+    if (_loadError != null) {
+      return AsyncStateView(
+        isLoading: false,
+        isEmpty: false,
+        error: _loadError,
+        onRetry: _loadData,
+        child: const SizedBox.shrink(),
+      );
+    }
+    return RefreshIndicator(
+      onRefresh: _loadData,
+      child: ListView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        children: [NoDataView(text: t.common.noContacts)],
+      ),
+    );
+  }
+
+  Widget _buildRefreshError() => Padding(
+    padding: const EdgeInsets.symmetric(horizontal: AppSpacing.regular),
+    child: Wrap(
+      spacing: AppSpacing.small,
+      crossAxisAlignment: WrapCrossAlignment.center,
+      children: [
+        Text(t.common.loadError),
+        CupertinoButton(
+          minimumSize: const Size.square(AppSizes.touchTarget),
+          onPressed: _requestBusy ? null : _loadData,
+          child: Text(t.common.buttonRetry),
+        ),
+      ],
+    ),
+  );
 
   @override
   void dispose() {
+    UserRepoLocal.to.removeAuthListener(_onAuthChanged);
     _searchCtrl.dispose();
     super.dispose();
   }

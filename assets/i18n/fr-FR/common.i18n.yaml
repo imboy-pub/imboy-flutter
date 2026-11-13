@@ -945,3 +945,10 @@ legacyUploadReturnToOriginalPage: "L’envoi est incomplet. Revenez à la page i
 
 f2fLocationRequired: "Activez la localisation et son autorisation, puis réessayez avec vos amis à proximité."
 f2fMemberHint: "Touchez un avatar pour voir le profil et ajouter cet ami."
+
+pleaseSelectLocation: "Veuillez choisir un lieu"
+myLocation: "Ma position"
+
+searchConversations: "Conversations"
+
+webpageLoadProblem: "Un problème est survenu lors du chargement du contenu. Veuillez réessayer."

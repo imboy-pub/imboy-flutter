@@ -71,10 +71,250 @@ class RunnerTest(unittest.TestCase):
         machine = output / 'machine.jsonl'
         machine.write_text('\n'.join(lines) + '\n')
         receipt = {'exit_code': code, 'log': str(machine), 'machine': str(machine),
-                   'command': ['flutter', 'test', spec['target'], '--machine']}
+                   'command': ['flutter', 'test', spec['target'], '--machine'],
+                   'execution_context': runner._capture_execution_context(output)}
         runner._persist_process_receipt(receipt, output)
         attempt = runner._record_attempt(self.root, planned, spec, receipt, lines)
         return runner._finish(planned, spec, [attempt])
+
+    def backend_result(self, data=None, code=0, generated_at=1, runtime='community'):
+        spec = instance(suite='backend-contract', product='full-selected', required_features=['e2ee'],
+                        product_contract={'manifest_profile': 'full-selected', 'backend_runtime_profile': 'community'})
+        static = {'manifest_profile': 'full-selected', 'manifest_schema_version': 1,
+                  'manifest_hash': 'sha256:' + 'a' * 64, 'compiled_features': ['core', 'e2ee'],
+                  'artifacts': {name: 'b' * 64 for name in adapters.PRODUCT_ARTIFACTS},
+                  'validation_inputs': {'synthetic': 'c' * 64}}
+        static['fingerprint'] = hashlib.sha256(json.dumps(static, sort_keys=True).encode()).hexdigest()
+        static['validation'] = 'existing-generator-read-only-render'
+        raw = {'manifest_schema_version': 1, 'manifest_hash': static['manifest_hash'],
+               'compiled_features': ['core', 'e2ee'], 'features': {'core': True, 'e2ee': True},
+               'policy': {'profile': runtime}, 'generated_at': generated_at}
+        output = self.output / str(generated_at)
+        output.mkdir(parents=True, exist_ok=True)
+        path = output / 'backend-manifest.json'
+        path.write_text(json.dumps(raw))
+        meta = {'kind': 'backend-manifest', 'path': str(path), 'sha256': runner._file_sha256(path)}
+        canonical = {k: raw[k] for k in ('manifest_schema_version', 'manifest_hash', 'compiled_features', 'features')}
+        canonical['runtime_profile'] = runtime
+        product = dict(static, app_fingerprint=static['fingerprint'], backend_manifest=canonical)
+        product['fingerprint'] = hashlib.sha256(json.dumps(
+            {'app_fingerprint': product['app_fingerprint'], 'backend_manifest': canonical}, sort_keys=True).encode()).hexdigest()
+        lines = events() if data is None else data
+        machine = output / 'machine.jsonl'
+        machine.write_text('\n'.join(lines) + '\n')
+        receipt = {'command': ['synthetic'], 'exit_code': code, 'log': str(machine), 'machine': str(machine),
+                   'execution_context': runner._capture_execution_context(output), 'product_artifact': product,
+                   'backend_manifest_evidence': meta, 'related_evidence': [meta]}
+        runner._persist_process_receipt(receipt, output)
+        attempt = runner._record_attempt(self.root, plan(spec), spec, receipt, lines)
+        return spec, runner._finish(plan(spec), spec, [attempt])
+
+    def test_backend_manifest_offline_verification_and_negative_controls(self):
+        for mutation in ('missing', 'tamper', 'process', 'canonical', 'required'):
+            with self.subTest(mutation=mutation):
+                spec, row = self.backend_result(generated_at=10)
+                payload = {'artifact_root': str(self.output)}
+                candidate = self.output / 'results.json'
+                self.assertEqual('PASS', cli.verify_result_files(row, payload, candidate)['status'])
+                attempt = row['attempts'][0]
+                meta = attempt['backend_manifest_evidence']
+                if mutation == 'missing':
+                    Path(meta['path']).unlink()
+                elif mutation == 'tamper':
+                    Path(meta['path']).write_text('{}')
+                elif mutation == 'process':
+                    path = Path(attempt['process_receipt'])
+                    raw = json.loads(path.read_text())
+                    raw['backend_manifest_evidence'] = None
+                    path.write_text(json.dumps(raw))
+                    attempt['process_receipt_sha256'] = runner._file_sha256(path)
+                elif mutation == 'canonical':
+                    attempt['product_artifact']['backend_manifest']['runtime_profile'] = 'phase1_delivery'
+                else:
+                    attempt['instance']['required_features'] = ['wallet']
+                    attempt['fingerprint']['config_sha256'] = runner.execution_config_sha256(
+                        attempt['instance'], attempt['execution_context']['value'])
+                if mutation == 'canonical':
+                    path = Path(attempt['process_receipt'])
+                    raw = json.loads(path.read_text())
+                    raw['product_artifact'] = copy.deepcopy(attempt['product_artifact'])
+                    path.write_text(json.dumps(raw))
+                    attempt['process_receipt_sha256'] = runner._file_sha256(path)
+                checked = cli.verify_result_files(row, payload, candidate)
+                self.assertEqual('BLOCKED', checked['status'])
+                if mutation == 'canonical':
+                    self.assertIn('BACKEND_PRODUCT_FINGERPRINT_MISMATCH', checked['evidence_error'])
+                self.assertTrue('BACKEND' in checked['evidence_error'] or 'backend-manifest' in checked['evidence_error'])
+
+    def test_backend_manifest_move_and_generated_time_preserve_fingerprint_and_classifier(self):
+        spec, first = self.backend_result(generated_at=1)
+        _, second = self.backend_result(generated_at=2)
+        self.assertEqual(first['attempts'][0]['fingerprint'], second['attempts'][0]['fingerprint'])
+        relocated = self.root / 'download'
+        shutil.copytree(self.output, relocated)
+        self.assertEqual('PASS', cli.verify_result_files(first, {'artifact_root': str(self.output)},
+                                                        relocated / 'results.json')['status'])
+        _, failed = self.backend_result(data=events(fail=True), code=1, generated_at=3)
+        self.assertEqual('FAIL', runner._finish(plan(spec), spec, failed['attempts'] + second['attempts'])['status'])
+        _, other = self.backend_result(generated_at=4, runtime='enterprise')
+        self.assertNotEqual(first['attempts'][0]['fingerprint'], other['attempts'][0]['fingerprint'])
+        self.assertNotEqual('FLAKY', runner._finish(plan(spec), spec, first['attempts'] + other['attempts'])['status'])
+
+    def test_backend_offline_schema_policy_and_feature_checks_have_valid_hash_controls(self):
+        for key, value, reason in [
+                ('manifest_schema_version', True, 'INVALID_SCHEMA'),
+                ('manifest_hash', 'sha256:' + 'd' * 64, 'APP_MANIFEST_MISMATCH'),
+                ('policy', {'profile': 'phase1_delivery'}, 'RUNTIME_PROFILE_MISMATCH'),
+                ('features', {'core': True, 'e2ee': False}, 'RUNTIME_FEATURE_DISABLED')]:
+            with self.subTest(key=key):
+                _, row = self.backend_result(generated_at=60)
+                payload = {'artifact_root': str(self.output)}
+                candidate = self.output / 'results.json'
+                self.assertEqual('PASS', cli.verify_result_files(row, payload, candidate)['status'])
+                attempt = row['attempts'][0]
+                meta = attempt['backend_manifest_evidence']
+                path = Path(meta['path'])
+                raw = json.loads(path.read_text())
+                raw[key] = value
+                path.write_text(json.dumps(raw))
+                meta['sha256'] = runner._file_sha256(path)
+                # Every other digest/link remains valid: isolate the semantic check.
+                attempt['related_evidence'][0] = copy.deepcopy(meta)
+                process = Path(attempt['process_receipt'])
+                saved = json.loads(process.read_text())
+                saved['backend_manifest_evidence'] = copy.deepcopy(meta)
+                process.write_text(json.dumps(saved))
+                attempt['process_receipt_sha256'] = runner._file_sha256(process)
+                checked = cli.verify_result_files(row, payload, candidate)
+                self.assertEqual('BLOCKED', checked['status'])
+                self.assertIn(reason, checked['evidence_error'])
+                # A blocked downloaded row must still reconcile without throwing.
+                self.assertEqual('BLOCKED', runner.reconcile(plan(attempt['instance']), [checked])['status'])
+
+    def test_backend_verdict_malformed_related_and_execution_errors_block_without_crashing(self):
+        for key, value in [('related_evidence', {'forged': 'dict'}),
+                           ('execution_errors', 1), ('execution_errors', 'forged')]:
+            with self.subTest(key=key, value=value):
+                spec, row = self.backend_result(generated_at=70)
+                self.assertEqual('PASS', runner._verdict(row['attempts'])['test_status'])
+                row['attempts'][0][key] = value
+                self.assertEqual('BLOCKED', runner._verdict(row['attempts'])['test_status'])
+                self.assertEqual('BLOCKED', runner.reconcile(plan(spec), [row])['status'])
+
+    def test_backend_malformed_nested_json_blocks_without_crashing(self):
+        for key, value in [('product_contract', ['forged']), ('required_features', 1),
+                           ('required_features', [None])]:
+            with self.subTest(key=key, value=value):
+                _, row = self.backend_result(generated_at=50)
+                candidate = self.output / 'results.json'
+                payload = {'artifact_root': str(self.output)}
+                self.assertEqual('PASS', cli.verify_result_files(row, payload, candidate)['status'])
+                attempt = row['attempts'][0]
+                attempt['instance'][key] = value
+                attempt['fingerprint']['config_sha256'] = runner.execution_config_sha256(
+                    attempt['instance'], attempt['execution_context']['value'])
+                checked = cli.verify_result_files(row, payload, candidate)
+                self.assertEqual('BLOCKED', checked['status'])
+        for value in (None, [], 1, 'forged', {'kind': 'backend-manifest'}):
+            with self.subTest(meta=value):
+                _, row = self.backend_result(generated_at=51)
+                self.assertEqual('PASS', cli.verify_result_files(row, payload, candidate)['status'])
+                attempt = row['attempts'][0]
+                attempt['backend_manifest_evidence'] = value
+                process = Path(attempt['process_receipt'])
+                saved = json.loads(process.read_text())
+                saved['backend_manifest_evidence'] = value
+                process.write_text(json.dumps(saved))
+                attempt['process_receipt_sha256'] = runner._file_sha256(process)
+                if isinstance(value, dict):
+                    attempt['related_evidence'].append(value)
+                checked = cli.verify_result_files(row, payload, candidate)
+                self.assertEqual('BLOCKED', checked['status'])
+
+    def test_backend_fixture_fingerprint_is_recomputed_by_offline_cli(self):
+        spec, row = self.backend_result(generated_at=80)
+        payload = {'artifact_root': str(self.output)}
+        candidate = self.output / 'results.json'
+        self.assertEqual('PASS', cli.verify_result_files(row, payload, candidate)['status'])
+        self.assertEqual('PASS', runner.reconcile(plan(spec), [row])['status'])
+        altered = copy.deepcopy(row)
+        altered['attempts'][0]['fingerprint']['fixture_fingerprint'] = '0' * 64
+        checked = cli.verify_result_files(altered, payload, candidate)
+        self.assertEqual('BLOCKED', checked['status'])
+        self.assertIn('BACKEND_FIXTURE_FINGERPRINT_MISMATCH', checked['evidence_error'])
+        self.assertEqual('BLOCKED', runner.reconcile(plan(spec), [checked])['status'])
+
+    def test_backend_pre_identity_survives_host_wrapper_and_post_sampling(self):
+        spec = instance(suite='backend-contract', required_features=['e2ee'])
+        prepared = {'command': ['flutter', 'test', spec['target']], 'env': {},
+                    'product_artifact': {'fingerprint': 'startup'},
+                    'backend_manifest_evidence': {'kind': 'backend-manifest'},
+                    'evidence_artifacts': [{'path': 'startup'}]}
+        evidence = {}
+        with contextlib.ExitStack() as stack, patch.object(adapters, 'build_invocation', return_value=prepared):
+            runner._host_command(self.root, [spec], {}, self.output, stack, adapters,
+                                 prepared_evidence=evidence)
+        self.assertEqual('startup', evidence['product_artifact']['fingerprint'])
+        self.assertEqual(prepared['evidence_artifacts'], evidence['evidence_artifacts'])
+
+    def test_backend_startup_rechecks_original_before_popen_and_finishes_blocked(self):
+        spec, baseline = self.backend_result(generated_at=20)
+        attempt = baseline['attempts'][0]
+        original = {'instance': spec, 'product_artifact': attempt['product_artifact'],
+                    'backend_manifest_evidence': attempt['backend_manifest_evidence']}
+        command = [sys.executable, '-c', 'print(' + repr('\n'.join(events())) + ')']
+        receipt = runner.execute_process(command, os.environ.copy(), self.output / 'startup-good',
+                                         invocation_evidence=original)
+        receipt['related_evidence'] = [original['backend_manifest_evidence']]
+        good = runner._record_attempt(self.root, plan(spec), spec, receipt, receipt['lines'])
+        self.assertEqual('PASS', runner._finish(plan(spec), spec, [good])['status'])
+        for mutation in ('missing', 'tampered'):
+            spec, baseline = self.backend_result(generated_at=21)
+            attempt = baseline['attempts'][0]
+            original = {'instance': spec, 'product_artifact': attempt['product_artifact'],
+                        'backend_manifest_evidence': attempt['backend_manifest_evidence']}
+            path = Path(original['backend_manifest_evidence']['path'])
+            if mutation == 'missing':
+                path.unlink()
+            else:
+                path.write_text('{}')
+            with patch.object(runner.subprocess, 'Popen') as spawn:
+                receipt = runner.execute_process(command, os.environ.copy(), self.output / mutation,
+                                                 invocation_evidence=original)
+            spawn.assert_not_called()
+            receipt['related_evidence'] = [original['backend_manifest_evidence']]
+            recorded = runner._record_attempt(self.root, plan(spec), spec, receipt, receipt['lines'])
+            failed = runner._finish(plan(spec), spec, [recorded])
+            self.assertEqual(('BLOCKED', 'BACKEND_MANIFEST_EVIDENCE_MISSING_OR_INVALID'),
+                             (failed['status'], failed['reason_code']))
+
+    def test_backend_same_identity_infra_recovery_is_flaky_and_other_identity_cannot_merge(self):
+        infra = [json.dumps({'type': 'error', 'message': 'Could not resolve host: synthetic.invalid'})]
+        spec, first = self.backend_result(data=infra, code=1, generated_at=31)
+        _, second = self.backend_result(generated_at=32)
+        self.assertEqual('FLAKY', runner._finish(plan(spec), spec, first['attempts'] + second['attempts'])['status'])
+        other = copy.deepcopy(second)
+        other['attempts'][0]['fingerprint']['fixture_fingerprint'] = 'd' * 64
+        self.assertNotEqual('FLAKY', runner._finish(plan(spec), spec, first['attempts'] + other['attempts'])['status'])
+
+    def test_backend_batch_uses_pre_invocation_product_and_never_post_replaces_it(self):
+        spec, baseline = self.backend_result(generated_at=40)
+        attempt = baseline['attempts'][0]
+        prepared = {'command': ['flutter', 'test', spec['target']], 'env': {},
+                    'product_artifact': attempt['product_artifact'],
+                    'backend_manifest_evidence': attempt['backend_manifest_evidence'],
+                    'evidence_artifacts': [attempt['backend_manifest_evidence']]}
+        with patch.object(runner, '_default_preflight', return_value=[]), \
+                patch.object(adapters, 'preflight_instance', return_value=[]), \
+                patch.object(adapters, 'build_invocation', return_value=prepared), \
+                patch.object(adapters, 'product_artifact_evidence', side_effect=AssertionError('post sample')), \
+                patch.object(runner, 'execute_process', side_effect=self.process):
+            result = runner.run_plan(self.root, plan(spec), self.output / 'batch')
+        row = result['results'][0]
+        self.assertEqual('PASS', row['status'], row)
+        self.assertEqual(attempt['product_artifact'], row['product_artifact'])
+        self.assertEqual('PASS', cli.verify_result_files(row, {'artifact_root': str(self.output)},
+                                                        self.output / 'results.json')['status'])
 
     def mock_execution(self, process):
         stack = contextlib.ExitStack()
@@ -100,7 +340,7 @@ class RunnerTest(unittest.TestCase):
             coverage.write_text('SF:lib/sample.dart\nDA:1,1\nDA:2,0\nend_of_record\n')
         return runner._persist_process_receipt(
             {'exit_code': 0, 'lines': lines, 'log': str(path), 'machine': str(path),
-             'command': list(command)}, output)
+             'command': list(command), 'execution_context': runner._capture_execution_context(output)}, output)
 
     def coverage_workers(self, *, process=None, widget_coverage=True):
         declared = plan(instance(), instance('test/b_test.dart', suite='widget'),
@@ -112,6 +352,211 @@ class RunnerTest(unittest.TestCase):
                     coverage=suite == 'unit' or widget_coverage)
                 self.assertEqual(report['expected_instances'], 1)
         return declared
+
+    def context_result(self, name='context', *, context=None, spec=None, data=None, code=0,
+                       environment=None, before_spawn=None):
+        context = context or dict(schema_version=1, host_platform='linux', euid=1000, egid=1000,
+                                  linux_cap_eff='0000000000000000', linux_pid1_comm='docker-init')
+        output = self.output / name
+        spec = spec or instance()
+        lines = data if data is not None else events(spec['target'])
+        command = [sys.executable, '-c', 'import sys; print(' + repr('\n'.join(lines)) +
+                   '); sys.exit(' + str(code) + ')']
+        original_read, original_spawn = Path.read_text, subprocess.Popen
+        def read(path, *args, **kwargs):
+            if str(path) == '/proc/self/status':
+                return 'Name:\tpython\nCapEff:\t' + context['linux_cap_eff'] + '\n'
+            if str(path) == '/proc/1/comm':
+                return context['linux_pid1_comm'] + '\n'
+            return original_read(path, *args, **kwargs)
+        def spawn(*args, **kwargs):
+            if before_spawn:
+                before_spawn(output)
+            return original_spawn(*args, **kwargs)
+        with patch.object(runner.sys, 'platform', context['host_platform']), \
+                patch.object(runner.os, 'geteuid', return_value=context['euid']), \
+                patch.object(runner.os, 'getegid', return_value=context['egid']), \
+                patch.object(Path, 'read_text', read), patch.object(runner.subprocess, 'Popen', spawn):
+            receipt = runner.execute_process(command, dict(os.environ, **(environment or {})), output)
+        attempt = runner._record_attempt(self.root, plan(spec), spec, receipt, receipt['lines'])
+        return receipt, attempt, runner._finish(plan(spec), spec, [attempt])
+
+    def test_execution_context_measured_before_spawn_and_never_remeasured_for_attempt(self):
+        def before(output):
+            self.assertEqual(json.loads((output / 'execution-context.json').read_text())['euid'], 1000)
+        receipt, attempt, row = self.context_result(before_spawn=before)
+        self.assertEqual(row['status'], 'PASS', row)
+        context = receipt['execution_context']
+        self.assertEqual(context, attempt['execution_context'])
+        self.assertEqual(context['value']['euid'], 1000)
+        self.assertIn({'path': context['path'], 'sha256': context['sha256']}, attempt['related_evidence'])
+        saved = json.loads(Path(receipt['process_receipt']).read_text())
+        self.assertEqual(saved['execution_context'], context)
+        expected = hashlib.sha256(json.dumps({'instance': instance(), 'context': context['value']},
+                                             sort_keys=True).encode()).hexdigest()
+        self.assertEqual(attempt['fingerprint']['config_sha256'], expected)
+
+    def test_execution_context_stability_and_measured_uid_gid_capability_init_changes(self):
+        base = dict(schema_version=1, host_platform='linux', euid=1000, egid=1000,
+                    linux_cap_eff='0000000000000000', linux_pid1_comm='docker-init')
+        cases = [base, base, *[{**base, key: value} for key, value in (
+            ('euid', 0), ('egid', 0), ('linux_cap_eff', '0000000000000002'),
+            ('linux_pid1_comm', 'sleep'))]]
+        hashes = [self.context_result(str(i), context=value)[1]['fingerprint']['config_sha256']
+                  for i, value in enumerate(cases)]
+        self.assertEqual(hashes[0], hashes[1])
+        self.assertEqual(len(set(hashes)), 5)
+
+    def test_execution_context_environment_spoof_does_not_override_measurement(self):
+        receipt, _, _ = self.context_result(environment={
+            'IMBOY_EXECUTION_CONTEXT_EUID': '0', 'CapEff': 'ffffffffffffffff',
+            'IMBOY_EXECUTION_CONTEXT': '{"euid":0,"linux_pid1_comm":"fake-init"}'})
+        measured = receipt['execution_context']['value']
+        self.assertEqual((measured['euid'], measured['linux_cap_eff'], measured['linux_pid1_comm']),
+                         (1000, '0000000000000000', 'docker-init'))
+
+    def test_execution_context_non_linux_explicitly_not_applicable(self):
+        expected = dict(schema_version=1, host_platform='darwin', euid=501, egid=20,
+                        linux_cap_eff=None, linux_pid1_comm=None)
+        receipt, _, _ = self.context_result(context=expected)
+        self.assertEqual(receipt['execution_context']['value'], expected)
+
+    def test_execution_context_measurement_failure_blocks_before_process_spawn(self):
+        original = Path.read_text
+        def read(path, *args, **kwargs):
+            if str(path).startswith('/proc/'):
+                raise FileNotFoundError('synthetic missing proc context')
+            return original(path, *args, **kwargs)
+        with patch.object(runner.sys, 'platform', 'linux'), patch.object(Path, 'read_text', read), \
+                patch.object(runner.subprocess, 'Popen', side_effect=AssertionError('spawned before context measurement')) as spawn:
+            receipt = runner.execute_process(['must-not-spawn'], dict(os.environ), self.output)
+        spawn.assert_not_called()
+        self.assertNotEqual(receipt['exit_code'], 0)
+        self.assertIn('EXECUTION_CONTEXT', receipt['error'])
+        attempt = runner._record_attempt(self.root, plan(instance()), instance(), receipt, receipt['lines'])
+        row = runner._finish(plan(instance()), instance(), [attempt])
+        self.assertEqual((row['status'], row['reason_code']),
+                         ('BLOCKED', 'EXECUTION_CONTEXT_MISSING_OR_INVALID'))
+
+    def test_execution_context_missing_receipt_or_startup_file_blocks_attempt_without_remeasurement(self):
+        for case in ('missing-receipt', 'changed-startup-file'):
+            with self.subTest(case=case):
+                receipt, _, _ = self.context_result(case)
+                if case == 'missing-receipt':
+                    receipt.pop('execution_context')
+                else:
+                    Path(receipt['execution_context']['path']).write_text('{}')
+                with patch.object(runner, '_capture_execution_context', side_effect=AssertionError('remeasured')):
+                    attempt = runner._record_attempt(self.root, plan(instance()), instance(), receipt, receipt['lines'])
+                row = runner._finish(plan(instance()), instance(), [attempt])
+                self.assertEqual((row['status'], row['reason_code']),
+                                 ('BLOCKED', 'EXECUTION_CONTEXT_MISSING_OR_INVALID'))
+
+    def test_execution_context_raw_missing_tampering_and_process_attempt_mismatch_block(self):
+        for case in ('missing', 'tampered', 'mismatch', 'inline', 'config'):
+            with self.subTest(case=case):
+                receipt, attempt, row = self.context_result(case)
+                candidate = self.output / 'results.json'
+                payload = {'artifact_root': str(self.output)}
+                self.assertEqual(cli.verify_result_files(row, payload, candidate)['status'], 'PASS')
+                meta = attempt['execution_context']
+                if case == 'missing':
+                    Path(meta['path']).unlink()
+                elif case == 'tampered':
+                    Path(meta['path']).write_text('{}')
+                elif case == 'mismatch':
+                    process = json.loads(Path(attempt['process_receipt']).read_text())
+                    process['execution_context']['value']['euid'] = 0
+                    runner._write_json(Path(attempt['process_receipt']), process)
+                    attempt['process_receipt_sha256'] = runner._file_sha256(attempt['process_receipt'])
+                elif case == 'inline':
+                    attempt['execution_context']['value']['euid'] = 0
+                else:
+                    attempt['fingerprint']['config_sha256'] = '0' * 64
+                checked = cli.verify_result_files(row, {'artifact_root': str(self.output)}, candidate)
+                self.assertEqual(checked['status'], 'BLOCKED', checked)
+                self.assertEqual(checked['reason_code'], 'ARTIFACT_EVIDENCE_MISSING_OR_INVALID')
+                if case == 'mismatch':
+                    self.assertEqual(checked['evidence_error'], 'process and attempt execution context mismatch')
+
+    def test_execution_context_malformed_saved_json_blocks_without_aborting_verifier(self):
+        for key, value in (('fingerprint', None), ('fingerprint', []), ('fingerprint', 0), ('fingerprint', 'invalid'),
+                           ('related_evidence', None), ('related_evidence', {}), ('instance', [])):
+            with self.subTest(key=key, value=value):
+                _, attempt, row = self.context_result('malformed-' + key + '-' + str(value))
+                payload, candidate = {'artifact_root': str(self.output)}, self.output / 'results.json'
+                self.assertEqual(cli.verify_result_files(row, payload, candidate)['status'], 'PASS')
+                attempt[key] = value
+                self.assertEqual(cli.verify_result_files(row, payload, candidate)['status'], 'BLOCKED')
+                self.assertEqual(runner._verdict([attempt])['test_status'], 'BLOCKED')
+
+    def test_execution_context_malformed_attempt_collection_stays_blocked_through_summary(self):
+        for value in (None, 'invalid', [None], [[]], [0]):
+            with self.subTest(attempts=value):
+                _, _, row = self.context_result('invalid-attempts-' + str(value))
+                payload, candidate = {'artifact_root': str(self.output)}, self.output / 'results.json'
+                self.assertEqual(cli.verify_result_files(row, payload, candidate)['status'], 'PASS')
+                row['attempts'] = value
+                checked = cli.verify_result_files(row, payload, candidate)
+                self.assertEqual(checked['status'], 'BLOCKED')
+                self.assertEqual(runner.reconcile(plan(instance()), [checked])['status'], 'BLOCKED')
+
+    def test_execution_context_schema_rejects_unknown_nonce_and_invalid_linux_values(self):
+        for change in ({'nonce': 'must-not-be-accepted'}, {'euid': True},
+                       {'linux_cap_eff': None}, {'linux_pid1_comm': ''}):
+            with self.subTest(change=change):
+                _, attempt, row = self.context_result('schema-' + str(len(change)) + '-' + str(next(iter(change))))
+                self.assertEqual(cli.verify_result_files(row, {'artifact_root': str(self.output)},
+                                                        self.output / 'results.json')['status'], 'PASS')
+                meta = attempt['execution_context']
+                previous_sha = meta['sha256']
+                meta['value'].update(change)
+                runner._write_json(Path(meta['path']), meta['value'])
+                meta['sha256'] = runner._file_sha256(meta['path'])
+                for reference in attempt['related_evidence']:
+                    if reference == {'path': meta['path'], 'sha256': previous_sha}:
+                        reference['sha256'] = meta['sha256']
+                process = json.loads(Path(attempt['process_receipt']).read_text())
+                process['execution_context'] = copy.deepcopy(meta)
+                runner._write_json(Path(attempt['process_receipt']), process)
+                attempt['process_receipt_sha256'] = runner._file_sha256(attempt['process_receipt'])
+                attempt['fingerprint']['config_sha256'] = hashlib.sha256(json.dumps(
+                    {'instance': attempt['instance'], 'context': meta['value']}, sort_keys=True).encode()).hexdigest()
+                checked = cli.verify_result_files(row, {'artifact_root': str(self.output)},
+                                                  self.output / 'results.json')
+                self.assertEqual(checked['status'], 'BLOCKED', checked)
+
+    def test_execution_context_download_relocation_and_saved_instance_plan_binding_with_coverage(self):
+        spec = instance(coverage=True)
+        _, attempt, row = self.context_result(spec=spec)
+        original = self.output
+        cli.write_json(original / 'results.json', {'artifact_root': str(original), 'results': [row]})
+        downloaded = self.root / 'downloaded-context'
+        shutil.copytree(original, downloaded)
+        original.rename(self.root / 'old-context')
+        checked = cli.load_results([downloaded])[0]
+        self.assertEqual(checked['status'], 'PASS', checked)
+        self.assertEqual(runner.reconcile(plan(instance()), [checked])['status'], 'PASS')
+        changed = copy.deepcopy(checked)
+        changed['attempts'][0]['instance']['dependencies'] = ['unexpected-new-dependency']
+        context = changed['attempts'][0]['execution_context']['value']
+        changed['attempts'][0]['fingerprint']['config_sha256'] = hashlib.sha256(json.dumps(
+            {'instance': changed['attempts'][0]['instance'], 'context': context}, sort_keys=True).encode()).hexdigest()
+        self.assertEqual(runner.reconcile(plan(instance()), [changed])['results'][0]['reason_code'],
+                         'RESULT_INSTANCE_MISMATCH')
+
+    def test_execution_context_retry_semantics_and_different_context_never_merge(self):
+        infra = [json.dumps({'type': 'error', 'message': 'Could not resolve host: synthetic.invalid'})]
+        _, first, _ = self.context_result('infra', data=infra, code=1)
+        _, success, _ = self.context_result('success')
+        self.assertEqual(runner._finish(plan(instance()), instance(), [first, success])['status'], 'FLAKY')
+        _, failure, _ = self.context_result('failure', data=events(passed=0, fail=True), code=1)
+        self.assertEqual(runner._finish(plan(instance()), instance(), [failure, success])['status'], 'FAIL')
+        changed = dict(schema_version=1, host_platform='linux', euid=0, egid=1000,
+                       linux_cap_eff='0000000000000000', linux_pid1_comm='docker-init')
+        _, different, _ = self.context_result('different', context=changed)
+        self.assertEqual(runner._finish(plan(instance()), instance(), [first, different])['reason_code'],
+                         'MULTIPLE_ATTEMPT_MERGE_INVALID')
 
     def test_host_matrix_preserves_every_platform_product_and_role_instance(self):
         items = [instance(platform=platform, product=product, role=role)
@@ -316,7 +761,8 @@ class RunnerTest(unittest.TestCase):
         self.output.mkdir()
         log = self.output / 'process.log'
         log.write_text('synthetic Patrol process output\n')
-        receipt = {'exit_code': 0, 'log': str(log), 'machine': str(log), 'command': ['patrol', 'test']}
+        receipt = {'exit_code': 0, 'log': str(log), 'machine': str(log), 'command': ['patrol', 'test'],
+                   'execution_context': runner._capture_execution_context(self.output)}
         runner._persist_process_receipt(receipt, self.output)
         junit = self.root / 'original-junit.xml'
         junit.write_text('<testsuite><testcase name="synthetic" /></testsuite>')
@@ -365,9 +811,11 @@ class RunnerTest(unittest.TestCase):
 
     def test_backend_dependency_fingerprint_does_not_claim_an_unused_service(self):
         for dependency in ('backend', 'isolated-backend'):
-            fingerprint = runner._fingerprint(self.root, plan(instance()), instance(dependencies=[dependency]))
+            fingerprint = runner._fingerprint(self.root, plan(instance()), instance(dependencies=[dependency]),
+                                              runner._capture_execution_context(self.output)['value'])
             self.assertEqual(fingerprint['backend_head'], 'UNVERIFIED_SERVICE_VERSION')
-        fingerprint = runner._fingerprint(self.root, plan(instance()), instance(dependencies=['backend-source']))
+        fingerprint = runner._fingerprint(self.root, plan(instance()), instance(dependencies=['backend-source']),
+                                          runner._capture_execution_context(self.output)['value'])
         self.assertEqual(fingerprint['backend_head'], 'UNVERIFIED_SOURCE_VERSION')
 
     def test_host_adapter_command_preserves_no_pub(self):

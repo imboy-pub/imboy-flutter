@@ -227,3 +227,7 @@ enterpriseChannelLabel: "Canale aziendale interno"
 subscribePending: Iscrizione riuscita; aggiornamento in corso
 subscribeRefresh: Aggiorna iscrizione
 unseenUpdatesBanner(count): "${count} nuovi aggiornamenti"
+
+editLeaveUnsaved: "Le modifiche non sono salvate. Scartarle e uscire?"
+avatarNotUploaded: "La foto del profilo non è stata caricata. Riprova o ripristinala prima di salvare."
+restoreAvatar: "Ripristina foto"

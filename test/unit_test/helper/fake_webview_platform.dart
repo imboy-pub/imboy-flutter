@@ -4,6 +4,14 @@ import 'package:webview_flutter_platform_interface/webview_flutter_platform_inte
 
 class FakeWebViewPlatform extends WebViewPlatform {
   String? html;
+  final requests = <Uri>[];
+  Future<void> Function(Uri)? load;
+  Future<void> Function()? clear;
+  late ProgressCallback progress;
+  late PageEventCallback started;
+  late PageEventCallback finished;
+  late WebResourceErrorCallback resourceError;
+  HttpResponseErrorCallback? httpError;
   final scripts = <String>[];
   final channels = <String, JavaScriptChannelParams>{};
   late void Function(PlatformWebViewPermissionRequest) permission;
@@ -14,7 +22,7 @@ class FakeWebViewPlatform extends WebViewPlatform {
   @override
   PlatformNavigationDelegate createPlatformNavigationDelegate(
     PlatformNavigationDelegateCreationParams params,
-  ) => _Delegate(params);
+  ) => _Delegate(params, this);
   @override
   PlatformWebViewWidget createPlatformWebViewWidget(
     PlatformWebViewWidgetCreationParams params,
@@ -37,7 +45,22 @@ class _Controller extends PlatformWebViewController {
     PlatformNavigationDelegate delegate,
   ) async {}
   @override
-  Future<void> loadRequest(LoadRequestParams params) async {}
+  Future<void> loadRequest(LoadRequestParams params) async {
+    host.requests.add(params.uri);
+    await host.load?.call(params.uri);
+  }
+
+  @override
+  Future<void> clearCache() async => host.clear?.call();
+  @override
+  Future<void> removeJavaScriptChannel(String name) async {
+    host.channels.remove(name);
+  }
+
+  @override
+  Future<String?> currentUrl() async => host.requests.lastOrNull?.toString();
+  @override
+  Future<String?> getTitle() async => null;
   @override
   Future<void> clearLocalStorage() async {}
   @override
@@ -52,19 +75,27 @@ class _Controller extends PlatformWebViewController {
 }
 
 class _Delegate extends PlatformNavigationDelegate {
-  _Delegate(super.params) : super.implementation();
+  _Delegate(super.params, this.host) : super.implementation();
+  final FakeWebViewPlatform host;
   @override
   Future<void> setOnNavigationRequest(
     NavigationRequestCallback callback,
   ) async {}
   @override
-  Future<void> setOnProgress(ProgressCallback callback) async {}
+  Future<void> setOnProgress(ProgressCallback callback) async =>
+      host.progress = callback;
   @override
-  Future<void> setOnPageStarted(PageEventCallback callback) async {}
+  Future<void> setOnPageStarted(PageEventCallback callback) async =>
+      host.started = callback;
   @override
-  Future<void> setOnPageFinished(PageEventCallback callback) async {}
+  Future<void> setOnPageFinished(PageEventCallback callback) async =>
+      host.finished = callback;
   @override
-  Future<void> setOnWebResourceError(WebResourceErrorCallback callback) async {}
+  Future<void> setOnHttpError(HttpResponseErrorCallback callback) async =>
+      host.httpError = callback;
+  @override
+  Future<void> setOnWebResourceError(WebResourceErrorCallback callback) async =>
+      host.resourceError = callback;
 }
 
 class _View extends PlatformWebViewWidget {

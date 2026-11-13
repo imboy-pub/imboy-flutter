@@ -158,11 +158,9 @@ void main() {
     for (final scenario in ['workbench', 'enterprise', 'personal']) {
       testWidgets(
         'T15 $scenario $label',
-        skip:
-            !autoUpdateGoldenFiles &&
-            !goldenBaselineExists(
-              'test/enterprise_oa/goldens/2026-10-20-channel-space/t15_${scenario}_$label.png',
-            ),
+        skip: !goldenBaselinesReady([
+          'test/enterprise_oa/goldens/2026-10-20-channel-space/t15_${scenario}_$label.png',
+        ]),
         (tester) async {
           await _pumpPage(tester, scenario, combo);
           if (scenario == 'workbench') {

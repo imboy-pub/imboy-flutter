@@ -25,7 +25,10 @@ import 'package:imboy/service/sqlite.dart';
 import 'package:imboy/service/storage.dart';
 import 'package:imboy/service/e2ee/protected_frame_v3.dart';
 import 'package:imboy/service/e2ee_service.dart';
+import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:vodozemac/vodozemac.dart' as vod;
+
+import 'enterprise/macos_storage_isolation.dart';
 
 const _localUid = 'platform-c2c-sender-uid';
 const _peerUid = 'platform-c2c-peer-uid';
@@ -87,19 +90,28 @@ void main() {
   });
 
   test('ChatNetworkService C2C 双设备 fan-out 为 Olm PFv3 密文', () async {
+    final storageRoot = await isolateNativeStorage();
+    addTearDown(() async {
+      await SqliteService.to.close();
+      await clearMacosStorage(storageRoot);
+    });
     await StorageService.init();
     final previousUid = StorageService.to.getString(Keys.currentUid);
+    final previousUser = StorageService.getMap(Keys.currentUser);
+    const syntheticUser = {
+      'user_id': _localUid,
+      'account': 'platform-c2c-test',
+      'nickname': 'platform-c2c-test',
+    };
+    await StorageService.setMap(Keys.currentUser, syntheticUser);
     final previousDeviceId = deviceId;
     await StorageService.to.setString(Keys.currentUid, _localUid);
     deviceId = _localDid;
     secureStore
       ..clear()
       ..[_pickleKeyStorageKey] = base64.encode(_pickleKey);
-    // macOS 的集成测试进程可能在断言失败后留下同名 SQLCipher 文件；
-    // 本测试使用固定 UID 便于断言，因此每次开始前只清理这个专用测试库，
-    // 避免上一次的密钥不匹配污染本次结果。
     await SqliteService.to.close();
-    await SqliteService.to.deleteDatabaseForUid(_localUid);
+    expect(await SqliteService.to.dbPath(), startsWith('${storageRoot.path}/'));
     final db = await SqliteService.to.db;
     if (db == null) {
       fail('平台 SQLCipher 数据库未能打开，拒绝把测试算作 E2EE 通过');
@@ -152,11 +164,23 @@ void main() {
     final sent = <WebSocketMessageSendRequestEvent>[];
     final subscription = AppEventBus.on<WebSocketMessageSendRequestEvent>()
         .listen(sent.add);
+    final retry = MessageRetry.instance;
     EncryptionModeService.debugSet(
       mode: EncryptionMode.strictE2ee,
       initialized: true,
     );
     E2eeBootstrap.debugMarkReadyForTest(_localUid);
+    // The production path checks suite capabilities and includes own devices.
+    E2EEService.debugOlmDeviceListLoader = (uid) async {
+      expect(uid, _peerUid);
+      return [
+        {'device_id': _peerDid},
+        {'device_id': _peerDid2},
+      ];
+    };
+    E2EEService.setUserDeviceKeyCacheForTest(_localUid, {
+      _localDid: 'local-curve25519-placeholder',
+    });
     E2EEService.setUserDeviceKeyCacheForTest(_peerUid, {
       _peerDid: 'peer-curve25519-placeholder',
       _peerDid2: 'peer-curve25519-placeholder-2',
@@ -172,8 +196,12 @@ void main() {
         'action': '',
         'payload': <String, dynamic>{'msg_type': 'text', 'text': _plaintext},
       });
+      retry.removeFromRetryQueue(_messageId);
       await Future<void>.delayed(Duration.zero);
 
+      expect(UserRepoLocal.to.currentUid, _localUid);
+      expect(UserRepoLocal.to.current.uid, _localUid);
+      expect(StorageService.getMap(Keys.currentUser), syntheticUser);
       expect(ok, isTrue);
       expect(sent, hasLength(1));
       final frame = jsonDecode(sent.single.message) as Map<String, dynamic>;
@@ -270,9 +298,13 @@ void main() {
       });
       expect(outboxVerified.isValid, isTrue);
       expect(outboxVerified.decodedHeader!['message_id'], _messageId);
+      expect(UserRepoLocal.to.currentUid, _localUid);
+      expect(StorageService.getMap(Keys.currentUser), syntheticUser);
     } finally {
+      E2EEService.debugOlmDeviceListLoader = null;
       await subscription.cancel();
-      MessageRetry.instance.clearRetryQueue();
+      await retry.debugWaitForIdle();
+      retry.dispose();
       E2EEService.clearKeyCacheForTest();
       E2eeBootstrap.resetForTest();
       OlmSessionService.to.resetForTest();
@@ -296,12 +328,16 @@ void main() {
         [_localUid, _localDid],
       );
       await SqliteService.to.close();
-      await SqliteService.to.deleteDatabaseForUid(_localUid);
       deviceId = previousDeviceId;
       if (previousUid.isEmpty) {
         await StorageService.to.remove(Keys.currentUid);
       } else {
         await StorageService.to.setString(Keys.currentUid, previousUid);
+      }
+      if (previousUser.isEmpty) {
+        await StorageService.to.remove(Keys.currentUser);
+      } else {
+        await StorageService.setMap(Keys.currentUser, previousUser);
       }
     }
   });

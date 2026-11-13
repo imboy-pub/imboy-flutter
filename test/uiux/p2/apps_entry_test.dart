@@ -201,6 +201,9 @@ class _FakeNavigationDelegate extends PlatformNavigationDelegate {
   Future<void> setOnUrlChange(UrlChangeCallback onUrlChange) async {}
 
   @override
+  Future<void> setOnHttpError(HttpResponseErrorCallback callback) async {}
+
+  @override
   Future<void> setOnWebResourceError(
     WebResourceErrorCallback onWebResourceError,
   ) async {}

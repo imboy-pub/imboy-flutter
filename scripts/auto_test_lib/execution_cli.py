@@ -101,7 +101,7 @@ def artifact_path(value, recorded_root, actual_root):
 
 def verify_result_files(row, payload, candidate):
     """Successful receipts need the actual downloaded files, not just path strings."""
-    if row.get('status') not in ('PASS', 'FLAKY', 'PASS_WITH_SKIPS'):
+    if row.get('status') not in ('PASS', 'FLAKY', 'PASS_WITH_SKIPS') and not row.get('attempts'):
         return row
     from .machine_events import parse_machine_events
     root = candidate.parent.resolve()
@@ -125,6 +125,30 @@ def verify_result_files(row, payload, candidate):
                     receipt.get('command') != attempt.get('command') or
                     receipt.get('log_sha256') != attempt.get('log_sha256')):
                 raise ValueError('process receipt contradicts saved attempt')
+            from .execution_runner import _validate_context_binding, execution_config_sha256
+            _validate_context_binding(attempt)
+            meta = attempt['execution_context']
+            if receipt.get('execution_context') != meta:
+                raise ValueError('process and attempt execution context mismatch')
+            context_path = artifact_path(meta['path'], recorded_root, root)
+            if hashlib.sha256(context_path.read_bytes()).hexdigest() != meta['sha256']:
+                raise ValueError('startup execution context digest mismatch')
+            context = read_json(context_path)
+            if context != meta['value'] or execution_config_sha256(attempt['instance'], context) != attempt['fingerprint']['config_sha256']:
+                raise ValueError('startup execution context contradicts saved fingerprint')
+            if attempt['instance'].get('suite') == 'backend-contract':
+                from .execution_adapters import validate_backend_manifest_evidence
+                backend = attempt.get('backend_manifest_evidence')
+                if (receipt.get('backend_manifest_evidence') != backend or
+                        receipt.get('product_artifact') != attempt.get('product_artifact') or
+                        backend not in attempt.get('related_evidence', [])):
+                    raise ValueError('BACKEND_MANIFEST_PROCESS_ATTEMPT_MISMATCH')
+                validate_backend_manifest_evidence(attempt['instance'], attempt.get('product_artifact'), backend,
+                    lambda value: artifact_path(value, recorded_root, root))
+                fixture = hashlib.sha256(((row.get('source_fingerprint') or 'synthetic') +
+                    attempt['product_artifact']['fingerprint']).encode()).hexdigest()
+                if attempt['fingerprint'].get('fixture_fingerprint') != fixture:
+                    raise ValueError('BACKEND_FIXTURE_FINGERPRINT_MISMATCH')
             machine = artifact_path(receipt.get('machine'), recorded_root, root)
             if hashlib.sha256(machine.read_bytes()).hexdigest() != receipt.get('machine_sha256'):
                 raise ValueError('raw machine stream digest mismatch')

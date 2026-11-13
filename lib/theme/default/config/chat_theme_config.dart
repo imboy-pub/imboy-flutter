@@ -93,7 +93,7 @@ class ChatThemeConfig {
       colors: ChatColors(
         // DESIGN.md 双蓝策略：发送气泡用品牌蓝
         primary: AppColors.lightSentMessageBackground,
-        onPrimary: AppColors.sentMessageText,
+        onPrimary: AppColors.onPrimary,
 
         // 表面颜色系统 - 支持护眼模式
         surface: backgroundColor, // 动态背景色

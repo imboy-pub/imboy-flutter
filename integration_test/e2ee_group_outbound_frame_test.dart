@@ -30,7 +30,11 @@ import 'package:imboy/service/olm_session_service.dart';
 import 'package:imboy/service/storage.dart';
 import 'package:imboy/service/sqlite.dart';
 import 'package:imboy/store/model/message_model.dart';
+import 'package:imboy/store/api/e2ee_api.dart';
+import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:vodozemac/vodozemac.dart' as vod;
+
+import 'enterprise/macos_storage_isolation.dart';
 
 const _gid = '700001';
 const _senderUid = '100001';
@@ -118,24 +122,28 @@ void main() {
   });
 
   test('ChatNetworkService C2G 外发帧为 Megolm 密文', () async {
+    final storageRoot = await isolateNativeStorage();
+    addTearDown(() async {
+      await SqliteService.to.close();
+      await clearMacosStorage(storageRoot);
+    });
     await StorageService.init();
     final previousUid = StorageService.to.getString(Keys.currentUid);
     final previousUser = StorageService.getMap(Keys.currentUser);
     await StorageService.to.setString(Keys.currentUid, _senderUid);
-    if (previousUser.isEmpty) {
-      await StorageService.setMap(Keys.currentUser, {
-        'user_id': _senderUid,
-        'account': 'platform-e2ee-test',
-        'nickname': 'platform-e2ee-test',
-      });
-    }
+    const syntheticUser = {
+      'user_id': _senderUid,
+      'account': 'platform-e2ee-test',
+      'nickname': 'platform-e2ee-test',
+    };
+    await StorageService.setMap(Keys.currentUser, syntheticUser);
     final previousDeviceId = deviceId;
     deviceId = _senderDid;
     secureStore
       ..clear()
       ..[_pickleKeyStorageKey] = base64.encode(_pickleKey);
     await SqliteService.to.close();
-    await SqliteService.to.deleteDatabaseForUid(_senderUid);
+    expect(await SqliteService.to.dbPath(), startsWith('${storageRoot.path}/'));
     final db = await SqliteService.to.db;
     if (db == null) {
       fail('平台 SQLCipher 数据库未能打开，拒绝把群聊测试算作通过');
@@ -159,6 +167,8 @@ void main() {
         .listen(sent.add);
     final retry = MessageRetry.instance;
     Map<String, dynamic>? roomKey;
+    final capabilityUids = <String>{};
+    final grantedSessions = <String>{};
 
     EncryptionModeService.debugSet(
       mode: EncryptionMode.strictE2ee,
@@ -170,6 +180,26 @@ void main() {
       _peerDid: 'peer-pem-placeholder',
       peerDid2: 'peer-pem-placeholder-2',
     });
+    // Supply directory/grant data only; retain real suite gates and Olm wrapping.
+    GroupSessionService.to.debugGroupSuiteDeviceListLoader = (uid) async {
+      expect(uid, anyOf('uid_$_peerDid', 'uid_$peerDid2'));
+      capabilityUids.add(uid);
+      return [
+        {'device_id': uid == 'uid_$_peerDid' ? _peerDid : peerDid2},
+      ];
+    };
+    GroupSessionService.to.debugHistoryGrantLoader = (gid, sessionId) async {
+      expect(gid, _gid);
+      expect(sessionId, isNotEmpty);
+      grantedSessions.add(sessionId);
+      return E2EEGroupHistoryGrant(
+        gid: gid,
+        sessionId: sessionId,
+        generationNo: 1,
+        startSeq: 1,
+        endSeq: 100,
+      );
+    };
     GroupSessionService.to.debugRoomKeySender = (chatType, to, payload) {
       expect(chatType, 'C2G');
       expect(to, _gid);
@@ -193,6 +223,9 @@ void main() {
       retry.removeFromRetryQueue(_messageId);
       await Future<void>.delayed(Duration.zero);
 
+      expect(UserRepoLocal.to.currentUid, _senderUid);
+      expect(UserRepoLocal.to.current.uid, _senderUid);
+      expect(StorageService.getMap(Keys.currentUser), syntheticUser);
       expect(ok, isTrue);
       expect(sent, hasLength(1));
       final frame = jsonDecode(sent.single.message) as Map<String, dynamic>;
@@ -212,6 +245,8 @@ void main() {
       expect(protocolMetadata['gid'], _gid);
       final sessionId = protocolMetadata['session_id'] as String;
       expect(sessionId, isNotEmpty);
+      expect(capabilityUids, {'uid_$_peerDid', 'uid_$peerDid2'});
+      expect(grantedSessions, {sessionId});
       final verified = ProtectedFrameV3.verifyOuterEnvelope(e2ee);
       expect(verified.isValid, isTrue);
       expect(verified.decodedHeader!['message_id'], _messageId);
@@ -301,14 +336,18 @@ void main() {
             .plaintext;
         expect(peerPlaintext, isNotEmpty);
       }
+      expect(UserRepoLocal.to.currentUid, _senderUid);
+      expect(StorageService.getMap(Keys.currentUser), syntheticUser);
     } finally {
+      GroupSessionService.to.debugGroupSuiteDeviceListLoader = null;
+      GroupSessionService.to.debugHistoryGrantLoader = null;
+      GroupSessionService.to.debugRoomKeySender = null;
       await subscription.cancel();
       // ChatNetworkService 会把提交帧加入重试队列；先停掉重试扫描，再关闭
       // 专用 SQLCipher，避免后台扫描与测试清库并发产生假错误日志。
       await retry.debugWaitForIdle();
       retry.dispose();
       GroupSessionService.to.clearMemory();
-      GroupSessionService.to.debugRoomKeySender = null;
       GroupSessionService.to.debugOlmWrap = null;
       E2EEService.clearKeyCacheForTest();
       E2eeBootstrap.resetForTest();
@@ -322,7 +361,6 @@ void main() {
         ['uid_$_peerDid', 'uid_platform-peer-did-2'],
       );
       await SqliteService.to.close();
-      await SqliteService.to.deleteDatabaseForUid(_senderUid);
       deviceId = previousDeviceId;
       if (previousUid.isEmpty) {
         await StorageService.to.remove(Keys.currentUid);

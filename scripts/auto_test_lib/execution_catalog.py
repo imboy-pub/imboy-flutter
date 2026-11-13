@@ -267,6 +267,11 @@ def _config_errors(root: Path, cfg: dict, files: set[str]) -> list[str]:
                 errors.append(f'RUNNER_CALLABLE_MISSING: {name}: {runner.get("callable")}')
         if runner.get('adapter') != name:
             errors.append(f'RUNNER_ADAPTER_MISMATCH: {name}')
+    for name, product in cfg.get('products', {}).items():
+        if ('backend_runtime_profile' in product and
+                (not isinstance(product['backend_runtime_profile'], str) or
+                 not re.fullmatch(r'[a-z][a-z0-9_]*', product['backend_runtime_profile']))):
+            errors.append(f'INVALID_BACKEND_RUNTIME_PROFILE: {name}')
     for name, suite in cfg.get('suites', {}).items():
         if suite.get('runner') not in cfg.get('runners', {}):
             errors.append(f'SUITE_RUNNER_MISSING: {name}')
@@ -288,6 +293,13 @@ def _config_errors(root: Path, cfg: dict, files: set[str]) -> list[str]:
             errors.append(f'DANGLING_OVERRIDE: {path}')
         if not override.get('basis'):
             errors.append(f'OVERRIDE_BASIS_MISSING: {path}')
+        mapping = override.get('required_features_by_product', {})
+        if (not isinstance(mapping, dict) or any(
+                product not in cfg.get('products', {}) or not isinstance(features, list) or
+                not features or any(not isinstance(feature, str) or
+                    not re.fullmatch(r'[a-z][a-z0-9_]*', feature) for feature in features)
+                for product, features in mapping.items())):
+            errors.append(f'INVALID_PRODUCT_REQUIRED_FEATURES: {path}')
         if 'disabled' in override or 'enabled' in override or 'safe_to_execute' in override:
             errors.append(f'DISABLED_OWNERSHIP_NOT_ALLOWED: {path}')
     for profile, spec in cfg.get('profiles', {}).items():
@@ -622,6 +634,9 @@ def build_plan(root: Path, profile: str = 'pr', platforms: list[str] | None = No
                                'coverage_eligible': bool(target.get('coverage', False)),
                                'product_contract': ({'manifest_profile': 'any', 'product_independent': True}
                                    if target.get('product_independent') else copy.deepcopy(cfg['products'][product]))}
+                        if target.get('required_features_by_product'):
+                            row['required_features'] = sorted(set(target.get('required_features', [])) |
+                                set(target['required_features_by_product'].get(product, [])))
                         row['dart_defines'] = {**cfg['products'][product].get('dart_defines', {}),
                                                **target.get('dart_defines', {}),
                                                **role.get('dart_defines', {}),

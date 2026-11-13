@@ -333,6 +333,16 @@ selected/status/reason_code/upstream、计数、日志、证据和全部尝试�
 也不计入业务用例数量。浏览器启动失败记为 `BLOCKED/ENV_MISSING`，须修复环境后再运行；
 编译和未识别的加载错误仍使目标失败，不能因为实际运行数量为零而忽略。Reporter loading
 events are not business cases; zero business execution never certifies a pass.
+执行进程启动前，运行器直接测量宿主 euid/egid、Linux `/proc/self/status` 的 CapEff
+与 `/proc/1/comm`；非 Linux 明确记为不适用。固定白名单 context 不接受 ENV 自报，
+不包含 PID、时间、容器 ID 或 nonce。原件和启动前 SHA-256 绑定 process receipt、attempt
+及 related evidence；六字段 fingerprint 中的 `config_sha256` 为保存的 instance 与 context
+联合哈希。下载汇总核验原件、schema、进程/attempt 一致性并重算哈希；context 缺失或漂移
+必须 BLOCKED，旧版无 context 的成功记录不能用于新候选。冻结 instance 只允许现有合法
+coverage 运行开关差异；不同 context 的尝试不可合并，同 context 基础设施恢复仍记 FLAKY。
+The runner measures inherited OS execution identity before spawning, binds its raw context to each
+receipt, and verifies it after artifact relocation; environment claims cannot substitute for measurements.
+
 断言失败不重试洗绿；基础设施重试保留尝试，恢复后仍是 FLAKY。未批准部分 skip 也阻断，
 不增加兜底 skip 白名单。存量硬编码 skip 需修复或建立可核验的适用合同。
 联系人 RTC gate 在 phase1_delivery 与 full-selected 两个真实构建中执行；依赖已编译 RTC 回调的断言仅在 RTC 构建注册，full-selected 的产物核验保证该分支不会被缺 feature 的构建跳过。
@@ -355,6 +365,20 @@ FTS v38 草稿的宿主、Chrome/WASM 和原生 SQLCipher 三类验收及注册�
 不能仅添加 dart-define 冒充 full-selected。
 
 ### 隔离后端
+
+`backend-contract` 按冻结产品配对真实 App 生成物与后端运行档：phase1_delivery 对应
+`phase1_delivery`，full-selected 对应 `community`。产品 `required_features` 只要求编译；
+目标 `required_features` 另要求运行时启用。备份合同保留两个产品分支，只有 full-selected
+分支追加 e2ee 运行要求（`required_features_by_product` 展开到冻结实例，身份不增加 variant）。
+隔离 opt-in、合成账号/签名材料、literal-loopback 及原前置门全部通过后，启动前直接读取
+`/api/v1/app/manifest`（禁代理、禁重定向，3 秒 socket 超时、1 MiB 上限），核对已验证
+App 七产物的 schema/hash/编译能力、冻结运行档及目标运行能力。manifest 原件及启动前
+SHA 绑定 invocation、process receipt、attempt 与 related evidence；启动前再核原件，普通
+batch 不以结束后动态采样覆盖。产品指纹只合并 canonical 服务身份，不含 generated_at、
+原件路径或原件 SHA。下载核验完全离线，缺失、篡改或身份错误必须 BLOCKED，收据搬迁
+仍有效；同身份基础设施恢复保持 FLAKY。manifest 只证明服务公开的合同身份，部署的
+release/image/进程/数据归属仍须独立受控部署收据，不能据此证明任意二进制。
+
 
 先准备可丢弃后端、数据库、合成账号/消息/群组；API/WS 必须显式提供字面 loopback 地址，
 不能退回生产地址。Android 真机可为隔离服务建立明确端口转发。

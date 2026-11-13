@@ -525,6 +525,9 @@ class _Translations$channel$ja_JP extends Translations$channel$zh_CN {
 	@override String get subscribePending => '購読済み、更新中';
 	@override String get subscribeRefresh => '購読状態を更新';
 	@override String unseenUpdatesBanner({required Object count}) => '新着更新 ${count} 件';
+	@override String get editLeaveUnsaved => '変更は保存されていません。破棄して戻りますか？';
+	@override String get avatarNotUploaded => 'プロフィール画像は未アップロードです。再試行するか元に戻してから保存してください。';
+	@override String get restoreAvatar => '画像を元に戻す';
 }
 
 // Path: chat
@@ -1694,6 +1697,10 @@ class _Translations$common$ja_JP extends Translations$common$zh_CN {
 	@override String get legacyUploadReturnToOriginalPage => 'アップロードが未完了です。元の画面でファイルを選び直して送信してください。';
 	@override String get f2fLocationRequired => '位置情報の権限とサービスを有効にして、近くの友達と再試行してください。';
 	@override String get f2fMemberHint => '友達のアイコンをタップしてプロフィールを表示し、友達を追加します。';
+	@override String get pleaseSelectLocation => '場所を選択してください';
+	@override String get myLocation => '現在地';
+	@override String get searchConversations => '会話';
+	@override String get webpageLoadProblem => 'ページの読み込み中に問題が発生しました。再試行してください。';
 }
 
 // Path: complaint
@@ -2017,6 +2024,7 @@ class _Translations$group$ja_JP extends Translations$group$zh_CN {
 	@override String get sureToTransferAndLeave => '譲渡するとグループを退出し、オーナー権限を失います。続行しますか？';
 	@override String get transferredButLeaveFailed => 'オーナーは譲渡されましたが、退出に失敗しました。もう一度お試しください';
 	@override String get noEligibleSuccessor => '譲渡できるメンバーがいません';
+	@override String get searchLoadedMembers => '読み込み済みのメンバーのみ検索';
 }
 
 // Path: groupCategory
@@ -3854,6 +3862,9 @@ extension on TranslationsJaJp {
 			'channel.subscribePending' => '購読済み、更新中',
 			'channel.subscribeRefresh' => '購読状態を更新',
 			'channel.unseenUpdatesBanner' => ({required Object count}) => '新着更新 ${count} 件',
+			'channel.editLeaveUnsaved' => '変更は保存されていません。破棄して戻りますか？',
+			'channel.avatarNotUploaded' => 'プロフィール画像は未アップロードです。再試行するか元に戻してから保存してください。',
+			'channel.restoreAvatar' => '画像を元に戻す',
 			'chat.bankCard' => '銀行カード',
 			'chat.receivePayment' => '送金・支払い',
 			'chat.alreadyMember' => '既にメンバーです',
@@ -3956,11 +3967,11 @@ extension on TranslationsJaJp {
 			'chat.youWithdrewAMessage' => 'あなたがメッセージを取り消しました',
 			'chat.formatCheck' => '形式チェック',
 			'chat.featureRequest' => '機能リクエスト',
+			_ => null,
+		} ?? switch (path) {
 			'chat.chatResend' => '再送信',
 			'chat.profileExportProfile' => 'プロフィールをエクスポート',
 			'chat.momentsSend' => '送信',
-			_ => null,
-		} ?? switch (path) {
 			'chat.loginExpiredMessage' => 'ログインの有効期限が切れました。再度ログインしてください',
 			'chat.customImage' => 'カスタム画像',
 			'chat.burnAfterReading' => '閲覧後自動削除',
@@ -4470,11 +4481,11 @@ extension on TranslationsJaJp {
 			'common.chatInitFailed' => 'チャットの初期化に失敗しました',
 			'common.cameraShootFailed' => '撮影に失敗しました',
 			'common.cameraCapture' => '撮影',
+			_ => null,
+		} ?? switch (path) {
 			'common.cameraModePhoto' => '写真',
 			'common.cameraModeVideo' => '動画',
 			'common.cameraRetake' => '撮り直す',
-			_ => null,
-		} ?? switch (path) {
 			'common.cameraUse' => '使用する',
 			'common.cameraNoDevice' => '利用可能なカメラがありません',
 			'common.avatarEditAvatar' => 'アバターを編集',
@@ -4984,11 +4995,11 @@ extension on TranslationsJaJp {
 			'common.voiceSttConverting' => '認識中...',
 			'common.voiceSttNotConfigured' => '文字起こし機能は未設定です',
 			'common.voiceSttPreviewTitle' => '音声文字起こしプレビュー',
+			_ => null,
+		} ?? switch (path) {
 			'common.e2eeRecoveryKeyTitle' => 'リカバリーキー',
 			'common.e2eeRecoveryKeyCopiedAutoClear' => ({required Object seconds}) => 'リカバリーキーをコピーしました。${seconds}秒後にクリップボードから自動的に消去されます。すぐに保存してください',
 			'common.e2eeErrAttachmentSeal' => '暗号化添付ファイルの封印に失敗したため、ファイルはアップロードされていません。後でもう一度お試しください',
-			_ => null,
-		} ?? switch (path) {
 			'common.e2eeErrForwardPlaintextTarget' => '転送先の会話はエンドツーエンド暗号化されていないため、暗号化添付ファイルを転送できません',
 			'common.e2eeErrForwardUndecryptable' => '元の暗号化添付ファイルをこの端末で復号できませんでした。転送に失敗しました',
 			'common.e2eeRetryFailedMessages' => '復号に失敗したメッセージを再試行',
@@ -5019,6 +5030,10 @@ extension on TranslationsJaJp {
 			'common.legacyUploadReturnToOriginalPage' => 'アップロードが未完了です。元の画面でファイルを選び直して送信してください。',
 			'common.f2fLocationRequired' => '位置情報の権限とサービスを有効にして、近くの友達と再試行してください。',
 			'common.f2fMemberHint' => '友達のアイコンをタップしてプロフィールを表示し、友達を追加します。',
+			'common.pleaseSelectLocation' => '場所を選択してください',
+			'common.myLocation' => '現在地',
+			'common.searchConversations' => '会話',
+			'common.webpageLoadProblem' => 'ページの読み込み中に問題が発生しました。再試行してください。',
 			'complaint.complaint' => '通報',
 			'complaint.e2eeConsentTitle' => '暗号化メッセージの証拠を提出',
 			'complaint.e2eeConsentBody' => 'このメッセージはエンドツーエンド暗号化されており、サーバーは内容を確認できません。抜粋を提出すると、選択した平文が審査員に開示されます。同意しますか？',
@@ -5270,6 +5285,7 @@ extension on TranslationsJaJp {
 			'group.sureToTransferAndLeave' => '譲渡するとグループを退出し、オーナー権限を失います。続行しますか？',
 			'group.transferredButLeaveFailed' => 'オーナーは譲渡されましたが、退出に失敗しました。もう一度お試しください',
 			'group.noEligibleSuccessor' => '譲渡できるメンバーがいません',
+			'group.searchLoadedMembers' => '読み込み済みのメンバーのみ検索',
 			'groupCategory.title' => 'グループカテゴリ',
 			'groupCategory.createCategory' => 'カテゴリを作成',
 			'groupCategory.categoryName' => 'カテゴリ名',
@@ -5493,6 +5509,8 @@ extension on TranslationsJaJp {
 			'main.collecting' => 'コレクション中...',
 			'main.user' => 'ユーザー',
 			'main.recommended' => '推奨',
+			_ => null,
+		} ?? switch (path) {
 			'main.larger' => 'より大きい',
 			'main.fillIn' => '入力',
 			'main.msgProtectedByComplianceKey' => 'メッセージはコンプライアンスキーで保護されています',
@@ -5501,8 +5519,6 @@ extension on TranslationsJaJp {
 			'main.mySentTab' => '送信',
 			'main.reject' => '辞退',
 			'main.myOrders' => '注文履歴',
-			_ => null,
-		} ?? switch (path) {
 			'main.purchaseUnlockHint' => '購入すると、チャンネルの過去のメッセージと今後の更新を閲覧できます。',
 			'main.payingDots' => '決済中...',
 			'main.purchaseAndUnlock' => '今すぐ購入してロック解除',
@@ -6007,6 +6023,8 @@ extension on TranslationsJaJp {
 			'passport.qrLoginCancelledByMe' => 'ログインをキャンセルしました',
 			'passport.qrLoginConfirming' => 'ログイン中...',
 			'passport.qrLoginSuccess' => 'ログインしました',
+			_ => null,
+		} ?? switch (path) {
 			'passport.qrWebLoginDesc' => 'このアカウントでのWeb版ログインを確認してください',
 			'passport.qrWebLoginTitle' => 'Web版ログインの確認',
 			'passport.alipayNotSupportedWeb' => 'WebではAlipayログインに対応していません',
@@ -6015,8 +6033,6 @@ extension on TranslationsJaJp {
 			'passport.oneKeyNoSimCard' => '現在のネットワークは未対応か、SIMカードが挿入されていません',
 			'passport.cannotGetScreenSize' => '画面サイズを取得できません',
 			'passport.oneKeyFailedRetry' => 'ワンタップログインに失敗しました。ネットワークを確認して再試行してください',
-			_ => null,
-		} ?? switch (path) {
 			'splash.slogan' => '自由に話し、自然に繋がる',
 			'talkRecord.uploadProgressRegister' => 'アップロードを準備中',
 			'talkRecord.uploadProgressUpload' => '音声をアップロード中',

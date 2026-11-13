@@ -3,6 +3,7 @@ import 'package:imboy/component/ui/resource_page_layout.dart';
 import 'dart:async';
 
 import 'package:imboy/theme/default/app_spacing.dart';
+import 'package:imboy/theme/default/app_sizes.dart';
 import 'package:imboy/theme/default/font_types.dart';
 
 import 'dart:io';
@@ -14,14 +15,18 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:imboy/capabilities/capability_locator.dart';
 import 'package:imboy/capabilities/contracts/media_picker_capability.dart';
-import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/cupertino_modal_surface.dart';
 import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_radius.dart';
 import 'package:imboy/i18n/strings.g.dart';
-import 'package:imboy/store/api/attachment_api.dart';
+import 'package:imboy/component/ui/app_back_scope.dart';
+import 'package:imboy/service/account_local_task_registry.dart';
+import 'package:imboy/service/auth_session_scope.dart';
+
+import 'channel_edit_avatar.dart';
+
 import 'package:imboy/store/model/channel_model.dart';
 import 'package:imboy/page/channel/channel_di_provider.dart';
 import 'package:imboy/page/channel/channel_edit_rules.dart';
@@ -50,6 +55,54 @@ class _ChannelEditPageState extends ConsumerState<ChannelEditPage> {
   bool _isSaving = false;
   bool _isUploadingAvatar = false;
   ChannelModel? _channel;
+  ChannelModel? _baseline;
+  late final AuthSessionScope _session;
+  late final AccountLocalTaskOwner _owner;
+  int _loadGeneration = 0;
+  int _avatarGeneration = 0;
+  bool _avatarUploadFailed = false;
+  bool _isPickingAvatar = false;
+  bool _discardApproved = false;
+  Object? _savingProgress;
+
+  bool get _saveBlocked =>
+      _isSaving || _isUploadingAvatar || _avatarUploadFailed;
+
+  bool get _sessionCurrent =>
+      authSessionReader.isCurrent(_session) &&
+      AccountLocalTaskOwner.capture() == _owner;
+
+  bool get _hasChanges {
+    final initial = _baseline;
+    return initial != null &&
+        (!isChannelUpdateApplied(
+              channel: initial,
+              name: _nameController.text,
+              description: _descriptionController.text,
+              avatar: _avatarUrl,
+              tags: _tags,
+            ) ||
+            _customIdController.text != (initial.customId ?? '') ||
+            _avatarFile != null ||
+            _tagController.text.isNotEmpty);
+  }
+
+  void _onChanged() {
+    if (mounted) setState(() {});
+  }
+
+  void _onAuthChanged() {
+    if (!mounted || _sessionCurrent) return;
+    final progress = _savingProgress;
+    if (progress != null) unawaited(AppLoading.dismissOwnedProgress(progress));
+    setState(() {});
+  }
+
+  bool _currentLoad(int request, String target) =>
+      mounted &&
+      _sessionCurrent &&
+      request == _loadGeneration &&
+      target == widget.channelId;
   int _visibility = 0;
   int _accessType = 0;
   String? _avatarUrl;
@@ -60,6 +113,9 @@ class _ChannelEditPageState extends ConsumerState<ChannelEditPage> {
   @override
   void initState() {
     super.initState();
+    _session = authSessionReader.current;
+    _owner = AccountLocalTaskOwner.capture();
+    authSessionReader.addListener(_onAuthChanged);
     _nameController = TextEditingController(text: widget.channel?.name ?? '');
     _descriptionController = TextEditingController(
       text: widget.channel?.description ?? '',
@@ -74,11 +130,53 @@ class _ChannelEditPageState extends ConsumerState<ChannelEditPage> {
       ..clear()
       ..addAll(widget.channel?.tags ?? const []);
     _channel = widget.channel;
+    _baseline = _channel;
+    for (final controller in [
+      _nameController,
+      _descriptionController,
+      _customIdController,
+      _tagController,
+    ]) {
+      controller.addListener(_onChanged);
+    }
+    _loadChannel(showLoading: _channel == null);
+  }
+
+  @override
+  void didUpdateWidget(covariant ChannelEditPage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.channelId == widget.channelId) return;
+    _avatarGeneration++;
+    final progress = _savingProgress;
+    if (progress != null) unawaited(AppLoading.dismissOwnedProgress(progress));
+    _savingProgress = null;
+    _isSaving = false;
+    _isPickingAvatar = false;
+    _isLoading = false;
+    _discardApproved = false;
+    _channel = widget.channel;
+    _baseline = _channel;
+    _visibility = _channel?.visibility ?? 0;
+    _accessType = _channel?.accessType ?? 0;
+    _avatarFile = null;
+    _avatarUploadFailed = false;
+    _isUploadingAvatar = false;
+    _avatarUrl = _channel?.avatar;
+    _nameController.text = _channel?.name ?? '';
+    _descriptionController.text = _channel?.description ?? '';
+    _customIdController.text = _channel?.customId ?? '';
+    _tagController.clear();
+    _tags
+      ..clear()
+      ..addAll(_channel?.tags ?? const []);
     _loadChannel(showLoading: _channel == null);
   }
 
   @override
   void dispose() {
+    authSessionReader.removeListener(_onAuthChanged);
+    final progress = _savingProgress;
+    if (progress != null) unawaited(AppLoading.dismissOwnedProgress(progress));
     _nameController.dispose();
     _descriptionController.dispose();
     _customIdController.dispose();
@@ -87,34 +185,37 @@ class _ChannelEditPageState extends ConsumerState<ChannelEditPage> {
   }
 
   Future<void> _loadChannel({bool showLoading = true}) async {
-    if (showLoading) {
-      setState(() => _isLoading = true);
-    }
-
+    final request = ++_loadGeneration;
+    final target = widget.channelId;
+    if (!_sessionCurrent) return;
+    if (showLoading) setState(() => _isLoading = true);
     try {
       final api = ref.read(channelApiProvider);
-      ChannelModel? channel = await api.getChannel(widget.channelId);
-      channel ??= await api.getChannelByCustomId(widget.channelId);
-      if (mounted && channel != null) {
-        final latest = channel;
-        setState(() {
-          _channel = latest;
-          _nameController.text = latest.name;
-          _descriptionController.text = latest.description ?? '';
-          _customIdController.text = latest.customId ?? '';
-          _visibility = latest.visibility;
-          _accessType = latest.accessType;
-          _avatarUrl = latest.avatar;
-          _avatarFile = null;
-          _tags
-            ..clear()
-            ..addAll(latest.tags ?? const []);
-        });
-      }
-    } catch (e) {
-      iPrint('[ChannelEdit] 加载频道失败: $e');
+      var channel = await api.getChannel(target);
+      if (!_currentLoad(request, target)) return;
+      channel ??= await api.getChannelByCustomId(target);
+      if (!_currentLoad(request, target) || channel == null) return;
+      final latest = channel;
+      final preserveDraft = _hasChanges;
+      setState(() {
+        _channel = latest;
+        if (preserveDraft) return;
+        _baseline = latest;
+        _nameController.text = latest.name;
+        _descriptionController.text = latest.description ?? '';
+        _customIdController.text = latest.customId ?? '';
+        _visibility = latest.visibility;
+        _accessType = latest.accessType;
+        _avatarUrl = latest.avatar;
+        _avatarFile = null;
+        _tags
+          ..clear()
+          ..addAll(latest.tags ?? const []);
+      });
+    } catch (_) {
+      // The existing cached form remains usable when a refresh fails.
     } finally {
-      if (mounted && showLoading) {
+      if (mounted && request == _loadGeneration && showLoading) {
         setState(() => _isLoading = false);
       }
     }
@@ -137,12 +238,22 @@ class _ChannelEditPageState extends ConsumerState<ChannelEditPage> {
   }
 
   Future<void> _saveChanges() async {
-    if (!_formKey.currentState!.validate()) return;
+    if (_isSaving ||
+        _isUploadingAvatar ||
+        _avatarUploadFailed ||
+        !_sessionCurrent ||
+        _channel?.isManaged != true ||
+        !_formKey.currentState!.validate()) {
+      return;
+    }
 
     FocusScope.of(context).unfocus();
 
     setState(() => _isSaving = true);
-    AppLoading.show(status: t.main.saving);
+    final target = widget.channelId;
+    final generation = _loadGeneration;
+    final progress = _savingProgress = AppLoading.beginProgress();
+    unawaited(AppLoading.showOwned(progress, status: t.main.saving));
 
     try {
       final api = ref.read(channelApiProvider);
@@ -168,7 +279,7 @@ class _ChannelEditPageState extends ConsumerState<ChannelEditPage> {
         customId: targetCustomId,
       );
 
-      if (mounted) {
+      if (mounted && _currentLoad(generation, target)) {
         if (result != null &&
             isChannelUpdateApplied(
               channel: result,
@@ -178,94 +289,109 @@ class _ChannelEditPageState extends ConsumerState<ChannelEditPage> {
               tags: targetTags,
             )) {
           _channel = result;
+          _discardApproved = true;
           AppLoading.showSuccess(t.channel.updateSuccess);
           context.pop(result); // 返回最新频道对象，避免详情页继续使用旧数据
         } else {
           AppLoading.showError(t.channel.updateFailed);
         }
       }
-    } catch (e) {
-      if (mounted) {
-        // 透出服务端真实原因（如 902 签名失败、403 无权限），避免固定文案吞错
-        final reason = e.toString().replaceFirst('Exception: ', '').trim();
-        AppLoading.showError(
-          reason.isEmpty
-              ? t.channel.updateFailed
-              : '${t.channel.updateFailed} · $reason',
-        );
+    } catch (_) {
+      if (_currentLoad(generation, target)) {
+        AppLoading.showError(t.channel.updateFailed);
       }
     } finally {
-      if (mounted) {
-        // 前台：loading 已被 showSuccess/showError 顶替为 toast（EasyLoading 是
-        // 单实例 overlay，互斥替换不叠加），此处再 dismiss 会把刚弹出的错误提示
-        // 连自动消失 timer 一起吞掉（BUG#136），故不再无条件 dismiss。
+      unawaited(AppLoading.dismissOwnedProgress(progress));
+      if (identical(_savingProgress, progress)) _savingProgress = null;
+      if (mounted && generation == _loadGeneration) {
         setState(() => _isSaving = false);
-      } else {
-        // 页面已退出：无 toast 顶替，需手动关闭 loading 防止遮罩残留。
-        AppLoading.dismiss();
       }
     }
   }
 
   Future<void> _pickAvatar({bool useCamera = false}) async {
     Navigator.of(context).pop();
+    if (_isPickingAvatar || _isSaving || !_sessionCurrent) return;
+    setState(() => _isPickingAvatar = true);
+    final target = widget.channelId;
+    final generation = _loadGeneration;
     try {
-      // 「拍照」此前和「从相册选择」调的是同一个 pickSingle(gallery)，从未
-      // 真正唤起相机；useCamera 时走 pickCamera（与头像编辑页同款修复）。
       final media = useCamera
           ? await _picker.pickCamera(context)
           : await _picker.pickSingle(context, MediaType.image);
-      if (media == null || !mounted) return;
-
+      if (!_currentLoad(generation, target) || media == null) return;
       final file = File(media.path);
       setState(() => _avatarFile = file);
       await _uploadAvatar(file);
-    } catch (e) {
-      iPrint('[ChannelEdit] 上传头像失败: $e');
-      if (!mounted) return;
-      AppLoading.showToast(context.t.common.uploadFailed);
+    } catch (_) {
+      if (mounted && _currentLoad(generation, target)) {
+        AppLoading.showToast(context.t.common.uploadFailed);
+      }
+    } finally {
+      if (mounted && generation == _loadGeneration) {
+        setState(() => _isPickingAvatar = false);
+      }
     }
   }
 
   Future<void> _uploadAvatar(File file) async {
-    if (_isUploadingAvatar) return;
-    setState(() => _isUploadingAvatar = true);
-
-    String? uploadedUrl;
-    final completer = Completer<bool>();
-
-    await AttachmentApi.uploadFileViaPresignCompat(
-      'avatar',
-      file,
-      (Map<String, dynamic> resp, String url) {
-        if (completer.isCompleted) return;
-        final status = resp['status']?.toString() ?? '';
-        if (status == 'ok') {
-          uploadedUrl = url;
-          completer.complete(true);
-        } else {
-          completer.complete(false);
-        }
-      },
-      (_) {
-        if (!completer.isCompleted) {
-          completer.complete(false);
-        }
-      },
-      process: true,
-    );
-
-    final success = await completer.future;
-    if (!mounted) return;
-
+    if (_isSaving || _isUploadingAvatar || !_sessionCurrent) return;
+    final attempt = ++_avatarGeneration;
+    final generation = _loadGeneration;
+    final target = widget.channelId;
+    setState(() {
+      _isUploadingAvatar = true;
+      _avatarUploadFailed = false;
+    });
+    String? uploaded;
+    try {
+      uploaded = await ref.read(channelEditAvatarUploadProvider)(file);
+    } catch (_) {
+      uploaded = null;
+    }
+    if (!_currentLoad(generation, target) || attempt != _avatarGeneration) {
+      return;
+    }
     setState(() {
       _isUploadingAvatar = false;
-      _avatarUrl = success ? uploadedUrl : _avatarUrl;
+      _avatarUploadFailed = uploaded == null || uploaded.isEmpty;
+      if (!_avatarUploadFailed) _avatarUrl = uploaded;
     });
+  }
 
-    if (!success) {
-      AppLoading.showToast(context.t.common.uploadFailed);
-    }
+  void _restoreAvatar() {
+    _avatarGeneration++;
+    setState(() {
+      _avatarFile = null;
+      _avatarUrl = _baseline?.avatar;
+      _avatarUploadFailed = false;
+      _isUploadingAvatar = false;
+    });
+  }
+
+  Future<void> _confirmLeave(bool didPop) async {
+    if (didPop || _isSaving) return;
+    final route = ModalRoute.of(context);
+    final leave = await showCupertinoDialog<bool>(
+      context: context,
+      builder: (ctx) => CupertinoAlertDialog(
+        content: Text(context.t.channel.editLeaveUnsaved),
+        actions: [
+          CupertinoDialogAction(
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: Text(context.t.common.cancel),
+          ),
+          CupertinoDialogAction(
+            isDestructiveAction: true,
+            onPressed: () => Navigator.of(ctx).pop(true),
+            child: Text(context.t.common.confirm),
+          ),
+        ],
+      ),
+    );
+    if (leave != true || !mounted || route?.isCurrent != true) return;
+    setState(() => _discardApproved = true);
+    Navigator.of(context).pop();
   }
 
   void _showAvatarPicker() {
@@ -298,7 +424,7 @@ class _ChannelEditPageState extends ConsumerState<ChannelEditPage> {
 
   void _addTag([String? input]) {
     final tag = (input ?? _tagController.text).trim();
-    if (tag.isEmpty) return;
+    if (_isSaving || !_sessionCurrent || tag.isEmpty) return;
     if (_tags.contains(tag)) {
       _tagController.clear();
       return;
@@ -312,6 +438,7 @@ class _ChannelEditPageState extends ConsumerState<ChannelEditPage> {
   }
 
   void _removeTag(String tag) {
+    if (_isSaving || !_sessionCurrent) return;
     setState(() => _tags.remove(tag));
   }
 
@@ -352,8 +479,7 @@ class _ChannelEditPageState extends ConsumerState<ChannelEditPage> {
     // 0016：管理权限前置校验（UI-only）。数据源用已持有的模型
     //（widget.channel 或加载结果），不新增请求；非管理角色不渲染任何
     // 表单字段（服务端合同不变，此处只是不展示）。
-    final roleSource = widget.channel ?? _channel;
-    if (roleSource != null && !roleSource.isManaged) {
+    if (!_sessionCurrent || _channel?.isManaged != true) {
       return Scaffold(
         appBar: GlassAppBar(
           title: t.channel.editChannel,
@@ -368,286 +494,247 @@ class _ChannelEditPageState extends ConsumerState<ChannelEditPage> {
       );
     }
 
-    return Scaffold(
-      appBar: GlassAppBar(
-        title: t.channel.editChannel,
-        automaticallyImplyLeading: true,
-        rightDMActions: [
-          CupertinoButton(
-            padding: const EdgeInsets.symmetric(horizontal: 12),
-            onPressed: (_isSaving || _isUploadingAvatar) ? null : _saveChanges,
-            child: _isSaving
-                ? const CupertinoActivityIndicator(radius: 10)
-                : Text(
-                    t.common.save,
-                    style: context.textStyle(
-                      FontSizeType.body,
-                      fontWeight: !(_isSaving || _isUploadingAvatar)
-                          ? FontWeight.w600
-                          : FontWeight.w400,
-                      color: !(_isSaving || _isUploadingAvatar)
-                          ? AppColors.getIosBlue(Theme.of(context).brightness)
-                          : AppColors.iosGray,
+    return AppBackScope<ChannelModel>(
+      canPop:
+          _discardApproved ||
+          (!_hasChanges && !_isSaving && !_isUploadingAvatar),
+      onPopInvokedWithResult: (didPop, _) => _confirmLeave(didPop),
+      child: Scaffold(
+        appBar: GlassAppBar(
+          title: t.channel.editChannel,
+          automaticallyImplyLeading: true,
+          rightDMActions: [
+            CupertinoButton(
+              minimumSize: const Size.square(AppSizes.touchTarget),
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              onPressed: _saveBlocked ? null : _saveChanges,
+              child: _isSaving
+                  ? const CupertinoActivityIndicator(radius: 10)
+                  : Text(
+                      t.common.save,
+                      style: context.textStyle(
+                        FontSizeType.body,
+                        fontWeight: !_saveBlocked
+                            ? FontWeight.w600
+                            : FontWeight.w400,
+                        color: !_saveBlocked
+                            ? AppColors.getIosBlue(Theme.of(context).brightness)
+                            : AppColors.iosGray,
+                      ),
                     ),
-                  ),
-          ),
-        ],
-      ),
-      body: ResourcePageLayout(
-        child: Form(
-          key: _formKey,
-          child: ListView(
-            padding: AppSpacing.allRegular,
-            children: [
-              // 频道名称
-              Text(
-                t.account.avatar,
-                style: Theme.of(context).textTheme.titleMedium,
-              ),
-              AppSpacing.verticalSmall,
-              Center(
-                child: GestureDetector(
-                  onTap: (_isSaving || _isUploadingAvatar)
+            ),
+          ],
+        ),
+        body: ResourcePageLayout(
+          child: Form(
+            key: _formKey,
+            child: ListView(
+              padding: AppSpacing.allRegular,
+              children: [
+                // 频道名称
+                Text(
+                  t.account.avatar,
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+                AppSpacing.verticalSmall,
+                ChannelEditAvatar(
+                  file: _avatarFile,
+                  url: _avatarUrl,
+                  uploading: _isUploadingAvatar,
+                  failed: _avatarUploadFailed,
+                  onPick: (_isSaving || _isUploadingAvatar || _isPickingAvatar)
                       ? null
                       : _showAvatarPicker,
-                  child: Stack(
-                    alignment: Alignment.center,
-                    children: [
-                      CircleAvatar(
-                        radius: 44,
-                        backgroundColor: AppColors.primary.withValues(
-                          alpha: 0.1,
-                        ),
-                        backgroundImage: _avatarFile != null
-                            ? FileImage(_avatarFile!)
-                            : (_avatarUrl != null && _avatarUrl!.isNotEmpty)
-                            ? cachedImageProvider(_avatarUrl!, w: 176)
-                            : null,
-                        child:
-                            (_avatarFile == null &&
-                                (_avatarUrl == null || _avatarUrl!.isEmpty))
-                            ? const Icon(CupertinoIcons.camera, size: 30)
-                            : null,
-                      ),
-                      if (_isUploadingAvatar)
-                        Container(
-                          width: 88,
-                          height: 88,
-                          decoration: BoxDecoration(
-                            color: AppColors.darkBackground.withValues(
-                              alpha: 0.35,
-                            ),
-                            borderRadius: BorderRadius.circular(44),
-                          ),
-                          child: const Center(
-                            child: SizedBox(
-                              width: 24,
-                              height: 24,
-                              child: CupertinoActivityIndicator(),
-                            ),
-                          ),
-                        ),
-                      Positioned(
-                        right: 0,
-                        bottom: 0,
-                        child: Container(
-                          width: 28,
-                          height: 28,
-                          decoration: BoxDecoration(
-                            color: AppColors.primary,
-                            borderRadius: BorderRadius.circular(14),
-                          ),
-                          child: const Icon(
-                            CupertinoIcons.pencil,
-                            size: 16,
-                            color: AppColors.onPrimary,
-                          ),
-                        ),
-                      ),
-                    ],
+                  onRetry: _isSaving || _avatarFile == null
+                      ? null
+                      : () => _uploadAvatar(_avatarFile!),
+                  onRestore: _isSaving ? null : _restoreAvatar,
+                ),
+                AppSpacing.verticalRegular,
+
+                // 频道名称
+                TextFormField(
+                  enableSuggestions: false,
+                  autocorrect: false,
+                  controller: _nameController,
+                  readOnly: _isSaving,
+                  decoration: InputDecoration(
+                    labelText: t.channel.nameLabel,
+                    hintText: t.channel.nameHint,
+                    border: const OutlineInputBorder(),
+                    prefixIcon: const Icon(CupertinoIcons.speaker_2),
                   ),
+                  validator: (value) {
+                    if (value == null || value.trim().isEmpty) {
+                      return t.channel.nameRequired;
+                    }
+                    if (value.trim().length > 50) {
+                      return t.channel.nameTooLong;
+                    }
+                    return null;
+                  },
+                  maxLength: 50,
                 ),
-              ),
-              AppSpacing.verticalRegular,
+                AppSpacing.verticalRegular,
 
-              // 频道名称
-              TextFormField(
-                enableSuggestions: false,
-                autocorrect: false,
-                controller: _nameController,
-                decoration: InputDecoration(
-                  labelText: t.channel.nameLabel,
-                  hintText: t.channel.nameHint,
-                  border: const OutlineInputBorder(),
-                  prefixIcon: const Icon(CupertinoIcons.speaker_2),
-                ),
-                validator: (value) {
-                  if (value == null || value.trim().isEmpty) {
-                    return t.channel.nameRequired;
-                  }
-                  if (value.trim().length > 50) {
-                    return t.channel.nameTooLong;
-                  }
-                  return null;
-                },
-                maxLength: 50,
-              ),
-              AppSpacing.verticalRegular,
-
-              // 频道描述
-              TextFormField(
-                enableSuggestions: false,
-                autocorrect: false,
-                controller: _descriptionController,
-                decoration: InputDecoration(
-                  labelText: t.channel.descriptionLabel,
-                  hintText: t.channel.descriptionHint,
-                  border: const OutlineInputBorder(),
-                  prefixIcon: const Icon(CupertinoIcons.doc_text),
-                  alignLabelWithHint: true,
-                ),
-                maxLines: 3,
-                maxLength: 500,
-              ),
-              AppSpacing.verticalRegular,
-
-              // 自定义 ID
-              TextFormField(
-                enableSuggestions: false,
-                autocorrect: false,
-                controller: _customIdController,
-                decoration: InputDecoration(
-                  labelText: t.channel.customIdLabel,
-                  hintText: t.channel.customIdHint,
-                  border: const OutlineInputBorder(),
-                  prefixIcon: const Icon(CupertinoIcons.at),
-                  helperText: _isCustomIdEditable
-                      ? t.channel.customIdHelper
-                      : '${t.channel.customIdHelper} · ${t.channel.typeCannotChange}',
-                ),
-                // 创建时留空的频道允许补设一次；已有值则永久锁定（后端同样校验）。
-                readOnly: !_isCustomIdEditable,
-                enabled: _isCustomIdEditable,
-                maxLength: 32,
-                validator: _validateCustomId,
-              ),
-              AppSpacing.verticalRegular,
-
-              // 标签
-              Text(
-                t.groupTag.addTag,
-                style: Theme.of(context).textTheme.titleMedium,
-              ),
-              AppSpacing.verticalSmall,
-              Row(
-                children: [
-                  Expanded(
-                    child: TextField(
-                      enableSuggestions: false,
-                      autocorrect: false,
-                      controller: _tagController,
-                      decoration: InputDecoration(
-                        hintText: t.groupTag.tagName,
-                        border: const OutlineInputBorder(),
-                      ),
-                      onSubmitted: _addTag,
-                    ),
+                // 频道描述
+                TextFormField(
+                  enableSuggestions: false,
+                  autocorrect: false,
+                  controller: _descriptionController,
+                  readOnly: _isSaving,
+                  decoration: InputDecoration(
+                    labelText: t.channel.descriptionLabel,
+                    hintText: t.channel.descriptionHint,
+                    border: const OutlineInputBorder(),
+                    prefixIcon: const Icon(CupertinoIcons.doc_text),
+                    alignLabelWithHint: true,
                   ),
-                  IconButton(
-                    onPressed: () => _addTag(),
-                    icon: const Icon(CupertinoIcons.add_circled),
-                    tooltip: t.groupTag.addTag,
-                  ),
-                ],
-              ),
-              if (_tags.isNotEmpty) ...[
-                const SizedBox(height: 10),
-                Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
-                  children: _tags
-                      .map(
-                        (tag) => InputChip(
-                          label: Text(tag),
-                          onDeleted: () => _removeTag(tag),
-                        ),
-                      )
-                      .toList(),
+                  maxLines: 3,
+                  maxLength: 500,
                 ),
-              ],
-              AppSpacing.verticalRegular,
+                AppSpacing.verticalRegular,
 
-              // 频道属性（只读显示）
-              Text(
-                t.channel.visibilityLabel,
-                style: Theme.of(context).textTheme.titleMedium,
-              ),
-              AppSpacing.verticalSmall,
-              Container(
-                padding: AppSpacing.allMedium,
-                decoration: BoxDecoration(
-                  color: AppColors.getIosSeparator(Theme.of(context).brightness)
-                      .withValues(alpha: 0.1),
-                  borderRadius: AppRadius.borderRadiusSmall,
+                // 自定义 ID
+                TextFormField(
+                  enableSuggestions: false,
+                  autocorrect: false,
+                  controller: _customIdController,
+                  decoration: InputDecoration(
+                    labelText: t.channel.customIdLabel,
+                    hintText: t.channel.customIdHint,
+                    border: const OutlineInputBorder(),
+                    prefixIcon: const Icon(CupertinoIcons.at),
+                    helperText: _isCustomIdEditable
+                        ? t.channel.customIdHelper
+                        : '${t.channel.customIdHelper} · ${t.channel.typeCannotChange}',
+                  ),
+                  // 创建时留空的频道允许补设一次；已有值则永久锁定（后端同样校验）。
+                  readOnly: _isSaving || !_isCustomIdEditable,
+                  enabled: _isCustomIdEditable,
+                  maxLength: 32,
+                  validator: _validateCustomId,
                 ),
-                child: Row(
+                AppSpacing.verticalRegular,
+
+                // 标签
+                Text(
+                  t.groupTag.addTag,
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+                AppSpacing.verticalSmall,
+                Row(
                   children: [
-                    Icon(
-                      _visibility == 0
-                          ? CupertinoIcons.globe
-                          : CupertinoIcons.lock,
-                      color: AppColors.iosGray,
-                    ),
-                    AppSpacing.horizontalSmall,
-                    Text(
-                      _visibility == 0
-                          ? t.channel.typePublic
-                          : t.channel.typePrivate,
-                      style: const TextStyle(color: AppColors.iosGray),
-                    ),
-                    if (_accessType == 1) ...[
-                      AppSpacing.horizontalSmall,
-                      Icon(
-                        CupertinoIcons.money_dollar,
-                        color: AppColors.iosOrange,
-                        size: 16,
+                    Expanded(
+                      child: TextField(
+                        enableSuggestions: false,
+                        autocorrect: false,
+                        controller: _tagController,
+                        readOnly: _isSaving,
+                        decoration: InputDecoration(
+                          hintText: t.groupTag.tagName,
+                          border: const OutlineInputBorder(),
+                        ),
+                        onSubmitted: _addTag,
                       ),
-                      AppSpacing.horizontalTiny,
-                      Text(
-                        t.channel.accessTypePaid,
-                        style: const TextStyle(color: AppColors.iosOrange),
-                      ),
-                    ],
+                    ),
+                    IconButton(
+                      onPressed: _isSaving ? null : () => _addTag(),
+                      icon: const Icon(CupertinoIcons.add_circled),
+                      tooltip: t.groupTag.addTag,
+                    ),
                   ],
                 ),
-              ),
-              AppSpacing.verticalXLarge,
+                if (_tags.isNotEmpty) ...[
+                  const SizedBox(height: 10),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: _tags
+                        .map(
+                          (tag) => InputChip(
+                            label: Text(tag),
+                            onDeleted: _isSaving ? null : () => _removeTag(tag),
+                          ),
+                        )
+                        .toList(),
+                  ),
+                ],
+                AppSpacing.verticalRegular,
 
-              // 统计信息
-              if (_channel != null) ...[
+                // 频道属性（只读显示）
                 Text(
-                  t.channel.stats,
+                  t.channel.visibilityLabel,
                   style: Theme.of(context).textTheme.titleMedium,
                 ),
                 AppSpacing.verticalSmall,
                 Container(
                   padding: AppSpacing.allMedium,
                   decoration: BoxDecoration(
-                    color: AppColors.primary.withValues(alpha: 0.1),
+                    color: AppColors.getIosSeparator(
+                      Theme.of(context).brightness,
+                    ).withValues(alpha: 0.1),
                     borderRadius: AppRadius.borderRadiusSmall,
                   ),
-                  child: Column(
+                  child: Row(
                     children: [
-                      _buildStatRow(
-                        CupertinoIcons.person_2,
-                        t.channel.subscribers,
-                        _channel!.subscriberCount.toString(),
+                      Icon(
+                        _visibility == 0
+                            ? CupertinoIcons.globe
+                            : CupertinoIcons.lock,
+                        color: AppColors.iosGray,
                       ),
+                      AppSpacing.horizontalSmall,
+                      Text(
+                        _visibility == 0
+                            ? t.channel.typePublic
+                            : t.channel.typePrivate,
+                        style: const TextStyle(color: AppColors.iosGray),
+                      ),
+                      if (_accessType == 1) ...[
+                        AppSpacing.horizontalSmall,
+                        Icon(
+                          CupertinoIcons.money_dollar,
+                          color: AppColors.iosOrange,
+                          size: 16,
+                        ),
+                        AppSpacing.horizontalTiny,
+                        Text(
+                          t.channel.accessTypePaid,
+                          style: const TextStyle(color: AppColors.iosOrange),
+                        ),
+                      ],
                     ],
                   ),
                 ),
+                AppSpacing.verticalXLarge,
+
+                // 统计信息
+                if (_channel != null) ...[
+                  Text(
+                    t.channel.stats,
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
+                  AppSpacing.verticalSmall,
+                  Container(
+                    padding: AppSpacing.allMedium,
+                    decoration: BoxDecoration(
+                      color: AppColors.primary.withValues(alpha: 0.1),
+                      borderRadius: AppRadius.borderRadiusSmall,
+                    ),
+                    child: Column(
+                      children: [
+                        _buildStatRow(
+                          CupertinoIcons.person_2,
+                          t.channel.subscribers,
+                          _channel!.subscriberCount.toString(),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
               ],
-            ],
+            ),
           ),
         ),
       ),

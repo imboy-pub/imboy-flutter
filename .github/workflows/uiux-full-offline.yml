@@ -1,0 +1,247 @@
+name: UIUX full offline evidence
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/uiux-full-offline.yml'
+      - '.github/scripts/uiux_full_*'
+      - 'test/tooling/auto_test/test_uiux_full_matrix.py'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  FLUTTER_VERSION: '3.47.5'
+
+jobs:
+  plan:
+    name: Freeze full and offline plans
+    runs-on: ubuntu-24.04
+    outputs:
+      matrix: ${{ steps.matrix.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          fetch-depth: 0
+      - name: Check partition contract
+        run: python3 test/tooling/auto_test/test_uiux_full_matrix.py
+      - name: Freeze plans and derive product workers
+        id: matrix
+        shell: bash
+        run: |
+          set -euo pipefail
+          out="$RUNNER_TEMP/uiux-plan"
+          mkdir -p "$out"
+          python3 scripts/auto_test.py execution-plan --profile full --output "$out/full-plan.json"
+          python3 scripts/auto_test.py execution-plan --profile full \
+            --platform linux --platform macos --platform web \
+            --suite unit --suite widget --suite component --suite sqlite-ffi \
+            --suite crypto-ffi --suite tooling --suite route-smoke \
+            --output "$out/offline-plan.json"
+          python3 .github/scripts/uiux_full_matrix.py "$out/full-plan.json" "$out/offline-plan.json" > "$out/matrix.json"
+          printf 'matrix=%s\n' "$(cat "$out/matrix.json")" >> "$GITHUB_OUTPUT"
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        if: always()
+        with:
+          name: uiux-plan
+          path: ${{ runner.temp }}/uiux-plan/
+          if-no-files-found: error
+
+  gates:
+    name: Full plan shared gates
+    needs: plan
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    defaults:
+      run:
+        working-directory: imboyapp
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          path: imboyapp
+          fetch-depth: 0
+      - name: Checkout pinned submodules
+        run: bash .github/scripts/ci_checkout_submodules.sh 0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          repository: ${{ github.repository_owner }}/imboy
+          ref: '61c049ab2195911a92abc494cf135335a4123513'
+          path: imboy
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          repository: ${{ github.repository_owner }}/imboy-admin-frontend
+          ref: 'b8d91e7f11fa096d81d7ec4ee2bccd8191999528'
+          path: imboyadmin
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
+        with:
+          name: uiux-plan
+          path: ${{ runner.temp }}/uiux-plan
+      - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+      - name: Prepare isolated prerequisites
+        run: |
+          set -euo pipefail
+          bash .github/scripts/ci_ensure_system_sqlite.sh
+          bash .github/scripts/ci_patch_path_deps.sh --check
+          flutter pub get --enforce-lockfile
+          bash .github/scripts/ci_gen_env.sh
+          bash .github/scripts/uiux_full_prepare_product.sh phase1_delivery
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq protobuf-compiler
+          dart pub global activate protoc_plugin 25.1.0
+      - name: Execute shared gates
+        run: python3 scripts/auto_test.py execution-gates --plan "$RUNNER_TEMP/uiux-plan/full-plan.json" --artifact-dir "$RUNNER_TEMP/uiux-gates"
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        if: always()
+        with:
+          name: uiux-gates
+          path: ${{ runner.temp }}/uiux-gates/
+          if-no-files-found: warn
+
+  workers:
+    name: Offline (${{ matrix.platform }}, ${{ matrix.suite }}, ${{ matrix.product }})
+    needs: [plan, gates]
+    runs-on: ${{ matrix.platform == 'macos' && 'macos-latest' || 'ubuntu-24.04' }}
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.plan.outputs.matrix) }}
+    defaults:
+      run:
+        working-directory: imboyapp
+    steps:
+      - name: Reject unknown platform
+        working-directory: ${{ github.workspace }}
+        env:
+          WORKER_PLATFORM: ${{ matrix.platform }}
+        run: |
+          case "$WORKER_PLATFORM" in linux|web|macos) ;; *) exit 2 ;; esac
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          path: imboyapp
+          fetch-depth: 0
+      - name: Checkout pinned submodules
+        run: bash .github/scripts/ci_checkout_submodules.sh 0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          repository: ${{ github.repository_owner }}/imboy
+          ref: '61c049ab2195911a92abc494cf135335a4123513'
+          path: imboy
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          repository: ${{ github.repository_owner }}/imboy-admin-frontend
+          ref: 'b8d91e7f11fa096d81d7ec4ee2bccd8191999528'
+          path: imboyadmin
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
+        with:
+          name: uiux-plan
+          path: ${{ runner.temp }}/uiux-plan
+      - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        if: matrix.suite == 'tooling'
+        with:
+          python-version: '3.12'
+      - name: Prepare dependencies and the actual product variant
+        id: prepare
+        env:
+          WORKER_PLATFORM: ${{ matrix.platform }}
+          WORKER_SUITE: ${{ matrix.suite }}
+          WORKER_PRODUCT: ${{ matrix.product }}
+        run: |
+          set -euo pipefail
+          if [ "$WORKER_PLATFORM" = linux ]; then bash .github/scripts/ci_ensure_system_sqlite.sh; fi
+          if [ "$WORKER_SUITE" = tooling ]; then
+            python3 -m pip install --disable-pip-version-check --require-hashes --only-binary=:all: -r scripts/requirements-tooling.txt
+          fi
+          bash .github/scripts/ci_patch_path_deps.sh --check
+          flutter pub get --enforce-lockfile
+          bash .github/scripts/ci_gen_env.sh
+          bash .github/scripts/uiux_full_prepare_product.sh "$WORKER_PRODUCT"
+          if [ "$WORKER_PLATFORM" = web ]; then
+            bash .github/scripts/ci_prepare_chrome.sh
+            node test/customer_service/fixtures/cs_direct_web_server.cjs > "$RUNNER_TEMP/uiux-web-fixture.log" 2>&1 &
+          else
+            bash .github/scripts/ci_build_vod.sh
+          fi
+      - name: Execute frozen worker partition
+        if: always()
+        env:
+          PREPARE_OUTCOME: ${{ steps.prepare.outcome }}
+          WORKER_PLATFORM: ${{ matrix.platform }}
+          WORKER_SUITE: ${{ matrix.suite }}
+          WORKER_PRODUCT: ${{ matrix.product }}
+          COVERAGE_OPTION: ${{ matrix.coverage }}
+        run: |
+          coverage_args=()
+          if [ "$COVERAGE_OPTION" = --coverage ]; then coverage_args+=(--coverage); fi
+          python3 scripts/auto_test.py execution-run \
+            --plan "$RUNNER_TEMP/uiux-plan/full-plan.json" \
+            --worker-platform "$WORKER_PLATFORM" --worker-suite "$WORKER_SUITE" \
+            --worker-product-profile "$WORKER_PRODUCT" "${coverage_args[@]}" \
+            --upstream "prepare=$PREPARE_OUTCOME" \
+            --artifact-dir "$RUNNER_TEMP/uiux-worker"
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        if: always()
+        with:
+          name: uiux-worker-${{ matrix.platform }}-${{ matrix.suite }}-${{ matrix.product }}
+          path: ${{ runner.temp }}/uiux-worker/
+          if-no-files-found: warn
+
+  reconcile:
+    name: Reconcile scoped and full obligations
+    if: always()
+    needs: [plan, gates, workers]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          fetch-depth: 0
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
+        with:
+          name: uiux-plan
+          path: ${{ runner.temp }}/uiux-plan
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
+        if: always()
+        with:
+          pattern: uiux-gates
+          path: ${{ runner.temp }}/uiux-results/gates
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
+        if: always()
+        with:
+          pattern: uiux-worker-*
+          path: ${{ runner.temp }}/uiux-results/workers
+      - name: Reconcile coverage and both plans
+        if: always()
+        shell: bash
+        run: |
+          set +e
+          out="$RUNNER_TEMP/uiux-summary"
+          mkdir -p "$out"
+          python3 scripts/auto_test.py execution-coverage --plan "$RUNNER_TEMP/uiux-plan/full-plan.json" \
+            --results "$RUNNER_TEMP/uiux-results" --platform linux --output "$out/lcov.info" --minimum 38
+          coverage_rc=$?
+          python3 scripts/auto_test.py execution-summary --plan "$RUNNER_TEMP/uiux-plan/offline-plan.json" \
+            --results "$RUNNER_TEMP/uiux-results" --output "$out/offline-summary.json"
+          offline_rc=$?
+          python3 scripts/auto_test.py execution-summary --plan "$RUNNER_TEMP/uiux-plan/full-plan.json" \
+            --results "$RUNNER_TEMP/uiux-results" --output "$out/full-summary.json"
+          full_rc=$?
+          printf 'coverage=%s offline=%s full=%s\n' "$coverage_rc" "$offline_rc" "$full_rc"
+          printf '%s\n' 'Offline scope excludes API, device and Golden obligations. This workflow does not import specialist evidence; full status must remain blocked until a compatible same-plan orchestrator is implemented.' >> "$GITHUB_STEP_SUMMARY"
+          # Missing real API, Golden and device results remain blocked.
+          if [ "$coverage_rc" -ne 0 ] || [ "$offline_rc" -ne 0 ] || [ "$full_rc" -ne 0 ]; then exit 1; fi
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        if: always()
+        with:
+          name: uiux-summaries
+          path: ${{ runner.temp }}/uiux-summary/
+          if-no-files-found: warn

@@ -951,3 +951,10 @@ legacyUploadReturnToOriginalPage: "アップロードが未完了です。元の
 
 f2fLocationRequired: "位置情報の権限とサービスを有効にして、近くの友達と再試行してください。"
 f2fMemberHint: "友達のアイコンをタップしてプロフィールを表示し、友達を追加します。"
+
+pleaseSelectLocation: "場所を選択してください"
+myLocation: "現在地"
+
+searchConversations: "会話"
+
+webpageLoadProblem: "ページの読み込み中に問題が発生しました。再試行してください。"

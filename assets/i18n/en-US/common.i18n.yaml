@@ -945,3 +945,10 @@ legacyUploadReturnToOriginalPage: "The upload is incomplete. Return to the origi
 
 f2fLocationRequired: "Enable location permission and services, then try again with nearby friends."
 f2fMemberHint: "Tap a friend’s avatar to view their profile and add them."
+
+pleaseSelectLocation: "Please select a location"
+myLocation: "My location"
+
+searchConversations: "Conversations"
+
+webpageLoadProblem: "There was a problem loading page content. Please retry."

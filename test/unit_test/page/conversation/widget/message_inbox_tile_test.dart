@@ -154,45 +154,50 @@ void main() {
   });
 
   for (final brightness in Brightness.values) {
-    for (final scale in [1.0, 1.4, 2.0]) {
-      testWidgets(
-        '320pt, ${scale}x text, $brightness keeps all states in bounds',
-        (tester) async {
-          await _pump(
-            tester,
-            (context) => _tile(
-              context,
-              unreadCount: 250,
-              isMuted: true,
-              isPinned: true,
-              hasBotBadge: true,
-              hasManualPending: true,
-              timeLabel: '2025/10/28',
-            ),
-            width: 320,
-            textScale: scale,
-            brightness: brightness,
-          );
-
-          expect(tester.takeException(), isNull);
-          expect(find.byType(BotBadge), findsOneWidget);
-          expect(find.byIcon(CupertinoIcons.flag_fill), findsOneWidget);
-          expect(find.text('99+'), findsOneWidget);
-          expect(
-            tester.getBottomRight(find.text('99+')).dx,
-            lessThanOrEqualTo(320 - AppSpacing.regular),
-          );
-          final previewContext = tester.element(find.text(_preview));
-          expect(MediaQuery.textScalerOf(previewContext).scale(10), 10 * scale);
-          if (scale > 1) {
-            expect(
-              tester.getTopLeft(find.text('2025/10/28')).dy,
-              greaterThan(tester.getBottomLeft(find.text(_preview)).dy),
-              reason: 'Large text must keep metadata below the full-width title/preview',
+    for (final width in [320.0, 360.0, 390.0]) {
+      for (final scale in [1.0, 1.5, 2.0]) {
+        testWidgets(
+          '${width}pt, ${scale}x text, $brightness keeps all states in bounds',
+          (tester) async {
+            await _pump(
+              tester,
+              (context) => _tile(
+                context,
+                unreadCount: 250,
+                isMuted: true,
+                isPinned: true,
+                hasBotBadge: true,
+                hasManualPending: true,
+                timeLabel: '2025/10/28',
+              ),
+              width: width,
+              textScale: scale,
+              brightness: brightness,
             );
-          }
-        },
-      );
+
+            expect(tester.takeException(), isNull);
+            expect(find.byType(BotBadge), findsOneWidget);
+            expect(find.byIcon(CupertinoIcons.flag_fill), findsOneWidget);
+            expect(find.text('99+'), findsOneWidget);
+            expect(
+              tester.getBottomRight(find.text('99+')).dx,
+              lessThanOrEqualTo(width - AppSpacing.regular),
+            );
+            final previewContext = tester.element(find.text(_preview));
+            expect(
+              MediaQuery.textScalerOf(previewContext).scale(10),
+              10 * scale,
+            );
+            if (scale > 1) {
+              expect(
+                tester.getTopLeft(find.text('2025/10/28')).dy,
+                greaterThan(tester.getBottomLeft(find.text(_preview)).dy),
+                reason: 'Large text must keep metadata below the full-width title/preview',
+              );
+            }
+          },
+        );
+      }
     }
   }
 

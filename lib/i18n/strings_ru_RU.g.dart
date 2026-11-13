@@ -525,6 +525,9 @@ class _Translations$channel$ru_RU extends Translations$channel$zh_CN {
 	@override String get subscribePending => 'Подписка оформлена, обновление';
 	@override String get subscribeRefresh => 'Обновить подписку';
 	@override String unseenUpdatesBanner({required Object count}) => 'Новых обновлений: ${count}';
+	@override String get editLeaveUnsaved => 'Изменения не сохранены. Отменить их и выйти?';
+	@override String get avatarNotUploaded => 'Фото профиля не загружено. Повторите попытку или восстановите его перед сохранением.';
+	@override String get restoreAvatar => 'Восстановить фото';
 }
 
 // Path: chat
@@ -1703,6 +1706,10 @@ class _Translations$common$ru_RU extends Translations$common$zh_CN {
 	@override String get legacyUploadReturnToOriginalPage => 'Загрузка не завершена. Вернитесь на исходную страницу, снова выберите файл и отправьте.';
 	@override String get f2fLocationRequired => 'Включите разрешение и службы геолокации и повторите попытку с друзьями рядом.';
 	@override String get f2fMemberHint => 'Нажмите на аватар, чтобы открыть профиль и добавить друга.';
+	@override String get pleaseSelectLocation => 'Выберите место';
+	@override String get myLocation => 'Моё местоположение';
+	@override String get searchConversations => 'Беседы';
+	@override String get webpageLoadProblem => 'Возникла проблема при загрузке содержимого страницы. Повторите попытку.';
 }
 
 // Path: complaint
@@ -2026,6 +2033,7 @@ class _Translations$group$ru_RU extends Translations$group$zh_CN {
 	@override String get sureToTransferAndLeave => 'Вы передадите права владельца и покинете группу. Продолжить?';
 	@override String get transferredButLeaveFailed => 'Владелец передан, но выход не удался. Повторите попытку';
 	@override String get noEligibleSuccessor => 'Нет участников для передачи';
+	@override String get searchLoadedMembers => 'Поиск только среди загруженных участников';
 }
 
 // Path: groupCategory
@@ -3863,6 +3871,9 @@ extension on TranslationsRuRu {
 			'channel.subscribePending' => 'Подписка оформлена, обновление',
 			'channel.subscribeRefresh' => 'Обновить подписку',
 			'channel.unseenUpdatesBanner' => ({required Object count}) => 'Новых обновлений: ${count}',
+			'channel.editLeaveUnsaved' => 'Изменения не сохранены. Отменить их и выйти?',
+			'channel.avatarNotUploaded' => 'Фото профиля не загружено. Повторите попытку или восстановите его перед сохранением.',
+			'channel.restoreAvatar' => 'Восстановить фото',
 			'chat.bankCard' => 'Банковская карта',
 			'chat.receivePayment' => 'Приём и оплата',
 			'chat.alreadyMember' => 'Уже участник',
@@ -3965,11 +3976,11 @@ extension on TranslationsRuRu {
 			'chat.youWithdrewAMessage' => 'Вы отозвали сообщение',
 			'chat.formatCheck' => 'Проверка формата',
 			'chat.featureRequest' => 'Запрос функции',
+			_ => null,
+		} ?? switch (path) {
 			'chat.chatResend' => 'Отправить снова',
 			'chat.profileExportProfile' => 'Экспортировать профиль',
 			'chat.momentsSend' => 'Отправить',
-			_ => null,
-		} ?? switch (path) {
 			'chat.loginExpiredMessage' => 'Срок входа истёк, войдите снова',
 			'chat.customImage' => 'Пользовательское изображение',
 			'chat.burnAfterReading' => 'Удалить после прочтения',
@@ -4479,11 +4490,11 @@ extension on TranslationsRuRu {
 			'common.chatInitFailed' => 'Не удалось инициализировать чат',
 			'common.cameraShootFailed' => 'Не удалось сделать снимок',
 			'common.cameraCapture' => 'Камера',
+			_ => null,
+		} ?? switch (path) {
 			'common.cameraModePhoto' => 'Фото',
 			'common.cameraModeVideo' => 'Видео',
 			'common.cameraRetake' => 'Переснять',
-			_ => null,
-		} ?? switch (path) {
 			'common.cameraUse' => 'Использовать',
 			'common.cameraNoDevice' => 'Камера не найдена',
 			'common.avatarEditAvatar' => 'Редактировать аватар',
@@ -4993,11 +5004,11 @@ extension on TranslationsRuRu {
 			'common.redPacketSwitchToNormal' => 'Переключить на обычный конверт',
 			'common.redPacketTotalAmount' => 'Общая сумма',
 			'common.redPacketView' => 'Просмотреть конверт',
+			_ => null,
+		} ?? switch (path) {
 			'common.switchCamera' => 'Переключить камеру',
 			'common.timeDaysShort' => ({required Object count}) => '${count} д',
 			'common.timeHoursShort' => ({required Object count}) => '${count} ч',
-			_ => null,
-		} ?? switch (path) {
 			'common.timeMinutesShort' => ({required Object count}) => '${count} мин',
 			'common.timeNowShort' => 'сейчас',
 			'common.transferAccepted' => 'Получено',
@@ -5028,6 +5039,10 @@ extension on TranslationsRuRu {
 			'common.legacyUploadReturnToOriginalPage' => 'Загрузка не завершена. Вернитесь на исходную страницу, снова выберите файл и отправьте.',
 			'common.f2fLocationRequired' => 'Включите разрешение и службы геолокации и повторите попытку с друзьями рядом.',
 			'common.f2fMemberHint' => 'Нажмите на аватар, чтобы открыть профиль и добавить друга.',
+			'common.pleaseSelectLocation' => 'Выберите место',
+			'common.myLocation' => 'Моё местоположение',
+			'common.searchConversations' => 'Беседы',
+			'common.webpageLoadProblem' => 'Возникла проблема при загрузке содержимого страницы. Повторите попытку.',
 			'complaint.complaint' => 'Жалоба',
 			'complaint.e2eeConsentTitle' => 'Отправить зашифрованные доказательства',
 			'complaint.e2eeConsentBody' => 'Это сообщение зашифровано сквозным шифрованием; сервер не видит его содержимое. Отправка выдержки раскроет выбранный открытый текст модераторам для проверки. Согласны?',
@@ -5279,6 +5294,7 @@ extension on TranslationsRuRu {
 			'group.sureToTransferAndLeave' => 'Вы передадите права владельца и покинете группу. Продолжить?',
 			'group.transferredButLeaveFailed' => 'Владелец передан, но выход не удался. Повторите попытку',
 			'group.noEligibleSuccessor' => 'Нет участников для передачи',
+			'group.searchLoadedMembers' => 'Поиск только среди загруженных участников',
 			'groupCategory.title' => 'Папки групп',
 			'groupCategory.createCategory' => 'Создать папку',
 			'groupCategory.categoryName' => 'Название папки',
@@ -5502,6 +5518,8 @@ extension on TranslationsRuRu {
 			'main.collecting' => 'Сохранение...',
 			'main.user' => 'Пользователь',
 			'main.recommended' => 'Рекомендуется',
+			_ => null,
+		} ?? switch (path) {
 			'main.larger' => 'Больше',
 			'main.fillIn' => 'Заполнить',
 			'main.msgProtectedByComplianceKey' => 'Сообщения защищены ключом соответствия',
@@ -5510,8 +5528,6 @@ extension on TranslationsRuRu {
 			'main.mySentTab' => 'Отправленные',
 			'main.reject' => 'Отклонить',
 			'main.myOrders' => 'Мои заказы',
-			_ => null,
-		} ?? switch (path) {
 			'main.purchaseUnlockHint' => 'После покупки откроется история сообщений канала и новые публикации.',
 			'main.payingDots' => 'Оплата...',
 			'main.purchaseAndUnlock' => 'Купить и открыть',
@@ -6016,6 +6032,8 @@ extension on TranslationsRuRu {
 			'passport.qrLoginCancelledByMe' => 'Вы отменили вход',
 			'passport.qrLoginConfirming' => 'Выполняется вход...',
 			'passport.qrLoginSuccess' => 'Вход выполнен',
+			_ => null,
+		} ?? switch (path) {
 			'passport.qrWebLoginDesc' => 'Подтвердите вход этого аккаунта в веб-версии',
 			'passport.qrWebLoginTitle' => 'Подтверждение входа в веб-версии',
 			'passport.alipayNotSupportedWeb' => 'Вход через Alipay не поддерживается в вебе',
@@ -6024,8 +6042,6 @@ extension on TranslationsRuRu {
 			'passport.oneKeyNoSimCard' => 'Текущая сеть не поддерживается или в телефоне нет SIM-карты',
 			'passport.cannotGetScreenSize' => 'Не удалось получить размер экрана',
 			'passport.oneKeyFailedRetry' => 'Не удалось выполнить вход в один клик, проверьте сеть и повторите',
-			_ => null,
-		} ?? switch (path) {
 			'splash.slogan' => 'Свободно общайтесь — легко и удобно',
 			'talkRecord.uploadProgressRegister' => 'Подготовка загрузки',
 			'talkRecord.uploadProgressUpload' => 'Загрузка аудио',

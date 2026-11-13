@@ -171,18 +171,22 @@ const List<Size> kUxViewportSweep = [
 /// AppLoading host + MediaQuery textScaler 注入。
 /// 对齐既有 CS widget 测试：TranslationProvider 挂在 MaterialApp.builder
 /// 内（InheritedWidget 需在导航子树内）。
-Widget uxHost(Widget page, UxCombo combo) {
+Widget uxHost(Widget page, UxCombo combo, {ThemeData? theme}) {
   return MaterialApp(
-    theme: ThemeData(
-      useMaterial3: true,
-      colorSchemeSeed: Colors.blue,
-      brightness: Brightness.light,
-    ),
-    darkTheme: ThemeData(
-      useMaterial3: true,
-      colorSchemeSeed: Colors.blue,
-      brightness: Brightness.dark,
-    ),
+    theme:
+        theme ??
+        ThemeData(
+          useMaterial3: true,
+          colorSchemeSeed: Colors.blue,
+          brightness: Brightness.light,
+        ),
+    darkTheme:
+        theme ??
+        ThemeData(
+          useMaterial3: true,
+          colorSchemeSeed: Colors.blue,
+          brightness: Brightness.dark,
+        ),
     themeMode: combo.brightness == Brightness.dark
         ? ThemeMode.dark
         : ThemeMode.light,
@@ -225,15 +229,16 @@ Future<void> settleUx(WidgetTester tester) async {
 Future<void> pumpUxCombo(
   WidgetTester tester,
   Widget page,
-  UxCombo combo,
-) async {
+  UxCombo combo, {
+  ThemeData? theme,
+}) async {
   tester.view.physicalSize = combo.viewport;
   tester.view.devicePixelRatio = 1.0;
   addTearDown(() {
     tester.view.resetPhysicalSize();
     tester.view.resetDevicePixelRatio();
   });
-  await tester.pumpWidget(uxHost(page, combo));
+  await tester.pumpWidget(uxHost(page, combo, theme: theme));
   await settleUx(tester);
 }
 

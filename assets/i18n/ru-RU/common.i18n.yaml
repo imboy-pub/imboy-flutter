@@ -951,3 +951,10 @@ legacyUploadReturnToOriginalPage: "Загрузка не завершена. В�
 
 f2fLocationRequired: "Включите разрешение и службы геолокации и повторите попытку с друзьями рядом."
 f2fMemberHint: "Нажмите на аватар, чтобы открыть профиль и добавить друга."
+
+pleaseSelectLocation: "Выберите место"
+myLocation: "Моё местоположение"
+
+searchConversations: "Беседы"
+
+webpageLoadProblem: "Возникла проблема при загрузке содержимого страницы. Повторите попытку."

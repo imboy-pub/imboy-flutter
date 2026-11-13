@@ -227,3 +227,7 @@ enterpriseChannelLabel: "기업 내부 채널"
 subscribePending: 구독 완료, 새로고침 중
 subscribeRefresh: 구독 상태 새로고침
 unseenUpdatesBanner(count): "새 업데이트 ${count}개"
+
+editLeaveUnsaved: "변경 사항이 저장되지 않았습니다. 버리고 나가시겠습니까?"
+avatarNotUploaded: "프로필 사진이 업로드되지 않았습니다. 다시 시도하거나 복원한 후 저장하세요."
+restoreAvatar: "프로필 사진 복원"

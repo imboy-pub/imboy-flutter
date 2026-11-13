@@ -50,3 +50,4 @@ transferAndLeave: Передать и выйти
 sureToTransferAndLeave: Вы передадите права владельца и покинете группу. Продолжить?
 transferredButLeaveFailed: Владелец передан, но выход не удался. Повторите попытку
 noEligibleSuccessor: Нет участников для передачи
+searchLoadedMembers: "Поиск только среди загруженных участников"

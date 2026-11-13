@@ -8,8 +8,9 @@
 ///  5. golden_missing_font_is_visual_blocked_only
 library;
 
-import 'dart:io' show File;
-import 'dart:typed_data' show Uint8List;
+import 'dart:convert' show jsonDecode;
+import 'dart:io' show Directory, File, IOOverrides;
+import 'dart:typed_data' show ByteData, Uint8List;
 
 import 'package:flutter_test/flutter_test.dart';
 
@@ -18,7 +19,38 @@ import '../support/golden_font_loader.dart';
 /// 合成字体字节：非 TrueType 魔数，仅用于"缺字体/hash 不匹配"分支。
 final Uint8List fakeFontBytes = Uint8List.fromList(<int>[0, 1, 2, 3]);
 
+class _MissingIconFontFile implements File {
+  @override
+  bool existsSync() => false;
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+}
+
 void main() {
+  test('golden_missing_icon_font_fails_before_any_engine_registration', () async {
+    final bytes = ByteData(1);
+    expect(bytes.lengthInBytes, greaterThan(0));
+    final resolution = GoldenFontResolution(
+      status: GoldenFontStatus.ok,
+      fontBytes: bytes,
+      reason: 'synthetic icon preflight fixture',
+    );
+    await IOOverrides.runZoned(
+      () async => expectLater(
+        () => loadGoldenFont(resolution),
+        throwsA(
+          isA<StateError>().having(
+            (error) => error.message,
+            'message',
+            'ENV_MISSING: GOLDEN_ICON_FONT_MISSING:${kGoldenIconFontAssets.first.$1}',
+          ),
+        ),
+      ),
+      createFile: (_) => _MissingIconFontFile(),
+    );
+  });
+
   test('golden_font_has_required_cjk_glyphs：登记字体覆盖全部必需 CJK 码点', () async {
     final GoldenFontResolution r = resolveGoldenFont();
     // 本机探测登记了 Arial Unicode；换机器缺字体时此用例按 VISUAL_BLOCKED
@@ -33,8 +65,76 @@ void main() {
       File(r.asset!.path).readAsBytesSync(),
     );
     expect(missing, isNull, reason: '必需 CJK 码点必须全部有非 0 glyph id');
+    final bytes = File(r.asset!.path).readAsBytesSync();
+    expect(missingRequiredGlyphs(bytes, codepoints: '合成企业名称'.runes), isNull);
+    expect(
+      missingRequiredGlyphs(bytes, codepoints: [0x10FFFF]),
+      contains('U+10FFFF'),
+    );
     // 真实可渲染性：FontLoader 注册成功（字节可被引擎解析）。
-    await loadGoldenFont(r);
+    await loadGoldenTextFont(r);
+  });
+
+  test('golden_icon_fonts_load_from_current_sdk_and_locked_package', () async {
+    final config = File('.dart_tool/package_config.json').absolute;
+    final data = jsonDecode(config.readAsStringSync()) as Map<String, dynamic>;
+    final packages = data['packages'] as List<dynamic>;
+    Uri packageRoot(String name) {
+      final package = packages.cast<Map<String, dynamic>>().singleWhere(
+        (entry) => entry['name'] == name,
+      );
+      return Directory.fromUri(config.uri.resolve(package['rootUri'] as String))
+          .uri;
+    }
+
+    final flutterRoot = Directory.fromUri(packageRoot('flutter')).parent.parent;
+    final material = File.fromUri(
+      flutterRoot.uri.resolve(
+        'bin/cache/artifacts/material_fonts/MaterialIcons-Regular.otf',
+      ),
+    ).path;
+    final cupertino = File.fromUri(
+      packageRoot('cupertino_icons').resolve('assets/CupertinoIcons.ttf'),
+    ).path;
+    await loadGoldenIconFonts(<(String, String)>[
+      (material, 'MaterialIcons'),
+      (cupertino, 'packages/cupertino_icons/CupertinoIcons'),
+      (cupertino, 'CupertinoIcons'),
+    ]);
+    final registeredFiles = <String, File>{
+      kGoldenIconFontAssets[0].$1: File(material),
+      kGoldenIconFontAssets[1].$1: File(cupertino),
+    };
+    final resolution = resolveGoldenFont();
+    await IOOverrides.runZoned(
+      () => loadGoldenFont(resolution),
+      createFile: (path) => registeredFiles[path]!,
+    );
+    for (final missingPath in <String>[
+      '$material.missing-for-contract-test',
+      '$cupertino.missing-for-contract-test',
+    ]) {
+      expect(File(missingPath).existsSync(), isFalse);
+      final assets = missingPath.startsWith(material)
+          ? <(String, String)>[
+              (missingPath, 'MaterialIcons'),
+              (cupertino, 'CupertinoIcons'),
+            ]
+          : <(String, String)>[
+              (material, 'MaterialIcons'),
+              (missingPath, 'CupertinoIcons'),
+            ];
+      await expectLater(
+        () => loadGoldenIconFonts(assets),
+        throwsA(
+          isA<StateError>().having(
+            (error) => error.message,
+            'message',
+            'ENV_MISSING: GOLDEN_ICON_FONT_MISSING:$missingPath',
+          ),
+        ),
+      );
+    }
   });
 
   test('golden_rejects_ahem_or_missing_font：hash 不匹配或缺失一律拒绝', () {

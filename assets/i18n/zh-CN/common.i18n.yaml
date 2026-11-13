@@ -961,3 +961,10 @@ legacyUploadReturnToOriginalPage: "原上传未完成，请返回原页面重新
 
 f2fLocationRequired: "请开启定位权限和定位服务，和身边的朋友一起重试"
 f2fMemberHint: "点击朋友头像查看资料并添加好友"
+
+pleaseSelectLocation: "请选择位置"
+myLocation: "我的位置"
+
+searchConversations: "会话"
+
+webpageLoadProblem: "网页内容加载遇到问题，请重试。"

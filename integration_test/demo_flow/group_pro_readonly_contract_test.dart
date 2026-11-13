@@ -7,6 +7,7 @@
 // API_BASE_URL=http://127.0.0.1:<isolated-port>
 // IMBOY_SOLIDIFIED_KEY=<isolated-signing-key>
 // TEST_PHONE=<synthetic-account> TEST_PASSWORD=<synthetic-password>
+// TEST_LOGIN_TYPE=account（可选；未设置时保留 email/mobile 推断）
 // 仅登录 POST + GET 只读端点；不调用业务写端点、不启用 API writes。
 
 @TestOn('vm')
@@ -31,14 +32,14 @@ bool _isIsolatedTarget(String value) {
 }
 
 /// 自包含最小客户端：HMAC-SHA512 请求签名 + Bearer 鉴权 + JSON envelope 解析。
-class _ReadOnlyContractClient {
+class ReadOnlyContractClient {
   final Uri base;
   final String signingKey;
   final String did = 'e2e-dart-test-001';
   String? _token;
   String? _uid;
 
-  _ReadOnlyContractClient(this.base, this.signingKey);
+  ReadOnlyContractClient(this.base, this.signingKey);
 
   String? get currentUid => _uid;
 
@@ -100,9 +101,16 @@ class _ReadOnlyContractClient {
   /// 返回 {ok, md5Rejected, plainRetryOk}。
   Future<Map<String, dynamic>> loginCompat(
     String account,
-    String password,
-  ) async {
-    final type = account.contains('@') ? 'email' : 'mobile';
+    String password, {
+    String? type,
+  }) async {
+    final configuredType =
+        type ?? Platform.environment['TEST_LOGIN_TYPE'] ?? '';
+    final loginType = configuredType.isNotEmpty
+        ? configuredType
+        : account.contains('@')
+        ? 'email'
+        : 'mobile';
     final md5Pwd = crypto.md5.convert(utf8.encode(password)).toString();
     var resp = await _json(
       'POST',
@@ -110,7 +118,7 @@ class _ReadOnlyContractClient {
       body: {
         'account': account,
         'pwd': md5Pwd,
-        'type': type,
+        'type': loginType,
         'rsa_encrypt': '0',
       },
     );
@@ -131,7 +139,7 @@ class _ReadOnlyContractClient {
         body: {
           'account': account,
           'pwd': password,
-          'type': type,
+          'type': loginType,
           'rsa_encrypt': '0',
         },
       );
@@ -191,7 +199,7 @@ String? _firstGid(dynamic payload) {
 }
 
 void main() {
-  late _ReadOnlyContractClient client;
+  late ReadOnlyContractClient client;
   bool ready = false;
   String? sampleGid;
   bool md5Rejected = false;
@@ -217,7 +225,7 @@ void main() {
     if (account.isEmpty || password.isEmpty) {
       fail('ENV_MISSING: 需要合成 TEST_PHONE/TEST_PASSWORD 只读测试账号');
     }
-    client = _ReadOnlyContractClient(Uri.parse(url), key);
+    client = ReadOnlyContractClient(Uri.parse(url), key);
     final r = await client.loginCompat(account, password);
     if (r['ok'] != true) {
       final resp = r['resp'] as Map<String, dynamic>;

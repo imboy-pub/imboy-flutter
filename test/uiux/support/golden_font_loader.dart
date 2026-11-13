@@ -15,6 +15,10 @@ import 'dart:typed_data' show ByteData, Uint8List;
 
 import 'package:crypto/crypto.dart' show sha256;
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart' show RenderParagraph;
+import 'package:flutter_test/flutter_test.dart';
+import 'package:imboy/theme/default/font_types.dart';
+import 'package:imboy/theme/default/theme.dart';
 import 'package:flutter/services.dart' show FontLoader;
 
 /// 视觉字体解析结果。
@@ -225,28 +229,122 @@ const List<String> kGoldenFontApplyFamilies = <String>[
 /// 把 [resolution] 的字体注册进测试绑定（真实可渲染）。
 /// 仅 status=ok 时调用；否则抛 StateError（调用方契约错误）。
 Future<void> loadGoldenFont(GoldenFontResolution resolution) async {
+  _checkGoldenTextFont(resolution);
+  // 全部资源先检查，缺图标时不注册任何文本或图标字节。
+  _checkGoldenIconFonts(kGoldenIconFontAssets);
+  await loadGoldenTextFont(resolution);
+  await loadGoldenIconFonts(kGoldenIconFontAssets);
+}
+
+void _checkGoldenTextFont(GoldenFontResolution resolution) {
   if (resolution.status != GoldenFontStatus.ok ||
       resolution.fontBytes == null) {
     throw StateError(
       'loadGoldenFont called with non-ok resolution: ${resolution.reason}',
     );
   }
+}
+
+void _checkGoldenIconFonts(List<(String, String)> assets) {
+  for (final (String path, _) in assets) {
+    if (!File(path).existsSync()) {
+      throw StateError('ENV_MISSING: GOLDEN_ICON_FONT_MISSING:$path');
+    }
+  }
+}
+
+/// 注册已核验的文本字体；不改变金图图标登记合同。
+Future<void> loadGoldenTextFont(GoldenFontResolution resolution) async {
+  _checkGoldenTextFont(resolution);
   for (final String family in kGoldenFontApplyFamilies) {
     final FontLoader loader = FontLoader(family);
     loader.addFont(Future<ByteData>.value(resolution.fontBytes));
     await loader.load();
   }
-  // 图标字体（本机 SDK/包缓存资产，容错式：缺失时图标退化为方块，
-  // golden 仍确定性）。P1-05 方向指示、P2-04 图标槽的视觉基线需要它。
-  for (final (String path, String family) in kGoldenIconFontAssets) {
+}
+
+/// 注册图标字体前先校验全部资产，避免部分注册。
+Future<void> loadGoldenIconFonts(List<(String, String)> assets) async {
+  _checkGoldenIconFonts(assets);
+  for (final (String path, String family) in assets) {
     final File f = File(path);
-    if (!f.existsSync()) continue;
     final FontLoader loader = FontLoader(family);
     loader.addFont(
       Future<ByteData>.value(ByteData.sublistView(f.readAsBytesSync())),
     );
     await loader.load();
   }
+}
+
+/// Golden 专用：结构测试不调用，也不改变其字体环境。
+Future<GoldenFontResolution> prepareGoldenFonts(WidgetTester tester) async {
+  final font = resolveGoldenFont();
+  expect(font.status, GoldenFontStatus.ok, reason: font.reason);
+  await tester.runAsync(() => loadGoldenFont(font));
+  return font;
+}
+
+/// 与空间抽屉相同的实际应用主题；缩放仍由 MediaQuery 提供。
+ThemeData goldenAppTheme(Brightness brightness) => applyGoldenFont(
+  brightness == Brightness.light
+      ? AppTheme.getLightThemeFromOption(FontSizeOption.normal)
+      : AppTheme.getDarkThemeFromOption(FontSizeOption.normal),
+);
+
+bool _isGoldenCjk(int rune) =>
+    (rune >= 0x3400 && rune <= 0x9FFF) ||
+    (rune >= 0xF900 && rune <= 0xFAFF) ||
+    (rune >= 0x20000 && rune <= 0x323AF);
+
+void _expectGoldenFontFamily(TextStyle style) {
+  expect(style.fontFamily, isNot('Ahem'));
+  expect(
+    [
+      style.fontFamily,
+      ...?style.fontFamilyFallback,
+    ].any(kGoldenFontApplyFamilies.contains),
+    isTrue,
+    reason: '实际文本必须命中已登记字体家族，禁止 Ahem 方块',
+  );
+}
+
+/// 捕获前核验实际段落、字体家族与 fixture 全部中文 cmap 覆盖。
+void expectGoldenTextGlyphs(
+  WidgetTester tester,
+  GoldenFontResolution font, {
+  Finder? sample,
+}) {
+  final paragraphs = tester
+      .renderObjectList<RenderParagraph>(find.byType(RichText))
+      .toList();
+  final paragraph = sample == null
+      ? paragraphs.firstWhere(
+          (p) => p.text.toPlainText().runes.any(_isGoldenCjk),
+        )
+      : tester.renderObject<RenderParagraph>(sample);
+  _expectGoldenFontFamily(paragraph.text.style!);
+  final renderedChinese = paragraphs
+      .expand((p) => p.text.toPlainText().runes)
+      .where(_isGoldenCjk)
+      .toSet();
+  expect(renderedChinese, isNotEmpty);
+  expect(
+    missingRequiredGlyphs(
+      font.fontBytes!.buffer.asUint8List(),
+      codepoints: renderedChinese,
+    ),
+    isNull,
+    reason: '实际 fixture 全部中文必须对应非零 glyph id',
+  );
+  expect(
+    paragraph.getBoxesForSelection(
+      TextSelection(
+        baseOffset: 0,
+        extentOffset: paragraph.text.toPlainText().length > 1 ? 2 : 1,
+      ),
+    ),
+    isNotEmpty,
+  );
 }
 
 /// [resolveGoldenFont] 结果能否进入视觉验收；缺字体的金图测试必须
@@ -305,12 +403,15 @@ String goldenEnvironmentHash({
 /// 检查 [ttfBytes] 的 cmap(3,1) format 4 是否覆盖全部
 /// [kRequiredCjkCodepoints]；全部覆盖返回 null，否则返回缺失码点描述。
 /// 只查 BMP 子表（Arial Unicode 的 CJK 覆盖全在 BMP）。
-String? missingRequiredGlyphs(Uint8List ttfBytes) {
+String? missingRequiredGlyphs(
+  Uint8List ttfBytes, {
+  Iterable<int> codepoints = kRequiredCjkCodepoints,
+}) {
   final Uint8List? subtable = _cmap31Format4Subtable(ttfBytes);
   if (subtable == null) return 'no cmap(3,1) format4 subtable found';
   final Set<int> covered = _coveredCodepoints(subtable);
   final List<int> missing = <int>[];
-  for (final int cp in kRequiredCjkCodepoints) {
+  for (final int cp in codepoints) {
     if (!covered.contains(cp)) {
       missing.add(cp);
     }

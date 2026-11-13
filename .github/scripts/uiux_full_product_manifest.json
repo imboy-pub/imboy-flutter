@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "product_id": "imboy",
+  "profile": "full-selected",
+  "base_ref": "imboy-feature-inventory-v1",
+  "selected_features": [
+    "agent_hub",
+    "ai_assistant",
+    "appeal",
+    "bot_webhook",
+    "channel",
+    "channel_discover",
+    "channel_invitation",
+    "channel_order",
+    "customer_service",
+    "e2ee",
+    "enterprise_business",
+    "group_schedule",
+    "group_task",
+    "group_vote",
+    "live_room",
+    "location",
+    "mcp",
+    "moment",
+    "project",
+    "rtc",
+    "rtc_group",
+    "wallet"
+  ]
+}

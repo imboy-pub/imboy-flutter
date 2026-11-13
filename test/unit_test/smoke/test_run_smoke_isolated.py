@@ -10,7 +10,9 @@ import unittest
 RUNNER = Path(__file__).with_name('run_smoke_isolated.sh')
 REPO = RUNNER.parents[3]
 sys.path.insert(0, str(REPO / 'scripts'))
-from auto_test_lib.execution_runner import _persist_process_receipt, _record_attempt, _verdict
+from auto_test_lib.execution_runner import (
+    _capture_execution_context, _persist_process_receipt, _record_attempt, _verdict,
+)
 
 
 class IsolatedRunnerTests(unittest.TestCase):
@@ -107,10 +109,12 @@ class SharedRouteVerdictTests(unittest.TestCase):
         lines = [json.dumps(event) for event in events]
         evidence = tempfile.TemporaryDirectory(prefix='imboy-route-evidence-')
         self.addCleanup(evidence.cleanup)
+        execution_context = _capture_execution_context(Path(evidence.name))
         path = Path(evidence.name) / 'machine.jsonl'
         path.write_text('\n'.join(lines))
         target = 'test/unit_test/smoke/route_smoke_test.dart'
         receipt = _persist_process_receipt({'exit_code': exit_code,
+            'execution_context': execution_context,
             'log': str(path), 'machine': str(path),
             'command': ['flutter', 'test', target, '--machine']}, Path(evidence.name))
         attempt = _record_attempt(REPO, {'commit': 'synthetic-route-contract'},

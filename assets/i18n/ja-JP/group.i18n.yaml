@@ -51,3 +51,4 @@ transferAndLeave: 譲渡して退出的
 sureToTransferAndLeave: 譲渡するとグループを退出し、オーナー権限を失います。続行しますか？
 transferredButLeaveFailed: オーナーは譲渡されましたが、退出に失敗しました。もう一度お試しください
 noEligibleSuccessor: 譲渡できるメンバーがいません
+searchLoadedMembers: "読み込み済みのメンバーのみ検索"
