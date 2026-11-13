@@ -226,26 +226,38 @@ const List<String> kGoldenFontApplyFamilies = <String>[
   '.SF UI Display',
 ];
 
-/// 把 [resolution] 的字体注册进测试绑定（真实可渲染）。
-/// 仅 status=ok 时调用；否则抛 StateError（调用方契约错误）。
-Future<void> loadGoldenFont(GoldenFontResolution resolution) async {
+ByteData _goldenFontBytes(GoldenFontResolution resolution) {
   if (resolution.status != GoldenFontStatus.ok ||
       resolution.fontBytes == null) {
     throw StateError(
-      'loadGoldenFont called with non-ok resolution: ${resolution.reason}',
+      'golden font registration requires an ok resolution: ${resolution.reason}',
     );
   }
+  return resolution.fontBytes!;
+}
+
+/// 注册已校验的真实文本字体；组件字体合同不依赖 SDK 图标或像素基线。
+/// Register real text bytes for both the font contract and complete goldens.
+Future<void> loadGoldenTextFonts(GoldenFontResolution resolution) async {
+  final ByteData bytes = _goldenFontBytes(resolution);
+  for (final String family in kGoldenFontApplyFamilies) {
+    final FontLoader loader = FontLoader(family);
+    loader.addFont(Future<ByteData>.value(bytes));
+    await loader.load();
+  }
+}
+
+/// 把 [resolution] 的字体注册进测试绑定（真实可渲染）。
+/// 仅 status=ok 时调用；否则抛 StateError（调用方契约错误）。
+Future<void> loadGoldenFont(GoldenFontResolution resolution) async {
+  _goldenFontBytes(resolution);
   // 全部资源先检查，缺图标时不注册任何文本或图标字节。
   for (final (String path, _) in kGoldenIconFontAssets) {
     if (!File(path).existsSync()) {
       throw StateError('ENV_MISSING: GOLDEN_ICON_FONT_MISSING:$path');
     }
   }
-  for (final String family in kGoldenFontApplyFamilies) {
-    final FontLoader loader = FontLoader(family);
-    loader.addFont(Future<ByteData>.value(resolution.fontBytes));
-    await loader.load();
-  }
+  await loadGoldenTextFonts(resolution);
   // 图标同样是视觉输入，缺失必须阻断，禁止生成方块候选。
   for (final (String path, String family) in kGoldenIconFontAssets) {
     final File f = File(path);
