@@ -1729,10 +1729,7 @@ class ChatPageState extends ConsumerState<ChatPage>
   }
 
   // ===== 多选模式（chat_multi_select_v1 / W2-E）=====
-  //
-  // 接线（动作策略/转发导出 handler/对账/action bar 面板/enter+toggle
-  // 反馈）已抽至 chat_multi_select_wiring.dart（W5-G1 G1-9）；此处只留
-  // 长按菜单入口判定与退出（返回键耦合）。
+  // 动作接线已抽离；此处仅保留长按菜单入口判定与退出逻辑。
 
   /// 多选灰度开关（rollout flag）：默认 false（fail-closed）；
   /// 测试经 AppFeatureRegistry.replaceSnapshotForTest 开启。
@@ -1770,16 +1767,15 @@ class ChatPageState extends ConsumerState<ChatPage>
     // 删除/举报，防止占位串被复制/转发为真实文本（与 _onMessageTap 对称）。
     final isE2EEFailedPlaceholder = message.metadata?['_e2ee_failed'] == true;
 
-    // 多选入口（chat_multi_select_v1）：flag 开启且该消息可选（W1-A 白名单
-    // + 状态判定）才提供；null 时菜单完全不渲染该按钮 —— 关闭开关零 UI 变化。
-    // E2EE 失败占位行由 evaluateMessageSelectability 以 e2ee_failed 拒绝。
+    // 多选入口：flag 开启且消息通过可选性校验才显示；关闭时不渲染。
+    // E2EE 失败占位由可选性校验拒绝。
     VoidCallback? onMultiSelect;
     if (_multiSelectFlagEnabled &&
         _conversationUk3.isNotEmpty &&
         evaluateMessageSelectability(messageSelectionTraitsOf(message))
             .selectable) {
       onMultiSelect = () async {
-        // 切换多选时 ChatInput 将被卸载；先等待写入完成，不能只启动 Future。
+
         try {
           await _chatInputKey.currentState?.flushDraft();
         } catch (error) {

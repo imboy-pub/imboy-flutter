@@ -214,13 +214,8 @@ class ChatMultiSelectReconciler {
 /// 多选模式底部面板：包装 [MessageMultiSelectActionBar] 并完成全部接线
 /// （ChatPage 多选分支的唯一 UI 入口，G1-9 自 chat_page build 抽离）。
 ///
-/// 进入多选时 ChatInput 被本面板替换（卸载）。已知限制（W5-G1 G1-8，
-/// PARTIAL）：ChatInput 的草稿保存是 300ms 防抖
-/// （chat_input.dart `_handleTextControllerChange`），dispose 只取消
-/// Timer 不 flush，且 ChatInputState / AccountDraftStore 均无公开的
-/// 立即保存 API、文本也只在 ChatInput 私有 controller 中 —— 进入多选
-/// 前最后 300ms 内的输入可能丢失。修复需在 chat_input.dart 增加 flush
-/// API（不在本波次文件范围内），此处仅记录。
+/// 进入多选前由 ChatPage await ChatInputState.flushDraft()；正常 300ms 防抖
+/// 保持不变，只有草稿持久化成功后才卸载输入区，写入失败则保留输入区。
 class ChatMultiSelectPanel extends ConsumerWidget {
   const ChatMultiSelectPanel({
     super.key,
