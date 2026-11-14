@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:highlight_text/highlight_text.dart';
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/ui/nodata_view.dart';
+import 'package:imboy/component/ui/ios_settings_ui.dart';
 import 'package:imboy/store/api/fts_api.dart';
 import 'package:imboy/store/model/contact_model.dart';
 import 'package:imboy/store/repository/contact_repo_sqlite.dart';
@@ -15,14 +16,13 @@ import 'package:imboy/theme/default/font_types.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_radius.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
+import 'package:imboy/theme/default/app_sizes.dart';
 import 'package:imboy/i18n/strings.g.dart';
 
 import 'message_search_provider.dart';
 import 'message_search_result_card.dart';
 
-/// 消息搜索页面
 class MessageSearchPage extends ConsumerStatefulWidget {
-  /// 搜索范围：当前会话的唯一标识（可选）
   final String? conversationUk3;
   final String? conversationTitle;
   final String? conversationType;
@@ -46,26 +46,47 @@ class _MessageSearchPageState extends ConsumerState<MessageSearchPage> {
   final TextEditingController _searchController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
   Timer? _debounceTimer;
+  late final String _ownerUid;
+  late final int _ownerSession;
   Map<String, HighlightedWord> _highlightWords = {};
 
   @override
   void initState() {
     super.initState();
-    // 设置搜索范围
+    final user = UserRepoLocal.to;
+    _ownerUid = user.currentUid;
+    _ownerSession = user.sessionGeneration;
+    user.addAuthListener(_onAuthChanged);
     if (widget.conversationUk3 != null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted || !_ownerActive) return;
         ref
             .read(messageSearchProvider.notifier)
             .setSearchScope(widget.conversationUk3, widget.conversationTitle);
       });
     }
-
-    // 滚动监听，实现加载更多
     _scrollController.addListener(_onScroll);
+  }
+
+  bool get _ownerActive {
+    final user = UserRepoLocal.to;
+    return mounted &&
+        _ownerUid.isNotEmpty &&
+        user.currentUid == _ownerUid &&
+        user.isCurrentSession(_ownerSession) &&
+        !user.isAuthTransitioning;
+  }
+
+  void _onAuthChanged() {
+    if (!mounted || _ownerActive) return;
+    _debounceTimer?.cancel();
+    _searchController.clear();
+    setState(() => _highlightWords = {});
   }
 
   @override
   void dispose() {
+    UserRepoLocal.to.removeAuthListener(_onAuthChanged);
     _debounceTimer?.cancel();
     _searchController.dispose();
     _scrollController.dispose();
@@ -73,27 +94,37 @@ class _MessageSearchPageState extends ConsumerState<MessageSearchPage> {
   }
 
   void _onScroll() {
+    if (!_ownerActive ||
+        ref.read(messageSearchProvider).errorMessage.isNotEmpty) {
+      return;
+    }
     if (_scrollController.position.pixels >=
         _scrollController.position.maxScrollExtent - 200) {
       ref.read(messageSearchProvider.notifier).loadMore();
     }
   }
 
-  /// 防抖搜索
   void _onSearchChanged(String query) {
+    if (!_ownerActive) return;
     _debounceTimer?.cancel();
-
     if (query.trim().isEmpty) {
       ref.read(messageSearchProvider.notifier).resetSearch();
       return;
     }
-
-    _debounceTimer = Timer(const Duration(milliseconds: 300), () {
-      ref.read(messageSearchProvider.notifier).performSearch(query: query);
-    });
+    _debounceTimer = Timer(
+      const Duration(milliseconds: 300),
+      () => _submitSearch(query),
+    );
   }
 
-  /// 更新高亮词
+  void _submitSearch(String query) {
+    if (!mounted || !_ownerActive) return;
+    _debounceTimer?.cancel();
+    unawaited(
+      ref.read(messageSearchProvider.notifier).performSearch(query: query),
+    );
+  }
+
   void _updateHighlightWords(String query) {
     if (query.trim().isEmpty) {
       _highlightWords = {};
@@ -114,31 +145,27 @@ class _MessageSearchPageState extends ConsumerState<MessageSearchPage> {
   Widget build(BuildContext context) {
     final state = ref.watch(messageSearchProvider);
     final t = context.t;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
     _updateHighlightWords(state.currentQuery);
-
     return CupertinoPageScaffold(
       child: SafeArea(
         child: Column(
           children: [
-            // 搜索栏
             _buildSearchBar(context, state, t),
-            // 过滤器栏
-            if (state.currentQuery.isNotEmpty)
+            if (_ownerActive && state.currentQuery.isNotEmpty)
               _buildFilterBar(context, state, t),
-            // 搜索范围提示
-            if (widget.conversationTitle != null)
+            if (_ownerActive && widget.conversationTitle != null)
               _buildScopeHint(context, state, t),
-            // 内容区域
-            Expanded(child: _buildContent(context, state, t, isDark)),
+            Expanded(
+              child: _ownerActive
+                  ? _buildContent(context, state, t)
+                  : const SizedBox.shrink(),
+            ),
           ],
         ),
       ),
     );
   }
 
-  /// 构建搜索栏
   Widget _buildSearchBar(
     BuildContext context,
     MessageSearchState state,
@@ -161,7 +188,6 @@ class _MessageSearchPageState extends ConsumerState<MessageSearchPage> {
       ),
       child: Row(
         children: [
-          // 返回按钮
           IconButton(
             icon: Icon(
               CupertinoIcons.chevron_left,
@@ -171,15 +197,17 @@ class _MessageSearchPageState extends ConsumerState<MessageSearchPage> {
             tooltip: MaterialLocalizations.of(context).backButtonTooltip,
             onPressed: () => Navigator.of(context).pop(),
           ),
-          // 搜索输入框
           Expanded(
             child: Container(
-              height: 40,
+              constraints: const BoxConstraints(
+                minHeight: AppSizes.touchTarget,
+              ),
               decoration: BoxDecoration(
                 color: Theme.of(context).colorScheme.surfaceContainerHighest,
                 borderRadius: AppRadius.borderRadiusMedium,
               ),
               child: TextField(
+                enabled: _ownerActive,
                 enableSuggestions: false,
                 autocorrect: false,
                 controller: _searchController,
@@ -220,25 +248,20 @@ class _MessageSearchPageState extends ConsumerState<MessageSearchPage> {
                           ),
                           tooltip: t.common.clear,
                           onPressed: () {
+                            if (!_ownerActive) return;
                             _searchController.clear();
-                            // 复用 onChanged 空串路径：先 cancel 页面防抖定时器再重置，
-                            // 否则 300ms 内点清除，旧词的 performSearch 仍会触发（BUG#130）。
+                            // 清除时一并取消防抖，避免旧查询再次触发。
                             _onSearchChanged('');
                           },
                         )
                       : null,
                 ),
                 onChanged: _onSearchChanged,
-                onSubmitted: (value) {
-                  ref
-                      .read(messageSearchProvider.notifier)
-                      .performSearch(query: value);
-                },
+                onSubmitted: _submitSearch,
               ),
             ),
           ),
           AppSpacing.horizontalSmall,
-          // 取消按钮
           CupertinoButton(
             onPressed: () => Navigator.of(context).pop(),
             child: Text(
@@ -255,7 +278,6 @@ class _MessageSearchPageState extends ConsumerState<MessageSearchPage> {
     );
   }
 
-  /// 构建过滤器栏
   Widget _buildFilterBar(
     BuildContext context,
     MessageSearchState state,
@@ -278,7 +300,6 @@ class _MessageSearchPageState extends ConsumerState<MessageSearchPage> {
         scrollDirection: Axis.horizontal,
         child: Row(
           children: [
-            // 消息类型过滤
             _buildFilterChip(
               context: context,
               label: t.common.all,
@@ -303,7 +324,6 @@ class _MessageSearchPageState extends ConsumerState<MessageSearchPage> {
                   ref.read(messageSearchProvider.notifier).setTypeFilter('C2G'),
             ),
             AppSpacing.horizontalRegular,
-            // 时间范围过滤
             _buildFilterChip(
               context: context,
               label: t.common.allTime,
@@ -343,7 +363,10 @@ class _MessageSearchPageState extends ConsumerState<MessageSearchPage> {
     required VoidCallback onTap,
   }) {
     return GestureDetector(
-      onTap: onTap,
+      onTap: () {
+        if (!_ownerActive) return;
+        onTap();
+      },
       child: Container(
         padding: const EdgeInsets.symmetric(
           horizontal: AppSpacing.medium,
@@ -374,7 +397,6 @@ class _MessageSearchPageState extends ConsumerState<MessageSearchPage> {
     );
   }
 
-  /// 构建搜索范围提示
   Widget _buildScopeHint(
     BuildContext context,
     MessageSearchState state,
@@ -405,11 +427,10 @@ class _MessageSearchPageState extends ConsumerState<MessageSearchPage> {
           ),
           CupertinoButton(
             onPressed: () {
+              if (!_ownerActive) return;
               ref.read(messageSearchProvider.notifier).clearSearchScope();
               if (_searchController.text.isNotEmpty) {
-                ref
-                    .read(messageSearchProvider.notifier)
-                    .performSearch(query: _searchController.text);
+                _submitSearch(_searchController.text);
               }
             },
             child: Text(
@@ -425,38 +446,28 @@ class _MessageSearchPageState extends ConsumerState<MessageSearchPage> {
     );
   }
 
-  /// 构建内容区域
   Widget _buildContent(
     BuildContext context,
     MessageSearchState state,
     Translations t,
-    bool isDark,
   ) {
     if (state.isLoading && state.searchResults.isEmpty) {
-      return _buildLoadingView();
+      return const Center(child: CupertinoActivityIndicator());
     }
-
     if (state.currentQuery.isEmpty) {
       return _buildSearchHistory(context, state, t);
     }
-
-    if (state.errorMessage.isNotEmpty && !state.isLoading) {
+    if (state.errorMessage.isNotEmpty &&
+        !state.isLoading &&
+        (state.searchResults.isEmpty || state.searchDisabled)) {
       return _buildErrorView(context, state, t);
     }
-
     if (state.searchResults.isEmpty && !state.isLoading) {
-      return _buildEmptyView(context, state, t);
+      return _buildEmptyView(state, t);
     }
-
-    return _buildSearchResults(context, state, t, isDark);
+    return _buildSearchResults(context, state, t);
   }
 
-  /// 构建加载视图
-  Widget _buildLoadingView() {
-    return const Center(child: CupertinoActivityIndicator());
-  }
-
-  /// 构建搜索历史
   Widget _buildSearchHistory(
     BuildContext context,
     MessageSearchState state,
@@ -484,11 +495,9 @@ class _MessageSearchPageState extends ConsumerState<MessageSearchPage> {
         ),
       );
     }
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // 标题栏
         Padding(
           padding: const EdgeInsets.fromLTRB(
             AppSpacing.regular,
@@ -509,6 +518,7 @@ class _MessageSearchPageState extends ConsumerState<MessageSearchPage> {
               ),
               CupertinoButton(
                 onPressed: () {
+                  if (!_ownerActive) return;
                   ref.read(messageSearchProvider.notifier).clearHistory();
                 },
                 child: Text(
@@ -522,13 +532,12 @@ class _MessageSearchPageState extends ConsumerState<MessageSearchPage> {
             ],
           ),
         ),
-        // 历史列表
         Expanded(
           child: ListView.builder(
             itemCount: state.searchHistory.length,
             itemBuilder: (context, index) {
               final query = state.searchHistory[index];
-              return ListTile(
+              return ImBoyListTile(
                 leading: Icon(
                   CupertinoIcons.clock,
                   color: AppColors.textSecondary,
@@ -549,16 +558,16 @@ class _MessageSearchPageState extends ConsumerState<MessageSearchPage> {
                   ),
                   tooltip: t.common.buttonDelete,
                   onPressed: () {
+                    if (!_ownerActive) return;
                     ref
                         .read(messageSearchProvider.notifier)
                         .removeFromHistory(query);
                   },
                 ),
                 onTap: () {
+                  if (!_ownerActive) return;
                   _searchController.text = query;
-                  ref
-                      .read(messageSearchProvider.notifier)
-                      .performSearch(query: query);
+                  _submitSearch(query);
                 },
               );
             },
@@ -568,12 +577,7 @@ class _MessageSearchPageState extends ConsumerState<MessageSearchPage> {
     );
   }
 
-  /// 构建空结果视图
-  Widget _buildEmptyView(
-    BuildContext context,
-    MessageSearchState state,
-    Translations t,
-  ) {
+  Widget _buildEmptyView(MessageSearchState state, Translations t) {
     return NoDataView(
       text: t.common.searchNoResults,
       description: '"${state.currentQuery}"',
@@ -582,15 +586,12 @@ class _MessageSearchPageState extends ConsumerState<MessageSearchPage> {
     );
   }
 
-  /// 构建搜索出错视图（区别于"无结果"，可点击重试）
   Widget _buildErrorView(
     BuildContext context,
     MessageSearchState state,
     Translations t,
   ) {
-    // 搜索被策略禁用（E2EE 开启时服务端读不到明文）是**预期状态**，不是故障：
-    // 此前统一渲染成「搜索错误 + 感叹号 + 重试」，用户会一直点重试，
-    // 而它永远不可能成功（QA#7）。这里改成说明性空态，并且不给重试按钮。
+    // E2EE 策略禁用属于预期状态，不能提供永远无法成功的重试。
     if (state.searchDisabled) {
       return NoDataView(
         text: t.common.searchDisabledTitle,
@@ -604,22 +605,17 @@ class _MessageSearchPageState extends ConsumerState<MessageSearchPage> {
       description: state.errorMessage,
       icon: CupertinoIcons.exclamationmark_circle,
       iconSize: 64,
-      onTop: () => ref
-          .read(messageSearchProvider.notifier)
-          .performSearch(query: state.currentQuery),
+      onTop: () => _submitSearch(state.currentQuery),
     );
   }
 
-  /// 构建搜索结果列表
   Widget _buildSearchResults(
     BuildContext context,
     MessageSearchState state,
     Translations t,
-    bool isDark,
   ) {
     return Column(
       children: [
-        // 结果统计
         Container(
           padding: const EdgeInsets.symmetric(
             horizontal: AppSpacing.regular,
@@ -642,6 +638,7 @@ class _MessageSearchPageState extends ConsumerState<MessageSearchPage> {
                     horizontal: AppSpacing.small,
                   ),
                   onPressed: () {
+                    if (!_ownerActive) return;
                     ref.read(messageSearchProvider.notifier).resetFilters();
                   },
                   child: Text(
@@ -656,34 +653,51 @@ class _MessageSearchPageState extends ConsumerState<MessageSearchPage> {
             ],
           ),
         ),
-        // 结果列表
         Expanded(
           child: ListView.builder(
             controller: _scrollController,
             padding: const EdgeInsets.symmetric(vertical: AppSpacing.small),
-            itemCount: state.searchResults.length + (state.hasMore ? 1 : 0),
+            itemCount:
+                state.searchResults.length +
+                (state.hasMore || state.errorMessage.isNotEmpty ? 1 : 0),
             itemBuilder: (context, index) {
               if (index == state.searchResults.length) {
-                // 加载更多指示器
                 return Center(
                   child: Padding(
                     padding: const EdgeInsets.all(AppSpacing.regular),
                     child: state.isLoading
                         ? const CupertinoActivityIndicator()
-                        : CupertinoButton(
-                            onPressed: () {
-                              ref
-                                  .read(messageSearchProvider.notifier)
-                                  .loadMore();
-                            },
-                            child: Text(t.common.loadMore),
+                        : Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              if (state.errorMessage.isNotEmpty)
+                                Semantics(
+                                  liveRegion: true,
+                                  child: Text(
+                                    state.errorMessage,
+                                    textAlign: TextAlign.center,
+                                  ),
+                                ),
+                              CupertinoButton(
+                                onPressed: () {
+                                  if (!_ownerActive) return;
+                                  ref
+                                      .read(messageSearchProvider.notifier)
+                                      .loadMore();
+                                },
+                                child: Text(
+                                  state.errorMessage.isNotEmpty
+                                      ? t.common.buttonRetry
+                                      : t.common.loadMore,
+                                ),
+                              ),
+                            ],
                           ),
                   ),
                 );
               }
-
               final result = state.searchResults[index];
-              return _buildResultItem(context, result, state, isDark);
+              return _buildResultItem(context, result, state);
             },
           ),
         ),
@@ -691,17 +705,13 @@ class _MessageSearchPageState extends ConsumerState<MessageSearchPage> {
     );
   }
 
-  /// 构建单个搜索结果项
   Widget _buildResultItem(
     BuildContext context,
     MessageSearchResult result,
     MessageSearchState state,
-    bool isDark,
   ) {
-    // 获取发送者信息
     ContactModel? sender = state.getCachedContact(result.fromId);
     if (sender == null) {
-      // 异步加载联系人
       _loadContact(result.fromId);
       sender = ContactModel(
         peerId: result.fromId,
@@ -709,7 +719,6 @@ class _MessageSearchPageState extends ConsumerState<MessageSearchPage> {
         avatar: '',
       );
     }
-
     return MessageSearchResultCard(
       result: result,
       sender: sender,
@@ -718,22 +727,28 @@ class _MessageSearchPageState extends ConsumerState<MessageSearchPage> {
     );
   }
 
-  /// 异步加载联系人
   Future<void> _loadContact(String uid) async {
+    if (!_ownerActive) return;
+    final generation = ref
+        .read(messageSearchProvider.notifier)
+        .searchGeneration;
     try {
       final contact = await ContactRepo().findByUid(uid);
-      if (contact != null && mounted) {
-        // 使用 notifier 的方法来更新状态
+      if (contact != null &&
+          mounted &&
+          _ownerActive &&
+          generation ==
+              ref.read(messageSearchProvider.notifier).searchGeneration) {
         ref.read(messageSearchProvider.notifier).cacheContact(uid, contact);
         setState(() {});
       }
-    } catch (e) {
-      // 忽略错误
+    } catch (_) {
+      // 联系人加载失败时保留占位，不阻断搜索结果。
     }
   }
 
-  /// 点击搜索结果
   Future<void> _onResultTap(MessageSearchResult result) async {
+    if (!_ownerActive) return;
     final session = UserRepoLocal.to;
     final uid = session.currentUid;
     final generation = session.sessionGeneration;
@@ -757,10 +772,7 @@ class _MessageSearchPageState extends ConsumerState<MessageSearchPage> {
       return;
     }
     if (!notifier.applyVisibilityResult(result, current)) return;
-    // 跳转到聊天页面，定位到该消息。
-    // 对端判定与 web_search_page 对齐：C2G 的会话目标是群（msg_c2g.to_id）；
-    // C2C 按「我是否为发送者」取另一端——此前恒取 toId，收到的消息
-    // 会打开「与自己聊天」的会话。
+    // C2G 指向群；C2C 指向另一端，避免收到的消息打开与自己的聊天。
     final String peerId;
     if (result.type == 'C2G') {
       peerId = result.toId;
@@ -768,7 +780,6 @@ class _MessageSearchPageState extends ConsumerState<MessageSearchPage> {
       final isAuthor = result.fromId == UserRepoLocal.to.currentUid;
       peerId = isAuthor ? result.toId : result.fromId;
     }
-
     await Navigator.of(context).push(
       CupertinoPageRoute<dynamic>(
         builder: (context) => ChatPage(
@@ -781,7 +792,7 @@ class _MessageSearchPageState extends ConsumerState<MessageSearchPage> {
         ),
       ),
     );
-    if (mounted) {
+    if (mounted && _ownerActive) {
       await ref.read(messageSearchProvider.notifier).refreshVisibleResults();
     }
   }

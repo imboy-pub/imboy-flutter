@@ -1,3 +1,5 @@
+import 'package:imboy/component/ui/search_clear_icon.dart';
+
 import 'dart:async';
 
 import 'package:imboy/component/ui/common_bar.dart';
@@ -84,6 +86,8 @@ class _SearchChatPageState extends ConsumerState<_SearchChatBody> {
   Timer? _debounceTimer;
   late final SearchResultExpiry _resultExpiry;
   Map<String, MessageSearchResult> _resultFacts = {};
+  static const _pageSize = 50;
+  int _nextPage = 1;
   int _searchGeneration = 0;
   int _visibilityGeneration = 0;
   bool _scopeResetPending = false;
@@ -98,7 +102,8 @@ class _SearchChatPageState extends ConsumerState<_SearchChatBody> {
 
   bool get _ownerActive {
     final user = UserRepoLocal.to;
-    return _ownerUid.isNotEmpty &&
+    return mounted &&
+        _ownerUid.isNotEmpty &&
         user.currentUid == _ownerUid &&
         user.isCurrentSession(_ownerSession) &&
         !user.isAuthTransitioning;
@@ -156,7 +161,7 @@ class _SearchChatPageState extends ConsumerState<_SearchChatBody> {
       final scopeGeneration = ++_scopeGeneration;
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (!mounted || scopeGeneration != _scopeGeneration) return;
-        if (generation == _searchGeneration) {
+        if (generation == _searchGeneration && _ownerActive) {
           ref.read(searchProvider.notifier).resetSearch();
         }
         setState(() => _scopeResetPending = false);
@@ -180,83 +185,39 @@ class _SearchChatPageState extends ConsumerState<_SearchChatBody> {
     );
   }
 
-  Future<void> performSearch({required String query}) async {
+  Future<void> performSearch({
+    required String query,
+    bool loadMore = false,
+  }) async {
     if (query.trim().isEmpty || !_ownerActive) return;
+    final notifier = ref.read(searchProvider.notifier);
+    final state = ref.read(searchProvider);
+    if (loadMore && (state.isLoading || !state.hasMore)) return;
     _debounceTimer?.cancel();
     final request = ++_searchGeneration;
-    final session = UserRepoLocal.to;
-    final uid = session.currentUid;
-    final sessionGeneration = session.sessionGeneration;
     final conversation = widget.conversationUk3;
     bool isCurrent() =>
         mounted &&
+        _ownerActive &&
         request == _searchGeneration &&
-        widget.conversationUk3 == conversation &&
-        session.currentUid == uid &&
-        session.isCurrentSession(sessionGeneration) &&
-        !session.isAuthTransitioning;
-    final notifier = ref.read(searchProvider.notifier);
+        widget.conversationUk3 == conversation;
     final effectiveQuery = query.trim();
-    notifier.setCurrentQuery(effectiveQuery);
-    notifier.setLoading(true);
-    notifier.startSearching();
-    notifier.setError('');
-    _searchDisabled = false;
+    _startSearch(effectiveQuery, loadMore);
     try {
-      final response = await ref
-          .read(ftsApiProvider)
-          .searchConversationMessages(
-            keyword: effectiveQuery,
-            conversationUk3: conversation,
-            page: 1,
-            size: 50,
-            msgType: ref.read(searchProvider).selectedMessageType,
-          );
-      if (!isCurrent()) return;
-      if (response == null) {
-        notifier.setError(t.common.searchError);
-        return;
-      }
-      final nowMs = DateTimeHelper.millisecond();
-      final visibleItems = response.items
-          .where((item) => item.isVisibleAt(nowMs, uid))
-          .toList();
-      _resultFacts = {for (final item in visibleItems) item.id: item};
-      final messages = visibleItems.map((item) {
-        final text = item.payload?['text'] as String? ?? item.content;
-        return CustomMessage(
-          authorId: item.fromId,
-          createdAt: DateTime.fromMillisecondsSinceEpoch(
-            item.createdAt,
-            isUtc: true,
-          ),
-          id: item.id,
-          metadata: {
-            'text': text,
-            'msg_type': item.msgType ?? MessageType.text,
-            ...?item.payload,
-          },
-        );
-      }).toList();
-      notifier.updateSearchResults(messages);
-      _removeExpiredResults();
-      notifier.addToHistory(effectiveQuery);
-      if (mounted) {
-        setState(() {
-          words = {
+      if (await _fetchSearchPages(effectiveQuery, isCurrent) && isCurrent()) {
+        if (!loadMore) unawaited(notifier.addToHistory(effectiveQuery));
+        setState(
+          () => words = {
             effectiveQuery: HighlightedWord(
               textStyle: const TextStyle(
                 color: AppColors.primary,
                 fontWeight: FontWeight.bold,
               ),
             ),
-          };
-        });
+          },
+        );
       }
     } on FtsFeatureDisabledException {
-      // 与 message_search_page 同款处理：搜索被策略禁用是预期状态，不是故障。
-      // 原先这里被 catch (_) 一并吞成「搜索错误 + 重试」，而重试永远不可能
-      // 成功——服务端 imboy_policy:message_search_enabled() 恒为 false。
       if (!isCurrent()) return;
       setState(() => _searchDisabled = true);
       notifier.setError(t.common.searchDisabledByEncryption);
@@ -270,6 +231,72 @@ class _SearchChatPageState extends ConsumerState<_SearchChatBody> {
       }
     }
   }
+
+  void _startSearch(String query, bool loadMore) {
+    final notifier = ref.read(searchProvider.notifier);
+    if (!loadMore) {
+      _nextPage = 1;
+      _resultFacts = {};
+      _resultExpiry.cancel();
+      notifier.resetSearch();
+    }
+    notifier.setCurrentQuery(query);
+    notifier.setLoading(true);
+    notifier.startSearching();
+    notifier.setError('');
+    _searchDisabled = false;
+  }
+
+  Future<bool> _fetchSearchPages(
+    String query,
+    bool Function() isCurrent,
+  ) async {
+    final notifier = ref.read(searchProvider.notifier);
+    while (isCurrent()) {
+      final page = _nextPage;
+      final response = await ref
+          .read(ftsApiProvider)
+          .searchConversationMessages(
+            keyword: query,
+            conversationUk3: widget.conversationUk3,
+            page: page,
+            size: _pageSize,
+            msgType: ref.read(searchProvider).selectedMessageType,
+          );
+      if (!isCurrent()) return false;
+      if (response == null) {
+        notifier.setError(t.common.searchError);
+        return false;
+      }
+      final now = DateTimeHelper.millisecond();
+      final items = response.items
+          .where((item) => item.isVisibleAt(now, _ownerUid))
+          .toList();
+      _resultFacts = {..._resultFacts, for (final item in items) item.id: item};
+      final hasMore = response.sourceItemCount >= _pageSize;
+      notifier.updateSearchResults(
+        items.map(_searchMessage).toList(),
+        page: page,
+        hasMore: hasMore,
+        loadMore: page > 1,
+      );
+      _nextPage = page + 1;
+      _removeExpiredResults();
+      if (items.isNotEmpty || !hasMore) return true;
+    }
+    return false;
+  }
+
+  CustomMessage _searchMessage(MessageSearchResult item) => CustomMessage(
+    authorId: item.fromId,
+    createdAt: DateTime.fromMillisecondsSinceEpoch(item.createdAt, isUtc: true),
+    id: item.id,
+    metadata: {
+      'text': item.payload?['text'] as String? ?? item.content,
+      'msg_type': item.msgType ?? MessageType.text,
+      ...?item.payload,
+    },
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -295,7 +322,14 @@ class _SearchChatPageState extends ConsumerState<_SearchChatBody> {
               controller: _searchC,
               enabled: _ownerActive,
               placeholder: t.common.searchMessagesHint,
+              suffixIcon: SearchClearIcon(semanticLabel: t.common.clear),
+              suffixInsets: EdgeInsets.zero,
               onChanged: debouncedSearch,
+              onSuffixTap: () {
+                if (!_ownerActive) return;
+                _searchC.clear();
+                debouncedSearch('');
+              },
               onSubmitted: (v) => performSearch(query: v),
             ),
           ),
@@ -381,6 +415,7 @@ class _SearchChatPageState extends ConsumerState<_SearchChatBody> {
   }
 
   void _applyFilter(String type) {
+    if (!_ownerActive) return;
     // 此前误调 resetFilters() 会把 selectedMessageType 重置回 'all'，
     // 导致筛选 chip 只更新 UI 选中态但从未真正按类型过滤（见 fix 记录）。
     ref.read(searchProvider.notifier).setMessageTypeFilter(type);
@@ -392,7 +427,8 @@ class _SearchChatPageState extends ConsumerState<_SearchChatBody> {
       return const Center(child: CupertinoActivityIndicator());
     }
     if (state.currentQuery.isEmpty) return _buildHistoryList(state, b);
-    if (state.errorMessage.isNotEmpty) {
+    if (state.errorMessage.isNotEmpty &&
+        (state.searchResults.isEmpty || _searchDisabled)) {
       return _buildErrorResults(state.errorMessage, state.currentQuery);
     }
     if (state.searchResults.isEmpty) {
@@ -400,11 +436,37 @@ class _SearchChatPageState extends ConsumerState<_SearchChatBody> {
     }
 
     return ListView.builder(
-      itemCount: state.searchResults.length,
-      itemBuilder: (context, index) =>
-          _buildResultItem(state.searchResults[index], state, b),
+      itemCount: state.searchResults.length + (state.hasMore ? 1 : 0),
+      itemBuilder: (context, index) => index == state.searchResults.length
+          ? _buildMoreResults(state)
+          : _buildResultItem(state.searchResults[index], state, b),
     );
   }
+
+  Widget _buildMoreResults(SearchDataState state) => Padding(
+    padding: const EdgeInsets.all(AppSpacing.regular),
+    child: state.isLoading
+        ? const Center(child: CupertinoActivityIndicator())
+        : Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (state.errorMessage.isNotEmpty)
+                Semantics(
+                  liveRegion: true,
+                  child: Text(state.errorMessage, textAlign: TextAlign.center),
+                ),
+              CupertinoButton(
+                onPressed: () =>
+                    performSearch(query: state.currentQuery, loadMore: true),
+                child: Text(
+                  state.errorMessage.isEmpty
+                      ? t.common.loadMore
+                      : t.common.buttonRetry,
+                ),
+              ),
+            ],
+          ),
+  );
 
   Widget _buildHistoryList(SearchDataState state, Brightness b) {
     if (state.searchHistory.isEmpty) return const SizedBox.shrink();
@@ -422,6 +484,7 @@ class _SearchChatPageState extends ConsumerState<_SearchChatBody> {
                     size: 18,
                   ),
                   onTap: () {
+                    if (!_ownerActive) return;
                     _searchC.text = query;
                     performSearch(query: query);
                   },
@@ -447,7 +510,7 @@ class _SearchChatPageState extends ConsumerState<_SearchChatBody> {
             description: errorMessage,
             icon: CupertinoIcons.exclamationmark_circle,
             iconSize: 64,
-            onTop: () => performSearch(query: query),
+            onTop: () => performSearch(query: query, loadMore: _nextPage > 1),
           );
   }
 
@@ -477,28 +540,32 @@ class _SearchChatPageState extends ConsumerState<_SearchChatBody> {
     return ImBoyListTile(
       onTap: () => _goToChat(message.id),
       leading: Avatar(imgUri: author.avatar, width: 44, height: 44),
-      title: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Expanded(
-            child: Text(
+      title: DefaultTextStyle(
+        style: DefaultTextStyle.of(context).style,
+        child: Wrap(
+          spacing: AppSpacing.small,
+          runSpacing: AppSpacing.tiny,
+          children: [
+            Text(
               author.nickname,
               style: context.textStyle(
                 FontSizeType.medium,
                 fontWeight: FontWeight.w600,
               ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
             ),
-          ),
-          Text(
-            DateTimeHelper.lastTimeFmt(
-              message.createdAt!.millisecondsSinceEpoch,
+            Text(
+              DateTimeHelper.lastTimeFmt(
+                message.createdAt!.millisecondsSinceEpoch,
+              ),
+              style: context.textStyle(
+                FontSizeType.small,
+                color: AppColors.iosGray,
+              ),
             ),
-            style: context.textStyle(
-              FontSizeType.small,
-              color: AppColors.iosGray,
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
       subtitle: TextHighlight(
         text: parseModelString(message.metadata?['text']),
@@ -598,6 +665,7 @@ class _SearchChatPageState extends ConsumerState<_SearchChatBody> {
   }
 
   Future<void> _loadAndCacheContact(String uid) async {
+    if (!_ownerActive) return;
     final generation = _searchGeneration;
     final contact = await ContactRepo().findByUid(uid);
     if (contact != null &&
