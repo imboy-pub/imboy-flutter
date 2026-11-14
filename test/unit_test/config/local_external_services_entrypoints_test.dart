@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/component/helper/ntp.dart';
@@ -14,8 +15,10 @@ void main() {
     const requested = bool.fromEnvironment(
       'IMBOY_LOCAL_EXTERNAL_SERVICES_DISABLED',
     );
+    const allowMaps = bool.fromEnvironment('IMBOY_LOCAL_MAP_REQUESTS_ALLOWED');
     expect(LocalExternalServicesPolicy.suppressed, requested);
     if (!requested) {
+      expect(LocalExternalServicesPolicy.mapsSuppressed, isFalse);
       // Ordinary builds still reach the existing SDK enablement decision.
       var enabledChecks = 0;
       await JPushSdkWiring.withDefaults(
@@ -52,13 +55,34 @@ void main() {
     });
     // No storage bootstrap: an accidental NTP/cache path must fail this test.
     expect(await NtpHelper.getOffset(), NtpHelper.offset);
-    AMapHelper.init();
-    AMapHelper.setApiKey();
-    AMapHelper.updatePrivacyShow(true, true);
-    AMapHelper.updatePrivacyAgree(true);
-    expect(await AMapHelper().startLocation(), isNull);
-    expect(await LocationService().getCurrentPosition(), isNull);
-    expect(LocationService().getPositionStream(), isNull);
+    if (allowMaps) {
+      final previousPlatform = debugDefaultTargetPlatformOverride;
+      addTearDown(() => debugDefaultTargetPlatformOverride = previousPlatform);
+      debugDefaultTargetPlatformOverride = TargetPlatform.macOS;
+      expect(
+        () => LocalExternalServicesPolicy.mapsSuppressed,
+        throwsStateError,
+      );
+      debugDefaultTargetPlatformOverride = TargetPlatform.android;
+      if (kIsWeb) {
+        expect(
+          () => LocalExternalServicesPolicy.mapsSuppressed,
+          throwsStateError,
+        );
+      } else {
+        expect(LocalExternalServicesPolicy.mapsSuppressed, isFalse);
+      }
+      expect(LocalExternalServicesPolicy.suppressed, isTrue);
+    } else {
+      expect(LocalExternalServicesPolicy.mapsSuppressed, isTrue);
+      AMapHelper.init();
+      AMapHelper.setApiKey();
+      AMapHelper.updatePrivacyShow(true, true);
+      AMapHelper.updatePrivacyAgree(true);
+      expect(await AMapHelper().startLocation(), isNull);
+      expect(await LocationService().getCurrentPosition(), isNull);
+      expect(LocationService().getPositionStream(), isNull);
+    }
     await PushNotificationService.instance.initialize();
     var enabledChecks = 0;
     await JPushSdkWiring.withDefaults(
