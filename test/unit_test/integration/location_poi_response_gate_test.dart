@@ -39,6 +39,32 @@ void main() {
     },
   );
 
+  test('installing after startup restores the startup override', () async {
+    final previous = Zone.root.run(() => HttpOverrides.current);
+    final startup = _RecordingGate();
+    final gate = _RecordingGate();
+    final callback = Zone.root.bindCallback(() => HttpClient()..close());
+    try {
+      HttpOverrides.global = gate;
+      HttpOverrides.global = startup; // AppInitializer replaces the global.
+      callback();
+      expect(gate.clientsCreated, 0);
+      final afterStartup = Zone.root.run(() => HttpOverrides.current);
+      HttpOverrides.global = gate;
+      try {
+        callback();
+        expect(gate.clientsCreated, 1);
+      } finally {
+        HttpOverrides.global = afterStartup;
+      }
+      expect(Zone.root.run(() => HttpOverrides.current), same(startup));
+    } finally {
+      HttpOverrides.global = previous;
+      startup.close();
+      gate.close();
+    }
+  });
+
   late HttpServer server;
   late HttpClient client;
   late LocationPoiResponseGate gate;

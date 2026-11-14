@@ -82,12 +82,13 @@ void main() {
         }
       });
     });
-    // Platform-channel callbacks can execute outside the test's child zone.
+    await _loginAndChat(tester);
+    // Startup installs its own global override; install the gate only afterwards.
     final previousOverrides = Zone.root.run(() => HttpOverrides.current);
     HttpOverrides.global = gate;
+    expect(Zone.root.run(() => HttpOverrides.current), same(gate));
     try {
       await HttpOverrides.runZoned(() async {
-        await _loginAndChat(tester);
         await _openPicker(tester);
         await _verifyNativeDrag(tester, gate);
         await _replaceAndRace(tester, gate);
@@ -466,7 +467,7 @@ Future<void> _dragFailure(
         .toInt();
     final changed = await _mapProbe(tester, _mapCenterProbe) != before;
     debugPrint(
-      'UX01_NATIVE_DRAG_DIAGNOSTIC ${jsonEncode({'flutter_moves': flutterMoves, 'trusted_moves': trusted, 'center_changed': changed, 'around_delta': gate.aroundResponses - responses})}',
+      'UX01_NATIVE_DRAG_DIAGNOSTIC ${jsonEncode({'flutter_moves': flutterMoves, 'trusted_moves': trusted, 'center_changed': changed, 'around_delta': gate.aroundResponses - responses, 'around_requests': gate.aroundRequests, 'around_responses': gate.aroundResponses, 'global_gate_active': identical(Zone.root.run(() => HttpOverrides.current), gate)})}',
     );
   } on Object {
     debugPrint('UX01_NATIVE_DRAG_DIAGNOSTIC_FAILED true');
