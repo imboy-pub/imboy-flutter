@@ -4,7 +4,8 @@ import java.util.Base64
 
 plugins {
     id("com.android.application")
-    id("kotlin-android")
+    // AGP 9 + Flutter 3.50：kotlin-android 由 flutter-gradle-plugin 在缺省时自动补
+    // （FlutterPluginUtils.detectApplyingKotlinGradlePlugin），版本钉在 settings 插件块。
     // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
     id("dev.flutter.flutter-gradle-plugin")
 }
@@ -95,10 +96,6 @@ android {
         isCoreLibraryDesugaringEnabled = true
     }
 
-    kotlinOptions {
-        jvmTarget = JavaVersion.VERSION_17.toString()
-    }
-
     defaultConfig {
         // 三端统一应用标识（Android/iOS/macOS）：pub.imboy.app
         // 白标 flavor 在此值上追加 applicationIdSuffix（见 productFlavors）。
@@ -109,7 +106,6 @@ android {
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
-        minSdkVersion(24)
 
         // Patrol E2E：instrumentation runner + 测试间清数据（保证用例隔离）
         testInstrumentationRunner = "pl.leancode.patrol.PatrolJUnitRunner"
@@ -117,7 +113,6 @@ android {
 
         // 添加多Dex支持
         multiDexEnabled = true
-        resourceConfigurations += listOf("en", "zh-rCN")
         // Manifest 占位符
         manifestPlaceholders.putAll(
             mutableMapOf(
@@ -182,6 +177,17 @@ android {
         }
     }
 
+    androidResources {
+        // 原 resourceConfigurations 在 AGP 9 新 DSL 更名 localeFilters
+        localeFilters += listOf("en", "zh-rCN")
+    }
+
+    buildFeatures {
+        // gzCustomer 白标 flavor 用 resValue 注入 wl_app_name / wl_primary；
+        // AGP 9 新 DSL 不再隐式开启 resValues，必须显式声明。
+        resValues = true
+    }
+
     // 解决高德地图 SDK 重复类问题，剔除 BouncyCastle 等依赖的签名文件防止 SecurityException
     packaging {
         jniLibs {
@@ -244,6 +250,14 @@ android {
                 file("proguard-rules.pro")
             )
         }
+    }
+}
+
+// Kotlin jvmTarget：AGP 9 弃用 android.kotlinOptions，迁移到顶层 kotlin.compilerOptions
+// （与 Flutter 3.50 模板一致）
+kotlin {
+    compilerOptions {
+        jvmTarget = org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17
     }
 }
 

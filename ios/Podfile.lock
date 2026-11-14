@@ -2,7 +2,7 @@ PODS:
   - amap_flutter_location_plus (0.0.1):
     - AMapLocation
     - Flutter
-  - AMapFoundation (1.9.1)
+  - AMapFoundation (1.9.4)
   - AMapLocation (2.12.2):
     - AMapFoundation (>= 1.9.0)
   - audio_session (0.0.1):
@@ -380,7 +380,7 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   amap_flutter_location_plus: 787dda5882c30817bcf666b201eced344869c15a
-  AMapFoundation: 8c511ce0584873bc6febb071365b2bfd62ce4a11
+  AMapFoundation: d284ad0014b16045d0b767e7aa2f777cfb311006
   AMapLocation: 0a44d96a4d9698ecb70560d2cc47d6f49c191ad8
   audio_session: 9bb7f6c970f21241b19f5a3658097ae459681ba0
   audio_waveforms: a6dde7fe7c0ea05f06ffbdb0f7c1b2b2ba6cedcf
