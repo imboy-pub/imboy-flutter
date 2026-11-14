@@ -42,8 +42,7 @@ const String _pickleKeyStorageKey = 'olm_pickle_key';
 const String _accountPickleStorageKey = 'olm_account_pickle';
 
 /// fallback key 上次轮换时刻（epoch ms）的存储键。
-/// 与 account pickle 同放 SecureStorage：它不是秘密，但属于同一份 Olm 状态，
-/// 分散到两处存储只会让"状态在哪"变成需要记忆的事。
+/// 与 account pickle 同放 SecureStorage，保持 Olm 状态存储一致。
 const String _lastFallbackRotationKey = 'olm_fallback_rotated_at';
 
 /// Session pickle 存储键前缀：`olm_session_<peerUid>:<peerDeviceId>`

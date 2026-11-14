@@ -8,34 +8,27 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart'
-    show Message, TextMessage;
+    show Message, MessageStatus, TextMessage;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:imboy/app_core/feature_flags/app_feature_registry.dart';
 import 'package:imboy/i18n/strings.g.dart';
-import 'package:imboy/modules/messaging/domain/message_status.dart';
+import 'package:imboy/modules/messaging/domain/message_status.dart' as domain;
 import 'package:imboy/modules/messaging/domain/selection/message_selectability.dart';
 import 'package:imboy/modules/messaging/domain/selection/message_selection.dart';
 // W5-G1 G1-7：traits 提取移至 services/message_selection_traits.dart。
 import 'package:imboy/page/chat/chat/services/message_selection_traits.dart';
 // W5-G1 G1-9/G1-6：多选接线抽离 + post-frame 对账器。
 import 'package:imboy/page/chat/chat/chat_multi_select_wiring.dart';
+import 'package:imboy/page/chat/chat/chat_provider.dart';
+import 'package:imboy/page/chat/chat/sqlite_chat_service.dart';
+import 'package:imboy/component/ui/app_loading.dart';
+import 'package:imboy/page/chat/send_to/send_to_page.dart';
 import 'package:imboy/page/chat/widget/message_multi_select_action_bar.dart';
 import 'package:imboy/service/message_type_constants.dart';
 
 import '../../../../../integration_test/helpers/chat_multi_fixtures.dart';
-
-Widget _wrap(Widget child) {
-  return TranslationProvider(
-    child: MaterialApp(
-      theme: ThemeData(useMaterial3: true),
-      home: Scaffold(
-        body: Align(alignment: Alignment.bottomCenter, child: child),
-      ),
-    ),
-  );
-}
 
 /// G1-6 对账测试载体：复刻 ChatMultiSelectPanel 的注册形态 —— build 内
 /// schedulePostFrame，每次重建重新注册（模拟选中态变化引起的 panel 重建）。
@@ -63,6 +56,23 @@ class _ReconcileHarnessState extends ConsumerState<_ReconcileHarness> {
     widget.reconciler.schedulePostFrame(context, ref);
     return const SizedBox.shrink();
   }
+}
+
+class _FakeChatService implements SqliteChatService {
+  List<Message> items = [];
+  @override
+  List<Message> get messages => items;
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+}
+
+class _FakeChatNotifier extends ChatNotifier {
+  _FakeChatNotifier(this.service);
+  final _FakeChatService service;
+  @override
+  ChatState build() => const ChatState();
+  @override
+  SqliteChatService get chatService => service;
 }
 
 void main() {
@@ -114,7 +124,7 @@ void main() {
 
       const traits = MessageSelectionTraits(
         msgType: 'text',
-        status: MessageStatus.sent,
+        status: domain.MessageStatus.sent,
       );
       expect(notifier.enter('m0', traits), isNull);
       for (var i = 1; i <= 99; i++) {
@@ -139,7 +149,7 @@ void main() {
       final notifier = container.read(messageSelectionProvider(uk3).notifier);
       const traits = MessageSelectionTraits(
         msgType: 'text',
-        status: MessageStatus.sent,
+        status: domain.MessageStatus.sent,
       );
       notifier.enter('keep-1', traits);
       notifier.toggle('gone-1', traits);
@@ -154,7 +164,7 @@ void main() {
       final e2ee = evaluateMessageSelectability(
         const MessageSelectionTraits(
           msgType: 'text',
-          status: MessageStatus.sent,
+          status: domain.MessageStatus.sent,
           e2eeFailed: true,
         ),
       );
@@ -164,7 +174,7 @@ void main() {
       final burn = evaluateMessageSelectability(
         const MessageSelectionTraits(
           msgType: 'text',
-          status: MessageStatus.sent,
+          status: domain.MessageStatus.sent,
           burnReadAt: 123,
         ),
       );
@@ -174,7 +184,7 @@ void main() {
       final rtc = evaluateMessageSelectability(
         MessageSelectionTraits(
           msgType: MessageType.webrtcAudio,
-          status: MessageStatus.sent,
+          status: domain.MessageStatus.sent,
         ),
       );
       expect(rtc.selectable, isFalse);
@@ -182,80 +192,99 @@ void main() {
     });
   });
 
-  group('W3-K 冒烟 | action bar（W2-E 真组件，设备旅程⑥⑦⑨的本地锚）', () {
-    final selected = ChatMultiMessageFixtures.standardSet(
-      authorId: 'w3k-peer',
-      textMarker: 'w3k',
-    );
-
-    testWidgets('渲染计数与三个动作位；typed callback 收到 selectedMessages', (
-      tester,
-    ) async {
-      List<dynamic>? forwardEachArg;
-      List<dynamic>? exportArg;
+  group('W3-K 冒烟 | 多选操作', () {
+    testWidgets('顶部计数与转发方式弹层保持选中消息', (tester) async {
+      final selected = ChatMultiMessageFixtures.standardSet(
+        authorId: 'w3k-peer',
+        textMarker: 'w3k',
+      );
+      List<Message>? sent;
       await tester.pumpWidget(
-        _wrap(
-          MessageMultiSelectActionBar(
-            selectedMessages: selected,
-            onCancel: () {},
-            onClearSelection: () {},
-            onForwardEach: (m) => forwardEachArg = m,
-            onForwardBundle: (m) {},
-            onExport: (m) => exportArg = m,
+        TranslationProvider(
+          child: MaterialApp(
+            home: Scaffold(
+              appBar: MessageMultiSelectHeader(
+                count: selected.length,
+                onCancel: () {},
+              ),
+              bottomNavigationBar: MessageMultiSelectActionBar(
+                selectedMessages: selected,
+                onForwardEach: (m) => sent = m,
+              ),
+            ),
           ),
         ),
       );
-
       expect(find.byKey(ChatMultiKeys.count), findsOneWidget);
-      expect(find.textContaining('${selected.length}'), findsWidgets);
-      expect(find.byKey(ChatMultiKeys.forwardEach), findsOneWidget);
-      expect(find.byKey(ChatMultiKeys.forwardBundle), findsOneWidget);
-      expect(find.byKey(ChatMultiKeys.export), findsOneWidget);
-
+      await tester.tap(find.byKey(ChatMultiKeys.forward));
+      await tester.pumpAndSettle();
       await tester.tap(find.byKey(ChatMultiKeys.forwardEach));
-      await tester.pump();
-      await tester.tap(find.byKey(ChatMultiKeys.export));
-      await tester.pump();
-      expect(forwardEachArg, same(selected), reason: '逐条转发回调收到已选列表');
-      expect(exportArg, same(selected), reason: '导出回调收到已选列表');
+      await tester.pumpAndSettle();
+      expect(sent, same(selected));
     });
+  });
 
-    testWidgets('callback 为 null：动作位禁用（Central Wiring 接线前的占位语义）', (
-      tester,
-    ) async {
-      await tester.pumpWidget(
-        _wrap(
-          MessageMultiSelectActionBar(
-            selectedMessages: selected,
-            onCancel: () {},
+  testWidgets('真实多选面板弹层期间消息变为不可选时不打开发送页', (tester) async {
+    const uk3 = 'C2C_sheet_live_change';
+    final service = _FakeChatService();
+    final original = TextMessage(id: 'm1', authorId: 'peer', text: 'original');
+    service.items = [original];
+    final container = ProviderContainer(
+      overrides: [chatProvider.overrideWith(() => _FakeChatNotifier(service))],
+    );
+    addTearDown(container.dispose);
+    var resolverCalls = 0;
+    final actions = ChatMultiSelectActions(
+      conversationUk3: uk3,
+      sourceChatType: 'C2C',
+      conversationTitle: 'test',
+      peerId: 'peer',
+      messageActionHandlerResolver: () {
+        resolverCalls++;
+        throw StateError('sending must not start');
+      },
+    );
+    await tester.pumpWidget(
+      UncontrolledProviderScope(
+        container: container,
+        child: TranslationProvider(
+          child: MaterialApp(
+            builder: AppLoading.init(),
+            home: Scaffold(
+              bottomNavigationBar: ChatMultiSelectPanel(
+                conversationUk3: uk3,
+                actions: actions,
+              ),
+            ),
           ),
         ),
-      );
-      final each = tester.widget<GestureDetector>(
-        find.byKey(ChatMultiKeys.forwardEach),
-      );
-      expect(each.onTap, isNull, reason: '未接线时按钮不可触发任何行为');
-    });
-
-    testWidgets('cancel 退出多选；clear 清空已选', (tester) async {
-      var cancelled = 0;
-      var cleared = 0;
-      await tester.pumpWidget(
-        _wrap(
-          MessageMultiSelectActionBar(
-            selectedMessages: selected,
-            onCancel: () => cancelled++,
-            onClearSelection: () => cleared++,
-          ),
-        ),
-      );
-      await tester.tap(find.byKey(ChatMultiKeys.cancel));
-      await tester.pump();
-      await tester.tap(find.byKey(ChatMultiKeys.clear));
-      await tester.pump();
-      expect(cancelled, 1);
-      expect(cleared, 1);
-    });
+      ),
+    );
+    await tester.pump();
+    expect(
+      container
+          .read(messageSelectionProvider(uk3).notifier)
+          .enter(original.id, messageSelectionTraitsOf(original)),
+      isNull,
+    );
+    await tester.pump();
+    await tester.tap(find.byKey(ChatMultiKeys.forward));
+    await tester.pumpAndSettle();
+    service.items = [
+      TextMessage(
+        id: 'm1',
+        authorId: 'peer',
+        text: 'placeholder',
+        metadata: const {'_e2ee_failed': true},
+      ),
+    ];
+    await tester.tap(find.byKey(ChatMultiKeys.forwardEach));
+    await tester.pump();
+    expect(resolverCalls, 0);
+    expect(find.byType(SendToPage), findsNothing);
+    expect(container.read(messageSelectionProvider(uk3)).active, isTrue);
+    await tester.pumpWidget(const MaterialApp(home: SizedBox.shrink()));
+    await tester.pump(const Duration(seconds: 3));
   });
 
   group('W3-K 冒烟 | rollout flag 判定（设备旅程②的本地锚）', () {
@@ -320,10 +349,78 @@ void main() {
       expect(sortMultiSelectMessages(selection, const []), isEmpty);
     });
 
+    test('弹层期间选择改变则不复用旧消息', () {
+      TextMessage message(String id) =>
+          TextMessage(id: id, authorId: 'p', text: id);
+      expect(
+        sameSelectedMessages(
+          [message('a'), message('b')],
+          [message('a'), message('b')],
+        ),
+        isTrue,
+      );
+      expect(
+        sameSelectedMessages([message('a')], [message('a'), message('b')]),
+        isFalse,
+      );
+      expect(
+        sameSelectedMessages(
+          [message('b'), message('a')],
+          [message('a'), message('b')],
+        ),
+        isFalse,
+      );
+    });
+
+    test('弹层期间同 ID 消息状态变化时禁止发送', () {
+      final original = TextMessage(id: 'a', authorId: 'p', text: 'original');
+      bool allowed(Message latest) => canDispatchSelectedMessages(
+        active: true,
+        current: [latest],
+        initial: [original],
+        allowed: forwardEachActionAllowedFor,
+      );
+      expect(allowed(original), isTrue);
+      for (final metadata in [
+        {'_e2ee_failed': true},
+        {'burn_read_at': 1},
+        {'msg_type': 'revoke'},
+        {'msg_type': 'unsupported-new-type'},
+      ]) {
+        final latest = TextMessage(
+          id: 'a',
+          authorId: 'p',
+          text: 'changed',
+          metadata: metadata,
+        );
+        expect(allowed(latest), isFalse, reason: '$metadata must fail closed');
+      }
+      expect(
+        allowed(
+          TextMessage(
+            id: 'a',
+            authorId: 'p',
+            text: 'pending',
+            status: MessageStatus.sending,
+          ),
+        ),
+        isFalse,
+      );
+      expect(
+        canDispatchSelectedMessages(
+          active: false,
+          current: [original],
+          initial: [original],
+          allowed: forwardEachActionAllowedFor,
+        ),
+        isFalse,
+      );
+    });
+
     test('forwardEachActionAllowedFor：≤kBatchForwardMaxMessages 可用', () {
       const traits = MessageSelectionTraits(
         msgType: 'text',
-        status: MessageStatus.sent,
+        status: domain.MessageStatus.sent,
       );
       expect(
         forwardEachActionAllowedFor(List.filled(51, traits).map((t) => t)),
@@ -363,7 +460,7 @@ void main() {
       // 选中 m1/m2（enter 契约激活多选）。
       const traits = MessageSelectionTraits(
         msgType: 'text',
-        status: MessageStatus.sent,
+        status: domain.MessageStatus.sent,
       );
       final notifier = container.read(messageSelectionProvider(uk3).notifier);
       expect(notifier.enter('m1', traits), isNull);

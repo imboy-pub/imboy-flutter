@@ -518,6 +518,30 @@ ThemeData applyGoldenFont(ThemeData theme) {
     primaryTextTheme: theme.primaryTextTheme.apply(
       fontFamily: kGoldenFontFamily,
     ),
+    appBarTheme: theme.appBarTheme.copyWith(
+      titleTextStyle: theme.appBarTheme.titleTextStyle?.copyWith(
+        fontFamily: kGoldenFontFamily,
+      ),
+      toolbarTextStyle: theme.appBarTheme.toolbarTextStyle?.copyWith(
+        fontFamily: kGoldenFontFamily,
+      ),
+    ),
+    listTileTheme: theme.listTileTheme.copyWith(
+      titleTextStyle: theme.listTileTheme.titleTextStyle?.copyWith(
+        fontFamily: kGoldenFontFamily,
+      ),
+      subtitleTextStyle: theme.listTileTheme.subtitleTextStyle?.copyWith(
+        fontFamily: kGoldenFontFamily,
+      ),
+    ),
+    inputDecorationTheme: theme.inputDecorationTheme.copyWith(
+      hintStyle: theme.inputDecorationTheme.hintStyle?.copyWith(
+        fontFamily: kGoldenFontFamily,
+      ),
+      labelStyle: theme.inputDecorationTheme.labelStyle?.copyWith(
+        fontFamily: kGoldenFontFamily,
+      ),
+    ),
     textButtonTheme: TextButtonThemeData(
       style: _goldenButtonStyle(theme.textButtonTheme.style),
     ),

@@ -3,6 +3,8 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:imboy/component/ui/app_back_scope.dart';
+import 'package:imboy/i18n/strings.g.dart';
+import 'package:imboy/theme/default/font_types.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import 'package:photo_view/photo_view.dart';
@@ -318,6 +320,12 @@ Future<void> zoomInPhotoViewGalleryWithInitialPage(
         builder: (BuildContext context, int index) {
           return PhotoViewGalleryPageOptions(
             imageProvider: galleryItems[index],
+            errorBuilder: (context, _, _) => Center(
+              child: Text(
+                t.common.operationFailedAgainLater,
+                style: context.textStyle(FontSizeType.body),
+              ),
+            ),
             initialScale: PhotoViewComputedScale.contained * 0.8,
           );
         },

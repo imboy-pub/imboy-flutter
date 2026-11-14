@@ -14,15 +14,14 @@
 //   勾选框 multi_select_check_<messageId>；action bar
 //   multi_select_cancel / multi_select_count / multi_select_clear /
 //   multi_select_forward_each / multi_select_forward_bundle / multi_select_export。
-// - feature flag：rollout flag 走 AppFeatureRegistry.isRolloutFlagEnabled，
-//   测试经 replaceSnapshotForTest 开启（与 w2-e 验证方式一致）。
-//   chat_history_bundle_v1 的 FeatureKeys 常量由 Central Wiring 补充
-//   （计划 §12.4），此处按冻结键名使用裸字符串。
+// - 真机旅程从真实服务端连续刷新并核验 rollout；纯 widget 单测才可覆盖。
 
 import 'package:flutter/widgets.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart' as core;
 
 import 'package:imboy/app_core/feature_flags/app_feature_registry.dart';
+import 'package:imboy/component/http/http_client.dart';
+import 'package:imboy/config/const.dart';
 import 'package:imboy/modules/messaging/application/export/chat_export_admission.dart';
 import 'package:imboy/modules/messaging/application/export/chat_export_entry.dart';
 import 'package:imboy/modules/messaging/application/export/chat_share_gateway.dart';
@@ -55,63 +54,64 @@ abstract final class ChatMultiFlags {
   static const String exportShare = 'chat_export_share_v1';
 }
 
-/// feature flag 开关（测试内 override；用例结束必须调 [restore]）。
-///
-/// snapshot 整体替换语义：先暂存当前 snapshot，开启时并入多选三键，
-/// restore 时整体还原 —— 不污染登录期服务端下发的真实开关。
+/// 真机入口不接受替代 fetch，必须读取实际功能端点。
+Future<void> requireChatMultiServerFlags() =>
+    verifyChatMultiServerFlags(() async {
+      final response = await HttpClient.client.get(API.appFeatures);
+      if (!response.ok || response.payload is! Map) return null;
+      return Map<String, dynamic>.from(response.payload as Map);
+    });
+
+/// 只为离线分支验证开放 fetch；不得用此入口签发真机收发通过。
+@visibleForTesting
+Future<void> verifyChatMultiServerFlags(
+  Future<Map<String, dynamic>?> Function() fetch,
+) async {
+  const keys = [
+    ChatMultiFlags.multiSelect,
+    ChatMultiFlags.historyBundle,
+    ChatMultiFlags.exportShare,
+  ];
+  for (var attempt = 1; attempt <= 2; attempt++) {
+    Map<String, dynamic>? received;
+    final refreshed = await AppFeatureRegistry.refresh(
+      fetch: () async {
+        received = await fetch();
+        return received;
+      },
+    );
+    final invalid = keys.where((key) => received?[key] != true).toList();
+    if (!refreshed ||
+        invalid.isNotEmpty ||
+        keys.any(
+          (key) =>
+              AppFeatureRegistry.snapshot[key] != true ||
+              !AppFeatureRegistry.isRolloutFlagEnabled(key),
+        )) {
+      throw StateError('真实多选功能配置校验失败（刷新 $attempt，成功=$refreshed，未开启=$invalid）');
+    }
+  }
+}
+
+/// 仅供纯 widget 单测的一次性覆盖；不会抵消真实服务端刷新。
 class ChatMultiFlagOverride {
   Map<String, dynamic>? _previous;
-  bool? _multiSelect;
-  bool? _bundle;
-  bool? _export;
-  VoidCallback? _guard;
 
-  /// 开启多选 / 合并转发 / 导出三个 rollout flag。
   void enableAll({
     bool multiSelect = true,
     bool bundle = true,
     bool export = true,
   }) {
     _previous = Map<String, dynamic>.from(AppFeatureRegistry.snapshot);
-    _multiSelect = multiSelect;
-    _bundle = bundle;
-    _export = export;
-    _apply();
-    // 真机长旅程守卫（DEV-01 r5 step⑧ 根因）：AppFeatureRegistry.refresh()
-    // 由 RuntimeFeatureRecovery 触发（startup/network/S2C 消息，见
-    // message_s2c.dart），从后端 /api/v1/app-features 拉取并**整体替换**
-    // snapshot —— 测试覆盖（chatMultiSelectV1 等）随之被冲掉，长按菜单
-    // 的「多选」入口随之消失（fail-closed）。监听 revision：每次 snapshot
-    // 变更后校验三个 flag，缺失即重放覆盖（_apply 会再次 bump revision，
-    // 守卫幂等判定防循环）。
-    _guard = () {
-      final s = AppFeatureRegistry.snapshot;
-      if (s[ChatMultiFlags.multiSelect] == _multiSelect &&
-          s[ChatMultiFlags.historyBundle] == _bundle &&
-          s[ChatMultiFlags.exportShare] == _export) {
-        return;
-      }
-      _apply();
-    };
-    AppFeatureRegistry.revision.addListener(_guard!);
-  }
-
-  void _apply() {
     AppFeatureRegistry.replaceSnapshotForTest({
       ...?_previous,
-      ChatMultiFlags.multiSelect: _multiSelect ?? true,
-      ChatMultiFlags.historyBundle: _bundle ?? true,
-      ChatMultiFlags.exportShare: _export ?? true,
+      ChatMultiFlags.multiSelect: multiSelect,
+      ChatMultiFlags.historyBundle: bundle,
+      ChatMultiFlags.exportShare: export,
     });
   }
 
-  /// 还原开启前 snapshot（幂等； tearDown 必调）。
   void restore() {
-    final guard = _guard;
-    if (guard != null) {
-      AppFeatureRegistry.revision.removeListener(guard);
-      _guard = null;
-    }
     final prev = _previous;
     if (prev == null) return;
     AppFeatureRegistry.replaceSnapshotForTest(prev);
@@ -452,6 +452,7 @@ abstract final class ChatMultiKeys {
   static const Key cancel = ValueKey('multi_select_cancel');
   static const Key count = ValueKey('multi_select_count');
   static const Key clear = ValueKey('multi_select_clear');
+  static const Key forward = ValueKey('multi_select_forward');
   static const Key forwardEach = ValueKey('multi_select_forward_each');
   static const Key forwardBundle = ValueKey('multi_select_forward_bundle');
   static const Key export = ValueKey('multi_select_export');

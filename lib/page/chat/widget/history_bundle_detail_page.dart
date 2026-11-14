@@ -2,7 +2,7 @@
 ///
 /// 列表展示 bundle entries：sender_name + 时间 + 类型安全渲染。
 /// **数据全部来自消息 payload 的转发时快照**（PLAN_SNAPSHOT §4.5：
-/// 详情页不回查原会话）——本页不做任何网络/仓储查询。
+/// 详情页不回查原会话）；附件经既有授权缓存管线下载和开封。
 ///
 /// 类型安全口径：
 /// - text/expression/quote → 快照文本；
@@ -10,12 +10,20 @@
 ///   （isObjectKey 白名单），经授权图片管线 [IMBoyCachedImageProvider]
 ///   原样透传、下载边界异步签发；非 object_key 一律占位图（S1-M2
 ///   fail-closed，禁止不可信 uri 出网）；
-/// - voice/video/file/location → 图标 + 显示字段（name/filename/size/
+/// - voice/video/location → 图标 + 显示字段（name/filename/size/
 ///   duration_ms，均为 sanitizer 允许的展示字段占位）；
+/// - file → 文件名与大小，合法引用可确认下载和打开；
 /// - 其余/未知 entry 类型 → fallback 描述（不崩溃、不猜测）。
 library;
 
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart' show listEquals;
+import 'package:imboy/component/chat/message.dart' show confirmOpenFile;
+import 'package:imboy/component/image_gallery/image_gallery.dart'
+    show zoomInPhotoViewGalleryWithInitialPage;
+import 'package:imboy/service/e2ee/attachment_open_registry.dart';
+import 'package:imboy/service/e2ee/attachment_opener.dart';
+import 'package:imboy/service/e2ee/attachment_seal_policy.dart';
 import 'package:flutter/material.dart';
 import 'package:imboy/component/chat/message_history_bundle_builder.dart'
     show historyBundleEntries, historyBundleEntryIcon;
@@ -226,17 +234,31 @@ class _BundleEntryRow extends StatelessWidget {
             ),
         ],
       ),
-      _EntryImageBody(:final uri, :final count) => _ImageSnapshotThumb(
-        uri: uri,
+      _EntryImageBody(:final uris, :final count) => _ImageSnapshotThumb(
+        uris: uris,
         count: count,
         index: entryIndex,
       ),
-      _EntryMetaBody(:final label) => _metaBody(
-        context,
-        historyBundleEntryIcon(msgType),
-        label,
-        sub,
-      ),
+      _EntryMetaBody(:final label) =>
+        msgType == MessageType.file && _attachmentUri(payload).isNotEmpty
+            ? CupertinoButton(
+                key: ValueKey('bundle_detail_file_$entryIndex'),
+                padding: EdgeInsets.zero,
+                minimumSize: const Size.square(AppSpacing.xxxLarge),
+                alignment: Alignment.centerLeft,
+                onPressed: () => confirmOpenFile(
+                  context,
+                  _attachmentUri(payload),
+                  canOpen: () => _attachmentUri(payload).isNotEmpty,
+                ),
+                child: _metaBody(
+                  context,
+                  historyBundleEntryIcon(msgType),
+                  label,
+                  sub,
+                ),
+              )
+            : _metaBody(context, historyBundleEntryIcon(msgType), label, sub),
     };
   }
 
@@ -262,12 +284,23 @@ class _BundleEntryRow extends StatelessWidget {
         );
 
       case MessageType.image:
-        return _EntryImageBody(_str(payload, 'uri'), 0);
+        final uri = _attachmentUri(payload);
+        return _EntryImageBody(uri.isEmpty ? const [] : [uri], 0);
 
       case MessageType.imageMulti:
+        final images = payload['images'];
+        final uris = images is List
+            ? images
+                  .whereType<Map<Object?, Object?>>()
+                  .map((image) => _attachmentUri(image.cast<String, dynamic>()))
+                  .where((uri) => uri.isNotEmpty)
+                  .toList()
+            : <String>[];
         return _EntryImageBody(
-          _str(payload, 'uri'),
-          payload['total'] is int ? payload['total'] as int : 0,
+          uris,
+          images is List
+              ? images.length
+              : (payload['total'] is int ? payload['total'] as int : 0),
         );
 
       case MessageType.voice:
@@ -358,6 +391,32 @@ class _BundleEntryRow extends StatelessWidget {
   }
 }
 
+// Encrypted references must have the exact material registered by the mapper.
+String _attachmentUri(Map<String, dynamic> payload) {
+  final uri = (payload['uri']?.toString() ?? '').trim();
+  if (!AssetsService.isObjectKey(uri)) return '';
+  try {
+    if (payload.containsKey(AttachmentSealPolicy.descriptorPayloadKey) &&
+        payload[AttachmentSealPolicy.descriptorPayloadKey] == null) {
+      return '';
+    }
+    final descriptor = AttachmentOpener.descriptorFrom(payload);
+    if (descriptor == null) return uri;
+    final spec = AttachmentOpenRegistry.lookup(uri);
+    if (descriptor.objectKey != uri ||
+        spec == null ||
+        !listEquals(
+          descriptor.toCanonicalBytes(),
+          spec.descriptor.toCanonicalBytes(),
+        )) {
+      return '';
+    }
+    return uri;
+  } on AttachmentOpenException {
+    return '';
+  }
+}
+
 /// entry 正文数据模型（[_BundleEntryRow._entryBodyOf] 纯函数产出，
 /// 正文渲染按类型单一分支消费）。
 sealed class _EntryBody {
@@ -379,8 +438,8 @@ final class _EntryQuoteBody extends _EntryBody {
 
 /// 图片快照（缩略图 uri + 图片数量角标）。
 final class _EntryImageBody extends _EntryBody {
-  const _EntryImageBody(this.uri, this.count);
-  final String uri;
+  const _EntryImageBody(this.uris, this.count);
+  final List<String> uris;
   final int count;
 }
 
@@ -401,12 +460,12 @@ final class _EntryMetaBody extends _EntryBody {
 /// 未回写）或加载失败时同样渲染占位图。
 class _ImageSnapshotThumb extends StatelessWidget {
   const _ImageSnapshotThumb({
-    required this.uri,
+    required this.uris,
     required this.count,
     required this.index,
   });
 
-  final String uri;
+  final List<String> uris;
   final int count;
 
   /// entry 序号：真实图片 widget 的 ValueKey（`bundle_detail_thumb_<index>`），
@@ -465,7 +524,8 @@ class _ImageSnapshotThumb extends StatelessWidget {
       ),
     );
 
-    if (uri.isEmpty) return placeholder;
+    if (uris.isEmpty) return placeholder;
+    final uri = uris.first;
 
     // S1-M2 fail-closed 深度闸：bundle entry 的 uri 只接受 Garage
     // object_key 形态（isObjectKey 白名单），其余完整 URL（含 presigned
@@ -487,22 +547,27 @@ class _ImageSnapshotThumb extends StatelessWidget {
       headers,
     );
 
-    return ClipRRect(
-      borderRadius: AppRadius.borderRadiusSmall,
-      child: SizedBox(
-        width: _kThumbSize,
-        height: _kThumbSize,
-        child: Image(
-          key: ValueKey('bundle_detail_thumb_$index'),
-          // 解码宽 = 容器宽 × DPR（本 SDK 基础 Image 构造无 cacheWidth
-          // 参数，经 ResizeImage 包裹等价实现，避免全尺寸位图进内存）
-          image: ResizeImage.resizeIfNeeded(
-            (_kThumbSize * MediaQuery.devicePixelRatioOf(context)).round(),
-            null,
-            provider,
+    return GestureDetector(
+      key: ValueKey('bundle_detail_image_$index'),
+      onTap: () => zoomInPhotoViewGalleryWithInitialPage(context, uris, 0),
+      child: ClipRRect(
+        borderRadius: AppRadius.borderRadiusSmall,
+        child: SizedBox(
+          width: _kThumbSize,
+          height: _kThumbSize,
+          child: Image(
+            key: ValueKey('bundle_detail_thumb_$index'),
+            semanticLabel: t.chat.image,
+            // 解码宽 = 容器宽 × DPR（本 SDK 基础 Image 构造无 cacheWidth
+            // 参数，经 ResizeImage 包裹等价实现，避免全尺寸位图进内存）
+            image: ResizeImage.resizeIfNeeded(
+              (_kThumbSize * MediaQuery.devicePixelRatioOf(context)).round(),
+              null,
+              provider,
+            ),
+            fit: BoxFit.cover,
+            errorBuilder: (_, _, _) => placeholder,
           ),
-          fit: BoxFit.cover,
-          errorBuilder: (_, _, _) => placeholder,
         ),
       ),
     );

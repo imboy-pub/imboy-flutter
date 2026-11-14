@@ -6,14 +6,17 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/store/api/attachment_api.dart';
+import 'package:imboy/store/model/channel_decimal_id.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_sizes.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:imboy/theme/default/font_types.dart';
 
 final channelEditAvatarUploadProvider =
-    Provider<Future<String?> Function(File)>(
-      (ref) => (file) async {
+    Provider<Future<String?> Function(File, String)>(
+      (ref) => (file, channelId) async {
+        final actualId = channelDecimalId(channelId);
+        if (actualId == null) return null;
         String? uploaded;
         await AttachmentApi.uploadFileViaPresignCompat(
           'avatar',
@@ -23,6 +26,8 @@ final channelEditAvatarUploadProvider =
           },
           (_) {},
           process: true,
+          scope: 'channel',
+          scopeRef: actualId,
         );
         return uploaded;
       },

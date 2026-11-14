@@ -21,35 +21,27 @@ import 'package:go_router/go_router.dart';
 import 'package:imboy/component/dialog/ai_plaintext_confirm_dialog.dart';
 import 'package:imboy/component/dialog/e2ee_recovery_guide_dialog.dart';
 
-// Barrel exports - 减少导入语句
 import 'barrel/ui_packages.dart';
 import 'barrel/imboy_packages.dart';
 import 'barrel/page_packages.dart';
 import 'barrel/store_packages.dart';
 import 'barrel/chat_widgets.dart';
 
-// 附件处理器
 import 'attachment_handler.dart';
 
-// 消息操作处理器
 import 'message_action_handler.dart';
 
-// 事件订阅管理器
 import 'mixin/chat_event_subscription_manager.dart';
 
-// 消息事件处理器
 import 'mixin/message_event_handler.dart';
 
-// 选择器处理器
 import 'mixin/selection_handler.dart';
 
-// UI 组件
 import '../widget/message_semantics.dart';
 import '../widget/message_quick_action_menu.dart';
 import '../widget/typing_indicator.dart';
 import '../widget/chat_history_status.dart';
 
-// 显式导入需要特殊处理的
 import 'package:flutter_chat_ui/flutter_chat_ui.dart' as flutter_chat_ui;
 import 'package:imboy/theme/providers/theme_provider.dart';
 import 'package:imboy/service/message_type_constants.dart';
@@ -69,6 +61,7 @@ import 'package:imboy/modules/messaging/domain/selection/message_selectability.d
 // messageSelectionTraitsOf（G1-7 移至 services/message_selection_traits.dart）
 // 经下方 chat_message_item.dart 的 re-export 解析。
 import 'chat_multi_select_wiring.dart';
+import '../widget/message_multi_select_action_bar.dart';
 
 // CustomMessageBuilder 需要显式导入（与 flutter_chat_core 冲突）
 import 'package:imboy/component/chat/message.dart'
@@ -80,7 +73,6 @@ import 'package:imboy/component/chat/mention_provider.dart'
 import 'package:imboy/component/chat/mention_text_reducer.dart'
     show MentionTextReducer;
 
-// 显式导入 StorageService（解决编译错误）
 import 'package:imboy/service/storage.dart';
 
 // 显式导入 E2EE 事件（barrel 用 show 白名单未含 E2EEPeerKeyChangedEvent）
@@ -92,7 +84,6 @@ import 'e2ee_peer_key_warning_rule.dart';
 
 import 'package:imboy/component/ui/avatar.dart' as imboy;
 
-// 消息条目 Widget（从 chatMessageBuilder 闭包提取）
 import 'chat_message_item.dart';
 
 // 性能优化开关：设置为 true 使用优化的 ChatMessageList，false 使用原 ChatAnimatedList
@@ -109,7 +100,6 @@ const bool _perfSampling = bool.fromEnvironment('IMBOY_PERF');
 /// 而 isOnlyEmoji 的正则会扫全文，每条可见消息每帧都跑）。
 const int _kOnlyEmojiScanMaxChars = 64;
 
-// 聊天页面主Widget
 class ChatPage extends ConsumerStatefulWidget {
   final String type; // 聊天类型 [C2C | C2G | C2S]
   final String peerId; // 对方ID (用户ID/群组ID/服务ID)
@@ -1896,197 +1886,208 @@ class ChatPageState extends ConsumerState<ChatPage>
           () => _chatInputKey.currentState?.hideAllPanel(),
         );
       },
-      child: Scaffold(
-        resizeToAvoidBottomInset: false, // 禁用系统自动避让，改为手动控制高度以避免抖动
-        appBar: _showAppBar
-            ? GlassAppBar(
-                titleWidget: Row(
-                  children: [
-                    if (widget.peerAvatar.isNotEmpty) ...[
-                      Hero(
-                        tag: 'avatar_${widget.peerId}',
-                        child: widget.type == 'C2G'
-                            ? imboy.SmartGroupAvatar(
-                                groupId: widget.peerId,
-                                avatar: widget.peerAvatar,
-                                size: 36,
-                              )
-                            : imboy.Avatar(
-                                imgUri: widget.peerAvatar,
-                                width: 36,
-                                height: 36,
-                              ),
-                      ),
-                      const SizedBox(width: 10),
-                    ],
-                    Expanded(
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Flexible(
-                            child: Text(
-                              // C2G 走 newGroupName（groupTitle 已做三级回退）；
-                              // C2C 不经 groupTitle，peerTitle 缺失时这里原本会
-                              // 渲染成空标题 —— 会话列表改传 resolvedTitle 后，
-                              // 「拿不到名字」表达为空串，兜底必须落在这一档。
-                              newGroupName.isNotEmpty
-                                  ? newGroupName
-                                  : (widget.peerTitle.trim().isNotEmpty
-                                        ? widget.peerTitle
-                                        : t.main.unnamed),
-                              style: TextStyle(
-                                color: themeNotifier.getThemeColor(
-                                  'textPrimary',
+      child: LayoutBuilder(
+        builder: (context, constraints) => Scaffold(
+          resizeToAvoidBottomInset: false, // 禁用系统自动避让，改为手动控制高度以避免抖动
+          appBar: multiSelectActive && _showAppBar
+              ? MessageMultiSelectHeader.adaptive(
+                  context,
+                  count: multiSelectState.count,
+                  containerWidth: constraints.maxWidth,
+                  onCancel: _exitMultiSelect,
+                  onClearSelection: () => ref
+                      .read(messageSelectionProvider(_conversationUk3).notifier)
+                      .clear(),
+                )
+              : _showAppBar
+              ? GlassAppBar(
+                  titleWidget: Row(
+                    children: [
+                      if (widget.peerAvatar.isNotEmpty) ...[
+                        Hero(
+                          tag: 'avatar_${widget.peerId}',
+                          child: widget.type == 'C2G'
+                              ? imboy.SmartGroupAvatar(
+                                  groupId: widget.peerId,
+                                  avatar: widget.peerAvatar,
+                                  size: 36,
+                                )
+                              : imboy.Avatar(
+                                  imgUri: widget.peerAvatar,
+                                  width: 36,
+                                  height: 36,
                                 ),
-                                fontSize: themeNotifier.getFontSize(
-                                  FontSizeType.title,
+                        ),
+                        const SizedBox(width: 10),
+                      ],
+                      Expanded(
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Flexible(
+                              child: Text(
+                                // C2G 走 newGroupName（groupTitle 已做三级回退）；
+                                // C2C 不经 groupTitle，peerTitle 缺失时这里原本会
+                                // 渲染成空标题 —— 会话列表改传 resolvedTitle 后，
+                                // 「拿不到名字」表达为空串，兜底必须落在这一档。
+                                newGroupName.isNotEmpty
+                                    ? newGroupName
+                                    : (widget.peerTitle.trim().isNotEmpty
+                                          ? widget.peerTitle
+                                          : t.main.unnamed),
+                                style: TextStyle(
+                                  color: themeNotifier.getThemeColor(
+                                    'textPrimary',
+                                  ),
+                                  fontSize: themeNotifier.getFontSize(
+                                    FontSizeType.title,
+                                  ),
                                 ),
+                                overflow: TextOverflow.ellipsis,
                               ),
-                              overflow: TextOverflow.ellipsis,
                             ),
-                          ),
-                          // 昵称先 ellipsis，徽章不压缩（透明 AI 披露）
-                          if (_peerAccountType > 0) ...[
-                            AppSpacing.horizontalTiny,
-                            BotBadge(accountType: _peerAccountType),
+                            // 昵称先 ellipsis，徽章不压缩（透明 AI 披露）
+                            if (_peerAccountType > 0) ...[
+                              AppSpacing.horizontalTiny,
+                              BotBadge(accountType: _peerAccountType),
+                            ],
                           ],
-                        ],
+                        ),
                       ),
-                    ),
-                  ],
-                ),
-                rightDMActions: topRightWidget,
-                automaticallyImplyLeading: true,
-              )
-            : null,
-        body: Column(
-          children: [
-            connected ? const SizedBox.shrink() : NetworkFailureTips(),
-            // Phase 4 T4.2：agent 任务实时进度条（ephemeral；空则收起）
-            const AgentTaskProgressBanner(),
-            Expanded(
-              child: GestureDetector(
-                onTap: () {
-                  _chatInputKey.currentState?.hideAllPanel();
-                },
-                behavior: HitTestBehavior.translucent,
-                // 这层只是"点空白处收起面板"，不是控件。不排除的话整个消息区
-                // 会被读成一个铺满屏幕的可点元素，把下面每条消息都盖住。
-                excludeFromSemantics: true,
-                child: Stack(
-                  children: [
-                    _buildChatWidget(context, theme),
-                    // 使用 Riverpod 的 ConsumerWidget 监听图片画廊状态
-                    Consumer(
-                      builder: (context, ref, _) {
-                        final galleryState = ref.watch(imageGalleryProvider);
-                        if (!galleryState.isImageViewVisible) {
-                          return const SizedBox.shrink();
-                        }
-                        return IMBoyImageGallery(
-                          images: galleryState.gallery,
-                          pageController: ref
-                              .read(imageGalleryProvider.notifier)
-                              .galleryPageController!,
-                          onClosePressed: () {
-                            // 关闭图片画廊
-                            ref
+                    ],
+                  ),
+                  rightDMActions: topRightWidget,
+                  automaticallyImplyLeading: true,
+                )
+              : null,
+          body: Column(
+            children: [
+              connected ? const SizedBox.shrink() : NetworkFailureTips(),
+              // Phase 4 T4.2：agent 任务实时进度条（ephemeral；空则收起）
+              const AgentTaskProgressBanner(),
+              Expanded(
+                child: GestureDetector(
+                  onTap: () {
+                    _chatInputKey.currentState?.hideAllPanel();
+                  },
+                  behavior: HitTestBehavior.translucent,
+                  // 这层只是"点空白处收起面板"，不是控件。不排除的话整个消息区
+                  // 会被读成一个铺满屏幕的可点元素，把下面每条消息都盖住。
+                  excludeFromSemantics: true,
+                  child: Stack(
+                    children: [
+                      _buildChatWidget(context, theme),
+                      // 使用 Riverpod 的 ConsumerWidget 监听图片画廊状态
+                      Consumer(
+                        builder: (context, ref, _) {
+                          final galleryState = ref.watch(imageGalleryProvider);
+                          if (!galleryState.isImageViewVisible) {
+                            return const SizedBox.shrink();
+                          }
+                          return IMBoyImageGallery(
+                            images: galleryState.gallery,
+                            pageController: ref
                                 .read(imageGalleryProvider.notifier)
-                                .onCloseGalleryPressed();
-                            setState(() => _showAppBar = true);
-                          },
-                          options: const IMBoyImageGalleryOptions(
-                            maxScale: PhotoViewComputedScale.covered,
-                            minScale: PhotoViewComputedScale.contained,
-                          ),
-                        );
+                                .galleryPageController!,
+                            onClosePressed: () {
+                              // 关闭图片画廊
+                              ref
+                                  .read(imageGalleryProvider.notifier)
+                                  .onCloseGalleryPressed();
+                              setState(() => _showAppBar = true);
+                            },
+                            options: const IMBoyImageGalleryOptions(
+                              maxScale: PhotoViewComputedScale.covered,
+                              minScale: PhotoViewComputedScale.contained,
+                            ),
+                          );
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              // 多选模式：输入区让位给操作栏（同时隐藏 TypingIndicator 与
+              // ChatInput，避免键盘/引用面板与多选并发出现在屏上）。
+              // 接线（排序/三动作策略/对账）全部在 ChatMultiSelectPanel 内
+              //（W5-G1 G1-9 抽离；逐条转发 ≤50 条入口拦截见 G1-1）。
+              if (multiSelectActive)
+                ChatMultiSelectPanel(
+                  conversationUk3: _conversationUk3,
+                  actions: ChatMultiSelectActions(
+                    conversationUk3: _conversationUk3,
+                    sourceChatType: _chatType,
+                    conversationTitle: widget.peerTitle,
+                    peerId: widget.peerId,
+                    // 延迟解析：_messageActionHandler 为 late final，首帧后
+                    // 才初始化，构造期读取会抛 LateInitializationError。
+                    messageActionHandlerResolver: () => _messageActionHandler,
+                  ),
+                )
+              else ...[
+                // 输入状态指示器
+                TypingIndicatorWidget(
+                  conversationUk3: _conversationUk3,
+                  peerId: widget.peerId,
+                  peerTitle: widget.peerTitle,
+                ),
+                ChatInputHeightListener(
+                  composerHeight: composerHeightNotifier,
+                  child: ChatInput(
+                    key: _chatInputKey,
+                    composerHeight: composerHeightNotifier,
+                    type: _chatType,
+                    peerId: widget.peerId,
+                    onSendPressed: _handleSendPressed,
+                    onTextChanged: _handleInputChanged,
+                    isMuted: _isMuted,
+                    muteMessage: _muteMessage,
+                    onMentionsChanged: _chatType == MessageFlowType.c2g
+                        ? (mentionIds) {
+                            _currentMentionIds = mentionIds;
+                          }
+                        : null,
+                    voiceWidget: VoiceWidget(
+                      startRecord: () {},
+                      stopRecord: _handleVoiceSelection,
+                      onConvertToText: (text) {
+                        _handleSendPressed(text);
+                      },
+                      height: 46,
+                      margin: EdgeInsets.zero,
+                    ),
+                    extraWidget: ExtraItems(
+                      type: _chatType,
+                      handleImageSelection: _handleImageSelection,
+                      handleFileSelection: _handleFileSelection,
+                      handlePickerSelection: _handlePickerSelection,
+                      handleLocationSelection: _handleLocationSelection,
+                      handleVisitCardSelection: _handleVisitCardSelection,
+                      handleCollectSelection: _handleCollectSelection,
+                      handleRedPacketSelection: handleRedPacketSelection,
+                      handleTransferSelection: handleTransferSelection,
+                      options: {
+                        "to": widget.peerId,
+                        "title": widget.peerTitle,
+                        "avatar": widget.peerAvatar,
+                        "sign": widget.peerSign,
                       },
                     ),
-                  ],
-                ),
-              ),
-            ),
-            // 多选模式：输入区让位给操作栏（同时隐藏 TypingIndicator 与
-            // ChatInput，避免键盘/引用面板与多选并发出现在屏上）。
-            // 接线（排序/三动作策略/对账）全部在 ChatMultiSelectPanel 内
-            //（W5-G1 G1-9 抽离；逐条转发 ≤50 条入口拦截见 G1-1）。
-            if (multiSelectActive)
-              ChatMultiSelectPanel(
-                conversationUk3: _conversationUk3,
-                actions: ChatMultiSelectActions(
-                  conversationUk3: _conversationUk3,
-                  sourceChatType: _chatType,
-                  conversationTitle: widget.peerTitle,
-                  peerId: widget.peerId,
-                  // 延迟解析：_messageActionHandler 为 late final，首帧后
-                  // 才初始化，构造期读取会抛 LateInitializationError。
-                  messageActionHandlerResolver: () => _messageActionHandler,
-                ),
-                onExit: _exitMultiSelect,
-              )
-            else ...[
-              // 输入状态指示器
-              TypingIndicatorWidget(
-                conversationUk3: _conversationUk3,
-                peerId: widget.peerId,
-                peerTitle: widget.peerTitle,
-              ),
-              ChatInputHeightListener(
-                composerHeight: composerHeightNotifier,
-                child: ChatInput(
-                  key: _chatInputKey,
-                  composerHeight: composerHeightNotifier,
-                  type: _chatType,
-                  peerId: widget.peerId,
-                  onSendPressed: _handleSendPressed,
-                  onTextChanged: _handleInputChanged,
-                  isMuted: _isMuted,
-                  muteMessage: _muteMessage,
-                  onMentionsChanged: _chatType == MessageFlowType.c2g
-                      ? (mentionIds) {
-                          _currentMentionIds = mentionIds;
-                        }
-                      : null,
-                  voiceWidget: VoiceWidget(
-                    startRecord: () {},
-                    stopRecord: _handleVoiceSelection,
-                    onConvertToText: (text) {
-                      _handleSendPressed(text);
-                    },
-                    height: 46,
-                    margin: EdgeInsets.zero,
-                  ),
-                  extraWidget: ExtraItems(
-                    type: _chatType,
-                    handleImageSelection: _handleImageSelection,
-                    handleFileSelection: _handleFileSelection,
-                    handlePickerSelection: _handlePickerSelection,
-                    handleLocationSelection: _handleLocationSelection,
-                    handleVisitCardSelection: _handleVisitCardSelection,
-                    handleCollectSelection: _handleCollectSelection,
-                    handleRedPacketSelection: handleRedPacketSelection,
-                    handleTransferSelection: handleTransferSelection,
-                    options: {
-                      "to": widget.peerId,
-                      "title": widget.peerTitle,
-                      "avatar": widget.peerAvatar,
-                      "sign": widget.peerSign,
-                    },
-                  ),
-                  quoteTipsWidget: QuoteTipsWidget(
-                    title: resolveQuoteAuthorName(
-                      quoteAuthorId: quoteMessage?.authorId,
-                      currentUid: UserRepoLocal.to.currentUid,
-                      myNickname: UserRepoLocal.to.current.nickname,
-                      peerTitle: widget.peerTitle,
+                    quoteTipsWidget: QuoteTipsWidget(
+                      title: resolveQuoteAuthorName(
+                        quoteAuthorId: quoteMessage?.authorId,
+                        currentUid: UserRepoLocal.to.currentUid,
+                        myNickname: UserRepoLocal.to.current.nickname,
+                        peerTitle: widget.peerTitle,
+                      ),
+                      message: quoteMessage,
+                      close: () => updateQuoteMessage(null),
                     ),
-                    message: quoteMessage,
-                    close: () => updateQuoteMessage(null),
                   ),
                 ),
-              ),
+              ],
             ],
-          ],
+          ),
         ),
       ),
     );

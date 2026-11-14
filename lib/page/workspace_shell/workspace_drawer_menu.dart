@@ -432,6 +432,7 @@ class _WorkspaceDrawerMenuState extends ConsumerState<WorkspaceDrawerMenu> {
           _DrawerRow(
             icon: CupertinoIcons.rectangle_stack_badge_plus,
             label: t.workspace.createOrJoinEnterprise,
+            stackIfWrapped: true,
             onTap: () => _closeAndPush(context, kOrganizationPickerPath),
           ),
           _DrawerRow(
@@ -653,12 +654,14 @@ class _DrawerRow extends StatelessWidget {
     required this.label,
     required this.onTap,
     this.destructive = false,
+    this.stackIfWrapped = false,
   });
 
   final IconData icon;
   final String label;
   final VoidCallback onTap;
   final bool destructive;
+  final bool stackIfWrapped;
 
   @override
   Widget build(BuildContext context) {
@@ -666,37 +669,92 @@ class _DrawerRow extends StatelessWidget {
     final color = destructive
         ? AppColors.getDestructiveText(brightness)
         : AppColors.getTextColor(brightness);
-    return CupertinoButton(
-      padding: const EdgeInsetsDirectional.symmetric(
-        horizontal: AppSpacing.medium,
+    final iconWidget = Icon(
+      icon,
+      size: 22,
+      color: destructive
+          ? color
+          : AppColors.getTextSecondary(brightness).withValues(alpha: 0.76),
+    );
+    final labelWidget = Text(
+      label,
+      style: context.textStyle(
+        FontSizeType.medium,
+        fontWeight: FontWeight.w400,
+        color: color,
+      ),
+    );
+    Widget button(Widget child, {required bool inset}) => CupertinoButton(
+      padding: EdgeInsetsDirectional.symmetric(
+        horizontal: inset ? AppSpacing.medium : 0,
         vertical: AppSpacing.small,
       ),
       minimumSize: const Size(AppSpacing.xxxLarge, AppSpacing.xxxLarge),
       pressedOpacity: 0.55,
       onPressed: onTap,
-      child: Row(
-        children: [
-          Icon(
-            icon,
-            size: 22,
-            color: destructive
-                ? color
-                : AppColors.getTextSecondary(brightness)
-                      .withValues(alpha: 0.76),
-          ),
-          AppSpacing.horizontalMedium,
-          Expanded(
-            child: Text(
-              label,
-              style: context.textStyle(
-                FontSizeType.medium,
-                fontWeight: FontWeight.w400,
-                color: color,
-              ),
-            ),
-          ),
-        ],
+      child: child,
+    );
+    Widget row() => Row(
+      children: [
+        iconWidget,
+        AppSpacing.horizontalMedium,
+        Expanded(child: labelWidget),
+      ],
+    );
+    if (!stackIfWrapped) return button(row(), inset: true);
+    return button(
+      LayoutBuilder(
+        builder: (context, constraints) {
+          final labelStyle = labelWidget.style!;
+          final effectiveStyle =
+              (labelStyle.inherit
+                      ? DefaultTextStyle.of(context).style.merge(labelStyle)
+                      : labelStyle)
+                  .merge(
+                    TextStyle(
+                      fontWeight: MediaQuery.boldTextOf(context)
+                          ? FontWeight.bold
+                          : null,
+                      height: MediaQuery.maybeLineHeightScaleFactorOverrideOf(
+                        context,
+                      ),
+                      letterSpacing: MediaQuery.maybeLetterSpacingOverrideOf(
+                        context,
+                      ),
+                      wordSpacing: MediaQuery.maybeWordSpacingOverrideOf(
+                        context,
+                      ),
+                    ),
+                  );
+          final painter =
+              TextPainter(
+                text: TextSpan(text: label, style: effectiveStyle),
+                textDirection: Directionality.of(context),
+                locale: Localizations.maybeLocaleOf(context),
+                textScaler: MediaQuery.textScalerOf(context),
+                maxLines: 1,
+              )..layout(
+                maxWidth: math.max(
+                  0,
+                  constraints.maxWidth - AppSpacing.medium * 3 - 22,
+                ),
+              );
+          final stacked = painter.didExceedMaxLines;
+          painter.dispose();
+          return stacked
+              ? Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [iconWidget, AppSpacing.verticalSmall, labelWidget],
+                )
+              : Padding(
+                  padding: const EdgeInsetsDirectional.symmetric(
+                    horizontal: AppSpacing.medium,
+                  ),
+                  child: row(),
+                );
+        },
       ),
+      inset: false,
     );
   }
 }

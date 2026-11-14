@@ -345,7 +345,10 @@ class _ChannelEditPageState extends ConsumerState<ChannelEditPage> {
     });
     String? uploaded;
     try {
-      uploaded = await ref.read(channelEditAvatarUploadProvider)(file);
+      uploaded = await ref.read(channelEditAvatarUploadProvider)(
+        file,
+        _channel?.id ?? '',
+      );
     } catch (_) {
       uploaded = null;
     }

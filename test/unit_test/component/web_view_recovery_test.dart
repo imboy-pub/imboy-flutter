@@ -91,12 +91,45 @@ void main() {
     await tester.pump();
     expect(find.byType(LinearProgressIndicator), findsNothing);
   });
+  testWidgets('subresource HTTP errors do not warn for the whole document', (
+    tester,
+  ) async {
+    await open(tester);
+    for (final error in [
+      HttpResponseError(
+        request: WebResourceRequest(
+          uri: Uri.parse('https://example.test/image.png'),
+        ),
+        response: WebResourceResponse(uri: null, statusCode: 404),
+      ),
+      HttpResponseError(
+        response: WebResourceResponse(
+          uri: Uri.parse('https://example.test/favicon.ico'),
+          statusCode: 404,
+        ),
+      ),
+    ]) {
+      platform.httpError?.call(error);
+      await tester.pump();
+      expect(find.byKey(const ValueKey('webview-load-warning')), findsNothing);
+      expect(find.byKey(const ValueKey('webview-error')), findsNothing);
+      expect(find.byType(LinearProgressIndicator), findsOneWidget);
+    }
+    platform.finished('https://example.test/page');
+    await tester.pump();
+    expect(find.byKey(const ValueKey('fake-webview-surface')), findsOneWidget);
+    expect(find.byType(LinearProgressIndicator), findsNothing);
+  });
+
   testWidgets('HTTP errors retain content and offer persistent recovery', (
     tester,
   ) async {
     await open(tester);
     platform.httpError?.call(
       HttpResponseError(
+        request: WebResourceRequest(
+          uri: Uri.parse('https://example.test/page'),
+        ),
         response: WebResourceResponse(uri: null, statusCode: 503),
       ),
     );

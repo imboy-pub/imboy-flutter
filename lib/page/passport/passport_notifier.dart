@@ -78,7 +78,6 @@ Future<Map<String, dynamic>> encodePassportPassword(
 }
 
 /// Passport 模块 Riverpod Notifier
-/// 管理 Passport 模块的状态和业务逻辑
 @riverpod
 class PassportNotifier extends _$PassportNotifier {
   final String fResultKey = "result";
@@ -172,37 +171,30 @@ class PassportNotifier extends _$PassportNotifier {
     }
   }
 
-  /// 设置网络连接描述
   void setConnectDesc(String desc) {
     state = state.copyWith(connectDesc: desc);
   }
 
-  /// 设置错误信息
   void setError(String error) {
     state = state.copyWith(error: error);
   }
 
-  /// 切换登录密码可见性
   void toggleLoginPwdObscure() {
     state = state.copyWith(loginPwdObscure: !state.loginPwdObscure);
   }
 
-  /// 切换新密码可见性
   void toggleNewPwdObscure() {
     state = state.copyWith(newPwdObscure: !state.newPwdObscure);
   }
 
-  /// 切换确认密码可见性
   void setRetypePwdObscure(bool obscure) {
     state = state.copyWith(retypePwdObscure: obscure);
   }
 
-  /// 设置确认密码
   void setRetypePwd(String pwd) {
     state = state.copyWith(retypePwd: pwd);
   }
 
-  /// 设置账号类型
   void setAccountType(String type) {
     state = state.copyWith(accountType: type);
   }
@@ -240,12 +232,10 @@ class PassportNotifier extends _$PassportNotifier {
     state = state.copyWith(loginHistory: history);
   }
 
-  /// 设置昵称
   void setNickname(String nickname) {
     state = state.copyWith(nickname: nickname);
   }
 
-  /// 设置手机号
   void setMobile(String mobile) {
     state = state.copyWith(mobile: mobile);
   }

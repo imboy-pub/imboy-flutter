@@ -72,8 +72,7 @@ void main() {
     }();
     flowLog('W3K-C2G self=$selfUid src=$srcPeerUid gid=$gid');
 
-    final flags = enableChatMultiFlagsForTest();
-    addTearDown(flags.restore);
+    await requireChatMultiServerFlags();
 
     // ① 预热群会话：push 群 ChatPage 发一条真实文本，建立本地群会话行。
     final groupPage = await pushChatPage(
@@ -116,6 +115,12 @@ void main() {
     expectSelectionCount(tester, 2);
 
     // ④ 逐条转发到群（G6-3：tapViaNewGesture + 效果校验重试）。
+    await tapActionBar(
+      tester,
+      ChatMultiKeys.forward,
+      journey: 'forward-options',
+      effectCheck: () => tester.any(find.byKey(ChatMultiKeys.forwardEach)),
+    );
     await tapActionBar(
       tester,
       ChatMultiKeys.forwardEach,

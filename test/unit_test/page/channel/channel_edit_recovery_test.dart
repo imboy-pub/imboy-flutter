@@ -40,7 +40,8 @@ Future<void> _pump(
   WidgetTester tester,
   ChannelApi api, {
   ChannelModel? channel,
-  Future<String?> Function(File)? upload,
+  String channelId = '1001',
+  Future<String?> Function(File, String)? upload,
   double width = 390,
   double textScale = 1,
   Brightness brightness = Brightness.light,
@@ -73,7 +74,7 @@ Future<void> _pump(
                   MaterialPageRoute<void>(
                     builder: (_) => target == null
                         ? ChannelEditPage(
-                            channelId: '1001',
+                            channelId: channelId,
                             channel: channel ?? _channel('缓存名称'),
                           )
                         : ValueListenableBuilder<String>(
@@ -136,6 +137,30 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('未保存名称 😀'), findsOneWidget);
     expect(find.text('服务器名称'), findsNothing);
+  });
+
+  testWidgets('头像上传使用已解析真实ID而不是路由alias', (tester) async {
+    final ids = <String>[];
+    when(() => api.getChannel('owned-alias')).thenAnswer((_) async => null);
+    when(() => api.getChannelByCustomId('owned-alias'))
+        .thenAnswer((_) async => _channel('真实频道'));
+    await _pump(
+      tester,
+      api,
+      channelId: 'owned-alias',
+      channel: _channel('旧缓存频道', id: 2002),
+      upload: (_, id) async {
+        ids.add(id);
+        return null;
+      },
+    );
+    await tester.tap(find.byKey(const ValueKey('channel-edit-avatar-picker')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text(t.main.selectFromAlbum));
+    await tester.pumpAndSettle();
+    expect(ids, ['1001']);
+    verify(() => api.getChannelByCustomId('owned-alias')).called(1);
+    expect(find.text(t.channel.avatarNotUploaded), findsOneWidget);
   });
 
   testWidgets('旧账号迟到响应不能显示在当前编辑页', (tester) async {
@@ -209,7 +234,7 @@ void main() {
     await _pump(
       tester,
       api,
-      upload: (_) async => ++attempts == 1 ? null : 'avatar/new.png',
+      upload: (_, _) async => ++attempts == 1 ? null : 'avatar/new.png',
     );
     await tester.tap(find.byKey(const ValueKey('channel-edit-avatar-picker')));
     await tester.pumpAndSettle();
@@ -237,7 +262,7 @@ void main() {
     await _pump(
       tester,
       api,
-      upload: (_) {
+      upload: (_, _) {
         attempts++;
         return attempts == 1 ? Future.value(null) : retry.future;
       },
@@ -261,7 +286,7 @@ void main() {
 
   testWidgets('上传失败可还原预览并取消未同步状态', (tester) async {
     when(() => api.getChannel(any())).thenAnswer((_) async => _channel('缓存名称'));
-    await _pump(tester, api, upload: (_) async => null);
+    await _pump(tester, api, upload: (_, _) async => null);
     await tester.tap(find.byKey(const ValueKey('channel-edit-avatar-picker')));
     await tester.pumpAndSettle();
     await tester.tap(find.text(t.main.selectFromAlbum));
@@ -305,7 +330,7 @@ void main() {
               await _pump(
                 tester,
                 api,
-                upload: (_) async => null,
+                upload: (_, _) async => null,
                 width: width,
                 textScale: scale,
                 brightness: brightness,
@@ -355,7 +380,7 @@ void main() {
       final id = call.positionalArguments.first as String;
       return _channel('频道$id', id: int.parse(id));
     });
-    await _pump(tester, api, target: target, upload: (_) => upload.future);
+    await _pump(tester, api, target: target, upload: (_, _) => upload.future);
     await tester.tap(find.byKey(const ValueKey('channel-edit-avatar-picker')));
     await tester.pumpAndSettle();
     await tester.tap(find.text(t.main.selectFromAlbum));

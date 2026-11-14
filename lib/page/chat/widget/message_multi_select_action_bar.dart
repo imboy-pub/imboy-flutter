@@ -1,170 +1,298 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart' show Message;
+import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/i18n/strings.g.dart';
-import 'package:imboy/theme/default/app_radius.dart';
 import 'package:imboy/theme/default/app_sizes.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:imboy/theme/default/font_types.dart';
 
-/// 多选模式底部操作栏（chat_multi_select_v1 / W2-E）。
-///
-/// ChatPage 在多选激活时用它替换输入区（TypingIndicator + ChatInput）：
-/// - 左上：退出按钮（✕，44×44pt 触达）+ 已选计数；
-/// - 右上：全不选（清空已选、保持多选，见 MessageSelectionNotifier.clear）；
-/// - 第二行：逐条转发 / 合并转发 / 导出 三个动作位。
-///
-/// 动作位本波只暴露 **typed callbacks**（Central Wiring 接真实实现，
-/// 见计划 §12）；callback 为 null 或选中数为 0 时按钮禁用。
-/// [selectedMessages] 由 ChatPage 按冻结合同 §4.3（createdAt 从旧到新、
-/// 同时间按列表稳定序）排序后传入 —— 本组件不重排、不取数。
+/// 多选标题栏：退出和清空分别保留原有行为。
+class MessageMultiSelectHeader extends StatelessWidget
+    implements PreferredSizeWidget {
+  const MessageMultiSelectHeader({
+    super.key,
+    required this.count,
+    required this.onCancel,
+    this.onClearSelection,
+    this.stacked = false,
+    this.toolbarHeight = kToolbarHeight + 16,
+    this.cancelWidth = 60,
+    this.titleStyle,
+  });
+
+  factory MessageMultiSelectHeader.adaptive(
+    BuildContext context, {
+    required int count,
+    required VoidCallback onCancel,
+    required double containerWidth,
+    VoidCallback? onClearSelection,
+  }) {
+    final scale = MediaQuery.textScalerOf(context);
+    TextStyle effectiveStyle(TextStyle style) => style.merge(
+      TextStyle(
+        fontWeight: MediaQuery.boldTextOf(context) ? FontWeight.bold : null,
+        height: MediaQuery.maybeLineHeightScaleFactorOverrideOf(context),
+        letterSpacing: MediaQuery.maybeLetterSpacingOverrideOf(context),
+        wordSpacing: MediaQuery.maybeWordSpacingOverrideOf(context),
+      ),
+    );
+    // CupertinoButton installs actionTextStyle as its DefaultTextStyle.
+    final actionStyle = effectiveStyle(
+      CupertinoTheme.of(context).textTheme.actionTextStyle,
+    );
+    // Supply this exact resolved style to Text so measurement does not depend
+    // on a different DefaultTextStyle below the Scaffold's Material.
+    final titleStyle = effectiveStyle(
+      (Theme.of(context).textTheme.bodyMedium ?? const TextStyle()).merge(
+        context.textStyle(FontSizeType.body, fontWeight: FontWeight.w600),
+      ),
+    ).copyWith(inherit: false);
+    double width(String text, TextStyle style) => TextPainter.computeWidth(
+      text: TextSpan(text: text, style: style),
+      textDirection: Directionality.of(context),
+      textScaler: scale,
+      locale: Localizations.maybeLocaleOf(context),
+    );
+    final cancelWidth =
+        width(context.t.chat.multiSelectCancel, actionStyle) +
+        AppSpacing.medium * 2;
+    final clearWidth = onClearSelection == null
+        ? 0.0
+        : width(context.t.chat.multiSelectDeselectAll, actionStyle) +
+              AppSpacing.medium * 2;
+    final titleWidth = width(
+      context.t.chat.multiSelectCount(count: count),
+      titleStyle,
+    );
+    final availableWidth = containerWidth - AppSpacing.regular * 2;
+    double height(String text, TextStyle style, double maxWidth) {
+      final painter = TextPainter(
+        text: TextSpan(text: text, style: style),
+        textDirection: Directionality.of(context),
+        textScaler: scale,
+        locale: Localizations.maybeLocaleOf(context),
+      )..layout(maxWidth: maxWidth.clamp(1, double.infinity));
+      final result = painter.height;
+      painter.dispose();
+      return result;
+    }
+
+    final actionMaxWidth = onClearSelection == null
+        ? availableWidth
+        : availableWidth / 2;
+    final actionHeight = [
+      height(context.t.chat.multiSelectCancel, actionStyle, actionMaxWidth),
+      if (onClearSelection != null)
+        height(
+          context.t.chat.multiSelectDeselectAll,
+          actionStyle,
+          actionMaxWidth,
+        ),
+      44.0,
+    ].reduce((a, b) => a > b ? a : b);
+    final titleHeight = height(
+      context.t.chat.multiSelectCount(count: count),
+      titleStyle,
+      availableWidth,
+    );
+    final stacked =
+        cancelWidth + clearWidth + titleWidth + AppSpacing.regular * 4 >
+            containerWidth ||
+        titleHeight > kToolbarHeight ||
+        actionHeight > kToolbarHeight;
+    return MessageMultiSelectHeader(
+      count: count,
+      onCancel: onCancel,
+      onClearSelection: onClearSelection,
+      stacked: stacked,
+      titleStyle: titleStyle,
+      cancelWidth: cancelWidth < 44 ? 44 : cancelWidth,
+      toolbarHeight: stacked
+          ? titleHeight + actionHeight + AppSpacing.regular * 2
+          : kToolbarHeight + 16,
+    );
+  }
+
+  final int count;
+  final VoidCallback onCancel;
+  final VoidCallback? onClearSelection;
+  final bool stacked;
+  final double toolbarHeight;
+  final double cancelWidth;
+  final TextStyle? titleStyle;
+
+  @override
+  Size get preferredSize => Size.fromHeight(toolbarHeight);
+
+  @override
+  Widget build(BuildContext context) {
+    final t = context.t;
+    final cancel = CupertinoButton(
+      key: const ValueKey('multi_select_cancel'),
+      padding: EdgeInsets.zero,
+      minimumSize: const Size(44, 44),
+      onPressed: onCancel,
+      child: Text(t.chat.multiSelectCancel),
+    );
+    final clear = onClearSelection == null
+        ? null
+        : CupertinoButton(
+            key: const ValueKey('multi_select_clear'),
+            padding: EdgeInsets.zero,
+            minimumSize: const Size(44, 44),
+            onPressed: count > 0 ? onClearSelection : null,
+            child: Text(t.chat.multiSelectDeselectAll),
+          );
+    final title = Text(
+      t.chat.multiSelectCount(count: count),
+      key: const ValueKey('multi_select_count'),
+      textAlign: TextAlign.center,
+      style:
+          titleStyle ??
+          context.textStyle(FontSizeType.body, fontWeight: FontWeight.w600),
+    );
+    if (stacked) {
+      return Material(
+        color: Theme.of(context).colorScheme.surface,
+        child: SafeArea(
+          bottom: false,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.regular),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Semantics(header: true, child: title),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(child: cancel),
+                    if (clear != null) Expanded(child: clear),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
+    return GlassAppBar(
+      toolbarHeight: toolbarHeight,
+      leadingWidth: cancelWidth,
+      leading: cancel,
+      titleWidget: title,
+      rightDMActions: clear == null ? null : [clear],
+    );
+  }
+}
+
+/// 底部统一转发入口与已有导出入口。
 class MessageMultiSelectActionBar extends StatelessWidget {
   const MessageMultiSelectActionBar({
     super.key,
     required this.selectedMessages,
-    required this.onCancel,
-    this.onClearSelection,
     this.onForwardEach,
     this.onForwardBundle,
     this.onExport,
   });
 
-  /// 当前已选消息（旧→新）。空列表 = 多选激活但未勾选任何条目。
   final List<Message> selectedMessages;
+  final void Function(List<Message>)? onForwardEach;
+  final void Function(List<Message>)? onForwardBundle;
+  final void Function(List<Message>)? onExport;
 
-  /// 退出多选模式（返回键 / ✕ 共用同一语义：exit 并清空）。
-  final VoidCallback onCancel;
+  void _showForwardOptions(BuildContext context) {
+    final t = context.t;
+    showCupertinoModalPopup<void>(
+      context: context,
+      builder: (sheetContext) => CupertinoActionSheet(
+        actions: [
+          _forwardOption(
+            sheetContext,
+            key: const ValueKey('multi_select_forward_each'),
+            label: t.chat.multiSelectForwardEach,
+            callback: onForwardEach,
+          ),
+          _forwardOption(
+            sheetContext,
+            key: const ValueKey('multi_select_forward_bundle'),
+            label: t.chat.multiSelectForwardBundle,
+            callback: onForwardBundle,
+          ),
+        ],
+        cancelButton: CupertinoActionSheetAction(
+          key: const ValueKey('multi_select_forward_cancel'),
+          onPressed: () => Navigator.pop(sheetContext),
+          child: Text(t.common.buttonCancel),
+        ),
+      ),
+    );
+  }
 
-  /// 全不选：清空已选、保持多选激活（null 时隐藏按钮）。
-  final VoidCallback? onClearSelection;
-
-  /// 逐条转发（typed callback，Central Wiring 接线）。
-  final void Function(List<Message> selectedMessages)? onForwardEach;
-
-  /// 合并转发（typed callback，Central Wiring 接线）。
-  final void Function(List<Message> selectedMessages)? onForwardBundle;
-
-  /// 导出 / 系统分享（typed callback，Central Wiring 接线）。
-  final void Function(List<Message> selectedMessages)? onExport;
-
-  /// 退出按钮触达区（DESIGN.md §13.2 Hard Rule 1：≥44×44pt）。
-  static const double kCancelTouchTarget = 44.0;
-
-  bool get _hasSelection => selectedMessages.isNotEmpty;
+  Widget _forwardOption(
+    BuildContext context, {
+    required Key key,
+    required String label,
+    required void Function(List<Message>)? callback,
+  }) {
+    if (callback == null) {
+      return CupertinoButton(
+        key: key,
+        minimumSize: const Size(44, 44),
+        onPressed: null,
+        child: Text(label),
+      );
+    }
+    return CupertinoActionSheetAction(
+      key: key,
+      onPressed: () {
+        Navigator.pop(context);
+        callback(selectedMessages);
+      },
+      child: Text(label),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     final t = context.t;
-    final colorScheme = Theme.of(context).colorScheme;
+    final colors = Theme.of(context).colorScheme;
+    final hasSelection = selectedMessages.isNotEmpty;
+    final canForward =
+        hasSelection && (onForwardEach != null || onForwardBundle != null);
     return Material(
-      color: colorScheme.surface,
+      color: colors.surface,
       child: SafeArea(
         top: false,
         child: Container(
           decoration: BoxDecoration(
-            border: Border(
-              top: BorderSide(
-                color: colorScheme.outlineVariant.withValues(alpha: 0.5),
-              ),
-            ),
+            border: Border(top: BorderSide(color: colors.outlineVariant)),
           ),
           padding: AppSpacing.allSmall,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              Row(
-                children: [
-                  GestureDetector(
-                    key: const ValueKey('multi_select_cancel'),
-                    behavior: HitTestBehavior.opaque,
-                    onTap: onCancel,
-                    child: ConstrainedBox(
-                      constraints: const BoxConstraints(
-                        minWidth: kCancelTouchTarget,
-                        minHeight: kCancelTouchTarget,
-                      ),
-                      child: Center(
-                        child: Icon(
-                          CupertinoIcons.xmark,
-                          size: AppSizes.iconSizeSmall,
-                          color: colorScheme.onSurface,
-                          semanticLabel: t.chat.multiSelectCancel,
-                        ),
-                      ),
-                    ),
-                  ),
-                  Expanded(
-                    child: Text(
-                      t.chat.multiSelectCount(count: selectedMessages.length),
-                      key: const ValueKey('multi_select_count'),
-                      style: context
-                          .textStyle(FontSizeType.normal)
-                          .copyWith(color: colorScheme.onSurface),
-                    ),
-                  ),
-                  if (onClearSelection != null)
-                    GestureDetector(
-                      key: const ValueKey('multi_select_clear'),
-                      behavior: HitTestBehavior.opaque,
-                      onTap: _hasSelection ? onClearSelection : null,
-                      child: ConstrainedBox(
-                        constraints: const BoxConstraints(
-                          // 复用同文件 kCancelTouchTarget（≥44×44pt 触达）。
-                          minWidth: kCancelTouchTarget,
-                          minHeight: kCancelTouchTarget,
-                        ),
-                        child: Center(
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: AppSpacing.small,
-                            ),
-                            child: Text(
-                              t.chat.multiSelectDeselectAll,
-                              style: context
-                                  .textStyle(FontSizeType.normal)
-                                  .copyWith(
-                                    color: _hasSelection
-                                        ? colorScheme.primary
-                                        : colorScheme.onSurface.withValues(
-                                            alpha: 0.4,
-                                          ),
-                                  ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                ],
+              Expanded(
+                child: _action(
+                  context,
+                  key: const ValueKey('multi_select_forward'),
+                  icon: CupertinoIcons.arrowshape_turn_up_right,
+                  label: t.chat.forward,
+                  onPressed: canForward
+                      ? () => _showForwardOptions(context)
+                      : null,
+                ),
               ),
-              Row(
-                children: [
-                  _buildActionButton(
-                    context: context,
-                    key: const ValueKey('multi_select_forward_each'),
-                    icon: CupertinoIcons.arrowshape_turn_up_right,
-                    label: t.chat.multiSelectForwardEach,
-                    enabled: _hasSelection,
-                    onTap: onForwardEach,
-                  ),
-                  AppSpacing.horizontalTiny,
-                  _buildActionButton(
-                    context: context,
-                    key: const ValueKey('multi_select_forward_bundle'),
-                    icon: CupertinoIcons.square_stack_3d_up,
-                    label: t.chat.multiSelectForwardBundle,
-                    enabled: _hasSelection,
-                    onTap: onForwardBundle,
-                  ),
-                  AppSpacing.horizontalTiny,
-                  _buildActionButton(
-                    context: context,
-                    key: const ValueKey('multi_select_export'),
-                    icon: CupertinoIcons.share,
-                    label: t.chat.multiSelectExport,
-                    enabled: _hasSelection,
-                    onTap: onExport,
-                  ),
-                ],
+              Expanded(
+                child: _action(
+                  context,
+                  key: const ValueKey('multi_select_export'),
+                  icon: CupertinoIcons.share,
+                  label: t.chat.multiSelectExport,
+                  onPressed: hasSelection && onExport != null
+                      ? () => onExport!(selectedMessages)
+                      : null,
+                ),
               ),
             ],
           ),
@@ -173,57 +301,25 @@ class MessageMultiSelectActionBar extends StatelessWidget {
     );
   }
 
-  Widget _buildActionButton({
-    required BuildContext context,
+  Widget _action(
+    BuildContext context, {
     required Key key,
     required IconData icon,
     required String label,
-    required bool enabled,
-    required void Function(List<Message>)? onTap,
+    required VoidCallback? onPressed,
   }) {
-    final colorScheme = Theme.of(context).colorScheme;
-    // typed callback 未接线（null）时同样禁用：Central Wiring 接线前按钮
-    // 只作为占位动作位存在，不可触发任何行为。
-    final bool actionable = enabled && onTap != null;
-    final Color foreground = actionable
-        ? colorScheme.primary
-        : colorScheme.onSurface.withValues(alpha: 0.4);
-    return Expanded(
-      child: Semantics(
-        button: true,
-        enabled: actionable,
-        child: GestureDetector(
-          key: key,
-          behavior: HitTestBehavior.opaque,
-          onTap: actionable ? () => onTap(selectedMessages) : null,
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(minHeight: 44),
-            child: Container(
-              padding: AppSpacing.allSmall,
-              decoration: BoxDecoration(
-                color: foreground.withValues(alpha: 0.08),
-                borderRadius: AppRadius.borderRadiusMedium,
-                border: Border.all(color: foreground.withValues(alpha: 0.2)),
-              ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(icon, size: AppSizes.iconSizeSmall, color: foreground),
-                  AppSpacing.verticalTiny,
-                  Text(
-                    label,
-                    textAlign: TextAlign.center,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: context
-                        .textStyle(FontSizeType.caption2)
-                        .copyWith(color: foreground),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
+    return CupertinoButton(
+      key: key,
+      minimumSize: const Size(44, 44),
+      padding: AppSpacing.allSmall,
+      onPressed: onPressed,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: AppSizes.iconSizeSmall),
+          AppSpacing.verticalTiny,
+          Text(label, style: context.textStyle(FontSizeType.caption2)),
+        ],
       ),
     );
   }

@@ -6,6 +6,7 @@ import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/service/assets.dart' show AssetsService;
 import 'package:imboy/service/e2ee/attachment_open_registry.dart';
+import 'package:imboy/service/e2ee/attachment_opener.dart';
 import 'package:imboy/service/e2ee_service.dart';
 import 'package:imboy/service/message_type_constants.dart';
 import 'package:imboy/store/model/contact_model.dart';
@@ -106,6 +107,55 @@ extension MessageModelMapper on MessageModel {
       'error': 'invalid_payload',
     },
   );
+
+  bool _registerBundleAttachments(Map<String, dynamic> bundle) {
+    final entries = bundle['entries'];
+    if (entries is! List) return true;
+    final encrypted = <Map<Object?, Object?>>[];
+    try {
+      for (final entry in entries.whereType<Map<Object?, Object?>>()) {
+        final payload = entry['payload'];
+        if (payload is! Map) continue;
+        final descriptors = AttachmentOpener.descriptorsFrom(payload);
+        final images = payload['images'];
+        for (final item in [
+          payload,
+          if (images is List) ...images.whereType<Map<Object?, Object?>>(),
+        ]) {
+          final descriptor = AttachmentOpener.descriptorFrom(item);
+          if (item.containsKey('attachment_descriptor') && descriptor == null) {
+            return false;
+          }
+          if (descriptor != null &&
+              (item['uri'] != descriptor.objectKey ||
+                  !AssetsService.isObjectKey(descriptor.objectKey))) {
+            return false;
+          }
+        }
+        if (descriptors.isNotEmpty) encrypted.add(payload);
+      }
+      if (encrypted.isEmpty) return true;
+      // Validate every entry and the outer target binding before changing the registry.
+      AttachmentOpener.bindingFor(
+        messageId: id.toString(),
+        chatType: type ?? 'C2C',
+        fromUid: fromId.toString(),
+        toUid: toId.toString(),
+      );
+      for (final payload in encrypted) {
+        AttachmentOpenRegistry.registerFromMessage(
+          payload: payload,
+          messageId: id.toString(),
+          chatType: type ?? 'C2C',
+          fromUid: fromId.toString(),
+          toUid: toId.toString(),
+        );
+      }
+      return true;
+    } on AttachmentOpenException {
+      return false;
+    }
+  }
 
   Future<Message> toTypeMessage() async {
     // WebSocket API v2.0: payload 可能是 Map 或 String（E2EE 场景）
@@ -464,6 +514,9 @@ extension MessageModelMapper on MessageModel {
         },
       );
     } else if (effectiveMsgType == MessageType.chatHistoryBundle) {
+      if (!_registerBundleAttachments(payloadData)) {
+        return _invalidPayloadMessage();
+      }
       // 合并转发聊天记录（chat_history_bundle_v1）：bundle payload
       // （bundle_version/title/exported_at/entries）原样进 metadata，
       // 由 ChatHistoryBundleMessageTypePlugin 渲染气泡 + 详情页；

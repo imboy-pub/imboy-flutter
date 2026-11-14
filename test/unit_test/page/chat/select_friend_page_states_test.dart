@@ -124,6 +124,42 @@ void main() {
     },
   );
 
+  testWidgets(
+    'pull down refresh queries contacts and retains rows on failure',
+    (tester) async {
+      db.read = () async => [_friend('Alice gesture retained')];
+      await _pumpPage(tester);
+      await tester.pumpAndSettle();
+      expect(db.reads, 1);
+      db.read = () async => throw StateError('synthetic gesture failure');
+      final first = find.byType(Scrollable).first;
+      expect(
+        tester.widget<Scrollable>(first).axisDirection,
+        AxisDirection.right,
+      );
+      await tester.drag(first, const Offset(0, 320));
+      await tester.pumpAndSettle();
+      expect(db.reads, 1, reason: 'the search field cannot refresh contacts');
+      final contacts = find
+          .descendant(
+            of: find.byType(RefreshIndicator),
+            matching: find.byWidgetPredicate(
+              (widget) =>
+                  widget is Scrollable &&
+                  axisDirectionToAxis(widget.axisDirection) == Axis.vertical,
+            ),
+          )
+          .hitTestable();
+      expect(contacts, findsOneWidget);
+      await tester.drag(contacts, const Offset(0, 320));
+      await tester.pumpAndSettle();
+      expect(db.reads, 2);
+      expect(find.text(t.common.loadError), findsOneWidget);
+      expect(find.text('Alice gesture retained'), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    },
+  );
+
   testWidgets('successful empty query is empty without a failure or retry', (
     tester,
   ) async {

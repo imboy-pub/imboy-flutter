@@ -110,8 +110,7 @@ void main() {
     await history.captureBaseline();
     flowLog('W3K-BND history baseline=${history.baselineSeq}');
 
-    final flags = enableChatMultiFlagsForTest();
-    addTearDown(flags.restore);
+    await requireChatMultiServerFlags();
 
     // ① 源会话：3 条 marker 文本。
     final chatPage = await pushChatPage(
@@ -194,6 +193,12 @@ void main() {
     // G6-3：tapViaNewGesture + 效果校验重试。效果 = SendToPage 出现（目标
     // 选择形态）/ 多选 action bar 消失（直发形态已受理并退出多选）/ 本轮
     // bundle 气泡回显（回环直发形态）—— 三者其一即证明 tap 已注册。
+    await tapActionBar(
+      tester,
+      ChatMultiKeys.forward,
+      journey: 'forward-options',
+      effectCheck: () => tester.any(find.byKey(ChatMultiKeys.forwardBundle)),
+    );
     await tapActionBar(
       tester,
       ChatMultiKeys.forwardBundle,
