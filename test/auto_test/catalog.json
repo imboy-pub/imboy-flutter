@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "generated_from": {
-    "app_head": "d87931d4c5cf561d859f9cfa4165f038c1cbbc00",
+    "app_head": "843ada4fd864ae622c7b9b0fd05ac8ea4be7bd8e",
     "backend_head": "NOT_A_GIT_REPO",
     "integration_test_count": 209,
     "lib_page_count": 172,
@@ -2893,7 +2893,7 @@
     {
       "id": "test:integration_test/uiux/forward_bundle_receiver_native_test.dart",
       "target": "integration_test/uiux/forward_bundle_receiver_native_test.dart",
-      "target_sha256": "41e687b1429b405bbbbdd744c382a25afad917beb3711fbae4edfd95ca6278c5",
+      "target_sha256": "c23317a7540f928df2f49d24b7159de6c1be6955b25b0c0b2411ea1b3109b4d6",
       "sources": [],
       "dependencies": [],
       "risk": "device-readonly",

@@ -7,6 +7,7 @@ import 'package:flutter_chat_core/flutter_chat_core.dart' as core;
 import 'package:flutter_chat_ui/flutter_chat_ui.dart' show ScrollToBottom;
 import 'package:integration_test/integration_test.dart';
 import 'package:imboy/component/chat/message_history_bundle_builder.dart';
+import 'package:imboy/component/chat/message_location_builder.dart';
 import 'package:imboy/component/extension/device_ext.dart';
 import 'package:imboy/config/init.dart';
 import 'package:imboy/page/chat/chat/chat_page.dart';
@@ -260,6 +261,20 @@ core.Message _assertLocationReceipt(
   return message;
 }
 
+void _reportLocationHit(
+  WidgetTester tester,
+  Finder card,
+  Finder bubble,
+  String id,
+) {
+  debugPrintSynchronously(
+    '[UIUX-LOCATION-RECEIVER] target:$id '
+    'row=${tester.getRect(card)} bubble=${tester.getRect(bubble)} '
+    'viewport=${tester.view.physicalSize / tester.view.devicePixelRatio} '
+    'row_hit=${tester.any(card.hitTestable())} bubble_hit=${tester.any(bubble.hitTestable())}',
+  );
+}
+
 Future<void> _verifyLocationReceipt(WidgetTester tester, Finder chat) async {
   const id = String.fromEnvironment('UX01_LOCATION_MESSAGE_ID');
   const tag = String.fromEnvironment('UX01_RUN_TAG');
@@ -273,12 +288,18 @@ Future<void> _verifyLocationReceipt(WidgetTester tester, Finder chat) async {
         w.message.metadata?['msg_type'] == 'location',
   );
   expect(await waitForFinder(tester, card, maxSeconds: 240), isTrue);
-  await tester.ensureVisible(card);
+  final bubble = find.descendant(
+    of: card,
+    matching: find.byType(LocationMessageBuilder),
+  );
+  expect(bubble, findsOneWidget);
+  await tester.ensureVisible(bubble);
   await settle(tester, maxSeconds: 1);
-  expect(card.hitTestable(), findsOneWidget);
+  _reportLocationHit(tester, card, bubble, id);
+  expect(bubble.hitTestable(), findsOneWidget);
   final message = _assertLocationReceipt(tester, chat, card, tag);
   final image = find.descendant(
-    of: card,
+    of: bubble,
     matching: find.byWidgetPredicate(
       (w) =>
           w is RawImage &&
