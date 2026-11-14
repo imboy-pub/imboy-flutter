@@ -69,6 +69,42 @@ Widget screen({
 );
 
 void main() {
+  testWidgets('操作按钮子节点具有标签与可执行动作', (tester) async {
+    final semantics = tester.ensureSemantics();
+    try {
+      await tester.pumpWidget(screen(selected: messages(5), each: (_) {}));
+      await tester.pumpAndSettle();
+      for (final entry in {
+        'multi_select_cancel': t.chat.multiSelectCancel,
+        'multi_select_forward': t.chat.forward,
+      }.entries) {
+        final text = find.descendant(
+          of: find.byKey(ValueKey(entry.key)),
+          matching: find.text(entry.value),
+        );
+        expect(text, findsOneWidget);
+        final node = tester.getSemantics(text);
+        expect(node.label, entry.value);
+        expect(node.getSemanticsData().hasAction(SemanticsAction.tap), isTrue);
+      }
+      await tester.tap(find.byKey(const ValueKey('multi_select_forward')));
+      await tester.pumpAndSettle();
+      final eachText = find.descendant(
+        of: find.byKey(const ValueKey('multi_select_forward_each')),
+        matching: find.text(t.chat.multiSelectForwardEach),
+      );
+      expect(eachText, findsOneWidget);
+      final eachNode = tester.getSemantics(eachText);
+      expect(eachNode.label, t.chat.multiSelectForwardEach);
+      expect(
+        eachNode.getSemanticsData().hasAction(SemanticsAction.tap),
+        isTrue,
+      );
+    } finally {
+      semantics.dispose();
+    }
+  });
+
   testWidgets('顶部显示数量与取消、清空，底部转发和导出', (tester) async {
     var cancelled = 0;
     var cleared = 0;

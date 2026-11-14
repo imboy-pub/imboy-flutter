@@ -1,5 +1,9 @@
+import 'dart:async' show unawaited;
+
 import 'package:flutter/foundation.dart' show debugPrintSynchronously;
 import 'package:flutter/material.dart';
+import 'package:photo_view/photo_view.dart';
+import 'package:photo_view/photo_view_gallery.dart';
 import 'package:flyer_chat_image_message/flyer_chat_image_message.dart';
 import 'package:imboy/component/extension/imboy_cache_manager.dart';
 import 'package:imboy/store/repository/message_repo_sqlite.dart';
@@ -332,7 +336,19 @@ Future<void> _verifyLocationReceipt(WidgetTester tester, Finder chat) async {
   );
 }
 
+String _forwardEachStage = 'not-started';
+int? _forwardEachItem;
+
+void _markForwardEachStage(String stage) {
+  _forwardEachStage = stage;
+  debugPrintSynchronously(
+    '[UIUX-EACH-RECEIVER] stage=$stage item=$_forwardEachItem',
+  );
+}
+
 Future<void> _verifyForwardEach(WidgetTester tester, Finder chat) async {
+  _forwardEachItem = null;
+  _markForwardEachStage('manifest-wait');
   debugPrintSynchronously('[UIUX-EACH-RECEIVER] ready:$_nonce');
   final container = ProviderScope.containerOf(tester.element(chat));
   List<core.Message> messages() =>
@@ -358,22 +374,31 @@ Future<void> _verifyForwardEach(WidgetTester tester, Finder chat) async {
       await tester.pump(const Duration(milliseconds: 500));
     }
   }
+  _markForwardEachStage('manifest-validate');
   expect(manifest, isNotNull, reason: 'Exact sender UI manifest required');
   final expected = manifest!;
+  _markForwardEachStage('five-id-wait');
   while (messages().where((m) => expected.ids.contains(m.id)).length < 5 &&
       DateTime.now().isBefore(deadline)) {
     await tester.pump(const Duration(milliseconds: 500));
   }
+  _markForwardEachStage('five-id-order');
   final copies = messages().where((m) => expected.ids.contains(m.id)).toList()
     ..sort((a, b) => a.createdAt!.compareTo(b.createdAt!));
   expect(copies.map((m) => m.id), expected.ids);
   expect(copies, hasLength(5));
   for (var i = 0; i < copies.length; i++) {
+    _forwardEachItem = i;
     await _verifyForwardedCopy(tester, chat, copies[i], expected.kinds[i]);
   }
+  _forwardEachItem = null;
+  _markForwardEachStage('ack-build');
   final receipt = forwardEachUiReceipt(_nonce, expected.ids, expected.kinds);
+  _markForwardEachStage('ack-input');
   await sendTextViaInput(tester, chat, receipt);
+  _markForwardEachStage('ack-settle');
   final sent = await waitSent(tester, receipt, maxSeconds: 30);
+  _markForwardEachStage('ack-verify');
   expect(sent?.authorId, _viewer);
   expect(sent?.status, isIn(settledStatuses));
   debugPrintSynchronously('[UIUX-EACH-RECEIVER] verified:$receipt');
@@ -385,44 +410,53 @@ Future<void> _verifyForwardedCopy(
   core.Message message,
   String kind,
 ) async {
+  _markForwardEachStage('copy-identity');
   expect(UserRepoLocal.to.currentUid, _viewer);
   expect(message.authorId, _sender);
   expect(message.status, isIn(settledStatuses));
   expect(message.metadata?['_e2ee_failed'], isNot(true));
+  _markForwardEachStage('copy-db-load');
   final row = await tester.runAsync(
     () => MessageRepo(tableName: MessageRepo.c2cTable).find(message.id),
   );
+  _markForwardEachStage('copy-db-verify');
   expect(row, isNotNull);
   expect(row!.fromId, _sender);
   expect(row.toId, _viewer);
   expect(row.type, 'C2C');
   expect(row.payloadMap['_e2ee_v3_verified'], isTrue);
+  _markForwardEachStage('copy-card-locate');
   final card = find.byWidgetPredicate(
     (w) => w is ChatMessageItem && w.message.id == message.id,
   );
   if (!tester.any(card)) {
-    await tester.scrollUntilVisible(
-      card,
-      120,
-      maxScrolls: 30,
-      scrollable: find
-          .descendant(of: chat, matching: find.byType(Scrollable))
-          .first,
-    );
+    _markForwardEachStage('copy-card-scroll');
+    expect(chat, findsOneWidget);
+    expect(UserRepoLocal.to.currentUid, _viewer);
+    final notifier = ProviderScope.containerOf(tester.element(chat))
+        .read(chatProvider.notifier);
+    unawaited(notifier.scrollToMessage('C2C', message.id));
+    expect(await waitForFinder(tester, card, maxSeconds: 10), isTrue);
+    expect(chat, findsOneWidget);
+    expect(UserRepoLocal.to.currentUid, _viewer);
   }
+  _markForwardEachStage('copy-card-visible');
   await tester.ensureVisible(card);
   expect(card, findsOneWidget);
   if (kind.startsWith('m')) {
+    _markForwardEachStage('copy-text-type');
     expect(message, isA<core.TextMessage>());
     final marker = '[W3K-MS]-t${kind.substring(1)}-$_nonce';
+    _markForwardEachStage('copy-text-content');
     expect((message as core.TextMessage).text, marker);
-    expect(
-      find.descendant(
-        of: card,
-        matching: find.textContaining(marker, findRichText: true),
-      ),
-      findsWidgets,
+    final body = find.descendant(
+      of: card,
+      matching: find.textContaining(marker, findRichText: true),
     );
+    expect(body, findsWidgets);
+    _markForwardEachStage('copy-text-visible');
+    await tester.ensureVisible(body.first);
+    expect(body.first.hitTestable(), findsOneWidget);
   } else {
     await _verifyForwardAttachment(tester, card, message, kind, row.payloadMap);
   }
@@ -437,31 +471,50 @@ Future<void> _verifyForwardAttachment(
   Map<String, dynamic> payload,
 ) async {
   if (kind == 'image') {
+    _markForwardEachStage('copy-image-type');
     expect(message, isA<core.ImageMessage>());
     expect('${message.metadata?['w3k_run_nonce']}', _nonce);
+    _markForwardEachStage('copy-image-decode');
     await _verifyForwardImage(tester, card);
   } else {
+    _markForwardEachStage('copy-file-type');
     expect(message, isA<core.FileMessage>());
+    _markForwardEachStage('copy-file-metadata');
     final attachment = message as core.FileMessage;
     expect(attachment.name, 'w3kms-file-$_nonce.txt');
     expect(attachment.size, ChatMultiImageFixture.textBytes.length);
-    expect(
-      find.descendant(of: card, matching: find.text(attachment.name)),
-      findsOneWidget,
+    _markForwardEachStage('copy-file-visible');
+    final name = find.descendant(
+      of: card,
+      matching: find.text(attachment.name),
     );
+    expect(name, findsOneWidget);
+    await tester.ensureVisible(name);
+    expect(name.hitTestable(), findsOneWidget);
     expect('${message.metadata?['w3k_run_nonce']}', _nonce);
+    _markForwardEachStage('copy-file-download');
     final file = await tester.runAsync(
       () => IMBoyCacheManager().getSingleFile(
         '${payload['uri']}',
         validateImageData: false,
       ),
     );
+    _markForwardEachStage('copy-file-bytes');
     final bytes = await tester.runAsync(() => file!.readAsBytes());
     expect(bytes, ChatMultiImageFixture.textBytes);
   }
 }
 
 Future<void> _verifyForwardImage(WidgetTester tester, Finder card) async {
+  _markForwardEachStage('copy-image-visible');
+  _markForwardEachStage('copy-image-finder');
+  final image = find.descendant(
+    of: card,
+    matching: find.byType(FlyerChatImageMessage),
+  );
+  expect(image, findsOneWidget);
+  await tester.ensureVisible(image);
+  _markForwardEachStage('copy-image-decode');
   var decoded = false;
   for (var i = 0; i < 120 && !decoded; i++) {
     final body = find.descendant(
@@ -479,6 +532,58 @@ Future<void> _verifyForwardImage(WidgetTester tester, Finder card) async {
     if (!decoded) await tester.pump(const Duration(milliseconds: 500));
   }
   expect(decoded, isTrue, reason: 'Forwarded image must decode real pixels');
+  await _verifyImagePreview(tester, card, image);
+}
+
+Future<void> _verifyImagePreview(
+  WidgetTester tester,
+  Finder card,
+  Finder image,
+) async {
+  final tap = find.descendant(
+    of: card,
+    matching: find.byWidgetPredicate(
+      (w) =>
+          w is GestureDetector &&
+          w.onTap != null &&
+          w.child is FlyerChatImageMessage,
+    ),
+  );
+  expect(tap, findsOneWidget);
+  _markForwardEachStage('copy-image-geometry');
+  final chat = find.ancestor(of: card, matching: find.byType(ChatPage));
+  expect(chat, findsOneWidget);
+  final viewport = find
+      .descendant(of: chat, matching: find.byType(Scrollable))
+      .first;
+  final intersection = tester
+      .getRect(image)
+      .intersect(tester.getRect(viewport));
+  expect(intersection.width, greaterThan(0));
+  expect(intersection.height, greaterThan(0));
+  _markForwardEachStage('copy-image-hit');
+  final listener = find
+      .descendant(of: tap, matching: find.byType(Listener))
+      .first;
+  final target = tester.renderObject(listener);
+  expect(
+    tester
+        .hitTestOnBinding(intersection.center)
+        .path
+        .any((entry) => identical(entry.target, target)),
+    isTrue,
+  );
+  _markForwardEachStage('copy-image-preview-open');
+  await tester.tapAt(intersection.center);
+  final preview = find.byWidgetPredicate(
+    (w) => w is PhotoView || w is PhotoViewGallery,
+  );
+  expect(await waitForFinder(tester, preview, maxSeconds: 10), isTrue);
+  _markForwardEachStage('copy-image-preview-return');
+  await popTopPage(tester, preview.first);
+  expect(preview, findsNothing);
+  expect(chat, findsOneWidget);
+  expect(UserRepoLocal.to.currentUid, _viewer);
 }
 
 void main() {
@@ -515,7 +620,15 @@ void main() {
     );
     if (_forwardEach) {
       expect(_locationOnly, isFalse);
-      await _verifyForwardEach(tester, chat);
+      try {
+        await _verifyForwardEach(tester, chat);
+      } on Object catch (error) {
+        debugPrintSynchronously(
+          '[UIUX-EACH-RECEIVER] failed stage=$_forwardEachStage '
+          'item=$_forwardEachItem errorType=${error.runtimeType}',
+        );
+        rethrow;
+      }
       return;
     }
     if (_locationOnly) {

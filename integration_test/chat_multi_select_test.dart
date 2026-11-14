@@ -21,7 +21,10 @@
 // 运行契约（dart-define，见文件尾注释）与前置（后端健康检查、账号 setup）
 // 见 receipt w3-k handoff。
 
-import 'package:flutter/widgets.dart' show ValueKey;
+import 'dart:async' show unawaited;
+import 'dart:convert' show jsonEncode;
+
+import 'package:flutter/widgets.dart' show ValueKey, Text;
 
 import 'dart:ui' show CheckedState;
 
@@ -43,6 +46,7 @@ import 'flows/app_launcher.dart';
 import 'flows/test_utils.dart';
 import 'helpers/chat_multi_driver.dart';
 import 'helpers/chat_multi_bundle_history.dart';
+import 'helpers/chat_multi_owned_barrier.dart';
 import 'helpers/chat_multi_fixtures.dart';
 import 'helpers/chat_multi_image_fixture.dart';
 
@@ -50,12 +54,47 @@ const _markerPrefix = '[W3K-MS]';
 
 const _ownedStorageTag = String.fromEnvironment('UX_STORAGE_TAG');
 
+Future<void> _awaitOwnedRelease(WidgetTester tester, String uid) async {
+  const nonce = String.fromEnvironment('CHAT_MULTI_RUN_NONCE');
+  final generation = UserRepoLocal.to.sessionGeneration;
+  final barrier = await tester.runAsync(
+    () => prepareOwnedChatBarrier(
+      nonce: nonce,
+      uid: uid,
+      storageTag: _ownedStorageTag,
+    ),
+  );
+  expect(barrier, isNotNull);
+  expect(UserRepoLocal.to.isCurrentSession(generation), isTrue);
+  expect(UserRepoLocal.to.currentUid, uid);
+  flowLog(
+    'W3K-MS OWNED_READY ${jsonEncode({...barrier!.identity, 'releasePath': barrier.release.path})}',
+  );
+  var released = false;
+  final deadline = DateTime.now().add(const Duration(minutes: 6));
+  while (!released && DateTime.now().isBefore(deadline)) {
+    expect(UserRepoLocal.to.currentUid, uid);
+    expect(UserRepoLocal.to.isCurrentSession(generation), isTrue);
+    released =
+        await tester.runAsync(
+          () => ownedChatReleaseMatches(barrier.release, barrier.identity),
+        ) ??
+        false;
+    if (!released) await tester.pump(const Duration(milliseconds: 500));
+  }
+  expect(UserRepoLocal.to.isCurrentSession(generation), isTrue);
+  expect(UserRepoLocal.to.currentUid, uid);
+  expect(
+    released,
+    isTrue,
+    reason: 'Controller must release this exact owned run',
+  );
+}
+
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
   testWidgets('W3-K P1：C2C 多选勾选/计数/退出 + 逐条转发顺序内容断言', (tester) async {
-    final semantics = tester.ensureSemantics();
-    addTearDown(semantics.dispose);
     installPluginErrorFilter();
     ChatMultiDriverRunStats.reset();
     if (_ownedStorageTag.isNotEmpty) {
@@ -118,6 +157,8 @@ void main() {
       peerId: peerUid,
       peerTitle: peerTitle,
     );
+
+    if (_ownedStorageTag.isNotEmpty) await _awaitOwnedRelease(tester, selfUid);
 
     // ④ 发消息：3 条 marker 文本走真实输入链；image/file 走 provider
     //    addMessage。image/file 均不再用 fixture.invalid 占位 uri（DEV-01
@@ -267,20 +308,36 @@ void main() {
       journey: 'W3K-MS',
     );
     expectSelectionCount(tester, 5);
-    final checkedNode = tester.getSemantics(
-      find.byKey(ValueKey('multi_select_check_$fileId')),
-    );
-    expect(checkedNode.flagsCollection.isChecked, CheckedState.isTrue);
-    expect(checkedNode.flagsCollection.isEnabled.toBoolOrNull(), isTrue);
-    expect(checkedNode.label, isNotEmpty);
-    expect(
-      tester.getSemantics(find.byKey(ChatMultiKeys.count)).label,
-      contains('5'),
-    );
-    for (final key in [ChatMultiKeys.cancel, ChatMultiKeys.forward]) {
-      final node = tester.getSemantics(find.byKey(key));
-      expect(node.label, isNotEmpty);
-      expect(node.getSemanticsData().hasAction(SemanticsAction.tap), isTrue);
+    // 虚拟列表只挂载附近的消息，先显示所选行再读取真实语义节点。
+    final fileCheckbox = find.byKey(ValueKey('multi_select_check_$fileId'));
+    unawaited(notifier.scrollToMessage('C2C', fileId));
+    expect(await waitForFinder(tester, fileCheckbox, maxSeconds: 10), isTrue);
+    await tester.ensureVisible(fileCheckbox);
+    await settle(tester, maxSeconds: 1);
+    expect(fileCheckbox.hitTestable(), findsOneWidget);
+    expectSelectionCount(tester, 5);
+    final selectionSemantics = tester.ensureSemantics();
+    try {
+      await tester.pump();
+      final checkedNode = tester.getSemantics(fileCheckbox);
+      expect(checkedNode.flagsCollection.isChecked, CheckedState.isTrue);
+      expect(checkedNode.flagsCollection.isEnabled.toBoolOrNull(), isTrue);
+      expect(checkedNode.label, isNotEmpty);
+      expect(
+        tester.getSemantics(find.byKey(ChatMultiKeys.count)).label,
+        contains('5'),
+      );
+      for (final key in [ChatMultiKeys.cancel, ChatMultiKeys.forward]) {
+        final node = tester.getSemantics(
+          find
+              .descendant(of: find.byKey(key), matching: find.byType(Text))
+              .first,
+        );
+        expect(node.label, isNotEmpty);
+        expect(node.getSemanticsData().hasAction(SemanticsAction.tap), isTrue);
+      }
+    } finally {
+      selectionSemantics.dispose();
     }
     flowLog(
       'W3K-MS SEMANTICS_VERIFIED checked/enabled/label/count/cancel/forward',
@@ -396,14 +453,25 @@ void main() {
         journey: 'W3K-MS-dismiss',
         effectCheck: () => tester.any(find.byKey(forwardCancel)),
       );
-      final eachNode = tester.getSemantics(
-        find.byKey(ChatMultiKeys.forwardEach),
-      );
-      expect(eachNode.label, isNotEmpty);
-      expect(
-        eachNode.getSemanticsData().hasAction(SemanticsAction.tap),
-        isTrue,
-      );
+      final sheetSemantics = tester.ensureSemantics();
+      try {
+        await tester.pump();
+        final eachNode = tester.getSemantics(
+          find
+              .descendant(
+                of: find.byKey(ChatMultiKeys.forwardEach),
+                matching: find.byType(Text),
+              )
+              .first,
+        );
+        expect(eachNode.label, isNotEmpty);
+        expect(
+          eachNode.getSemanticsData().hasAction(SemanticsAction.tap),
+          isTrue,
+        );
+      } finally {
+        sheetSemantics.dispose();
+      }
       if (systemBack) {
         await tester.binding.handlePopRoute();
         await settle(tester, maxSeconds: 2);
@@ -610,6 +678,21 @@ void main() {
         manifest: true,
       );
       flowLog('W3K-MS OWNED_EXPECTED $manifest');
+      if (tester.any(find.byKey(ChatMultiKeys.cancel))) {
+        await tapActionBar(
+          tester,
+          ChatMultiKeys.cancel,
+          journey: 'W3K-MS-peer-receipt',
+          effectCheck: () =>
+              !tester.any(find.byKey(ChatMultiKeys.cancel)) &&
+              tester.any(chatInputField(targetPage)),
+        );
+      }
+      expect(
+        chatInputField(targetPage),
+        findsOneWidget,
+        reason: 'Exit selection through the UI before sending the manifest',
+      );
       await sendTextViaInput(tester, targetPage, manifest);
       final sent = await waitSent(tester, manifest, maxSeconds: 30);
       expect(sent?.authorId, selfUid);
