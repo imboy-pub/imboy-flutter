@@ -1,5 +1,11 @@
 import 'package:flutter/foundation.dart' show debugPrintSynchronously;
 import 'package:flutter/material.dart';
+import 'package:flyer_chat_image_message/flyer_chat_image_message.dart';
+import 'package:imboy/component/extension/imboy_cache_manager.dart';
+import 'package:imboy/store/repository/message_repo_sqlite.dart';
+
+import '../helpers/chat_multi_image_fixture.dart';
+
 import 'package:flutter/rendering.dart' show RenderImage;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -32,8 +38,11 @@ const _viewer = '123613243079133184';
 const _sender = '123613243007830016';
 const _storage = 'viewer_uiux_20261114_1794632987';
 const _nonce = String.fromEnvironment('CHAT_MULTI_RUN_NONCE');
+const _forwardEach = bool.fromEnvironment('UIUX_FORWARD_EACH_RECEIVER');
 const _locationOnly = bool.fromEnvironment('UIUX_LOCATION_RECEIVER');
-const _receiverLabel = _locationOnly
+const _receiverLabel = _forwardEach
+    ? 'Owned Mac receives and verifies five individually forwarded messages'
+    : _locationOnly
     ? 'Owned Mac receives and UI acknowledges the exact location receipt'
     : 'Owned Mac receives, renders and UI acknowledges exact bundle';
 
@@ -323,6 +332,155 @@ Future<void> _verifyLocationReceipt(WidgetTester tester, Finder chat) async {
   );
 }
 
+Future<void> _verifyForwardEach(WidgetTester tester, Finder chat) async {
+  debugPrintSynchronously('[UIUX-EACH-RECEIVER] ready:$_nonce');
+  final container = ProviderScope.containerOf(tester.element(chat));
+  List<core.Message> messages() =>
+      container.read(chatProvider.notifier).chatService?.messages ??
+      const <core.Message>[];
+  ({List<String> ids, List<String> kinds})? manifest;
+  final deadline = DateTime.now().add(const Duration(seconds: 240));
+  while (manifest == null && DateTime.now().isBefore(deadline)) {
+    final candidates = messages()
+        .whereType<core.TextMessage>()
+        .where(
+          (m) =>
+              m.authorId == _sender &&
+              m.metadata?['_e2ee_failed'] != true &&
+              m.metadata?['_e2ee_v3_verified'] == true &&
+              parseForwardEachManifest(m.text, _nonce) != null,
+        )
+        .toList();
+    expect(candidates.length, lessThanOrEqualTo(1));
+    if (candidates.isNotEmpty) {
+      manifest = parseForwardEachManifest(candidates.single.text, _nonce);
+    } else {
+      await tester.pump(const Duration(milliseconds: 500));
+    }
+  }
+  expect(manifest, isNotNull, reason: 'Exact sender UI manifest required');
+  final expected = manifest!;
+  while (messages().where((m) => expected.ids.contains(m.id)).length < 5 &&
+      DateTime.now().isBefore(deadline)) {
+    await tester.pump(const Duration(milliseconds: 500));
+  }
+  final copies = messages().where((m) => expected.ids.contains(m.id)).toList()
+    ..sort((a, b) => a.createdAt!.compareTo(b.createdAt!));
+  expect(copies.map((m) => m.id), expected.ids);
+  expect(copies, hasLength(5));
+  for (var i = 0; i < copies.length; i++) {
+    await _verifyForwardedCopy(tester, chat, copies[i], expected.kinds[i]);
+  }
+  final receipt = forwardEachUiReceipt(_nonce, expected.ids, expected.kinds);
+  await sendTextViaInput(tester, chat, receipt);
+  final sent = await waitSent(tester, receipt, maxSeconds: 30);
+  expect(sent?.authorId, _viewer);
+  expect(sent?.status, isIn(settledStatuses));
+  debugPrintSynchronously('[UIUX-EACH-RECEIVER] verified:$receipt');
+}
+
+Future<void> _verifyForwardedCopy(
+  WidgetTester tester,
+  Finder chat,
+  core.Message message,
+  String kind,
+) async {
+  expect(UserRepoLocal.to.currentUid, _viewer);
+  expect(message.authorId, _sender);
+  expect(message.status, isIn(settledStatuses));
+  expect(message.metadata?['_e2ee_failed'], isNot(true));
+  final row = await tester.runAsync(
+    () => MessageRepo(tableName: MessageRepo.c2cTable).find(message.id),
+  );
+  expect(row, isNotNull);
+  expect(row!.fromId, _sender);
+  expect(row.toId, _viewer);
+  expect(row.type, 'C2C');
+  expect(row.payloadMap['_e2ee_v3_verified'], isTrue);
+  final card = find.byWidgetPredicate(
+    (w) => w is ChatMessageItem && w.message.id == message.id,
+  );
+  if (!tester.any(card)) {
+    await tester.scrollUntilVisible(
+      card,
+      120,
+      maxScrolls: 30,
+      scrollable: find
+          .descendant(of: chat, matching: find.byType(Scrollable))
+          .first,
+    );
+  }
+  await tester.ensureVisible(card);
+  expect(card, findsOneWidget);
+  if (kind.startsWith('m')) {
+    expect(message, isA<core.TextMessage>());
+    final marker = '[W3K-MS]-t${kind.substring(1)}-$_nonce';
+    expect((message as core.TextMessage).text, marker);
+    expect(
+      find.descendant(
+        of: card,
+        matching: find.textContaining(marker, findRichText: true),
+      ),
+      findsWidgets,
+    );
+  } else {
+    await _verifyForwardAttachment(tester, card, message, kind, row.payloadMap);
+  }
+  expect(UserRepoLocal.to.currentUid, _viewer);
+}
+
+Future<void> _verifyForwardAttachment(
+  WidgetTester tester,
+  Finder card,
+  core.Message message,
+  String kind,
+  Map<String, dynamic> payload,
+) async {
+  if (kind == 'image') {
+    expect(message, isA<core.ImageMessage>());
+    expect('${message.metadata?['w3k_run_nonce']}', _nonce);
+    await _verifyForwardImage(tester, card);
+  } else {
+    expect(message, isA<core.FileMessage>());
+    final attachment = message as core.FileMessage;
+    expect(attachment.name, 'w3kms-file-$_nonce.txt');
+    expect(attachment.size, ChatMultiImageFixture.textBytes.length);
+    expect(
+      find.descendant(of: card, matching: find.text(attachment.name)),
+      findsOneWidget,
+    );
+    expect('${message.metadata?['w3k_run_nonce']}', _nonce);
+    final file = await tester.runAsync(
+      () => IMBoyCacheManager().getSingleFile(
+        '${payload['uri']}',
+        validateImageData: false,
+      ),
+    );
+    final bytes = await tester.runAsync(() => file!.readAsBytes());
+    expect(bytes, ChatMultiImageFixture.textBytes);
+  }
+}
+
+Future<void> _verifyForwardImage(WidgetTester tester, Finder card) async {
+  var decoded = false;
+  for (var i = 0; i < 120 && !decoded; i++) {
+    final body = find.descendant(
+      of: card,
+      matching: find.byType(FlyerChatImageMessage),
+    );
+    expect(body, findsOneWidget);
+    final pixels = find.descendant(of: body, matching: find.byType(RawImage));
+    decoded = tester
+        .widgetList<RawImage>(pixels)
+        .any(
+          (image) =>
+              (image.image?.width ?? 0) > 0 && (image.image?.height ?? 0) > 0,
+        );
+    if (!decoded) await tester.pump(const Duration(milliseconds: 500));
+  }
+  expect(decoded, isTrue, reason: 'Forwarded image must decode real pixels');
+}
+
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
   testWidgets(_receiverLabel, (tester) async {
@@ -355,6 +513,11 @@ void main() {
       peerId: _sender,
       peerTitle: 'uiux_editor_20261114',
     );
+    if (_forwardEach) {
+      expect(_locationOnly, isFalse);
+      await _verifyForwardEach(tester, chat);
+      return;
+    }
     if (_locationOnly) {
       await _verifyLocationReceipt(tester, chat);
       return;

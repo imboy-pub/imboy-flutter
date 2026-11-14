@@ -22,6 +22,10 @@
 // 见 receipt w3-k handoff。
 
 import 'package:flutter/widgets.dart' show ValueKey;
+
+import 'dart:ui' show CheckedState;
+
+import 'package:flutter/semantics.dart' show SemanticsAction;
 import 'package:flutter_chat_core/flutter_chat_core.dart' as core;
 import 'package:flutter_riverpod/flutter_riverpod.dart' show ProviderScope;
 import 'package:flutter_test/flutter_test.dart';
@@ -38,6 +42,7 @@ import 'chat/support/c2c_journey_support.dart';
 import 'flows/app_launcher.dart';
 import 'flows/test_utils.dart';
 import 'helpers/chat_multi_driver.dart';
+import 'helpers/chat_multi_bundle_history.dart';
 import 'helpers/chat_multi_fixtures.dart';
 import 'helpers/chat_multi_image_fixture.dart';
 
@@ -49,6 +54,8 @@ void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
   testWidgets('W3-K P1：C2C 多选勾选/计数/退出 + 逐条转发顺序内容断言', (tester) async {
+    final semantics = tester.ensureSemantics();
+    addTearDown(semantics.dispose);
     installPluginErrorFilter();
     ChatMultiDriverRunStats.reset();
     if (_ownedStorageTag.isNotEmpty) {
@@ -119,9 +126,16 @@ void main() {
     //    PlainAttachmentForward.reupload 真实重传（http 占位 uri 会被
     //    _objectKeyOf 判 null → 不重传 → 死 uri 落库）。metadata 带
     //    w3k_run_nonce=nonce（G6-1：副本识别走内容过滤，不依赖墙钟）。
-    final nonce = ChatMultiMessageFixtures.nextNonce();
+    const sharedNonce = String.fromEnvironment('CHAT_MULTI_RUN_NONCE');
+    final nonce = sharedNonce.isEmpty
+        ? ChatMultiMessageFixtures.nextNonce().toString()
+        : sharedNonce;
+    if (sharedNonce.isNotEmpty) {
+      expect(nonce, matches(RegExp(r'^[A-Za-z0-9_-]{1,80}$')));
+    }
+    if (_ownedStorageTag.isNotEmpty) expect(sharedNonce, isNotEmpty);
     // nonce 的字符串形态（G6-1 内容过滤 / w3k_run_nonce 均按字符串对账）。
-    final nonceStr = '$nonce';
+    final nonceStr = nonce;
     final m1 = '$_markerPrefix-t1-$nonce';
     final m2 = '$_markerPrefix-t2-$nonce';
     final m3 = '$_markerPrefix-t3-$nonce';
@@ -253,6 +267,24 @@ void main() {
       journey: 'W3K-MS',
     );
     expectSelectionCount(tester, 5);
+    final checkedNode = tester.getSemantics(
+      find.byKey(ValueKey('multi_select_check_$fileId')),
+    );
+    expect(checkedNode.flagsCollection.isChecked, CheckedState.isTrue);
+    expect(checkedNode.flagsCollection.isEnabled.toBoolOrNull(), isTrue);
+    expect(checkedNode.label, isNotEmpty);
+    expect(
+      tester.getSemantics(find.byKey(ChatMultiKeys.count)).label,
+      contains('5'),
+    );
+    for (final key in [ChatMultiKeys.cancel, ChatMultiKeys.forward]) {
+      final node = tester.getSemantics(find.byKey(key));
+      expect(node.label, isNotEmpty);
+      expect(node.getSemanticsData().hasAction(SemanticsAction.tap), isTrue);
+    }
+    flowLog(
+      'W3K-MS SEMANTICS_VERIFIED checked/enabled/label/count/cancel/forward',
+    );
     await takeScreenshot(tester, 'w3kms_02_selected_5');
 
     // ⑦ 全不选（保持多选激活）→ 重新勾选 2 条 → 取消按钮 = 退出多选。
@@ -363,6 +395,14 @@ void main() {
         ChatMultiKeys.forward,
         journey: 'W3K-MS-dismiss',
         effectCheck: () => tester.any(find.byKey(forwardCancel)),
+      );
+      final eachNode = tester.getSemantics(
+        find.byKey(ChatMultiKeys.forwardEach),
+      );
+      expect(eachNode.label, isNotEmpty);
+      expect(
+        eachNode.getSemanticsData().hasAction(SemanticsAction.tap),
+        isTrue,
       );
       if (systemBack) {
         await tester.binding.handlePopRoute();
@@ -559,6 +599,39 @@ void main() {
         );
       }
       flowLog('W3K-MS 隔离断言通过: 副本行 conversation_uk3 == $targetUk3');
+    }
+
+    if (_ownedStorageTag.isNotEmpty) {
+      final ids = orderedCopies().map((m) => m.id).toList();
+      final manifest = forwardEachUiReceipt(
+        nonceStr,
+        ids,
+        expectedKinds,
+        manifest: true,
+      );
+      flowLog('W3K-MS OWNED_EXPECTED $manifest');
+      await sendTextViaInput(tester, targetPage, manifest);
+      final sent = await waitSent(tester, manifest, maxSeconds: 30);
+      expect(sent?.authorId, selfUid);
+      expect(sent?.status, isIn(settledStatuses));
+      final receipt = forwardEachUiReceipt(nonceStr, ids, expectedKinds);
+      var received = false;
+      for (var i = 0; i < 180 && !received; i++) {
+        final reply = messageOfMarker(tester, receipt);
+        received =
+            reply is core.TextMessage &&
+            reply.text == receipt &&
+            reply.authorId == dstUid &&
+            reply.metadata?['_e2ee_failed'] != true &&
+            reply.metadata?['_e2ee_v3_verified'] == true;
+        if (!received) await tester.pump(const Duration(seconds: 1));
+      }
+      expect(
+        received,
+        isTrue,
+        reason: 'Owned peer must verify all five copies and attachment bytes in its UI',
+      );
+      flowLog('W3K-MS OWNED_PEER_UI_VERIFIED $receipt');
     }
 
     // 退出：pop ChatPage，保持会话栈干净；通道终局对账（G6-2）。

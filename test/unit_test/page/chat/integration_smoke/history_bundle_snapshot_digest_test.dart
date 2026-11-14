@@ -92,4 +92,45 @@ void main() {
       throwsArgumentError,
     );
   });
+  test('forward-each UI receipts bind nonce, exact IDs and ordered kinds', () {
+    final ids = ['one', 'two', 'three', 'four', 'five'];
+    final kinds = ['m1', 'image', 'm2', 'file', 'm3'];
+    final manifest = forwardEachUiReceipt('run', ids, kinds, manifest: true);
+    expect(parseForwardEachManifest(manifest, 'run')?.ids, ids);
+    expect(parseForwardEachManifest(manifest, 'run')?.kinds, kinds);
+    expect(parseForwardEachManifest(manifest, 'other'), isNull);
+    expect(parseForwardEachManifest('$manifest ', 'run'), isNull);
+    final receipt = forwardEachUiReceipt('run', ids, kinds);
+    expect(parseForwardEachManifest(receipt, 'run'), isNull);
+    expect(receipt, isNot(forwardEachUiReceipt('other', ids, kinds)));
+    expect(
+      receipt,
+      isNot(forwardEachUiReceipt('run', ids.reversed.toList(), kinds)),
+    );
+    expect(
+      receipt,
+      isNot(
+        forwardEachUiReceipt('run', ids, ['m1', 'file', 'm2', 'image', 'm3']),
+      ),
+    );
+    expect(
+      () => forwardEachUiReceipt('run', [
+        'one',
+        'one',
+        'two',
+        'three',
+        'four',
+      ], kinds),
+      throwsArgumentError,
+    );
+    expect(
+      () => forwardEachUiReceipt('bad:nonce', ids, kinds),
+      throwsArgumentError,
+    );
+    expect(
+      () =>
+          forwardEachUiReceipt('run', ids, ['m1', 'image', 'm3', 'file', 'm2']),
+      throwsArgumentError,
+    );
+  });
 }

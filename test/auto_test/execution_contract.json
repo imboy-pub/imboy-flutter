@@ -2447,6 +2447,15 @@
           "basis": [
             "Independently restores the existing ordinary viewer, renders the exact UX01 message ID and its preceding run marker, decodes its authorized encrypted location image, and sends a real UI acknowledgement. Source receipt carries IDs only; maps remain disabled."
           ]
+        },
+        {
+          "variant": "owned-forward-each",
+          "dart_defines": {
+            "UIUX_FORWARD_EACH_RECEIVER": true
+          },
+          "basis": [
+            "Strictly restores the same owned viewer, validates the shared-nonce sender UI manifest against exactly five forwarded copy IDs and source ordering, renders three exact texts and real image pixels, reads the file via the production authorized/decrypting cache and compares fixture bytes, then sends the matching UI acknowledgement."
+          ]
         }
       ]
     },
@@ -2516,6 +2525,7 @@
             "CHAT_MULTI_DST_PEER_UID",
             "CHAT_MULTI_SRC_PEER_TITLE",
             "CHAT_MULTI_EXPECT_E2EE",
+            "CHAT_MULTI_RUN_NONCE",
             "APP_ENV",
             "API_BASE_URL",
             "WS_URL_OVERRIDE",

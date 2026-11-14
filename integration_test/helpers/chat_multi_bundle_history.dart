@@ -251,3 +251,48 @@ String bundleUiReceipt(
   }
   return 'UIUX-BUNDLE-ACK:$nonce:$messageId:${bundleSnapshotDigest(metadata)}';
 }
+
+String forwardEachUiReceipt(
+  String nonce,
+  List<String> ids,
+  List<String> kinds, {
+  bool manifest = false,
+}) {
+  final identity = RegExp(r'^[A-Za-z0-9_-]{1,100}$');
+  if (!RegExp(r'^[A-Za-z0-9_-]{1,80}$').hasMatch(nonce) ||
+      ids.length != 5 ||
+      ids.toSet().length != 5 ||
+      !ids.every(identity.hasMatch) ||
+      kinds.length != 5 ||
+      kinds.toSet().length != 5 ||
+      !kinds.toSet().containsAll({'m1', 'm2', 'm3', 'image', 'file'}) ||
+      kinds.first != 'm1' ||
+      kinds.last != 'm3' ||
+      kinds.indexOf('m1') >= kinds.indexOf('m2') ||
+      kinds.indexOf('m2') >= kinds.indexOf('m3')) {
+    throw ArgumentError('invalid forward-each receipt');
+  }
+  return 'UIUX-EACH-${manifest ? 'EXPECT' : 'ACK'}:'
+      '${jsonEncode({'nonce': nonce, 'orderedIDs': ids, 'expectedKinds': kinds})}';
+}
+
+({List<String> ids, List<String> kinds})? parseForwardEachManifest(
+  String text,
+  String nonce,
+) {
+  const prefix = 'UIUX-EACH-EXPECT:';
+  if (!text.startsWith(prefix)) return null;
+  try {
+    final data =
+        jsonDecode(text.substring(prefix.length)) as Map<String, dynamic>;
+    if (data['nonce'] != nonce) return null;
+    final ids = (data['orderedIDs'] as List).cast<String>().toList();
+    final kinds = (data['expectedKinds'] as List).cast<String>().toList();
+    if (forwardEachUiReceipt(nonce, ids, kinds, manifest: true) != text) {
+      return null;
+    }
+    return (ids: ids, kinds: kinds);
+  } on Object {
+    return null;
+  }
+}
