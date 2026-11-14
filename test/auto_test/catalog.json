@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "generated_from": {
-    "app_head": "19bdbddda2920f11b774debc20ff6ad43195ce7e",
+    "app_head": "aa87ff1ab8ce4b40c95b0415645b69c58f0cc666",
     "backend_head": "NOT_A_GIT_REPO",
     "integration_test_count": 209,
     "lib_page_count": 172,
@@ -2879,7 +2879,7 @@
     {
       "id": "test:integration_test/uiux/channel_edit_recovery_native_test.dart",
       "target": "integration_test/uiux/channel_edit_recovery_native_test.dart",
-      "target_sha256": "bf06d9a62093eb43f131c27f79a2367480a5a56ef75bc5084389ad6a1d21a883",
+      "target_sha256": "3a900b7a45ddafdd4c8dfeac5f93a511af8bca9790a41ee4cb836ef3087e087c",
       "sources": [],
       "dependencies": [],
       "risk": "device-readonly",

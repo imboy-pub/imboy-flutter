@@ -6,7 +6,7 @@ import 'dart:typed_data';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/foundation.dart' show PlatformDispatcher;
+import 'package:flutter/foundation.dart' show PlatformDispatcher, debugPrint;
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -321,7 +321,7 @@ void main() {
     await _type(tester, t.channel.descriptionLabel, unsaved);
     FocusManager.instance.primaryFocus?.unfocus();
     await tester.pumpAndSettle();
-    await tester.binding.handlePopRoute();
+    debugPrint('[UIUX-CHANNEL-EDGE] ready:$_runTag:cancel');
     await _wait(
       tester,
       () => tester.any(find.text(t.channel.editLeaveUnsaved)),
@@ -335,7 +335,7 @@ void main() {
     );
     expect(find.byType(ChannelEditPage), findsOneWidget);
     expect(_fieldValue(tester, t.channel.descriptionLabel), unsaved);
-    await tester.binding.handlePopRoute();
+    debugPrint('[UIUX-CHANNEL-EDGE] ready:$_runTag:discard');
     await _wait(
       tester,
       () => tester.any(find.text(t.channel.editLeaveUnsaved)),
@@ -352,6 +352,13 @@ void main() {
     );
     expect(afterDiscard, isNotNull);
     expect(afterDiscard!.description, description);
+    await _openEdit(tester);
+    await _wait(
+      tester,
+      () => _fieldValue(tester, t.channel.descriptionLabel) == description,
+      'persisted description after native edge discard',
+    );
+    debugPrint('[UIUX-CHANNEL-EDGE] verified:$_runTag');
     expect(faults.updates, 2, reason: 'return and cancellation do not save');
     expect(faults.pending, isFalse);
     expect(tester.takeException(), isNull);
@@ -366,6 +373,7 @@ void main() {
         'persisted_name': name,
         'persisted_description': description,
         'persisted_tags': [...baselineTags, tag],
+        'native_edge_cancel_and_discard': true,
       },
     };
   }, timeout: const Timeout(Duration(minutes: 8)));
