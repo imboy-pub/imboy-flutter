@@ -1,5 +1,9 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
+
+import 'package:device_info_plus/device_info_plus.dart';
+import 'package:device_info_plus_platform_interface/device_info_plus_platform_interface.dart';
 
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
@@ -14,6 +18,8 @@ import 'package:imboy/config/const.dart';
 import 'package:imboy/config/env.dart';
 import 'package:imboy/config/init.dart';
 import 'package:imboy/service/encryption_mode.dart';
+import 'package:imboy/service/e2ee/e2ee_bootstrap.dart';
+import 'package:imboy/service/e2ee/e2ee_protocol.dart';
 import 'package:imboy/service/storage.dart';
 
 Map<String, bool> flags(bool baseline) => {
@@ -29,6 +35,57 @@ Map<String, dynamic> manifest() => {
   'compiled_features': compiledProductFeatures,
   'app_entries': ['moment_tab'],
 };
+
+class _SyntheticDeviceInfo extends DeviceInfoPlatform {
+  @override
+  Future<BaseDeviceInfo> deviceInfo() async {
+    // Linux uses a typed platform implementation, not a MethodChannel map.
+    if (Platform.isLinux) {
+      return LinuxDeviceInfo(
+        name: 'test',
+        id: 'synthetic-device',
+        prettyName: 'test',
+        machineId: 'synthetic-machine',
+      );
+    }
+    return BaseDeviceInfo({
+      'computerName': 'test',
+      'hostName': 'test',
+      'arch': 'arm64',
+      'model': 'test',
+      'modelName': 'test',
+      'kernelVersion': 'test',
+      'osRelease': 'test',
+      'majorVersion': 1,
+      'minorVersion': 0,
+      'patchVersion': 0,
+      'activeCPUs': 1,
+      'memorySize': 1,
+      'cpuFrequency': 1,
+      'systemGUID': 'synthetic-device',
+    });
+  }
+}
+
+class _OlmProbe implements E2eeSessionProtocol {
+  int calls = 0;
+  bool fail = true;
+
+  @override
+  ProtocolSuite get suite => ProtocolSuite.olm;
+
+  @override
+  Future<void> initialize({
+    required String userId,
+    required String deviceId,
+  }) async {
+    calls++;
+    if (fail) throw StateError('synthetic initialization unavailable');
+  }
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+}
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -102,6 +159,73 @@ void main() {
       expect(AppFeatureRegistry.isEnabled('location'), isTrue);
       expect(AppFeatureRegistry.isEnabled('project'), isFalse);
       expect(AppFeatureRegistry.isComplete, isTrue);
+    },
+  );
+
+  test(
+    'E2EE initialization waits for real flags and retries failed readiness',
+    () async {
+      final previousDeviceInfo = DeviceInfoPlatform.instance;
+      DeviceInfoPlatform.instance = _SyntheticDeviceInfo();
+      E2eeBootstrap.resetForTest();
+      E2eeBootstrap.ensureRegistered();
+      E2eeProtocolRegistry.resetForTest();
+      final probe = _OlmProbe();
+      E2eeProtocolRegistry.register(probe);
+      addTearDown(() {
+        E2eeBootstrap.resetForTest();
+        DeviceInfoPlatform.instance = previousDeviceInfo;
+      });
+      final entered = Completer<void>();
+      final release = Completer<void>();
+      var available = false;
+      var hold = true;
+      client.dio.interceptors.add(
+        InterceptorsWrapper(
+          onRequest: (request, handler) async {
+            final path = request.uri.path;
+            if (path.endsWith('/features') && available && hold) {
+              entered.complete();
+              await release.future;
+            }
+            handler.resolve(
+              Response<dynamic>(
+                requestOptions: request,
+                statusCode: 200,
+                data: path.endsWith('/manifest')
+                    ? manifest()
+                    : {
+                        'code': 0,
+                        'payload': path.endsWith('/features')
+                            ? (available
+                                  ? {...flags(false), 'e2ee': true}
+                                  : <String, bool>{})
+                            : {
+                                'capabilities': {
+                                  'storage_mode': 'archived',
+                                  'e2ee_mode': 'disabled',
+                                },
+                              },
+                      },
+              ),
+            );
+          },
+        ),
+      );
+      expect(await RuntimeFeatureRecovery.refreshNow(), isFalse);
+      expect(probe.calls, 0);
+      available = true;
+      final pending = RuntimeFeatureRecovery.refreshNow();
+      await entered.future;
+      expect(probe.calls, 0);
+      hold = false;
+      release.complete();
+      final compiled = compiledProductFeatures.contains('e2ee');
+      expect(await pending, !compiled);
+      expect(probe.calls, compiled ? 1 : 0);
+      probe.fail = false;
+      expect(await RuntimeFeatureRecovery.refreshNow(), isTrue);
+      expect(probe.calls, compiled ? 2 : 0);
     },
   );
 

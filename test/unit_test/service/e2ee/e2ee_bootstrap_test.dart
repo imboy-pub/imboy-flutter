@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:device_info_plus/device_info_plus.dart';
@@ -14,6 +15,7 @@ import 'package:imboy/service/e2ee/e2ee_protocol.dart';
 import 'package:imboy/service/e2ee/megolm_protocol.dart';
 import 'package:imboy/service/e2ee/olm_protocol.dart';
 import 'package:imboy/service/e2ee/rsa_legacy_protocol.dart';
+import 'package:imboy/service/e2ee/policy_gate.dart';
 
 class _SyntheticDeviceInfo extends DeviceInfoPlatform {
   @override
@@ -89,6 +91,7 @@ void main() {
     }
   });
   _bug72InitializationContract();
+  _readinessRecoveryContract();
   group('E2eeBootstrap.ensureRegistered', () {
     setUp(E2eeBootstrap.resetForTest);
     tearDown(E2eeBootstrap.resetForTest);
@@ -156,6 +159,154 @@ void main() {
   });
 }
 
+void _readinessRecoveryContract() {
+  group('required-suite readiness and retry', () {
+    late DeviceInfoPlatform previousDeviceInfo;
+    late _InitProbeProtocol olm;
+    late _InitProbeProtocol megolm;
+    setUp(() async {
+      previousDeviceInfo = DeviceInfoPlatform.instance;
+      await _installDeviceFixture();
+      E2eeBootstrap.resetForTest();
+      E2eeBootstrap.ensureRegistered();
+      E2eeProtocolRegistry.resetForTest();
+      olm = _InitProbeProtocol(protocol: 'olm');
+      megolm = _InitProbeProtocol(protocol: 'megolm');
+      E2eeProtocolRegistry.register(olm);
+      E2eeProtocolRegistry.register(megolm);
+    });
+    tearDown(() {
+      E2eeBootstrap.resetForTest();
+      DeviceInfoPlatform.instance = previousDeviceInfo;
+    });
+
+    test(
+      'failed required suite rejects and retries without repeating success',
+      () async {
+        olm.failure = StateError('synthetic failure');
+        await expectLater(
+          E2eeBootstrap.ensureReady(requiredSuite: ProtocolSuite.olm),
+          throwsA(
+            isA<E2eeSecurityException>().having(
+              (error) => error.reason,
+              'reason',
+              'e2ee_protocol_not_ready',
+            ),
+          ),
+        );
+        expect(megolm.initCalls, 1);
+        olm.failure = null;
+        await E2eeBootstrap.ensureReady(requiredSuite: ProtocolSuite.olm);
+        await E2eeBootstrap.ensureReady(requiredSuite: ProtocolSuite.olm);
+        expect(olm.initCalls, 2);
+        expect(megolm.initCalls, 1);
+      },
+    );
+
+    test(
+      'optional failure does not block the required working suite',
+      () async {
+        megolm.failure = StateError('synthetic failure');
+        await E2eeBootstrap.ensureReady(requiredSuite: ProtocolSuite.olm);
+        await E2eeBootstrap.ensureReady(requiredSuite: ProtocolSuite.olm);
+        expect(olm.initCalls, 1);
+        expect(megolm.initCalls, 1);
+        await expectLater(
+          E2eeBootstrap.ensureReady(requiredSuite: ProtocolSuite.megolm),
+          throwsA(isA<E2eeSecurityException>()),
+        );
+        expect(olm.initCalls, 1);
+        expect(megolm.initCalls, 2);
+      },
+    );
+
+    test('default compatibility call retries only failed suites', () async {
+      olm.failure = StateError('synthetic failure');
+      await E2eeBootstrap.ensureReady();
+      olm.failure = null;
+      await E2eeBootstrap.ensureReady();
+      expect(olm.initCalls, 2);
+      expect(megolm.initCalls, 1);
+    });
+
+    test(
+      'explicit test readiness survives replacing a registered standard suite',
+      () async {
+        E2eeBootstrap.debugMarkReadyForTest('synthetic-user');
+        E2eeProtocolRegistry.resetForTest();
+        E2eeProtocolRegistry.register(megolm);
+        await E2eeBootstrap.ensureReady(requiredSuite: ProtocolSuite.megolm);
+        expect(megolm.initCalls, 0);
+      },
+    );
+
+    test('concurrent callers publish a successful suite once', () async {
+      final started = Completer<void>();
+      final finish = Completer<void>();
+      olm.onInitialize = () async {
+        started.complete();
+        await finish.future;
+      };
+      final first = E2eeBootstrap.ensureReady(requiredSuite: ProtocolSuite.olm);
+      await started.future;
+      final second = E2eeBootstrap.ensureReady(
+        requiredSuite: ProtocolSuite.olm,
+      );
+      finish.complete();
+      await Future.wait([first, second]);
+      expect(olm.initCalls, 1);
+      expect(megolm.initCalls, 1);
+    });
+
+    test(
+      'old in-flight initialization cannot mark a new account ready',
+      () async {
+        final started = Completer<void>();
+        final finish = Completer<void>();
+        olm.onInitialize = () async {
+          started.complete();
+          await finish.future;
+        };
+        final old = E2eeBootstrap.ensureReady(requiredSuite: ProtocolSuite.olm);
+        final oldFailure = expectLater(
+          old,
+          throwsA(isA<E2eeSecurityException>()),
+        );
+        await started.future;
+        await StorageService.to.setString(
+          Keys.currentUid,
+          'new-synthetic-user',
+        );
+        final next = E2eeBootstrap.ensureReady(
+          requiredSuite: ProtocolSuite.olm,
+        );
+        olm.onInitialize = null;
+        finish.complete();
+        await oldFailure;
+        await next;
+        expect(olm.initCalls, 2);
+        expect(olm.lastUserId, 'new-synthetic-user');
+        expect(megolm.initCalls, 1);
+        await E2eeBootstrap.ensureReady(requiredSuite: ProtocolSuite.olm);
+        expect(olm.initCalls, 2);
+      },
+    );
+
+    test(
+      'required suite rejects missing login; default call remains a no-op',
+      () async {
+        await StorageService.to.setString(Keys.currentUid, '');
+        await E2eeBootstrap.ensureReady();
+        await expectLater(
+          E2eeBootstrap.ensureReady(requiredSuite: ProtocolSuite.olm),
+          throwsA(isA<E2eeSecurityException>()),
+        );
+        expect(olm.initCalls, 0);
+      },
+    );
+  });
+}
+
 /// BUG#72 契约：注册之后**必须**有人调用 initialize。
 ///
 /// 生产实测（2026-08-04，把 e2ee_mode 改成 required 后）第一条单聊消息即抛
@@ -182,7 +333,8 @@ void _bug72InitializationContract() {
 
 class _InitProbeProtocol implements E2eeSessionProtocol {
   _InitProbeProtocol({this.failure, this.protocol = 'probe'});
-  final Object? failure;
+  Object? failure;
+  Future<void> Function()? onInitialize;
   final String protocol;
   int initCalls = 0;
   String? lastUserId;
@@ -199,6 +351,7 @@ class _InitProbeProtocol implements E2eeSessionProtocol {
     initCalls++;
     lastUserId = userId;
     lastDeviceId = deviceId;
+    await onInitialize?.call();
     if (failure != null) throw failure!;
   }
 

@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:convert';
 
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:device_info_plus_platform_interface/device_info_plus_platform_interface.dart';
@@ -9,6 +10,10 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:imboy/app_core/feature_flags/runtime_feature_recovery.dart';
+import 'package:imboy/app_core/feature_flags/generated_product_features.dart';
+import 'package:imboy/component/dialog/e2ee_recovery_guide_dialog.dart';
+import 'package:imboy/service/e2ee/e2ee_bootstrap.dart';
+import 'package:imboy/service/e2ee/e2ee_protocol.dart';
 import 'package:imboy/component/http/http_client.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/config/env.dart';
@@ -75,6 +80,7 @@ class _RouterAdapter implements HttpClientAdapter {
 
   /// 对照组开关：true 时 login 返回 status==1 成功 payload。
   bool respondLoginOk = false;
+  bool enableE2ee = false;
 
   @override
   Future<ResponseBody> fetch(
@@ -82,8 +88,39 @@ class _RouterAdapter implements HttpClientAdapter {
     Stream<Uint8List>? requestStream,
     Future<void>? cancelFuture,
   ) async {
-    requests.add(options.path);
-    if (options.path == API.login) {
+    final path = options.uri.path;
+    requests.add(path);
+    if (enableE2ee && path != API.login) {
+      final payload = path == API.appFeatures
+          ? {
+              for (final key in compiledProductFeatures)
+                key: key == 'core' || key == 'e2ee',
+            }
+          : path == API.e2eeReportDeviceKey
+          ? {'other_device_count': 1}
+          : {
+              'capabilities': {
+                'storage_mode': 'archived',
+                'e2ee_mode': 'disabled',
+              },
+            };
+      return ResponseBody.fromString(
+        jsonEncode(
+          path == API.appManifest
+              ? {
+                  'manifest_hash': productFeatureManifestHash,
+                  'manifest_schema_version': productFeatureSchemaVersion,
+                  'compiled_features': compiledProductFeatures,
+                }
+              : {'code': 0, 'payload': payload},
+        ),
+        200,
+        headers: {
+          Headers.contentTypeHeader: [Headers.jsonContentType],
+        },
+      );
+    }
+    if (path == API.login) {
       if (respondLoginOk) {
         return ResponseBody.fromString(
           '{"code":0,"payload":{"status":1,"uid":"2003",'
@@ -164,6 +201,23 @@ class _NoWsLoopbackEnv implements Env, EnvField {
 
   @override
   bool get aiTestEnabled => false;
+}
+
+class _FailingOlm implements E2eeSessionProtocol {
+  int calls = 0;
+  @override
+  ProtocolSuite get suite => ProtocolSuite.olm;
+  @override
+  Future<void> initialize({
+    required String userId,
+    required String deviceId,
+  }) async {
+    calls++;
+    throw StateError('synthetic Olm registration unavailable');
+  }
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }
 
 void main() {
@@ -331,4 +385,40 @@ void main() {
     expect(UserRepoLocal.to.isLoggedIn, isTrue);
     expect(UserRepoLocal.to.currentUid, '2003');
   });
+  test(
+    'Olm failure preserves RSA report and new-device recovery guide',
+    () async {
+      adapter.respondLoginOk = true;
+      adapter.enableE2ee = true;
+      E2eeBootstrap.resetForTest();
+      E2eeBootstrap.ensureRegistered();
+      E2eeProtocolRegistry.resetForTest();
+      final olm = _FailingOlm();
+      E2eeProtocolRegistry.register(olm);
+      addTearDown(E2eeBootstrap.resetForTest);
+      final container = ProviderContainer(
+        overrides: [passportProvider.overrideWith(PassportNotifier.new)],
+      );
+      addTearDown(container.dispose);
+      final sub = container.listen(passportProvider, (_, _) {});
+      addTearDown(sub.close);
+      final result = await container
+          .read(passportProvider.notifier)
+          .loginUserByCode('mobile', '+8613800000001', '123456');
+      expect(result, isNull);
+      expect(UserRepoLocal.to.isLoggedIn, isTrue);
+      if (compiledProductFeatures.contains('e2ee')) {
+        expect(olm.calls, greaterThan(0));
+        expect(adapter.requests, contains(API.e2eeReportDeviceKey));
+        expect(StorageService.to.getBool(kE2eeRecoveryNeededKey), isTrue);
+        expect(
+          StorageService.to.getBool(kE2eeNewDeviceGuidePendingKey),
+          isTrue,
+        );
+      } else {
+        expect(olm.calls, 0);
+        expect(adapter.requests, isNot(contains(API.e2eeReportDeviceKey)));
+      }
+    },
+  );
 }

@@ -159,13 +159,14 @@ bool isTransientSessionFailure(Object e) {
   // OlmApi 网络层包装（`Exception('olm claim_key failed: <msg>')` /
   // `Exception('olm claim_key: invalid payload')`）。msg 的网络失败文案
   // 随 locale 变化（'网络错误'/'无网络'/…），故按**固定前缀**识别 claim
-  // 层失败；服务端对设备维度的明确拒绝（device_not_registered /
-  // device_not_found）除外——那是能力/一致性问题，fail-closed 拒发整条。
+  // 层失败；明确的授权/设备拒绝不是网络故障，必须拒发整条。
   // 注：`Exception('...')` 字面量的 runtimeType 是私有实现类 `_Exception`。
   if (name == 'Exception' || name == '_Exception') {
     final msg = e.toString();
     if (msg.contains('device_not_registered') ||
-        msg.contains('device_not_found')) {
+        msg.contains('device_not_found') ||
+        msg.contains('claim_not_authorized') ||
+        msg.contains('device_revoked')) {
       return false;
     }
     return msg.contains('olm claim_key failed:') ||
