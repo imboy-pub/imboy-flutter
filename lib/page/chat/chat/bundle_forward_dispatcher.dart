@@ -21,6 +21,8 @@ import 'package:flutter_chat_core/flutter_chat_core.dart' as core;
 import 'package:xid/xid.dart';
 
 import 'package:imboy/component/ui/app_loading.dart';
+import 'package:imboy/config/init.dart' show currentEnv;
+import 'package:imboy/config/env.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/chat/chat/attachment_handler.dart';
 import 'package:imboy/page/chat/send_to/batch_forward_coordinator.dart'
@@ -34,6 +36,7 @@ import 'package:imboy/page/chat/chat/services/chat_burn_service.dart';
 import 'package:imboy/page/chat/chat/services/chat_network_service.dart';
 import 'package:imboy/service/event_bus.dart';
 import 'package:imboy/modules/messaging/infrastructure/message_model_mapper.dart';
+import 'package:imboy/modules/messaging/infrastructure/attachment_local_projection.dart';
 import 'package:imboy/service/message_type_constants.dart';
 import 'package:imboy/store/model/message_model.dart';
 import 'package:imboy/store/model/conversation_model.dart';
@@ -199,6 +202,8 @@ class BundleForwardDispatcher {
     BundleAttachmentForwarder? attachmentForwarder,
     Future<MessageModel?> Function(String messageId, String chatType)?
     messageFetcher,
+    Future<Map<String, dynamic>?> Function(MessageModel model)?
+    localPayloadLoader,
     Future<void> Function(MessageModel model, String chatType)? messageInserter,
     String Function()? forwarderUidResolver,
     Future<bool> Function(String chatType, String peerId)?
@@ -214,6 +219,7 @@ class BundleForwardDispatcher {
   }) : _attachmentForwarder =
            attachmentForwarder ?? const DefaultBundleAttachmentForwarder(),
        _messageFetcher = messageFetcher ?? _defaultMessageFetcher,
+       _localPayloadLoader = localPayloadLoader ?? loadLocalAttachmentPayload,
        _messageInserter = messageInserter ?? _defaultMessageInserter,
        _forwarderUidResolver = forwarderUidResolver ?? _defaultForwarderUid,
        _targetEncryptedResolver =
@@ -258,6 +264,8 @@ class BundleForwardDispatcher {
   final BundleAttachmentForwarder _attachmentForwarder;
   final Future<MessageModel?> Function(String messageId, String chatType)
   _messageFetcher;
+  final Future<Map<String, dynamic>?> Function(MessageModel model)
+  _localPayloadLoader;
   final Future<void> Function(MessageModel model, String chatType)
   _messageInserter;
   final String Function() _forwarderUidResolver;
@@ -367,6 +375,20 @@ class BundleForwardDispatcher {
       return BundleForwardReport(successCount: 0, failures: failures);
     }
 
+    var usesLocalProjection = false;
+    final actor = UserRepoLocal.to;
+    final ownerUid = actor.currentUid;
+    final generation = actor.sessionGeneration;
+    final environment = currentEnv;
+    final endpoint = Env().apiBaseUrl;
+    bool sourceCurrent() =>
+        ownerUid.isNotEmpty &&
+        actor.currentUid == ownerUid &&
+        actor.isCurrentSession(generation) &&
+        !actor.isAuthTransitioning &&
+        currentEnv == environment &&
+        Env().apiBaseUrl == endpoint;
+
     // 1. 源消息快照输入：payload 一律取 DB 原行；UI metadata 只提供
     //    E2EE 失败占位标记（mapper 产物，DB 行不含）。
     final e2eeFailedIds = <String>{
@@ -389,7 +411,21 @@ class BundleForwardDispatcher {
           );
           return BundleForwardReport(successCount: 0, failures: failures);
         }
-        final payload = model.payloadMap;
+        // Own sealed attachments keep their plaintext in the bound local journal.
+        final sealed = model.payload == '' && model.e2ee?.isNotEmpty == true;
+        usesLocalProjection = usesLocalProjection || sealed;
+        final payload = sealed
+            ? await _localPayloadLoader(model)
+            : model.payloadMap;
+        if (payload == null || (sealed && !sourceCurrent())) {
+          failures.add(
+            const BundleForwardTargetFailure(
+              '',
+              HistoryBundleBuildErrorCode.rejectedE2eeFailed,
+            ),
+          );
+          return BundleForwardReport(successCount: 0, failures: failures);
+        }
         sources.add(
           HistoryBundleSourceMessage(
             msgType: model.msgType,
@@ -462,11 +498,15 @@ class BundleForwardDispatcher {
     var successCount = 0;
     for (final target in targets) {
       try {
+        if (usesLocalProjection && !sourceCurrent()) {
+          throw BundleForwardException(HistoryBundleBuildErrorCode.sendFailed);
+        }
         await _sendToTarget(
           target,
           sources,
           title: title,
           forwarderName: forwarderName,
+          isCurrent: usesLocalProjection ? sourceCurrent : null,
         );
         successCount++;
       } on BundleForwardException catch (e) {
@@ -496,7 +536,15 @@ class BundleForwardDispatcher {
     List<HistoryBundleSourceMessage> sources, {
     String? title,
     String? forwarderName,
+    bool Function()? isCurrent,
   }) async {
+    void requireCurrent() {
+      if (isCurrent?.call() == false) {
+        throw BundleForwardException(HistoryBundleBuildErrorCode.sendFailed);
+      }
+    }
+
+    requireCurrent();
     // F2（A4FIX 复审）：scope/resolver/落库一律按**目标**会话类型归一
     // （与单条转发 send_to_provider 的 conversation.type 同口径）。
     // 源 chatType 只决定源消息 DB 行 fetch 表（sendToTargets 内）；SendToPage
@@ -539,6 +587,7 @@ class BundleForwardDispatcher {
         targetChatType,
         target.peerId,
       );
+      requireCurrent();
       if (!encrypted) {
         throw BundleForwardException(
           HistoryBundleBuildErrorCode.rejectedPlaintextTarget,
@@ -546,6 +595,7 @@ class BundleForwardDispatcher {
       }
     }
     for (final task in success.attachmentTasks) {
+      requireCurrent();
       final request = bindBundleAttachmentTasks(
         tasks: [task],
         newMessageId: messageId,
@@ -556,6 +606,7 @@ class BundleForwardDispatcher {
         forwarderUid: uid,
       ).single;
       final payload = await _attachmentForwarder.forwardAttachment(request);
+      requireCurrent();
       // 写回净化（A4 审计 HIGH）：adapter 产物基于源 payload 拷贝，禁止
       // 字段不得随写回进入 bundle JSON（合同 §4.5）。唯一豁免 = 本次
       // 重封装新产生的目标绑定 attachment_descriptor（仅加密目标可达此
@@ -590,13 +641,19 @@ class BundleForwardDispatcher {
       conversationUk3: target.uk3,
       msgType: HistoryBundleContract.msgType,
     );
+    requireCurrent();
     await _messageInserter(model, targetChatType);
+    requireCurrent();
     // 回环可见性：与单条转发同款（见 send_to_provider.sendMsg）——目标
     // 会话正打开时，经入站消息同一 ingestion 事件（fireData 'Message'）
     // 让副本立即进入内存列表；未打开会话由 ChatPage 按 conversation_uk3
     // 过滤，为 no-op。
     try {
-      AppEventBus.fireData(await model.toTypeMessage(), 'Message');
+      final projected = await model.toTypeMessage();
+      requireCurrent();
+      AppEventBus.fireData(projected, 'Message');
+    } on BundleForwardException {
+      rethrow;
     } on Object catch (e) {
       iPrint(
         '⚠️ [BundleForwardDispatcher] 副本 UI 事件失败(不影响落库): '
@@ -605,7 +662,10 @@ class BundleForwardDispatcher {
     }
     // 先回环再出网：加密失败可能立即发布 error 状态，列表必须先有该消息。
     // 保留落库行及既有错误/重试状态，派发失败不能计作转发成功。
-    if (!await _wsDispatcher(model)) {
+    requireCurrent();
+    final dispatched = await _wsDispatcher(model);
+    requireCurrent();
+    if (!dispatched) {
       throw BundleForwardException(HistoryBundleBuildErrorCode.sendFailed);
     }
   }

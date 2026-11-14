@@ -3,12 +3,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart' show RenderImage;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:flutter_chat_core/flutter_chat_core.dart' as core;
 import 'package:flutter_chat_ui/flutter_chat_ui.dart' show ScrollToBottom;
 import 'package:integration_test/integration_test.dart';
 import 'package:imboy/component/chat/message_history_bundle_builder.dart';
 import 'package:imboy/component/extension/device_ext.dart';
 import 'package:imboy/config/init.dart';
 import 'package:imboy/page/chat/chat/chat_page.dart';
+import 'package:imboy/page/chat/chat/chat_message_item.dart';
 import 'package:imboy/page/chat/chat/chat_provider.dart';
 import 'package:imboy/page/chat_shell/chat_shell_bootstrap.dart';
 import 'package:imboy/page/chat_shell/experience_provider.dart';
@@ -29,6 +31,10 @@ const _viewer = '123613243079133184';
 const _sender = '123613243007830016';
 const _storage = 'viewer_uiux_20261114_1794632987';
 const _nonce = String.fromEnvironment('CHAT_MULTI_RUN_NONCE');
+const _locationOnly = bool.fromEnvironment('UIUX_LOCATION_RECEIVER');
+const _receiverLabel = _locationOnly
+    ? 'Owned Mac receives and UI acknowledges the exact location receipt'
+    : 'Owned Mac receives, renders and UI acknowledges exact bundle';
 
 Future<void> _restoreViewer(WidgetTester tester) async {
   expect(const bool.fromEnvironment('IMBOY_TEST_ISOLATED'), isTrue);
@@ -221,11 +227,84 @@ void _diagnoseBundle(
   }
 }
 
+core.Message _assertLocationReceipt(
+  WidgetTester tester,
+  Finder chat,
+  Finder card,
+  String tag,
+) {
+  final message = tester.widget<ChatMessageItem>(card).message;
+  final data = message.metadata ?? {};
+  expect(data['_e2ee_failed'], isNot(true));
+  expect(message.status, isIn(settledStatuses));
+  expect(data['title'], isA<String>());
+  expect('${data['title']}', isNotEmpty);
+  expect(
+    find.descendant(of: card, matching: find.text('${data['title']}')),
+    findsOneWidget,
+  );
+  for (final field in ['latitude', 'longitude']) {
+    final value = double.tryParse('${data[field]}');
+    expect(value?.isFinite, isTrue, reason: '$field must survive decryption');
+    expect(value?.abs(), lessThanOrEqualTo(field == 'latitude' ? 90 : 180));
+  }
+  final container = ProviderScope.containerOf(tester.element(chat));
+  final markers =
+      (container.read(chatProvider.notifier).chatService?.messages ??
+              const <core.Message>[])
+          .whereType<core.TextMessage>()
+          .where((m) => m.authorId == _sender && m.text == 'UX01-$tag')
+          .toList();
+  expect(markers, hasLength(1));
+  expect(markers.single.createdAt?.isBefore(message.createdAt!), isTrue);
+  return message;
+}
+
+Future<void> _verifyLocationReceipt(WidgetTester tester, Finder chat) async {
+  const id = String.fromEnvironment('UX01_LOCATION_MESSAGE_ID');
+  const tag = String.fromEnvironment('UX01_RUN_TAG');
+  expect(id, matches(RegExp(r'^[a-z0-9]{10,128}$')));
+  expect(tag, matches(RegExp(r'^[A-Za-z0-9_-]{8,64}$')));
+  final card = find.byWidgetPredicate(
+    (w) =>
+        w is ChatMessageItem &&
+        w.message.id == id &&
+        w.message.authorId == _sender &&
+        w.message.metadata?['msg_type'] == 'location',
+  );
+  expect(await waitForFinder(tester, card, maxSeconds: 240), isTrue);
+  await tester.ensureVisible(card);
+  await settle(tester, maxSeconds: 1);
+  expect(card.hitTestable(), findsOneWidget);
+  final message = _assertLocationReceipt(tester, chat, card, tag);
+  final image = find.descendant(
+    of: card,
+    matching: find.byWidgetPredicate(
+      (w) =>
+          w is RawImage &&
+          (w.image?.width ?? 0) > 1 &&
+          (w.image?.height ?? 0) > 1,
+    ),
+  );
+  expect(
+    await waitForFinder(tester, image, maxSeconds: 90),
+    isTrue,
+    reason:
+        'The recipient must decode the authorized encrypted location preview',
+  );
+  final receipt = '[UIUX-LOCATION-ACK]-$tag-${message.id}';
+  await sendTextViaInput(tester, chat, receipt);
+  final sent = await waitSent(tester, receipt, maxSeconds: 30);
+  expect(sent?.authorId, _viewer);
+  expect(sent?.status, isIn(settledStatuses));
+  debugPrintSynchronously(
+    '[UIUX-LOCATION-RECEIVER] verified:$tag:${message.id}',
+  );
+}
+
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
-  testWidgets('Owned Mac receives, renders and UI acknowledges exact bundle', (
-    tester,
-  ) async {
+  testWidgets(_receiverLabel, (tester) async {
     expect(_nonce, matches(RegExp(r'^[A-Za-z0-9_-]{1,80}$')));
     expect(requireBusinessWriteAuthorization(), isTrue);
     await _restoreViewer(tester);
@@ -255,6 +334,10 @@ void main() {
       peerId: _sender,
       peerTitle: 'uiux_editor_20261114',
     );
+    if (_locationOnly) {
+      await _verifyLocationReceipt(tester, chat);
+      return;
+    }
     final markers = [for (var i = 1; i <= 3; i++) '[W3K-BND]-t$i-$_nonce'];
     // Root starts the sender only after this exact nonce-bound baseline/ready marker.
     debugPrintSynchronously('[UIUX-BUNDLE-RECEIVER] ready:$_nonce');

@@ -30,6 +30,9 @@ import 'package:imboy/service/e2ee/retry_plaintext_guard.dart';
 import 'package:imboy/component/http/http_response.dart';
 import 'package:imboy/store/api/attachment_api.dart';
 import 'package:imboy/page/chat/send_to/send_to_provider.dart';
+import 'package:imboy/config/const.dart';
+import 'package:imboy/service/storage.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 Uint8List _plain(int n, [int seed = 7]) =>
     Uint8List.fromList(List<int>.generate(n, (i) => (i * 31 + seed) & 0xFF));
@@ -119,6 +122,10 @@ Uint8List _dstBinding(String conv) => AttachmentBinding.compute(
 );
 
 void main() {
+  setUpAll(() async {
+    SharedPreferences.setMockInitialValues({Keys.currentUid: _fwdUid});
+    await StorageService.init();
+  });
   group('1. decide 纯判定矩阵', () {
     test('源不带 content key（纯文本/明文附件）→ 照旧原样转发', () {
       final d = AttachmentForward.decide(

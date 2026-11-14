@@ -1,3 +1,10 @@
+import 'dart:collection';
+import 'dart:typed_data';
+
+import 'package:imboy/config/env.dart';
+import 'package:imboy/config/init.dart' show currentEnv;
+import 'package:imboy/service/e2ee/attachment_descriptor.dart';
+import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart' as core;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite_sqlcipher/sqflite.dart';
@@ -48,12 +55,14 @@ void main() {
         SqliteService.setDbForTest(db);
         final order = <String>[];
         final echoes = <core.Message>[];
-        final subscription = AppEventBus.on<DataWrapperEvent>().listen((event) {
-          if (event.dataType == 'Message') {
-            echoes.add(event.data as core.Message);
-            order.add('echo');
-          }
-        });
+        final subscription = AppEventBus.on<DataWrapperEvent<dynamic>>().listen(
+          (event) {
+            if (event.dataType == 'Message') {
+              echoes.add(event.data as core.Message);
+              order.add('echo');
+            }
+          },
+        );
         addTearDown(subscription.cancel);
         final notifier = SendToNotifier(
           networkService: _ForwardNetwork((model) async {
@@ -88,6 +97,118 @@ void main() {
         expect(echoes.single.id, db.rows.single['id']);
         expect(echoes.single.status, core.MessageStatus.sending);
         expect(order, ['echo', 'dispatch']);
+      },
+    );
+  }
+
+  for (final change in ['generation', 'endpoint']) {
+    test(
+      'sendMsg policy await rejects same UID with changed $change',
+      () async {
+        mockSqfliteSqlcipher();
+        final db = _ForwardDb();
+        SqliteService.setDbForTest(db);
+        final environment = currentEnv;
+        final originalEnv = envMap[environment];
+        final user = StorageService.to.getString(Keys.currentUser);
+        addTearDown(() async {
+          currentEnv = environment;
+          if (originalEnv != null) envMap[environment] = originalEnv;
+          await StorageService.to.setString(Keys.currentUid, '10001');
+          await StorageService.to.setString(Keys.currentUser, user);
+        });
+        final generation = UserRepoLocal.to.sessionGeneration;
+        var materialReads = 0;
+        var policyResolved = false;
+        var dispatches = 0;
+        final echoes = <core.Message>[];
+        final subscription = AppEventBus.on<DataWrapperEvent<dynamic>>().listen(
+          (event) {
+            if (event.dataType == 'Message') {
+              echoes.add(event.data as core.Message);
+            }
+          },
+        );
+        addTearDown(subscription.cancel);
+        final descriptor = _ObservedDescriptor(
+          AttachmentDescriptor(
+            attachmentId: 'fixture',
+            objectKey: 'obj/fixture',
+            contentKey: Uint8List(32),
+            cipher: AttachmentDescriptor.supportedCipher,
+            chunkSize: 64,
+            chunkCount: 1,
+            baseNonce: Uint8List(12),
+            plainSize: 1,
+            plainSha256: Uint8List(32),
+            mime: 'image/png',
+            name: 'fixture',
+          ).toMap(),
+          () {
+            if (policyResolved) materialReads++;
+          },
+        );
+        final notifier = SendToNotifier(
+          networkService: _ForwardNetwork((_) async {
+            dispatches++;
+            return true;
+          }),
+          targetEncryptedResolver:
+              ({required chatType, required peerId}) async {
+                await Future<void>.delayed(Duration.zero);
+                if (change == 'generation') {
+                  await UserRepoLocal.to.quitLogin();
+                  await StorageService.to.setString(Keys.currentUid, '10001');
+                  UserRepoLocal.to.clearAuthTransitionFailureForTest();
+                  expect(UserRepoLocal.to.isAuthTransitioning, isFalse);
+                  expect(
+                    UserRepoLocal.to.sessionGeneration,
+                    greaterThan(generation),
+                  );
+                } else {
+                  envMap[environment] = const _EndpointEnv(
+                    'http://127.0.0.1:2',
+                  );
+                }
+                policyResolved = true;
+                return true;
+              },
+        );
+        final ok = await notifier.sendMsg(
+          ConversationModel(
+            id: 1,
+            peerId: '10002',
+            avatar: '',
+            title: 'target',
+            subtitle: '',
+            type: 'C2C',
+            msgType: 'file',
+            unreadNum: 0,
+          ),
+          core.CustomMessage(
+            id: 'source',
+            authorId: '10001',
+            metadata: {
+              'conversation_uk3': 'C2C_10001_10002',
+              'peer_id': '10002',
+              'msg_type': 'file',
+              'attachment_descriptor': descriptor,
+            },
+          ),
+          silent: true,
+        );
+        await Future<void>.delayed(Duration.zero);
+        expect(policyResolved, isTrue);
+        expect(UserRepoLocal.to.currentUid, '10001');
+        expect(ok, isFalse);
+        expect(
+          materialReads,
+          0,
+          reason: 'stale source must not enter re-seal or upload',
+        );
+        expect(db.rows, isEmpty);
+        expect(echoes, isEmpty);
+        expect(dispatches, 0);
       },
     );
   }
@@ -238,6 +359,8 @@ class _ForwardDb extends Fake implements Database, Transaction {
   @override
   bool get isOpen => true;
   @override
+  Future<void> close() async {}
+  @override
   Future<T> transaction<T>(
     Future<T> Function(Transaction) action, {
     bool? exclusive,
@@ -273,5 +396,29 @@ class _ForwardDb extends Fake implements Database, Transaction {
   }) async {
     rows.add(Map<String, Object?>.from(values));
     return rows.length;
+  }
+}
+
+class _EndpointEnv implements Env {
+  const _EndpointEnv(this.apiBaseUrl);
+  @override
+  final String apiBaseUrl;
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+}
+
+class _ObservedDescriptor extends MapView<String, dynamic> {
+  _ObservedDescriptor(super.map, this.onRead);
+  final void Function() onRead;
+  @override
+  dynamic operator [](Object? key) {
+    onRead();
+    return super[key];
+  }
+
+  @override
+  void forEach(void Function(String, dynamic) action) {
+    onRead();
+    super.forEach(action);
   }
 }

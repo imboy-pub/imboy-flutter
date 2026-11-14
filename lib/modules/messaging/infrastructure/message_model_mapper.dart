@@ -14,6 +14,8 @@ import 'package:imboy/store/model/message_model.dart';
 import 'package:imboy/store/repository/contact_repo_sqlite.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 
+import 'attachment_local_projection.dart';
+
 /// MessageModel → flutter_chat_core.Message 富化映射 / enrichment mapper（T4.4b）。
 ///
 /// **架构决策（2026-06-01，T4.4b）**：将原内联于 `MessageModel` 的运行时富化逻辑
@@ -161,7 +163,10 @@ extension MessageModelMapper on MessageModel {
     // WebSocket API v2.0: payload 可能是 Map 或 String（E2EE 场景）
     Map<String, dynamic> payloadData;
 
-    if (payload is String) {
+    final localPayload = await loadLocalAttachmentPayload(this);
+    if (localPayload != null) {
+      payloadData = localPayload;
+    } else if (payload is String) {
       // payload 是加密的 JSON 字符串（E2EE 消息）
       if (e2ee != null && e2ee!.isNotEmpty) {
         // A2-b：PFv3 分流必须在 v1/v2 之前。
@@ -535,6 +540,14 @@ extension MessageModelMapper on MessageModel {
         id: safeId,
         createdAt: createdDt,
         metadata: {...metadata, ...payloadData, 'is_system': true},
+      );
+    } else if (effectiveMsgType == MessageType.location) {
+      message = CustomMessage(
+        authorId: author.id,
+        id: safeId,
+        createdAt: createdDt,
+        status: typesStatus,
+        metadata: {...metadata, ...payloadData},
       );
     } else if (effectiveMsgType == MessageType.visitCard ||
         effectiveMsgType == MessageType.channelCard ||

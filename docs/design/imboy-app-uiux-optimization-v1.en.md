@@ -108,6 +108,8 @@ Figure 1. Optimization points in existing page and data flows.
 3. Channel save, location selection, and space switching must check the current account, target, and request generation; old-query or old-identity responses must not update the current UI.
 4. UI feedback does not replace server confirmation. Retry calls the existing command; if a receipt is missing, first check through the existing path and retry only after confirming it is safe.
 
+Finite floating-point body values, including image dimensions and coordinates, retain their type and precision through the existing CBOR format. Protected header encoding and validation remain unchanged. Older clients cannot parse the added floating-point body values, so both ends must be updated; local paired acceptance does not establish older-client compatibility or release approval.
+
 Contracts are based on existing repository implementation and DESIGN.md; API changes require separate review.
 
 [Official reference: Flutter accessibility UI design and styling](https://docs.flutter.dev/ui/accessibility/ui-design-and-styling)

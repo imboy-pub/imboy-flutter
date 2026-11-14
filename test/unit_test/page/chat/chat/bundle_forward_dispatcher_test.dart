@@ -83,10 +83,13 @@ MessageSelectionTraits _traits(
 /// 记录型附件转发 fake（按脚本顺序返回 payload，缺省新 uri payload）。
 class _RecordingForwarder implements BundleAttachmentForwarder {
   // ignore: prefer_initializing_formals
-  _RecordingForwarder({List<Map<String, dynamic>> script = const []})
-    : _script = List<Map<String, dynamic>>.of(script);
+  _RecordingForwarder({
+    List<Map<String, dynamic>> script = const [],
+    this.beforeReturn,
+  }) : _script = List<Map<String, dynamic>>.of(script);
 
   final List<Map<String, dynamic>> _script;
+  final Future<void> Function()? beforeReturn;
   var _calls = 0;
   final List<BundleAttachmentForwardRequest> requests =
       <BundleAttachmentForwardRequest>[];
@@ -96,6 +99,7 @@ class _RecordingForwarder implements BundleAttachmentForwarder {
     BundleAttachmentForwardRequest request,
   ) async {
     requests.add(request);
+    await beforeReturn?.call();
     final index = _calls++;
     if (index < _script.length) return _script[index];
     return <String, dynamic>{
@@ -139,12 +143,14 @@ void main() {
         final inserted = <MessageModel>[];
         final echoes = <core.Message>[];
         final order = <String>[];
-        final subscription = AppEventBus.on<DataWrapperEvent>().listen((event) {
-          if (event.dataType == 'Message') {
-            echoes.add(event.data as core.Message);
-            order.add('echo');
-          }
-        });
+        final subscription = AppEventBus.on<DataWrapperEvent<dynamic>>().listen(
+          (event) {
+            if (event.dataType == 'Message') {
+              echoes.add(event.data as core.Message);
+              order.add('echo');
+            }
+          },
+        );
         addTearDown(subscription.cancel);
         final dispatcher = BundleForwardDispatcher(
           messageFetcher: (id, _) async => _sourceRow(id, 1000),
@@ -285,6 +291,164 @@ void main() {
   });
 
   group('BundleForwardDispatcher.sendToTargets', () {
+    test(
+      'sealed local location keeps trusted DB projection instead of UI text',
+      () async {
+        final row = _sourceRow('sealed', 1000, msgType: 'location')
+          ..fromId = _uid
+          ..isAuthor = 1
+          ..payload = ''
+          ..e2ee = {'meta_version': 3};
+        final inserted = <MessageModel>[];
+        final dispatcher = BundleForwardDispatcher(
+          messageFetcher: (_, _) async => row,
+          localPayloadLoader: (model) async {
+            expect(identical(model, row), isTrue);
+            return {
+              'title': 'trusted location',
+              'latitude': '39.123456789012',
+              'longitude': '116.123456789012',
+            };
+          },
+          messageInserter: (model, _) async => inserted.add(model),
+          wsDispatcher: (_) async => true,
+          forwarderUidResolver: () => _uid,
+        );
+        final report = await dispatcher.sendToTargets(
+          [_target(1, '1000000056')],
+          [_uiMessage('sealed')],
+          sourceChatType: 'C2C',
+        );
+        expect(report.allSuccess, isTrue);
+        final entries = inserted.single.payloadMap['entries'] as List;
+        expect((entries.single as Map)['payload'], {
+          'title': 'trusted location',
+          'latitude': '39.123456789012',
+          'longitude': '116.123456789012',
+        });
+        expect(inserted.single.id, isNot('sealed'));
+      },
+    );
+
+    for (final scenario in ['missing', 'burned', 'failed', 'account-switch']) {
+      test(
+        'sealed local source $scenario fails closed before inserting',
+        () async {
+          final row = _sourceRow('sealed', 1000, msgType: 'location')
+            ..fromId = _uid
+            ..isAuthor = 1
+            ..payload = ''
+            ..e2ee = {'meta_version': 3};
+          if (scenario == 'failed') row.status = IMBoyMessageStatus.error;
+          final inserted = <MessageModel>[];
+          addTearDown(() => StorageService.to.setString(Keys.currentUid, _uid));
+          final dispatcher = BundleForwardDispatcher(
+            messageFetcher: (_, _) async => row,
+            localPayloadLoader: (_) async {
+              if (scenario == 'missing') return null;
+              if (scenario == 'account-switch') {
+                await StorageService.to.setString(
+                  Keys.currentUid,
+                  'other-account',
+                );
+              }
+              return {
+                'title': 'trusted location',
+                if (scenario == 'burned') 'burn_read_at': '1731000000000',
+              };
+            },
+            messageInserter: (model, _) async => inserted.add(model),
+            wsDispatcher: (_) async => true,
+            forwarderUidResolver: () => _uid,
+          );
+          final report = await dispatcher.sendToTargets(
+            [_target(1, '1000000056')],
+            [_uiMessage('sealed')],
+            sourceChatType: 'C2C',
+          );
+          expect(report.successCount, 0);
+          expect(inserted, isEmpty);
+          if (scenario == 'missing') {
+            expect(
+              report.failures.single.errorCode,
+              HistoryBundleBuildErrorCode.rejectedE2eeFailed,
+            );
+          }
+          if (scenario == 'burned') {
+            expect(
+              report.failures.single.errorCode,
+              HistoryBundleBuildErrorCode.rejectedBurnAfterRead,
+            );
+          }
+        },
+      );
+    }
+
+    for (final stage in ['resolver', 'forwarder', 'insert']) {
+      test(
+        'sealed projection scope change during $stage stops later effects',
+        () async {
+          final row = _sourceRow('sealed', 1000, msgType: 'file')
+            ..fromId = _uid
+            ..isAuthor = 1
+            ..payload = ''
+            ..e2ee = {'meta_version': 3};
+          Future<void> switchAccount() =>
+              StorageService.to.setString(Keys.currentUid, 'other-account');
+          addTearDown(() => StorageService.to.setString(Keys.currentUid, _uid));
+          final inserted = <MessageModel>[];
+          final echoes = <core.Message>[];
+          var dispatches = 0;
+          final subscription = AppEventBus.on<DataWrapperEvent<dynamic>>()
+              .listen((event) {
+                if (event.dataType == 'Message') {
+                  echoes.add(event.data as core.Message);
+                }
+              });
+          addTearDown(subscription.cancel);
+          final forwarder = _RecordingForwarder(
+            beforeReturn: stage == 'forwarder' ? switchAccount : null,
+          );
+          final dispatcher = BundleForwardDispatcher(
+            messageFetcher: (_, _) async => row,
+            localPayloadLoader: (_) async => {
+              'uri': 'obj/trusted-source',
+              'attachment_descriptor': {'synthetic': true},
+            },
+            targetEncryptedResolver: (_, _) async {
+              if (stage == 'resolver') await switchAccount();
+              return true;
+            },
+            attachmentForwarder: forwarder,
+            messageInserter: (model, _) async {
+              inserted.add(model);
+              if (stage == 'insert') await switchAccount();
+            },
+            wsDispatcher: (_) async {
+              dispatches++;
+              return true;
+            },
+            forwarderUidResolver: () => _uid,
+          );
+          final report = await dispatcher.sendToTargets(
+            [_target(1, '1000000056')],
+            [_uiMessage('sealed')],
+            sourceChatType: 'C2C',
+          );
+          await Future<void>.delayed(Duration.zero);
+          expect(report.successCount, 0);
+          expect(
+            report.failures.single.errorCode,
+            HistoryBundleBuildErrorCode.sendFailed,
+          );
+          expect(inserted.length, stage == 'insert' ? 1 : 0);
+          expect(forwarder.requests.length, stage == 'resolver' ? 0 : 1);
+          expect(echoes, isEmpty);
+          expect(dispatches, 0);
+        },
+      );
+    }
+
     test('2 源 × 2 目标：目标串行、每目标独立构建、payload 干净、目标字段正确', () async {
       final rows = <String, MessageModel>{
         'm1': _sourceRow('m1', 1000),

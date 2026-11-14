@@ -2419,6 +2419,35 @@
       ],
       "basis": [
         "Strictly restores the existing owned Mac viewer without login or rekey. Captures a real history baseline, receives and renders the exact shared-nonce bundle with authorized image decoding and complete snapshot/history assertions, then sends a real UI acknowledgement. Maps remain disabled."
+      ],
+      "variants": [
+        {
+          "variant": "default"
+        },
+        {
+          "variant": "owned-location",
+          "required_features": [
+            "e2ee",
+            "location"
+          ],
+          "required_env": [
+            "TEST_EXPECTED_UID",
+            "PEER_UID",
+            "H2_STORAGE_TAG",
+            "H2_RESTORE_STORAGE",
+            "CHAT_MULTI_RUN_NONCE",
+            "CHAT_MULTI_EXPECT_E2EE",
+            "IMBOY_LOCAL_MAP_REQUESTS_ALLOWED",
+            "UX01_LOCATION_MESSAGE_ID",
+            "UX01_RUN_TAG"
+          ],
+          "dart_defines": {
+            "UIUX_LOCATION_RECEIVER": true
+          },
+          "basis": [
+            "Independently restores the existing ordinary viewer, renders the exact UX01 message ID and its preceding run marker, decodes its authorized encrypted location image, and sends a real UI acknowledgement. Source receipt carries IDs only; maps remain disabled."
+          ]
+        }
       ]
     },
     "integration_test/chat/j18a_send_retry_test.dart": {

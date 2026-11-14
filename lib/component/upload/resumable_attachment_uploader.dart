@@ -22,6 +22,8 @@ import 'package:imboy/store/api/msg_api.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart';
 import 'package:imboy/page/chat/chat/services/chat_network_service.dart';
 import 'package:imboy/service/message_retry.dart';
+import 'package:imboy/service/event_bus.dart';
+import 'package:imboy/modules/messaging/infrastructure/message_model_mapper.dart';
 
 import 'package:imboy/service/e2ee/attachment_descriptor.dart';
 import 'package:imboy/service/e2ee/attachment_encryptor.dart';
@@ -89,7 +91,10 @@ class ResumableAttachmentUploader {
   final bool Function(String userId) _sessionGuard;
 
   bool _isSessionCurrent(String uid) =>
-      !_cancel.isCancelled && _sessionGuard(uid);
+      !_cancel.isCancelled &&
+      _sessionGuard(uid) &&
+      currentEnv == _environment &&
+      Env().apiBaseUrl == _endpoint;
 
   Future<T> _runOwned<T>(String uid, Future<T> Function() operation) =>
       AccountLocalTaskRegistry.instance.run<T>(
@@ -791,6 +796,7 @@ class ResumableAttachmentUploader {
     Future<MessageModel> Function(Map<String, dynamic>, Message)?
     prepareMessage,
     void Function(String, String)? notifyRetry,
+    void Function(Message)? notifyEcho,
   }) => _runOwned(uid, () async {
     final seen = <String>{};
     for (final row in await _repo.listBusinessPending(uid)) {
@@ -806,6 +812,8 @@ class ResumableAttachmentUploader {
         continue;
       }
       try {
+        MessageModel? queued;
+        Message? localMessage;
         if (intent['state'] == 'uploading') {
           final message = messageFromPendingTemplate(
             await restoreMessageTemplate(row),
@@ -822,9 +830,31 @@ class ResumableAttachmentUploader {
             model,
             userId: uid,
             isCurrent: () => _isSessionCurrent(uid),
+            projectionTemplate: message.toJson(),
           )) {
             continue;
           }
+          queued = model;
+          localMessage = message;
+        }
+        _requireSession(uid);
+        try {
+          if (queued != null && localMessage != null) {
+            // Reuse the exact restored template that was sealed and committed.
+            final echo = MessageModel.fromMessage(localMessage, currentUid: uid)
+              ..type = queued.type
+              ..toId = queued.toId
+              ..conversationUk3 = queued.conversationUk3
+              ..status = queued.status
+              ..e2ee = null;
+            final projected = await echo.toTypeMessage();
+            _requireSession(uid);
+            (notifyEcho ?? (m) => AppEventBus.fireData(m, 'Message'))(
+              projected,
+            );
+          }
+        } on Object {
+          debugPrint('[attachment_upload] local echo unavailable');
         }
         _requireSession(uid);
         (notifyRetry ?? MessageRetry.instance.addToRetryQueue)(

@@ -2,6 +2,8 @@ import 'package:imboy/service/server_ack_receipts.dart';
 
 import 'dart:convert';
 
+import 'package:crypto/crypto.dart';
+
 import 'package:sqflite_sqlcipher/sqflite.dart'
     show Database, DatabaseExecutor, ConflictAlgorithm;
 
@@ -9,6 +11,7 @@ import 'package:imboy/service/sqlite.dart';
 import 'package:imboy/store/model/message_model.dart';
 import 'package:imboy/store/repository/message_repo_sqlite.dart';
 import 'package:imboy/service/e2ee/attachment_seal_policy.dart';
+import 'package:imboy/service/e2ee/protected_frame_v3.dart';
 
 class LegacyOutboxConflict implements Exception {
   const LegacyOutboxConflict();
@@ -571,6 +574,7 @@ class AttachmentUploadTaskRepo {
     MessageModel message, {
     required String userId,
     required bool Function() isCurrent,
+    Map<String, dynamic>? projectionTemplate,
   }) async {
     final encrypted = message.e2ee != null && message.e2ee!.isNotEmpty;
     if (message.fromId.toString() != userId ||
@@ -644,6 +648,11 @@ class AttachmentUploadTaskRepo {
               ...intents[index],
               'state': 'outbox_ready',
               'message': intents[index]['message_template'],
+              if (encrypted && projectionTemplate != null)
+                'local_projection_binding': projectionBinding(
+                  message,
+                  projectionTemplate,
+                ),
             }),
           },
           where: 'id = ? AND user_id = ?',
@@ -654,6 +663,34 @@ class AttachmentUploadTaskRepo {
       return true;
     });
   }
+
+  /// Bind the local display template to these immutable sealed outbox bytes.
+  static String projectionBinding(
+    MessageModel message,
+    Map<String, dynamic> template,
+  ) => sha256
+      .convert(
+        CanonicalCbor.encode({
+          'id': message.id,
+          'type': message.type,
+          'from': message.fromId.toString(),
+          'to': message.toId.toString(),
+          'conversation': message.conversationUk3,
+          'msg_type': message.msgType,
+          'action': message.action ?? '',
+          'topic_id': message.topicId,
+          'created_at': message.createdAt,
+          'sender_did': message.senderDid,
+          'payload': message.payload,
+          // Archive sequence is local read context, not sealed wire data.
+          'e2ee': message.e2ee == null
+              ? null
+              : (Map<String, dynamic>.from(message.e2ee!)
+                  ..remove('_archive_conv_seq')),
+          'template': {...template}..remove('status'),
+        }, allowFloatingPoint: true),
+      )
+      .toString();
 
   /// Legacy action ACKs may clear a non-attachment retry, but never race a
   /// protected attachment being created under the same identity.
