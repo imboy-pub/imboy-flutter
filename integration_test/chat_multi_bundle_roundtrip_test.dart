@@ -196,6 +196,18 @@ void main() {
       index: notifier.chatService?.messages.length ?? 0,
     );
     await settle(tester, maxSeconds: 2);
+    final sourceIds = <String, String>{};
+    for (final marker in [m2, m3]) {
+      final matches = (notifier.chatService?.messages ?? const <core.Message>[])
+          .whereType<core.TextMessage>()
+          .where((message) => message.text == marker)
+          .toList();
+      expect(matches, hasLength(1), reason: '本轮真实文本消息应唯一');
+      final id = matches.single.id;
+      expect(id, isNotEmpty, reason: '本轮真实文本消息ID不得为空');
+      sourceIds[marker] = id;
+    }
+    expect(sourceIds.values.toSet(), hasLength(2), reason: '两条真实消息ID必须不同');
     await takeScreenshot(tester, 'w3kbnd_01_source_ready');
 
     // ② 多选 3 条 → 合并转发。
@@ -206,7 +218,7 @@ void main() {
       await toggleMessageSelection(
         tester,
         chatMultiItemContaining(marker),
-        messageId: messageOfMarker(tester, marker)?.id,
+        messageId: sourceIds[marker]!,
         journey: 'W3K-BND',
       );
     }
@@ -343,9 +355,43 @@ void main() {
     final detailPageFinder = find.byWidgetPredicate(
       (w) => w.runtimeType.toString() == 'HistoryBundleDetailPage',
     );
+    final currentTarget = find.descendant(of: currentBubble, matching: bubble);
+    void reportTarget(String phase) {
+      try {
+        final state = tester.any(currentBubble)
+            ? tester
+                  .widget<HistoryBundleMessageBuilder>(currentBubble)
+                  .message
+                  .status
+            : null;
+        flowLog(
+          'W3K-BND local_echo_target phase=$phase id=$expectedMessageId '
+          'status=$state epoch_ms=${DateTime.now().millisecondsSinceEpoch} '
+          'rect=${tester.getRect(currentTarget)} '
+          'viewport=${tester.view.physicalSize / tester.view.devicePixelRatio} '
+          'hit_testable=${tester.any(currentTarget.hitTestable())} '
+          'selecting=${tester.any(find.byKey(ChatMultiKeys.count))}',
+        );
+      } on Object {
+        flowLog(
+          'W3K-BND local_echo_target diagnostic_unavailable=true id=$expectedMessageId',
+        );
+      }
+    }
+
+    reportTarget('before-visible');
+    await tester.ensureVisible(currentTarget);
+    await settle(tester, maxSeconds: 1);
+    reportTarget('after-visible');
+    expect(
+      currentTarget.hitTestable(),
+      findsOneWidget,
+      reason: '本轮唯一bundle气泡在真实点击前必须可命中',
+    );
+    await takeScreenshot(tester, 'w3kbnd_02_bubble_visible');
     await tapFinderWithEffect(
       tester,
-      find.descendant(of: currentBubble, matching: bubble),
+      currentTarget,
       journey: 'W3K-BND',
       targetDescription: '本轮 bundle 气泡（marker=$m1）',
       effectCheck: () => tester.any(detailPageFinder),

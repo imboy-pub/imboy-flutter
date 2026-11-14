@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "generated_from": {
-    "app_head": "5a088c60a334eb7f9f864710d02c0d0f484a2ddc",
+    "app_head": "9c88c290c5d36ce094b580395e9ffa88aeef0fac",
     "backend_head": "NOT_A_GIT_REPO",
     "integration_test_count": 209,
     "lib_page_count": 172,
@@ -798,7 +798,7 @@
     {
       "id": "test:integration_test/chat_multi_bundle_roundtrip_test.dart",
       "target": "integration_test/chat_multi_bundle_roundtrip_test.dart",
-      "target_sha256": "90f36aa6c30b0104fc1f10674a4b71675ee7519b1cd8406b059c52c852fead76",
+      "target_sha256": "24ffb2b854ab943f889922e5e6c742f4ebc250591e284d4872e7edb236afffc0",
       "sources": [],
       "dependencies": [],
       "risk": "device-readonly",
@@ -2893,7 +2893,7 @@
     {
       "id": "test:integration_test/uiux/forward_bundle_receiver_native_test.dart",
       "target": "integration_test/uiux/forward_bundle_receiver_native_test.dart",
-      "target_sha256": "d9494d5e4e37bede5529200435486e19d126de4aa2b2199e40e45a5f38b33a75",
+      "target_sha256": "e4e3e5dac79406449d030abb9f8d4c2215807457843543532d2972a4e876d971",
       "sources": [],
       "dependencies": [],
       "risk": "device-readonly",

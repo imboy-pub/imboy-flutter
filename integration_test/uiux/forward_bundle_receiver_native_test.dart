@@ -3,11 +3,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart' show RenderImage;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:flutter_chat_ui/flutter_chat_ui.dart' show ScrollToBottom;
 import 'package:integration_test/integration_test.dart';
 import 'package:imboy/component/chat/message_history_bundle_builder.dart';
 import 'package:imboy/component/extension/device_ext.dart';
 import 'package:imboy/config/init.dart';
 import 'package:imboy/page/chat/chat/chat_page.dart';
+import 'package:imboy/page/chat/chat/chat_provider.dart';
 import 'package:imboy/page/chat_shell/chat_shell_bootstrap.dart';
 import 'package:imboy/page/chat_shell/experience_provider.dart';
 import 'package:imboy/service/e2ee/e2ee_bootstrap.dart';
@@ -145,6 +147,80 @@ Future<void> _verifyDetails(
   );
 }
 
+Future<bool> _waitForVisibleBundle(
+  WidgetTester tester,
+  Finder chat,
+  Finder card,
+  String marker,
+) async {
+  final latest = find
+      .descendant(
+        of: find.descendant(of: chat, matching: find.byType(ScrollToBottom)),
+        matching: find.byType(FloatingActionButton),
+      )
+      .hitTestable();
+  final deadline = DateTime.now().add(const Duration(seconds: 240));
+  var taps = 0;
+  while (DateTime.now().isBefore(deadline)) {
+    if (tester.any(card.hitTestable())) return true;
+    if (taps < 8 && tester.any(latest)) {
+      expect(latest, findsOneWidget);
+      await tester.tap(latest);
+      taps++;
+      expect(UserRepoLocal.to.currentUid, _viewer);
+    }
+    await tester.pump(const Duration(milliseconds: 500));
+  }
+  _diagnoseBundle(tester, chat, marker, taps);
+  await takeScreenshot(tester, 'w3k_wait_timeout');
+  return false;
+}
+
+void _diagnoseBundle(
+  WidgetTester tester,
+  Finder chat,
+  String marker,
+  int taps,
+) {
+  try {
+    final mounted = find.descendant(
+      of: chat,
+      matching: find.byType(HistoryBundleMessageBuilder),
+    );
+    final mountedIds = tester
+        .widgetList<HistoryBundleMessageBuilder>(mounted)
+        .map((builder) => builder.message.id)
+        .toSet();
+    final container = ProviderScope.containerOf(tester.element(chat));
+    final messages = container
+        .read(chatProvider.notifier)
+        .chatService
+        ?.messages;
+    final matches = [
+      if (messages != null)
+        for (final message in messages)
+          if (message.authorId == _sender &&
+              historyBundleEntries(message.metadata ?? {}).any(
+                (entry) =>
+                    entry['payload'] is Map &&
+                    (entry['payload'] as Map)['text'] == marker,
+              ))
+            {
+              'id': message.id,
+              'status': message.status?.name,
+              'mounted': mountedIds.contains(message.id),
+            },
+    ];
+    debugPrintSynchronously(
+      '[UIUX-BUNDLE-RECEIVER] timeout scroll_taps=$taps decoded_nonce_matches=$matches',
+    );
+  } on Object catch (error) {
+    debugPrintSynchronously(
+      '[UIUX-BUNDLE-RECEIVER] timeout diagnostic_error_type=${error.runtimeType}',
+    );
+  }
+}
+
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
   testWidgets('Owned Mac receives, renders and UI acknowledges exact bundle', (
@@ -192,7 +268,10 @@ void main() {
                 (entry['payload'] as Map)['text'] == markers.first,
           ),
     );
-    expect(await waitForFinder(tester, card, maxSeconds: 240), isTrue);
+    expect(
+      await _waitForVisibleBundle(tester, chat, card, markers.first),
+      isTrue,
+    );
     expect(card, findsOneWidget);
     final message = tester.widget<HistoryBundleMessageBuilder>(card).message;
     expect(message.id, isNotEmpty);
