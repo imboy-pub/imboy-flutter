@@ -82,19 +82,25 @@ void main() {
         }
       });
     });
-    // AMap's private Dio creates its native client inside this zone on first use.
-    await HttpOverrides.runZoned(() async {
-      await _loginAndChat(tester);
-      await _openPicker(tester);
-      await _verifyNativeDrag(tester, gate);
-      await _replaceAndRace(tester, gate);
-      await _exitDuringResponse(tester, gate);
-      await _sendCurrent(tester);
-      expect(gate.held, 3);
-      expect(gate.released, 3);
-      expect(gate.consumed, 3);
-      expect(tester.takeException(), isNull);
-    }, createHttpClient: gate.createHttpClient);
+    // Platform-channel callbacks can execute outside the test's child zone.
+    final previousOverrides = Zone.root.run(() => HttpOverrides.current);
+    HttpOverrides.global = gate;
+    try {
+      await HttpOverrides.runZoned(() async {
+        await _loginAndChat(tester);
+        await _openPicker(tester);
+        await _verifyNativeDrag(tester, gate);
+        await _replaceAndRace(tester, gate);
+        await _exitDuringResponse(tester, gate);
+        await _sendCurrent(tester);
+        expect(gate.held, 3);
+        expect(gate.released, 3);
+        expect(gate.consumed, 3);
+        expect(tester.takeException(), isNull);
+      }, createHttpClient: gate.createHttpClient);
+    } finally {
+      HttpOverrides.global = previousOverrides;
+    }
   }, timeout: const Timeout(Duration(minutes: 8)));
 }
 
@@ -350,56 +356,183 @@ Future<void> _verifyMapTiles(
   }
 }
 
+const _trustedMapTouchPredicate = '''function(event) {
+  return event != null && event.isTrusted === true &&
+    (event.type === 'touchmove' ||
+      (event.type === 'pointermove' && event.pointerType === 'touch'));
+}''';
+
+const _installTrustedMapTouchProbe =
+    '''(function() {
+  var root = document.getElementById('map');
+  if (!root || window.__imboyUx01TouchProbe ||
+      typeof PointerEvent !== 'function') return false;
+  var accepts = $_trustedMapTouchPredicate;
+  if (accepts(new Event('touchmove')) ||
+      accepts(new PointerEvent('pointermove', {pointerType: 'touch'}))) return false;
+  var probe = {root: root, count: 0};
+  probe.listener = function(event) { if (accepts(event)) probe.count++; };
+  root.addEventListener('touchmove', probe.listener, {capture: true, passive: true});
+  root.addEventListener('pointermove', probe.listener, {capture: true, passive: true});
+  window.__imboyUx01TouchProbe = probe;
+  return true;
+})()''';
+
+const _removeTrustedMapTouchProbe = '''(function() {
+  var probe = window.__imboyUx01TouchProbe;
+  if (!probe) return true;
+  probe.root.removeEventListener('touchmove', probe.listener, true);
+  probe.root.removeEventListener('pointermove', probe.listener, true);
+  delete window.__imboyUx01TouchProbe;
+  return true;
+})()''';
+
+const _mapCenterProbe =
+    'JSON.stringify([map.getCenter().lng, map.getCenter().lat])';
+const _trustedMoveCountProbe = 'window.__imboyUx01TouchProbe.count';
+
+Future<void> _reportMarkerImages(WidgetTester tester) async {
+  try {
+    final details = await _mapProbe(tester, '''JSON.stringify((function() {
+      var images = Array.from(document.querySelectorAll('.amap-marker img'));
+      return {count: images.length, images: images.map(function(image) {
+        var scheme = 'unresolved', host = '';
+        try {
+          var url = new URL(image.currentSrc || image.src, document.baseURI);
+          scheme = url.protocol.replace(':', ''); host = url.hostname;
+        } catch (_) {}
+        return {complete: image.complete, naturalWidth: image.naturalWidth,
+          naturalHeight: image.naturalHeight, src_scheme: scheme, src_host: host};
+      })};
+    })())''');
+    debugPrint('UX01_MARKER_IMAGE_DIAGNOSTIC $details');
+  } on Object {
+    debugPrint('UX01_MARKER_IMAGE_DIAGNOSTIC_FAILED true');
+  }
+}
+
+Future<({int trustedMoves, bool centerChanged})> _waitNativeDrag(
+  WidgetTester tester,
+  LocationPoiResponseGate gate,
+  Object before,
+  int responses,
+) async {
+  var moves = 0;
+  var changed = false;
+  final deadline = DateTime.now().add(const Duration(seconds: 90));
+  while (DateTime.now().isBefore(deadline)) {
+    moves = (await _mapProbe(tester, _trustedMoveCountProbe) as num).toInt();
+    changed = await _mapProbe(tester, _mapCenterProbe) != before;
+    if (moves > 0 && changed && gate.aroundResponses > responses) break;
+    await tester.pump(const Duration(milliseconds: 100));
+    await tester.runAsync(
+      () => Future<void>.delayed(const Duration(milliseconds: 200)),
+    );
+  }
+  return (trustedMoves: moves, centerChanged: changed);
+}
+
+void _assertNativeDrag(
+  ({int trustedMoves, bool centerChanged}) observed,
+  LocationPoiResponseGate gate,
+  int responses,
+) {
+  expect(
+    observed.trustedMoves,
+    greaterThan(0),
+    reason: 'actual trusted native WebView touch movement required',
+  );
+  expect(
+    observed.centerChanged,
+    isTrue,
+    reason: 'native WebView map center must change',
+  );
+  expect(
+    gate.aroundResponses,
+    greaterThan(responses),
+    reason: 'real dragend bridge must cause successful actual POI response consumption',
+  );
+}
+
+Future<void> _dragFailure(
+  WidgetTester tester,
+  LocationPoiResponseGate gate,
+  Object before,
+  int responses,
+  int flutterMoves,
+) async {
+  try {
+    final trusted = (await _mapProbe(tester, _trustedMoveCountProbe) as num)
+        .toInt();
+    final changed = await _mapProbe(tester, _mapCenterProbe) != before;
+    debugPrint(
+      'UX01_NATIVE_DRAG_DIAGNOSTIC ${jsonEncode({'flutter_moves': flutterMoves, 'trusted_moves': trusted, 'center_changed': changed, 'around_delta': gate.aroundResponses - responses})}',
+    );
+  } on Object {
+    debugPrint('UX01_NATIVE_DRAG_DIAGNOSTIC_FAILED true');
+  }
+  try {
+    await _captureMap(tester, 'native-drag-failure');
+  } on Object {
+    debugPrint('UX01_NATIVE_DRAG_FAILURE_CAPTURE_FAILED true');
+  }
+}
+
+Future<void> _removeTouchProbe(
+  WidgetTester tester, {
+  required bool preserveFailure,
+}) async {
+  try {
+    final removed = await _mapProbe(tester, _removeTrustedMapTouchProbe);
+    expect(removed == true || removed == 'true', isTrue);
+  } on Object {
+    if (!preserveFailure) rethrow;
+    debugPrint('UX01_NATIVE_DRAG_CLEANUP_FAILED true');
+  }
+}
+
 Future<void> _verifyNativeDrag(
   WidgetTester tester,
   LocationPoiResponseGate gate,
 ) async {
-  const center = 'JSON.stringify([map.getCenter().lng, map.getCenter().lat])';
-  final before = await _mapProbe(tester, center);
+  final before = await _mapProbe(tester, _mapCenterProbe);
   final responses = gate.aroundResponses;
-  var touchMoves = 0;
+  var flutterMoves = 0;
   void observe(PointerEvent event) {
     if (event is PointerMoveEvent && event.kind == PointerDeviceKind.touch) {
-      touchMoves++;
+      flutterMoves++;
     }
   }
 
   final previous = tester.binding.shouldPropagateDevicePointerEvents;
   tester.binding.shouldPropagateDevicePointerEvents = true;
   GestureBinding.instance.pointerRouter.addGlobalRoute(observe);
+  var failed = false;
   try {
+    await _reportMarkerImages(tester);
+    final installed = await _mapProbe(tester, _installTrustedMapTouchProbe);
+    expect(
+      installed == true || installed == 'true',
+      isTrue,
+      reason: 'un-dispatched synthetic touch events must be rejected',
+    );
     debugPrint('UX01_NATIVE_INPUT_READY drag_visible_map_top_area');
-    var changed = false;
-    final deadline = DateTime.now().add(const Duration(seconds: 90));
-    while (DateTime.now().isBefore(deadline)) {
-      final current = await _mapProbe(tester, center);
-      changed = current != before;
-      if (touchMoves > 0 && changed && gate.aroundResponses > responses) break;
-      await tester.pump(const Duration(milliseconds: 100));
-      await tester.runAsync(
-        () => Future<void>.delayed(const Duration(milliseconds: 200)),
-      );
-    }
-    expect(
-      touchMoves,
-      greaterThan(0),
-      reason: 'actual OS touch movement required',
-    );
-    expect(changed, isTrue, reason: 'native WebView map center must change');
-    expect(
-      gate.aroundResponses,
-      greaterThan(responses),
-      reason: 'real dragend bridge must cause successful actual POI response consumption',
-    );
+    final observed = await _waitNativeDrag(tester, gate, before, responses);
+    _assertNativeDrag(observed, gate, responses);
     await _verifyMapTiles(
       tester,
       stage: 'after-native-drag',
       requireSceneChanged: true,
     );
     expect(tester.takeException(), isNull);
+  } on Object {
+    failed = true;
+    await _dragFailure(tester, gate, before, responses, flutterMoves);
+    rethrow;
   } finally {
     GestureBinding.instance.pointerRouter.removeGlobalRoute(observe);
     tester.binding.shouldPropagateDevicePointerEvents = previous;
+    await _removeTouchProbe(tester, preserveFailure: failed);
   }
 }
 

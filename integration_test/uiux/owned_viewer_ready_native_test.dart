@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart' show debugPrintSynchronously;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -112,7 +113,6 @@ void main() {
       isTrue,
       reason: 'Real viewer Olm identity/prekeys must be ready',
     );
-    // ignore: avoid_print
-    print('[UIUX-VIEWER] ready=true');
+    debugPrintSynchronously('[UIUX-VIEWER] ready=true');
   });
 }

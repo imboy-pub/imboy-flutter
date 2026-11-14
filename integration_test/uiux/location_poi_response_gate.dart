@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'dart:typed_data';
 
 /// Delays one actual AMap response; TLS, bytes and every other request stay native.
 class LocationPoiResponseGate extends HttpOverrides {
@@ -285,23 +286,28 @@ class _Request implements HttpClientRequest {
 
 /// Original native response metadata and bytes, delivered once after the gate.
 class _Response extends Stream<List<int>> implements HttpClientResponse {
-  _Response(this.native, this.bytes, this.onConsumed);
+  _Response(this.native, List<int> bytes, this.onConsumed)
+    : bytes = Uint8List.fromList(bytes);
   final HttpClientResponse native;
-  final List<int> bytes;
+  final Uint8List bytes;
   final void Function() onConsumed;
+  late final Stream<List<int>> _stream = _deliver();
+
+  Stream<List<int>> _deliver() async* {
+    yield bytes;
+    onConsumed();
+  }
+
   @override
   StreamSubscription<List<int>> listen(
     void Function(List<int>)? onData, {
     Function? onError,
     void Function()? onDone,
     bool? cancelOnError,
-  }) => Stream.value(bytes).listen(
+  }) => _stream.listen(
     onData,
     onError: onError,
-    onDone: () {
-      onConsumed();
-      onDone?.call();
-    },
+    onDone: onDone,
     cancelOnError: cancelOnError,
   );
   @override

@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart' show debugPrintSynchronously;
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart' show RenderImage;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -180,8 +181,7 @@ void main() {
     );
     final markers = [for (var i = 1; i <= 3; i++) '[W3K-BND]-t$i-$_nonce'];
     // Root starts the sender only after this exact nonce-bound baseline/ready marker.
-    // ignore: avoid_print
-    print('[UIUX-BUNDLE-RECEIVER] ready:$_nonce');
+    debugPrintSynchronously('[UIUX-BUNDLE-RECEIVER] ready:$_nonce');
     final card = find.byWidgetPredicate(
       (widget) =>
           widget is HistoryBundleMessageBuilder &&
@@ -211,7 +211,8 @@ void main() {
     final sent = await waitSent(tester, receipt, maxSeconds: 30);
     expect(sent?.authorId, _viewer);
     expect(sent?.status, isIn(settledStatuses));
-    // ignore: avoid_print
-    print('[UIUX-BUNDLE-RECEIVER] verified:$_nonce:${message.id}');
+    debugPrintSynchronously(
+      '[UIUX-BUNDLE-RECEIVER] verified:$_nonce:${message.id}',
+    );
   }, timeout: const Timeout(Duration(minutes: 12)));
 }
