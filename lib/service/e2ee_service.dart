@@ -984,9 +984,18 @@ class E2EEService {
     Map<String, dynamic> innerFrame;
     try {
       final innerBytes = Uint8List.fromList(base64Url.decode(innerFrameB64));
-      final decoded = CanonicalCbor.decode(innerBytes, strict: true);
+      final decoded = CanonicalCbor.decode(
+        innerBytes,
+        strict: true,
+        allowFloatingPoint: true,
+      );
       if (decoded is! Map<String, dynamic>) {
         return _decryptFailedPayload(payload, reason: 'inner_frame_not_map');
+      }
+      // 浮点数只属于业务 payload，内层受保护头仍使用原来的整数子集。
+      final innerHeader = decoded['protected_header'];
+      if (innerHeader is Map<String, dynamic>) {
+        CanonicalCbor.encode(innerHeader);
       }
       innerFrame = decoded;
     } catch (_) {

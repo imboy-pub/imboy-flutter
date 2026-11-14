@@ -43,6 +43,12 @@ library;
 
 import 'dart:convert';
 
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:imboy/service/storage.dart';
+import 'package:imboy/config/const.dart' show Keys;
+import 'package:imboy/service/events/events.dart';
+import 'package:imboy/store/repository/message_repo_sqlite.dart';
+
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
@@ -58,7 +64,7 @@ import 'package:imboy/service/message_offline.dart';
 import 'package:imboy/service/message.dart';
 import 'package:imboy/service/message_retry.dart';
 import 'package:imboy/service/olm_session_service.dart'
-    show DuplicateMessageException;
+    show DuplicateMessageException, OlmSessionService;
 import 'package:imboy/service/group_session_service.dart';
 import 'package:imboy/service/e2ee/megolm_backup_section.dart';
 import 'package:imboy/config/init.dart';
@@ -71,6 +77,8 @@ const String _sessionId = 'kR8pQmXv2TnL7yFwZ0aBcDeGhIjKlMnOpQrStUvWxYz';
 /// metadata 形状对照真实 `OlmProtocol.encrypt`（olm_protocol.dart:65-78）。
 class _IdentityOlmProtocol implements E2eeSessionProtocol {
   bool rejectDuplicate = false;
+  bool commitInbound = false;
+  Future<void> Function()? beforeDecrypt;
   @override
   ProtocolSuite get suite => ProtocolSuite.olm;
 
@@ -104,6 +112,16 @@ class _IdentityOlmProtocol implements E2eeSessionProtocol {
     E2eeContext? context,
   }) async {
     if (rejectDuplicate) throw DuplicateMessageException('test');
+    if (commitInbound) {
+      final store = await OlmSessionService.to.cryptoStore;
+      await store!.commitInboundResult(
+        messageId: metadata['message_id'] as String,
+        scope: metadata['inbox_scope'] as String,
+        ciphertextDigest: metadata['ciphertext_digest'] as String,
+        decryptedPayload: ciphertext,
+      );
+    }
+    await beforeDecrypt?.call();
     return ciphertext;
   }
 
@@ -160,9 +178,17 @@ void main() {
   setUpAll(sqfliteFfiInit);
 
   setUp(() async {
+    SharedPreferences.setMockInitialValues({});
+    await StorageService.init();
     databaseFactory = databaseFactoryFfi;
     db = await openFixtureDatabaseAtVersion(version: 32);
     SqliteService.setDbForTest(db);
+    OlmSessionService.to.resetForTest();
+    await db.insert('contact', {
+      'user_id': '200',
+      'peer_id': '100',
+      'nickname': 'Synthetic peer',
+    });
 
     // 顺序要紧：先让 bootstrap 完成一次真实注册（把内部 _registered 置 true），
     // 再清空 registry 换入恒等协议。否则解密时 ensureRegistered() 会再注册
@@ -177,6 +203,9 @@ void main() {
   });
 
   tearDown(() async {
+    MessageService.to.dispose();
+    MessageRetry.instance.dispose();
+    await MessageRetry.instance.debugWaitForIdle();
     E2eeBootstrap.resetForTest();
     SqliteService.setDbForTest(null);
     await db.close();
@@ -231,6 +260,206 @@ void main() {
       'sender_dtype': 'ios',
     };
   }
+
+  Future<void> seedExisting(
+    Map<String, dynamic> frame,
+    Object payload, {
+    int status = 20,
+  }) => db
+      .insert('msg_c2c', {
+        'id': frame['id'],
+        'type': frame['type'],
+        'from_id': frame['from'],
+        'to_id': frame['to'],
+        'msg_type': frame['msg_type'],
+        'sender_did': frame['sender_did'],
+        'created_at': frame['created_at'],
+        'e2ee': jsonEncode(frame['e2ee']),
+        'payload': payload is String ? payload : jsonEncode(payload),
+        'status': status,
+        'is_author': 0,
+        'topic_id': 0,
+        'conversation_uk3': 'C2C_200_100',
+      })
+      .then((_) {});
+
+  group('existing PFv3 恢复', () {
+    setUp(() async {
+      await StorageService.to.setString(Keys.currentUid, '200');
+      SqliteService.setDbForTest(db);
+      OlmSessionService.to.resetForTest();
+      // 恒等协议在这里复刻真实协议的原子去重及解密结果提交。
+      olmProtocol.commitInbound = true;
+      MessageService.to;
+      await MessageRetry.instance.debugWaitForIdle();
+    });
+    test('失败占位及空 sealed 正文持久化后才完成，重投幂等', () async {
+      final events = <DataWrapperEvent<dynamic>>[];
+      final sub = AppEventBus.on<DataWrapperEvent<dynamic>>().listen(
+        events.add,
+      );
+      addTearDown(sub.cancel);
+      for (final old in <Object>[
+        {'_e2ee_failed': true},
+        '',
+      ]) {
+        final id = old is String ? 'recover-empty' : 'recover-failed';
+        final frame = await buildV3Message(id);
+        await seedExisting(frame, old);
+        expect(await MessageService.to.persistInboundMessage(frame), isTrue);
+        final row = (await db.query(
+          'msg_c2c',
+          where: 'id = ?',
+          whereArgs: [id],
+        )).single;
+        expect(
+          (jsonDecode(row['payload'] as String) as Map)['body'],
+          plainBody,
+        );
+        expect(row['e2ee'], jsonEncode(frame['e2ee']));
+        expect(row['status'], 20);
+        expect(
+          await db.query(
+            'crypto_inbox_staging',
+            where: 'message_id = ?',
+            whereArgs: [id],
+          ),
+          isEmpty,
+        );
+        expect(
+          await MessageService.to.persistInboundMessage(
+            await buildV3Message(id),
+          ),
+          isTrue,
+        );
+      }
+      await Future<void>.delayed(Duration.zero);
+      expect(events.where((e) => e.dataType == 'messages').length, 2);
+      expect(await db.query('conversation'), isEmpty);
+    });
+
+    test('DB失败保留staging供重试；篡改、账号切换均拒绝物化', () async {
+      final frame = await buildV3Message('recover-rollback');
+      await seedExisting(frame, {'_e2ee_failed': true});
+      await db.execute(
+        "CREATE TRIGGER fail_recovery BEFORE UPDATE OF payload ON msg_c2c BEGIN SELECT RAISE(ABORT, 'injected'); END",
+      );
+      expect(await MessageService.to.persistInboundMessage(frame), isFalse);
+      expect(await db.query('crypto_inbox_staging'), isNotEmpty);
+      expect(
+        (await MessageRepo(tableName: 'msg_c2c').find('recover-rollback'))!
+            .payloadMap['_e2ee_failed'],
+        isTrue,
+      );
+      await db.execute('DROP TRIGGER fail_recovery');
+      final conflict = await buildV3Message('recover-rollback');
+      final envelope =
+          ((conflict['e2ee'] as Map)['devices'] as Map)[deviceId] as Map;
+      envelope['ciphertext'] = '${envelope['ciphertext']}A';
+      expect(await MessageService.to.persistInboundMessage(conflict), isFalse);
+      expect(await db.query('crypto_inbox_staging'), isNotEmpty);
+      expect(
+        await MessageService.to.persistInboundMessage(
+          await buildV3Message('recover-rollback'),
+        ),
+        isTrue,
+      );
+      final switched = await buildV3Message('recover-switched');
+      await seedExisting(switched, {'_e2ee_failed': true});
+      olmProtocol.beforeDecrypt = () async {
+        await StorageService.to.setString(Keys.currentUid, '300');
+      };
+      expect(await MessageService.to.persistInboundMessage(switched), isFalse);
+      expect(
+        (await db.query(
+          'msg_c2c',
+          where: 'id = ?',
+          whereArgs: ['recover-switched'],
+        )).single['payload'],
+        jsonEncode({'_e2ee_failed': true}),
+      );
+      expect(
+        await db.query(
+          'crypto_inbox_staging',
+          where: 'message_id = ?',
+          whereArgs: ['recover-switched'],
+        ),
+        isNotEmpty,
+      );
+      await StorageService.to.setString(Keys.currentUid, '200');
+      SqliteService.setDbForTest(db);
+    });
+
+    test('completion失败后重试补发一次UI，并保留本地焚毁计时起点', () async {
+      final frame = await buildV3Message('recover-completion');
+      final readAt = DateTime.now().millisecondsSinceEpoch;
+      await seedExisting(frame, {'_e2ee_failed': true, 'burn_read_at': readAt});
+      final events = <DataWrapperEvent<dynamic>>[];
+      final sub = AppEventBus.on<DataWrapperEvent<dynamic>>().listen(
+        events.add,
+      );
+      addTearDown(sub.cancel);
+      await db.execute(
+        "CREATE TRIGGER fail_completion BEFORE DELETE ON crypto_inbox_staging BEGIN SELECT RAISE(ABORT, 'injected'); END",
+      );
+      expect(await MessageService.to.persistInboundMessage(frame), isFalse);
+      final row = await MessageRepo(tableName: 'msg_c2c')
+          .find('recover-completion');
+      expect(row!.payloadMap['body'], plainBody);
+      expect(row.payloadMap['burn_read_at'], readAt);
+      expect(await db.query('crypto_inbox_staging'), isNotEmpty);
+      await Future<void>.delayed(Duration.zero);
+      expect(events.where((e) => e.dataType == 'messages'), isEmpty);
+      await db.execute('DROP TRIGGER fail_completion');
+      expect(
+        await MessageService.to.persistInboundMessage(
+          await buildV3Message('recover-completion'),
+        ),
+        isTrue,
+      );
+      await Future<void>.delayed(Duration.zero);
+      expect(events.where((e) => e.dataType == 'messages').length, 1);
+      expect(await db.query('crypto_inbox_staging'), isEmpty);
+      expect(
+        await MessageService.to.persistInboundMessage(
+          await buildV3Message('recover-completion'),
+        ),
+        isTrue,
+      );
+      await Future<void>.delayed(Duration.zero);
+      expect(events.where((e) => e.dataType == 'messages').length, 1);
+    });
+
+    test('撤回、编辑及过期行保持原值', () async {
+      for (final entry in [
+        (30, <String, dynamic>{'_e2ee_failed': true}),
+        (20, <String, dynamic>{'_e2ee_failed': true, 'is_edited': true}),
+        (20, <String, dynamic>{'_e2ee_failed': true, 'burn_deleted': true}),
+        (
+          20,
+          <String, dynamic>{
+            '_e2ee_failed': true,
+            'burn': true,
+            'burn_after_ms': 1000,
+            'burn_read_at': 1,
+          },
+        ),
+      ].indexed) {
+        final id = 'recover-protected-${entry.$1}';
+        final frame = await buildV3Message(id);
+        await seedExisting(frame, entry.$2.$2, status: entry.$2.$1);
+        expect(await MessageService.to.persistInboundMessage(frame), isTrue);
+        expect(
+          (await db.query(
+            'msg_c2c',
+            where: 'id = ?',
+            whereArgs: [id],
+          )).single['payload'],
+          jsonEncode(entry.$2.$2),
+        );
+      }
+    });
+  });
 
   group('PFv3 接收侧接线', () {
     test('协议去重异常不能作为编辑已完成确认', () async {

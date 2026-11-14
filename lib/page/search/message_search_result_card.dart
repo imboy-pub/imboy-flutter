@@ -55,7 +55,9 @@ class MessageSearchResultCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // 顶部：会话信息和时间
-              Row(
+              Wrap(
+                spacing: AppSpacing.small,
+                runSpacing: AppSpacing.tiny,
                 children: [
                   // 会话图标
                   Container(
@@ -82,18 +84,15 @@ class MessageSearchResultCard extends StatelessWidget {
                       ),
                     ),
                   ),
-                  AppSpacing.horizontalSmall,
                   // 发送者名称
-                  Expanded(
-                    child: Text(
-                      sender.nickname,
-                      style: context.textStyle(
-                        FontSizeType.small,
-                        color: AppColors.textSecondary,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
+                  Text(
+                    sender.nickname,
+                    style: context.textStyle(
+                      FontSizeType.small,
+                      color: AppColors.textSecondary,
                     ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
                   // 时间
                   Text(

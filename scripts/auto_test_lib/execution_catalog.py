@@ -514,6 +514,11 @@ def build_catalog(root: Path, contract: dict | None = None,
                     variant_names = [variant.get('variant') for variant in variants]
                     if not variants or not all(variant_names) or len(variant_names) != len(set(variant_names)):
                         raise ContractError([f'INVALID_TARGET_VARIANTS: {path}'])
+                    for variant in variants:
+                        allowed = variant.get('platforms', row['platforms'])
+                        if (not isinstance(allowed, list) or not allowed or
+                                any(platform not in row['platforms'] for platform in allowed)):
+                            raise ContractError([f'INVALID_VARIANT_PLATFORMS: {path}'])
                 entry.update(row, rule=rule['id'], source_sha256=hashlib.sha256(
                     sources[path].encode()).hexdigest())
             except (ContractError, SyntaxError) as error:
@@ -612,7 +617,8 @@ def build_plan(root: Path, profile: str = 'pr', platforms: list[str] | None = No
             for platform in matrix_platforms:
                 for product in target['products']:
                     for variant in target_variants:
-                        applicable = platform in applicable_platforms
+                        applicable = (platform in applicable_platforms and
+                                      platform in variant.get('platforms', applicable_platforms))
                         selected = (applicable and in_profile and in_filter and
                                     platform in wanted_platforms and product in wanted_products and
                                     (variants is None or variant['variant'] in variants))

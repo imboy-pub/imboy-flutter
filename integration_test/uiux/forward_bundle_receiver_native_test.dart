@@ -1,0 +1,740 @@
+import 'dart:async' show unawaited;
+
+import 'package:flutter/foundation.dart' show debugPrintSynchronously;
+import 'package:flutter/widgets.dart';
+import 'package:material_ui/material_ui.dart' show FloatingActionButton;
+import 'package:photo_view/photo_view.dart';
+import 'package:photo_view/photo_view_gallery.dart';
+import 'package:flyer_chat_image_message/flyer_chat_image_message.dart';
+import 'package:imboy/component/extension/imboy_cache_manager.dart';
+import 'package:imboy/component/helper/datetime.dart';
+import 'package:imboy/store/repository/message_repo_sqlite.dart';
+
+import '../helpers/chat_multi_image_fixture.dart';
+
+import 'package:flutter/rendering.dart' show RenderImage;
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:flutter_chat_core/flutter_chat_core.dart' as core;
+import 'package:flutter_chat_ui/flutter_chat_ui.dart' show ScrollToBottom;
+import 'package:integration_test/integration_test.dart';
+import 'package:imboy/component/chat/message_history_bundle_builder.dart';
+import 'package:imboy/component/chat/message_location_builder.dart';
+import 'package:imboy/component/extension/device_ext.dart';
+import 'package:imboy/config/init.dart';
+import 'package:imboy/page/chat/chat/chat_page.dart';
+import 'package:imboy/page/chat/chat/chat_message_item.dart';
+import 'package:imboy/page/chat/chat/chat_provider.dart';
+import 'package:imboy/page/chat_shell/chat_shell_bootstrap.dart';
+import 'package:imboy/page/chat_shell/experience_provider.dart';
+import 'package:imboy/service/e2ee/e2ee_bootstrap.dart';
+import 'package:imboy/service/e2ee/e2ee_protocol.dart';
+import 'package:imboy/service/sqlite.dart';
+import 'package:imboy/store/api/msg_api.dart';
+import 'package:imboy/store/repository/user_repo_local.dart';
+
+import '../chat/support/c2c_journey_support.dart';
+import '../enterprise/macos_storage_isolation.dart';
+import '../flows/test_utils.dart';
+import '../helpers/chat_multi_bundle_history.dart';
+import '../helpers/chat_multi_driver.dart';
+import '../micro_community/owned_ui_launch.dart';
+
+const _viewer = '123613243079133184';
+const _sender = '123613243007830016';
+const _storage = 'viewer_uiux_20261114_1794632987';
+const _nonce = String.fromEnvironment('CHAT_MULTI_RUN_NONCE');
+const _forwardEach = bool.fromEnvironment('UIUX_FORWARD_EACH_RECEIVER');
+const _locationOnly = bool.fromEnvironment('UIUX_LOCATION_RECEIVER');
+late DateTime _forwardEachTimeFloor;
+const _receiverLabel = _forwardEach
+    ? 'Owned Mac receives and verifies five individually forwarded messages'
+    : _locationOnly
+    ? 'Owned Mac receives and UI acknowledges the exact location receipt'
+    : 'Owned Mac receives, renders and UI acknowledges exact bundle';
+
+Future<void> _restoreViewer(WidgetTester tester) async {
+  expect(const bool.fromEnvironment('IMBOY_TEST_ISOLATED'), isTrue);
+  expect(const String.fromEnvironment('APP_ENV'), 'local');
+  final api = Uri.parse(const String.fromEnvironment('API_BASE_URL_OVERRIDE'));
+  expect(api.scheme, 'http');
+  expect(api.host, '127.0.0.1');
+  expect(api.userInfo, isEmpty);
+  expect(
+    const bool.fromEnvironment('IMBOY_LOCAL_MAP_REQUESTS_ALLOWED'),
+    isFalse,
+  );
+  expect(const String.fromEnvironment('TEST_EXPECTED_UID'), _viewer);
+  expect(const String.fromEnvironment('PEER_UID'), _sender);
+  expect(const String.fromEnvironment('H2_STORAGE_TAG'), _storage);
+  expect(const bool.fromEnvironment('H2_RESTORE_STORAGE'), isTrue);
+  expect(const String.fromEnvironment('CHAT_MULTI_EXPECT_E2EE'), 'true');
+  expect(
+    const bool.fromEnvironment('IMBOY_LOCAL_EXTERNAL_SERVICES_DISABLED'),
+    isTrue,
+  );
+  final root = await tester.runAsync(
+    () => isolateH2MacosStorage(_storage, _viewer, restore: true),
+  );
+  expect(root, isNotNull);
+  addTearDown(() async {
+    await tester.pumpWidget(const SizedBox.shrink());
+    await tester.runAsync(() async {
+      await AppInitializer.dispose();
+      await SqliteService.to.close();
+    });
+  });
+  await launchOwnedUi(tester);
+  var ready = false;
+  for (var i = 0; i < 180 && !ready; i++) {
+    final shell = find.byType(ChatShellBootstrap);
+    if (tester.any(shell)) {
+      await ProviderScope.containerOf(tester.element(shell))
+          .read(productExperienceProvider.notifier)
+          .select(ProductExperience.personal);
+    }
+    ready = await waitForMainShell(tester, maxAttempts: 1);
+  }
+  expect(ready, isTrue);
+  expect(UserRepoLocal.to.isLoggedIn, isTrue);
+  expect(UserRepoLocal.to.currentUid, _viewer);
+  await tester.runAsync(
+    () =>
+        E2eeBootstrap.ensureReady(requiredSuite: ProtocolSuite.olm)
+            .timeout(const Duration(seconds: 90)),
+  );
+}
+
+Future<void> _verifyDetails(
+  WidgetTester tester,
+  Finder card,
+  Map<String, dynamic> snapshot,
+  List<String> markers,
+) async {
+  final entries = historyBundleEntries(snapshot);
+  expect(snapshot['bundle_version'], 1);
+  expect(snapshot['title'], isA<String>());
+  expect('${snapshot['title']}', isNotEmpty);
+  expect(entries, hasLength(4));
+  expect([
+    for (final entry in entries.take(3)) (entry['payload'] as Map)['text'],
+  ], markers);
+  expect(entries.last['msg_type'], 'image');
+  final details = find.byWidgetPredicate(
+    (widget) => widget.runtimeType.toString() == 'HistoryBundleDetailPage',
+  );
+  await tapFinderWithEffect(
+    tester,
+    find.descendant(
+      of: card,
+      matching: find.byWidgetPredicate(
+        (widget) =>
+            widget.key != null &&
+            widget.key.toString().contains('history_bundle_bubble_'),
+      ),
+    ),
+    journey: 'OWNED-BUNDLE-RECEIVER',
+    targetDescription: 'received bundle card',
+    effectCheck: () => tester.any(details),
+  );
+  expect(await waitForFinder(tester, details, maxSeconds: 10), isTrue);
+  expect(find.textContaining('${snapshot['title']}'), findsWidgets);
+  final offsets = <double>[];
+  for (final marker in markers) {
+    final text = find.textContaining(marker, findRichText: true);
+    expect(text, findsOneWidget);
+    offsets.add(tester.getTopLeft(text).dy);
+  }
+  expect(offsets[0] < offsets[1] && offsets[1] < offsets[2], isTrue);
+  final thumb = find.byKey(const ValueKey('bundle_detail_thumb_3'));
+  expect(thumb, findsOneWidget);
+  await tester.ensureVisible(thumb);
+  var decoded = false;
+  for (var i = 0; i < 120 && !decoded; i++) {
+    final pixels = find.descendant(of: thumb, matching: find.byType(RawImage));
+    if (tester.any(pixels)) {
+      final image = tester.renderObject<RenderImage>(pixels.first).image;
+      decoded = image != null && image.width > 0 && image.height > 0;
+    }
+    if (!decoded) await tester.pump(const Duration(milliseconds: 500));
+  }
+  expect(
+    decoded,
+    isTrue,
+    reason: 'Authorized bundle image must decode, not show placeholder',
+  );
+  await popTopPage(tester, details);
+  expect(
+    await waitForFinder(tester, find.byType(ChatPage), maxSeconds: 10),
+    isTrue,
+  );
+}
+
+Future<bool> _waitForVisibleBundle(
+  WidgetTester tester,
+  Finder chat,
+  Finder card,
+  String marker,
+) async {
+  final latest = find
+      .descendant(
+        of: find.descendant(of: chat, matching: find.byType(ScrollToBottom)),
+        matching: find.byType(FloatingActionButton),
+      )
+      .hitTestable();
+  final deadline = DateTime.now().add(const Duration(seconds: 240));
+  var taps = 0;
+  while (DateTime.now().isBefore(deadline)) {
+    if (tester.any(card.hitTestable())) return true;
+    if (taps < 8 && tester.any(latest)) {
+      expect(latest, findsOneWidget);
+      await tester.tap(latest);
+      taps++;
+      expect(UserRepoLocal.to.currentUid, _viewer);
+    }
+    await tester.pump(const Duration(milliseconds: 500));
+  }
+  _diagnoseBundle(tester, chat, marker, taps);
+  await takeScreenshot(tester, 'w3k_wait_timeout');
+  return false;
+}
+
+void _diagnoseBundle(
+  WidgetTester tester,
+  Finder chat,
+  String marker,
+  int taps,
+) {
+  try {
+    final mounted = find.descendant(
+      of: chat,
+      matching: find.byType(HistoryBundleMessageBuilder),
+    );
+    final mountedIds = tester
+        .widgetList<HistoryBundleMessageBuilder>(mounted)
+        .map((builder) => builder.message.id)
+        .toSet();
+    final container = ProviderScope.containerOf(tester.element(chat));
+    final messages = container
+        .read(chatProvider.notifier)
+        .chatService
+        ?.messages;
+    final matches = [
+      if (messages != null)
+        for (final message in messages)
+          if (message.authorId == _sender &&
+              historyBundleEntries(message.metadata ?? {}).any(
+                (entry) =>
+                    entry['payload'] is Map &&
+                    (entry['payload'] as Map)['text'] == marker,
+              ))
+            {
+              'id': message.id,
+              'status': message.status?.name,
+              'mounted': mountedIds.contains(message.id),
+            },
+    ];
+    debugPrintSynchronously(
+      '[UIUX-BUNDLE-RECEIVER] timeout scroll_taps=$taps decoded_nonce_matches=$matches',
+    );
+  } on Object catch (error) {
+    debugPrintSynchronously(
+      '[UIUX-BUNDLE-RECEIVER] timeout diagnostic_error_type=${error.runtimeType}',
+    );
+  }
+}
+
+core.Message _assertLocationReceipt(
+  WidgetTester tester,
+  Finder chat,
+  Finder card,
+  String tag,
+) {
+  final message = tester.widget<ChatMessageItem>(card).message;
+  final data = message.metadata ?? {};
+  expect(data['_e2ee_failed'], isNot(true));
+  expect(message.status, isIn(settledStatuses));
+  expect(data['title'], isA<String>());
+  expect('${data['title']}', isNotEmpty);
+  expect(
+    find.descendant(of: card, matching: find.text('${data['title']}')),
+    findsOneWidget,
+  );
+  for (final field in ['latitude', 'longitude']) {
+    final value = double.tryParse('${data[field]}');
+    expect(value?.isFinite, isTrue, reason: '$field must survive decryption');
+    expect(value?.abs(), lessThanOrEqualTo(field == 'latitude' ? 90 : 180));
+  }
+  final container = ProviderScope.containerOf(tester.element(chat));
+  final markers =
+      (container.read(chatProvider.notifier).chatService?.messages ??
+              const <core.Message>[])
+          .whereType<core.TextMessage>()
+          .where((m) => m.authorId == _sender && m.text == 'UX01-$tag')
+          .toList();
+  expect(markers, hasLength(1));
+  expect(markers.single.createdAt?.isBefore(message.createdAt!), isTrue);
+  return message;
+}
+
+void _reportLocationHit(
+  WidgetTester tester,
+  Finder card,
+  Finder bubble,
+  String id,
+) {
+  debugPrintSynchronously(
+    '[UIUX-LOCATION-RECEIVER] target:$id '
+    'row=${tester.getRect(card)} bubble=${tester.getRect(bubble)} '
+    'viewport=${tester.view.physicalSize / tester.view.devicePixelRatio} '
+    'row_hit=${tester.any(card.hitTestable())} bubble_hit=${tester.any(bubble.hitTestable())}',
+  );
+}
+
+Future<void> _verifyLocationReceipt(WidgetTester tester, Finder chat) async {
+  const id = String.fromEnvironment('UX01_LOCATION_MESSAGE_ID');
+  const tag = String.fromEnvironment('UX01_RUN_TAG');
+  expect(id, matches(RegExp(r'^[a-z0-9]{10,128}$')));
+  expect(tag, matches(RegExp(r'^[A-Za-z0-9_-]{8,64}$')));
+  final card = find.byWidgetPredicate(
+    (w) =>
+        w is ChatMessageItem &&
+        w.message.id == id &&
+        w.message.authorId == _sender &&
+        w.message.metadata?['msg_type'] == 'location',
+  );
+  expect(await waitForFinder(tester, card, maxSeconds: 240), isTrue);
+  final bubble = find.descendant(
+    of: card,
+    matching: find.byType(LocationMessageBuilder),
+  );
+  expect(bubble, findsOneWidget);
+  await tester.ensureVisible(bubble);
+  await settle(tester, maxSeconds: 1);
+  _reportLocationHit(tester, card, bubble, id);
+  expect(bubble.hitTestable(), findsOneWidget);
+  final message = _assertLocationReceipt(tester, chat, card, tag);
+  final image = find.descendant(
+    of: bubble,
+    matching: find.byWidgetPredicate(
+      (w) =>
+          w is RawImage &&
+          (w.image?.width ?? 0) > 1 &&
+          (w.image?.height ?? 0) > 1,
+    ),
+  );
+  expect(
+    await waitForFinder(tester, image, maxSeconds: 90),
+    isTrue,
+    reason:
+        'The recipient must decode the authorized encrypted location preview',
+  );
+  final receipt = '[UIUX-LOCATION-ACK]-$tag-${message.id}';
+  await sendTextViaInput(tester, chat, receipt);
+  final sent = await waitSent(tester, receipt, maxSeconds: 30);
+  expect(sent?.authorId, _viewer);
+  expect(sent?.status, isIn(settledStatuses));
+  debugPrintSynchronously(
+    '[UIUX-LOCATION-RECEIVER] verified:$tag:${message.id}',
+  );
+}
+
+String _forwardEachStage = 'not-started';
+int? _forwardEachItem;
+
+void _markForwardEachStage(String stage) {
+  _forwardEachStage = stage;
+  debugPrintSynchronously(
+    '[UIUX-EACH-RECEIVER] stage=$stage item=$_forwardEachItem',
+  );
+}
+
+Future<void> _verifyForwardEach(WidgetTester tester, Finder chat) async {
+  _forwardEachItem = null;
+  _markForwardEachStage('manifest-wait');
+  _forwardEachTimeFloor = DateTime.now().subtract(const Duration(minutes: 2));
+  debugPrintSynchronously('[UIUX-EACH-RECEIVER] ready:$_nonce');
+  final container = ProviderScope.containerOf(tester.element(chat));
+  List<core.Message> messages() =>
+      container.read(chatProvider.notifier).chatService?.messages ??
+      const <core.Message>[];
+  ({List<String> ids, List<String> kinds})? manifest;
+  final deadline = DateTime.now().add(const Duration(seconds: 240));
+  while (manifest == null && DateTime.now().isBefore(deadline)) {
+    final candidates = messages()
+        .whereType<core.TextMessage>()
+        .where(
+          (m) =>
+              m.authorId == _sender &&
+              m.metadata?['_e2ee_failed'] != true &&
+              m.metadata?['_e2ee_v3_verified'] == true &&
+              parseForwardEachManifest(m.text, _nonce) != null,
+        )
+        .toList();
+    expect(candidates.length, lessThanOrEqualTo(1));
+    if (candidates.isNotEmpty) {
+      manifest = parseForwardEachManifest(candidates.single.text, _nonce);
+    } else {
+      await tester.pump(const Duration(milliseconds: 500));
+    }
+  }
+  _markForwardEachStage('manifest-validate');
+  expect(manifest, isNotNull, reason: 'Exact sender UI manifest required');
+  final expected = manifest!;
+  _markForwardEachStage('five-id-wait');
+  while (messages().where((m) => expected.ids.contains(m.id)).length < 5 &&
+      DateTime.now().isBefore(deadline)) {
+    await tester.pump(const Duration(milliseconds: 500));
+  }
+  _markForwardEachStage('five-id-order');
+  final copies = messages().where((m) => expected.ids.contains(m.id)).toList()
+    ..sort((a, b) => a.createdAt!.compareTo(b.createdAt!));
+  expect(copies.map((m) => m.id), expected.ids);
+  expect(copies, hasLength(5));
+  for (var i = 0; i < copies.length; i++) {
+    _forwardEachItem = i;
+    await _verifyForwardedCopy(tester, chat, copies[i], expected.kinds[i]);
+  }
+  final reopened = await _verifyReopenedTimes(
+    tester,
+    chat,
+    copies,
+    expected.kinds,
+    deadline,
+  );
+  _forwardEachItem = null;
+  _markForwardEachStage('ack-build');
+  final receipt = forwardEachUiReceipt(_nonce, expected.ids, expected.kinds);
+  _markForwardEachStage('ack-input');
+  await sendTextViaInput(tester, reopened, receipt);
+  _markForwardEachStage('ack-settle');
+  final sent = await waitSent(tester, receipt, maxSeconds: 30);
+  _markForwardEachStage('ack-verify');
+  expect(sent?.authorId, _viewer);
+  expect(sent?.status, isIn(settledStatuses));
+  debugPrintSynchronously('[UIUX-EACH-RECEIVER] verified:$receipt');
+}
+
+Future<Finder> _verifyReopenedTimes(
+  WidgetTester tester,
+  Finder chat,
+  List<core.Message> copies,
+  List<String> kinds,
+  DateTime deadline,
+) async {
+  _markForwardEachStage('time-reopen');
+  final expected = {for (final m in copies) m.id: m.createdAt};
+  await popTopPage(tester, chat);
+  final reopened = await pushChatPage(
+    tester,
+    type: 'C2C',
+    peerId: _sender,
+    peerTitle: 'uiux_editor_20261114',
+  );
+  final notifier = ProviderScope.containerOf(tester.element(reopened))
+      .read(chatProvider.notifier);
+  List<core.Message> received() =>
+      notifier.chatService?.messages
+          .where((m) => expected.containsKey(m.id))
+          .toList() ??
+      [];
+  while (received().length < 5 && DateTime.now().isBefore(deadline)) {
+    await tester.pump(const Duration(milliseconds: 500));
+  }
+  final messages = received()
+    ..sort((a, b) => a.createdAt!.compareTo(b.createdAt!));
+  expect(messages.map((m) => m.id), copies.map((m) => m.id));
+  for (var i = 0; i < messages.length; i++) {
+    _forwardEachItem = i;
+    expect(messages[i].createdAt, expected[messages[i].id]);
+    await _verifyForwardedCopy(tester, reopened, messages[i], kinds[i]);
+  }
+  debugPrintSynchronously(
+    '[UIUX-EACH-TIME] verified:$_nonce reopened=true count=5',
+  );
+  return reopened;
+}
+
+Future<void> _verifyForwardedCopy(
+  WidgetTester tester,
+  Finder chat,
+  core.Message message,
+  String kind,
+) async {
+  _markForwardEachStage('copy-identity');
+  expect(UserRepoLocal.to.currentUid, _viewer);
+  expect(message.authorId, _sender);
+  expect(message.status, isIn(settledStatuses));
+  expect(message.metadata?['_e2ee_failed'], isNot(true));
+  _markForwardEachStage('copy-db-load');
+  final row = await tester.runAsync(
+    () => MessageRepo(tableName: MessageRepo.c2cTable).find(message.id),
+  );
+  _markForwardEachStage('copy-db-verify');
+  expect(row, isNotNull);
+  expect(row!.fromId, _sender);
+  expect(row.toId, _viewer);
+  expect(row.type, 'C2C');
+  expect(row.payloadMap['_e2ee_v3_verified'], isTrue);
+  _markForwardEachStage('copy-time');
+  expect(message.createdAt, isNotNull);
+  expect(message.createdAt!.isAfter(_forwardEachTimeFloor), isTrue);
+  expect(
+    message.createdAt!.isBefore(DateTime.now().add(const Duration(minutes: 2))),
+    isTrue,
+  );
+  expect(row.createdAt, message.createdAt!.millisecondsSinceEpoch);
+  _markForwardEachStage('copy-card-locate');
+  final card = find.byWidgetPredicate(
+    (w) => w is ChatMessageItem && w.message.id == message.id,
+  );
+  if (!tester.any(card)) {
+    _markForwardEachStage('copy-card-scroll');
+    expect(chat, findsOneWidget);
+    expect(UserRepoLocal.to.currentUid, _viewer);
+    final notifier = ProviderScope.containerOf(tester.element(chat))
+        .read(chatProvider.notifier);
+    unawaited(notifier.scrollToMessage('C2C', message.id));
+    expect(await waitForFinder(tester, card, maxSeconds: 10), isTrue);
+    expect(chat, findsOneWidget);
+    expect(UserRepoLocal.to.currentUid, _viewer);
+  }
+  _markForwardEachStage('copy-card-visible');
+  await tester.ensureVisible(card);
+  expect(card, findsOneWidget);
+  if (kind.startsWith('m')) {
+    _markForwardEachStage('copy-text-type');
+    expect(message, isA<core.TextMessage>());
+    final marker = '[W3K-MS]-t${kind.substring(1)}-$_nonce';
+    _markForwardEachStage('copy-text-content');
+    expect((message as core.TextMessage).text, marker);
+    final body = find.descendant(
+      of: card,
+      matching: find.textContaining(marker, findRichText: true),
+    );
+    expect(body, findsWidgets);
+    _markForwardEachStage('copy-text-visible');
+    await tester.ensureVisible(body.first);
+    expect(body.first.hitTestable(), findsOneWidget);
+    final time = RelativeDateFormat().format(message.createdAt!);
+    expect(time, isNotEmpty);
+    expect(time, isNot(contains('1970')));
+    expect(find.descendant(of: card, matching: find.text(time)), findsWidgets);
+  } else {
+    await _verifyForwardAttachment(tester, card, message, kind, row.payloadMap);
+  }
+  expect(UserRepoLocal.to.currentUid, _viewer);
+}
+
+Future<void> _verifyForwardAttachment(
+  WidgetTester tester,
+  Finder card,
+  core.Message message,
+  String kind,
+  Map<String, dynamic> payload,
+) async {
+  if (kind == 'image') {
+    _markForwardEachStage('copy-image-type');
+    expect(message, isA<core.ImageMessage>());
+    expect('${message.metadata?['w3k_run_nonce']}', _nonce);
+    _markForwardEachStage('copy-image-decode');
+    await _verifyForwardImage(tester, card);
+  } else {
+    _markForwardEachStage('copy-file-type');
+    expect(message, isA<core.FileMessage>());
+    _markForwardEachStage('copy-file-metadata');
+    final attachment = message as core.FileMessage;
+    expect(attachment.name, 'w3kms-file-$_nonce.txt');
+    expect(attachment.size, ChatMultiImageFixture.textBytes.length);
+    _markForwardEachStage('copy-file-visible');
+    final name = find.descendant(
+      of: card,
+      matching: find.text(attachment.name),
+    );
+    expect(name, findsOneWidget);
+    await tester.ensureVisible(name);
+    expect(name.hitTestable(), findsOneWidget);
+    expect('${message.metadata?['w3k_run_nonce']}', _nonce);
+    _markForwardEachStage('copy-file-download');
+    final file = await tester.runAsync(
+      () => IMBoyCacheManager().getSingleFile(
+        '${payload['uri']}',
+        validateImageData: false,
+      ),
+    );
+    _markForwardEachStage('copy-file-bytes');
+    final bytes = await tester.runAsync(() => file!.readAsBytes());
+    expect(bytes, ChatMultiImageFixture.textBytes);
+  }
+}
+
+Future<void> _verifyForwardImage(WidgetTester tester, Finder card) async {
+  _markForwardEachStage('copy-image-visible');
+  _markForwardEachStage('copy-image-finder');
+  final image = find.descendant(
+    of: card,
+    matching: find.byType(FlyerChatImageMessage),
+  );
+  expect(image, findsOneWidget);
+  await tester.ensureVisible(image);
+  _markForwardEachStage('copy-image-decode');
+  var decoded = false;
+  for (var i = 0; i < 120 && !decoded; i++) {
+    final body = find.descendant(
+      of: card,
+      matching: find.byType(FlyerChatImageMessage),
+    );
+    expect(body, findsOneWidget);
+    final pixels = find.descendant(of: body, matching: find.byType(RawImage));
+    decoded = tester
+        .widgetList<RawImage>(pixels)
+        .any(
+          (image) =>
+              (image.image?.width ?? 0) > 0 && (image.image?.height ?? 0) > 0,
+        );
+    if (!decoded) await tester.pump(const Duration(milliseconds: 500));
+  }
+  expect(decoded, isTrue, reason: 'Forwarded image must decode real pixels');
+  await _verifyImagePreview(tester, card, image);
+}
+
+Future<void> _verifyImagePreview(
+  WidgetTester tester,
+  Finder card,
+  Finder image,
+) async {
+  final tap = find.descendant(
+    of: card,
+    matching: find.byWidgetPredicate(
+      (w) =>
+          w is GestureDetector &&
+          w.onTap != null &&
+          w.child is FlyerChatImageMessage,
+    ),
+  );
+  expect(tap, findsOneWidget);
+  _markForwardEachStage('copy-image-geometry');
+  final chat = find.ancestor(of: card, matching: find.byType(ChatPage));
+  expect(chat, findsOneWidget);
+  final viewport = find
+      .descendant(of: chat, matching: find.byType(Scrollable))
+      .first;
+  final intersection = tester
+      .getRect(image)
+      .intersect(tester.getRect(viewport));
+  expect(intersection.width, greaterThan(0));
+  expect(intersection.height, greaterThan(0));
+  _markForwardEachStage('copy-image-hit');
+  final listener = find
+      .descendant(of: tap, matching: find.byType(Listener))
+      .first;
+  final target = tester.renderObject(listener);
+  expect(
+    tester
+        .hitTestOnBinding(intersection.center)
+        .path
+        .any((entry) => identical(entry.target, target)),
+    isTrue,
+  );
+  _markForwardEachStage('copy-image-preview-open');
+  await tester.tapAt(intersection.center);
+  final preview = find.byWidgetPredicate(
+    (w) => w is PhotoView || w is PhotoViewGallery,
+  );
+  expect(await waitForFinder(tester, preview, maxSeconds: 10), isTrue);
+  _markForwardEachStage('copy-image-preview-return');
+  await popTopPage(tester, preview.first);
+  expect(preview, findsNothing);
+  expect(chat, findsOneWidget);
+  expect(UserRepoLocal.to.currentUid, _viewer);
+}
+
+void main() {
+  IntegrationTestWidgetsFlutterBinding.ensureInitialized();
+  testWidgets(_receiverLabel, (tester) async {
+    expect(_nonce, matches(RegExp(r'^[A-Za-z0-9_-]{1,80}$')));
+    expect(requireBusinessWriteAuthorization(), isTrue);
+    await _restoreViewer(tester);
+    final did = await tester.runAsync(() => DeviceExt.did);
+    expect(did, isNotEmpty);
+    final history = ChatMultiBundleHistory(
+      senderUid: _sender,
+      recipientUid: _viewer,
+      fetchPage: (query) async {
+        final page = await MsgApi().history(
+          chatType: 'c2c',
+          peerId: _sender,
+          afterSeq: int.parse('${query['after_seq']}'),
+          limit: int.parse('${query['limit']}'),
+          did: did!,
+        );
+        if (page == null) {
+          throw StateError('Owned receiver history request failed');
+        }
+        return {'code': 0, 'payload': page};
+      },
+    );
+    await tester.runAsync(history.captureBaseline);
+    final chat = await pushChatPage(
+      tester,
+      type: 'C2C',
+      peerId: _sender,
+      peerTitle: 'uiux_editor_20261114',
+    );
+    if (_forwardEach) {
+      expect(_locationOnly, isFalse);
+      try {
+        await _verifyForwardEach(tester, chat);
+      } on Object catch (error) {
+        debugPrintSynchronously(
+          '[UIUX-EACH-RECEIVER] failed stage=$_forwardEachStage '
+          'item=$_forwardEachItem errorType=${error.runtimeType}',
+        );
+        rethrow;
+      }
+      return;
+    }
+    if (_locationOnly) {
+      await _verifyLocationReceipt(tester, chat);
+      return;
+    }
+    final markers = [for (var i = 1; i <= 3; i++) '[W3K-BND]-t$i-$_nonce'];
+    // Root starts the sender only after this exact nonce-bound baseline/ready marker.
+    debugPrintSynchronously('[UIUX-BUNDLE-RECEIVER] ready:$_nonce');
+    final card = find.byWidgetPredicate(
+      (widget) =>
+          widget is HistoryBundleMessageBuilder &&
+          widget.message.authorId == _sender &&
+          historyBundleEntries(widget.message.metadata ?? {}).any(
+            (entry) =>
+                entry['payload'] is Map &&
+                (entry['payload'] as Map)['text'] == markers.first,
+          ),
+    );
+    expect(
+      await _waitForVisibleBundle(tester, chat, card, markers.first),
+      isTrue,
+    );
+    expect(card, findsOneWidget);
+    final message = tester.widget<HistoryBundleMessageBuilder>(card).message;
+    expect(message.id, isNotEmpty);
+    final snapshot = Map<String, dynamic>.from(message.metadata ?? {});
+    await _verifyDetails(tester, card, snapshot, markers);
+    final row = await tester.runAsync(
+      () => history.waitForBundle(messageId: message.id),
+    );
+    expect(row, isNotNull);
+    expect(
+      bundleHistoryPlaintext(row!, markers: markers, expectEncrypted: true),
+      isNull,
+    );
+    final receipt = bundleUiReceipt(_nonce, message.id, snapshot);
+    await sendTextViaInput(tester, chat, receipt);
+    final sent = await waitSent(tester, receipt, maxSeconds: 30);
+    expect(sent?.authorId, _viewer);
+    expect(sent?.status, isIn(settledStatuses));
+    debugPrintSynchronously(
+      '[UIUX-BUNDLE-RECEIVER] verified:$_nonce:${message.id}',
+    );
+  }, timeout: const Timeout(Duration(minutes: 12)));
+}

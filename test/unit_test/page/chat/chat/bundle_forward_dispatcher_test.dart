@@ -13,6 +13,11 @@ library;
 
 import 'package:flutter_chat_core/flutter_chat_core.dart' as core;
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:imboy/config/const.dart';
+import 'package:imboy/service/storage.dart';
+import 'package:imboy/service/event_bus.dart';
+import 'package:imboy/service/events/common_events.dart';
 
 import 'package:imboy/app_core/feature_flags/app_feature_registry.dart';
 import 'package:imboy/modules/messaging/application/history_bundle/bundle_attachment_forwarder.dart';
@@ -78,10 +83,13 @@ MessageSelectionTraits _traits(
 /// 记录型附件转发 fake（按脚本顺序返回 payload，缺省新 uri payload）。
 class _RecordingForwarder implements BundleAttachmentForwarder {
   // ignore: prefer_initializing_formals
-  _RecordingForwarder({List<Map<String, dynamic>> script = const []})
-    : _script = List<Map<String, dynamic>>.of(script);
+  _RecordingForwarder({
+    List<Map<String, dynamic>> script = const [],
+    this.beforeReturn,
+  }) : _script = List<Map<String, dynamic>>.of(script);
 
   final List<Map<String, dynamic>> _script;
+  final Future<void> Function()? beforeReturn;
   var _calls = 0;
   final List<BundleAttachmentForwardRequest> requests =
       <BundleAttachmentForwardRequest>[];
@@ -91,6 +99,7 @@ class _RecordingForwarder implements BundleAttachmentForwarder {
     BundleAttachmentForwardRequest request,
   ) async {
     requests.add(request);
+    await beforeReturn?.call();
     final index = _calls++;
     if (index < _script.length) return _script[index];
     return <String, dynamic>{
@@ -114,6 +123,67 @@ class _ThrowingForwarder implements BundleAttachmentForwarder {
 }
 
 void main() {
+  setUpAll(() async {
+    TestWidgetsFlutterBinding.ensureInitialized();
+    SharedPreferences.setMockInitialValues({});
+    await StorageService.init();
+    await StorageService.to.setString(Keys.currentUid, _uid);
+    await StorageService.to.setString(
+      Keys.currentUser,
+      '{"uid":"$_uid","nickname":"Fixture sender","account":"",'
+      '"email":"","mobile":"","avatar":"","role":null,"gender":0,'
+      '"region":"","sign":"","setting":{}}',
+    );
+  });
+
+  for (final throwsError in [false, true]) {
+    test(
+      'dispatch ${throwsError ? "throw" : "false"} retains one local echo and reports failure',
+      () async {
+        final inserted = <MessageModel>[];
+        final echoes = <core.Message>[];
+        final order = <String>[];
+        final subscription = AppEventBus.on<DataWrapperEvent<dynamic>>().listen(
+          (event) {
+            if (event.dataType == 'Message') {
+              echoes.add(event.data as core.Message);
+              order.add('echo');
+            }
+          },
+        );
+        addTearDown(subscription.cancel);
+        final dispatcher = BundleForwardDispatcher(
+          messageFetcher: (id, _) async => _sourceRow(id, 1000),
+          messageInserter: (model, _) async => inserted.add(model),
+          forwarderUidResolver: () => _uid,
+          wsDispatcher: (model) async {
+            await Future<void>.delayed(Duration.zero);
+            order.add('dispatch');
+            if (throwsError) throw StateError('dispatch failed');
+            return false;
+          },
+        );
+        final report = await dispatcher.sendToTargets(
+          [_target(1, '1000000056')],
+          [_uiMessage('m1')],
+          sourceChatType: 'C2C',
+        );
+        expect(report.successCount, 0);
+        expect(report.allSuccess, isFalse);
+        expect(
+          report.failures.single.errorCode,
+          HistoryBundleBuildErrorCode.sendFailed,
+        );
+        expect(inserted, hasLength(1));
+        expect(inserted.single.status, IMBoyMessageStatus.sending);
+        expect(echoes, hasLength(1));
+        expect(echoes.single.id, inserted.single.id);
+        expect(echoes.single.status, core.MessageStatus.sending);
+        expect(order, ['echo', 'dispatch']);
+      },
+    );
+  }
+
   setUp(() {
     AppFeatureRegistry.replaceSnapshotForTest(<String, dynamic>{
       'chat_multi_select_v1': true,
@@ -221,6 +291,164 @@ void main() {
   });
 
   group('BundleForwardDispatcher.sendToTargets', () {
+    test(
+      'sealed local location keeps trusted DB projection instead of UI text',
+      () async {
+        final row = _sourceRow('sealed', 1000, msgType: 'location')
+          ..fromId = _uid
+          ..isAuthor = 1
+          ..payload = ''
+          ..e2ee = {'meta_version': 3};
+        final inserted = <MessageModel>[];
+        final dispatcher = BundleForwardDispatcher(
+          messageFetcher: (_, _) async => row,
+          localPayloadLoader: (model) async {
+            expect(identical(model, row), isTrue);
+            return {
+              'title': 'trusted location',
+              'latitude': '39.123456789012',
+              'longitude': '116.123456789012',
+            };
+          },
+          messageInserter: (model, _) async => inserted.add(model),
+          wsDispatcher: (_) async => true,
+          forwarderUidResolver: () => _uid,
+        );
+        final report = await dispatcher.sendToTargets(
+          [_target(1, '1000000056')],
+          [_uiMessage('sealed')],
+          sourceChatType: 'C2C',
+        );
+        expect(report.allSuccess, isTrue);
+        final entries = inserted.single.payloadMap['entries'] as List;
+        expect((entries.single as Map)['payload'], {
+          'title': 'trusted location',
+          'latitude': '39.123456789012',
+          'longitude': '116.123456789012',
+        });
+        expect(inserted.single.id, isNot('sealed'));
+      },
+    );
+
+    for (final scenario in ['missing', 'burned', 'failed', 'account-switch']) {
+      test(
+        'sealed local source $scenario fails closed before inserting',
+        () async {
+          final row = _sourceRow('sealed', 1000, msgType: 'location')
+            ..fromId = _uid
+            ..isAuthor = 1
+            ..payload = ''
+            ..e2ee = {'meta_version': 3};
+          if (scenario == 'failed') row.status = IMBoyMessageStatus.error;
+          final inserted = <MessageModel>[];
+          addTearDown(() => StorageService.to.setString(Keys.currentUid, _uid));
+          final dispatcher = BundleForwardDispatcher(
+            messageFetcher: (_, _) async => row,
+            localPayloadLoader: (_) async {
+              if (scenario == 'missing') return null;
+              if (scenario == 'account-switch') {
+                await StorageService.to.setString(
+                  Keys.currentUid,
+                  'other-account',
+                );
+              }
+              return {
+                'title': 'trusted location',
+                if (scenario == 'burned') 'burn_read_at': '1731000000000',
+              };
+            },
+            messageInserter: (model, _) async => inserted.add(model),
+            wsDispatcher: (_) async => true,
+            forwarderUidResolver: () => _uid,
+          );
+          final report = await dispatcher.sendToTargets(
+            [_target(1, '1000000056')],
+            [_uiMessage('sealed')],
+            sourceChatType: 'C2C',
+          );
+          expect(report.successCount, 0);
+          expect(inserted, isEmpty);
+          if (scenario == 'missing') {
+            expect(
+              report.failures.single.errorCode,
+              HistoryBundleBuildErrorCode.rejectedE2eeFailed,
+            );
+          }
+          if (scenario == 'burned') {
+            expect(
+              report.failures.single.errorCode,
+              HistoryBundleBuildErrorCode.rejectedBurnAfterRead,
+            );
+          }
+        },
+      );
+    }
+
+    for (final stage in ['resolver', 'forwarder', 'insert']) {
+      test(
+        'sealed projection scope change during $stage stops later effects',
+        () async {
+          final row = _sourceRow('sealed', 1000, msgType: 'file')
+            ..fromId = _uid
+            ..isAuthor = 1
+            ..payload = ''
+            ..e2ee = {'meta_version': 3};
+          Future<void> switchAccount() =>
+              StorageService.to.setString(Keys.currentUid, 'other-account');
+          addTearDown(() => StorageService.to.setString(Keys.currentUid, _uid));
+          final inserted = <MessageModel>[];
+          final echoes = <core.Message>[];
+          var dispatches = 0;
+          final subscription = AppEventBus.on<DataWrapperEvent<dynamic>>()
+              .listen((event) {
+                if (event.dataType == 'Message') {
+                  echoes.add(event.data as core.Message);
+                }
+              });
+          addTearDown(subscription.cancel);
+          final forwarder = _RecordingForwarder(
+            beforeReturn: stage == 'forwarder' ? switchAccount : null,
+          );
+          final dispatcher = BundleForwardDispatcher(
+            messageFetcher: (_, _) async => row,
+            localPayloadLoader: (_) async => {
+              'uri': 'obj/trusted-source',
+              'attachment_descriptor': {'synthetic': true},
+            },
+            targetEncryptedResolver: (_, _) async {
+              if (stage == 'resolver') await switchAccount();
+              return true;
+            },
+            attachmentForwarder: forwarder,
+            messageInserter: (model, _) async {
+              inserted.add(model);
+              if (stage == 'insert') await switchAccount();
+            },
+            wsDispatcher: (_) async {
+              dispatches++;
+              return true;
+            },
+            forwarderUidResolver: () => _uid,
+          );
+          final report = await dispatcher.sendToTargets(
+            [_target(1, '1000000056')],
+            [_uiMessage('sealed')],
+            sourceChatType: 'C2C',
+          );
+          await Future<void>.delayed(Duration.zero);
+          expect(report.successCount, 0);
+          expect(
+            report.failures.single.errorCode,
+            HistoryBundleBuildErrorCode.sendFailed,
+          );
+          expect(inserted.length, stage == 'insert' ? 1 : 0);
+          expect(forwarder.requests.length, stage == 'resolver' ? 0 : 1);
+          expect(echoes, isEmpty);
+          expect(dispatches, 0);
+        },
+      );
+    }
+
     test('2 源 × 2 目标：目标串行、每目标独立构建、payload 干净、目标字段正确', () async {
       final rows = <String, MessageModel>{
         'm1': _sourceRow('m1', 1000),
@@ -229,6 +457,7 @@ void main() {
       final inserted = <MessageModel>[];
       final targets = [_target(1, '1000000056'), _target(2, '1000000057')];
       final dispatcher = BundleForwardDispatcher(
+        wsDispatcher: (_) async => true,
         messageFetcher: (id, chatType) async => rows[id],
         messageInserter: (model, chatType) async => inserted.add(model),
         forwarderUidResolver: () => _uid,
@@ -275,6 +504,7 @@ void main() {
       };
       final inserted = <MessageModel>[];
       final dispatcher = BundleForwardDispatcher(
+        wsDispatcher: (_) async => true,
         messageFetcher: (id, chatType) async => rows[id],
         messageInserter: (model, chatType) async => inserted.add(model),
         forwarderUidResolver: () => _uid,
@@ -298,6 +528,7 @@ void main() {
     test('源行缺失 → 整体放弃（sourceMissing），无部分 bundle', () async {
       final inserted = <MessageModel>[];
       final dispatcher = BundleForwardDispatcher(
+        wsDispatcher: (_) async => true,
         messageFetcher: (id, chatType) async => null,
         messageInserter: (model, chatType) async => inserted.add(model),
         forwarderUidResolver: () => _uid,
@@ -335,6 +566,7 @@ void main() {
         };
         final inserted = <MessageModel>[];
         final dispatcher = BundleForwardDispatcher(
+          wsDispatcher: (_) async => true,
           messageFetcher: (id, chatType) async => rows[id],
           messageInserter: (model, chatType) async => inserted.add(model),
           forwarderUidResolver: () => _uid,
@@ -361,6 +593,7 @@ void main() {
       var fetcherCalls = 0;
       final inserted = <MessageModel>[];
       final dispatcher = BundleForwardDispatcher(
+        wsDispatcher: (_) async => true,
         messageFetcher: (id, chatType) async {
           fetcherCalls++;
           return null;
@@ -389,6 +622,7 @@ void main() {
       var fetcherCalls = 0;
       final inserted = <MessageModel>[];
       final dispatcher = BundleForwardDispatcher(
+        wsDispatcher: (_) async => true,
         messageFetcher: (id, chatType) async {
           fetcherCalls++;
           return _sourceRow('m1', 1000);
@@ -419,6 +653,7 @@ void main() {
       final rows = <String, MessageModel>{'m1': _sourceRow('m1', 1000)};
       final inserted = <MessageModel>[];
       final dispatcher = BundleForwardDispatcher(
+        wsDispatcher: (_) async => true,
         messageFetcher: (id, chatType) async => rows[id],
         messageInserter: (model, chatType) async => inserted.add(model),
         forwarderUidResolver: () => _uid,
@@ -441,6 +676,7 @@ void main() {
       final rows = <String, MessageModel>{'m1': _sourceRow('m1', 1000)};
       final inserted = <MessageModel>[];
       final dispatcher = BundleForwardDispatcher(
+        wsDispatcher: (_) async => true,
         messageFetcher: (id, chatType) async => rows[id],
         messageInserter: (model, chatType) async => inserted.add(model),
         forwarderUidResolver: () => _uid,
@@ -480,6 +716,7 @@ void main() {
       };
       final inserted = <MessageModel>[];
       final dispatcher = BundleForwardDispatcher(
+        wsDispatcher: (_) async => true,
         messageFetcher: (id, chatType) async => rows[id],
         messageInserter: (model, chatType) async => inserted.add(model),
         forwarderUidResolver: () => _uid,
@@ -506,6 +743,7 @@ void main() {
       () async {
         final inserted = <MessageModel>[];
         final dispatcher = BundleForwardDispatcher(
+          wsDispatcher: (_) async => true,
           messageFetcher: (id, chatType) async => throw Exception('db locked'),
           messageInserter: (model, chatType) async => inserted.add(model),
           forwarderUidResolver: () => _uid,
@@ -532,6 +770,7 @@ void main() {
       final rows = <String, MessageModel>{'m1': _sourceRow('m1', 1000)};
       final inserted = <MessageModel>[];
       final dispatcher = BundleForwardDispatcher(
+        wsDispatcher: (_) async => true,
         messageFetcher: (id, chatType) async => rows[id],
         messageInserter: (model, chatType) async => inserted.add(model),
         forwarderUidResolver: () => _uid,
@@ -562,6 +801,7 @@ void main() {
       };
       final inserted = <MessageModel>[];
       final dispatcher = BundleForwardDispatcher(
+        wsDispatcher: (_) async => true,
         messageFetcher: (id, chatType) async => rows[id],
         messageInserter: (model, chatType) async => inserted.add(model),
         forwarderUidResolver: () => _uid,
@@ -591,6 +831,7 @@ void main() {
       };
       final okInserted = <MessageModel>[];
       final okDispatcher = BundleForwardDispatcher(
+        wsDispatcher: (_) async => true,
         messageFetcher: (id, chatType) async => smallRows[id],
         messageInserter: (model, chatType) async => okInserted.add(model),
         forwarderUidResolver: () => _uid,
@@ -620,6 +861,7 @@ void main() {
       final forwarder = _RecordingForwarder();
       final inserted = <MessageModel>[];
       final dispatcher = BundleForwardDispatcher(
+        wsDispatcher: (_) async => true,
         messageFetcher: (id, chatType) async => rows[id],
         messageInserter: (model, chatType) async => inserted.add(model),
         forwarderUidResolver: () => _uid,
@@ -674,6 +916,7 @@ void main() {
         final forwarder = _RecordingForwarder();
         final inserted = <MessageModel>[];
         final dispatcher = BundleForwardDispatcher(
+          wsDispatcher: (_) async => true,
           messageFetcher: (id, chatType) async => rows[id],
           messageInserter: (model, chatType) async => inserted.add(model),
           forwarderUidResolver: () => _uid,
@@ -713,6 +956,7 @@ void main() {
       final forwarder = _RecordingForwarder();
       final inserted = <MessageModel>[];
       final dispatcher = BundleForwardDispatcher(
+        wsDispatcher: (_) async => true,
         messageFetcher: (id, chatType) async => rows[id],
         messageInserter: (model, chatType) async => inserted.add(model),
         forwarderUidResolver: () => _uid,
@@ -758,6 +1002,7 @@ void main() {
       );
       final inserted = <MessageModel>[];
       final dispatcher = BundleForwardDispatcher(
+        wsDispatcher: (_) async => true,
         messageFetcher: (id, chatType) async => rows[id],
         messageInserter: (model, chatType) async => inserted.add(model),
         forwarderUidResolver: () => _uid,
@@ -821,6 +1066,7 @@ void main() {
       );
       final inserted = <MessageModel>[];
       final dispatcher = BundleForwardDispatcher(
+        wsDispatcher: (_) async => true,
         messageFetcher: (id, chatType) async => rows[id],
         messageInserter: (model, chatType) async => inserted.add(model),
         forwarderUidResolver: () => _uid,
@@ -873,6 +1119,7 @@ void main() {
       final forwarder = _RecordingForwarder(script: [adapterPayload]);
       final inserted = <MessageModel>[];
       final dispatcher = BundleForwardDispatcher(
+        wsDispatcher: (_) async => true,
         messageFetcher: (id, chatType) async => rows[id],
         messageInserter: (model, chatType) async => inserted.add(model),
         forwarderUidResolver: () => _uid,
@@ -938,6 +1185,7 @@ void main() {
         unreadNum: 0,
       );
       final dispatcher = BundleForwardDispatcher(
+        wsDispatcher: (_) async => true,
         messageFetcher: (id, chatType) async {
           fetchChatTypes.add(chatType);
           return rows[id];
@@ -995,6 +1243,7 @@ void main() {
         };
         final inserted = <MessageModel>[];
         final dispatcher = BundleForwardDispatcher(
+          wsDispatcher: (_) async => true,
           messageFetcher: (id, chatType) async => rows[id],
           messageInserter: (model, chatType) async => inserted.add(model),
           forwarderUidResolver: () => _uid,
@@ -1039,6 +1288,7 @@ void main() {
       };
       final inserted = <MessageModel>[];
       final dispatcher = BundleForwardDispatcher(
+        wsDispatcher: (_) async => true,
         messageFetcher: (id, chatType) async => rows[id],
         messageInserter: (model, chatType) async => inserted.add(model),
         forwarderUidResolver: () => _uid,

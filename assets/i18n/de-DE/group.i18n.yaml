@@ -50,3 +50,4 @@ transferAndLeave: Übertragen und verlassen
 sureToTransferAndLeave: Du überträgst die Eigentümerschaft und verlässt die Gruppe. Fortfahren?
 transferredButLeaveFailed: Eigentümerschaft übertragen, aber das Verlassen ist fehlgeschlagen. Bitte erneut versuchen
 noEligibleSuccessor: Kein Mitglied zum Übertragen verfügbar
+searchLoadedMembers: "Nur geladene Mitglieder durchsuchen"

@@ -2252,6 +2252,7 @@ class _Translations$group$en_US extends Translations$group$zh_CN {
 	@override String get sureToTransferAndLeave => 'You will transfer ownership and leave this group. Continue?';
 	@override String get transferredButLeaveFailed => 'Ownership transferred, but leaving failed. Please retry leaving.';
 	@override String get noEligibleSuccessor => 'No member available to transfer to';
+	@override String get searchLoadedMembers => 'Search loaded members only';
 }
 
 // Path: groupCategory
@@ -6197,6 +6198,7 @@ extension on TranslationsEnUs {
 			'group.sureToTransferAndLeave' => 'You will transfer ownership and leave this group. Continue?',
 			'group.transferredButLeaveFailed' => 'Ownership transferred, but leaving failed. Please retry leaving.',
 			'group.noEligibleSuccessor' => 'No member available to transfer to',
+			'group.searchLoadedMembers' => 'Search loaded members only',
 			'groupCategory.title' => 'Group Categories',
 			'groupCategory.createCategory' => 'Create Category',
 			'groupCategory.categoryName' => 'Category Name',
@@ -6697,9 +6699,9 @@ extension on TranslationsEnUs {
 			'organization.departments.setDeptAdmin' => ({required Object userId}) => 'Set ${userId} as department admin',
 			'organization.departments.unsetDeptAdmin' => ({required Object userId}) => 'Revoke department admin from ${userId}',
 			'organization.departments.setAdminFailed' => 'Failed to set department admin',
-			'organization.departments.memberGovernActions' => 'Member governance actions',
 			_ => null,
 		} ?? switch (path) {
+			'organization.departments.memberGovernActions' => 'Member governance actions',
 			'organization.picker.title' => 'Switch enterprise',
 			'organization.picker.switchEnterprise' => 'Switch enterprise',
 			'organization.picker.switchFailed' => 'Switch failed',
@@ -7211,9 +7213,9 @@ extension on TranslationsEnUs {
 			'talkRecord.exportFormatSectionTitle' => 'Export format',
 			'talkRecord.exportFormatTxt' => 'Plain text .txt',
 			'talkRecord.exportFormatMd' => 'Markdown .md',
-			'talkRecord.exportFormatHint' => 'Export contains text only; no audio or unauthorized participant info.',
 			_ => null,
 		} ?? switch (path) {
+			'talkRecord.exportFormatHint' => 'Export contains text only; no audio or unauthorized participant info.',
 			'talkRecord.exportCapabilitySectionTitle' => 'Export availability',
 			'talkRecord.exportBlockedNoGrant' => 'Your current role has no export permission; export requires an owner grant or policy allowance.',
 			'talkRecord.exportBlockedOrgPolicy' => 'Export is disabled by organization policy.',

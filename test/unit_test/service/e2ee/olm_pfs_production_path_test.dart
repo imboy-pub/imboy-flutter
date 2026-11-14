@@ -19,6 +19,8 @@ import 'dart:convert';
 import 'dart:async';
 
 import 'package:flutter/services.dart';
+import 'package:dio/dio.dart';
+import 'package:imboy/component/http/http_client.dart' as imboy_http;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/service/e2ee/vodozemac_session_config.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
@@ -64,6 +66,33 @@ class _Peer {
   final vod.Session session;
 }
 
+class _IdentityTransport implements HttpClientAdapter {
+  Map<String, dynamic> identity = {};
+  int calls = 0;
+  @override
+  Future<ResponseBody> fetch(
+    RequestOptions options,
+    Stream<Uint8List>? requestStream,
+    Future<void>? cancelFuture,
+  ) async {
+    calls++;
+    return ResponseBody.fromString(
+      jsonEncode({
+        'code': 0,
+        'msg': 'success',
+        'payload': {...identity, 'count': 100},
+      }),
+      200,
+      headers: {
+        Headers.contentTypeHeader: ['application/json'],
+      },
+    );
+  }
+
+  @override
+  void close({bool force = false}) {}
+}
+
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
@@ -76,6 +105,7 @@ void main() {
 
   late Database db;
   late CryptoStore store;
+  late _IdentityTransport transport;
 
   setUpAll(() async {
     SharedPreferences.setMockInitialValues({});
@@ -132,9 +162,15 @@ void main() {
   });
 
   setUp(() async {
+    transport = _IdentityTransport();
+    imboy_http.HttpClient.adapterForTest = transport;
     secureStore
       ..clear()
-      ..[_pickleKeyStorageKey] = base64.encode(_pickleKey);
+      ..[_pickleKeyStorageKey] = base64.encode(_pickleKey)
+      ..['secure_token'] =
+          'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjQxMDI0NDQ4MDB9.sig'
+      ..['olm_fallback_rotated_at'] =
+          '${DateTime.now().millisecondsSinceEpoch}';
     db = await databaseFactory.openDatabase(inMemoryDatabasePath);
     SqliteService.setDbForTest(db);
     OlmSessionService.to.resetForTest();
@@ -143,6 +179,7 @@ void main() {
   });
 
   tearDown(() async {
+    imboy_http.HttpClient.adapterForTest = null;
     SqliteService.setDbForTest(null);
     OlmSessionService.to.resetForTest();
     await db.close();
@@ -289,6 +326,153 @@ void main() {
       expect(
         await bobDecrypt(peer, 'inbound-after-ensure', 'mid-ensure'),
         equals('inbound-after-ensure'),
+      );
+    });
+  });
+
+  group('单向连续 pre-key 消息', () {
+    Future<vod.Session> seedUnansweredPair({bool newSession = false}) async {
+      final alice = vod.Account();
+      final bob = vod.Account();
+      final curve = alice.identityKeys.curve25519.toBase64();
+      transport.identity = {
+        'device_id': _peerDid,
+        'ed25519_key': alice.identityKeys.ed25519.toBase64(),
+        'curve25519_key': curve,
+        'signature': alice.sign(curve).toBase64(),
+      };
+      bob.generateOneTimeKeys(2);
+      final sender = alice.createOutboundSession(
+        identityKey: bob.identityKeys.curve25519,
+        oneTimeKey: bob.oneTimeKeys.values.first,
+        config: legacyOlmSessionConfig(),
+      );
+      secureStore['olm_account_pickle'] = bob.toPickleEncrypted(_pickleKey);
+      OlmSessionService.to.debugResetAccountCache();
+      final first = sender.encrypt('first');
+      expect(first.messageType, 0);
+      final inbound = bob.createInboundSession(
+        theirIdentityKey: alice.identityKeys.curve25519,
+        preKeyMessageBase64: first.ciphertext,
+        config: legacyOlmSessionConfig(),
+      );
+      expect(inbound.plaintext, 'first');
+      await store.persistSession(
+        peerUid: _peerUid,
+        peerDeviceId: _peerDid,
+        pickle: inbound.session.toPickleEncrypted(_pickleKey),
+      );
+      if (newSession) {
+        return alice.createOutboundSession(
+          identityKey: bob.identityKeys.curve25519,
+          oneTimeKey: bob.oneTimeKeys.values.last,
+          config: legacyOlmSessionConfig(),
+        );
+      }
+      return sender;
+    }
+
+    Future<String> receive(
+      ({int messageType, String ciphertext}) message,
+      String id,
+    ) => OlmSessionService.to.decryptC2CMessage(
+      peerUid: _peerUid,
+      peerDeviceId: _peerDid,
+      messageType: message.messageType,
+      ciphertext: message.ciphertext,
+      messageId: id,
+    );
+
+    test('连续 type0 经生产路径解密、冷恢复且去重', () async {
+      final sender = await seedUnansweredPair();
+      final second = sender.encrypt('second');
+      expect(second.messageType, 0);
+      expect(await receive(second, 'prekey-second'), 'second');
+      OlmSessionService.to.resetForTest();
+      final third = sender.encrypt('third');
+      expect(third.messageType, 0);
+      expect(await receive(third, 'prekey-third'), 'third');
+      await expectLater(
+        receive(third, 'prekey-third'),
+        throwsA(isA<DuplicateMessageException>()),
+      );
+      expect(
+        await receive(sender.encrypt('fourth'), 'prekey-fourth'),
+        'fourth',
+      );
+    });
+
+    test('真正的新 pre-key 会话仍经签名及 TOFU 校验建立', () async {
+      final sender = await seedUnansweredPair(newSession: true);
+      final message = sender.encrypt('new-session');
+      expect(message.messageType, 0);
+      expect(await receive(message, 'new-session'), 'new-session');
+      expect(transport.calls, greaterThan(0));
+      expect(
+        await store.loadPinnedFingerprint(
+          peerUid: _peerUid,
+          peerDeviceId: _peerDid,
+        ),
+        transport.identity['curve25519_key'],
+      );
+      // 等待既有后台补充 OTK 的任务结束，避免跨用例污染。
+      await Future<void>.delayed(const Duration(milliseconds: 100));
+    });
+
+    test('无效 type0 不改变旧会话，后续合法消息仍可解密', () async {
+      final sender = await seedUnansweredPair();
+      final before = await store.loadSession(
+        peerUid: _peerUid,
+        peerDeviceId: _peerDid,
+      );
+      final valid = sender.encrypt('after-invalid');
+      final tampered = base64.decode(base64.normalize(valid.ciphertext));
+      tampered[tampered.length - 1] ^= 1;
+      await expectLater(
+        receive((
+          messageType: 0,
+          ciphertext: base64.encode(tampered),
+        ), 'invalid'),
+        throwsA(isA<OlmAuthenticationException>()),
+      );
+      expect(
+        await store.loadSession(peerUid: _peerUid, peerDeviceId: _peerDid),
+        before,
+      );
+      expect(await receive(valid, 'after-invalid'), 'after-invalid');
+    });
+
+    test('type0 事务失败不消费消息，恢复后仅提交一次', () async {
+      final sender = await seedUnansweredPair();
+      final message = sender.encrypt('retry-after-commit-failure');
+      final before = await store.loadSession(
+        peerUid: _peerUid,
+        peerDeviceId: _peerDid,
+      );
+      await db.execute(
+        "CREATE TRIGGER fail_prekey_commit BEFORE INSERT ON crypto_inbox_dedupe BEGIN SELECT RAISE(ABORT, 'injected'); END",
+      );
+      await expectLater(
+        receive(message, 'prekey-retry'),
+        throwsA(isA<CryptoStoreUnavailableException>()),
+      );
+      expect(
+        await store.loadSession(peerUid: _peerUid, peerDeviceId: _peerDid),
+        before,
+      );
+      expect(await store.isDuplicate('prekey-retry'), isFalse);
+      expect(
+        OlmSessionService.to.debugHasCachedSession(_peerUid, _peerDid),
+        isFalse,
+      );
+      await db.execute('DROP TRIGGER fail_prekey_commit');
+      expect(
+        await receive(message, 'prekey-retry'),
+        'retry-after-commit-failure',
+      );
+      await expectLater(
+        receive(message, 'prekey-retry'),
+        throwsA(isA<DuplicateMessageException>()),
       );
     });
   });

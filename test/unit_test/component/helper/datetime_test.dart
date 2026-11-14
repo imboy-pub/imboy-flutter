@@ -6,6 +6,12 @@ import 'package:imboy/component/helper/datetime.dart';
 
 void main() {
   group('local display of an instant', () {
+    test('unknown message time is not shown as 1970', () {
+      expect(
+        RelativeDateFormat().format(DateTime.fromMillisecondsSinceEpoch(0)),
+        '',
+      );
+    });
     const expectedByZone = {
       'UTC': '2020-09-13 12:26',
       'Asia/Shanghai': '2020-09-13 20:26',

@@ -2064,6 +2064,7 @@ class Translations$group$zh_Hant extends Translations$group$zh_CN {
 	@override String get sureToTransferAndLeave => '轉讓後你將退出本群並失去群主權限，確定繼續嗎？';
 	@override String get transferredButLeaveFailed => '已轉讓群主，但退出失敗，請重試退出';
 	@override String get noEligibleSuccessor => '暫無可轉讓的成員';
+	@override String get searchLoadedMembers => '僅搜尋已載入成員';
 }
 
 // Path: groupCategory
@@ -5364,6 +5365,7 @@ extension on TranslationsZhHant {
 			'group.sureToTransferAndLeave' => '轉讓後你將退出本群並失去群主權限，確定繼續嗎？',
 			'group.transferredButLeaveFailed' => '已轉讓群主，但退出失敗，請重試退出',
 			'group.noEligibleSuccessor' => '暫無可轉讓的成員',
+			'group.searchLoadedMembers' => '僅搜尋已載入成員',
 			'groupCategory.title' => '群分組',
 			'groupCategory.createCategory' => '建立分組',
 			'groupCategory.categoryName' => '分組名稱',
@@ -5547,9 +5549,9 @@ extension on TranslationsZhHant {
 			'main.tryAgainQ' => '想再試一次嗎？',
 			'main.type' => '類型',
 			'main.unanswered' => '未應答',
-			'main.unnamed' => '無名稱',
 			_ => null,
 		} ?? switch (path) {
+			'main.unnamed' => '無名稱',
 			'main.usedSpace' => '已使用空間',
 			'main.you' => '你',
 			'main.zhCn' => '簡體中文',
@@ -6061,9 +6063,9 @@ extension on TranslationsZhHant {
 			'organization.tools.workspaceEmptyHint' => '同企業內你未加入的工作區不會出現在這裡。',
 			'organization.tools.projectCount' => ({required Object count}) => '專案 ${count}',
 			'organization.tools.projectsEmpty' => '暫無專案',
-			'organization.tools.projectsError' => ({required Object err}) => '專案載入失敗：${err}',
 			_ => null,
 		} ?? switch (path) {
+			'organization.tools.projectsError' => ({required Object err}) => '專案載入失敗：${err}',
 			'organization.tools.moreInWorkspaceShell' => '瀏覽全部工作區',
 			'organization.tools.moreInWorkspaceShellHint' => '開啟全域工作區切換器（跨企業）。',
 			'organization.chart.zoomIn' => '放大',

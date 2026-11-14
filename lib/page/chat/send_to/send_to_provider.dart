@@ -1,4 +1,6 @@
 import 'package:flutter/foundation.dart';
+import 'package:imboy/config/env.dart';
+import 'package:imboy/config/init.dart' show currentEnv;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart';
 import 'package:xid/xid.dart';
@@ -55,6 +57,18 @@ class SendToState {
 
 /// 发送消息逻辑控制器
 class SendToNotifier extends Notifier<SendToState> {
+  SendToNotifier({
+    this.networkService = const ChatNetworkService(),
+    this.targetEncryptedResolver = targetPayloadWillBeEncrypted,
+  });
+
+  final ChatNetworkService networkService;
+  final Future<bool> Function({
+    required String chatType,
+    required String peerId,
+  })
+  targetEncryptedResolver;
+
   @override
   SendToState build() => const SendToState();
 
@@ -228,31 +242,48 @@ class SendToNotifier extends Notifier<SendToState> {
     bool Function()? isCurrent,
     bool silent = false,
   }) async {
+    final actor = UserRepoLocal.to;
+    final forwarderUid = actor.currentUid;
+    final generation = actor.sessionGeneration;
+    final environment = currentEnv;
+    final endpoint = Env().apiBaseUrl;
+    bool current() =>
+        forwarderUid.isNotEmpty &&
+        actor.currentUid == forwarderUid &&
+        actor.isCurrentSession(generation) &&
+        !actor.isAuthTransitioning &&
+        currentEnv == environment &&
+        Env().apiBaseUrl == endpoint &&
+        (isCurrent?.call() ?? true);
     try {
-      if (isCurrent != null && !isCurrent()) return false;
+      if (!current()) return false;
       // 获取并归一化会话类型，历史脏值统一按 C2C 处理
       final chatType = _normalizeConversationType(conversation.type);
 
-      final forwarderUid = UserRepoLocal.to.currentUid;
       final sourceMetadata = msg.metadata;
       final sourceChatType = AttachmentForward.chatTypeFromConversationUk3(
         parseModelString(sourceMetadata?['conversation_uk3']),
       );
       // 只有带 content key 的源才触碰 E2EE 策略判定（PolicyGate 未就绪会
       // fail-closed 抛出）——纯文本/明文附件路径与旧行为零偏差。
-      final decision = AttachmentSealPolicy.carriesContentKey(sourceMetadata)
-          ? AttachmentForward.decide(
-              sourceMetadata: sourceMetadata,
-              targetPayloadWillBeEncrypted: await targetPayloadWillBeEncrypted(
-                chatType: chatType,
-                peerId: conversation.peerId.toString(),
-              ),
-              sourceMessageId: msg.id,
-              sourceChatType: sourceChatType,
-              sourceFromUid: msg.authorId,
-              sourceToUid: parseModelString(sourceMetadata?['peer_id']),
-            )
-          : const ForwardNotSealed();
+      final AttachmentForwardDecision decision;
+      if (AttachmentSealPolicy.carriesContentKey(sourceMetadata)) {
+        final encrypted = await targetEncryptedResolver(
+          chatType: chatType,
+          peerId: conversation.peerId.toString(),
+        );
+        if (!current()) return false;
+        decision = AttachmentForward.decide(
+          sourceMetadata: sourceMetadata,
+          targetPayloadWillBeEncrypted: encrypted,
+          sourceMessageId: msg.id,
+          sourceChatType: sourceChatType,
+          sourceFromUid: msg.authorId,
+          sourceToUid: parseModelString(sourceMetadata?['peer_id']),
+        );
+      } else {
+        decision = const ForwardNotSealed();
+      }
 
       // 加密附件：按目标会话重封装（本地解密 → 新 key/nonce/绑定 →
       // 重上传）。成功后新消息 id 即上传锚点（与发送侧同序：先上传拿
@@ -268,6 +299,7 @@ class SendToNotifier extends Notifier<SendToState> {
         type: chatType,
       );
       final Map<String, dynamic> payload;
+      if (!current()) return false;
       switch (decision) {
         case ForwardNotSealed():
           final base = buildForwardPayload(
@@ -333,6 +365,7 @@ class SendToNotifier extends Notifier<SendToState> {
             );
           }
       }
+      if (!current()) return false;
       final msgType = resolveForwardMsgType(sourceMetadata);
 
       // 创建 MessageModel（id 与重封装上传锚点同值；NotSealed 分支为全新 Xid）
@@ -341,7 +374,7 @@ class SendToNotifier extends Notifier<SendToState> {
         autoId: 0,
         type: chatType,
         status: 10, // 发送中
-        fromId: UserRepoLocal.to.currentUid,
+        fromId: forwarderUid,
         toId: conversation.peerId,
         payload: payload,
         createdAt: DateTimeHelper.millisecond(),
@@ -354,27 +387,11 @@ class SendToNotifier extends Notifier<SendToState> {
       final msgRepo = MessageRepo(
         tableName: MessageRepo.getTableName(chatType),
       );
-      if (isCurrent != null && !isCurrent()) return false;
+      if (!current()) return false;
       await msgRepo.insert(msgModel, outbound: true);
-      if (isCurrent != null && !isCurrent()) return false;
+      if (!current()) return false;
       onQueued?.call(msgModel);
-
-      // 方案 B 变体（chat-multi-20261111 产品缺陷修复）：副本落库后立即
-      // 经现行出网链路主动派发。原 MessageSendRequestedEvent 全仓无消费者，
-      // 非文本副本（image/file/…）只能靠重进会话页（_pageMessages 补发）/
-      // 重启 / 重连扫描偶然出网，UI 却报成功。派发走
-      // ChatNetworkService.sendWsMsg：加密判定 / 策略门 / deep-seal 闸 /
-      // 上传认领 / 重试闭环零旁路；派发结果不改判转发成败（E2EE-062 口径：
-      // 策略/加密失败行保持 sending 留库待补发；瞬时 WS 失败已由
-      // sendWithRetry 入重试闭环），异常只记类型（Finding 014）。
-      try {
-        await const ChatNetworkService().sendWsMsg(msgModel);
-      } on Object catch (e) {
-        debugPrint(
-          '[send_to_provider] forward dispatch submit failed, '
-          'msgId=${msgModel.id}, errType=${e.runtimeType}',
-        );
-      }
+      if (!current()) return false;
 
       // 回环可见性：目标会话若正是当前打开的会话，直接落库的副本不会自动
       // 进入内存消息列表（addMessage 的 syncMessagesToState 只覆盖本页输入
@@ -382,7 +399,9 @@ class SendToNotifier extends Notifier<SendToState> {
       // writer 对 S2C 的 fireData 'Message'）：ChatPage 监听按
       // conversation_uk3 匹配，未打开的目标会话为 no-op。
       try {
-        AppEventBus.fireData(await msgModel.toTypeMessage(), 'Message');
+        final projected = await msgModel.toTypeMessage();
+        if (!current()) return false;
+        AppEventBus.fireData(projected, 'Message');
       } on Object catch (e) {
         debugPrint(
           '[send_to_provider] forward copy ui event failed, '
@@ -390,13 +409,27 @@ class SendToNotifier extends Notifier<SendToState> {
         );
       }
 
-      return true;
+      if (!current()) return false;
+      // 先让本地消息可见，再接收派发链发出的真实错误/重试状态。
+      try {
+        final sent = await networkService.sendWsMsg(msgModel);
+        if (!current()) return false;
+        if (!sent && !silent) AppLoading.showError(t.common.sendFailed);
+        return sent;
+      } on Object catch (e) {
+        debugPrint(
+          '[send_to_provider] forward dispatch failed, '
+          'msgId=${msgModel.id}, errType=${e.runtimeType}',
+        );
+        if (current() && !silent) AppLoading.showError(t.common.sendFailed);
+        return false;
+      }
     } on AttachmentForwardException catch (e) {
       // 转发失败（明文目标域 / 源不可解密 / 下载上传失败）：落库前抛出，
       // 无半转发状态；重试 = 全新消息 id + 全新密钥重封装，幂等。
       // 日志按 Finding 014 口径只落稳定码，不输出异常对象。
       debugPrint('[send_to_provider] forward blocked, reason=${e.reason}');
-      if (!silent) {
+      if (current() && !silent) {
         AppLoading.showError(forwardFailureToast(e.reason));
       }
     } on PlainAttachmentForwardException catch (e) {
@@ -405,7 +438,7 @@ class SendToNotifier extends Notifier<SendToState> {
       debugPrint(
         '[send_to_provider] plain forward blocked, reason=${e.reason}',
       );
-      if (!silent) {
+      if (current() && !silent) {
         AppLoading.showError(forwardFailureToast(e.reason));
       }
     } on Exception catch (e) {

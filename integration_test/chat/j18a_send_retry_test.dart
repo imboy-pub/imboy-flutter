@@ -17,6 +17,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/page/chat/chat/chat_message_item.dart';
 import 'package:imboy/service/event_bus.dart';
+import 'package:imboy/store/repository/conversation_repo_sqlite.dart';
 import 'package:imboy/service/websocket.dart';
 import 'package:imboy/service/websocket_events.dart';
 
@@ -47,7 +48,8 @@ bool _settled(WidgetTester t, String marker) {
 }
 
 Future<bool> _waitSocketConnected(WidgetTester t, {int maxSeconds = 30}) async {
-  var connected = false;
+  // openSocket may emit connected before this listener is attached.
+  var connected = WebSocketService.to.status == SocketStatus.connected;
   final sub = AppEventBus.on<WebSocketStatusChangedEvent>().listen((e) {
     if (e.status == 'connected') connected = true;
   });
@@ -80,20 +82,42 @@ Future<void> _retryViaMenu(WidgetTester t, String marker) async {
   await settle(t, maxSeconds: 2);
 }
 
+const _ownedStorageTag = String.fromEnvironment('UX_STORAGE_TAG');
+
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
   testWidgets('J18.a C2C：WS 断开发送失败可见，重试后同逻辑消息恰好一条', (tester) async {
-    if (_expectedUid.isEmpty || _peerUid.isEmpty || _peerTitle.isEmpty) {
+    if (_expectedUid.isEmpty ||
+        _peerUid.isEmpty ||
+        (_ownedStorageTag.isEmpty && _peerTitle.isEmpty)) {
       fail('需显式 TEST_EXPECTED_UID、PEER_UID、PEER_TITLE');
     }
     if (!requireBusinessWriteAuthorization()) return;
+    var peerTitle = _peerTitle;
+    if (_ownedStorageTag.isNotEmpty) {
+      await restoreOwnedChat(tester, _ownedStorageTag, _expectedUid);
+      final existing = await tester.runAsync(
+        () => ConversationRepo().findByPeerId('C2C', _peerUid),
+      );
+      expect(
+        existing,
+        isNotNull,
+        reason: 'owned journey requires an existing C2C conversation',
+      );
+      peerTitle = existing!.resolvedTitle;
+      expect(
+        peerTitle,
+        isNotEmpty,
+        reason: 'existing conversation title must be resolved',
+      );
+    }
     final chatPage = await openC2CWithPeer(
       tester,
       journey: 'J18.a',
       expectedUid: _expectedUid,
       peerUid: _peerUid,
-      peerTitle: _peerTitle,
+      peerTitle: peerTitle,
     );
 
     final nonce = DateTime.now().millisecondsSinceEpoch;

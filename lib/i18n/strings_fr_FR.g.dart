@@ -2067,6 +2067,7 @@ class _Translations$group$fr_FR extends Translations$group$zh_CN {
 	@override String get sureToTransferAndLeave => 'Vous allez transférer la propriété et quitter ce groupe. Continuer ?';
 	@override String get transferredButLeaveFailed => 'Propriété transférée, mais la sortie a échoué. Veuillez réessayer';
 	@override String get noEligibleSuccessor => 'Aucun membre disponible pour le transfert';
+	@override String get searchLoadedMembers => 'Rechercher uniquement les membres chargés';
 }
 
 // Path: groupCategory
@@ -5367,6 +5368,7 @@ extension on TranslationsFrFr {
 			'group.sureToTransferAndLeave' => 'Vous allez transférer la propriété et quitter ce groupe. Continuer ?',
 			'group.transferredButLeaveFailed' => 'Propriété transférée, mais la sortie a échoué. Veuillez réessayer',
 			'group.noEligibleSuccessor' => 'Aucun membre disponible pour le transfert',
+			'group.searchLoadedMembers' => 'Rechercher uniquement les membres chargés',
 			'groupCategory.title' => 'Catégories de groupe',
 			'groupCategory.createCategory' => 'Créer une catégorie',
 			'groupCategory.categoryName' => 'Nom de la catégorie',
@@ -5550,9 +5552,9 @@ extension on TranslationsFrFr {
 			'main.tryAgainQ' => 'Voulez-vous réessayer ?',
 			'main.type' => 'Type',
 			'main.unanswered' => 'Sans réponse',
-			'main.unnamed' => 'Sans nom',
 			_ => null,
 		} ?? switch (path) {
+			'main.unnamed' => 'Sans nom',
 			'main.usedSpace' => 'Espace utilisé',
 			'main.you' => 'Vous',
 			'main.zhCn' => 'Chinois simplifié',
@@ -6064,9 +6066,9 @@ extension on TranslationsFrFr {
 			'organization.tools.workspaceEmptyHint' => 'Les espaces de cette entreprise que vous n\'avez pas rejoints n\'apparaissent pas ici.',
 			'organization.tools.projectCount' => ({required Object count}) => 'Projets ${count}',
 			'organization.tools.projectsEmpty' => 'Aucun projet',
-			'organization.tools.projectsError' => ({required Object err}) => 'Échec du chargement des projets : ${err}',
 			_ => null,
 		} ?? switch (path) {
+			'organization.tools.projectsError' => ({required Object err}) => 'Échec du chargement des projets : ${err}',
 			'organization.tools.moreInWorkspaceShell' => 'Parcourir tous les espaces',
 			'organization.tools.moreInWorkspaceShellHint' => 'Ouvrir le sélecteur global d\'espaces (inter-entreprises).',
 			'organization.chart.zoomIn' => 'Zoom avant',

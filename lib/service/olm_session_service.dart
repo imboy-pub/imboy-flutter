@@ -966,8 +966,8 @@ class OlmSessionService {
   // ===== 解密（入站，X3DH 接收 + DR 解密）=====
 
   /// 解密一条单聊消息（C2C）。
-  /// 首次收到某对端的消息（messageType=0 prekey）：createInboundSession。
-  /// 后续（messageType=1）：直接 session.decrypt。
+  /// pre-key 消息优先复用已有会话；仅新会话调用 createInboundSession。
+  /// 对端收到回复前，连续发送的消息仍可为 messageType=0。
   ///
   /// S2.3: 当 [messageId] 非空且 CryptoStore 可用时，dedupe 检查与 ratchet
   /// advance 在同一 SQLite 事务内完成——重复投递不会推进 ratchet。
@@ -995,7 +995,26 @@ class OlmSessionService {
       final account = await _loadOrCreateAccount();
       var session = await _loadSession(peerUid, peerDeviceId);
 
-      if (messageType == 0) {
+      String? preKeyPlaintext;
+      if (messageType == 0 && session != null) {
+        // 在副本上试解，认证失败不能改变既有 ratchet；新会话仍走身份校验。
+        final pickleKey = await _pickleKey();
+        final candidate = vod.Session.fromPickleEncrypted(
+          pickle: session.toPickleEncrypted(pickleKey),
+          pickleKey: pickleKey,
+        );
+        try {
+          preKeyPlaintext = candidate.decrypt(
+            messageType: messageType,
+            ciphertext: ciphertext,
+          );
+          session = candidate;
+        } on Object {
+          // 不匹配的 pre-key 可能属于对端新建的会话。
+        }
+      }
+
+      if (messageType == 0 && preKeyPlaintext == null) {
         // pre-key message：首次接收，建入站 Session
         final theirIdentity = await _lookupPeerIdentityKey(
           peerUid,
@@ -1047,10 +1066,9 @@ class OlmSessionService {
       }
       final String plaintext;
       try {
-        plaintext = session.decrypt(
-          messageType: messageType,
-          ciphertext: ciphertext,
-        );
+        plaintext =
+            preKeyPlaintext ??
+            session.decrypt(messageType: messageType, ciphertext: ciphertext);
       } on Object catch (e) {
         // Finding 014：不把底层库错误原文（可能含密文片段）拼进异常消息
         throw OlmAuthenticationException('olm decrypt 认证失败: ${e.runtimeType}');

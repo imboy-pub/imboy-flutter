@@ -20,6 +20,12 @@ import 'package:imboy/service/e2ee/attachment_encryptor.dart';
 import 'package:imboy/service/e2ee/attachment_forward.dart';
 import 'package:imboy/service/e2ee/attachment_seal_policy.dart';
 import 'package:imboy/store/api/attachment_api.dart';
+import 'package:imboy/config/const.dart';
+import 'package:imboy/config/env.dart';
+import 'package:imboy/config/init.dart' show currentEnv;
+import 'package:imboy/service/storage.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:imboy/store/repository/user_repo_local.dart';
 
 const _srcMsg = 'msg-src-multi';
 const _srcConv = 'c2c:1001:2002';
@@ -76,6 +82,8 @@ Uint8List _dstBinding() => AttachmentBinding.compute(
 
 /// 捕获上传链三个 seam（与 attachment_forward_test 同构）。
 class _UploadCapture {
+  _UploadCapture({this.afterConfirm});
+  final Future<void> Function()? afterConfirm;
   final List<String> objectKeys = [];
   final List<Uint8List> putBytes = [];
   final List<Map<String, dynamic>> confirmBodies = [];
@@ -94,6 +102,7 @@ class _UploadCapture {
 
   ConfirmFn get confirmFn => (body) async {
     confirmBodies.add(body);
+    await afterConfirm?.call();
     return IMBoyHttpResponse.success(<String, dynamic>{});
   };
 }
@@ -130,7 +139,214 @@ Map<String, dynamic> _payload(List<Map<String, dynamic>> items) => {
   'total': items.length,
 };
 
+Future<ForwardedAttachment> _forwardSingle(
+  Map<String, dynamic> payload,
+  CiphertextFetcher fetch,
+  _UploadCapture cap,
+) => AttachmentForward.reSeal(
+  sourcePayload: payload,
+  sourceMessageId: _srcMsg,
+  sourceChatType: 'C2C',
+  sourceFromUid: _srcUid,
+  sourceToUid: _srcPeer,
+  newMessageId: _newMsgId,
+  targetScope: 'private',
+  targetConversationId: _targetConv,
+  forwarderUid: _fwdUid,
+  fetchCiphertext: fetch,
+  presignFn: cap.presignFn,
+  putFn: cap.putFn,
+  confirmFn: cap.confirmFn,
+);
+
+({Map<String, dynamic> payload, Map<String, Uint8List> ciphers})
+_videoSource() {
+  final thumb = _sealSrc(0);
+  final main = AttachmentEncryptor.seal(
+    plaintext: _plain(200, 1),
+    bindingHash: _srcBinding(),
+    attachmentId: 'video',
+    objectKey: 'u1001/src/video.mp4',
+    mime: 'video/mp4',
+    name: 'video.mp4',
+    contentKey: AttachmentEncryptor.randomContentKey(),
+    baseNonce: AttachmentEncryptor.randomBaseNonce(),
+    chunkSize: 64,
+    thumb: AttachmentDescriptor.fromMap(
+      thumb.item[AttachmentSealPolicy.descriptorPayloadKey]
+          as Map<String, dynamic>,
+    ),
+  );
+  return (
+    payload: {
+      AttachmentSealPolicy.descriptorPayloadKey: main.descriptor.toMap(),
+    },
+    ciphers: {
+      thumb.item['uri'] as String: thumb.cipher,
+      main.descriptor.objectKey: main.ciphertext,
+    },
+  );
+}
+
+class _ForwardEnv implements Env {
+  const _ForwardEnv(this.apiBaseUrl);
+  @override
+  final String apiBaseUrl;
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+}
+
 void main() {
+  late String previousEnvironment;
+  setUpAll(() async {
+    SharedPreferences.setMockInitialValues({Keys.currentUid: _fwdUid});
+    await StorageService.init();
+  });
+  setUp(() async {
+    UserRepoLocal.to.clearAuthTransitionFailureForTest();
+    previousEnvironment = currentEnv;
+    currentEnv = 'forward-test';
+    envMap[currentEnv] = const _ForwardEnv('http://127.0.0.1:1');
+    await StorageService.to.setString(Keys.currentUid, _fwdUid);
+  });
+  tearDown(() {
+    envMap.remove('forward-test');
+    currentEnv = previousEnvironment;
+  });
+  group('scope stays bound throughout re-sealing', () {
+    for (final changed in [
+      'account',
+      'environment',
+      'endpoint',
+      'generation',
+    ]) {
+      test(
+        'main fetch changing $changed prevents every upload stage',
+        () async {
+          final src = _sealSrc(0);
+          final cap = _UploadCapture();
+          await expectLater(
+            _forwardSingle(src.item, (key) async {
+              if (changed == 'account') {
+                await StorageService.to.setString(Keys.currentUid, '9009');
+              }
+              if (changed == 'environment') {
+                currentEnv = 'changed-forward-test';
+              }
+              if (changed == 'endpoint') {
+                envMap[currentEnv] = const _ForwardEnv('http://127.0.0.1:2');
+              }
+              if (changed == 'generation') {
+                final before = UserRepoLocal.to.sessionGeneration;
+                await UserRepoLocal.to.quitLogin();
+                await StorageService.to.setString(Keys.currentUid, _fwdUid);
+                UserRepoLocal.to.clearAuthTransitionFailureForTest();
+                expect(UserRepoLocal.to.isAuthTransitioning, isFalse);
+                expect(UserRepoLocal.to.sessionGeneration, greaterThan(before));
+              }
+              return src.cipher;
+            }, cap),
+            throwsA(isA<AttachmentForwardException>()),
+          );
+          expect(cap.objectKeys, isEmpty);
+          expect(cap.putBytes, isEmpty);
+          expect(cap.confirmBodies, isEmpty);
+        },
+      );
+    }
+    test('thumbnail fetch scope change rejects both uploads', () async {
+      final source = _videoSource();
+      final cap = _UploadCapture();
+      final fetched = <String>[];
+      await expectLater(
+        _forwardSingle(source.payload, (key) async {
+          fetched.add(key);
+          await StorageService.to.setString(Keys.currentUid, '9009');
+          return source.ciphers[key]!;
+        }, cap),
+        throwsA(isA<AttachmentForwardException>()),
+      );
+      expect(fetched, hasLength(1));
+      expect(cap.objectKeys, isEmpty);
+      expect(cap.putBytes, isEmpty);
+      expect(cap.confirmBodies, isEmpty);
+    });
+    test(
+      'thumbnail upload scope change prevents main fetch and upload',
+      () async {
+        final source = _videoSource();
+        final fetched = <String>[];
+        final cap = _UploadCapture(
+          afterConfirm: () async {
+            await StorageService.to.setString(Keys.currentUid, '9009');
+          },
+        );
+        await expectLater(
+          _forwardSingle(source.payload, (key) async {
+            fetched.add(key);
+            return source.ciphers[key]!;
+          }, cap),
+          throwsA(isA<AttachmentForwardException>()),
+        );
+        expect(fetched, hasLength(1));
+        expect(cap.objectKeys, hasLength(1));
+        expect(cap.putBytes, hasLength(1));
+        expect(cap.confirmBodies, hasLength(1));
+      },
+    );
+    test(
+      'multi-image keeps the original scope after the first upload',
+      () async {
+        final first = _sealSrc(0), second = _sealSrc(1);
+        final fetched = <String>[];
+        final cap = _UploadCapture(
+          afterConfirm: () async {
+            await StorageService.to.setString(Keys.currentUid, '9009');
+          },
+        );
+        await expectLater(
+          AttachmentForward.reSealImages(
+            sourcePayload: _payload([first.item, second.item]),
+            sourceMessageId: _srcMsg,
+            sourceChatType: 'C2C',
+            sourceFromUid: _srcUid,
+            sourceToUid: _srcPeer,
+            newMessageId: _newMsgId,
+            targetScope: 'private',
+            targetConversationId: _targetConv,
+            forwarderUid: _fwdUid,
+            fetchCiphertext: (key) async {
+              fetched.add(key);
+              return key == first.item['uri'] ? first.cipher : second.cipher;
+            },
+            presignFn: cap.presignFn,
+            putFn: cap.putFn,
+            confirmFn: cap.confirmFn,
+          ),
+          throwsA(isA<AttachmentForwardException>()),
+        );
+        expect(fetched, [first.item['uri']]);
+        expect(cap.objectKeys, hasLength(1));
+        expect(cap.putBytes, hasLength(1));
+        expect(cap.confirmBodies, hasLength(1));
+      },
+    );
+    test('mismatched forwarder is rejected before fetching', () async {
+      final src = _sealSrc(0);
+      final cap = _UploadCapture();
+      var fetched = 0;
+      await StorageService.to.setString(Keys.currentUid, '9009');
+      await expectLater(
+        _forwardSingle(src.item, (key) async {
+          fetched++;
+          return src.cipher;
+        }, cap),
+        throwsA(isA<AttachmentForwardException>()),
+      );
+      expect(fetched, 0);
+      expect(cap.objectKeys, isEmpty);
+    });
+  });
   group('1. 全部加密的多图转发', () {
     late _UploadCapture cap;
     late List<({Map<String, dynamic> item, Uint8List cipher, Uint8List plain})>

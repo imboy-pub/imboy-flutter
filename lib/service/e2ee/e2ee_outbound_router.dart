@@ -148,7 +148,10 @@ class E2eeOutboundRouter {
       'protected_header': header,
       'payload': jsonDecode(plaintext),
     };
-    final innerFrameCbor = CanonicalCbor.encode(innerFrame);
+    final innerFrameCbor = CanonicalCbor.encode(
+      innerFrame,
+      allowFloatingPoint: true,
+    );
     final innerFrameB64 = base64Url.encode(innerFrameCbor);
 
     // 加密完整 inner_frame

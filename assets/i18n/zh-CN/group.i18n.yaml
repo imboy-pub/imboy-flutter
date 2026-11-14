@@ -49,3 +49,4 @@ transferAndLeave: 转让后退出
 sureToTransferAndLeave: 转让后你将退出本群并失去群主权限，确定继续吗？
 transferredButLeaveFailed: 已转让群主，但退出失败，请重试退出
 noEligibleSuccessor: 暂无可转让的成员
+searchLoadedMembers: "仅搜索已加载成员"

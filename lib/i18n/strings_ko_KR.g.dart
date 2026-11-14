@@ -2064,6 +2064,7 @@ class _Translations$group$ko_KR extends Translations$group$zh_CN {
 	@override String get sureToTransferAndLeave => '양도 후 이 그룹에서 나가며 소유자 권한을 잃습니다. 계속할까요?';
 	@override String get transferredButLeaveFailed => '소유자는 양도되었지만 나가기에 실패했습니다. 다시 시도하세요';
 	@override String get noEligibleSuccessor => '양도할 수 있는 멤버가 없습니다';
+	@override String get searchLoadedMembers => '불러온 멤버만 검색';
 }
 
 // Path: groupCategory
@@ -5364,6 +5365,7 @@ extension on TranslationsKoKr {
 			'group.sureToTransferAndLeave' => '양도 후 이 그룹에서 나가며 소유자 권한을 잃습니다. 계속할까요?',
 			'group.transferredButLeaveFailed' => '소유자는 양도되었지만 나가기에 실패했습니다. 다시 시도하세요',
 			'group.noEligibleSuccessor' => '양도할 수 있는 멤버가 없습니다',
+			'group.searchLoadedMembers' => '불러온 멤버만 검색',
 			'groupCategory.title' => '그룹 폴더',
 			'groupCategory.createCategory' => '폴더 만들기',
 			'groupCategory.categoryName' => '폴더 이름',
@@ -5547,9 +5549,9 @@ extension on TranslationsKoKr {
 			'main.tryAgainQ' => '다시 시도하시겠습니까?',
 			'main.type' => '유형',
 			'main.unanswered' => '응답 없음',
-			'main.unnamed' => '이름 없음',
 			_ => null,
 		} ?? switch (path) {
+			'main.unnamed' => '이름 없음',
 			'main.usedSpace' => '사용된 공간',
 			'main.you' => '당신',
 			'main.zhCn' => '중국어 간체',
@@ -6061,9 +6063,9 @@ extension on TranslationsKoKr {
 			'organization.tools.workspaceEmptyHint' => '같은 기업 내 가입하지 않은 워크스페이스는 여기에 나타나지 않습니다.',
 			'organization.tools.projectCount' => ({required Object count}) => '프로젝트 ${count}개',
 			'organization.tools.projectsEmpty' => '프로젝트가 없습니다',
-			'organization.tools.projectsError' => ({required Object err}) => '프로젝트 로드 실패: ${err}',
 			_ => null,
 		} ?? switch (path) {
+			'organization.tools.projectsError' => ({required Object err}) => '프로젝트 로드 실패: ${err}',
 			'organization.tools.moreInWorkspaceShell' => '모든 워크스페이스 탐색',
 			'organization.tools.moreInWorkspaceShellHint' => '전역 워크스페이스 전환기 열기(기업 간).',
 			'organization.chart.zoomIn' => '확대',

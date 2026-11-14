@@ -21,7 +21,15 @@
 // 运行契约（dart-define，见文件尾注释）与前置（后端健康检查、账号 setup）
 // 见 receipt w3-k handoff。
 
-import 'package:flutter/widgets.dart' show ValueKey;
+import 'dart:async' show unawaited;
+import 'dart:convert' show jsonEncode, base64Url;
+import 'dart:math' show Random;
+
+import 'package:flutter/widgets.dart' show ValueKey, Text;
+
+import 'dart:ui' show CheckedState;
+
+import 'package:flutter/semantics.dart' show SemanticsAction;
 import 'package:flutter_chat_core/flutter_chat_core.dart' as core;
 import 'package:flutter_riverpod/flutter_riverpod.dart' show ProviderScope;
 import 'package:flutter_test/flutter_test.dart';
@@ -38,10 +46,181 @@ import 'chat/support/c2c_journey_support.dart';
 import 'flows/app_launcher.dart';
 import 'flows/test_utils.dart';
 import 'helpers/chat_multi_driver.dart';
+import 'helpers/chat_multi_bundle_history.dart';
+import 'helpers/chat_multi_owned_barrier.dart';
 import 'helpers/chat_multi_fixtures.dart';
 import 'helpers/chat_multi_image_fixture.dart';
 
 const _markerPrefix = '[W3K-MS]';
+
+const _ownedStorageTag = String.fromEnvironment('UX_STORAGE_TAG');
+
+Future<void> _awaitOwnedRelease(WidgetTester tester, String uid) async {
+  const nonce = String.fromEnvironment('CHAT_MULTI_RUN_NONCE');
+  final generation = UserRepoLocal.to.sessionGeneration;
+  final barrier = await tester.runAsync(
+    () => prepareOwnedChatBarrier(
+      nonce: nonce,
+      uid: uid,
+      storageTag: _ownedStorageTag,
+    ),
+  );
+  expect(barrier, isNotNull);
+  expect(UserRepoLocal.to.isCurrentSession(generation), isTrue);
+  expect(UserRepoLocal.to.currentUid, uid);
+  flowLog(
+    'W3K-MS OWNED_READY ${jsonEncode({...barrier!.identity, 'releasePath': barrier.release.path})}',
+  );
+  var released = false;
+  final deadline = DateTime.now().add(const Duration(minutes: 6));
+  while (!released && DateTime.now().isBefore(deadline)) {
+    expect(UserRepoLocal.to.currentUid, uid);
+    expect(UserRepoLocal.to.isCurrentSession(generation), isTrue);
+    released =
+        await tester.runAsync(
+          () => ownedChatReleaseMatches(barrier.release, barrier.identity),
+        ) ??
+        false;
+    if (!released) await tester.pump(const Duration(milliseconds: 500));
+  }
+  expect(UserRepoLocal.to.isCurrentSession(generation), isTrue);
+  expect(UserRepoLocal.to.currentUid, uid);
+  expect(
+    released,
+    isTrue,
+    reason: 'Controller must release this exact owned run',
+  );
+}
+
+Future<void> _awaitOwnedCheckboxTap(
+  WidgetTester tester,
+  Finder chat,
+  String firstId,
+  String secondId,
+  String nonce,
+) async {
+  final uid = UserRepoLocal.to.currentUid;
+  final generation = UserRepoLocal.to.sessionGeneration;
+  final container = ProviderScope.containerOf(tester.element(chat));
+  final conversation = await ConversationRepo().findByPeerId(
+    'C2C',
+    const String.fromEnvironment('CHAT_MULTI_SRC_PEER_UID'),
+  );
+  expect(conversation, isNotNull);
+  final provider = messageSelectionProvider(conversation!.uk3);
+  final beforeToggles = ChatMultiDriverRunStats.productionToggleUsed;
+  expect(ChatMultiDriverRunStats.realLongPressEnterOk, greaterThan(0));
+  expect(container.read(provider).selectedIds, unorderedEquals([firstId]));
+  expectSelectionCount(tester, 1);
+  final checkbox = find.byKey(ValueKey('multi_select_check_$secondId'));
+  unawaited(
+    container.read(chatProvider.notifier).scrollToMessage('C2C', secondId),
+  );
+  expect(await waitForFinder(tester, checkbox, maxSeconds: 10), isTrue);
+  await tester.ensureVisible(checkbox);
+  var rect = tester.getRect(checkbox);
+  var stableMs = 0;
+  var previouslyVisible = tester.any(checkbox.hitTestable());
+  final beforeSemantics = tester.ensureSemantics();
+  try {
+    for (var attempt = 0; attempt < 100 && stableMs < 400; attempt++) {
+      await tester.pump(const Duration(milliseconds: 100));
+      expect(UserRepoLocal.to.currentUid, uid);
+      expect(UserRepoLocal.to.isCurrentSession(generation), isTrue);
+      expect(container.read(provider).selectedIds, unorderedEquals([firstId]));
+      expectSelectionCount(tester, 1);
+      if (!tester.any(checkbox.hitTestable())) {
+        stableMs = 0;
+        previouslyVisible = false;
+        continue;
+      }
+      expect(
+        tester.getSemantics(checkbox).flagsCollection.isChecked,
+        CheckedState.isFalse,
+      );
+      final current = tester.getRect(checkbox);
+      stableMs = previouslyVisible && current == rect ? stableMs + 100 : 0;
+      rect = current;
+      previouslyVisible = true;
+    }
+    expect(
+      stableMs,
+      greaterThanOrEqualTo(400),
+      reason: 'Checkbox must remain visible and stationary for 400ms',
+    );
+    expect(checkbox.hitTestable(), findsOneWidget);
+    expect(tester.getRect(checkbox), rect);
+  } finally {
+    beforeSemantics.dispose();
+  }
+  expectSelectionCount(tester, 1);
+  final random = Random.secure();
+  final challenge = base64Url
+      .encode(List<int>.generate(32, (_) => random.nextInt(256)))
+      .replaceAll('=', '');
+  final binding = tester.binding;
+  final previousPropagation = binding.shouldPropagateDevicePointerEvents;
+  binding.shouldPropagateDevicePointerEvents = true;
+  try {
+    flowLog(
+      'W3K-MS CHECKBOX_READY ${jsonEncode({
+        'nonce': nonce,
+        'challenge': challenge,
+        'uid': uid,
+        'generation': generation,
+        'package': 'pub.imboy.app.uiuxqa',
+        'messageID': secondId,
+        'stableRect': {'x': rect.left, 'y': rect.top, 'w': rect.width, 'h': rect.height},
+        'dpr': tester.view.devicePixelRatio,
+        'viewport': {'w': tester.view.physicalSize.width, 'h': tester.view.physicalSize.height},
+        'coordinateSpace': 'flutter-view-logical',
+        'windowOrigin': 'observer-must-verify',
+        'viewPadding': {'top': tester.view.viewPadding.top, 'left': tester.view.viewPadding.left},
+        'selectedIDsBefore': [firstId],
+        'expectedAfter': [firstId, secondId],
+      })}',
+    );
+    final deadline = DateTime.now().add(const Duration(seconds: 20));
+    while (!container.read(provider).contains(secondId) &&
+        DateTime.now().isBefore(deadline)) {
+      expect(UserRepoLocal.to.currentUid, uid);
+      expect(UserRepoLocal.to.isCurrentSession(generation), isTrue);
+      expect(ChatMultiDriverRunStats.productionToggleUsed, beforeToggles);
+      expect(container.read(provider).selectedIds, unorderedEquals([firstId]));
+      await tester.pump(const Duration(milliseconds: 100));
+    }
+    expect(
+      container.read(provider).selectedIds,
+      unorderedEquals([firstId, secondId]),
+    );
+    expectSelectionCount(tester, 2);
+    await tester.pump(const Duration(seconds: 1));
+    expect(UserRepoLocal.to.currentUid, uid);
+    expect(UserRepoLocal.to.isCurrentSession(generation), isTrue);
+    expect(
+      container.read(provider).selectedIds,
+      unorderedEquals([firstId, secondId]),
+    );
+    expectSelectionCount(tester, 2);
+    expect(ChatMultiDriverRunStats.productionToggleUsed, beforeToggles);
+    expect(checkbox.hitTestable(), findsOneWidget);
+    final semantics = tester.ensureSemantics();
+    try {
+      await tester.pump();
+      expect(
+        tester.getSemantics(checkbox).flagsCollection.isChecked,
+        CheckedState.isTrue,
+      );
+    } finally {
+      semantics.dispose();
+    }
+  } finally {
+    binding.shouldPropagateDevicePointerEvents = previousPropagation;
+  }
+  flowLog(
+    'W3K-MS CHECKBOX_VERIFIED ${jsonEncode({'nonce': nonce, 'challenge': challenge})}',
+  );
+}
 
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
@@ -49,7 +228,27 @@ void main() {
   testWidgets('W3-K P1：C2C 多选勾选/计数/退出 + 逐条转发顺序内容断言', (tester) async {
     installPluginErrorFilter();
     ChatMultiDriverRunStats.reset();
-    await ensureAppLaunched(tester, maxSeconds: 10);
+    if (_ownedStorageTag.isNotEmpty) {
+      const expectedUid = String.fromEnvironment('TEST_EXPECTED_UID');
+      const viewerUid = String.fromEnvironment('PEER_UID');
+      expect(viewerUid, matches(RegExp(r'^[1-9][0-9]{0,19}$')));
+      expect(viewerUid, isNot(expectedUid));
+      expect(
+        const String.fromEnvironment('CHAT_MULTI_SRC_PEER_UID'),
+        viewerUid,
+      );
+      expect(
+        const String.fromEnvironment('CHAT_MULTI_DST_PEER_UID'),
+        viewerUid,
+      );
+      expect(
+        const String.fromEnvironment('CHAT_MULTI_SRC_PEER_TITLE'),
+        isNotEmpty,
+      );
+      await restoreOwnedChat(tester, _ownedStorageTag, expectedUid);
+    } else {
+      await ensureAppLaunched(tester, maxSeconds: 10);
+    }
     // G6-11：后端探活/登录失败 = 环境契约破坏，fail 而非静默 SKIP。
     if (!await checkPreconditions(tester, failOnEnvMissing: true)) return;
     if (!requireBusinessWriteAuthorization()) return;
@@ -90,6 +289,8 @@ void main() {
       peerTitle: peerTitle,
     );
 
+    if (_ownedStorageTag.isNotEmpty) await _awaitOwnedRelease(tester, selfUid);
+
     // ④ 发消息：3 条 marker 文本走真实输入链；image/file 走 provider
     //    addMessage。image/file 均不再用 fixture.invalid 占位 uri（DEV-01
     //    修复 + G6-6）：setup 阶段经生产附件管道真实上传小图/小文本文件，
@@ -97,9 +298,16 @@ void main() {
     //    PlainAttachmentForward.reupload 真实重传（http 占位 uri 会被
     //    _objectKeyOf 判 null → 不重传 → 死 uri 落库）。metadata 带
     //    w3k_run_nonce=nonce（G6-1：副本识别走内容过滤，不依赖墙钟）。
-    final nonce = ChatMultiMessageFixtures.nextNonce();
+    const sharedNonce = String.fromEnvironment('CHAT_MULTI_RUN_NONCE');
+    final nonce = sharedNonce.isEmpty
+        ? ChatMultiMessageFixtures.nextNonce().toString()
+        : sharedNonce;
+    if (sharedNonce.isNotEmpty) {
+      expect(nonce, matches(RegExp(r'^[A-Za-z0-9_-]{1,80}$')));
+    }
+    if (_ownedStorageTag.isNotEmpty) expect(sharedNonce, isNotEmpty);
     // nonce 的字符串形态（G6-1 内容过滤 / w3k_run_nonce 均按字符串对账）。
-    final nonceStr = '$nonce';
+    final nonceStr = nonce;
     final m1 = '$_markerPrefix-t1-$nonce';
     final m2 = '$_markerPrefix-t2-$nonce';
     final m3 = '$_markerPrefix-t3-$nonce';
@@ -213,7 +421,11 @@ void main() {
       );
     }
 
-    await selectByMarker(m2, m2Id);
+    if (_ownedStorageTag.isNotEmpty) {
+      await _awaitOwnedCheckboxTap(tester, chatPage, m1Id!, m2Id!, nonceStr);
+    } else {
+      await selectByMarker(m2, m2Id);
+    }
     await selectByMarker(m3, m3Id);
     expectSelectionCount(tester, 3);
     // image/file 无文本 marker：按 id 勾选（构造器 id 已知）。
@@ -231,6 +443,40 @@ void main() {
       journey: 'W3K-MS',
     );
     expectSelectionCount(tester, 5);
+    // 虚拟列表只挂载附近的消息，先显示所选行再读取真实语义节点。
+    final fileCheckbox = find.byKey(ValueKey('multi_select_check_$fileId'));
+    unawaited(notifier.scrollToMessage('C2C', fileId));
+    expect(await waitForFinder(tester, fileCheckbox, maxSeconds: 10), isTrue);
+    await tester.ensureVisible(fileCheckbox);
+    await settle(tester, maxSeconds: 1);
+    expect(fileCheckbox.hitTestable(), findsOneWidget);
+    expectSelectionCount(tester, 5);
+    final selectionSemantics = tester.ensureSemantics();
+    try {
+      await tester.pump();
+      final checkedNode = tester.getSemantics(fileCheckbox);
+      expect(checkedNode.flagsCollection.isChecked, CheckedState.isTrue);
+      expect(checkedNode.flagsCollection.isEnabled.toBoolOrNull(), isTrue);
+      expect(checkedNode.label, isNotEmpty);
+      expect(
+        tester.getSemantics(find.byKey(ChatMultiKeys.count)).label,
+        contains('5'),
+      );
+      for (final key in [ChatMultiKeys.cancel, ChatMultiKeys.forward]) {
+        final node = tester.getSemantics(
+          find
+              .descendant(of: find.byKey(key), matching: find.byType(Text))
+              .first,
+        );
+        expect(node.label, isNotEmpty);
+        expect(node.getSemanticsData().hasAction(SemanticsAction.tap), isTrue);
+      }
+    } finally {
+      selectionSemantics.dispose();
+    }
+    flowLog(
+      'W3K-MS SEMANTICS_VERIFIED checked/enabled/label/count/cancel/forward',
+    );
     await takeScreenshot(tester, 'w3kms_02_selected_5');
 
     // ⑦ 全不选（保持多选激活）→ 重新勾选 2 条 → 取消按钮 = 退出多选。
@@ -342,6 +588,25 @@ void main() {
         journey: 'W3K-MS-dismiss',
         effectCheck: () => tester.any(find.byKey(forwardCancel)),
       );
+      final sheetSemantics = tester.ensureSemantics();
+      try {
+        await tester.pump();
+        final eachNode = tester.getSemantics(
+          find
+              .descendant(
+                of: find.byKey(ChatMultiKeys.forwardEach),
+                matching: find.byType(Text),
+              )
+              .first,
+        );
+        expect(eachNode.label, isNotEmpty);
+        expect(
+          eachNode.getSemanticsData().hasAction(SemanticsAction.tap),
+          isTrue,
+        );
+      } finally {
+        sheetSemantics.dispose();
+      }
       if (systemBack) {
         await tester.binding.handlePopRoute();
         await settle(tester, maxSeconds: 2);
@@ -537,6 +802,54 @@ void main() {
         );
       }
       flowLog('W3K-MS 隔离断言通过: 副本行 conversation_uk3 == $targetUk3');
+    }
+
+    if (_ownedStorageTag.isNotEmpty) {
+      final ids = orderedCopies().map((m) => m.id).toList();
+      final manifest = forwardEachUiReceipt(
+        nonceStr,
+        ids,
+        expectedKinds,
+        manifest: true,
+      );
+      flowLog('W3K-MS OWNED_EXPECTED $manifest');
+      if (tester.any(find.byKey(ChatMultiKeys.cancel))) {
+        await tapActionBar(
+          tester,
+          ChatMultiKeys.cancel,
+          journey: 'W3K-MS-peer-receipt',
+          effectCheck: () =>
+              !tester.any(find.byKey(ChatMultiKeys.cancel)) &&
+              tester.any(chatInputField(targetPage)),
+        );
+      }
+      expect(
+        chatInputField(targetPage),
+        findsOneWidget,
+        reason: 'Exit selection through the UI before sending the manifest',
+      );
+      await sendTextViaInput(tester, targetPage, manifest);
+      final sent = await waitSent(tester, manifest, maxSeconds: 30);
+      expect(sent?.authorId, selfUid);
+      expect(sent?.status, isIn(settledStatuses));
+      final receipt = forwardEachUiReceipt(nonceStr, ids, expectedKinds);
+      var received = false;
+      for (var i = 0; i < 180 && !received; i++) {
+        final reply = messageOfMarker(tester, receipt);
+        received =
+            reply is core.TextMessage &&
+            reply.text == receipt &&
+            reply.authorId == dstUid &&
+            reply.metadata?['_e2ee_failed'] != true &&
+            reply.metadata?['_e2ee_v3_verified'] == true;
+        if (!received) await tester.pump(const Duration(seconds: 1));
+      }
+      expect(
+        received,
+        isTrue,
+        reason: 'Owned peer must verify all five copies and attachment bytes in its UI',
+      );
+      flowLog('W3K-MS OWNED_PEER_UI_VERIFIED $receipt');
     }
 
     // 退出：pop ChatPage，保持会话栈干净；通道终局对账（G6-2）。

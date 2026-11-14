@@ -8,13 +8,63 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:imboy/config/init.dart' show AppInitializer;
+import 'package:imboy/service/sqlite.dart';
 import 'package:imboy/page/chat/chat/chat_message_item.dart';
 import 'package:imboy/page/chat/chat/chat_page.dart';
 import 'package:imboy/page/conversation/widget/conversation_item.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 
+import '../../enterprise/macos_storage_isolation.dart';
+import '../../micro_community/owned_ui_launch.dart';
 import '../../flows/app_launcher.dart';
 import '../../flows/test_utils.dart';
+
+/// 恢复既有隔离身份；不重新登录、不清除存储。
+Future<void> restoreOwnedChat(
+  WidgetTester tester,
+  String storageTag,
+  String expectedUid,
+) async {
+  expect(storageTag, isNotEmpty);
+  expect(const String.fromEnvironment('UX_RESTORE_STORAGE'), 'true');
+  expect(const bool.fromEnvironment('IMBOY_TEST_ISOLATED'), isTrue);
+  expect(const bool.fromEnvironment('IMBOY_ANDROID_QA_BUILD'), isTrue);
+  expect(
+    const bool.fromEnvironment('IMBOY_LOCAL_EXTERNAL_SERVICES_DISABLED'),
+    isTrue,
+  );
+  expect(const String.fromEnvironment('APP_ENV'), 'local');
+  expect(expectedUid, matches(RegExp(r'^[1-9][0-9]{0,19}$')));
+  expect(FlowConfig.testPhone, isNotEmpty);
+  final endpoint = Uri.parse(
+    const String.fromEnvironment('API_BASE_URL_OVERRIDE'),
+  );
+  expect(endpoint.scheme, 'http');
+  expect(endpoint.host, '127.0.0.1');
+  expect(endpoint.userInfo, isEmpty);
+  await tester.runAsync(
+    () => isolateH2NativeStorage(storageTag, expectedUid, restore: true),
+  );
+  addTearDown(() async {
+    await tester.pumpWidget(const SizedBox.shrink());
+    await tester.runAsync(() async {
+      await AppInitializer.dispose();
+      await SqliteService.to.close();
+    });
+  });
+  await ensureAppLaunched(tester, maxSeconds: 10, launch: launchOwnedUi);
+  for (var i = 0; i < 40 && !UserRepoLocal.to.isLoggedIn; i++) {
+    await tester.pump(const Duration(milliseconds: 250));
+  }
+  expect(
+    UserRepoLocal.to.isLoggedIn,
+    isTrue,
+    reason: 'owned scope must restore its existing session',
+  );
+  expect(UserRepoLocal.to.currentUid, expectedUid);
+  expect(UserRepoLocal.to.lastLoginAccount, FlowConfig.testPhone);
+}
 
 /// 与 e2e_chat_test 相同的会话列表判定（该实现为私有，此处复刻）。
 bool isOnConvList(WidgetTester t) =>

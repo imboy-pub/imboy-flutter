@@ -1,28 +1,11 @@
-// integration_test/helpers/chat_multi_driver.dart
-//
-// W3-K 多选消息真机旅程驱动层（RUN_ID=chat-multi-20261111）。
-//
-// 与 chat_multi_fixtures.dart 的分工：
-// - fixtures 是**纯 Dart**（无 flutter_test/integration_test 依赖），
-//   与 test/unit_test/page/chat/integration_smoke/ 本地冒烟共享；
-// - 本文件只服务 integration_test/（依赖 flows/test_utils 与真实页面）。
-//
-// 驱动策略：全部经稳定 Key / Semantics / 既有 journey 支撑位（长按菜单、
-// SendToPage）操作真实 UI，不注入任何假数据到生产 provider；唯勾选一步
-// 在真机上改走生产 provider 通道（checkbox onTap 的同源 notifier.toggle，
-// 见 _toggleViaProduction），其余步骤仍全部真实 tap。
-//
-// 通道纪律（G6-2）：生产 provider 通道的使用**必须计数**（DEGRADED 口径）。
-// 首轮进入多选必须经真实长按菜单成功（失败即 fail，不走兜底）；后续重进
-// 在长按注入失效时允许生产 enter 通道兜底，但每次兜底计入
-// [ChatMultiDriverRunStats.productionEnterFallback] 并 flowLog；旅程退出前
-// 调 [finishChatMultiJourney] 终局对账：真实长按 0 次却发生过兜底 = fail。
+// W3-K 真机UI驱动：首轮必须真实长按；后续生产通道保留DEGRADED计数，禁止静默兜底。
 
 import 'dart:async';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart' as core;
+import 'package:flutter_chat_ui/flutter_chat_ui.dart' show ChatAnimatedList;
 import 'package:flutter_riverpod/flutter_riverpod.dart'
     show ProviderContainer, ProviderScope;
 import 'package:flutter_test/flutter_test.dart';
@@ -33,30 +16,18 @@ import 'package:imboy/app_core/feature_flags/app_feature_registry.dart';
 import 'package:imboy/page/chat/chat/chat_message_item.dart';
 import 'package:imboy/page/chat/chat/chat_page.dart';
 import 'package:imboy/page/chat/chat/chat_provider.dart';
+import 'package:imboy/page/chat/widget/message_action_menu.dart'
+    show MessageActionMenu;
 import 'package:imboy/page/chat/send_to/send_to_provider.dart';
 import 'package:imboy/store/repository/conversation_repo_sqlite.dart';
 
 import '../flows/test_utils.dart';
 import 'chat_multi_fixtures.dart';
 
-/// 本次 run 的驱动通道统计（G6-2：生产通道兜底不得静默掩盖真回归）。
-///
-/// 真机 runner 以 `--concurrency=1` 单文件单 isolate 执行，静态计数即
-/// 「本次 run」口径；旅程入口调 [reset]，退出前调 [finishChatMultiJourney]
-/// 对账。三个口径：
-/// - [realLongPressEnterOk]：经真实长按菜单成功进入多选的次数；
-/// - [productionEnterFallback]：长按失效后走生产 enter 通道兜底的次数
-///   （仅允许发生在首轮真实长按成功之后的重进场景）；
-/// - [productionToggleUsed]：勾选走生产 provider 通道的次数（DEV-01 以来
-///   勾选步骤的既定真机策略，只进 DEGRADED 摘要不判失败）。
+/// 每个单用例重置真实长按/生产通道统计，退出时校验首轮未被兜底掩盖。
 abstract final class ChatMultiDriverRunStats {
-  /// 经真实长按菜单成功进入多选的次数。
   static int realLongPressEnterOk = 0;
-
-  /// 生产 enter 通道兜底进入多选的次数。
   static int productionEnterFallback = 0;
-
-  /// 勾选走生产 provider 通道的次数（既定策略，仅摘要）。
   static int productionToggleUsed = 0;
 
   /// 旅程入口重置（每文件单用例，重置保证跨用例互不污染）。
@@ -73,11 +44,7 @@ abstract final class ChatMultiDriverRunStats {
       'productionToggleUsed=$productionToggleUsed';
 }
 
-/// 旅程终局对账（G6-2）：chat_multi 各旅程在退出前调用。
-///
-/// - 真实长按进入 0 次且发生过生产通道兜底 → DEGRADED fail（兜底掩盖了
-///   长按链路回归，不得静默通过）；
-/// - 其余情况记录通道统计摘要；存在任一兜底时打 DEGRADED-summary 留档。
+/// 退出对账：无真实长按却有生产进入兜底必须失败，其余降级通道留档。
 void finishChatMultiJourney(String journey) {
   flowLog('$journey 通道统计: ${ChatMultiDriverRunStats.summary}');
   if (ChatMultiDriverRunStats.realLongPressEnterOk == 0 &&
@@ -187,29 +154,69 @@ core.Message? messageOfMarker(WidgetTester tester, String marker) {
   return tester.widget<ChatMessageItem>(f.first).message;
 }
 
-/// 经长按菜单进入多选：长按 [bubble] → 菜单点「多选」→ action bar 出现。
-///
-/// ⚠️ W1-A enter 契约（chat_page._enterMultiSelect → MessageSelectionNotifier
-/// .enter）：长按菜单「多选」会**进入多选并选中被长按的消息** —— 返回后
-/// action bar 计数恒为 1（[bubble] 对应消息已在选中集）。调用方不要再对该
-/// 消息 toggle（会把它勾掉，DEV-01 pass1/pass2 双轮失败的确定性根因之一）；
-/// 本函数尾部对计数=1 做契约断言，防止用例层再犯。
+Future<Finder> _visibleLongPressTarget(
+  WidgetTester tester,
+  Finder bubble,
+  String journey,
+) async {
+  final page = find.byType(ChatPage);
+  expect(page, findsOneWidget, reason: '$journey 仅定位当前聊天页');
+  final list = find.descendant(
+    of: page,
+    matching: find.byType(ChatAnimatedList),
+  );
+  expect(list, findsOneWidget, reason: '$journey 当前消息列表必须唯一');
+  final scrollable = find.descendant(
+    of: list,
+    matching: find.byWidgetPredicate(
+      (widget) =>
+          widget is Scrollable &&
+          axisDirectionToAxis(widget.axisDirection) == Axis.vertical,
+    ),
+  );
+  expect(scrollable, findsOneWidget, reason: '$journey 仅滚动当前消息列表');
+  final target = find.descendant(of: list, matching: bubble);
+  try {
+    await tester.scrollUntilVisible(
+      target,
+      200,
+      scrollable: scrollable,
+      maxScrolls: 8,
+    );
+  } on StateError {
+    flowLog('$journey bounded long-press target not visible');
+    await takeScreenshot(tester, 'w3k_diag_target_not_visible');
+    fail('$journey 8次有界滚动后仍未找到长按目标');
+  }
+  flowLog(
+    '$journey long-press hitTestable=${tester.any(target.hitTestable())}',
+  );
+  await takeScreenshot(tester, 'w3k_target_visibility');
+  expect(target.hitTestable(), findsOneWidget, reason: '$journey 真实长按前目标必须可命中');
+  return target;
+}
+
+/// 真实长按菜单进入并选中目标；返回后计数必须为1，调用方勿再toggle该消息。
 Future<void> enterMultiSelectViaMenu(
   WidgetTester tester,
   Finder bubble, {
   String journey = 'W3K',
 }) async {
-  expect(tester.any(bubble), isTrue, reason: '$journey 长按目标气泡应在列表');
-  // 真机注入 long-press 同样会被吞/迟到（DEV-01 r4：step⑧ 重进多选时长按
-  // 未弹出菜单或菜单未含「多选」入口）→ 重试 3 次，每次重新解析 finder 取
-  // 最新几何，间隔跨 kDoubleTapTimeout；菜单若仍开着（上次入口 tap 被吞），
-  // 重试的长按会命中介障并先关菜单，下下次自然收敛。
+  // 每轮重新定位可见目标；间隔跨双击窗口，避免迟到指针误触。
   var entered = false;
   for (var attempt = 1; attempt <= 3 && !entered; attempt++) {
     if (attempt > 1) await pacedWait(tester, 400);
     await settle(tester, maxSeconds: 2);
-    if (!tester.any(bubble)) continue;
-    await tester.longPress(bubble.first);
+    if (attempt > 1 && tester.any(find.byType(MessageActionMenu))) {
+      final currentChat = _resolveUk3(tester);
+      await tester.binding.handlePopRoute();
+      await settle(tester, maxSeconds: 1);
+      expect(find.byType(MessageActionMenu), findsNothing);
+      expect(find.byType(ChatPage), findsOneWidget);
+      expect(_resolveUk3(tester), currentChat);
+    }
+    final target = await _visibleLongPressTarget(tester, bubble, journey);
+    await tester.longPress(target);
     await settle(tester, maxSeconds: 2);
     entered = await tapAny(tester, chatMultiMenuEntryFinders());
     if (entered) {
@@ -219,8 +226,7 @@ Future<void> enterMultiSelectViaMenu(
     }
   }
   if (!entered) {
-    // 地面真值诊断：区分三个失败面 —— flag 被运行时刷新冲掉 / 消息不可选 /
-    // 长按菜单根本没开（注入被吞）。
+    // 记录功能开关、可选性和菜单状态，区分失败面。
     final flagOn = AppFeatureRegistry.isRolloutFlagEnabled(
       ChatMultiFlags.multiSelect,
     );
@@ -246,9 +252,7 @@ Future<void> enterMultiSelectViaMenu(
         '$journey 诊断: flagOn=$flagOn uk3=$uk3 menuOpen=$anyMenu '
         '$selectableInfo';
     flowLog(diag);
-    // G6-2：首轮进入必须经真实长按菜单成功 —— 生产 enter 通道仅用于首轮
-    // 成功后的后续进入（重进场景长按注入可能失效，DEV-01 r7 地面真值），
-    // 否则兜底会静默掩盖长按链路回归。
+    // 首轮禁生产进入兜底，防止掩盖真实长按链路回归。
     if (ChatMultiDriverRunStats.realLongPressEnterOk == 0) {
       await takeScreenshot(tester, 'w3k_diag_menu_without_multiselect');
       fail(
@@ -256,9 +260,7 @@ Future<void> enterMultiSelectViaMenu(
         '—— 不再静默走生产 enter 通道',
       );
     }
-    // 生产 enter 通道兜底（chat_page._enterMultiSelect 的同源生产函数语义：
-    // messageSelectionProvider.enter —— W1-A enter 契约同款）。G6-15：
-    // 返回 record 区分「场景不可用」与「已进入」，场景不可用 ≠ 已进入。
+    // 仅后续重进允许既有生产通道，结果区分不可用与已进入。
     final ProductionEnterResult viaProduction;
     if (targetMessage == null) {
       viaProduction = (entered: false, reason: '长按目标气泡不在树，无法定位消息');
@@ -289,16 +291,7 @@ Future<void> enterMultiSelectViaMenu(
   await flushPendingPointerPacket(tester);
 }
 
-/// 冲刷进入多选转场后引擎侧挂起的 pointer packet（真机 live binding 特有）。
-///
-/// DEV-01 probe1-3 证据：进入多选（leading 头像↔勾选框、输入区↔action bar
-/// 双重布局切换）后，首个注入 tap 间歇性在引擎 packet 边界被延迟/丢弃 ——
-/// probe1/probe2 入场后首个 tap 不注册（计数不变），probe3 迟到的 packet 与
-/// 下一次 tap 一并生效（一次勾了两条）。生产侧勾选 GestureDetector 无缺陷
-/// （命中即正确切换，probe2 traits 全 selectable=true），修复在 driver 层：
-/// 以 action bar 计数文本（无任何手势处理器，tap 零副作用）作牺牲 tap 吸收
-/// 首个挂起 packet；随后真延时 > kDoubleTapTimeout（300ms）排帧，保证后续
-/// 勾选 tap 全部落在稳定的手势管线上。
+/// 转场后用无手势副作用的计数文本吸收迟到指针，再等待跨双击窗口，避免误勾。
 Future<void> flushPendingPointerPacket(WidgetTester tester) async {
   final warm = find.byKey(ChatMultiKeys.count);
   if (tester.any(warm)) {
@@ -308,22 +301,14 @@ Future<void> flushPendingPointerPacket(WidgetTester tester) async {
   await settle(tester, maxSeconds: 1);
 }
 
-/// 双时钟安全等待 [ms] 毫秒：真机 live binding 走真实时钟（Future.delayed
-/// 生效）；本地 widget 冒烟走 fake binding —— pump 推进假时钟触发同一
-/// timer。顺序必须「先建 timer → pump 推进 → await」，先 await 后 pump 会
-/// 在 fake binding 死锁（pumpAndSettle 在无挂起帧时不推进假时钟）。
+/// 先建timer再pump/await，兼容真机真实时钟与widget假时钟，避免死锁。
 Future<void> pacedWait(WidgetTester tester, int ms) async {
   final waiter = Future<void>.delayed(Duration(milliseconds: ms));
   await tester.pump(Duration(milliseconds: ms));
   await waiter;
 }
 
-/// 唯一指针 tap：tester.tap 复用 pointer=0 —— 真机上被吞/迟到的 packet 会
-/// 令 pointer 0 的 down/up 配对错乱，后续 tap 与悬挂的旧指针状态串线
-/// （probe3 同坐标两次 tap 勾中两条不同消息、final-pass1 r2-v3 计数反向
-/// 2→1 误中已选行的证据）。startGesture 为每次 tap 分配独立 pointer，
-/// down/up 成对交付，杜绝跨 tap 指针串扰。多匹配时取首个（getCenter 要求
-/// 单元素，避免裸 StateError）。
+/// 每次分配独立指针并成对up/remove，避免迟到packet串扰；多匹配取首个。
 Future<void> tapViaNewGesture(WidgetTester tester, Finder finder) async {
   final target = finder.evaluate().length > 1 ? finder.first : finder;
   final gesture = await tester.startGesture(tester.getCenter(target));
@@ -331,13 +316,7 @@ Future<void> tapViaNewGesture(WidgetTester tester, Finder finder) async {
   await gesture.removePointer();
 }
 
-/// 经独立指针 tap [finder] 并做效果校验重试（G6-3：单发 tester.tap 违背
-/// 本文件指针卫生结论，统一 tapViaNewGesture + 可判定效果校验）。
-///
-/// - [effectCheck] 返回 true 即认为 tap 已注册并产生预期状态变化；
-/// - tap 前存在性检查（G6-14 口径）：目标 0 匹配时若效果已达成则直接
-///   返回（动作已生效、目标随之消失），否则 fail 带 journey/目标描述；
-/// - 连续 [maxAttempts] 次效果未出现 → 截图 + DEGRADED fail。
+/// 独立指针点击并有界校验效果；目标消失仅在效果已达成时接受，否则失败留档。
 Future<void> tapFinderWithEffect(
   WidgetTester tester,
   Finder finder, {
@@ -395,11 +374,7 @@ core.Message? _messageById(ProviderContainer container, String messageId) {
   return null;
 }
 
-/// 生产进入多选通道执行结果（G6-15：消除 null 双义）。
-///
-/// - `entered=false` + reason：场景不可用（无 ChatPage/uk3）或 enter 被拒
-///   （reason 为稳定拒绝码）—— 调用方不得把这两种情况当成「已进入」；
-/// - `entered=true`：enter 已执行且成功（W1-A 契约：进入即选中该消息）。
+/// 生产进入结果明确区分已进入与不可用，避免把null当成功。
 typedef ProductionEnterResult = ({bool entered, String? reason});
 
 /// 生产进入多选通道：chat_page._enterMultiSelect 的同源生产函数语义 ——
@@ -677,12 +652,7 @@ void expectSelectionCount(WidgetTester tester, int expected) {
   );
 }
 
-/// 点 action bar 的某个动作键（G6-3：tapViaNewGesture + 效果校验重试）。
-///
-/// [effectCheck] 描述该动作的可判定后续状态变化（如 SendToPage 出现 /
-/// action bar 消失 / 计数归零）；效果未出现即按 [tapFinderWithEffect]
-/// 重试并最终 DEGRADED fail。[effectCheck] 为 null 时退化为「tap + settle」
-/// —— 仅限效果真不可判定的场景，chat_multi 旅程一律传效果校验。
+/// action bar沿用独立指针与有界效果重试，不盲点或静默成功。
 Future<void> tapActionBar(
   WidgetTester tester,
   Key key, {
@@ -720,10 +690,7 @@ Future<String> resolveTargetTitle({
   return title;
 }
 
-/// 在 SendToPage 里搜索并选中目标会话，然后点「发送」。
-///
-/// 目标行按 [targetDisplayTitle] 匹配（SendToNotifier.search 只按
-/// displayTitle 过滤；标题先用 [resolveTargetTitle] 从本地库解析）。
+/// 经真实搜索选择目标并发送，使用目标/发送按钮存在与效果断言。
 Future<void> selectForwardTargetAndSend(
   WidgetTester tester, {
   required String targetDisplayTitle,

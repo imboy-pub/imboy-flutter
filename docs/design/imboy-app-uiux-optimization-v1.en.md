@@ -36,6 +36,10 @@ Use App main `6b4ae832dbab8f367298c3dd24dec2825abb8dac` as the integration start
 
 Acceptance still requires the Xiaomi physical device journeys for selection, cancellation, sheet dismissal, and cross-account individual and merged forwarding, including narrow screens, large text, dark mode, and screen readers. Verify received message count, order, content, and attachment permissions. Complete the original six parent journeys and applicable full checks; specialist passes do not replace overall acceptance. The running backend must support merged forwarding and be verifiably bound to frozen inputs, runtime artifacts, and the test endpoint. This addendum claims no acceptance pass and does not change the parallel Web MVP scope.
 
+### Closeout scope confirmed by the user on 2026-11-14
+
+This chat closes App UI/UX behavior, real paired journeys, and applicable local checks, with commits confined to the local worktree. Product-wide cross-platform full regression remains a separate unfinished follow-up; local shards do not replace it or count as its pass. The original release-preparation full-matrix requirement below continues to apply to that follow-up. The UI/UX parent journeys and directly affected checks above remain required for this delivery. Release, push, and PR actions require separate authorization.
+
 # 3. Current Foundation and Assessment
 
 The personal bottom navigation already includes Messages, Contacts, Channels, and Me; Channels is controlled by a feature flag. The message page has a unified list, filters, long-press actions, and local failure prompts; the space menu has switching-busy and retry states; settings and profiles use grouped layouts. Preserve these capabilities and complete their verification rather than rebuilding them.
@@ -107,6 +111,8 @@ Figure 1. Optimization points in existing page and data flows.
 2. Continue using existing API, WS, Repo, and attachment task identifiers. Keep message IDs as String; do not convert them to int or infer permissions from UI ordering or cache.
 3. Channel save, location selection, and space switching must check the current account, target, and request generation; old-query or old-identity responses must not update the current UI.
 4. UI feedback does not replace server confirmation. Retry calls the existing command; if a receipt is missing, first check through the existing path and retry only after confirming it is safe.
+
+Finite floating-point body values, including image dimensions and coordinates, retain their type and precision through the existing CBOR format. Protected header encoding and validation remain unchanged. Older clients cannot parse the added floating-point body values, so both ends must be updated; local paired acceptance does not establish older-client compatibility or release approval.
 
 Contracts are based on existing repository implementation and DESIGN.md; API changes require separate review.
 

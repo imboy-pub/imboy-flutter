@@ -47,6 +47,9 @@ import 'package:imboy/service/e2ee/attachment_opener.dart';
 import 'package:imboy/service/e2ee/attachment_seal_policy.dart';
 import 'package:imboy/service/asset_url_resolver.dart';
 import 'package:imboy/store/api/attachment_api.dart';
+import 'package:imboy/config/env.dart';
+import 'package:imboy/config/init.dart' show currentEnv;
+import 'package:imboy/store/repository/user_repo_local.dart';
 
 /// 密文对象字节获取器（默认实现见 [AttachmentForward.defaultFetchCiphertext]，
 /// 测试注入 fake 以脱离网络）。
@@ -62,6 +65,7 @@ class AttachmentForwardException implements Exception {
   /// - `attachment_forward_open_failed`：原件认证解密失败（缺钥/密文损坏）；
   /// - `attachment_forward_fetch_failed`：原件密文下载失败；
   /// - `attachment_forward_upload_failed`：重封装后上传失败。
+  /// - `attachment_forward_session_changed`：转发所属账号或服务环境已变化。
   final String reason;
 
   /// 下层异常类型（仅 runtimeType，Finding 014 口径）。
@@ -212,6 +216,7 @@ class AttachmentForward {
     PutFn? putFn,
     ConfirmFn? confirmFn,
   }) async {
+    final requireCurrent = _forwardScope(forwarderUid);
     final fetcher = fetchCiphertext ?? defaultFetchCiphertext;
 
     final AttachmentDescriptor sourceDescriptor;
@@ -249,6 +254,7 @@ class AttachmentForward {
       targetScope: targetScope,
       targetConversationId: targetConversationId,
       fetcher: fetcher,
+      requireCurrent: requireCurrent,
       presignFn: presignFn,
       putFn: putFn,
       confirmFn: confirmFn,
@@ -277,6 +283,7 @@ class AttachmentForward {
     PutFn? putFn,
     ConfirmFn? confirmFn,
   }) async {
+    final requireCurrent = _forwardScope(forwarderUid);
     final fetcher = fetchCiphertext ?? defaultFetchCiphertext;
     final items = sourcePayload[AttachmentSealPolicy.imagesPayloadKey];
     if (items is! List) {
@@ -295,6 +302,7 @@ class AttachmentForward {
     );
     final out = <Map<String, dynamic>>[];
     for (final e in items) {
+      requireCurrent();
       if (e is! Map) {
         throw const AttachmentForwardException(
           'attachment_forward_undecryptable',
@@ -322,6 +330,7 @@ class AttachmentForward {
         targetScope: targetScope,
         targetConversationId: targetConversationId,
         fetcher: fetcher,
+        requireCurrent: requireCurrent,
         presignFn: presignFn,
         putFn: putFn,
         confirmFn: confirmFn,
@@ -336,6 +345,30 @@ class AttachmentForward {
       );
     }
     return out;
+  }
+
+  static void Function() _forwardScope(String forwarderUid) {
+    final actor = UserRepoLocal.to;
+    final uid = actor.currentUid;
+    final generation = actor.sessionGeneration;
+    final environment = currentEnv;
+    final endpoint = Env().apiBaseUrl;
+    void requireCurrent() {
+      if (uid.isEmpty ||
+          forwarderUid != uid ||
+          actor.currentUid != uid ||
+          !actor.isCurrentSession(generation) ||
+          actor.isAuthTransitioning ||
+          currentEnv != environment ||
+          Env().apiBaseUrl != endpoint) {
+        throw const AttachmentForwardException(
+          'attachment_forward_session_changed',
+        );
+      }
+    }
+
+    requireCurrent();
+    return requireCurrent;
   }
 
   /// 源 / 目标绑定值（方案甲）。
@@ -396,10 +429,12 @@ class AttachmentForward {
     required String targetScope,
     required String targetConversationId,
     required CiphertextFetcher fetcher,
+    required void Function() requireCurrent,
     PresignFn? presignFn,
     PutFn? putFn,
     ConfirmFn? confirmFn,
   }) async {
+    requireCurrent();
     // ── 缩略图（若在）：先解密重封装上传 ──────────────────────────────
     AttachmentDescriptor? newThumbDescriptor;
     String? newThumbObjectKey;
@@ -411,10 +446,12 @@ class AttachmentForward {
         descriptor: sourceThumb,
         bindingHash: sourceBinding,
       );
+      requireCurrent();
       final thumbSeal = AttachmentSealRequest(
         bindingHash: newBinding,
         attachmentId: sourceThumb.attachmentId,
       );
+      requireCurrent();
       try {
         final thumbMeta = await AttachmentApi.uploadBytesViaPresignMeta(
           thumbPlain,
@@ -437,6 +474,7 @@ class AttachmentForward {
           '${e.runtimeType}',
         );
       }
+      requireCurrent();
       if (newThumbDescriptor == null) {
         throw const AttachmentForwardException(
           'attachment_forward_upload_failed',
@@ -450,11 +488,13 @@ class AttachmentForward {
       descriptor: sourceDescriptor,
       bindingHash: sourceBinding,
     );
+    requireCurrent();
     final mainSeal = AttachmentSealRequest(
       bindingHash: newBinding,
       attachmentId: sourceDescriptor.attachmentId,
     )..thumbDescriptor = newThumbDescriptor;
     final Map<String, dynamic> mainMeta;
+    requireCurrent();
     try {
       mainMeta = await AttachmentApi.uploadBytesViaPresignMeta(
         mainPlain,
@@ -474,6 +514,7 @@ class AttachmentForward {
         '${e.runtimeType}',
       );
     }
+    requireCurrent();
     final newDescriptor = mainSeal.descriptor;
     if (newDescriptor == null) {
       throw const AttachmentForwardException(

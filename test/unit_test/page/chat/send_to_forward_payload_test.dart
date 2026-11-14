@@ -1,3 +1,24 @@
+import 'dart:collection';
+import 'dart:typed_data';
+
+import 'package:imboy/config/env.dart';
+import 'package:imboy/config/init.dart' show currentEnv;
+import 'package:imboy/service/e2ee/attachment_descriptor.dart';
+import 'package:imboy/store/repository/user_repo_local.dart';
+import 'package:flutter_chat_core/flutter_chat_core.dart' as core;
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:sqflite_sqlcipher/sqflite.dart';
+import 'package:imboy/config/const.dart';
+import 'package:imboy/service/storage.dart';
+import 'package:imboy/service/sqlite.dart';
+import 'package:imboy/service/event_bus.dart';
+import 'package:imboy/service/events/common_events.dart';
+import 'package:imboy/store/model/message_model.dart';
+import 'package:imboy/store/model/conversation_model.dart';
+import 'package:imboy/page/chat/chat/services/chat_network_service.dart';
+
+import '../../helper/sqflite_test_helper.dart';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/modules/messaging/application/history_bundle/history_bundle_types.dart';
 import 'package:imboy/page/chat/send_to/send_to_provider.dart';
@@ -11,6 +32,187 @@ import 'package:imboy/i18n/strings.g.dart';
 ///   2. 顶层 msg_type 为空 → 服务端回 action=invalid_message，
 ///      消息显示「[无效消息类型]」并每 5~10s 无限重试。
 void main() {
+  setUpAll(() async {
+    TestWidgetsFlutterBinding.ensureInitialized();
+    SharedPreferences.setMockInitialValues({});
+    await StorageService.init();
+    await StorageService.to.setString(Keys.currentUid, '10001');
+    await StorageService.to.setString(
+      Keys.currentUser,
+      '{"uid":"10001","nickname":"Fixture","account":"","email":"",'
+      '"mobile":"","avatar":"","role":null,"gender":0,"region":"",'
+      '"sign":"","setting":{}}',
+    );
+  });
+  tearDown(() => SqliteService.setDbForTest(null));
+
+  for (final outcome in ['success', 'false', 'throw']) {
+    test(
+      'sendMsg dispatch $outcome preserves one sending echo and returns actual result',
+      () async {
+        mockSqfliteSqlcipher();
+        final db = _ForwardDb();
+        SqliteService.setDbForTest(db);
+        final order = <String>[];
+        final echoes = <core.Message>[];
+        final subscription = AppEventBus.on<DataWrapperEvent<dynamic>>().listen(
+          (event) {
+            if (event.dataType == 'Message') {
+              echoes.add(event.data as core.Message);
+              order.add('echo');
+            }
+          },
+        );
+        addTearDown(subscription.cancel);
+        final notifier = SendToNotifier(
+          networkService: _ForwardNetwork((model) async {
+            await Future<void>.delayed(Duration.zero);
+            order.add('dispatch');
+            if (outcome == 'throw') throw StateError('dispatch failed');
+            return outcome == 'success';
+          }),
+        );
+        final ok = await notifier.sendMsg(
+          ConversationModel(
+            id: 1,
+            peerId: '10002',
+            avatar: '',
+            title: 'target',
+            subtitle: '',
+            type: 'C2C',
+            msgType: 'text',
+            unreadNum: 0,
+          ),
+          const core.TextMessage(
+            id: 'source',
+            authorId: '10001',
+            text: 'fixture',
+          ),
+          silent: true,
+        );
+        expect(ok, outcome == 'success');
+        expect(db.rows, hasLength(1));
+        expect(db.rows.single['status'], IMBoyMessageStatus.sending);
+        expect(echoes, hasLength(1));
+        expect(echoes.single.id, db.rows.single['id']);
+        expect(echoes.single.status, core.MessageStatus.sending);
+        expect(order, ['echo', 'dispatch']);
+      },
+    );
+  }
+
+  for (final change in ['generation', 'endpoint']) {
+    test(
+      'sendMsg policy await rejects same UID with changed $change',
+      () async {
+        mockSqfliteSqlcipher();
+        final db = _ForwardDb();
+        SqliteService.setDbForTest(db);
+        final environment = currentEnv;
+        final originalEnv = envMap[environment];
+        final user = StorageService.to.getString(Keys.currentUser);
+        addTearDown(() async {
+          currentEnv = environment;
+          if (originalEnv != null) envMap[environment] = originalEnv;
+          await StorageService.to.setString(Keys.currentUid, '10001');
+          await StorageService.to.setString(Keys.currentUser, user);
+        });
+        final generation = UserRepoLocal.to.sessionGeneration;
+        var materialReads = 0;
+        var policyResolved = false;
+        var dispatches = 0;
+        final echoes = <core.Message>[];
+        final subscription = AppEventBus.on<DataWrapperEvent<dynamic>>().listen(
+          (event) {
+            if (event.dataType == 'Message') {
+              echoes.add(event.data as core.Message);
+            }
+          },
+        );
+        addTearDown(subscription.cancel);
+        final descriptor = _ObservedDescriptor(
+          AttachmentDescriptor(
+            attachmentId: 'fixture',
+            objectKey: 'obj/fixture',
+            contentKey: Uint8List(32),
+            cipher: AttachmentDescriptor.supportedCipher,
+            chunkSize: 64,
+            chunkCount: 1,
+            baseNonce: Uint8List(12),
+            plainSize: 1,
+            plainSha256: Uint8List(32),
+            mime: 'image/png',
+            name: 'fixture',
+          ).toMap(),
+          () {
+            if (policyResolved) materialReads++;
+          },
+        );
+        final notifier = SendToNotifier(
+          networkService: _ForwardNetwork((_) async {
+            dispatches++;
+            return true;
+          }),
+          targetEncryptedResolver:
+              ({required chatType, required peerId}) async {
+                await Future<void>.delayed(Duration.zero);
+                if (change == 'generation') {
+                  await UserRepoLocal.to.quitLogin();
+                  await StorageService.to.setString(Keys.currentUid, '10001');
+                  UserRepoLocal.to.clearAuthTransitionFailureForTest();
+                  expect(UserRepoLocal.to.isAuthTransitioning, isFalse);
+                  expect(
+                    UserRepoLocal.to.sessionGeneration,
+                    greaterThan(generation),
+                  );
+                } else {
+                  envMap[environment] = const _EndpointEnv(
+                    'http://127.0.0.1:2',
+                  );
+                }
+                policyResolved = true;
+                return true;
+              },
+        );
+        final ok = await notifier.sendMsg(
+          ConversationModel(
+            id: 1,
+            peerId: '10002',
+            avatar: '',
+            title: 'target',
+            subtitle: '',
+            type: 'C2C',
+            msgType: 'file',
+            unreadNum: 0,
+          ),
+          core.CustomMessage(
+            id: 'source',
+            authorId: '10001',
+            metadata: {
+              'conversation_uk3': 'C2C_10001_10002',
+              'peer_id': '10002',
+              'msg_type': 'file',
+              'attachment_descriptor': descriptor,
+            },
+          ),
+          silent: true,
+        );
+        await Future<void>.delayed(Duration.zero);
+        expect(policyResolved, isTrue);
+        expect(UserRepoLocal.to.currentUid, '10001');
+        expect(ok, isFalse);
+        expect(
+          materialReads,
+          0,
+          reason: 'stale source must not enter re-seal or upload',
+        );
+        expect(db.rows, isEmpty);
+        expect(echoes, isEmpty);
+        expect(dispatches, 0);
+      },
+    );
+  }
+
   group('SendToNotifier.buildForwardPayload', () {
     test('目标会话的 peer_id / conversation_uk3 覆盖源消息 metadata', () {
       final payload = SendToNotifier.buildForwardPayload(
@@ -143,4 +345,80 @@ void main() {
       );
     });
   });
+}
+
+class _ForwardNetwork extends ChatNetworkService {
+  _ForwardNetwork(this.dispatch);
+  final Future<bool> Function(MessageModel) dispatch;
+  @override
+  Future<bool> sendWsMsg(MessageModel model) => dispatch(model);
+}
+
+class _ForwardDb extends Fake implements Database, Transaction {
+  final rows = <Map<String, Object?>>[];
+  @override
+  bool get isOpen => true;
+  @override
+  Future<void> close() async {}
+  @override
+  Future<T> transaction<T>(
+    Future<T> Function(Transaction) action, {
+    bool? exclusive,
+  }) => action(this);
+  @override
+  Future<List<Map<String, Object?>>> rawQuery(
+    String sql, [
+    List<Object?>? arguments,
+  ]) async => sql.startsWith('SELECT COUNT(*)')
+      ? [
+          {'count': 0},
+        ]
+      : [];
+  @override
+  Future<List<Map<String, Object?>>> query(
+    String table, {
+    bool? distinct,
+    List<String>? columns,
+    String? where,
+    List<Object?>? whereArgs,
+    String? groupBy,
+    String? having,
+    String? orderBy,
+    int? limit,
+    int? offset,
+  }) async => [];
+  @override
+  Future<int> insert(
+    String table,
+    Map<String, Object?> values, {
+    String? nullColumnHack,
+    ConflictAlgorithm? conflictAlgorithm,
+  }) async {
+    rows.add(Map<String, Object?>.from(values));
+    return rows.length;
+  }
+}
+
+class _EndpointEnv implements Env {
+  const _EndpointEnv(this.apiBaseUrl);
+  @override
+  final String apiBaseUrl;
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+}
+
+class _ObservedDescriptor extends MapView<String, dynamic> {
+  _ObservedDescriptor(super.map, this.onRead);
+  final void Function() onRead;
+  @override
+  dynamic operator [](Object? key) {
+    onRead();
+    return super[key];
+  }
+
+  @override
+  void forEach(void Function(String, dynamic) action) {
+    onRead();
+    super.forEach(action);
+  }
 }

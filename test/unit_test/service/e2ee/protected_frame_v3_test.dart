@@ -13,6 +13,7 @@
 library;
 
 import 'dart:convert';
+import 'dart:math' as math;
 import 'dart:typed_data';
 
 import 'package:crypto/crypto.dart';
@@ -93,6 +94,167 @@ void main() {
       final bytes = CanonicalCbor.encode(original);
       final decoded = CanonicalCbor.decode(bytes);
       expect(decoded, equals(original));
+    });
+
+    group('explicit inner-frame finite floats', () {
+      test('default header codec still rejects nested floats', () {
+        expect(
+          () => CanonicalCbor.encode({
+            'a': [1.0],
+          }),
+          throwsA(isA<CborParseException>()),
+        );
+        expect(
+          () => CanonicalCbor.decode(Uint8List.fromList([0xf9, 0x3c, 0x00])),
+          throwsA(isA<CborParseException>()),
+        );
+      });
+
+      test(
+        'RFC 8949 vectors use shortest exact width and preserve signed zero',
+        () {
+          final vectors = <double, List<int>>{
+            0.0: [0xf9, 0x00, 0x00],
+            1.0: [0xf9, 0x3c, 0x00],
+            -4.0: [0xf9, 0xc4, 0x00],
+            65504.0: [0xf9, 0x7b, 0xff],
+            5.960464477539063e-8: [0xf9, 0x00, 0x01],
+            0.00006103515625: [0xf9, 0x04, 0x00],
+            100000.0: [0xfa, 0x47, 0xc3, 0x50, 0x00],
+            1.1: [0xfb, 0x3f, 0xf1, 0x99, 0x99, 0x99, 0x99, 0x99, 0x9a],
+          };
+          for (final entry in vectors.entries) {
+            expect(
+              CanonicalCbor.encode(entry.key, allowFloatingPoint: true),
+              entry.value,
+            );
+            final decoded = CanonicalCbor.decode(
+              Uint8List.fromList(entry.value),
+              strict: true,
+              allowFloatingPoint: true,
+            );
+            expect(decoded, isA<double>());
+            expect(decoded, entry.key);
+          }
+          final negativeZero = CanonicalCbor.encode(
+            -0.0,
+            allowFloatingPoint: true,
+          );
+          expect(negativeZero, [0xf9, 0x80, 0x00]);
+          expect(
+            (CanonicalCbor.decode(
+              negativeZero,
+              strict: true,
+              allowFloatingPoint: true,
+            ) as double).isNegative,
+            isTrue,
+          );
+        },
+      );
+
+      test('every finite half value has an exact canonical roundtrip', () {
+        for (var bits = 0; bits <= 0xffff; bits++) {
+          if ((bits & 0x7c00) == 0x7c00) continue;
+          final bytes = Uint8List.fromList([0xf9, bits >> 8, bits & 0xff]);
+          final value = CanonicalCbor.decode(
+            bytes,
+            strict: true,
+            allowFloatingPoint: true,
+          );
+          expect(CanonicalCbor.encode(value, allowFloatingPoint: true), bytes);
+        }
+      });
+
+      test('finite double bit patterns retain all precision', () {
+        final random = math.Random(8949);
+        for (var i = 0; i < 1000; i++) {
+          final bytes = Uint8List.fromList(
+            List.generate(8, (_) => random.nextInt(256)),
+          );
+          final value = ByteData.sublistView(bytes).getFloat64(0);
+          if (!value.isFinite) continue;
+          final encoded = CanonicalCbor.encode(value, allowFloatingPoint: true);
+          final restored = CanonicalCbor.decode(
+            encoded,
+            strict: true,
+            allowFloatingPoint: true,
+          ) as double;
+          final result = ByteData(8)..setFloat64(0, restored);
+          expect(result.buffer.asUint8List(), bytes);
+        }
+      });
+
+      test('rejects non-finite numbers in every supported width', () {
+        for (final value in [
+          double.nan,
+          double.infinity,
+          double.negativeInfinity,
+        ]) {
+          expect(
+            () => CanonicalCbor.encode(value, allowFloatingPoint: true),
+            throwsA(isA<CborParseException>()),
+          );
+        }
+        for (final bytes in <List<int>>[
+          [0xf9, 0x7c, 0x00],
+          [0xf9, 0xfc, 0x00],
+          [0xf9, 0x7e, 0x00],
+          [0xfa, 0x7f, 0x80, 0x00, 0x00],
+          [0xfa, 0x7f, 0xc0, 0x00, 0x00],
+          [0xfb, 0x7f, 0xf0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00],
+          [0xfb, 0x7f, 0xf8, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00],
+        ]) {
+          expect(
+            () => CanonicalCbor.decode(
+              Uint8List.fromList(bytes),
+              allowFloatingPoint: true,
+            ),
+            throwsA(isA<CborParseException>()),
+          );
+        }
+      });
+
+      test('rejects truncated float data without leaking range errors', () {
+        for (final full in <List<int>>[
+          [0xf9, 0x3c, 0x00],
+          [0xfa, 0x47, 0xc3, 0x50, 0x00],
+          [0xfb, 0x3f, 0xf1, 0x99, 0x99, 0x99, 0x99, 0x99, 0x9a],
+        ]) {
+          for (var length = 1; length < full.length; length++) {
+            expect(
+              () => CanonicalCbor.decode(
+                Uint8List.fromList(full.take(length).toList()),
+                allowFloatingPoint: true,
+              ),
+              throwsA(isA<CborParseException>()),
+            );
+          }
+        }
+      });
+
+      test('strict decoding rejects non-shortest float widths', () {
+        for (final bytes in <List<int>>[
+          [0xfa, 0x3f, 0x80, 0x00, 0x00],
+          [0xfb, 0x3f, 0xf0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00],
+          [0xfb, 0x40, 0xf8, 0x6a, 0x00, 0x00, 0x00, 0x00, 0x00],
+        ]) {
+          expect(
+            () => CanonicalCbor.decode(
+              Uint8List.fromList(bytes),
+              strict: true,
+              allowFloatingPoint: true,
+            ),
+            throwsA(isA<CborParseException>()),
+          );
+          expect(
+            CanonicalCbor.decode(
+              Uint8List.fromList(bytes),
+              allowFloatingPoint: true,
+            ),
+            isA<double>(),
+          );
+        }
+      });
     });
 
     test('rejects indefinite-length encoding', () {

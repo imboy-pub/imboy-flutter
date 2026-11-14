@@ -69,6 +69,42 @@ Widget screen({
 );
 
 void main() {
+  testWidgets('操作按钮子节点具有标签与可执行动作', (tester) async {
+    final semantics = tester.ensureSemantics();
+    try {
+      await tester.pumpWidget(screen(selected: messages(5), each: (_) {}));
+      await tester.pumpAndSettle();
+      for (final entry in {
+        'multi_select_cancel': t.chat.multiSelectCancel,
+        'multi_select_forward': t.chat.forward,
+      }.entries) {
+        final text = find.descendant(
+          of: find.byKey(ValueKey(entry.key)),
+          matching: find.text(entry.value),
+        );
+        expect(text, findsOneWidget);
+        final node = tester.getSemantics(text);
+        expect(node.label, entry.value);
+        expect(node.getSemanticsData().hasAction(SemanticsAction.tap), isTrue);
+      }
+      await tester.tap(find.byKey(const ValueKey('multi_select_forward')));
+      await tester.pumpAndSettle();
+      final eachText = find.descendant(
+        of: find.byKey(const ValueKey('multi_select_forward_each')),
+        matching: find.text(t.chat.multiSelectForwardEach),
+      );
+      expect(eachText, findsOneWidget);
+      final eachNode = tester.getSemantics(eachText);
+      expect(eachNode.label, t.chat.multiSelectForwardEach);
+      expect(
+        eachNode.getSemanticsData().hasAction(SemanticsAction.tap),
+        isTrue,
+      );
+    } finally {
+      semantics.dispose();
+    }
+  });
+
   testWidgets('顶部显示数量与取消、清空，底部转发和导出', (tester) async {
     var cancelled = 0;
     var cleared = 0;
@@ -304,4 +340,89 @@ void main() {
     );
     expect(tester.takeException(), isNull);
   });
+  for (final width in [320.0, 360.0, 390.0]) {
+    for (final scale in [1.0, 1.5, 2.0]) {
+      for (final brightness in Brightness.values) {
+        testWidgets('多选与转发矩阵 width=$width scale=$scale ${brightness.name}', (
+          tester,
+        ) async {
+          tester.view.physicalSize = Size(width, 640);
+          tester.view.devicePixelRatio = 1;
+          addTearDown(tester.view.reset);
+          final selected = messages(5);
+          var cancelled = 0;
+          var cleared = 0;
+          List<Message>? forwarded;
+          List<Message>? bundled;
+          List<Message>? exported;
+          await tester.pumpWidget(
+            screen(
+              selected: selected,
+              brightness: brightness,
+              textScaler: TextScaler.linear(scale),
+              cancel: () => cancelled++,
+              clear: () => cleared++,
+              each: (value) => forwarded = value,
+              bundle: (value) => bundled = value,
+              export: (value) => exported = value,
+            ),
+          );
+          await tester.pumpAndSettle();
+          void expectVisible(String key, {bool actionable = true}) {
+            final finder = find.byKey(ValueKey(key));
+            expect(finder, findsOneWidget);
+            final rect = tester.getRect(finder);
+            expect(rect.left, greaterThanOrEqualTo(0));
+            expect(rect.right, lessThanOrEqualTo(width));
+            expect(rect.top, greaterThanOrEqualTo(0));
+            expect(rect.bottom, lessThanOrEqualTo(640));
+            if (actionable) expect(finder.hitTestable(), findsOneWidget);
+            final text = find.descendant(
+              of: finder,
+              matching: find.byType(RichText),
+            );
+            for (final element in text.evaluate()) {
+              expect(
+                (element.renderObject! as RenderParagraph).didExceedMaxLines,
+                isFalse,
+              );
+            }
+          }
+
+          expectVisible('multi_select_count', actionable: false);
+          for (final key in ['cancel', 'clear', 'forward', 'export']) {
+            expectVisible('multi_select_$key');
+          }
+          expect(tester.takeException(), isNull);
+          await tester.tap(find.byKey(const ValueKey('multi_select_clear')));
+          expect(cleared, 1);
+          await tester.tap(find.byKey(const ValueKey('multi_select_export')));
+          expect(exported, orderedEquals(selected));
+          for (final action in ['each', 'bundle', 'cancel']) {
+            await tester.tap(
+              find.byKey(const ValueKey('multi_select_forward')),
+            );
+            await tester.pumpAndSettle();
+            for (final option in ['each', 'bundle', 'cancel']) {
+              expectVisible('multi_select_forward_$option');
+            }
+            expect(tester.takeException(), isNull);
+            await tester.tap(
+              find.byKey(ValueKey('multi_select_forward_$action')),
+            );
+            await tester.pumpAndSettle();
+            expect(
+              find.byKey(const ValueKey('multi_select_forward_each')),
+              findsNothing,
+            );
+          }
+          expect(forwarded, orderedEquals(selected));
+          expect(bundled, orderedEquals(selected));
+          await tester.tap(find.byKey(const ValueKey('multi_select_cancel')));
+          expect(cancelled, 1);
+          expect(tester.takeException(), isNull);
+        });
+      }
+    }
+  }
 }

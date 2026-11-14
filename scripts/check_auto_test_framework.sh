@@ -36,6 +36,10 @@ esac
 
 APP_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 BACKEND_ROOT="${IMBOY_BACKEND_ROOT:-$APP_ROOT/../imboy}"
+ADMIN_ARGS=()
+if [ -n "${IMBOY_ADMIN_ROOT:-}" ]; then
+  ADMIN_ARGS=(--admin-dir "$IMBOY_ADMIN_ROOT")
+fi
 NEGATIVE="${AUTO_TEST_FRAMEWORK_NEGATIVE:-}"
 AUTO_TEST_REPORT_ROOT="${AUTO_TEST_REPORT_ROOT:-$(mktemp -d "${TMPDIR:-/tmp}/imboyapp-auto-test.XXXXXX")}"
 export AUTO_TEST_REPORT_ROOT
@@ -267,7 +271,7 @@ if [ ! -f "$BACKEND_ROOT/scripts/generate_product_features.py" ]; then
   DRIFT_DETAIL="backend repo not available at $BACKEND_ROOT（CI 环境无 ../imboy；无法只读核对 profile 漂移）"
   printf 'BLOCKED_PRODUCT_DRIFT: %s\n' "$DRIFT_DETAIL"
   printf '[gate] %-26s ENV(-) %s（必需契约未验证）\n' "product_drift" "$DRIFT_DETAIL"
-elif (cd "$BACKEND_ROOT" && python3 scripts/generate_product_features.py --check --app-dir "$APP_ROOT") >"$AUTO_TEST_REPORT_ROOT/gate_drift.log" 2>&1; then
+elif (cd "$BACKEND_ROOT" && python3 scripts/generate_product_features.py --check --app-dir "$APP_ROOT" "${ADMIN_ARGS[@]}") >"$AUTO_TEST_REPORT_ROOT/gate_drift.log" 2>&1; then
   DRIFT_STATUS="OK"
   DRIFT_DETAIL="product feature manifest 与当前产品生成物一致"
   printf '[gate] %-26s OK %s\n' "product_drift" "$DRIFT_DETAIL"
