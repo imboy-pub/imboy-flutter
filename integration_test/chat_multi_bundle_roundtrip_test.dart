@@ -22,6 +22,7 @@
 // 在「合并转发」步骤 fail 并给出接线诊断。
 
 import 'package:flutter/material.dart';
+import 'package:flutter_chat_core/flutter_chat_core.dart' as core;
 import 'package:flutter_riverpod/flutter_riverpod.dart' show ProviderScope;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
@@ -42,6 +43,8 @@ import 'helpers/chat_multi_fixtures.dart';
 import 'helpers/chat_multi_image_fixture.dart';
 
 const _markerPrefix = '[W3K-BND]';
+const _ownedStorage = String.fromEnvironment('UX_STORAGE_TAG');
+const _owned = _ownedStorage != '';
 
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
@@ -50,7 +53,8 @@ void main() {
     const peerAccount = String.fromEnvironment('CHAT_MULTI_PEER_ACCOUNT');
     const peerPassword = String.fromEnvironment('CHAT_MULTI_PEER_PASSWORD');
     final base = FlowApiConfig.apiBaseUrl;
-    if (peerAccount.isEmpty || peerPassword.isEmpty || base.isEmpty) {
+    if ((!_owned && (peerAccount.isEmpty || peerPassword.isEmpty)) ||
+        base.isEmpty) {
       markTestSkipped(
         'ENV_MISSING: P2 需要 CHAT_MULTI_PEER_ACCOUNT/PASSWORD + API_BASE_URL；'
         'PEER_NOT_VERIFIED，不执行本轮消息/附件写入',
@@ -66,9 +70,29 @@ void main() {
     if (!requireBusinessWriteAuthorization()) return;
     installPluginErrorFilter();
     ChatMultiDriverRunStats.reset();
-    await ensureAppLaunched(tester, maxSeconds: 10);
+    if (_owned) {
+      const uid = String.fromEnvironment('TEST_EXPECTED_UID');
+      expect(uid, '123613243007830016');
+      expect(const String.fromEnvironment('PEER_UID'), '123613243079133184');
+      expect(
+        const String.fromEnvironment('CHAT_MULTI_SRC_PEER_UID'),
+        const String.fromEnvironment('PEER_UID'),
+      );
+      expect(
+        const String.fromEnvironment('CHAT_MULTI_DST_PEER_UID'),
+        const String.fromEnvironment('PEER_UID'),
+      );
+      await restoreOwnedChat(tester, _ownedStorage, uid);
+    } else {
+      await ensureAppLaunched(tester, maxSeconds: 10);
+    }
     // G6-11：后端探活/登录失败 = 环境契约破坏，fail 而非静默 SKIP。
-    if (!await checkPreconditions(tester, failOnEnvMissing: true)) return;
+    if (_owned) {
+      expect(await waitForMainShell(tester, maxAttempts: 180), isTrue);
+      expect(await ensureBackendAvailable(), isTrue);
+    } else {
+      if (!await checkPreconditions(tester, failOnEnvMissing: true)) return;
+    }
 
     final selfUid = UserRepoLocal.to.currentUid;
     final peerUid = () {
@@ -91,24 +115,27 @@ void main() {
     flowLog('W3K-BND self=$selfUid src=$peerUid dst=$dstUid');
 
     // 对端登录/身份/基线必须先于本轮所有发送和上传；失败不得降级为通过。
-    final peer = FlowApiClient(baseUrl: base, deviceId: 'w3kbnd-peer');
-    addTearDown(peer.close);
-    final loginRes = await peer.login(
-      account: peerAccount,
-      password: peerPassword,
-      type: 'email',
-      plainPassword: true,
-    );
-    expect(loginRes['code'], 0, reason: 'P2 对端登录失败，未取得接收证据');
-    expect(peer.currentUid, dstUid, reason: 'P2 对端登录账号必须是本轮目标账号');
-    final history = ChatMultiBundleHistory(
-      senderUid: selfUid,
-      recipientUid: dstUid,
-      fetchPage: (query) =>
-          peer.get('/api/v1/msg/history', queryParameters: query),
-    );
-    await history.captureBaseline();
-    flowLog('W3K-BND history baseline=${history.baselineSeq}');
+    late final ChatMultiBundleHistory history;
+    if (!_owned) {
+      final peer = FlowApiClient(baseUrl: base, deviceId: 'w3kbnd-peer');
+      addTearDown(peer.close);
+      final loginRes = await peer.login(
+        account: peerAccount,
+        password: peerPassword,
+        type: 'email',
+        plainPassword: true,
+      );
+      expect(loginRes['code'], 0, reason: 'P2 对端登录失败，未取得接收证据');
+      expect(peer.currentUid, dstUid, reason: 'P2 对端登录账号必须是本轮目标账号');
+      history = ChatMultiBundleHistory(
+        senderUid: selfUid,
+        recipientUid: dstUid,
+        fetchPage: (query) =>
+            peer.get('/api/v1/msg/history', queryParameters: query),
+      );
+      await history.captureBaseline();
+      flowLog('W3K-BND history baseline=${history.baselineSeq}');
+    }
 
     await requireChatMultiServerFlags();
 
@@ -119,7 +146,10 @@ void main() {
       peerId: peerUid,
       peerTitle: peerTitle,
     );
-    final nonce = ChatMultiMessageFixtures.nextNonce();
+    final nonce = _owned
+        ? const String.fromEnvironment('CHAT_MULTI_RUN_NONCE')
+        : ChatMultiMessageFixtures.nextNonce().toString();
+    if (_owned) expect(nonce, matches(RegExp(r'^[A-Za-z0-9_-]{1,80}$')));
     final m1 = '$_markerPrefix-t1-$nonce';
     final m2 = '$_markerPrefix-t2-$nonce';
     final m3 = '$_markerPrefix-t3-$nonce';
@@ -150,7 +180,7 @@ void main() {
       height: 8,
       size: ChatMultiImageFixture.pngBytes.length,
       peerId: peerUid,
-      runNonce: '$nonce',
+      runNonce: nonce,
     );
     final imgOk = await notifier.addMessage(
       selfUid,
@@ -210,7 +240,13 @@ void main() {
             find.byWidgetPredicate(
               (w) =>
                   w is HistoryBundleMessageBuilder &&
-                  '${w.message.metadata?['entries'] ?? ''}'.contains(m1),
+                  (_owned
+                      ? historyBundleEntries(w.message.metadata ?? {}).any(
+                          (entry) =>
+                              entry['payload'] is Map &&
+                              (entry['payload'] as Map)['text'] == m1,
+                        )
+                      : '${w.message.metadata?['entries'] ?? ''}'.contains(m1)),
             ),
           ),
     );
@@ -270,7 +306,13 @@ void main() {
     final currentBubble = find.byWidgetPredicate(
       (w) =>
           w is HistoryBundleMessageBuilder &&
-          '${w.message.metadata?['entries'] ?? ''}'.contains(m1),
+          (_owned
+              ? historyBundleEntries(w.message.metadata ?? {}).any(
+                  (entry) =>
+                      entry['payload'] is Map &&
+                      (entry['payload'] as Map)['text'] == m1,
+                )
+              : '${w.message.metadata?['entries'] ?? ''}'.contains(m1)),
     );
     final currentShown = await waitForFinder(
       tester,
@@ -384,66 +426,91 @@ void main() {
       reason: 'pop 后 HistoryBundleDetailPage 应已关闭（无路由残留）',
     );
 
-    // ④ 只有本轮精确 ID + 发送前基线之后的行可验收；无密文候选兜底。
-    final bundleRow = await history.waitForBundle(messageId: expectedMessageId);
-    final payload = bundleHistoryPlaintext(
-      bundleRow,
-      markers: [m1, m2, m3],
-      expectEncrypted: expectedMode.isEmpty ? null : expectedMode == 'true',
-    );
-
-    if (payload != null) {
-      // 明文部署：同时支持当前 history 的 JSON 对象和旧部署的 JSON 字符串。
-      expect(
-        '${payload['bundle_version'] ?? ''}',
-        '${HistoryBundleContract.bundleVersion}',
-        reason: 'bundle_version 应为 1（冻结合同 §4.5）',
+    if (_owned) {
+      final receipt = bundleUiReceipt(
+        nonce,
+        expectedMessageId,
+        bundleMetaBeforeTap,
       );
-      // G6-4：title 用发送端气泡读到的真实生产 title 对账（生产 title=
-      // 会话名，与测试 nonce 无关；本地重建期望快照的死脚手架已删除）。
+      var received = false;
+      for (var i = 0; i < 180 && !received; i++) {
+        final reply = messageOfMarker(tester, receipt);
+        received =
+            reply is core.TextMessage &&
+            reply.text == receipt &&
+            reply.authorId == dstUid;
+        if (!received) await tester.pump(const Duration(seconds: 1));
+      }
       expect(
-        '${payload['title'] ?? ''}',
-        expectedTitle,
-        reason: '对端 bundle 行 title 应与发送端一致（期望 $expectedTitle）',
+        received,
+        isTrue,
+        reason: 'Owned peer must decrypt/render/verify snapshot and send exact UI receipt',
       );
-      final entries = (payload['entries'] as List?) ?? const [];
-      expect(
-        entries.length,
-        4,
-        reason: 'entries 应为 4 条（3 文本 + 1 图片，实际 ${entries.length}）',
-      );
-      final texts = <String?>[
-        for (final e in entries)
-          () {
-            final map = e is Map
-                ? Map<String, dynamic>.from(e)
-                : <String, dynamic>{};
-            final p = map['payload'];
-            return p is Map
-                ? Map<String, dynamic>.from(p)['text'] as String?
-                : null;
-          }(),
-      ];
-      expect(texts.whereType<String>(), [
-        m1,
-        m2,
-        m3,
-      ], reason: 'entries 顺序/内容应与源选择一致（实际 $texts）');
-      expect(
-        entries,
-        historyBundleEntries(bundleMetaBeforeTap),
-        reason: '4 条 entries 必须与发送端快照完整一致（含图片附件字段）',
-      );
-      flowLog('W3K-BND 对端 payload 结构对账通过（title/entries/顺序）');
+      flowLog('W3K-BND OWNED_PEER_UI_VERIFIED');
     } else {
-      flowLog('W3K-BND E2EE 信封/无明文检查通过；接收设备解密渲染尚未验证');
-    }
+      // ④ 只有本轮精确 ID + 发送前基线之后的行可验收；无密文候选兜底。
+      final bundleRow = await history.waitForBundle(
+        messageId: expectedMessageId,
+      );
+      final payload = bundleHistoryPlaintext(
+        bundleRow,
+        markers: [m1, m2, m3],
+        expectEncrypted: expectedMode.isEmpty ? null : expectedMode == 'true',
+      );
 
-    flowLog(
-      'W3K-BND PEER_HISTORY_VERIFIED msg_id=$expectedMessageId '
-      'conv_seq=${bundleRow['conv_seq']} baseline=${history.baselineSeq} '
-      'mode=${payload == null ? 'e2ee' : 'plaintext'}',
-    );
+      if (payload != null) {
+        // 明文部署：同时支持当前 history 的 JSON 对象和旧部署的 JSON 字符串。
+        expect(
+          '${payload['bundle_version'] ?? ''}',
+          '${HistoryBundleContract.bundleVersion}',
+          reason: 'bundle_version 应为 1（冻结合同 §4.5）',
+        );
+        // G6-4：title 用发送端气泡读到的真实生产 title 对账（生产 title=
+        // 会话名，与测试 nonce 无关；本地重建期望快照的死脚手架已删除）。
+        expect(
+          '${payload['title'] ?? ''}',
+          expectedTitle,
+          reason: '对端 bundle 行 title 应与发送端一致（期望 $expectedTitle）',
+        );
+        final entries = (payload['entries'] as List?) ?? const [];
+        expect(
+          entries.length,
+          4,
+          reason: 'entries 应为 4 条（3 文本 + 1 图片，实际 ${entries.length}）',
+        );
+        final texts = <String?>[
+          for (final e in entries)
+            () {
+              final map = e is Map
+                  ? Map<String, dynamic>.from(e)
+                  : <String, dynamic>{};
+              final p = map['payload'];
+              return p is Map
+                  ? Map<String, dynamic>.from(p)['text'] as String?
+                  : null;
+            }(),
+        ];
+        expect(texts.whereType<String>(), [
+          m1,
+          m2,
+          m3,
+        ], reason: 'entries 顺序/内容应与源选择一致（实际 $texts）');
+        expect(
+          entries,
+          historyBundleEntries(bundleMetaBeforeTap),
+          reason: '4 条 entries 必须与发送端快照完整一致（含图片附件字段）',
+        );
+        flowLog('W3K-BND 对端 payload 结构对账通过（title/entries/顺序）');
+      } else {
+        flowLog('W3K-BND E2EE 信封/无明文检查通过；接收设备解密渲染尚未验证');
+      }
+
+      flowLog(
+        'W3K-BND PEER_HISTORY_VERIFIED msg_id=$expectedMessageId '
+        'conv_seq=${bundleRow['conv_seq']} baseline=${history.baselineSeq} '
+        'mode=${payload == null ? 'e2ee' : 'plaintext'}',
+      );
+    }
 
     await popTopPage(tester, find.byType(ChatPage).first);
     finishChatMultiJourney('W3K-BND');

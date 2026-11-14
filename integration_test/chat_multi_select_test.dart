@@ -43,13 +43,35 @@ import 'helpers/chat_multi_image_fixture.dart';
 
 const _markerPrefix = '[W3K-MS]';
 
+const _ownedStorageTag = String.fromEnvironment('UX_STORAGE_TAG');
+
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
   testWidgets('W3-K P1：C2C 多选勾选/计数/退出 + 逐条转发顺序内容断言', (tester) async {
     installPluginErrorFilter();
     ChatMultiDriverRunStats.reset();
-    await ensureAppLaunched(tester, maxSeconds: 10);
+    if (_ownedStorageTag.isNotEmpty) {
+      const expectedUid = String.fromEnvironment('TEST_EXPECTED_UID');
+      const viewerUid = String.fromEnvironment('PEER_UID');
+      expect(viewerUid, matches(RegExp(r'^[1-9][0-9]{0,19}$')));
+      expect(viewerUid, isNot(expectedUid));
+      expect(
+        const String.fromEnvironment('CHAT_MULTI_SRC_PEER_UID'),
+        viewerUid,
+      );
+      expect(
+        const String.fromEnvironment('CHAT_MULTI_DST_PEER_UID'),
+        viewerUid,
+      );
+      expect(
+        const String.fromEnvironment('CHAT_MULTI_SRC_PEER_TITLE'),
+        isNotEmpty,
+      );
+      await restoreOwnedChat(tester, _ownedStorageTag, expectedUid);
+    } else {
+      await ensureAppLaunched(tester, maxSeconds: 10);
+    }
     // G6-11：后端探活/登录失败 = 环境契约破坏，fail 而非静默 SKIP。
     if (!await checkPreconditions(tester, failOnEnvMissing: true)) return;
     if (!requireBusinessWriteAuthorization()) return;

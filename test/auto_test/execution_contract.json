@@ -2186,6 +2186,267 @@
         ]
       },
       "basis": "Preserve phase1 exact-manifest/404 trim contract and full-selected native positive backup API assertions; runtime e2ee is required only for the compiled positive branch."
+    },
+    "integration_test/uiux/channel_avatar_recovery_native_test.dart": {
+      "platforms": [
+        "android"
+      ],
+      "products": [
+        "phase1_delivery",
+        "full-selected"
+      ],
+      "required_features": [
+        "channel"
+      ],
+      "dependencies": [
+        "business-writes"
+      ],
+      "required_env": [
+        "TEST_PHONE",
+        "TEST_PASSWORD",
+        "UX_CHANNEL_ID",
+        "UX_CHANNEL_OWNER_UID",
+        "H2_RUN_TAG",
+        "UX_STORAGE_TAG",
+        "UX_RESTORE_STORAGE",
+        "UX03_RUN_TAG"
+      ],
+      "required_true_env": [
+        "TEST_ALLOW_BUSINESS_WRITES",
+        "TEST_ALLOW_CHANNEL_WRITES"
+      ],
+      "basis": [
+        "Physical isolated Android QA avatar journey restores the UX02-owned identity without login or rekey; only the exact synthetic asset ID and SHA may be removed. One register fails before delegation; retry must use the real upload and confirmed asset before save and reentry."
+      ]
+    },
+    "integration_test/uiux/channel_edit_recovery_native_test.dart": {
+      "platforms": [
+        "android"
+      ],
+      "products": [
+        "phase1_delivery",
+        "full-selected"
+      ],
+      "required_features": [
+        "channel"
+      ],
+      "dependencies": [
+        "business-writes"
+      ],
+      "required_env": [
+        "TEST_PHONE",
+        "TEST_PASSWORD",
+        "UX_CHANNEL_ID",
+        "UX_CHANNEL_OWNER_UID",
+        "H2_RUN_TAG",
+        "UX_STORAGE_TAG",
+        "UX_RESTORE_STORAGE"
+      ],
+      "required_true_env": [
+        "TEST_ALLOW_BUSINESS_WRITES",
+        "TEST_ALLOW_CHANNEL_WRITES"
+      ],
+      "basis": [
+        "Physical Android QA package and explicitly owned run-tagged channel; delay a real GET, fail before one update, then verify real retry, persistence and back navigation."
+      ]
+    },
+    "integration_test/uiux/location_recovery_native_test.dart": {
+      "platforms": [
+        "android"
+      ],
+      "products": [
+        "phase1_delivery",
+        "full-selected"
+      ],
+      "required_features": [
+        "location"
+      ],
+      "dependencies": [
+        "business-writes"
+      ],
+      "required_env": [
+        "TEST_PHONE",
+        "TEST_PASSWORD",
+        "TEST_EXPECTED_UID",
+        "PEER_UID",
+        "UX01_RUN_TAG",
+        "UX_STORAGE_TAG",
+        "UX_RESTORE_STORAGE"
+      ],
+      "required_true_env": [
+        "TEST_ALLOW_BUSINESS_WRITES",
+        "UX01_ALLOW_EXTERNAL_REQUESTS",
+        "IMBOY_LOCAL_MAP_REQUESTS_ALLOWED"
+      ],
+      "basis": [
+        "Physical Android QA location journey; requires explicit external-map authorization, valid map configuration and a maps-only isolation exception before execution. Missing prerequisites cannot be counted as a pass."
+      ]
+    },
+    "integration_test/uiux/select_friend_recovery_native_test.dart": {
+      "offline": true,
+      "platforms": [
+        "android"
+      ],
+      "products": [
+        "phase1_delivery",
+        "full-selected"
+      ],
+      "basis": [
+        "Physical Android QA package; scoped native SQLCipher with one-shot query faults verifies retry, retained contacts, keyboard selection, empty state and return navigation."
+      ]
+    },
+    "integration_test/uiux/web_view_recovery_native_test.dart": {
+      "offline": true,
+      "platforms": [
+        "android"
+      ],
+      "products": [
+        "phase1_delivery",
+        "full-selected"
+      ],
+      "basis": [
+        "Physical Android QA package; real native WebView events from an owned loopback HTTP server verify loading, network and HTTP recovery, resource failure and return navigation."
+      ]
+    },
+    "integration_test/uiux/workspace_switch_recovery_native_test.dart": {
+      "suite": "device-single",
+      "runner": "flutter-device",
+      "platforms": [
+        "android"
+      ],
+      "products": [
+        "full-selected"
+      ],
+      "required_features": [
+        "enterprise_business"
+      ],
+      "dependencies": [
+        "isolated-backend",
+        "isolated-accounts",
+        "business-writes",
+        "native-crypto"
+      ],
+      "required_env": [
+        "TEST_PHONE",
+        "TEST_PASSWORD",
+        "TEST_EXPECTED_UID",
+        "UX_STORAGE_TAG",
+        "UX_RESTORE_STORAGE",
+        "UX_SPACE_RUN_TAG",
+        "UX_SPACE_ORG_ID",
+        "UX_SPACE_WORKSPACE_ID",
+        "UX_SPACE_NAME",
+        "IMBOY_LOCAL_MAP_REQUESTS_ALLOWED"
+      ],
+      "required_true_env": [
+        "IMBOY_TEST_ISOLATED",
+        "IMBOY_ANDROID_QA_BUILD",
+        "IMBOY_LOCAL_EXTERNAL_SERVICES_DISABLED",
+        "TEST_ALLOW_BUSINESS_WRITES"
+      ],
+      "basis": [
+        "Physical isolated Android restores the existing editor identity and verifies real personal-to-owned pending-owner workspace switching, a scoped preload failure preserving identity and current space, and a successful UI retry. Maps remain disabled."
+      ]
+    },
+    "integration_test/uiux/owned_viewer_ready_native_test.dart": {
+      "suite": "device-single",
+      "runner": "flutter-device",
+      "platforms": [
+        "macos"
+      ],
+      "products": [
+        "full-selected"
+      ],
+      "required_features": [
+        "e2ee"
+      ],
+      "dependencies": [
+        "isolated-backend",
+        "isolated-accounts",
+        "business-writes",
+        "native-crypto"
+      ],
+      "required_env": [
+        "TEST_PHONE",
+        "TEST_PASSWORD",
+        "TEST_EXPECTED_UID",
+        "H2_STORAGE_TAG",
+        "H2_RESTORE_STORAGE",
+        "IMBOY_LOCAL_MAP_REQUESTS_ALLOWED"
+      ],
+      "required_true_env": [
+        "IMBOY_TEST_ISOLATED",
+        "IMBOY_LOCAL_EXTERNAL_SERVICES_DISABLED",
+        "TEST_ALLOW_BUSINESS_WRITES"
+      ],
+      "basis": [
+        "Owned ordinary viewer logs in or restores its fixed isolated macOS scope and verifies real current-device Olm identity keys and positive prekey count; stops at ready without peer messages."
+      ]
+    },
+    "integration_test/uiux/forward_bundle_receiver_native_test.dart": {
+      "suite": "device-single",
+      "runner": "flutter-device",
+      "platforms": [
+        "macos"
+      ],
+      "products": [
+        "full-selected"
+      ],
+      "required_features": [
+        "e2ee"
+      ],
+      "dependencies": [
+        "isolated-backend",
+        "isolated-accounts",
+        "business-writes",
+        "native-crypto"
+      ],
+      "required_env": [
+        "TEST_EXPECTED_UID",
+        "PEER_UID",
+        "H2_STORAGE_TAG",
+        "H2_RESTORE_STORAGE",
+        "CHAT_MULTI_RUN_NONCE",
+        "CHAT_MULTI_EXPECT_E2EE",
+        "IMBOY_LOCAL_MAP_REQUESTS_ALLOWED"
+      ],
+      "required_true_env": [
+        "IMBOY_TEST_ISOLATED",
+        "IMBOY_LOCAL_EXTERNAL_SERVICES_DISABLED",
+        "TEST_ALLOW_BUSINESS_WRITES",
+        "H2_RESTORE_STORAGE",
+        "CHAT_MULTI_EXPECT_E2EE"
+      ],
+      "basis": [
+        "Strictly restores the existing owned Mac viewer without login or rekey. Captures a real history baseline, receives and renders the exact shared-nonce bundle with authorized image decoding and complete snapshot/history assertions, then sends a real UI acknowledgement. Maps remain disabled."
+      ]
+    },
+    "integration_test/chat/j18a_send_retry_test.dart": {
+      "products": [
+        "phase1_delivery",
+        "full-selected"
+      ],
+      "basis": [
+        "Preserves the existing legacy native journey and enables the same entry in the full-selected UI candidate. Owned mode is explicit and enforces strict scope restoration in source; legacy inputs and assertions remain unchanged."
+      ]
+    },
+    "integration_test/chat_multi_select_test.dart": {
+      "products": [
+        "phase1_delivery",
+        "full-selected"
+      ],
+      "basis": [
+        "Preserves the existing legacy native journey and enables the same entry in the full-selected UI candidate. Owned mode is explicit and enforces strict scope restoration in source; legacy inputs and assertions remain unchanged."
+      ]
+    },
+    "integration_test/chat_multi_bundle_roundtrip_test.dart": {
+      "products": [
+        "phase1_delivery",
+        "full-selected"
+      ],
+      "basis": [
+        "Preserves the existing legacy native journey and enables the same entry in the full-selected UI candidate. Owned mode is explicit and enforces strict scope restoration in source; legacy inputs and assertions remain unchanged."
+      ]
     }
   },
   "profiles": {
