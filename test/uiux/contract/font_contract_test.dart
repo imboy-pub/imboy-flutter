@@ -11,6 +11,7 @@ library;
 import 'dart:io' show File, IOOverrides;
 import 'dart:typed_data' show ByteData, Uint8List;
 
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../support/golden_font_loader.dart';
@@ -27,6 +28,88 @@ class _MissingIconFontFile implements File {
 }
 
 void main() {
+  testWidgets('golden_component_styles_render_cjk_without_style_drift', (
+    tester,
+  ) async {
+    final font = resolveGoldenFont();
+    expect(font.status, GoldenFontStatus.ok, reason: font.reason);
+    await tester.runAsync(() => loadGoldenTextFonts(font));
+    for (final brightness in Brightness.values) {
+      final color = brightness == Brightness.dark ? Colors.white : Colors.black;
+      final original = ThemeData(
+        brightness: brightness,
+        appBarTheme: AppBarTheme(
+          titleTextStyle: TextStyle(fontSize: 19, color: color),
+          toolbarTextStyle: TextStyle(fontSize: 15, color: color),
+        ),
+        listTileTheme: ListTileThemeData(
+          titleTextStyle: TextStyle(fontSize: 17, color: color),
+          subtitleTextStyle: TextStyle(fontSize: 13, color: color),
+        ),
+        inputDecorationTheme: InputDecorationTheme(
+          hintStyle: TextStyle(fontSize: 16, color: color),
+          labelStyle: TextStyle(fontSize: 14, color: color),
+        ),
+      );
+      final theme = applyGoldenFont(original);
+      expect(theme.brightness, brightness);
+      for (final (actual, expected) in [
+        (
+          theme.appBarTheme.titleTextStyle!,
+          original.appBarTheme.titleTextStyle!,
+        ),
+        (
+          theme.appBarTheme.toolbarTextStyle!,
+          original.appBarTheme.toolbarTextStyle!,
+        ),
+        (
+          theme.listTileTheme.titleTextStyle!,
+          original.listTileTheme.titleTextStyle!,
+        ),
+        (
+          theme.listTileTheme.subtitleTextStyle!,
+          original.listTileTheme.subtitleTextStyle!,
+        ),
+        (
+          theme.inputDecorationTheme.hintStyle!,
+          original.inputDecorationTheme.hintStyle!,
+        ),
+        (
+          theme.inputDecorationTheme.labelStyle!,
+          original.inputDecorationTheme.labelStyle!,
+        ),
+      ]) {
+        expect(actual, expected.copyWith(fontFamily: kGoldenFontFamily));
+      }
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: theme,
+          home: Scaffold(
+            appBar: AppBar(title: const Text('组织7001')),
+            body: const ListTile(title: Text('组织标题'), subtitle: Text('成员副标题')),
+          ),
+        ),
+      );
+      for (final text in ['组织7001', '组织标题', '成员副标题']) {
+        expectGoldenTextGlyphs(
+          tester,
+          font,
+          sample: find.descendant(
+            of: find.text(text),
+            matching: find.byType(RichText),
+          ),
+        );
+      }
+    }
+    final inherited = applyGoldenFont(ThemeData());
+    expect(inherited.appBarTheme.titleTextStyle, isNull);
+    expect(inherited.appBarTheme.toolbarTextStyle, isNull);
+    expect(inherited.listTileTheme.titleTextStyle, isNull);
+    expect(inherited.listTileTheme.subtitleTextStyle, isNull);
+    expect(inherited.inputDecorationTheme.hintStyle, isNull);
+    expect(inherited.inputDecorationTheme.labelStyle, isNull);
+  });
+
   test('golden_missing_icon_font_fails_before_any_engine_registration', () async {
     final bytes = ByteData(1);
     expect(bytes.lengthInBytes, greaterThan(0));

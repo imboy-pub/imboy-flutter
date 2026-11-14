@@ -12,6 +12,11 @@ import 'package:imboy/service/account_local_task_registry.dart';
 import 'package:imboy/service/account_media_cache_store.dart';
 import 'package:imboy/service/login_account_history_service.dart';
 import 'package:imboy/service/storage.dart';
+import 'package:imboy/service/asset_url_resolver.dart';
+import 'package:imboy/service/e2ee/attachment_encryptor.dart';
+import 'package:imboy/service/e2ee/attachment_open_registry.dart';
+import 'package:imboy/service/e2ee/attachment_opener.dart';
+import 'package:imboy/service/e2ee/attachment_seal_policy.dart';
 import 'package:path_provider_platform_interface/path_provider_platform_interface.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -46,6 +51,26 @@ class _BytesAdapter implements HttpClientAdapter {
   ) async {
     requests++;
     return ResponseBody.fromBytes(List<int>.filled(32, requests), 200);
+  }
+
+  @override
+  void close({bool force = false}) {}
+}
+
+class _EncryptedBytesAdapter implements HttpClientAdapter {
+  _EncryptedBytesAdapter(this.bytes, this.beforeResponse);
+  final Uint8List bytes;
+  final void Function() beforeResponse;
+  int requests = 0;
+  @override
+  Future<ResponseBody> fetch(
+    RequestOptions options,
+    Stream<Uint8List>? requestStream,
+    Future<void>? cancelFuture,
+  ) async {
+    requests++;
+    beforeResponse();
+    return ResponseBody.fromBytes(bytes, 200);
   }
 
   @override
@@ -260,4 +285,150 @@ void main() {
       );
     },
   );
+  for (final mutation in [
+    'clear',
+    'same',
+    'replace',
+    'authorize-clear',
+    'corrupt',
+  ]) {
+    test(
+      'encrypted download captures material before await: $mutation',
+      () async {
+        await select(accountA);
+        const key = 'u1/captured-test.bin';
+        final plaintext = Uint8List.fromList([1, 2, 3, 4, 5]);
+        final sealed = AttachmentEncryptor.seal(
+          plaintext: plaintext,
+          bindingHash: AttachmentOpener.bindingFor(
+            messageId: 'bundle',
+            chatType: 'C2C',
+            fromUid: '1',
+            toUid: '2',
+          ),
+          attachmentId: 'test',
+          objectKey: key,
+          mime: 'application/octet-stream',
+          name: 'test.bin',
+          contentKey: AttachmentEncryptor.randomContentKey(),
+          baseNonce: AttachmentEncryptor.randomBaseNonce(),
+        );
+        final payload = <String, dynamic>{
+          'uri': key,
+          AttachmentSealPolicy.descriptorPayloadKey: sealed.descriptor.toMap(),
+        };
+        void register(String messageId) {
+          expect(
+            AttachmentOpenRegistry.registerFromMessage(
+              payload: payload,
+              messageId: messageId,
+              chatType: 'C2C',
+              fromUid: '1',
+              toUid: '2',
+            ),
+            isTrue,
+          );
+        }
+
+        register('bundle');
+        AssetUrlResolver.instance.clear();
+        var authorizationClears = 0;
+        final events = <String>[];
+        AssetUrlResolver.instance.fetcherOverride = (requestedKey) async {
+          expect(requestedKey, key);
+          if (mutation == 'authorize-clear') {
+            expect(AttachmentOpenRegistry.lookup(key), isNotNull);
+            events.add('authorization-start');
+            await Future<void>.value();
+            AttachmentOpenRegistry.clear();
+            authorizationClears++;
+            events.add('authorization-cleared');
+          }
+          return 'https://media.example.test/captured';
+        };
+        addTearDown(() {
+          AssetUrlResolver.instance.fetcherOverride = null;
+          AssetUrlResolver.instance.clear();
+          AttachmentOpenRegistry.clear();
+        });
+        final bytes = Uint8List.fromList(sealed.ciphertext);
+        if (mutation == 'corrupt') bytes[bytes.length - 1] ^= 1;
+        final adapter = _EncryptedBytesAdapter(bytes, () {
+          if (mutation == 'authorize-clear') {
+            expect(authorizationClears, 1);
+            expect(AttachmentOpenRegistry.lookup(key), isNull);
+            events.add('download');
+          } else {
+            AttachmentOpenRegistry.clear();
+          }
+          if (mutation == 'replace') register('different-binding');
+          if (mutation == 'same') register('bundle');
+        });
+        manager.dispose();
+        manager = IMBoyCacheManager.forTest(Dio()..httpClientAdapter = adapter);
+        final request = manager.getSingleFile(key, validateImageData: false);
+        if (mutation == 'corrupt') {
+          await expectLater(request, throwsA(isA<AttachmentOpenException>()));
+          expect(
+            adapter.requests,
+            1,
+            reason: 'integrity failures are not retried',
+          );
+          expect(
+            await root
+                .list(recursive: true)
+                .where((entity) => entity is File)
+                .toList(),
+            isEmpty,
+            reason: 'ciphertext must not reach either persistent or materialized cache',
+          );
+        } else {
+          final file = await request;
+          if (mutation == 'authorize-clear') {
+            expect(authorizationClears, 1);
+            expect(events, [
+              'authorization-start',
+              'authorization-cleared',
+              'download',
+            ]);
+          }
+          expect(await file.readAsBytes(), plaintext);
+          AttachmentOpenRegistry.clear();
+          expect(
+            await (await manager.getSingleFile(
+              key,
+              validateImageData: false,
+            )).readAsBytes(),
+            plaintext,
+          );
+          expect(
+            adapter.requests,
+            1,
+            reason: 'cached plaintext is not decrypted/downloaded again',
+          );
+        }
+      },
+    );
+  }
+  test('captured material refuses a different object key', () {
+    final sealed = AttachmentEncryptor.seal(
+      plaintext: Uint8List.fromList([1]),
+      bindingHash: Uint8List(32),
+      attachmentId: 'test',
+      objectKey: 'u1/original.bin',
+      mime: 'application/octet-stream',
+      name: 'test.bin',
+      contentKey: AttachmentEncryptor.randomContentKey(),
+      baseNonce: AttachmentEncryptor.randomBaseNonce(),
+    );
+    final captured = AttachmentOpenSpec(sealed.descriptor, Uint8List(32));
+    expect(
+      () => AttachmentOpenRegistry.materialize(
+        'u1/other.bin',
+        sealed.ciphertext,
+        capturedSpec: captured,
+      ),
+      throwsA(isA<AttachmentOpenException>()),
+    );
+  });
 }

@@ -101,9 +101,16 @@ class AttachmentOpenRegistry {
   ///
   /// 开封失败抛 [AttachmentOpenException]：调用方**不得**重试下载
   /// （重下同一个对象不会变好），也**不得**把密文写进缓存。
-  static Uint8List materialize(String objectKey, Uint8List bytes) {
-    final spec = lookup(objectKey);
+  static Uint8List materialize(
+    String objectKey,
+    Uint8List bytes, {
+    AttachmentOpenSpec? capturedSpec,
+  }) {
+    final spec = capturedSpec ?? lookup(objectKey);
     if (spec == null) return bytes;
+    if (spec.descriptor.objectKey != objectKey) {
+      throw AttachmentOpenException('Attachment reference mismatch');
+    }
     try {
       return AttachmentEncryptor.open(
         ciphertext: bytes,

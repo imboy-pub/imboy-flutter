@@ -122,7 +122,7 @@ void main() {
           if (!empty) {
             expect(find.text('**'), findsOneWidget);
             expect(find.text('3 天 11 小时'), findsNWidgets(2));
-            expect(find.text('Web'), findsNWidgets(2));
+            expect(find.text('网页'), findsNWidgets(2));
             final name = tester.renderObject<RenderParagraph>(find.text('王**'));
             expect(name.didExceedMaxLines, isFalse);
             for (final button in find.byType(FilledButton).evaluate()) {

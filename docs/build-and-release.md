@@ -110,3 +110,16 @@ flutter build apk --debug --flavor standard
 - [third-party-config-guide.md](./third-party-config-guide.md) — 支付宝/极光/高德换凭据
 - [changelog.md](./changelog.md) — release APK 脚本校验的版本标题真源
 - 根 [README.md](../README.md) — 本地启动与日常调试
+
+## Vendored Sentry 的 Ruby 维护工具 / Ruby maintainer tooling
+
+`macos/Shims/vendor/Sentry` 仅供本 App 消费 SDK；不在此副本运行上游的
+`make init`、Fastlane、样例或发布工作流。其上游 `Gemfile` 与 `Gemfile.lock`
+不随本 App 保留，SDK 源码、资源和许可证保持完整。更新 vendor 时须重新
+核对 App 构建入口未消费这些工具并移除上游 Ruby 清单，重新执行完整依赖安全扫描；
+如需维护或测试 Sentry SDK 本身，请使用对应版本的独立上游 checkout。
+
+This App consumes the vendored SDK, not its upstream Ruby maintainer toolchain.
+Keep SDK sources, resources and licenses; omit the upstream Gemfile and lockfile.
+Recheck build references and rerun the complete dependency security scan on vendor updates.
+Use a separate matching upstream checkout for Sentry SDK maintenance and tests.

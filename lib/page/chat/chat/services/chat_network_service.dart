@@ -917,7 +917,7 @@ class ChatNetworkService {
     }
 
     // 默认路径：Megolm（C2G 群聊；C2C 已全部走 Olm fan-out）
-    await E2eeBootstrap.ensureReady();
+    await E2eeBootstrap.ensureReady(requiredSuite: ProtocolSuite.megolm);
     _requireOutboundSession(outboundUid, outboundGeneration);
     final context = E2eeContext(gid: toId, scope: 'c2g');
     // PFv3 升级：C2G 群消息统一使用 Protected Frame v3 信封，
@@ -1000,7 +1000,7 @@ class ChatNetworkService {
     required int outboundGeneration,
   }) async {
     _requireOutboundSession(outboundUid, outboundGeneration);
-    await E2eeBootstrap.ensureReady();
+    await E2eeBootstrap.ensureReady(requiredSuite: ProtocolSuite.olm);
     _requireOutboundSession(outboundUid, outboundGeneration);
 
     // 获取对端所有设备公钥

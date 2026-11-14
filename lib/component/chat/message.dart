@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart'
@@ -322,32 +324,59 @@ void showTextMessage(String text) {
 }
 
 /// 确认是否打开文件
-void confirmOpenFile(BuildContext context, String uri) {
-  showDialog<void>(
+Future<void> confirmOpenFile(
+  BuildContext context,
+  String uri, {
+  IMBoyCacheManager? cacheManager,
+  Future<OpenResult> Function(String)? openFile,
+  bool Function()? canOpen,
+}) async {
+  final confirmed = await showDialog<bool>(
     context: context,
     builder: (context) => CupertinoAlertDialog(
-      content: SizedBox(
-        height: 40,
-        child: Center(child: Text(t.chat.sureOpenTheFile)),
-      ),
+      content: Text(t.chat.sureOpenTheFile),
       actions: [
         CupertinoButton(
           child: Text(t.common.buttonCancel),
-          onPressed: () => Navigator.of(context).pop(),
+          onPressed: () => Navigator.of(context).pop(false),
         ),
         CupertinoButton(
           child: Text(t.common.buttonConfirm),
-          onPressed: () async {
-            Navigator.of(context).pop();
-            final tmpF = await IMBoyCacheManager().getSingleFile(
-              uri,
-              validateImageData: false, // 文件下载不验证图片格式
-            );
-            await OpenFile.open(tmpF.path);
-          },
+          onPressed: () => Navigator.of(context).pop(true),
         ),
       ],
     ),
     barrierDismissible: true,
+  );
+  if (confirmed != true || !context.mounted) return;
+  try {
+    if (canOpen != null && !canOpen()) {
+      throw StateError('Attachment unavailable');
+    }
+    final File file = await (cacheManager ?? IMBoyCacheManager()).getSingleFile(
+      uri,
+      validateImageData: false,
+    );
+    if (!context.mounted) return;
+    if (canOpen != null && !canOpen()) {
+      throw StateError('Attachment unavailable');
+    }
+    final result = await (openFile ?? OpenFile.open)(file.path);
+    if (result.type == ResultType.done) return;
+  } catch (_) {
+    // Keep download and platform errors visible without exposing private URLs.
+  }
+  if (!context.mounted) return;
+  await showCupertinoDialog<void>(
+    context: context,
+    builder: (context) => CupertinoAlertDialog(
+      content: Text(t.common.operationFailedAgainLater),
+      actions: [
+        CupertinoButton(
+          child: Text(t.common.buttonConfirm),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
+      ],
+    ),
   );
 }

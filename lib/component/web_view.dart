@@ -429,7 +429,14 @@ class WebViewPageState extends State<WebViewPage> {
                 }
               },
               onHttpError: (error) {
-                // 插件未暴露 HTTP 响应的主框架标记，保留正文供用户判断。
+                // 插件未暴露主框架标记；Android 在 request 中提供请求 URL。
+                // 子资源的 HTTP 失败不应改变整页状态；未知 URL 保留原警告。
+                final uri = error.request?.uri ?? error.response?.uri;
+                if (uri != null &&
+                    uri.removeFragment() !=
+                        Uri.parse(_currentUrl).removeFragment()) {
+                  return;
+                }
                 if (!mounted ||
                     _failed ||
                     (error.response?.statusCode ?? 0) < 400) {

@@ -1,10 +1,13 @@
 import 'package:imboy/service/encryption_mode.dart';
+import 'package:imboy/service/e2ee/e2ee_bootstrap.dart';
+import 'package:imboy/service/e2ee/e2ee_protocol.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 
 import 'app_feature_registry.dart';
 import 'app_manifest_service.dart';
 import 'feature_refresh_loop.dart';
 import 'feature_scope.dart';
+import 'feature_keys.dart';
 
 /// One account-bound recovery pipeline for startup, network and S2C triggers.
 class RuntimeFeatureRecovery {
@@ -35,10 +38,17 @@ class RuntimeFeatureRecovery {
     if (!FeatureScope.matches(scope, epoch)) return false;
     await EncryptionModeService.refresh();
     if (!FeatureScope.matches(scope, epoch)) return false;
-    return flagsAccepted &&
-        AppFeatureRegistry.isComplete &&
-        manifestAccepted &&
-        EncryptionModeService.isInitialized;
+    if (!flagsAccepted ||
+        !AppFeatureRegistry.isComplete ||
+        !manifestAccepted ||
+        !EncryptionModeService.isInitialized) {
+      return false;
+    }
+    if (AppFeatureRegistry.isEnabled(FeatureKeys.e2ee)) {
+      await E2eeBootstrap.ensureReady(requiredSuite: ProtocolSuite.olm);
+      if (!FeatureScope.matches(scope, epoch)) return false;
+    }
+    return true;
   }
 
   static void dispose() {

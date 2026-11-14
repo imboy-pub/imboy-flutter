@@ -21,11 +21,13 @@
 // 运行契约（dart-define，见文件尾注释）与前置（后端健康检查、账号 setup）
 // 见 receipt w3-k handoff。
 
+import 'package:flutter/widgets.dart' show ValueKey;
 import 'package:flutter_chat_core/flutter_chat_core.dart' as core;
 import 'package:flutter_riverpod/flutter_riverpod.dart' show ProviderScope;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 
+import 'package:imboy/modules/messaging/domain/selection/message_selection.dart';
 import 'package:imboy/page/chat/chat/chat_page.dart';
 import 'package:imboy/page/chat/chat/chat_provider.dart';
 import 'package:imboy/store/repository/conversation_repo_sqlite.dart';
@@ -77,9 +79,8 @@ void main() {
     final dstUid = dstPeerUid.isNotEmpty ? dstPeerUid : peerUid;
     flowLog('W3K-MS self=$selfUid src=$peerUid dst=$dstUid');
 
-    // ② flag override：三个 rollout flag 全开（restore 交 addTearDown）。
-    final flags = enableChatMultiFlagsForTest();
-    addTearDown(flags.restore);
+    // ② 连续两次真实刷新，服务端必须明确开启三个 rollout flag。
+    await requireChatMultiServerFlags();
 
     // ③ 打开源 C2C 会话（push 真实 ChatPage）。
     final chatPage = await pushChatPage(
@@ -321,7 +322,59 @@ void main() {
       reason: 'm3 应最新（顺序基准尾元素；实际 $expectedKinds）',
     );
 
+    // 先验证弹层两种返回方式不改变选区，也不创建目标消息。
+    final sourceConversation = await ConversationRepo().findByPeerId(
+      'C2C',
+      peerUid,
+    );
+    expect(sourceConversation, isNotNull);
+    final selectionProvider = messageSelectionProvider(sourceConversation!.uk3);
+    final selectionBeforeDismiss = container.read(selectionProvider);
+    final targetRepo = MessageRepo(tableName: MessageRepo.c2cTable);
+    final targetCountBeforeDismiss = await targetRepo.countMessagesWithUser(
+      dstUid,
+    );
+    const forwardCancel = ValueKey('multi_select_forward_cancel');
+    for (final systemBack in [false, true]) {
+      await tapActionBar(
+        tester,
+        ChatMultiKeys.forward,
+        journey: 'W3K-MS-dismiss',
+        effectCheck: () => tester.any(find.byKey(forwardCancel)),
+      );
+      if (systemBack) {
+        await tester.binding.handlePopRoute();
+        await settle(tester, maxSeconds: 2);
+      } else {
+        await tapActionBar(
+          tester,
+          forwardCancel,
+          journey: 'W3K-MS-dismiss',
+          effectCheck: () => !tester.any(find.byKey(forwardCancel)),
+        );
+      }
+      expect(find.byKey(forwardCancel), findsNothing);
+      expect(isOnSendToPage(tester), isFalse, reason: '返回弹层不得打开目标选择页');
+      expect(
+        container.read(selectionProvider),
+        selectionBeforeDismiss,
+        reason: '返回弹层必须保留激活状态与全部已选消息 ID',
+      );
+      expectSelectionCount(tester, 5);
+      expect(
+        await targetRepo.countMessagesWithUser(dstUid),
+        targetCountBeforeDismiss,
+        reason: '返回弹层不得创建目标会话消息',
+      );
+    }
+
     // ⑨ 逐条转发：action bar「逐条转发」→ SendToPage 批量 → 选目标 → 发送。
+    await tapActionBar(
+      tester,
+      ChatMultiKeys.forward,
+      journey: 'forward-options',
+      effectCheck: () => tester.any(find.byKey(ChatMultiKeys.forwardEach)),
+    );
     await tapActionBar(
       tester,
       ChatMultiKeys.forwardEach,

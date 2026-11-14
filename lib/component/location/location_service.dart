@@ -77,7 +77,7 @@ class LocationService {
   Future<AMapPosition?> _getCurrentPosition({
     bool preferLastKnown = false,
   }) async {
-    if (LocalExternalServicesPolicy.suppressed) return null;
+    if (LocalExternalServicesPolicy.mapsSuppressed) return null;
     if (kIsWeb) {
       return _getCurrentPositionGeolocator();
     } else if (Platform.isMacOS) {
@@ -187,7 +187,7 @@ class LocationService {
   }
 
   Stream<AMapPosition>? _getPositionStream() {
-    if (LocalExternalServicesPolicy.suppressed) return null;
+    if (LocalExternalServicesPolicy.mapsSuppressed) return null;
     if (kIsWeb || Platform.isMacOS) {
       return _getPositionStreamGeolocator();
     } else if (Platform.isIOS) {

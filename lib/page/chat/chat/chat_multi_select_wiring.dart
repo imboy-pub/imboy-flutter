@@ -80,6 +80,30 @@ bool forwardEachActionAllowedFor(Iterable<MessageSelectionTraits> traits) {
   return count > 0;
 }
 
+/// 弹层打开期间消息可能被撤回或选择发生变化。
+bool sameSelectedMessages(List<Message> current, List<Message> initial) {
+  if (current.length != initial.length) return false;
+  for (var i = 0; i < current.length; i++) {
+    if (current[i].id != initial[i].id) return false;
+  }
+  return true;
+}
+
+/// 发送前重新检查最新消息，弹层停留期间状态可能变化。
+bool canDispatchSelectedMessages({
+  required bool active,
+  required List<Message> current,
+  required List<Message> initial,
+  required bool Function(Iterable<MessageSelectionTraits>) allowed,
+}) {
+  if (!active || current.isEmpty || !sameSelectedMessages(current, initial)) {
+    return false;
+  }
+  final traits = current.map(messageSelectionTraitsOf).toList(growable: false);
+  return traits.every((t) => evaluateMessageSelectability(t).selectable) &&
+      allowed(traits);
+}
+
 /// 多选动作控制器：承接原 ChatPageState 的逐条/合并转发与导出 handler。
 class ChatMultiSelectActions {
   const ChatMultiSelectActions({
@@ -221,7 +245,6 @@ class ChatMultiSelectPanel extends ConsumerWidget {
     super.key,
     required this.conversationUk3,
     required this.actions,
-    required this.onExit,
   });
 
   /// 多选状态归属会话（messageSelectionProvider family key）。
@@ -229,9 +252,6 @@ class ChatMultiSelectPanel extends ConsumerWidget {
 
   /// 多选动作控制器（转发/导出 handler）。
   final ChatMultiSelectActions actions;
-
-  /// 退出多选（返回键 / ✕ 共用：exit 并清空）。
-  final VoidCallback onExit;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -278,21 +298,45 @@ class ChatMultiSelectPanel extends ConsumerWidget {
     final forwardBundleAllowed = bundleActionAllowedFor(traits);
     final exportAllowed = exportActionAllowedFor(traits);
 
+    void runCurrent(
+      List<Message> selected,
+      bool Function(Iterable<MessageSelectionTraits>) allowed,
+      void Function(BuildContext, List<Message>) action,
+    ) {
+      if (!context.mounted) return;
+      final current = ref.read(messageSelectionProvider(conversationUk3));
+      final messages =
+          ref.read(chatProvider.notifier).chatService?.messages ??
+          const <Message>[];
+      final fresh = sortMultiSelectMessages(current, messages);
+      if (!canDispatchSelectedMessages(
+        active: current.active,
+        current: fresh,
+        initial: selected,
+        allowed: allowed,
+      )) {
+        AppLoading.showToast(t.chat.multiSelectUnavailable);
+        return;
+      }
+      action(context, fresh);
+    }
+
     return MessageMultiSelectActionBar(
       selectedMessages: sorted,
-      onCancel: onExit,
-      onClearSelection: conversationUk3.isEmpty
-          ? null
-          : () => ref
-                .read(messageSelectionProvider(conversationUk3).notifier)
-                .clear(),
       onForwardEach: forwardEachAllowed
-          ? (list) => actions.forwardEach(context, list)
+          ? (list) => runCurrent(
+              list,
+              forwardEachActionAllowedFor,
+              actions.forwardEach,
+            )
           : null,
       onForwardBundle: forwardBundleAllowed
-          ? (list) => actions.forwardBundle(context, list)
+          ? (list) =>
+                runCurrent(list, bundleActionAllowedFor, actions.forwardBundle)
           : null,
-      onExport: exportAllowed ? (list) => actions.export(context, list) : null,
+      onExport: exportAllowed
+          ? (list) => runCurrent(list, exportActionAllowedFor, actions.export)
+          : null,
     );
   }
 }

@@ -238,6 +238,10 @@ class IMBoyCacheManager {
     required void Function() requireCurrent,
   }) async {
     requireCurrent();
+    // Retain the authenticated material across authorization/download awaits.
+    final attachmentSpec = AssetsService.isObjectKey(url)
+        ? AttachmentOpenRegistry.lookup(url)
+        : null;
     // 添加调试日志
     _log('📦 getSingleFile: url=$url, validateImageData=$validateImageData');
 
@@ -380,7 +384,11 @@ class IMBoyCacheManager {
           // 缓存里也必须是明文（下次命中走的是不再开封的那条路）。
           // 没登记过 spec 的对象原样返回 = 今天的明文行为。
           final Uint8List downloaded = isObjKey
-              ? AttachmentOpenRegistry.materialize(url, rawDownloaded)
+              ? AttachmentOpenRegistry.materialize(
+                  url,
+                  rawDownloaded,
+                  capturedSpec: attachmentSpec,
+                )
               : rawDownloaded;
 
           // 调试：输出下载状态

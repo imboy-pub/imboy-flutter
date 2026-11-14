@@ -25,6 +25,7 @@ import 'package:imboy/store/repository/user_repo_provider.dart';
 import '../ux_matrix/ux_harness.dart';
 import 'organization_picker_page_widget_test.dart' as fixture;
 import '../golden_baseline_guard.dart';
+import '../uiux/support/golden_font_loader.dart';
 
 const _account = '91001';
 const _historical = bool.fromEnvironment('UX_T07_HISTORICAL');
@@ -167,6 +168,7 @@ void main() {
           'test/organization/goldens/t07_${scenario}_$label.png',
         ),
         (tester) async {
+          final font = await prepareGoldenFonts(tester);
           final adapter = _PickerAdapter(scenario);
           HttpClient.adapterForTest = adapter;
           final workspaceApi = _WorkspaceApi();
@@ -208,7 +210,7 @@ void main() {
                   container: container,
                   child: MaterialApp.router(
                     routerConfig: router,
-                    theme: ThemeData(brightness: combo.brightness),
+                    theme: goldenAppTheme(combo.brightness),
                     builder: (context, child) => MediaQuery(
                       data: MediaQuery.of(context).copyWith(
                         textScaler: TextScaler.linear(combo.textScale),
@@ -349,6 +351,7 @@ void main() {
                   .length,
               ['busy', 'forbidden', 'recovered'].contains(scenario) ? 1 : 0,
             );
+            expectGoldenTextGlyphs(tester, font);
             final layoutError = tester.takeException();
             await expectLater(
               find.byType(Scaffold).first,

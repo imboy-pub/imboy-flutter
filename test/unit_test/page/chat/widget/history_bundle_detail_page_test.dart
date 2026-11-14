@@ -1,6 +1,18 @@
+import 'dart:io';
+import 'dart:typed_data';
+
+import 'package:mocktail/mocktail.dart';
+import 'package:open_file/open_file.dart';
+import 'package:imboy/component/chat/message.dart' show confirmOpenFile;
+import 'package:imboy/component/extension/imboy_cache_manager.dart';
+import 'package:imboy/service/e2ee/attachment_encryptor.dart';
+import 'package:imboy/service/e2ee/attachment_open_registry.dart';
+import 'package:imboy/service/e2ee/attachment_seal_policy.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/semantics.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:photo_view/photo_view_gallery.dart';
 import 'package:imboy/component/ui/imboy_cached_image_provider.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/chat/widget/history_bundle_detail_page.dart';
@@ -10,7 +22,10 @@ import 'package:imboy/page/chat/widget/history_bundle_detail_page.dart';
 /// 数据全部来自 bundle 快照（不回查原会话）；多类型 entry 类型安全渲染；
 /// 未知 entry 类型 fallback；图片经 IMBoyCachedImageProvider 授权管线
 /// （object_key 原样透传，下载边界异步签发；禁止 network 直连）。
+class _Cache extends Mock implements IMBoyCacheManager {}
+
 void main() {
+  setUp(AttachmentOpenRegistry.resetForTest);
   // 固定旧时间戳：>7 天 → dateTimeFmt 走完整 'y-MM-dd HH:mm' 分支，
   // 断言可稳定（相对时间分支依赖当前时钟）。
   const sentAt = 1579048200000; // 2020-01-15 03:50 UTC（本地时区渲染）
@@ -306,4 +321,255 @@ void main() {
     expect(find.textContaining('[聊天记录] 0 条'), findsOneWidget);
     expect(find.byKey(const Key('history_bundle_entry_0')), findsNothing);
   });
+  Map<String, dynamic> attachment(String key) {
+    final sealed = AttachmentEncryptor.seal(
+      plaintext: Uint8List.fromList([1, 2, 3]),
+      bindingHash: Uint8List(32),
+      attachmentId: 'test-file',
+      objectKey: key,
+      mime: 'application/octet-stream',
+      name: 'test.bin',
+      contentKey: AttachmentEncryptor.randomContentKey(),
+      baseNonce: AttachmentEncryptor.randomBaseNonce(),
+    );
+    return {
+      'uri': key,
+      AttachmentSealPolicy.descriptorPayloadKey: sealed.descriptor.toMap(),
+    };
+  }
+
+  testWidgets('多图从images取首图与实际数量并可打开图库', (tester) async {
+    await pumpPage(tester, {
+      'entries': [
+        {
+          'msg_type': 'imageMulti',
+          'payload': {
+            'images': [
+              {'uri': 'u1/a.png'},
+              {'uri': 'u1/b.png'},
+            ],
+            'total': 99,
+          },
+        },
+      ],
+    });
+    final thumb = tester.widget<Image>(
+      find.byKey(const ValueKey('bundle_detail_thumb_0')),
+    );
+    expect(
+      ((thumb.image as ResizeImage).imageProvider as IMBoyCachedImageProvider)
+          .url,
+      'u1/a.png',
+    );
+    await tester.tap(find.byKey(const ValueKey('bundle_detail_image_0')));
+    await tester.pumpAndSettle();
+    expect(find.text(t.common.operationFailedAgainLater), findsOneWidget);
+    expect(tester.takeException(), isNull);
+    expect(find.byType(PhotoViewGallery), findsOneWidget);
+    expect(find.byType(HistoryBundleDetailPage), findsOneWidget);
+    await tester.pumpWidget(const SizedBox.shrink());
+    await tester.pump(const Duration(milliseconds: 700));
+  });
+
+  testWidgets('图库可显示正常已解码图片并返回详情', (tester) async {
+    final image = (await tester.runAsync(createTestImage))!;
+    final provider = IMBoyCachedImageProvider('u1/decoded.png', const {});
+    PaintingBinding.instance.imageCache.putIfAbsent(
+      provider,
+      () => OneFrameImageStreamCompleter(
+        Future.value(ImageInfo(image: image.clone())),
+      ),
+    );
+    addTearDown(PaintingBinding.instance.imageCache.clear);
+    await pumpPage(tester, {
+      'entries': [
+        {
+          'msg_type': 'image',
+          'payload': {'uri': 'u1/decoded.png'},
+        },
+      ],
+    });
+    await tester.tap(find.byKey(const ValueKey('bundle_detail_image_0')));
+    await tester.pumpAndSettle();
+    expect(find.byType(PhotoViewGallery), findsOneWidget);
+    expect(find.text(t.common.operationFailedAgainLater), findsNothing);
+    expect(find.byType(RawImage), findsWidgets);
+    expect(tester.takeException(), isNull);
+    await tester.binding.handlePopRoute();
+    await tester.pumpAndSettle();
+    expect(find.byType(PhotoViewGallery), findsNothing);
+  });
+
+  testWidgets('加密图片缺少登记、描述损坏或uri不符均无下载provider', (tester) async {
+    final payload = attachment('u1/secret.png');
+    for (final value in [
+      payload,
+      {...payload, AttachmentSealPolicy.descriptorPayloadKey: 42},
+    ]) {
+      await pumpPage(tester, {
+        'entries': [
+          {'msg_type': 'image', 'payload': value},
+        ],
+      });
+      expect(find.byType(Image), findsNothing);
+      expect(find.byKey(const ValueKey('bundle_detail_image_0')), findsNothing);
+    }
+    AttachmentOpenRegistry.registerFromMessage(
+      payload: payload,
+      messageId: 'bundle',
+      chatType: 'C2C',
+      fromUid: '1',
+      toUid: '2',
+    );
+    await pumpPage(tester, {
+      'entries': [
+        {
+          'msg_type': 'image',
+          'payload': {...payload, 'uri': 'u1/other.png'},
+        },
+      ],
+    });
+    expect(find.byType(Image), findsNothing);
+  });
+
+  testWidgets('文件按钮读屏标签唯一且保留点击动作', (tester) async {
+    final semantics = tester.ensureSemantics();
+    try {
+      await pumpPage(tester, {
+        'entries': [
+          {
+            'msg_type': 'file',
+            'payload': {'uri': 'u1/report.pdf', 'name': 'report.pdf'},
+          },
+        ],
+      });
+      final button = find.byKey(const ValueKey('bundle_detail_file_0'));
+      expect(button, findsOneWidget);
+      final data = tester
+          .getSemantics(find.bySemanticsLabel('report.pdf'))
+          .getSemanticsData();
+      expect(data.label, 'report.pdf');
+      expect(data.flagsCollection.isButton, isTrue);
+      expect(data.hasAction(SemanticsAction.tap), isTrue);
+      expect(find.bySemanticsLabel('report.pdf'), findsOneWidget);
+    } finally {
+      semantics.dispose();
+    }
+  });
+
+  testWidgets('加密文件未登记或descriptor非法、引用不符时不可打开', (tester) async {
+    final payload = attachment('u1/a.bin');
+    Future<void> check(Map<String, dynamic> value) async {
+      await pumpPage(tester, {
+        'entries': [
+          {'msg_type': 'file', 'payload': value},
+        ],
+      });
+      expect(find.byKey(const ValueKey('bundle_detail_file_0')), findsNothing);
+    }
+
+    await check(payload);
+    await check({...payload, AttachmentSealPolicy.descriptorPayloadKey: null});
+    await check({
+      ...payload,
+      AttachmentSealPolicy.descriptorPayloadKey: {'bad': true},
+    });
+    AttachmentOpenRegistry.registerFromMessage(
+      payload: payload,
+      messageId: 'bundle',
+      chatType: 'C2C',
+      fromUid: '1',
+      toUid: '2',
+    );
+    await check({...payload, 'uri': 'u1/other.bin'});
+    await pumpPage(tester, {
+      'entries': [
+        {'msg_type': 'file', 'payload': payload},
+      ],
+    });
+    await tester.tap(find.byKey(const ValueKey('bundle_detail_file_0')));
+    await tester.pumpAndSettle();
+    expect(find.text(t.chat.sureOpenTheFile), findsOneWidget);
+    await tester.tap(find.text(t.common.buttonCancel));
+    await tester.pumpAndSettle();
+    expect(find.text(t.chat.sureOpenTheFile), findsNothing);
+  });
+
+  for (final failure in [
+    'cancel',
+    'download',
+    'open',
+    'success',
+    'clear-before',
+    'clear-during',
+  ]) {
+    testWidgets('文件确认边界：$failure', (tester) async {
+      final cache = _Cache();
+      var opens = 0;
+      var available = true;
+      when(() => cache.getSingleFile('u1/test.bin', validateImageData: false))
+          .thenAnswer((_) async {
+            if (failure == 'download') {
+              throw const FileSystemException('private URL');
+            }
+            if (failure == 'clear-during') available = false;
+            return File('/synthetic/test.bin');
+          });
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Builder(
+            builder: (context) => TextButton(
+              onPressed: () => confirmOpenFile(
+                context,
+                'u1/test.bin',
+                cacheManager: cache,
+                canOpen: () => available,
+                openFile: (path) async {
+                  opens++;
+                  expect(path, '/synthetic/test.bin');
+                  return OpenResult(
+                    type: failure == 'open'
+                        ? ResultType.error
+                        : ResultType.done,
+                  );
+                },
+              ),
+              child: const Text('open'),
+            ),
+          ),
+        ),
+      );
+      await tester.tap(find.text('open'));
+      await tester.pumpAndSettle();
+      if (failure == 'clear-before') available = false;
+      await tester.tap(
+        find.text(
+          failure == 'cancel' ? t.common.buttonCancel : t.common.buttonConfirm,
+        ),
+      );
+      await tester.pumpAndSettle();
+      if (failure == 'cancel' || failure == 'clear-before') {
+        verifyNever(
+          () => cache.getSingleFile(
+            any(),
+            validateImageData: any(named: 'validateImageData'),
+          ),
+        );
+      } else {
+        verify(
+          () => cache.getSingleFile('u1/test.bin', validateImageData: false),
+        ).called(1);
+      }
+      expect(opens, failure == 'open' || failure == 'success' ? 1 : 0);
+      expect(
+        find.text(t.common.operationFailedAgainLater),
+        failure == 'download' ||
+                failure == 'open' ||
+                failure.startsWith('clear-')
+            ? findsOneWidget
+            : findsNothing,
+      );
+      expect(find.textContaining('private URL'), findsNothing);
+    });
+  }
 }

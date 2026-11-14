@@ -42,8 +42,7 @@ const String _pickleKeyStorageKey = 'olm_pickle_key';
 const String _accountPickleStorageKey = 'olm_account_pickle';
 
 /// fallback key 上次轮换时刻（epoch ms）的存储键。
-/// 与 account pickle 同放 SecureStorage：它不是秘密，但属于同一份 Olm 状态，
-/// 分散到两处存储只会让"状态在哪"变成需要记忆的事。
+/// 与 account pickle 同放 SecureStorage，保持 Olm 状态存储一致。
 const String _lastFallbackRotationKey = 'olm_fallback_rotated_at';
 
 /// Session pickle 存储键前缀：`olm_session_<peerUid>:<peerDeviceId>`
@@ -159,13 +158,14 @@ bool isTransientSessionFailure(Object e) {
   // OlmApi 网络层包装（`Exception('olm claim_key failed: <msg>')` /
   // `Exception('olm claim_key: invalid payload')`）。msg 的网络失败文案
   // 随 locale 变化（'网络错误'/'无网络'/…），故按**固定前缀**识别 claim
-  // 层失败；服务端对设备维度的明确拒绝（device_not_registered /
-  // device_not_found）除外——那是能力/一致性问题，fail-closed 拒发整条。
+  // 层失败；明确的授权/设备拒绝不是网络故障，必须拒发整条。
   // 注：`Exception('...')` 字面量的 runtimeType 是私有实现类 `_Exception`。
   if (name == 'Exception' || name == '_Exception') {
     final msg = e.toString();
     if (msg.contains('device_not_registered') ||
-        msg.contains('device_not_found')) {
+        msg.contains('device_not_found') ||
+        msg.contains('claim_not_authorized') ||
+        msg.contains('device_revoked')) {
       return false;
     }
     return msg.contains('olm claim_key failed:') ||

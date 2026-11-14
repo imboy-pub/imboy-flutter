@@ -2,6 +2,8 @@ import 'dart:async';
 
 import 'package:imboy/app_core/feature_flags/app_feature_registry.dart';
 import 'package:imboy/app_core/feature_flags/feature_keys.dart';
+import 'package:imboy/app_core/feature_flags/feature_scope.dart';
+import 'package:imboy/app_core/feature_flags/runtime_feature_recovery.dart';
 
 import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/theme/default/font_types.dart';
@@ -76,7 +78,6 @@ Future<Map<String, dynamic>> encodePassportPassword(
 }
 
 /// Passport 模块 Riverpod Notifier
-/// 管理 Passport 模块的状态和业务逻辑
 @riverpod
 class PassportNotifier extends _$PassportNotifier {
   final String fResultKey = "result";
@@ -170,37 +171,30 @@ class PassportNotifier extends _$PassportNotifier {
     }
   }
 
-  /// 设置网络连接描述
   void setConnectDesc(String desc) {
     state = state.copyWith(connectDesc: desc);
   }
 
-  /// 设置错误信息
   void setError(String error) {
     state = state.copyWith(error: error);
   }
 
-  /// 切换登录密码可见性
   void toggleLoginPwdObscure() {
     state = state.copyWith(loginPwdObscure: !state.loginPwdObscure);
   }
 
-  /// 切换新密码可见性
   void toggleNewPwdObscure() {
     state = state.copyWith(newPwdObscure: !state.newPwdObscure);
   }
 
-  /// 切换确认密码可见性
   void setRetypePwdObscure(bool obscure) {
     state = state.copyWith(retypePwdObscure: obscure);
   }
 
-  /// 设置确认密码
   void setRetypePwd(String pwd) {
     state = state.copyWith(retypePwd: pwd);
   }
 
-  /// 设置账号类型
   void setAccountType(String type) {
     state = state.copyWith(accountType: type);
   }
@@ -238,12 +232,10 @@ class PassportNotifier extends _$PassportNotifier {
     state = state.copyWith(loginHistory: history);
   }
 
-  /// 设置昵称
   void setNickname(String nickname) {
     state = state.copyWith(nickname: nickname);
   }
 
-  /// 设置手机号
   void setMobile(String mobile) {
     state = state.copyWith(mobile: mobile);
   }
@@ -1262,7 +1254,15 @@ class PassportNotifier extends _$PassportNotifier {
   /// 全新注册用户首次登录虽然也走"新生成密钥"路径，但 other_device_count
   /// 为 0，没有历史消息需要恢复，因此不会显示恢复横幅（误报收敛）。
   Future<void> _reportE2EEPublicKey() async {
-    if (!AppFeatureRegistry.isEnabled(FeatureKeys.e2ee)) return;
+    final scope = FeatureScope.key;
+    final epoch = FeatureScope.epoch;
+    // 等待真实能力；Olm 暂时失败不能跳过既有 RSA 上报与恢复引导。
+    await RuntimeFeatureRecovery.refreshNow();
+    if (!FeatureScope.matches(scope, epoch) ||
+        !AppFeatureRegistry.isComplete ||
+        !AppFeatureRegistry.isEnabled(FeatureKeys.e2ee)) {
+      return;
+    }
     // 是否本次新生成密钥对（换设备/重装信号），供后续判断是否引导恢复。
     bool newlyGenerated = false;
     try {

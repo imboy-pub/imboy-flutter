@@ -47,7 +47,7 @@ import '../../../ux_matrix/ux_harness.dart';
 import '../../../golden_baseline_guard.dart';
 import '../../../uiux/support/golden_font_loader.dart';
 
-const _account = '91001';
+const drawerAccount = '91001';
 const _orgA = '7001';
 const _orgB = '7002';
 
@@ -59,8 +59,8 @@ final String _syntheticJwt = () {
   return '${b64('{"alg":"HS256","typ":"JWT"}')}.${b64('{"exp":4102444800}')}.c3ludGhldGlj';
 }();
 
-class _Experience extends ProductExperienceNotifier {
-  _Experience(this.initial, {this.beforeSelect});
+class DrawerExperience extends ProductExperienceNotifier {
+  DrawerExperience(this.initial, {this.beforeSelect});
 
   final ProductExperience initial;
   final Future<void> Function()? beforeSelect;
@@ -119,9 +119,9 @@ class _WsFakeApi extends WorkspaceApi {
   );
 }
 
-/// 按 URI path 分发的 adapter 已由 _DetailAdapter/_FailAdapter 承担。
+/// 按 URI path 分发的 adapter 已由 DrawerDetailAdapter/_FailAdapter 承担。
 
-Future<(ProviderContainer, GoRouter, _Experience)> _pumpDrawer(
+Future<(ProviderContainer, GoRouter, DrawerExperience)> pumpDrawer(
   WidgetTester tester, {
   String scenario = 'organization',
   UxCombo combo = const UxCombo(Size(360, 800)),
@@ -131,16 +131,21 @@ Future<(ProviderContainer, GoRouter, _Experience)> _pumpDrawer(
   bool compact = false,
   bool golden = false,
   double compactMaxHeight = 600,
+  TextScaler? textScaler,
+  CupertinoThemeData? cupertinoTheme,
+  bool boldText = false,
+  double? letterSpacingOverride,
+  double? wordSpacingOverride,
   VoidCallback? onClose,
-  _Experience? experienceOverride,
+  DrawerExperience? experienceOverride,
 }) async {
   final neutral = scenario == 'neutral';
   final organization = scenario == 'long' ? '合成企业名称' * 12 : '合成企业';
   if (!neutral) {
-    await CurrentOrganizationStore.forAccount(_account)
+    await CurrentOrganizationStore.forAccount(drawerAccount)
         .set(Organization(id: _orgA, name: organization));
   }
-  final experience = experienceOverride ?? _Experience(initialExperience);
+  final experience = experienceOverride ?? DrawerExperience(initialExperience);
   HttpClient.adapterForTest =
       httpAdapter ??
       RouteStubAdapter([
@@ -160,7 +165,7 @@ Future<(ProviderContainer, GoRouter, _Experience)> _pumpDrawer(
   final container = ProviderContainer(
     overrides: [
       currentUserProvider.overrideWithValue(
-        UserModel(uid: _account, account: 'synthetic', nickname: '合成用户'),
+        UserModel(uid: drawerAccount, account: 'synthetic', nickname: '合成用户'),
       ),
       currentWorkspaceProvider.overrideWithValue(
         scenario == 'workspace-null' || neutral
@@ -168,7 +173,7 @@ Future<(ProviderContainer, GoRouter, _Experience)> _pumpDrawer(
             : WorkspaceModel(
                 id: '9001',
                 name: '合成工作区',
-                ownerId: _account,
+                ownerId: drawerAccount,
                 organizationId: _orgA,
               ),
       ),
@@ -223,8 +228,25 @@ Future<(ProviderContainer, GoRouter, _Experience)> _pumpDrawer(
         builder: AppLoading.init(
           builder: (context, child) => MediaQuery(
             data: MediaQuery.of(context)
-                .copyWith(textScaler: TextScaler.linear(combo.textScale)),
-            child: TranslationProvider(child: child!),
+                .copyWith(
+                  textScaler: textScaler ?? TextScaler.linear(combo.textScale),
+                  boldText: boldText,
+                )
+                .applyTextStyleOverrides(
+                  lineHeightScaleFactorOverride: null,
+                  letterSpacingOverride: letterSpacingOverride,
+                  wordSpacingOverride: wordSpacingOverride,
+                  paragraphSpacingOverride: null,
+                ),
+            child: cupertinoTheme == null
+                ? TranslationProvider(child: child!)
+                : DefaultTextStyle.merge(
+                    style: const TextStyle(letterSpacing: -5),
+                    child: CupertinoTheme(
+                      data: cupertinoTheme,
+                      child: TranslationProvider(child: child!),
+                    ),
+                  ),
           ),
         ),
       ),
@@ -265,23 +287,40 @@ Future<(ProviderContainer, GoRouter, _Experience)> _pumpDrawer(
   return (container, router, experience);
 }
 
-void main() {
+void setupDrawerTests() {
   setUpAll(() async {
+    await AppLocale.enUs.build();
     await LocaleSettings.setLocale(AppLocale.zhCn);
   });
   setUp(() async {
     await initUxHarness();
     FlutterSecureStorage.setMockInitialValues({'secure_token': _syntheticJwt});
-    CurrentOrganizationStore.disposeAccount(_account);
-    OrganizationCache.disposeAccount(_account);
-    await StorageService.to.setString(Keys.currentUid, _account);
+    CurrentOrganizationStore.disposeAccount(drawerAccount);
+    OrganizationCache.disposeAccount(drawerAccount);
+    await StorageService.to.setString(Keys.currentUid, drawerAccount);
   });
   tearDown(() {
-    CurrentOrganizationStore.disposeAccount(_account);
-    OrganizationCache.disposeAccount(_account);
+    CurrentOrganizationStore.disposeAccount(drawerAccount);
+    OrganizationCache.disposeAccount(drawerAccount);
     HttpClient.adapterForTest = null;
     teardownUxHarness();
   });
+}
+
+void main() {
+  setupDrawerTests();
+
+  for (final width in [320.0, 360.0]) {
+    testWidgets('手机抽屉外侧留出触达区并可关闭 ($width)', (tester) async {
+      await pumpDrawer(tester, combo: UxCombo(Size(width, 800), textScale: 2));
+      final drawer = tester.getRect(find.byType(Drawer));
+      expect(width - drawer.right, greaterThanOrEqualTo(44));
+      await tester.tapAt(Offset((drawer.right + width) / 2, 200));
+      await tester.pumpAndSettle();
+      expect(find.byType(Drawer), findsNothing);
+      expect(tester.takeException(), isNull);
+    });
+  }
 
   for (final (label, combo) in [
     ('360_1_light', UxCombo(const Size(360, 800))),
@@ -303,7 +342,7 @@ void main() {
         ]),
         (tester) async {
           final font = await prepareGoldenFonts(tester);
-          final (container, _, experience) = await _pumpDrawer(
+          final (container, _, experience) = await pumpDrawer(
             tester,
             scenario: scenario,
             combo: combo,
@@ -345,7 +384,7 @@ void main() {
   }
 
   testWidgets('长企业名称从 mine 真源进入可见企业行', (tester) async {
-    await _pumpDrawer(tester, scenario: 'long');
+    await pumpDrawer(tester, scenario: 'long');
     final longName = find.descendant(
       of: find.byKey(const ValueKey('drawer-space-$_orgA')),
       matching: find.text('合成企业名称' * 12),
@@ -356,7 +395,7 @@ void main() {
   });
 
   testWidgets('空间区渲染：个人行 + 企业列表，当前勾选语义唯一（企业模式）', (tester) async {
-    await _pumpDrawer(tester);
+    await pumpDrawer(tester);
     final personal = find.byKey(const ValueKey('drawer-space-personal'));
     final orgA = find.byKey(const ValueKey('drawer-space-$_orgA'));
     final orgB = find.byKey(const ValueKey('drawer-space-$_orgB'));
@@ -390,7 +429,7 @@ void main() {
   });
 
   testWidgets('个人模式：个人行 ✓，企业行不亮勾', (tester) async {
-    await _pumpDrawer(tester, initialExperience: ProductExperience.personal);
+    await pumpDrawer(tester, initialExperience: ProductExperience.personal);
     await tester.pumpAndSettle();
     final personal = find.byKey(const ValueKey('drawer-space-personal'));
     expect(
@@ -410,7 +449,7 @@ void main() {
   });
 
   testWidgets('企业→个人：行内直接切体验模式，企业指针保留', (tester) async {
-    final (container, _, experience) = await _pumpDrawer(tester);
+    final (container, _, experience) = await pumpDrawer(tester);
     final personal = find.byKey(const ValueKey('drawer-space-personal'));
     await tester.pumpAndSettle();
     await tester.ensureVisible(personal);
@@ -421,8 +460,8 @@ void main() {
       container.read(productExperienceProvider),
       ProductExperience.personal,
     );
-    expect(StorageService.to.getString(Keys.currentUid), _account);
-    expect(CurrentOrganizationStore.forAccount(_account).value?.id, _orgA);
+    expect(StorageService.to.getString(Keys.currentUid), drawerAccount);
+    expect(CurrentOrganizationStore.forAccount(drawerAccount).value?.id, _orgA);
     expect(tester.takeException(), isNull);
   });
 
@@ -440,9 +479,9 @@ void main() {
       '个人→企业：两阶段切换移动指针、壳重载并切体验模式 '
       '(compact=$compact, ${combo.viewport.width}×${combo.textScale}×${combo.brightness.name})',
       (tester) async {
-        final adapter = _DetailAdapter();
+        final adapter = DrawerDetailAdapter();
         var closed = 0;
-        final (container, _, experience) = await _pumpDrawer(
+        final (container, _, experience) = await pumpDrawer(
           tester,
           initialExperience: ProductExperience.personal,
           combo: combo,
@@ -467,7 +506,10 @@ void main() {
         await tester.pumpAndSettle();
         expect(adapter.detailCalls, greaterThanOrEqualTo(1));
         expect(experience.selections, [ProductExperience.workspace]);
-        expect(CurrentOrganizationStore.forAccount(_account).value?.id, _orgB);
+        expect(
+          CurrentOrganizationStore.forAccount(drawerAccount).value?.id,
+          _orgB,
+        );
         expect(
           container.read(workspaceShellProvider).currentWorkspaceId,
           '9002',
@@ -494,7 +536,7 @@ void main() {
     (t.main.setting, '/mine/setting'),
   ]) {
     testWidgets('drawer action $path via $label', (tester) async {
-      final (_, router, experience) = await _pumpDrawer(tester);
+      final (_, router, experience) = await pumpDrawer(tester);
       await tester.pumpAndSettle();
       final target = find.text(label).last;
       await tester.ensureVisible(target);
@@ -511,9 +553,9 @@ void main() {
   }
 
   testWidgets('mine 拉取失败：保留缓存播种，抽屉功能不中断', (tester) async {
-    OrganizationCache.forAccount(_account)
+    OrganizationCache.forAccount(drawerAccount)
         .saveOrgs(const [Organization(id: _orgA, name: '缓存企业')]);
-    await _pumpDrawer(tester, httpAdapter: _FailAdapter());
+    await pumpDrawer(tester, httpAdapter: _FailAdapter());
     await tester.pumpAndSettle();
     expect(find.text('缓存企业'), findsOneWidget);
     expect(find.text(t.workspace.createOrJoinEnterprise), findsOneWidget);
@@ -522,7 +564,7 @@ void main() {
 
   group('企业二维码入口（出码为治理动作）', () {
     testWidgets('owner：我的名片旁显示企业二维码行并直达出码页', (tester) async {
-      await _pumpDrawer(
+      await pumpDrawer(
         tester,
         httpAdapter: RouteStubAdapter([
           (
@@ -558,14 +600,14 @@ void main() {
     });
 
     testWidgets('member：不显示企业二维码行', (tester) async {
-      await _pumpDrawer(tester);
+      await pumpDrawer(tester);
       await tester.pumpAndSettle();
       expect(find.byKey(const ValueKey('drawer-org-qrcode')), findsNothing);
       expect(find.text(t.workspace.myCard), findsOneWidget);
     });
 
     testWidgets('个人上下文（无企业 id）：不显示企业二维码行', (tester) async {
-      await _pumpDrawer(
+      await pumpDrawer(
         tester,
         scenario: 'neutral',
         initialExperience: ProductExperience.personal,
@@ -576,7 +618,7 @@ void main() {
   });
 
   testWidgets('logout keeps confirmation and cancellation', (tester) async {
-    final (_, router, experience) = await _pumpDrawer(
+    final (_, router, experience) = await pumpDrawer(
       tester,
       scenario: 'long',
       combo: const UxCombo(Size(360, 800), textScale: 2),
@@ -596,14 +638,14 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.byType(CupertinoAlertDialog), findsNothing);
     expect(router.routeInformationProvider.value.uri.path, '/');
-    expect(StorageService.to.getString(Keys.currentUid), _account);
-    expect(CurrentOrganizationStore.forAccount(_account).value?.id, _orgA);
+    expect(StorageService.to.getString(Keys.currentUid), drawerAccount);
+    expect(CurrentOrganizationStore.forAccount(drawerAccount).value?.id, _orgA);
     expect(experience.selections, isEmpty);
     expect(tester.takeException(), isNull);
   });
 
   testWidgets('logout remains destructive in drawer', (tester) async {
-    await _pumpDrawer(tester);
+    await pumpDrawer(tester);
     await tester.pumpAndSettle();
     final label = tester.widget<Text>(find.text(t.account.logOut));
     expect(label.style?.color, AppColors.getDestructiveText(Brightness.light));
@@ -612,7 +654,7 @@ void main() {
   testWidgets('long names and large text retain settings navigation', (
     tester,
   ) async {
-    final (_, router, _) = await _pumpDrawer(
+    final (_, router, _) = await pumpDrawer(
       tester,
       scenario: 'long',
       combo: const UxCombo(Size(360, 800), textScale: 2),
@@ -628,155 +670,11 @@ void main() {
     expect(find.text('/mine/setting'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
-
-  testWidgets('compact 按内容收缩，不带 Drawer 或满高布局', (tester) async {
-    await _pumpDrawer(
-      tester,
-      scenario: 'neutral',
-      initialExperience: ProductExperience.personal,
-      compact: true,
-      compactMaxHeight: 640,
-    );
-    final menu = find.byType(WorkspaceDrawerMenu);
-    expect(find.byType(Drawer), findsNothing);
-    expect(
-      find.descendant(of: menu, matching: find.byType(IntrinsicHeight)),
-      findsNothing,
-    );
-    expect(
-      find.descendant(of: menu, matching: find.byType(Spacer)),
-      findsNothing,
-    );
-    expect(tester.getSize(menu).height, lessThan(640));
-    expect(tester.takeException(), isNull);
-  });
-
-  testWidgets('compact 矮面板与大字可滚动，退出仍需确认', (tester) async {
-    var closed = 0;
-    await _pumpDrawer(
-      tester,
-      compact: true,
-      compactMaxHeight: 260,
-      combo: const UxCombo(
-        Size(320, 560),
-        textScale: 2,
-        brightness: Brightness.dark,
-      ),
-      onClose: () => closed++,
-    );
-    final menu = find.byType(WorkspaceDrawerMenu);
-    final scrollable = find.descendant(
-      of: menu,
-      matching: find.byType(Scrollable),
-    );
-    expect(tester.getSize(menu).height, lessThanOrEqualTo(260));
-    expect(scrollable, findsOneWidget);
-    await tester.scrollUntilVisible(
-      find.text(t.account.logOut),
-      160,
-      scrollable: scrollable,
-    );
-    await tester.tap(find.text(t.account.logOut));
-    await tester.pumpAndSettle();
-    expect(find.byType(CupertinoAlertDialog), findsOneWidget);
-    await tester.tap(find.text(t.common.buttonCancel));
-    await tester.pumpAndSettle();
-    expect(menu, findsOneWidget);
-    expect(closed, 0);
-    expect(tester.takeException(), isNull);
-  });
-
-  testWidgets('compact 等待切换期间保留菜单，成功后关闭且保留底页', (tester) async {
-    final gate = Completer<void>();
-    var closed = 0;
-    final experience = _Experience(
-      ProductExperience.workspace,
-      beforeSelect: () => gate.future,
-    );
-    final (container, router, _) = await _pumpDrawer(
-      tester,
-      compact: true,
-      experienceOverride: experience,
-      onClose: () => closed++,
-    );
-    final personal = find.byKey(const ValueKey('drawer-space-personal'));
-    await tester.tap(personal);
-    await tester.pump();
-    expect(closed, 0);
-    expect(
-      find.descendant(
-        of: personal,
-        matching: find.byType(CircularProgressIndicator),
-      ),
-      findsOneWidget,
-    );
-    gate.complete();
-    await tester.pumpAndSettle();
-    expect(closed, 1);
-    expect(find.byType(WorkspaceDrawerMenu), findsNothing);
-    expect(
-      container.read(productExperienceProvider),
-      ProductExperience.personal,
-    );
-    expect(CurrentOrganizationStore.forAccount(_account).value?.id, _orgA);
-    expect(router.routeInformationProvider.value.uri.path, '/');
-    expect(router.canPop(), isFalse);
-    expect(tester.takeException(), isNull);
-  });
-
-  testWidgets('compact 企业切换失败不关闭，也不改变原空间', (tester) async {
-    var closed = 0;
-    final (container, _, _) = await _pumpDrawer(
-      tester,
-      compact: true,
-      initialExperience: ProductExperience.personal,
-      httpAdapter: _DetailAdapter(failDetail: true),
-      onClose: () => closed++,
-    );
-    final orgB = find.byKey(const ValueKey('drawer-space-$_orgB'));
-    await tester.tap(orgB);
-    await tester.pumpAndSettle();
-    expect(closed, 0);
-    expect(find.byType(WorkspaceDrawerMenu), findsOneWidget);
-    expect(CurrentOrganizationStore.forAccount(_account).value?.id, _orgA);
-    expect(
-      container.read(productExperienceProvider),
-      ProductExperience.personal,
-    );
-    expect(
-      find.descendant(
-        of: orgB,
-        matching: find.byType(CircularProgressIndicator),
-      ),
-      findsNothing,
-    );
-    expect(tester.takeException(), isNull);
-  });
-
-  testWidgets('compact 资料跳转先关闭自身，返回后不重现旧菜单', (tester) async {
-    var closed = 0;
-    final (_, router, _) = await _pumpDrawer(
-      tester,
-      compact: true,
-      onClose: () => closed++,
-    );
-    await tester.tap(find.text('合成用户'));
-    await tester.pumpAndSettle();
-    expect(closed, 1);
-    expect(find.text('/personal_info/profile'), findsOneWidget);
-    expect(find.byType(WorkspaceDrawerMenu), findsNothing);
-    router.pop();
-    await tester.pumpAndSettle();
-    expect(router.routeInformationProvider.value.uri.path, '/');
-    expect(router.canPop(), isFalse);
-    expect(find.byType(WorkspaceDrawerMenu), findsNothing);
-    expect(tester.takeException(), isNull);
-  });
 }
 
 /// organizations/* 全链路 stub：mine 列表 + detail + default-workspace。
-class _DetailAdapter implements HttpClientAdapter {
-  _DetailAdapter({this.failDetail = false});
+class DrawerDetailAdapter implements HttpClientAdapter {
+  DrawerDetailAdapter({this.failDetail = false});
 
   final bool failDetail;
   int detailCalls = 0;

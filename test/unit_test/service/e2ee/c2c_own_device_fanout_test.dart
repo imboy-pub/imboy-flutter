@@ -68,6 +68,31 @@ class _ClaimConnFailAdapter implements HttpClientAdapter {
   void close({bool force = false}) {}
 }
 
+class _ClaimRejectedAdapter implements HttpClientAdapter {
+  _ClaimRejectedAdapter(this.reason);
+  final String reason;
+  final requests = <Uri>[];
+
+  @override
+  Future<ResponseBody> fetch(
+    RequestOptions options,
+    Stream<Uint8List>? requestStream,
+    Future<void>? cancelFuture,
+  ) async {
+    requests.add(options.uri);
+    return ResponseBody.fromString(
+      jsonEncode({'code': 404, 'msg': reason, 'payload': <String, dynamic>{}}),
+      200,
+      headers: {
+        'content-type': ['application/json'],
+      },
+    );
+  }
+
+  @override
+  void close({bool force = false}) {}
+}
+
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
@@ -337,6 +362,72 @@ void main() {
     expect(peerPayload['body'], 'decrypt me');
     expect(selfPayload['body'], 'decrypt me');
   });
+
+  for (final reason in ['claim_not_authorized', 'device_revoked']) {
+    test(
+      'permanent claim rejection $reason rejects before immutable outbox',
+      () async {
+        expect(
+          isTransientSessionFailure(Exception('olm claim_key failed: $reason')),
+          isFalse,
+        );
+        const rejectedDid = 'b-rejected';
+        E2EEService.setUserDeviceKeyCacheForTest(peerUid, {
+          peerDid: 'PEM-B1',
+          rejectedDid: 'PEM-REJECTED',
+        });
+        E2EEService.setUserDeviceKeyCacheForTest(myUid, {myDid: 'PEM-A1'});
+        E2EEService.debugOlmDeviceListLoader = (uid) async => uid == peerUid
+            ? [
+                {'device_id': peerDid},
+                {'device_id': rejectedDid},
+              ]
+            : [
+                {'device_id': myDid},
+              ];
+        final adapter = _ClaimRejectedAdapter(reason);
+        HttpClient.adapterForTest = adapter;
+        await expectLater(
+          ChatNetworkService().encryptPayload(
+            chatType: 'C2C',
+            toId: peerUid,
+            plaintextMap: const {'msg_type': 'text', 'body': 'must not send'},
+            action: '',
+            messageId: 'permanent-$reason',
+            messageType: 'text',
+          ),
+          throwsA(
+            isA<Exception>().having(
+              (error) => error.toString(),
+              'reason',
+              contains('olm claim_key failed: $reason'),
+            ),
+          ),
+        );
+        expect(adapter.requests, hasLength(1));
+        expect(adapter.requests.single.path, '/api/v1/e2ee/olm/claim');
+        expect(await CryptoStore(db).pendingOutbox(), isEmpty);
+      },
+    );
+  }
+
+  test(
+    'claim classification retains prior device guards and transient failures',
+    () {
+      for (final reason in ['device_not_registered', 'device_not_found']) {
+        expect(
+          isTransientSessionFailure(Exception('olm claim_key failed: $reason')),
+          isFalse,
+        );
+      }
+      for (final reason in ['no_prekey_available', 'network unavailable']) {
+        expect(
+          isTransientSessionFailure(Exception('olm claim_key failed: $reason')),
+          isTrue,
+        );
+      }
+    },
+  );
 
   test('AC-16: 缺钥设备（瞬态 claim 失败）明确跳过，不阻塞其他设备', () async {
     // b-offline 在 userKeys 与 Olm 列表中（能力合规），但无播种 session，

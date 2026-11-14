@@ -99,8 +99,7 @@ void main() {
     }();
     flowLog('W3K-EXP self=$selfUid peer=$peerUid');
 
-    final flags = enableChatMultiFlagsForTest(bundle: false);
-    addTearDown(flags.restore);
+    await requireChatMultiServerFlags();
 
     // ① 源会话：2 条 marker 文本。
     final chatPage = await pushChatPage(
