@@ -743,7 +743,8 @@ class BackendProductContractTests(unittest.TestCase):
                     (target['target'], platform, product, role['role'], variant['variant'])
                     for platform in role.get('platforms', target['platforms'])
                     for product in target['products']
-                    for variant in target.get('variants', [{'variant': 'default'}]))
+                    for variant in target.get('variants', [{'variant': 'default'}])
+                    if platform in variant.get('platforms', target['platforms']))
         self.assertEqual(expected, {
             (r['target'], r['platform'], r['product_profile'], r['role'], r['variant'])
             for r in rows})

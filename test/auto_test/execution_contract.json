@@ -2428,6 +2428,39 @@
       ],
       "basis": [
         "Preserves the existing legacy native journey and enables the same entry in the full-selected UI candidate. Owned mode is explicit and enforces strict scope restoration in source; legacy inputs and assertions remain unchanged."
+      ],
+      "variants": [
+        {
+          "variant": "default"
+        },
+        {
+          "variant": "owned",
+          "required_env": [
+            "TEST_EXPECTED_UID",
+            "PEER_UID",
+            "PEER_TITLE",
+            "UX_STORAGE_TAG",
+            "UX_RESTORE_STORAGE",
+            "APP_ENV",
+            "API_BASE_URL",
+            "WS_URL_OVERRIDE",
+            "WEB_BASE_URL",
+            "TEST_PHONE",
+            "TEST_PASSWORD",
+            "SOLIDIFIED_KEY_OVERRIDE",
+            "SOLIDIFIED_KEY_IV_OVERRIDE",
+            "IMBOY_LOCAL_MAP_REQUESTS_ALLOWED"
+          ],
+          "required_true_env": [
+            "TEST_ALLOW_BUSINESS_WRITES",
+            "IMBOY_TEST_ISOLATED",
+            "IMBOY_ANDROID_QA_BUILD",
+            "IMBOY_LOCAL_EXTERNAL_SERVICES_DISABLED"
+          ],
+          "platforms": [
+            "android"
+          ]
+        }
       ]
     },
     "integration_test/chat_multi_select_test.dart": {
@@ -2437,6 +2470,43 @@
       ],
       "basis": [
         "Preserves the existing legacy native journey and enables the same entry in the full-selected UI candidate. Owned mode is explicit and enforces strict scope restoration in source; legacy inputs and assertions remain unchanged."
+      ],
+      "variants": [
+        {
+          "variant": "default"
+        },
+        {
+          "variant": "owned",
+          "required_env": [
+            "TEST_EXPECTED_UID",
+            "PEER_UID",
+            "PEER_TITLE",
+            "UX_STORAGE_TAG",
+            "UX_RESTORE_STORAGE",
+            "CHAT_MULTI_SRC_PEER_UID",
+            "CHAT_MULTI_DST_PEER_UID",
+            "CHAT_MULTI_SRC_PEER_TITLE",
+            "CHAT_MULTI_EXPECT_E2EE",
+            "APP_ENV",
+            "API_BASE_URL",
+            "WS_URL_OVERRIDE",
+            "WEB_BASE_URL",
+            "TEST_PHONE",
+            "TEST_PASSWORD",
+            "SOLIDIFIED_KEY_OVERRIDE",
+            "SOLIDIFIED_KEY_IV_OVERRIDE",
+            "IMBOY_LOCAL_MAP_REQUESTS_ALLOWED"
+          ],
+          "required_true_env": [
+            "TEST_ALLOW_BUSINESS_WRITES",
+            "IMBOY_TEST_ISOLATED",
+            "IMBOY_ANDROID_QA_BUILD",
+            "IMBOY_LOCAL_EXTERNAL_SERVICES_DISABLED"
+          ],
+          "platforms": [
+            "android"
+          ]
+        }
       ]
     },
     "integration_test/chat_multi_bundle_roundtrip_test.dart": {
@@ -2446,6 +2516,44 @@
       ],
       "basis": [
         "Preserves the existing legacy native journey and enables the same entry in the full-selected UI candidate. Owned mode is explicit and enforces strict scope restoration in source; legacy inputs and assertions remain unchanged."
+      ],
+      "variants": [
+        {
+          "variant": "default"
+        },
+        {
+          "variant": "owned",
+          "required_env": [
+            "TEST_EXPECTED_UID",
+            "PEER_UID",
+            "PEER_TITLE",
+            "UX_STORAGE_TAG",
+            "UX_RESTORE_STORAGE",
+            "CHAT_MULTI_SRC_PEER_UID",
+            "CHAT_MULTI_DST_PEER_UID",
+            "CHAT_MULTI_SRC_PEER_TITLE",
+            "CHAT_MULTI_EXPECT_E2EE",
+            "CHAT_MULTI_RUN_NONCE",
+            "APP_ENV",
+            "API_BASE_URL",
+            "WS_URL_OVERRIDE",
+            "WEB_BASE_URL",
+            "TEST_PHONE",
+            "TEST_PASSWORD",
+            "SOLIDIFIED_KEY_OVERRIDE",
+            "SOLIDIFIED_KEY_IV_OVERRIDE",
+            "IMBOY_LOCAL_MAP_REQUESTS_ALLOWED"
+          ],
+          "required_true_env": [
+            "TEST_ALLOW_BUSINESS_WRITES",
+            "IMBOY_TEST_ISOLATED",
+            "IMBOY_ANDROID_QA_BUILD",
+            "IMBOY_LOCAL_EXTERNAL_SERVICES_DISABLED"
+          ],
+          "platforms": [
+            "android"
+          ]
+        }
       ]
     }
   },
