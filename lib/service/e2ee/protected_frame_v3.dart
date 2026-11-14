@@ -9,12 +9,16 @@
 ///
 /// NOT a general-purpose CBOR library. Only supports the subset needed for
 /// protected_header: uint, text, map, array, bool, null, bytes.
+/// Inner frames additionally opt into finite floating-point payload values.
 library;
 
 import 'dart:convert';
 import 'dart:typed_data';
+import 'dart:math' as math;
 
 import 'package:crypto/crypto.dart';
+
+part 'canonical_cbor_float.dart';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Exceptions
@@ -55,13 +59,18 @@ class CanonicalCbor {
   // ─── Encode ───────────────────────────────────────────────────────────────
 
   /// 将 Dart 值编码为 canonical CBOR bytes。
-  static Uint8List encode(dynamic value) {
+  static Uint8List encode(dynamic value, {bool allowFloatingPoint = false}) {
     final builder = BytesBuilder();
-    _encodeValue(builder, value, 0);
+    _encodeValue(builder, value, 0, allowFloatingPoint);
     return builder.toBytes();
   }
 
-  static void _encodeValue(BytesBuilder out, dynamic value, int depth) {
+  static void _encodeValue(
+    BytesBuilder out,
+    dynamic value,
+    int depth,
+    bool allowFloatingPoint,
+  ) {
     if (depth > maxDepth) {
       throw CborParseException('max nesting depth $maxDepth exceeded');
     }
@@ -72,14 +81,16 @@ class CanonicalCbor {
       out.addByte(value ? 0xF5 : 0xF4);
     } else if (value is int) {
       _encodeUint(out, value);
+    } else if (value is double && allowFloatingPoint) {
+      out.add(_CborFloat.encode(value));
     } else if (value is String) {
       _encodeText(out, value);
     } else if (value is Uint8List) {
       _encodeBytes(out, value);
     } else if (value is List) {
-      _encodeArray(out, value, depth);
+      _encodeArray(out, value, depth, allowFloatingPoint);
     } else if (value is Map<String, dynamic>) {
-      _encodeMap(out, value, depth);
+      _encodeMap(out, value, depth, allowFloatingPoint);
     } else {
       throw CborParseException('unsupported type: ${value.runtimeType}');
     }
@@ -137,7 +148,12 @@ class CanonicalCbor {
     out.add(value);
   }
 
-  static void _encodeArray(BytesBuilder out, List<dynamic> value, int depth) {
+  static void _encodeArray(
+    BytesBuilder out,
+    List<dynamic> value,
+    int depth,
+    bool allowFloatingPoint,
+  ) {
     if (value.length > maxArrayEntries) {
       throw CborParseException(
         'array entries ${value.length} > max $maxArrayEntries',
@@ -145,7 +161,7 @@ class CanonicalCbor {
     }
     _encodeHead(out, 4, value.length);
     for (final item in value) {
-      _encodeValue(out, item, depth + 1);
+      _encodeValue(out, item, depth + 1, allowFloatingPoint);
     }
   }
 
@@ -153,6 +169,7 @@ class CanonicalCbor {
     BytesBuilder out,
     Map<String, dynamic> value,
     int depth,
+    bool allowFloatingPoint,
   ) {
     if (value.length > maxMapEntries) {
       throw CborParseException(
@@ -175,7 +192,7 @@ class CanonicalCbor {
     _encodeHead(out, 5, value.length);
     for (final e in entries) {
       out.add(encodedKeys[e.key]!);
-      _encodeValue(out, e.value, depth + 1);
+      _encodeValue(out, e.value, depth + 1, allowFloatingPoint);
     }
   }
 
@@ -191,8 +208,16 @@ class CanonicalCbor {
   // ─── Decode ───────────────────────────────────────────────────────────────
 
   /// 解码 CBOR bytes。[strict] 为 true 时额外验证 key 排序（canonical order）。
-  static dynamic decode(Uint8List data, {bool strict = false}) {
-    final reader = _CborReader(data, strict: strict);
+  static dynamic decode(
+    Uint8List data, {
+    bool strict = false,
+    bool allowFloatingPoint = false,
+  }) {
+    final reader = _CborReader(
+      data,
+      strict: strict,
+      allowFloatingPoint: allowFloatingPoint,
+    );
     final value = reader.readValue(0);
     if (reader.offset < data.length) {
       throw CborParseException('trailing bytes after CBOR value');
@@ -204,9 +229,14 @@ class CanonicalCbor {
 class _CborReader {
   final Uint8List _data;
   final bool strict;
+  final bool allowFloatingPoint;
   int _offset = 0;
 
-  _CborReader(this._data, {this.strict = false});
+  _CborReader(
+    this._data, {
+    this.strict = false,
+    this.allowFloatingPoint = false,
+  });
 
   int get offset => _offset;
 
@@ -266,6 +296,12 @@ class _CborReader {
         if (additionalInfo == 20) return false;
         if (additionalInfo == 21) return true;
         if (additionalInfo == 22) return null;
+        if (allowFloatingPoint &&
+            additionalInfo >= 25 &&
+            additionalInfo <= 27) {
+          final length = 1 << (additionalInfo - 24);
+          return _CborFloat.decode(_readBytes(length), strict: strict);
+        }
         throw CborParseException('unsupported simple value: $additionalInfo');
       default:
         throw CborParseException('unsupported major type: $majorType');

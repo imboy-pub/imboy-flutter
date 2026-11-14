@@ -13,6 +13,8 @@ import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:imboy/service/sqlite.dart';
 import 'package:imboy/service/e2ee/e2ee_outbound_router.dart';
 import 'package:imboy/service/e2ee/e2ee_protocol.dart';
+import 'package:imboy/service/e2ee/crypto_store.dart';
+import 'package:imboy/service/e2ee/protected_frame_v3.dart';
 import 'package:imboy/service/e2ee_service.dart' hide RecipientDevice;
 
 /// 恒等协议：encrypt/decrypt 原样返回（测试用，非真实加密）。
@@ -80,10 +82,12 @@ void main() {
       'ts': 1753500000000,
     };
 
-    Future<Map<String, dynamic>> encryptAndWrap() async {
+    Future<Map<String, dynamic>> encryptAndWrap({
+      Map<String, dynamic> payload = originalPayload,
+    }) async {
       final result = await E2eeOutboundRouter.encryptV3(
         suite: ProtocolSuite.olm,
-        plaintext: jsonEncode(originalPayload),
+        plaintext: jsonEncode(payload),
         recipients: const [
           RecipientDevice(deviceId: 'dev-1', keyId: 'k1', publicKey: 'pk-1'),
         ],
@@ -92,7 +96,7 @@ void main() {
         senderUid: '100',
         senderDid: 'dev-sender',
         destination: '200',
-        messageType: 'text',
+        messageType: payload['msg_type'] as String,
         action: 'message',
         sessionRef: 'test-session',
         epochOrCounter: 1,
@@ -105,7 +109,7 @@ void main() {
         'type': 'C2C',
         'from': '100',
         'to': '200',
-        'msg_type': 'text',
+        'msg_type': payload['msg_type'],
         'e2ee': result.metadata,
         'payload': result.ciphertext, // v3: 空字符串
         'sender_did': 'dev-sender',
@@ -128,6 +132,76 @@ void main() {
       expect(decrypted['sender_did'], equals('dev-sender'));
       expect(decrypted['sender_dtype'], equals('ios'));
     });
+
+    for (final payload in <Map<String, dynamic>>[
+      {'msg_type': 'image', 'width': 640.0, 'height': 480.0},
+      {
+        'msg_type': 'location',
+        'latitude': 39.912345678901,
+        'longitude': 116.412345678901,
+      },
+      {
+        'msg_type': 'history_bundle',
+        'entries': [
+          {
+            'msg_type': 'image',
+            'payload': {'width': 8.0, 'height': 8.0},
+          },
+          {
+            'msg_type': 'location',
+            'payload': {
+              'latitude': 39.912345678901,
+              'longitude': 116.412345678901,
+            },
+          },
+        ],
+      },
+    ]) {
+      test(
+        '${payload['msg_type']} finite numbers survive v3 and stored retry',
+        () async {
+          final incoming = await encryptAndWrap(payload: payload);
+          final stored = await CryptoStore(db).getOutboxEntry('msg-001');
+          expect(stored, isNotNull);
+          final envelope = jsonDecode(stored!['payload'] as String);
+          expect(envelope, incoming['e2ee']);
+          final restored = {...incoming, 'e2ee': envelope};
+          final decrypted = await E2EEService.decryptIncomingPayload(
+            payload: restored,
+          );
+          expect(decrypted['_e2ee_failed'], isNot(true));
+          expect(decrypted['_e2ee_v3_verified'], isTrue);
+          for (final entry in payload.entries) {
+            expect(decrypted[entry.key], equals(entry.value));
+          }
+        },
+      );
+    }
+
+    test(
+      'inner-frame float support does not admit floats in protected_header',
+      () async {
+        final incoming = await encryptAndWrap();
+        final envelope = Map<String, dynamic>.from(incoming['e2ee'] as Map);
+        final frameB64 = utf8.decode(
+          base64Url.decode(envelope['ciphertext'] as String),
+        );
+        final frame = CanonicalCbor.decode(
+          base64Url.decode(frameB64),
+        ) as Map<String, dynamic>;
+        (frame['protected_header'] as Map<String, dynamic>)['v'] = 3.0;
+        final modified = CanonicalCbor.encode(frame, allowFloatingPoint: true);
+        envelope['ciphertext'] = base64Url.encode(
+          utf8.encode(base64Url.encode(modified)),
+        );
+        incoming['e2ee'] = envelope;
+        final decrypted = await E2EEService.decryptIncomingPayload(
+          payload: incoming,
+        );
+        expect(decrypted['_e2ee_failed'], isTrue);
+        expect(decrypted['_e2ee_reason'], 'inner_frame_cbor_invalid');
+      },
+    );
 
     test('篡改 header_hash → _e2ee_failed', () async {
       final incoming = await encryptAndWrap();
