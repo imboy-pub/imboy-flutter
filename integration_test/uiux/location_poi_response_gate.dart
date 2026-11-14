@@ -14,6 +14,7 @@ class LocationPoiResponseGate extends HttpOverrides {
   int searches = 0;
   int aroundRequests = 0;
   int aroundResponses = 0;
+  Map<String, Object?>? lastTextResponse;
   final _clients = <HttpClient>[];
   Future<void> get observed => _observed!.future;
 
@@ -215,6 +216,28 @@ class _Request implements HttpClientRequest {
       [],
       (out, part) => out..addAll(part),
     );
+    Object? payload;
+    try {
+      payload = jsonDecode(utf8.decode(bytes));
+    } on FormatException {
+      // Record shape only; the real unchanged response still reaches Dio.
+    }
+    final data = payload is Map ? payload : null;
+    String? code(Object? value) {
+      final text = value?.toString();
+      return text != null && RegExp(r'^[0-9]{1,8}$').hasMatch(text)
+          ? text
+          : null;
+    }
+
+    gate.lastTextResponse = {
+      'http_status': response.statusCode,
+      'status': code(data?['status']),
+      'infocode': code(data?['infocode']),
+      'pois_count': data?['pois'] is List
+          ? (data!['pois'] as List).length
+          : null,
+    };
     gate.held++;
     gate._observed!.complete();
     await release.timeout(const Duration(seconds: 30));

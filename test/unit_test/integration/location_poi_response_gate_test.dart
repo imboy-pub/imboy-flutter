@@ -124,6 +124,12 @@ void main() {
         return value;
       });
       await gate.observed;
+      expect(gate.lastTextResponse, {
+        'http_status': 200,
+        'status': '1',
+        'infocode': null,
+        'pois_count': 0,
+      });
       expect(gate.held, 1);
       expect(completed, isFalse);
       expect(gate.consumed, 0);

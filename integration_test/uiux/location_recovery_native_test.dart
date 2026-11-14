@@ -99,6 +99,11 @@ void main() {
         expect(gate.consumed, 3);
         expect(tester.takeException(), isNull);
       }, createHttpClient: gate.createHttpClient);
+    } on Object {
+      debugPrint(
+        'UX01_TEXT_RESPONSE_DIAGNOSTIC ${jsonEncode({'response': gate.lastTextResponse, 'held': gate.held, 'released': gate.released, 'consumed': gate.consumed, 'searches': gate.searches})}',
+      );
+      rethrow;
     } finally {
       HttpOverrides.global = previousOverrides;
     }
