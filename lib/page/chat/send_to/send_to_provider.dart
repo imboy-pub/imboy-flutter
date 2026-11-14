@@ -55,6 +55,10 @@ class SendToState {
 
 /// 发送消息逻辑控制器
 class SendToNotifier extends Notifier<SendToState> {
+  SendToNotifier({this.networkService = const ChatNetworkService()});
+
+  final ChatNetworkService networkService;
+
   @override
   SendToState build() => const SendToState();
 
@@ -359,23 +363,6 @@ class SendToNotifier extends Notifier<SendToState> {
       if (isCurrent != null && !isCurrent()) return false;
       onQueued?.call(msgModel);
 
-      // 方案 B 变体（chat-multi-20261111 产品缺陷修复）：副本落库后立即
-      // 经现行出网链路主动派发。原 MessageSendRequestedEvent 全仓无消费者，
-      // 非文本副本（image/file/…）只能靠重进会话页（_pageMessages 补发）/
-      // 重启 / 重连扫描偶然出网，UI 却报成功。派发走
-      // ChatNetworkService.sendWsMsg：加密判定 / 策略门 / deep-seal 闸 /
-      // 上传认领 / 重试闭环零旁路；派发结果不改判转发成败（E2EE-062 口径：
-      // 策略/加密失败行保持 sending 留库待补发；瞬时 WS 失败已由
-      // sendWithRetry 入重试闭环），异常只记类型（Finding 014）。
-      try {
-        await const ChatNetworkService().sendWsMsg(msgModel);
-      } on Object catch (e) {
-        debugPrint(
-          '[send_to_provider] forward dispatch submit failed, '
-          'msgId=${msgModel.id}, errType=${e.runtimeType}',
-        );
-      }
-
       // 回环可见性：目标会话若正是当前打开的会话，直接落库的副本不会自动
       // 进入内存消息列表（addMessage 的 syncMessagesToState 只覆盖本页输入
       // 链发送）。复用入站消息同一 ingestion 事件形状（offline_message_
@@ -390,7 +377,19 @@ class SendToNotifier extends Notifier<SendToState> {
         );
       }
 
-      return true;
+      // 先让本地消息可见，再接收派发链发出的真实错误/重试状态。
+      try {
+        final sent = await networkService.sendWsMsg(msgModel);
+        if (!sent && !silent) AppLoading.showError(t.common.sendFailed);
+        return sent;
+      } on Object catch (e) {
+        debugPrint(
+          '[send_to_provider] forward dispatch failed, '
+          'msgId=${msgModel.id}, errType=${e.runtimeType}',
+        );
+        if (!silent) AppLoading.showError(t.common.sendFailed);
+        return false;
+      }
     } on AttachmentForwardException catch (e) {
       // 转发失败（明文目标域 / 源不可解密 / 下载上传失败）：落库前抛出，
       // 无半转发状态；重试 = 全新消息 id + 全新密钥重封装，幂等。

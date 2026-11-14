@@ -13,6 +13,11 @@ library;
 
 import 'package:flutter_chat_core/flutter_chat_core.dart' as core;
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:imboy/config/const.dart';
+import 'package:imboy/service/storage.dart';
+import 'package:imboy/service/event_bus.dart';
+import 'package:imboy/service/events/common_events.dart';
 
 import 'package:imboy/app_core/feature_flags/app_feature_registry.dart';
 import 'package:imboy/modules/messaging/application/history_bundle/bundle_attachment_forwarder.dart';
@@ -114,6 +119,65 @@ class _ThrowingForwarder implements BundleAttachmentForwarder {
 }
 
 void main() {
+  setUpAll(() async {
+    TestWidgetsFlutterBinding.ensureInitialized();
+    SharedPreferences.setMockInitialValues({});
+    await StorageService.init();
+    await StorageService.to.setString(Keys.currentUid, _uid);
+    await StorageService.to.setString(
+      Keys.currentUser,
+      '{"uid":"$_uid","nickname":"Fixture sender","account":"",'
+      '"email":"","mobile":"","avatar":"","role":null,"gender":0,'
+      '"region":"","sign":"","setting":{}}',
+    );
+  });
+
+  for (final throwsError in [false, true]) {
+    test(
+      'dispatch ${throwsError ? "throw" : "false"} retains one local echo and reports failure',
+      () async {
+        final inserted = <MessageModel>[];
+        final echoes = <core.Message>[];
+        final order = <String>[];
+        final subscription = AppEventBus.on<DataWrapperEvent>().listen((event) {
+          if (event.dataType == 'Message') {
+            echoes.add(event.data as core.Message);
+            order.add('echo');
+          }
+        });
+        addTearDown(subscription.cancel);
+        final dispatcher = BundleForwardDispatcher(
+          messageFetcher: (id, _) async => _sourceRow(id, 1000),
+          messageInserter: (model, _) async => inserted.add(model),
+          forwarderUidResolver: () => _uid,
+          wsDispatcher: (model) async {
+            await Future<void>.delayed(Duration.zero);
+            order.add('dispatch');
+            if (throwsError) throw StateError('dispatch failed');
+            return false;
+          },
+        );
+        final report = await dispatcher.sendToTargets(
+          [_target(1, '1000000056')],
+          [_uiMessage('m1')],
+          sourceChatType: 'C2C',
+        );
+        expect(report.successCount, 0);
+        expect(report.allSuccess, isFalse);
+        expect(
+          report.failures.single.errorCode,
+          HistoryBundleBuildErrorCode.sendFailed,
+        );
+        expect(inserted, hasLength(1));
+        expect(inserted.single.status, IMBoyMessageStatus.sending);
+        expect(echoes, hasLength(1));
+        expect(echoes.single.id, inserted.single.id);
+        expect(echoes.single.status, core.MessageStatus.sending);
+        expect(order, ['echo', 'dispatch']);
+      },
+    );
+  }
+
   setUp(() {
     AppFeatureRegistry.replaceSnapshotForTest(<String, dynamic>{
       'chat_multi_select_v1': true,
@@ -229,6 +293,7 @@ void main() {
       final inserted = <MessageModel>[];
       final targets = [_target(1, '1000000056'), _target(2, '1000000057')];
       final dispatcher = BundleForwardDispatcher(
+        wsDispatcher: (_) async => true,
         messageFetcher: (id, chatType) async => rows[id],
         messageInserter: (model, chatType) async => inserted.add(model),
         forwarderUidResolver: () => _uid,
@@ -275,6 +340,7 @@ void main() {
       };
       final inserted = <MessageModel>[];
       final dispatcher = BundleForwardDispatcher(
+        wsDispatcher: (_) async => true,
         messageFetcher: (id, chatType) async => rows[id],
         messageInserter: (model, chatType) async => inserted.add(model),
         forwarderUidResolver: () => _uid,
@@ -298,6 +364,7 @@ void main() {
     test('源行缺失 → 整体放弃（sourceMissing），无部分 bundle', () async {
       final inserted = <MessageModel>[];
       final dispatcher = BundleForwardDispatcher(
+        wsDispatcher: (_) async => true,
         messageFetcher: (id, chatType) async => null,
         messageInserter: (model, chatType) async => inserted.add(model),
         forwarderUidResolver: () => _uid,
@@ -335,6 +402,7 @@ void main() {
         };
         final inserted = <MessageModel>[];
         final dispatcher = BundleForwardDispatcher(
+          wsDispatcher: (_) async => true,
           messageFetcher: (id, chatType) async => rows[id],
           messageInserter: (model, chatType) async => inserted.add(model),
           forwarderUidResolver: () => _uid,
@@ -361,6 +429,7 @@ void main() {
       var fetcherCalls = 0;
       final inserted = <MessageModel>[];
       final dispatcher = BundleForwardDispatcher(
+        wsDispatcher: (_) async => true,
         messageFetcher: (id, chatType) async {
           fetcherCalls++;
           return null;
@@ -389,6 +458,7 @@ void main() {
       var fetcherCalls = 0;
       final inserted = <MessageModel>[];
       final dispatcher = BundleForwardDispatcher(
+        wsDispatcher: (_) async => true,
         messageFetcher: (id, chatType) async {
           fetcherCalls++;
           return _sourceRow('m1', 1000);
@@ -419,6 +489,7 @@ void main() {
       final rows = <String, MessageModel>{'m1': _sourceRow('m1', 1000)};
       final inserted = <MessageModel>[];
       final dispatcher = BundleForwardDispatcher(
+        wsDispatcher: (_) async => true,
         messageFetcher: (id, chatType) async => rows[id],
         messageInserter: (model, chatType) async => inserted.add(model),
         forwarderUidResolver: () => _uid,
@@ -441,6 +512,7 @@ void main() {
       final rows = <String, MessageModel>{'m1': _sourceRow('m1', 1000)};
       final inserted = <MessageModel>[];
       final dispatcher = BundleForwardDispatcher(
+        wsDispatcher: (_) async => true,
         messageFetcher: (id, chatType) async => rows[id],
         messageInserter: (model, chatType) async => inserted.add(model),
         forwarderUidResolver: () => _uid,
@@ -480,6 +552,7 @@ void main() {
       };
       final inserted = <MessageModel>[];
       final dispatcher = BundleForwardDispatcher(
+        wsDispatcher: (_) async => true,
         messageFetcher: (id, chatType) async => rows[id],
         messageInserter: (model, chatType) async => inserted.add(model),
         forwarderUidResolver: () => _uid,
@@ -506,6 +579,7 @@ void main() {
       () async {
         final inserted = <MessageModel>[];
         final dispatcher = BundleForwardDispatcher(
+          wsDispatcher: (_) async => true,
           messageFetcher: (id, chatType) async => throw Exception('db locked'),
           messageInserter: (model, chatType) async => inserted.add(model),
           forwarderUidResolver: () => _uid,
@@ -532,6 +606,7 @@ void main() {
       final rows = <String, MessageModel>{'m1': _sourceRow('m1', 1000)};
       final inserted = <MessageModel>[];
       final dispatcher = BundleForwardDispatcher(
+        wsDispatcher: (_) async => true,
         messageFetcher: (id, chatType) async => rows[id],
         messageInserter: (model, chatType) async => inserted.add(model),
         forwarderUidResolver: () => _uid,
@@ -562,6 +637,7 @@ void main() {
       };
       final inserted = <MessageModel>[];
       final dispatcher = BundleForwardDispatcher(
+        wsDispatcher: (_) async => true,
         messageFetcher: (id, chatType) async => rows[id],
         messageInserter: (model, chatType) async => inserted.add(model),
         forwarderUidResolver: () => _uid,
@@ -591,6 +667,7 @@ void main() {
       };
       final okInserted = <MessageModel>[];
       final okDispatcher = BundleForwardDispatcher(
+        wsDispatcher: (_) async => true,
         messageFetcher: (id, chatType) async => smallRows[id],
         messageInserter: (model, chatType) async => okInserted.add(model),
         forwarderUidResolver: () => _uid,
@@ -620,6 +697,7 @@ void main() {
       final forwarder = _RecordingForwarder();
       final inserted = <MessageModel>[];
       final dispatcher = BundleForwardDispatcher(
+        wsDispatcher: (_) async => true,
         messageFetcher: (id, chatType) async => rows[id],
         messageInserter: (model, chatType) async => inserted.add(model),
         forwarderUidResolver: () => _uid,
@@ -674,6 +752,7 @@ void main() {
         final forwarder = _RecordingForwarder();
         final inserted = <MessageModel>[];
         final dispatcher = BundleForwardDispatcher(
+          wsDispatcher: (_) async => true,
           messageFetcher: (id, chatType) async => rows[id],
           messageInserter: (model, chatType) async => inserted.add(model),
           forwarderUidResolver: () => _uid,
@@ -713,6 +792,7 @@ void main() {
       final forwarder = _RecordingForwarder();
       final inserted = <MessageModel>[];
       final dispatcher = BundleForwardDispatcher(
+        wsDispatcher: (_) async => true,
         messageFetcher: (id, chatType) async => rows[id],
         messageInserter: (model, chatType) async => inserted.add(model),
         forwarderUidResolver: () => _uid,
@@ -758,6 +838,7 @@ void main() {
       );
       final inserted = <MessageModel>[];
       final dispatcher = BundleForwardDispatcher(
+        wsDispatcher: (_) async => true,
         messageFetcher: (id, chatType) async => rows[id],
         messageInserter: (model, chatType) async => inserted.add(model),
         forwarderUidResolver: () => _uid,
@@ -821,6 +902,7 @@ void main() {
       );
       final inserted = <MessageModel>[];
       final dispatcher = BundleForwardDispatcher(
+        wsDispatcher: (_) async => true,
         messageFetcher: (id, chatType) async => rows[id],
         messageInserter: (model, chatType) async => inserted.add(model),
         forwarderUidResolver: () => _uid,
@@ -873,6 +955,7 @@ void main() {
       final forwarder = _RecordingForwarder(script: [adapterPayload]);
       final inserted = <MessageModel>[];
       final dispatcher = BundleForwardDispatcher(
+        wsDispatcher: (_) async => true,
         messageFetcher: (id, chatType) async => rows[id],
         messageInserter: (model, chatType) async => inserted.add(model),
         forwarderUidResolver: () => _uid,
@@ -938,6 +1021,7 @@ void main() {
         unreadNum: 0,
       );
       final dispatcher = BundleForwardDispatcher(
+        wsDispatcher: (_) async => true,
         messageFetcher: (id, chatType) async {
           fetchChatTypes.add(chatType);
           return rows[id];
@@ -995,6 +1079,7 @@ void main() {
         };
         final inserted = <MessageModel>[];
         final dispatcher = BundleForwardDispatcher(
+          wsDispatcher: (_) async => true,
           messageFetcher: (id, chatType) async => rows[id],
           messageInserter: (model, chatType) async => inserted.add(model),
           forwarderUidResolver: () => _uid,
@@ -1039,6 +1124,7 @@ void main() {
       };
       final inserted = <MessageModel>[];
       final dispatcher = BundleForwardDispatcher(
+        wsDispatcher: (_) async => true,
         messageFetcher: (id, chatType) async => rows[id],
         messageInserter: (model, chatType) async => inserted.add(model),
         forwarderUidResolver: () => _uid,

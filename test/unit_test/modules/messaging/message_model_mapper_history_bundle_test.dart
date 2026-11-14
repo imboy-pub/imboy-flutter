@@ -96,6 +96,22 @@ void main() {
     expect(message.metadata?['original_type'], isNull);
   });
 
+  for (final status in [
+    IMBoyMessageStatus.sending,
+    IMBoyMessageStatus.pendingRetry,
+    IMBoyMessageStatus.error,
+    IMBoyMessageStatus.sent,
+    IMBoyMessageStatus.delivered,
+    IMBoyMessageStatus.seen,
+  ]) {
+    test('bundle preserves persisted status $status', () async {
+      final model = _model(bundlePayload())..status = status;
+      final message = await model.toTypeMessage();
+      expect(message.status, model.typesStatus);
+      expect(message.metadata?['status'], status);
+    });
+  }
+
   test('归一化器不把 chat_history_bundle 判成 unsupported', () async {
     final model = MessageModel(
       'bundle_2',

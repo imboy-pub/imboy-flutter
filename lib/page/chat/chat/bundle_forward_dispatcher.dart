@@ -591,19 +591,6 @@ class BundleForwardDispatcher {
       msgType: HistoryBundleContract.msgType,
     );
     await _messageInserter(model, targetChatType);
-    // 方案 B 变体：落库后立即主动派发（原 MessageSendRequestedEvent 全仓
-    // 无消费者，副本只能靠重进会话页/重启的补发通道偶然出网）。派发结果
-    // 不改判转发成败（E2EE-062 口径：策略/加密失败行保持 sending 留库，
-    // 由补发通道在策略恢复后补发；瞬时 WS 失败已由 sendWithRetry 入重试
-    // 闭环），只记类型不输出异常对象（Finding 014）。
-    try {
-      await _wsDispatcher(model);
-    } on Object catch (e) {
-      iPrint(
-        '⚠️ [BundleForwardDispatcher] 副本派发提交失败(不影响落库): '
-        'msgId=${model.id}, errType=${e.runtimeType}',
-      );
-    }
     // 回环可见性：与单条转发同款（见 send_to_provider.sendMsg）——目标
     // 会话正打开时，经入站消息同一 ingestion 事件（fireData 'Message'）
     // 让副本立即进入内存列表；未打开会话由 ChatPage 按 conversation_uk3
@@ -615,6 +602,11 @@ class BundleForwardDispatcher {
         '⚠️ [BundleForwardDispatcher] 副本 UI 事件失败(不影响落库): '
         'msgId=${model.id}, errType=${e.runtimeType}',
       );
+    }
+    // 先回环再出网：加密失败可能立即发布 error 状态，列表必须先有该消息。
+    // 保留落库行及既有错误/重试状态，派发失败不能计作转发成功。
+    if (!await _wsDispatcher(model)) {
+      throw BundleForwardException(HistoryBundleBuildErrorCode.sendFailed);
     }
   }
 }

@@ -525,6 +525,7 @@ extension MessageModelMapper on MessageModel {
         authorId: author.id,
         id: safeId,
         createdAt: createdDt,
+        status: typesStatus,
         metadata: {...metadata, ...payloadData},
       );
     } else if (effectiveMsgType == 'system') {
