@@ -1,9 +1,9 @@
 {
   "schema_version": 1,
   "generated_from": {
-    "app_head": "d3a83c073a9e0cde387435232f1a32fdf9f5b947",
-    "backend_head": "d41f06f560e768d9370cbc7cb602d162433ac5e8",
-    "integration_test_count": 201,
+    "app_head": "5a088c60a334eb7f9f864710d02c0d0f484a2ddc",
+    "backend_head": "NOT_A_GIT_REPO",
+    "integration_test_count": 209,
     "lib_page_count": 172,
     "module_page_count": 40,
     "route_page_component_count": 166,
@@ -580,7 +580,7 @@
     {
       "id": "test:integration_test/chat/j18a_send_retry_test.dart",
       "target": "integration_test/chat/j18a_send_retry_test.dart",
-      "target_sha256": "d4fe509f2cf4f5d9fab8483aea3b243b251e1c9e38adff16aa5404f1f773b738",
+      "target_sha256": "8a8fae029b51dc23ec48fc510bbcb27b91ed672a8f263f983fbe1f01b7e9329d",
       "sources": [],
       "dependencies": [],
       "risk": "device-readonly",
@@ -798,7 +798,7 @@
     {
       "id": "test:integration_test/chat_multi_bundle_roundtrip_test.dart",
       "target": "integration_test/chat_multi_bundle_roundtrip_test.dart",
-      "target_sha256": "5ae597a0298fba1893c64f9ef2cdb10aeded9df1a5829d7bd4fe07b7a84eb6e7",
+      "target_sha256": "90f36aa6c30b0104fc1f10674a4b71675ee7519b1cd8406b059c52c852fead76",
       "sources": [],
       "dependencies": [],
       "risk": "device-readonly",
@@ -812,7 +812,7 @@
     {
       "id": "test:integration_test/chat_multi_export_test.dart",
       "target": "integration_test/chat_multi_export_test.dart",
-      "target_sha256": "8108c074201edd66475c988f9791733faaf417f9e6dc4c161e25410911c1b6b4",
+      "target_sha256": "37b3e3dd07023df064da10983d5c93f79542a5cc7230ad2328de56231429ea52",
       "sources": [],
       "dependencies": [],
       "risk": "device-readonly",
@@ -826,7 +826,7 @@
     {
       "id": "test:integration_test/chat_multi_forward_c2g_test.dart",
       "target": "integration_test/chat_multi_forward_c2g_test.dart",
-      "target_sha256": "152c5d65207dcea4e533c5116b1bbde980929c28399e3818eec8ef2370104b19",
+      "target_sha256": "e849312749ccef6dfb8516c3314f78290ad9e6007560d6e0676b97ca76e7cd8c",
       "sources": [],
       "dependencies": [],
       "risk": "device-readonly",
@@ -840,7 +840,7 @@
     {
       "id": "test:integration_test/chat_multi_select_test.dart",
       "target": "integration_test/chat_multi_select_test.dart",
-      "target_sha256": "117bcc41a438860de45b8e61c5f6332c385bdc322f5c3fe2d031e19be09525f2",
+      "target_sha256": "43a0b8fd07a9f5c1b4047dc05ff7e4c6019f631b664a442e70c20cb26acc2bcc",
       "sources": [],
       "dependencies": [],
       "risk": "device-readonly",
@@ -2861,6 +2861,118 @@
       ],
       "enabled": false,
       "oracle_hint": false
+    },
+    {
+      "id": "test:integration_test/uiux/channel_avatar_recovery_native_test.dart",
+      "target": "integration_test/uiux/channel_avatar_recovery_native_test.dart",
+      "target_sha256": "4e284f68402dadea27dd8b07cc7b87776ca3ef2d6436c08861133f412ea9201d",
+      "sources": [],
+      "dependencies": [],
+      "risk": "device-readonly",
+      "requirements": [],
+      "tags": [
+        "uiux"
+      ],
+      "enabled": false,
+      "oracle_hint": true
+    },
+    {
+      "id": "test:integration_test/uiux/channel_edit_recovery_native_test.dart",
+      "target": "integration_test/uiux/channel_edit_recovery_native_test.dart",
+      "target_sha256": "bf06d9a62093eb43f131c27f79a2367480a5a56ef75bc5084389ad6a1d21a883",
+      "sources": [],
+      "dependencies": [],
+      "risk": "device-readonly",
+      "requirements": [],
+      "tags": [
+        "uiux"
+      ],
+      "enabled": false,
+      "oracle_hint": true
+    },
+    {
+      "id": "test:integration_test/uiux/forward_bundle_receiver_native_test.dart",
+      "target": "integration_test/uiux/forward_bundle_receiver_native_test.dart",
+      "target_sha256": "d9494d5e4e37bede5529200435486e19d126de4aa2b2199e40e45a5f38b33a75",
+      "sources": [],
+      "dependencies": [],
+      "risk": "device-readonly",
+      "requirements": [],
+      "tags": [
+        "uiux"
+      ],
+      "enabled": false,
+      "oracle_hint": true
+    },
+    {
+      "id": "test:integration_test/uiux/location_recovery_native_test.dart",
+      "target": "integration_test/uiux/location_recovery_native_test.dart",
+      "target_sha256": "312293aed1bf0b6859244c48882485cd41bd65940791e6ef273983757d237f38",
+      "sources": [],
+      "dependencies": [],
+      "risk": "device-readonly",
+      "requirements": [],
+      "tags": [
+        "uiux"
+      ],
+      "enabled": false,
+      "oracle_hint": true
+    },
+    {
+      "id": "test:integration_test/uiux/owned_viewer_ready_native_test.dart",
+      "target": "integration_test/uiux/owned_viewer_ready_native_test.dart",
+      "target_sha256": "6d7d0129d445e9966da12afa851124a7b602793af5380d50235780b2c97174e2",
+      "sources": [],
+      "dependencies": [],
+      "risk": "device-readonly",
+      "requirements": [],
+      "tags": [
+        "uiux"
+      ],
+      "enabled": false,
+      "oracle_hint": true
+    },
+    {
+      "id": "test:integration_test/uiux/select_friend_recovery_native_test.dart",
+      "target": "integration_test/uiux/select_friend_recovery_native_test.dart",
+      "target_sha256": "029a3ae178ddade439ceba161fd13d5625bf1f010bae80a8a4ba57eb93aaef4d",
+      "sources": [],
+      "dependencies": [],
+      "risk": "device-readonly",
+      "requirements": [],
+      "tags": [
+        "uiux"
+      ],
+      "enabled": false,
+      "oracle_hint": true
+    },
+    {
+      "id": "test:integration_test/uiux/web_view_recovery_native_test.dart",
+      "target": "integration_test/uiux/web_view_recovery_native_test.dart",
+      "target_sha256": "79b5b4d03febb708c39c34b6c519ea0cab01dd3994cedf2ae1925bbef5ce397d",
+      "sources": [],
+      "dependencies": [],
+      "risk": "device-readonly",
+      "requirements": [],
+      "tags": [
+        "uiux"
+      ],
+      "enabled": false,
+      "oracle_hint": true
+    },
+    {
+      "id": "test:integration_test/uiux/workspace_switch_recovery_native_test.dart",
+      "target": "integration_test/uiux/workspace_switch_recovery_native_test.dart",
+      "target_sha256": "9494b38f4042802ab3320baf892a15640d20356e86de77ce724b443fc36b990b",
+      "sources": [],
+      "dependencies": [],
+      "risk": "device-readonly",
+      "requirements": [],
+      "tags": [
+        "uiux"
+      ],
+      "enabled": false,
+      "oracle_hint": true
     },
     {
       "id": "test:integration_test/wallet/red_packet_acceptance_batch159_test.dart",

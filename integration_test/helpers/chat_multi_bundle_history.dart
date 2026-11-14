@@ -1,4 +1,8 @@
 import 'dart:async';
+import 'dart:collection';
+
+import 'package:crypto/crypto.dart';
+
 import 'dart:convert';
 
 import 'package:imboy/modules/messaging/application/history_bundle/history_bundle_types.dart';
@@ -194,4 +198,56 @@ Map<String, dynamic>? bundleHistoryPlaintext(
     throw StateError('plaintext leaked into encrypted bundle history');
   }
   return null;
+}
+
+/// Full bundle snapshot excludes transport metadata; map order is not semantic.
+String bundleSnapshotDigest(Map<String, dynamic> metadata) {
+  final snapshot = {
+    'bundle_version': metadata['bundle_version'],
+    'title': metadata['title'],
+    'entries': metadata['entries'],
+    if (metadata.containsKey('sender_name'))
+      'sender_name': metadata['sender_name'],
+    if (metadata.containsKey('exported_at'))
+      'exported_at': metadata['exported_at'],
+  };
+  if (snapshot['bundle_version'] != 1 ||
+      snapshot['title'] is! String ||
+      snapshot['entries'] is! List) {
+    throw StateError('invalid bundle snapshot');
+  }
+  return sha256
+      .convert(utf8.encode(jsonEncode(_canonicalSnapshot(snapshot))))
+      .toString();
+}
+
+Object? _canonicalSnapshot(Object? value) {
+  if (value is Map) {
+    final sorted = SplayTreeMap<String, Object?>();
+    for (final entry in value.entries) {
+      if (entry.key is! String) throw StateError('non-string snapshot key');
+      sorted[entry.key as String] = _canonicalSnapshot(entry.value);
+    }
+    return sorted;
+  }
+  if (value is List) return value.map(_canonicalSnapshot).toList();
+  if (value == null ||
+      value is String ||
+      value is bool ||
+      value is num && value.isFinite) {
+    return value;
+  }
+  throw StateError('non-JSON snapshot value');
+}
+
+String bundleUiReceipt(
+  String nonce,
+  String messageId,
+  Map<String, dynamic> metadata,
+) {
+  if (!RegExp(r'^[A-Za-z0-9_-]{1,80}$').hasMatch(nonce) ||
+      !RegExp(r'^[A-Za-z0-9_-]{1,100}$').hasMatch(messageId)) {
+    throw ArgumentError('invalid bundle receipt identity');
+  }
+  return 'UIUX-BUNDLE-ACK:$nonce:$messageId:${bundleSnapshotDigest(metadata)}';
 }

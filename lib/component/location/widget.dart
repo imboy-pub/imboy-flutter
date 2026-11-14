@@ -42,15 +42,12 @@ class MapLocationPicker extends StatefulWidget {
   String citycode = "";
   SearchBarStyle searchBarStyle = const SearchBarStyle();
   bool isMapImage = false; //是否要返回地图截图
-  //LatLng(26.017794, 119.41755599999999)
   MapLocationPicker({super.key, this.arguments}) {
     latLng = LatLng(
       (arguments as Map)["lat"] as double,
       (arguments as Map)["lng"] as double,
     );
     citycode = (arguments as Map)["citycode"] as String;
-    // citycode = "350100";
-    // latLng = LatLng(26.017794, 119.41755599999999);
     isMapImage = (arguments as Map)["isMapImage"] as bool;
   }
 }
@@ -129,11 +126,7 @@ class _MapLocationPickerState extends State<MapLocationPicker> with _BLoCMixin {
     _search(widget.latLng!);
   }
 
-  // 用高德官方 JS 地图 API（webapi.amap.com/maps）通过 WebView 渲染，
-  // 而不是原生 amap_flutter_map_plus——JS API 是高德官方给 Web/WebView
-  // 场景设计的产品，天然支持拖拽/缩放，坐标系跟 POI 搜索一致（GCJ-02），
-  // webview_flutter 在 iOS/Android/macOS 上都有实现，不用再区分平台。
-  //
+  // 官方 JS 地图经 WebView 渲染，与 POI 搜索使用相同的 GCJ-02 坐标系。
   // ⚠️ 需要 AMap 控制台单独申请一个「Web端(JS API)」类型的 Key（跟现在
   // aMapWebKey 用的「Web服务」Key 是两种不同类型，高德会分别校验），
   // 并在控制台给这个 Key 配置安全密钥(JSCode)+域名白名单。这里暂时复用
@@ -197,10 +190,6 @@ class _MapLocationPickerState extends State<MapLocationPicker> with _BLoCMixin {
     center: [${center.longitude}, ${center.latitude}],
     resizeEnable: true
   });
-  var marker = new AMap.Marker({
-    position: [${center.longitude}, ${center.latitude}],
-    map: map
-  });
   function bridgeSend(type, data) {
     if (window.FlutterBridge) {
       window.FlutterBridge.postMessage(JSON.stringify({type: type, data: data}));
@@ -208,14 +197,12 @@ class _MapLocationPickerState extends State<MapLocationPicker> with _BLoCMixin {
   }
   map.on('dragend', function () {
     var c = map.getCenter();
-    marker.setPosition(c);
     bridgeSend('moveend', {lat: c.lat, lng: c.lng});
   });
   // 供 Flutter 端程序化移动地图中心（我的位置 / 点击 POI 列表项）
   window.setMapCenter = function (lat, lng) {
     var pos = [lng, lat];
     map.setCenter(pos);
-    marker.setPosition(pos);
   };
 </script>
 </body>
@@ -236,11 +223,26 @@ class _MapLocationPickerState extends State<MapLocationPicker> with _BLoCMixin {
               Flexible(
                 child: Stack(
                   children: [
-                    // 高德官方 JS 地图 API，WebView 渲染：真正可拖拽/缩放，
-                    // 跟 POI 搜索同一套 GCJ-02 坐标系，iOS/Android/macOS
-                    // 都有 webview_flutter 实现，不用再区分平台。
+                    // 地图渲染与拖动由官方 JS API 处理。
                     Positioned.fill(
                       child: WebViewWidget(controller: _webViewController),
+                    ),
+                    // 定位针不依赖内嵌 HTML 中可能失效的 SDK 默认图片。
+                    Positioned.fill(
+                      child: IgnorePointer(
+                        child: Center(
+                          child: FractionalTranslation(
+                            translation: const Offset(0, -0.5),
+                            child: Icon(
+                              CupertinoIcons.map_pin,
+                              key: const ValueKey('map-center-pin'),
+                              color: AppColors.primary,
+                              size: AppSizes.iconSizeLarge,
+                              semanticLabel: t.groupSchedule.location,
+                            ),
+                          ),
+                        ),
+                      ),
                     ),
                     Positioned(
                       right: 16.0,

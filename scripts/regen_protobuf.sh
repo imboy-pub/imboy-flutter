@@ -8,7 +8,7 @@ case "$MODE" in generate|--check) ;; *) echo "usage: $0 [--check]" >&2; exit 64 
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 APP_DIR="$(dirname "$SCRIPT_DIR")"
-PROTO_SRC="${APP_DIR}/../imboy/src/imboy.proto"
+PROTO_SRC="${IMBOY_PROTO_SOURCE:-${APP_DIR}/../imboy/src/imboy.proto}"
 OUT_DIR="${APP_DIR}/lib/service/protocol"
 
 if [ ! -f "$PROTO_SRC" ]; then

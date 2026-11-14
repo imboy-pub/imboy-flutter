@@ -9,13 +9,14 @@ from pathlib import Path
 
 def run_gates(root: Path, plan: dict, output: Path, env: dict) -> dict:
     output.mkdir(parents=True, exist_ok=True)
+    error_code_source = env.get('IMBOY_ERROR_CODE_HRL') or str(root.parent / 'imboy/include/error_code.hrl')
     commands = {
         'static-analysis': [['flutter', 'analyze', '--no-fatal-infos', '--no-fatal-warnings'],
                             ['dart', 'analyze', 'lib']],
         'framework': [['bash', 'scripts/check_auto_test_framework.sh', '--checks-only']],
         'sqlite-generator': [['bash', 'scripts/run_sqlite_migration_gate.sh', '--local', '--checks-only']],
         'contracts': [['dart', 'scripts/generate_error_code.dart', '--check',
-                       f'--source={root.parent / "imboy/include/error_code.hrl"}'],
+                       f'--source={error_code_source}'],
                       ['bash', 'scripts/regen_protobuf.sh', '--check']],
     }
     gates = {}
