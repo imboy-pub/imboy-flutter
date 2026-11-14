@@ -667,7 +667,8 @@ Future<void> _replaceAndRace(
   LocationPoiResponseGate gate,
 ) async {
   final original = await _selectFirst(tester);
-  final empty = 'UX01-no-poi-$_tag';
+  // Real POI search can recall results for random ASCII; this query was verified empty.
+  const empty = '寰旻绻缃罄璟龘麤靐齉齾爩灪籱魕蠿麷龗靇爨骉鱻羴犇猋譶燚垚赑淼掱晶品众森磊淼';
   gate.arm(empty);
   await tester.enterText(_search, empty);
   await tester.pump();
