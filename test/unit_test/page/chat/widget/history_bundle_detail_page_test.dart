@@ -10,6 +10,7 @@ import 'package:imboy/service/e2ee/attachment_open_registry.dart';
 import 'package:imboy/service/e2ee/attachment_seal_policy.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/semantics.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:photo_view/photo_view_gallery.dart';
 import 'package:imboy/component/ui/imboy_cached_image_provider.dart';
@@ -429,6 +430,31 @@ void main() {
       ],
     });
     expect(find.byType(Image), findsNothing);
+  });
+
+  testWidgets('文件按钮读屏标签唯一且保留点击动作', (tester) async {
+    final semantics = tester.ensureSemantics();
+    try {
+      await pumpPage(tester, {
+        'entries': [
+          {
+            'msg_type': 'file',
+            'payload': {'uri': 'u1/report.pdf', 'name': 'report.pdf'},
+          },
+        ],
+      });
+      final button = find.byKey(const ValueKey('bundle_detail_file_0'));
+      expect(button, findsOneWidget);
+      final data = tester
+          .getSemantics(find.bySemanticsLabel('report.pdf'))
+          .getSemanticsData();
+      expect(data.label, 'report.pdf');
+      expect(data.flagsCollection.isButton, isTrue);
+      expect(data.hasAction(SemanticsAction.tap), isTrue);
+      expect(find.bySemanticsLabel('report.pdf'), findsOneWidget);
+    } finally {
+      semantics.dispose();
+    }
   });
 
   testWidgets('加密文件未登记或descriptor非法、引用不符时不可打开', (tester) async {

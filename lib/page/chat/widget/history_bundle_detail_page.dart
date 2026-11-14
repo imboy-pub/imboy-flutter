@@ -241,21 +241,28 @@ class _BundleEntryRow extends StatelessWidget {
       ),
       _EntryMetaBody(:final label) =>
         msgType == MessageType.file && _attachmentUri(payload).isNotEmpty
-            ? CupertinoButton(
-                key: ValueKey('bundle_detail_file_$entryIndex'),
-                padding: EdgeInsets.zero,
-                minimumSize: const Size.square(AppSpacing.xxxLarge),
-                alignment: Alignment.centerLeft,
-                onPressed: () => confirmOpenFile(
-                  context,
-                  _attachmentUri(payload),
-                  canOpen: () => _attachmentUri(payload).isNotEmpty,
-                ),
-                child: _metaBody(
-                  context,
-                  historyBundleEntryIcon(msgType),
-                  label,
-                  sub,
+            ? MergeSemantics(
+                child: CupertinoButton(
+                  key: ValueKey('bundle_detail_file_$entryIndex'),
+                  padding: EdgeInsets.zero,
+                  minimumSize: const Size.square(AppSpacing.xxxLarge),
+                  alignment: Alignment.centerLeft,
+                  onPressed: () => confirmOpenFile(
+                    context,
+                    _attachmentUri(payload),
+                    canOpen: () => _attachmentUri(payload).isNotEmpty,
+                  ),
+                  child: Semantics(
+                    button: true,
+                    label: label,
+                    excludeSemantics: true,
+                    child: _metaBody(
+                      context,
+                      historyBundleEntryIcon(msgType),
+                      label,
+                      sub,
+                    ),
+                  ),
                 ),
               )
             : _metaBody(context, historyBundleEntryIcon(msgType), label, sub),
