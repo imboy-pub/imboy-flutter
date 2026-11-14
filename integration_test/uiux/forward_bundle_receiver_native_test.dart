@@ -1,11 +1,13 @@
 import 'dart:async' show unawaited;
 
 import 'package:flutter/foundation.dart' show debugPrintSynchronously;
-import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
+import 'package:material_ui/material_ui.dart' show FloatingActionButton;
 import 'package:photo_view/photo_view.dart';
 import 'package:photo_view/photo_view_gallery.dart';
 import 'package:flyer_chat_image_message/flyer_chat_image_message.dart';
 import 'package:imboy/component/extension/imboy_cache_manager.dart';
+import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/store/repository/message_repo_sqlite.dart';
 
 import '../helpers/chat_multi_image_fixture.dart';
@@ -44,6 +46,7 @@ const _storage = 'viewer_uiux_20261114_1794632987';
 const _nonce = String.fromEnvironment('CHAT_MULTI_RUN_NONCE');
 const _forwardEach = bool.fromEnvironment('UIUX_FORWARD_EACH_RECEIVER');
 const _locationOnly = bool.fromEnvironment('UIUX_LOCATION_RECEIVER');
+late DateTime _forwardEachTimeFloor;
 const _receiverLabel = _forwardEach
     ? 'Owned Mac receives and verifies five individually forwarded messages'
     : _locationOnly
@@ -349,6 +352,7 @@ void _markForwardEachStage(String stage) {
 Future<void> _verifyForwardEach(WidgetTester tester, Finder chat) async {
   _forwardEachItem = null;
   _markForwardEachStage('manifest-wait');
+  _forwardEachTimeFloor = DateTime.now().subtract(const Duration(minutes: 2));
   debugPrintSynchronously('[UIUX-EACH-RECEIVER] ready:$_nonce');
   final container = ProviderScope.containerOf(tester.element(chat));
   List<core.Message> messages() =>
@@ -391,17 +395,64 @@ Future<void> _verifyForwardEach(WidgetTester tester, Finder chat) async {
     _forwardEachItem = i;
     await _verifyForwardedCopy(tester, chat, copies[i], expected.kinds[i]);
   }
+  final reopened = await _verifyReopenedTimes(
+    tester,
+    chat,
+    copies,
+    expected.kinds,
+    deadline,
+  );
   _forwardEachItem = null;
   _markForwardEachStage('ack-build');
   final receipt = forwardEachUiReceipt(_nonce, expected.ids, expected.kinds);
   _markForwardEachStage('ack-input');
-  await sendTextViaInput(tester, chat, receipt);
+  await sendTextViaInput(tester, reopened, receipt);
   _markForwardEachStage('ack-settle');
   final sent = await waitSent(tester, receipt, maxSeconds: 30);
   _markForwardEachStage('ack-verify');
   expect(sent?.authorId, _viewer);
   expect(sent?.status, isIn(settledStatuses));
   debugPrintSynchronously('[UIUX-EACH-RECEIVER] verified:$receipt');
+}
+
+Future<Finder> _verifyReopenedTimes(
+  WidgetTester tester,
+  Finder chat,
+  List<core.Message> copies,
+  List<String> kinds,
+  DateTime deadline,
+) async {
+  _markForwardEachStage('time-reopen');
+  final expected = {for (final m in copies) m.id: m.createdAt};
+  await popTopPage(tester, chat);
+  final reopened = await pushChatPage(
+    tester,
+    type: 'C2C',
+    peerId: _sender,
+    peerTitle: 'uiux_editor_20261114',
+  );
+  final notifier = ProviderScope.containerOf(tester.element(reopened))
+      .read(chatProvider.notifier);
+  List<core.Message> received() =>
+      notifier.chatService?.messages
+          .where((m) => expected.containsKey(m.id))
+          .toList() ??
+      [];
+  while (received().length < 5 && DateTime.now().isBefore(deadline)) {
+    await tester.pump(const Duration(milliseconds: 500));
+  }
+  final messages = received()
+    ..sort((a, b) => a.createdAt!.compareTo(b.createdAt!));
+  expect(messages.map((m) => m.id), copies.map((m) => m.id));
+  for (var i = 0; i < messages.length; i++) {
+    _forwardEachItem = i;
+    expect(messages[i].createdAt, expected[messages[i].id]);
+    await _verifyForwardedCopy(tester, reopened, messages[i], kinds[i]);
+  }
+  debugPrintSynchronously(
+    '[UIUX-EACH-TIME] verified:$_nonce reopened=true count=5',
+  );
+  return reopened;
 }
 
 Future<void> _verifyForwardedCopy(
@@ -425,6 +476,14 @@ Future<void> _verifyForwardedCopy(
   expect(row.toId, _viewer);
   expect(row.type, 'C2C');
   expect(row.payloadMap['_e2ee_v3_verified'], isTrue);
+  _markForwardEachStage('copy-time');
+  expect(message.createdAt, isNotNull);
+  expect(message.createdAt!.isAfter(_forwardEachTimeFloor), isTrue);
+  expect(
+    message.createdAt!.isBefore(DateTime.now().add(const Duration(minutes: 2))),
+    isTrue,
+  );
+  expect(row.createdAt, message.createdAt!.millisecondsSinceEpoch);
   _markForwardEachStage('copy-card-locate');
   final card = find.byWidgetPredicate(
     (w) => w is ChatMessageItem && w.message.id == message.id,
@@ -457,6 +516,10 @@ Future<void> _verifyForwardedCopy(
     _markForwardEachStage('copy-text-visible');
     await tester.ensureVisible(body.first);
     expect(body.first.hitTestable(), findsOneWidget);
+    final time = RelativeDateFormat().format(message.createdAt!);
+    expect(time, isNotEmpty);
+    expect(time, isNot(contains('1970')));
+    expect(find.descendant(of: card, matching: find.text(time)), findsWidgets);
   } else {
     await _verifyForwardAttachment(tester, card, message, kind, row.payloadMap);
   }

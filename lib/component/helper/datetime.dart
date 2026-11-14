@@ -289,6 +289,7 @@ class RelativeDateFormat extends DateFormat {
 
   @override
   String format(DateTime date) {
+    if (date.millisecondsSinceEpoch == 0) return '';
     // 始终使用 UTC 计算相对时间
     return DateTimeHelper.dateTimeFmt(date.toUtc());
   }
