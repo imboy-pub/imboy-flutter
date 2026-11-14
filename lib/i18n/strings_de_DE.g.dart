@@ -2067,6 +2067,7 @@ class _Translations$group$de_DE extends Translations$group$zh_CN {
 	@override String get sureToTransferAndLeave => 'Du überträgst die Eigentümerschaft und verlässt die Gruppe. Fortfahren?';
 	@override String get transferredButLeaveFailed => 'Eigentümerschaft übertragen, aber das Verlassen ist fehlgeschlagen. Bitte erneut versuchen';
 	@override String get noEligibleSuccessor => 'Kein Mitglied zum Übertragen verfügbar';
+	@override String get searchLoadedMembers => 'Nur geladene Mitglieder durchsuchen';
 }
 
 // Path: groupCategory
@@ -5367,6 +5368,7 @@ extension on TranslationsDeDe {
 			'group.sureToTransferAndLeave' => 'Du überträgst die Eigentümerschaft und verlässt die Gruppe. Fortfahren?',
 			'group.transferredButLeaveFailed' => 'Eigentümerschaft übertragen, aber das Verlassen ist fehlgeschlagen. Bitte erneut versuchen',
 			'group.noEligibleSuccessor' => 'Kein Mitglied zum Übertragen verfügbar',
+			'group.searchLoadedMembers' => 'Nur geladene Mitglieder durchsuchen',
 			'groupCategory.title' => 'Gruppenkategorien',
 			'groupCategory.createCategory' => 'Kategorie erstellen',
 			'groupCategory.categoryName' => 'Kategorie-Name',
@@ -5550,9 +5552,9 @@ extension on TranslationsDeDe {
 			'main.tryAgainQ' => 'Nochmal versuchen?',
 			'main.type' => 'Typ',
 			'main.unanswered' => 'Unbeantwortet',
-			'main.unnamed' => 'Unbenannt',
 			_ => null,
 		} ?? switch (path) {
+			'main.unnamed' => 'Unbenannt',
 			'main.usedSpace' => 'Verwendeter Speicherplatz',
 			'main.you' => 'Sie',
 			'main.zhCn' => 'Vereinfachtes Chinesisch',
@@ -6064,9 +6066,9 @@ extension on TranslationsDeDe {
 			'organization.tools.workspaceEmptyHint' => 'Workspaces dieses Unternehmens ohne deine Mitgliedschaft erscheinen hier nicht.',
 			'organization.tools.projectCount' => ({required Object count}) => 'Projekte ${count}',
 			'organization.tools.projectsEmpty' => 'Noch keine Projekte',
-			'organization.tools.projectsError' => ({required Object err}) => 'Projekte laden fehlgeschlagen: ${err}',
 			_ => null,
 		} ?? switch (path) {
+			'organization.tools.projectsError' => ({required Object err}) => 'Projekte laden fehlgeschlagen: ${err}',
 			'organization.tools.moreInWorkspaceShell' => 'Alle Workspaces durchsuchen',
 			'organization.tools.moreInWorkspaceShellHint' => 'Globalen Workspace-Umschalter öffnen (unternehmensübergreifend).',
 			'organization.chart.zoomIn' => 'Vergrößern',

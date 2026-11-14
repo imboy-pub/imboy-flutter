@@ -2064,6 +2064,7 @@ class _Translations$group$ja_JP extends Translations$group$zh_CN {
 	@override String get sureToTransferAndLeave => '譲渡するとグループを退出し、オーナー権限を失います。続行しますか？';
 	@override String get transferredButLeaveFailed => 'オーナーは譲渡されましたが、退出に失敗しました。もう一度お試しください';
 	@override String get noEligibleSuccessor => '譲渡できるメンバーがいません';
+	@override String get searchLoadedMembers => '読み込み済みのメンバーのみ検索';
 }
 
 // Path: groupCategory
@@ -5364,6 +5365,7 @@ extension on TranslationsJaJp {
 			'group.sureToTransferAndLeave' => '譲渡するとグループを退出し、オーナー権限を失います。続行しますか？',
 			'group.transferredButLeaveFailed' => 'オーナーは譲渡されましたが、退出に失敗しました。もう一度お試しください',
 			'group.noEligibleSuccessor' => '譲渡できるメンバーがいません',
+			'group.searchLoadedMembers' => '読み込み済みのメンバーのみ検索',
 			'groupCategory.title' => 'グループカテゴリ',
 			'groupCategory.createCategory' => 'カテゴリを作成',
 			'groupCategory.categoryName' => 'カテゴリ名',
@@ -5547,9 +5549,9 @@ extension on TranslationsJaJp {
 			'main.tryAgainQ' => 'もう一度試しますか？',
 			'main.type' => 'タイプ',
 			'main.unanswered' => '未応答',
-			'main.unnamed' => '名前なし',
 			_ => null,
 		} ?? switch (path) {
+			'main.unnamed' => '名前なし',
 			'main.usedSpace' => '使用済み容量',
 			'main.you' => 'あなた',
 			'main.zhCn' => '簡体字中国語',
@@ -6061,9 +6063,9 @@ extension on TranslationsJaJp {
 			'organization.tools.workspaceEmptyHint' => '同一企業内で未参加のワークスペースはここに表示されません。',
 			'organization.tools.projectCount' => ({required Object count}) => 'プロジェクト ${count} 件',
 			'organization.tools.projectsEmpty' => 'プロジェクトはまだありません',
-			'organization.tools.projectsError' => ({required Object err}) => 'プロジェクトの読み込みに失敗：${err}',
 			_ => null,
 		} ?? switch (path) {
+			'organization.tools.projectsError' => ({required Object err}) => 'プロジェクトの読み込みに失敗：${err}',
 			'organization.tools.moreInWorkspaceShell' => 'すべてのワークスペースを表示',
 			'organization.tools.moreInWorkspaceShellHint' => 'グローバルなワークスペース切替を開く（企業横断）。',
 			'organization.chart.zoomIn' => '拡大',

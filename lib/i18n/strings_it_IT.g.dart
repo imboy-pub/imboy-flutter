@@ -2067,6 +2067,7 @@ class _Translations$group$it_IT extends Translations$group$zh_CN {
 	@override String get sureToTransferAndLeave => 'Trasferirai la proprietà e uscirai dal gruppo. Continuare?';
 	@override String get transferredButLeaveFailed => 'Proprietà trasferita, ma uscita non riuscita. Riprova';
 	@override String get noEligibleSuccessor => 'Nessun membro disponibile per il trasferimento';
+	@override String get searchLoadedMembers => 'Cerca solo tra i membri caricati';
 }
 
 // Path: groupCategory
@@ -5367,6 +5368,7 @@ extension on TranslationsItIt {
 			'group.sureToTransferAndLeave' => 'Trasferirai la proprietà e uscirai dal gruppo. Continuare?',
 			'group.transferredButLeaveFailed' => 'Proprietà trasferita, ma uscita non riuscita. Riprova',
 			'group.noEligibleSuccessor' => 'Nessun membro disponibile per il trasferimento',
+			'group.searchLoadedMembers' => 'Cerca solo tra i membri caricati',
 			'groupCategory.title' => 'Categorie di gruppo',
 			'groupCategory.createCategory' => 'Crea categoria',
 			'groupCategory.categoryName' => 'Nome categoria',
@@ -5550,9 +5552,9 @@ extension on TranslationsItIt {
 			'main.tryAgainQ' => 'Vuoi riprovare?',
 			'main.type' => 'Tipo',
 			'main.unanswered' => 'Senza risposta',
-			'main.unnamed' => 'Senza nome',
 			_ => null,
 		} ?? switch (path) {
+			'main.unnamed' => 'Senza nome',
 			'main.usedSpace' => 'Spazio utilizzato',
 			'main.you' => 'Tu',
 			'main.zhCn' => 'Cinese semplificato',
@@ -6064,9 +6066,9 @@ extension on TranslationsItIt {
 			'organization.tools.workspaceEmptyHint' => 'Gli workspace di questa azienda a cui non sei iscritto non compaiono qui.',
 			'organization.tools.projectCount' => ({required Object count}) => 'Progetti ${count}',
 			'organization.tools.projectsEmpty' => 'Nessun progetto',
-			'organization.tools.projectsError' => ({required Object err}) => 'Caricamento progetti non riuscito: ${err}',
 			_ => null,
 		} ?? switch (path) {
+			'organization.tools.projectsError' => ({required Object err}) => 'Caricamento progetti non riuscito: ${err}',
 			'organization.tools.moreInWorkspaceShell' => 'Sfoglia tutti gli workspace',
 			'organization.tools.moreInWorkspaceShellHint' => 'Apri il selettore globale degli workspace (tra aziende).',
 			'organization.chart.zoomIn' => 'Ingrandisci',

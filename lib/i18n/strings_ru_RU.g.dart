@@ -2073,6 +2073,7 @@ class _Translations$group$ru_RU extends Translations$group$zh_CN {
 	@override String get sureToTransferAndLeave => 'Вы передадите права владельца и покинете группу. Продолжить?';
 	@override String get transferredButLeaveFailed => 'Владелец передан, но выход не удался. Повторите попытку';
 	@override String get noEligibleSuccessor => 'Нет участников для передачи';
+	@override String get searchLoadedMembers => 'Поиск только среди загруженных участников';
 }
 
 // Path: groupCategory
@@ -5373,6 +5374,7 @@ extension on TranslationsRuRu {
 			'group.sureToTransferAndLeave' => 'Вы передадите права владельца и покинете группу. Продолжить?',
 			'group.transferredButLeaveFailed' => 'Владелец передан, но выход не удался. Повторите попытку',
 			'group.noEligibleSuccessor' => 'Нет участников для передачи',
+			'group.searchLoadedMembers' => 'Поиск только среди загруженных участников',
 			'groupCategory.title' => 'Папки групп',
 			'groupCategory.createCategory' => 'Создать папку',
 			'groupCategory.categoryName' => 'Название папки',
@@ -5556,9 +5558,9 @@ extension on TranslationsRuRu {
 			'main.tryAgainQ' => 'Попробовать снова?',
 			'main.type' => 'Тип',
 			'main.unanswered' => 'Нет ответа',
-			'main.unnamed' => 'Без имени',
 			_ => null,
 		} ?? switch (path) {
+			'main.unnamed' => 'Без имени',
 			'main.usedSpace' => 'Использованное место',
 			'main.you' => 'Вы',
 			'main.zhCn' => 'Упрощённый китайский',
@@ -6070,9 +6072,9 @@ extension on TranslationsRuRu {
 			'organization.tools.workspaceEmptyHint' => 'Пространства этой организации, в которые вы не вступили, здесь не отображаются.',
 			'organization.tools.projectCount' => ({required Object count}) => 'Проектов: ${count}',
 			'organization.tools.projectsEmpty' => 'Проектов пока нет',
-			'organization.tools.projectsError' => ({required Object err}) => 'Не удалось загрузить проекты: ${err}',
 			_ => null,
 		} ?? switch (path) {
+			'organization.tools.projectsError' => ({required Object err}) => 'Не удалось загрузить проекты: ${err}',
 			'organization.tools.moreInWorkspaceShell' => 'Все рабочие пространства',
 			'organization.tools.moreInWorkspaceShellHint' => 'Открыть глобальный переключатель пространств (между организациями).',
 			'organization.chart.zoomIn' => 'Увеличить',

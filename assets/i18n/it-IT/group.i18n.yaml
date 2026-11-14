@@ -50,3 +50,4 @@ transferAndLeave: Trasferisci e esci
 sureToTransferAndLeave: Trasferirai la proprietà e uscirai dal gruppo. Continuare?
 transferredButLeaveFailed: Proprietà trasferita, ma uscita non riuscita. Riprova
 noEligibleSuccessor: Nessun membro disponibile per il trasferimento
+searchLoadedMembers: "Cerca solo tra i membri caricati"

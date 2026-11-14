@@ -1,3 +1,4 @@
+import 'package:imboy/component/ui/search_clear_icon.dart';
 import 'package:imboy/component/ui/resource_page_layout.dart';
 
 import 'dart:async';
@@ -14,7 +15,9 @@ import 'package:imboy/component/http/http_response.dart';
 import 'package:imboy/component/ui/avatar.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/nodata_view.dart';
+import 'package:imboy/config/env.dart';
 import 'package:imboy/i18n/strings.g.dart';
+import 'package:imboy/service/sqlite.dart';
 import 'package:imboy/store/api/group_member_api.dart';
 import 'package:imboy/store/model/group_member_model.dart';
 import 'package:imboy/store/repository/group_member_repo_sqlite.dart';
@@ -51,6 +54,11 @@ class GroupMemberPage extends ConsumerStatefulWidget {
 class _GroupMemberPageState extends ConsumerState<GroupMemberPage> {
   final EasyRefreshController _refreshController = EasyRefreshController();
   final ScrollController _scrollController = ScrollController();
+  final TextEditingController _searchController = TextEditingController();
+  late final String _ownerUid;
+  late final int _ownerSession;
+  late final String _ownerEndpoint;
+  int _loadGeneration = 0;
 
   List<GroupMemberModel> _memberList = [];
   int _currentPage = 1;
@@ -70,9 +78,24 @@ class _GroupMemberPageState extends ConsumerState<GroupMemberPage> {
   StreamSubscription<GroupMemberMuteEvent>? _ssMemberMute;
   StreamSubscription<GroupMemberUnmuteEvent>? _ssMemberUnmute;
 
+  bool get _ownerActive {
+    final user = UserRepoLocal.to;
+    return mounted &&
+        _ownerUid.isNotEmpty &&
+        user.currentUid == _ownerUid &&
+        user.isCurrentSession(_ownerSession) &&
+        !user.isAuthTransitioning &&
+        Env().apiBaseUrl == _ownerEndpoint;
+  }
+
   @override
   void initState() {
     super.initState();
+    final user = UserRepoLocal.to;
+    _ownerUid = user.currentUid;
+    _ownerSession = user.sessionGeneration;
+    _ownerEndpoint = Env().apiBaseUrl;
+    user.addAuthListener(_onAuthChanged);
     _loadData();
     _localeSubscription = LocaleSettings.getLocaleStream().listen((_) {
       if (mounted) setState(() {});
@@ -80,11 +103,37 @@ class _GroupMemberPageState extends ConsumerState<GroupMemberPage> {
     _setupMuteEventListeners();
   }
 
+  void _resetMembers() {
+    _loadGeneration++;
+    _memberList = [];
+    _currentPage = 1;
+    _hasMore = true;
+    _isLoading = false;
+    _myRole = 1;
+    _keyword = '';
+    _roleFilter = 0;
+    _searchController.clear();
+  }
+
+  void _onAuthChanged() {
+    if (!mounted || _ownerActive) return;
+    setState(_resetMembers);
+  }
+
+  @override
+  void didUpdateWidget(covariant GroupMemberPage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.groupId != widget.groupId) {
+      _resetMembers();
+      unawaited(_loadData());
+    }
+  }
+
   /// 订阅群成员禁言/解禁事件，实时刷新列表中对应成员的禁言徽章。
   void _setupMuteEventListeners() {
     _ssMemberMute = AppEventBus.on<GroupMemberMuteEvent>().listen(
       (event) {
-        if (!mounted) return;
+        if (!mounted || !_ownerActive) return;
         if (event.gid.toString() != widget.groupId) return;
         if (event.userId.isEmpty) return;
         final idx = _memberList.indexWhere(
@@ -107,7 +156,7 @@ class _GroupMemberPageState extends ConsumerState<GroupMemberPage> {
 
     _ssMemberUnmute = AppEventBus.on<GroupMemberUnmuteEvent>().listen(
       (event) {
-        if (!mounted) return;
+        if (!mounted || !_ownerActive) return;
         if (event.gid.toString() != widget.groupId) return;
         if (event.userId.isEmpty) return;
         final idx = _memberList.indexWhere(
@@ -126,6 +175,9 @@ class _GroupMemberPageState extends ConsumerState<GroupMemberPage> {
 
   @override
   void dispose() {
+    _loadGeneration++;
+    UserRepoLocal.to.removeAuthListener(_onAuthChanged);
+    _searchController.dispose();
     _refreshController.dispose();
     _scrollController.dispose();
     _localeSubscription?.cancel();
@@ -135,7 +187,17 @@ class _GroupMemberPageState extends ConsumerState<GroupMemberPage> {
   }
 
   Future<void> _loadData({bool refresh = false}) async {
-    if (_isLoading) return;
+    if (_isLoading || !_ownerActive) return;
+    final generation = ++_loadGeneration;
+    final groupId = widget.groupId;
+    bool isCurrent() =>
+        mounted &&
+        _ownerActive &&
+        generation == _loadGeneration &&
+        widget.groupId == groupId;
+    void checkCurrent() {
+      if (!isCurrent()) throw StateError('Member load scope changed');
+    }
 
     if (refresh) {
       _currentPage = 1;
@@ -151,9 +213,10 @@ class _GroupMemberPageState extends ConsumerState<GroupMemberPage> {
       if (refresh || _myRole == 1) {
         String currentUid = UserRepoLocal.to.currentUid;
         GroupMemberModel? myMember = await GroupMemberRepo().findByUserId(
-          widget.groupId,
+          groupId,
           currentUid,
         );
+        checkCurrent();
         if (myMember != null) {
           _myRole = myMember.role;
         }
@@ -161,36 +224,49 @@ class _GroupMemberPageState extends ConsumerState<GroupMemberPage> {
 
       // 先从本地数据库加载
       GroupMemberRepo repo = GroupMemberRepo();
+      final database = await SqliteService.to.db;
+      checkCurrent();
+      if (database == null) throw StateError('Member database unavailable');
       if (refresh) {
-        _memberList = await repo.page(
+        final cached = await repo.page(
           limit: _pageSize,
           where: "${GroupMemberRepo.groupId} = ?",
-          whereArgs: [widget.groupId],
+          whereArgs: [groupId],
           orderBy:
               "${GroupMemberRepo.role} DESC, ${GroupMemberRepo.createdAt} ASC",
         );
+        checkCurrent();
+        _memberList = cached;
       }
 
       // 从服务器同步数据
       Map<String, dynamic>? payload = await GroupMemberApi().page(
-        gid: widget.groupId,
+        gid: groupId,
         page: _currentPage,
         size: _pageSize,
       );
+      checkCurrent();
 
       if (payload != null && payload['list'] != null) {
         final list = IMBoyHttpResponse.payloadList(payload);
-        List<GroupMemberModel> newMembers = [];
-
-        for (var item in list) {
-          GroupMemberModel member = await repo.save(item);
-          newMembers.add(member);
-        }
+        final newMembers = await database.transaction<List<GroupMemberModel>>((
+          txn,
+        ) async {
+          final members = <GroupMemberModel>[];
+          for (final item in list) {
+            checkCurrent();
+            members.add(await repo.save(item, txn: txn));
+            checkCurrent();
+          }
+          return members;
+        });
+        checkCurrent();
+        SqliteService.to.clearQueryCache(GroupMemberRepo.tableName);
 
         if (refresh || _currentPage == 1) {
           _memberList = newMembers;
         } else {
-          _memberList.addAll(newMembers);
+          _memberList = [..._memberList, ...newMembers];
         }
 
         // 检查是否还有更多数据
@@ -201,8 +277,8 @@ class _GroupMemberPageState extends ConsumerState<GroupMemberPage> {
         // 下次 load 拿到新头像列表
         AppEventBus.fire(
           GroupMemberUpdateEvent(
-            groupId: widget.groupId,
-            userId: UserRepoLocal.to.currentUid,
+            groupId: groupId,
+            userId: _ownerUid,
             changeType: 'refresh',
           ),
         );
@@ -219,13 +295,16 @@ class _GroupMemberPageState extends ConsumerState<GroupMemberPage> {
         setState(() {});
       }
     } catch (e) {
-      iPrint('[GroupMember] 加载成员失败: $e');
+      if (!isCurrent()) return;
+      iPrint('[GroupMember] 加载成员失败: ${e.runtimeType}');
       AppLoading.showError(t.common.loadError);
       // 分页失败回滚页码，否则被跳过的那一页成员永久丢失（下次 _loadMore
       // 直接跳到再下一页），直到手动下拉刷新才自愈。
       if (_currentPage > 1) _currentPage--;
     } finally {
-      if (mounted) {
+      if (mounted && !_ownerActive) {
+        _onAuthChanged();
+      } else if (isCurrent()) {
         setState(() {
           _isLoading = false;
         });
@@ -234,7 +313,7 @@ class _GroupMemberPageState extends ConsumerState<GroupMemberPage> {
   }
 
   Future<void> _loadMore() async {
-    if (!_hasMore || _isLoading) {
+    if (!_ownerActive || !_hasMore || _isLoading) {
       return;
     }
 
@@ -304,17 +383,22 @@ class _GroupMemberPageState extends ConsumerState<GroupMemberPage> {
   Widget _buildListItem(BuildContext context, GroupMemberModel member) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
+    final groupId = widget.groupId;
 
     return CellPressable(
       onTap: () async {
+        if (!_ownerActive || widget.groupId != groupId) return;
         HapticFeedback.selectionClick();
         final result = await context.push<bool>(
           '/group/member_detail',
-          extra: {'groupId': widget.groupId, 'userId': member.userId},
+          extra: {'groupId': groupId, 'userId': member.userId},
         );
 
         // 如果成员被移除或群主已转让，刷新列表
-        if (result == true && mounted) {
+        if (result == true &&
+            mounted &&
+            _ownerActive &&
+            widget.groupId == groupId) {
           _loadData(refresh: true);
         }
       },
@@ -388,12 +472,14 @@ class _GroupMemberPageState extends ConsumerState<GroupMemberPage> {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     final filtered = _filteredList;
+    final groupId = widget.groupId;
 
     return Scaffold(
       backgroundColor: colorScheme.surface,
       appBar: GlassAppBar(
         automaticallyImplyLeading: true,
-        title: '${t.group.groupMembers} (${_memberList.length})',
+        title:
+            '${t.group.groupMembers} (${_ownerActive ? _memberList.length : 0})',
       ),
       body: ResourcePageLayout(
         child: Column(
@@ -406,48 +492,76 @@ class _GroupMemberPageState extends ConsumerState<GroupMemberPage> {
                 AppSpacing.regular,
                 AppSpacing.small,
               ),
-              child: CupertinoSearchTextField(
-                placeholder: t.common.search,
-                onChanged: (v) => setState(() => _keyword = v),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  CupertinoSearchTextField(
+                    controller: _searchController,
+                    enabled: _ownerActive,
+                    placeholder: t.common.search,
+                    suffixIcon: SearchClearIcon(semanticLabel: t.common.clear),
+                    suffixInsets: EdgeInsets.zero,
+                    onChanged: (v) {
+                      if (!_ownerActive || widget.groupId != groupId) return;
+                      setState(() => _keyword = v);
+                    },
+                  ),
+                  AppSpacing.verticalTiny,
+                  Text(
+                    t.group.searchLoadedMembers,
+                    style: context.textStyle(
+                      FontSizeType.caption2,
+                      color: colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                ],
               ),
             ),
             // 角色筛选分段控件
-            Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: AppSpacing.regular,
-              ).copyWith(bottom: AppSpacing.small),
-              child: SizedBox(
-                width: double.infinity,
-                child: CupertinoSlidingSegmentedControl<int>(
-                  groupValue: _roleFilter,
-                  thumbColor: colorScheme.surface,
-                  padding: const EdgeInsets.all(3),
-                  children: {
-                    0: _segmentLabel(t.groupList.attrAll, _roleFilter == 0),
-                    4: _segmentLabel(t.group.groupOwner, _roleFilter == 4),
-                    3: _segmentLabel(t.group.groupAdmin, _roleFilter == 3),
-                    // TODO(i18n): t.group.memberOrdinary
-                    1: _segmentLabel(
-                      t.group.groupMemberRoleLabel,
-                      _roleFilter == 1,
-                    ),
-                  },
-                  onValueChanged: (v) {
-                    if (v != null) setState(() => _roleFilter = v);
-                  },
+            if (_ownerActive)
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppSpacing.regular,
+                ).copyWith(bottom: AppSpacing.small),
+                child: SizedBox(
+                  width: double.infinity,
+                  child: CupertinoSlidingSegmentedControl<int>(
+                    groupValue: _roleFilter,
+                    thumbColor: colorScheme.surface,
+                    padding: const EdgeInsets.all(3),
+                    children: {
+                      0: _segmentLabel(t.groupList.attrAll, _roleFilter == 0),
+                      4: _segmentLabel(t.group.groupOwner, _roleFilter == 4),
+                      3: _segmentLabel(t.group.groupAdmin, _roleFilter == 3),
+                      // TODO(i18n): t.group.memberOrdinary
+                      1: _segmentLabel(
+                        t.group.groupMemberRoleLabel,
+                        _roleFilter == 1,
+                      ),
+                    },
+                    onValueChanged: (v) {
+                      if (!_ownerActive || widget.groupId != groupId) return;
+                      if (v != null) setState(() => _roleFilter = v);
+                    },
+                  ),
                 ),
               ),
-            ),
             // 列表
             Expanded(
-              child: _isLoading && _memberList.isEmpty
+              child: !_ownerActive
+                  ? const SizedBox.shrink()
+                  : _isLoading && _memberList.isEmpty
                   ? const Center(child: CupertinoActivityIndicator())
                   : _memberList.isEmpty
                   ? NoDataView(text: t.common.noData)
                   : filtered.isEmpty
-                  ? _buildFilteredEmpty()
+                  ? _isLoading
+                        ? const Center(child: CupertinoActivityIndicator())
+                        : _buildFilteredEmpty()
                   : EasyRefresh(
                       controller: _refreshController,
+                      header: const CupertinoHeader(),
+                      footer: const CupertinoFooter(),
                       onRefresh: () async {
                         await _loadData(refresh: true);
                       },
@@ -510,6 +624,8 @@ class _GroupMemberPageState extends ConsumerState<GroupMemberPage> {
       return NoDataView(
         text: t.common.searchNoResults,
         icon: CupertinoIcons.search,
+        onTop: _hasMore ? _loadMore : null,
+        retryLabel: t.common.loadMore,
       );
     }
     // 纯角色筛选无结果
@@ -522,6 +638,8 @@ class _GroupMemberPageState extends ConsumerState<GroupMemberPage> {
       // TODO(i18n): 补充 t.group.noMemberInRole(key: roleName)
       text: t.group.noMemberWithRole(roleName: roleName),
       icon: CupertinoIcons.person_2,
+      onTop: _hasMore ? _loadMore : null,
+      retryLabel: t.common.loadMore,
     );
   }
 }

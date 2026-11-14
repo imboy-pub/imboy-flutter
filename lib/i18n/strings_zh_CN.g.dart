@@ -6322,6 +6322,9 @@ class Translations$group$zh_CN {
 
 	/// zh-CN: '暂无可转让的成员'
 	String get noEligibleSuccessor => '暂无可转让的成员';
+
+	/// zh-CN: '仅搜索已加载成员'
+	String get searchLoadedMembers => '仅搜索已加载成员';
 }
 
 // Path: groupCategory
@@ -13303,6 +13306,7 @@ extension on Translations {
 			'group.sureToTransferAndLeave' => '转让后你将退出本群并失去群主权限，确定继续吗？',
 			'group.transferredButLeaveFailed' => '已转让群主，但退出失败，请重试退出',
 			'group.noEligibleSuccessor' => '暂无可转让的成员',
+			'group.searchLoadedMembers' => '仅搜索已加载成员',
 			'groupCategory.title' => '群分组',
 			'groupCategory.createCategory' => '创建分组',
 			'groupCategory.categoryName' => '分组名称',
@@ -13783,9 +13787,9 @@ extension on Translations {
 			'organization.departments.createUnder' => ({required Object parent}) => '在「${parent}」下新建',
 			'organization.departments.renameDept' => '重命名部门',
 			'organization.departments.newNameLabel' => '新名称',
-			'organization.departments.renameFailed' => '重命名失败',
 			_ => null,
 		} ?? switch (path) {
+			'organization.departments.renameFailed' => '重命名失败',
 			'organization.departments.moveDept' => '移动部门',
 			'organization.departments.rootLevel' => '企业根目录',
 			'organization.departments.moveFailed' => '移动失败',
@@ -14297,9 +14301,9 @@ extension on Translations {
 			'talkRecord.grantEditCandidateEmpty' => '没有可授权的候选人',
 			'talkRecord.grantEditGranteeLabel' => '被授权人',
 			'talkRecord.grantEditRoleSectionTitle' => '角色',
-			'talkRecord.grantEditRoleViewerHint' => '可查看记录与回听音频，不能修改内容。',
 			_ => null,
 		} ?? switch (path) {
+			'talkRecord.grantEditRoleViewerHint' => '可查看记录与回听音频，不能修改内容。',
 			'talkRecord.grantEditRoleEditorHint' => '可校对原文与发言人、编辑共享笔记；不能管理分享或删除。',
 			'talkRecord.grantEditExportSectionTitle' => '允许导出',
 			'talkRecord.grantEditExportBlockedOrg' => '导出已被企业策略禁用，不能在授权中开启。',

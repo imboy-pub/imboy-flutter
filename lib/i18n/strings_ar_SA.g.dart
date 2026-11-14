@@ -2076,6 +2076,7 @@ class _Translations$group$ar_SA extends Translations$group$zh_CN {
 	@override String get sureToTransferAndLeave => 'ستنقل ملكية المجموعة وتغادرها. هل تريد المتابعة؟';
 	@override String get transferredButLeaveFailed => 'تم نقل الملكية، لكن فشلت المغادرة. حاول مجددًا';
 	@override String get noEligibleSuccessor => 'لا يوجد عضو متاح للنقل';
+	@override String get searchLoadedMembers => 'البحث في الأعضاء المحمّلين فقط';
 }
 
 // Path: groupCategory
@@ -5376,6 +5377,7 @@ extension on TranslationsArSa {
 			'group.sureToTransferAndLeave' => 'ستنقل ملكية المجموعة وتغادرها. هل تريد المتابعة؟',
 			'group.transferredButLeaveFailed' => 'تم نقل الملكية، لكن فشلت المغادرة. حاول مجددًا',
 			'group.noEligibleSuccessor' => 'لا يوجد عضو متاح للنقل',
+			'group.searchLoadedMembers' => 'البحث في الأعضاء المحمّلين فقط',
 			'groupCategory.title' => 'مجلدات المجموعات',
 			'groupCategory.createCategory' => 'إنشاء مجلد',
 			'groupCategory.categoryName' => 'اسم المجلد',
@@ -5559,9 +5561,9 @@ extension on TranslationsArSa {
 			'main.tryAgainQ' => 'هل تريد المحاولة مرة أخرى؟',
 			'main.type' => 'النوع',
 			'main.unanswered' => 'لم يتم الرد',
-			'main.unnamed' => 'بدون اسم',
 			_ => null,
 		} ?? switch (path) {
+			'main.unnamed' => 'بدون اسم',
 			'main.usedSpace' => 'المساحة المستخدمة',
 			'main.you' => 'أنت',
 			'main.zhCn' => 'الصينية المبسطة',
@@ -6073,9 +6075,9 @@ extension on TranslationsArSa {
 			'organization.tools.workspaceEmptyHint' => 'مساحات العمل في هذه المؤسسة التي لم تنضم إليها لا تظهر هنا.',
 			'organization.tools.projectCount' => ({required Object count}) => 'المشاريع ${count}',
 			'organization.tools.projectsEmpty' => 'لا توجد مشاريع',
-			'organization.tools.projectsError' => ({required Object err}) => 'فشل تحميل المشاريع: ${err}',
 			_ => null,
 		} ?? switch (path) {
+			'organization.tools.projectsError' => ({required Object err}) => 'فشل تحميل المشاريع: ${err}',
 			'organization.tools.moreInWorkspaceShell' => 'استعراض كل مساحات العمل',
 			'organization.tools.moreInWorkspaceShellHint' => 'فتح مبدّل مساحات العمل العام (بين المؤسسات).',
 			'organization.chart.zoomIn' => 'تكبير',
