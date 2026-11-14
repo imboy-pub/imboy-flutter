@@ -163,6 +163,35 @@ void main() {
     await tester.pump();
   }
 
+  testWidgets('native center pin stays anchored without blocking map touches', (
+    tester,
+  ) async {
+    await mount(tester);
+    network.complete(0, []);
+    await tester.pumpAndSettle();
+    final pin = find.byKey(const ValueKey('map-center-pin'));
+    expect(pin, findsOneWidget);
+    final map = tester.getRect(
+      find.byKey(const ValueKey('fake-webview-surface')),
+    );
+    expect(
+      (tester.getRect(pin).bottomCenter - map.center).distance,
+      lessThan(0.01),
+    );
+    final ignore = tester.widget<IgnorePointer>(
+      find.ancestor(of: pin, matching: find.byType(IgnorePointer)).first,
+    );
+    expect(ignore.ignoring, isTrue);
+    final hit = tester.hitTestOnBinding(tester.getCenter(pin));
+    expect(
+      hit.path.any(
+        (entry) => identical(entry.target, tester.renderObject(pin)),
+      ),
+      isFalse,
+    );
+    await tester.pumpWidget(const SizedBox.shrink());
+  });
+
   testWidgets('around requests use longitude before latitude', (tester) async {
     await mount(tester);
     final coordinates = network.requests.single.$1.queryParameters['location']!
