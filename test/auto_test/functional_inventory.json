@@ -7,7 +7,7 @@
     "lib_page_count": 172,
     "module_page_count": 40,
     "route_page_component_count": 166,
-    "function_count": 2125,
+    "function_count": 2126,
     "generated_ledger_pages": [],
     "note": "disposition 仅静态 required/excluded；运行结果只写 ignored RUN_ROOT/results/**"
   },
@@ -4733,8 +4733,31 @@
       "route_or_entry": "HistoryBundleDetailPage",
       "route_registered": true,
       "source": "generated:lib_page",
-      "control": "unknown",
-      "action": "页面可进入（无静态可识别控件，待人工细化）",
+      "control": "button",
+      "action": "触发第 1 处 button 交互入口",
+      "expected_oracle": "expect(<控件可观察状态>)",
+      "details": "GENERATED_ORACLE_PLACEHOLDER; lib page static extraction",
+      "platforms": [
+        "android",
+        "macos"
+      ],
+      "requirements": [
+        "device.android",
+        "device.macos"
+      ],
+      "fixture": "pending:authorized-isolated",
+      "test_target": null,
+      "disposition": "required",
+      "exclusion_code": null
+    },
+    {
+      "function_id": "fn:chat:history_bundle_detail_page:002",
+      "page": "lib/page/chat/widget/history_bundle_detail_page.dart",
+      "route_or_entry": "HistoryBundleDetailPage",
+      "route_registered": true,
+      "source": "generated:lib_page",
+      "control": "button",
+      "action": "触发第 2 处 button 交互入口",
       "expected_oracle": "expect(<控件可观察状态>)",
       "details": "GENERATED_ORACLE_PLACEHOLDER; lib page static extraction",
       "platforms": [
@@ -49396,7 +49419,7 @@
     {
       "page": "lib/page/chat/widget/history_bundle_detail_page.dart",
       "module": "chat",
-      "function_count": 1,
+      "function_count": 2,
       "route_registered": true,
       "has_ledger": false,
       "ledger_generated": false
