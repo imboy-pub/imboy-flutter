@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "generated_from": {
-    "app_head": "aa87ff1ab8ce4b40c95b0415645b69c58f0cc666",
+    "app_head": "3a4aeea5bc9bf35b5d964169ef07404e8adc54be",
     "backend_head": "NOT_A_GIT_REPO",
     "integration_test_count": 209,
     "lib_page_count": 172,
@@ -840,7 +840,7 @@
     {
       "id": "test:integration_test/chat_multi_select_test.dart",
       "target": "integration_test/chat_multi_select_test.dart",
-      "target_sha256": "eb3b31e0578f58b1c93d549a2667cf3d4ae3995c1e9d0e80e29bccf2807e5217",
+      "target_sha256": "117d7aaa2bd4f8229b435a2649cdfbc3a787026056987e698f1a10ad3fcab5af",
       "sources": [],
       "dependencies": [],
       "risk": "device-readonly",
