@@ -4,6 +4,10 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
+import 'package:imboy/service/e2ee/protected_frame_v3.dart';
+import 'package:imboy/service/e2ee/crypto_store.dart';
+import 'package:sqflite_sqlcipher/sqflite.dart' show Transaction;
+import 'package:imboy/modules/messaging/domain/policy/burn_expiry_rules.dart';
 import 'package:imboy/component/http/channel_id_response_decoder.dart';
 import 'package:imboy/i18n/strings.g.dart';
 
@@ -705,7 +709,8 @@ class MessageService with EventSubscriptionManager {
     data['payload'] = payload;
 
     if (existing != null) {
-      return _completeInboundIfStaged(data, msgId);
+      if (payload['_e2ee_failed'] == true) return false;
+      return _restoreExistingInbound(data, payload, repo, notificationSession);
     }
 
     final senderDid = data['sender_did'];
@@ -856,6 +861,118 @@ class MessageService with EventSubscriptionManager {
       _receivingMessages.remove(receivingMsgKey);
     }
   }
+
+  Future<bool> _restoreExistingInbound(
+    Map<String, dynamic> data,
+    Map<String, dynamic> payload,
+    MessageRepo repo,
+    AuthSessionScope session,
+  ) async {
+    void requireCurrent() {
+      if (!authSessionReader.isCurrent(session)) {
+        throw StateError('inbound recovery session changed');
+      }
+    }
+
+    try {
+      requireCurrent();
+      if (payload['_e2ee_v3_verified'] != true) return false;
+      final db = await SqliteService.to.db;
+      requireCurrent();
+      if (db == null) return false;
+      final visible = await db.transaction(
+        (txn) => _materializeExistingInbound(
+          data,
+          payload,
+          repo,
+          txn,
+          requireCurrent,
+        ),
+      );
+      requireCurrent();
+      // Bind completion to the same account database as the message write.
+      await CryptoStore(db).completeInbound(data['id'].toString());
+      requireCurrent();
+      if (visible) {
+        final updated = await repo.find(data['id'].toString());
+        requireCurrent();
+        if (updated == null) return false;
+        final message = await updated.toTypeMessage();
+        requireCurrent();
+        AppEventBus.fireData([message], 'messages');
+      }
+      return true;
+    } on Object catch (e) {
+      iPrint('[E2EE_INBOX] recovery failed: ${e.runtimeType}');
+      return false;
+    }
+  }
+
+  Future<bool> _materializeExistingInbound(
+    Map<String, dynamic> data,
+    Map<String, dynamic> payload,
+    MessageRepo repo,
+    Transaction txn,
+    void Function() requireCurrent,
+  ) async {
+    requireCurrent();
+    final current = await repo.find(data['id'].toString(), txn: txn);
+    requireCurrent();
+    if (current == null || !_matchesInboundRecovery(current, data)) {
+      throw StateError('inbound recovery target changed');
+    }
+    final old = current.payloadMap;
+    final restored = {
+      ...payload,
+      if (old.containsKey('burn_read_at')) 'burn_read_at': old['burn_read_at'],
+    };
+    if (_isProtectedRecovery(current, restored)) return false;
+    final emptySealed =
+        current.e2ee?['meta_version'] == 3 &&
+        (current.payload == null ||
+            current.payload == '' ||
+            (current.payload is Map && old.isEmpty));
+    if (old['_e2ee_failed'] == true || emptySealed) {
+      final rows = await repo.update({
+        'id': current.id,
+        'payload': restored,
+      }, txn: txn);
+      requireCurrent();
+      if (rows != 1) throw StateError('inbound recovery update failed');
+    }
+    // A previous completion may have failed after the payload committed.
+    return true;
+  }
+
+  bool _isProtectedRecovery(
+    MessageModel current,
+    Map<String, dynamic> restored,
+  ) {
+    final old = current.payloadMap;
+    final now = DateTimeHelper.millisecond();
+    final fallback = current.isAuthor == 1 ? current.createdAt : 0;
+    return IMBoyMessageStatus.isRevokedStatus(current.status) ||
+        old['is_edited'] == true ||
+        old['edited_at'] != null ||
+        old['burn_deleted'] == true ||
+        isBurnExpiredAt(old, now, fallbackStartMs: fallback) ||
+        isBurnExpiredAt(restored, now, fallbackStartMs: fallback);
+  }
+
+  bool _matchesInboundRecovery(
+    MessageModel current,
+    Map<String, dynamic> data,
+  ) =>
+      current.fromId == parseModelString(data['from']) &&
+      current.toId == parseModelString(data['to']) &&
+      current.type == data['type'] &&
+      current.msgType == data['msg_type'] &&
+      current.senderDid == data['sender_did'] &&
+      current.createdAt == parseModelInt(data['created_at']) &&
+      listEquals(
+        CanonicalCbor.encode(current.e2ee),
+        CanonicalCbor.encode(_parseE2eeMetadata(data['e2ee'])),
+      );
 
   Future<bool> _completeInboundIfStaged(
     Map<String, dynamic> data,
