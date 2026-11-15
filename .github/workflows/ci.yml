@@ -13,7 +13,7 @@ permissions:
   contents: read
 
 env:
-  FLUTTER_VERSION: '3.47.5'
+  FLUTTER_VERSION: '3.50.0'
   # Ubuntu is pinned below and in the host matrix; upgrade only after the
   # existing gates and native builds have passed on the candidate image.
 

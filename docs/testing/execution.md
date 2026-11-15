@@ -234,8 +234,9 @@ Python、C/C++ 构建工具、pkg-config、libGLU 和 `libsqlite3-dev`。Git 必
 包状态不正确或动态库加载失败仍会阻断，既有 SQLite 真实测试继续完整执行。
 Ubuntu workers verify the installed package and load the system library; missing packages use bounded installation.
 
-Flutter 继续使用 `ci.yml` 的精确 `3.47.5` pin，Dart 由其附带并通过 SDK 检查；
+Flutter 使用 `ci.yml` 的精确 `3.50.0` pin，Dart 由其附带并通过 SDK 检查；
 `flutter pub get --enforce-lockfile` 保留 Git/path 依赖及 lockfile 校验。
+CI pins Flutter 3.50.0 with its bundled Dart SDK; existing analyzer and Golden baselines remain unchanged.
 Debian 单独固定 Rust `1.98.1`，复用 `ci_build_vod.sh` 从解析后的插件源码构建，
 不使用 Ubuntu 构建产物。Cargo 依赖沿用现有脚本的解析流程，本次未增加 `--locked`；
 固定 Rust 编译器不等于冻结全部 Rust 依赖。SDK/pub 缓存的 key 与路径都有 Debian 13 前缀，原生 build
@@ -428,7 +429,7 @@ fonts 文件 SHA-256，及 baselines 按 target 列出的基线文件 SHA-256。
   执行器不复制、下载或提交系统字体，也不允许图标缺失后静默降级为方块。
 - 使用该 loader 的 Golden 还校验真实 `flutter --version --machine` 的 frameworkVersion
   与 `kFlutterVersionPin` 一致，并核对清单的 frameworkRevision/engineRevision。
-  当前专项登记为 Flutter 3.47.7；普通 PR 使用 3.47.5，PR 成功不能证明该像素环境就绪。
+  当前专项登记为 Flutter 3.47.7；普通 PR 使用 3.50.0，PR 成功不能证明该像素环境就绪。
   原有本机字体路径和专项准备见 [专项 fixture 说明](specialist-fixtures.md)。
 
 预检通过只证明声明的输入当前可用，像素通过仍须实际比较已批准基线并核验机器事件。
