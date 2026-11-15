@@ -6,6 +6,12 @@
 
 ## Android
 
+Tobias 5.3.4 的 consumer rules 含 AGP 9 禁止的全局选项。App 构建改用
+`android/tobias-consumer-rules.pro`，保留该版本全部 keep 规则并移除全局选项；
+升级 Tobias 时须同步核对规则，不能关闭 AGP 校验或移除支付 SDK 的保留规则。
+Android builds replace Tobias 5.3.4's consumer rules with the checked-in keep-only
+file. Recheck these rules when upgrading Tobias; keep AGP validation enabled.
+
 ### Maven 仓库选择
 
 Gradle 属性 `imboyUseMavenMirror` 控制插件解析、Firebase buildscript、项目依赖和

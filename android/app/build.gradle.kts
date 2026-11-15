@@ -14,6 +14,16 @@ plugins {
 if (file("google-services.json").isFile) {
     apply(plugin = "com.google.gms.google-services")
 }
+
+project(":tobias").afterEvaluate {
+    extensions.configure<com.android.build.gradle.LibraryExtension> {
+        defaultConfig {
+            consumerProguardFiles.clear()
+            consumerProguardFiles(rootProject.file("tobias-consumer-rules.pro"))
+        }
+    }
+}
+
 val localProperties = gradleLocalProperties(rootDir, providers)
 // 本地公开 appId 复用 Dart 配置入口；显式 --dart-define 优先，商户密钥不下发。
 val alipayAppId = localProperties.getProperty("alipay.appId")?.trim().orEmpty()
