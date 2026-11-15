@@ -252,14 +252,22 @@ Future<void> loadGoldenTextFonts(GoldenFontResolution resolution) async {
 Future<void> loadGoldenFont(GoldenFontResolution resolution) async {
   _goldenFontBytes(resolution);
   // 全部资源先检查，缺图标时不注册任何文本或图标字节。
-  for (final (String path, _) in kGoldenIconFontAssets) {
+  _checkGoldenIconFonts(kGoldenIconFontAssets);
+  await loadGoldenTextFonts(resolution);
+  await loadGoldenIconFonts(kGoldenIconFontAssets);
+}
+
+void _checkGoldenIconFonts(List<(String, String)> assets) {
+  for (final (String path, _) in assets) {
     if (!File(path).existsSync()) {
       throw StateError('ENV_MISSING: GOLDEN_ICON_FONT_MISSING:$path');
     }
   }
-  await loadGoldenTextFonts(resolution);
-  // 图标同样是视觉输入，缺失必须阻断，禁止生成方块候选。
-  for (final (String path, String family) in kGoldenIconFontAssets) {
+}
+
+Future<void> loadGoldenIconFonts(List<(String, String)> assets) async {
+  _checkGoldenIconFonts(assets);
+  for (final (String path, String family) in assets) {
     final File f = File(path);
     final FontLoader loader = FontLoader(family);
     loader.addFont(

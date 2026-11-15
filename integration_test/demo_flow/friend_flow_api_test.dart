@@ -75,7 +75,6 @@ void main() {
     final ra = await clientA.login(
       account: ApiTestConfig.testPhone,
       password: ApiTestConfig.testPassword,
-      type: 'mobile',
     );
     if (ra['code'] != 0) {
       skipReason = '账号 A 登录失败: ${ra['msg']}';
@@ -85,7 +84,6 @@ void main() {
     final rb = await clientB.login(
       account: ApiTestConfig.testPhone2,
       password: ApiTestConfig.testPassword2,
-      type: 'mobile',
     );
     if (rb['code'] != 0) {
       skipReason = '账号 B 登录失败: ${rb['msg']}';
