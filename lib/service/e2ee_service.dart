@@ -198,6 +198,7 @@ class E2EEDecryptFailureMetrics {
 /// New upper-layer imports should prefer
 /// `package:imboy/modules/security_privacy/public.dart`.
 class E2EEService {
+  static int _keyCacheGeneration = 0;
   static final Map<String, Map<String, String>> _userKeyCacheByDevice = {};
   static final Map<String, Map<String, String>> _groupKeyCacheByDevice = {};
 
@@ -295,20 +296,13 @@ class E2EEService {
   }
 
   static void clearKeyCacheForTest() {
-    _userKeyCacheByDevice.clear();
-    _groupKeyCacheByDevice.clear();
-    _userKidCacheByDevice.clear();
-    _groupKidCacheByDevice.clear();
-    _groupUidCacheByDevice.clear();
-    _userKeyCacheTimestamp.clear();
-    _groupKeyCacheTimestamp.clear();
+    clearCache();
     debugGroupMemberKeysLoader = null;
   }
 
-  /// 清理E2EE缓存（用于退出登录等场景）
-  ///
-  /// 清理设备密钥缓存，确保下次使用时重新获取最新密钥
+  /// 清理设备密钥缓存，同时撤销在途读取 / Revoke pending key-cache reads.
   static void clearCache() {
+    _keyCacheGeneration++;
     _userKeyCacheByDevice.clear();
     _groupKeyCacheByDevice.clear();
     _userKidCacheByDevice.clear();
@@ -316,29 +310,23 @@ class E2EEService {
     _groupUidCacheByDevice.clear();
     _userKeyCacheTimestamp.clear();
     _groupKeyCacheTimestamp.clear();
-    iPrint('E2EE: 缓存已清理');
   }
 
-  /// 清除特定用户的公钥缓存
-  ///
-  /// 当接收方更新密钥后，发送方需要调用此方法清除缓存
+  /// 对端换钥时清除缓存 / Invalidate when a peer rotates keys.
   static void clearUserKeyCache(String uid) {
+    _keyCacheGeneration++;
     _userKeyCacheByDevice.remove(uid);
     _userKidCacheByDevice.remove(uid);
     _userKeyCacheTimestamp.remove(uid);
-    iPrint('E2EE: 已清除用户 $uid 的公钥缓存');
   }
 
   /// 清除所有公钥缓存
-  static void clearAllKeyCache() {
-    _userKeyCacheByDevice.clear();
-    _groupKeyCacheByDevice.clear();
-    _userKidCacheByDevice.clear();
-    _groupKidCacheByDevice.clear();
-    _groupUidCacheByDevice.clear();
-    _userKeyCacheTimestamp.clear();
-    _groupKeyCacheTimestamp.clear();
-    iPrint('E2EE: 已清除所有公钥缓存');
+  static void clearAllKeyCache() => clearCache();
+
+  static void _requireKeyCacheGeneration(int generation) {
+    if (generation != _keyCacheGeneration) {
+      throw StateError('E2EE key cache invalidated');
+    }
   }
 
   /// 检查是否需要对消息进行端到端加密。
@@ -1201,6 +1189,7 @@ class E2EEService {
     Duration retryDelay = const Duration(seconds: 1),
     bool forceRefresh = false, // 强制刷新缓存
   }) async {
+    final generation = _keyCacheGeneration;
     // 检查缓存（除非强制刷新或已过期）
     if (!forceRefresh && !_isCacheExpired(_userKeyCacheTimestamp, uid)) {
       final cached = _userKeyCacheByDevice[uid];
@@ -1218,8 +1207,10 @@ class E2EEService {
     // 带重试的获取逻辑
     int attempt = 0;
     while (attempt < maxRetries) {
+      _requireKeyCacheGeneration(generation);
       try {
         final list = await E2EEApi().userKeys(uid: uid);
+        _requireKeyCacheGeneration(generation);
         final didToPem = <String, String>{};
         final didToKid = <String, String>{};
         for (final row in list) {
@@ -1231,12 +1222,8 @@ class E2EEService {
           if (kid.isNotEmpty) didToKid[did] = kid;
         }
 
-        // 【F-08 复核回退】forceRefresh 命中空列表时的处理：保留"带 TTL 门槛的
-        // 抗抖动回退"，而非"空即吊销"。理由（对齐 docs/audit VERIFIED 版 BUG-07 裁决）：
-        // 后端目前无法用显式 revoked 标志区分"空=临时 API 故障"与"空=真吊销"，
-        // 在此前提下，若直接判定吊销会牺牲可用性（API 抖动时本端无法加密发出）。
-        // 故仅在本地缓存未过期（30min TTL）时回退旧缓存抗抖；缓存已过期则自然失效。
-        // 彻底解决需后端提供 revoked 显式标志（超出客户端范围），届时再切回"即时吊销"。
+        // F-08/BUG-07：保留同代、未过期缓存的既有空响应回退；
+        // 服务端明确 revoked 协议落地前，不把空响应视为即时吊销。
         if (didToPem.isEmpty && forceRefresh) {
           final cached = _userKeyCacheByDevice[uid];
           if (cached != null &&
@@ -1255,6 +1242,7 @@ class E2EEService {
         iPrint('✅ [E2EE] 获取用户公钥成功: uid=$uid, 设备数=${didToPem.length}');
         return _userKeyResult(uid, didToPem);
       } catch (e) {
+        _requireKeyCacheGeneration(generation);
         attempt++;
         if (attempt >= maxRetries) {
           // 🔧 修复：API 调用失败时回退到未过期的缓存（用于测试环境）
@@ -1273,7 +1261,6 @@ class E2EEService {
       }
     }
 
-    // 理论上不会到达这里
     throw Exception(
       'Failed to get user device keys after $maxRetries attempts',
     );
@@ -1288,6 +1275,7 @@ class E2EEService {
     Duration retryDelay = const Duration(seconds: 1),
     bool forceRefresh = false, // 强制刷新缓存
   }) async {
+    final generation = _keyCacheGeneration;
     // 检查缓存（除非强制刷新或已过期）
     if (!forceRefresh && !_isCacheExpired(_groupKeyCacheTimestamp, gid)) {
       final cached = _groupKeyCacheByDevice[gid];
@@ -1307,11 +1295,13 @@ class E2EEService {
     // 带重试的获取逻辑
     int attempt = 0;
     while (attempt < maxRetries) {
+      _requireKeyCacheGeneration(generation);
       try {
         final loader = debugGroupMemberKeysLoader;
         final members = loader == null
             ? await E2EEApi().groupMemberKeys(gid: gid)
             : await loader(gid);
+        _requireKeyCacheGeneration(generation);
         final didToPem = <String, String>{};
         final didToKid = <String, String>{};
         final didToUid = <String, String>{};
@@ -1337,6 +1327,7 @@ class E2EEService {
         _groupKeyCacheTimestamp[gid] = DateTime.now().millisecondsSinceEpoch;
         return _groupKeyResult(gid, didToPem);
       } catch (e) {
+        _requireKeyCacheGeneration(generation);
         attempt++;
         if (attempt >= maxRetries) {
           if (forceRefresh) {
@@ -1362,7 +1353,6 @@ class E2EEService {
       }
     }
 
-    // 理论上不会到达这里
     throw Exception(
       'Failed to get group device keys after $maxRetries attempts',
     );

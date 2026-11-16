@@ -12,6 +12,7 @@ import 'package:imboy/service/e2ee_backup_setup_service.dart';
 import 'package:imboy/service/e2ee_crypto_service.dart';
 import 'package:imboy/service/account_local_task_registry.dart';
 import 'package:imboy/service/auth_session_scope.dart';
+import 'package:imboy/service/storage_secure.dart';
 import 'package:imboy/store/api/e2ee_backup_api.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
@@ -345,6 +346,7 @@ class _E2EEBackupSetupPageState extends State<E2EEBackupSetupPage> {
 
   Future<void> _handleSubmit() async {
     final session = authSessionReader.current;
+    final keyGeneration = StorageSecureService.to.e2eeKeyGeneration;
     final owner = AccountLocalTaskOwner.capture(uid: session.uid);
     if (_submitting || !authSessionReader.isCurrent(session)) return;
     final pwd = _passwordController.text;
@@ -388,6 +390,7 @@ class _E2EEBackupSetupPageState extends State<E2EEBackupSetupPage> {
         passphrase: pwd,
         uid: session.uid,
         generation: session.generation,
+        keyGeneration: keyGeneration,
       );
       if (!mounted || !authSessionReader.isCurrent(session)) return;
       setState(() => _allowLeave = true);

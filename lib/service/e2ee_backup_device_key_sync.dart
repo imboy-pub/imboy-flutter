@@ -17,8 +17,11 @@ abstract final class E2eeBackupDeviceKeySync {
     required bool Function() isActive,
     Future<bool> Function(Map<String, dynamic>)? reporter,
   }) async {
+    final storage = StorageSecureService.to;
+    final keyGeneration = storage.e2eeKeyGeneration;
     bool current() =>
         isActive() &&
+        storage.e2eeKeyGeneration == keyGeneration &&
         authSessionReader.isCurrent(session) &&
         session.uid == owner.uid &&
         AccountLocalTaskOwner.capture() == owner;
@@ -38,7 +41,6 @@ abstract final class E2eeBackupDeviceKeySync {
             ensureCurrent();
             return reported;
           }
-          final storage = StorageSecureService.to;
           var deviceId = await storage.getDeviceId() ?? '';
           ensureCurrent();
           final detail = await DeviceExt.to.detail;
@@ -50,17 +52,17 @@ abstract final class E2eeBackupDeviceKeySync {
               await UserRepoLocal.to.writeSessionSecret(
                 uid: session.uid,
                 generation: session.generation,
-                write: () async {
+                write: () => storage.writeE2eeKeys(keyGeneration, () async {
                   ensureCurrent();
                   attemptedWrite = true;
                   await storage.setDeviceId(deviceId);
-                },
-                discard: () async {
+                }),
+                discard: () => storage.discardE2eeKeys(keyGeneration, () async {
                   if (attemptedWrite &&
                       await storage.getDeviceId() == deviceId) {
                     await storage.delete(key: 'e2ee_device_id');
                   }
-                },
+                }),
               );
               ensureCurrent();
             }

@@ -427,6 +427,7 @@ class _E2EEBackupExportPageState extends State<E2EEBackupExportPage> {
   Future<void> _handleCloudUpload() async {
     if (!mounted || _isExporting || _isCloudUploading) return;
     final session = authSessionReader.current;
+    final keyGeneration = StorageSecureService.to.e2eeKeyGeneration;
     final password = _passwordController.text;
 
     if (password != _confirmPasswordController.text) {
@@ -462,6 +463,7 @@ class _E2EEBackupExportPageState extends State<E2EEBackupExportPage> {
           passphrase: password,
           uid: session.uid,
           generation: session.generation,
+          keyGeneration: keyGeneration,
         );
         if (!mounted) return;
         _showSuccess(
