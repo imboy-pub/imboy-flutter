@@ -38,19 +38,28 @@ jobs:
         with:
           path: imboyapp
 
+      - name: Resolve pinned cross-repository sources
+        id: sources
+        run: python3 .github/scripts/ci_source_lock.py outputs --app . --github-output "$GITHUB_OUTPUT"
+
       - name: Checkout backend contract sources
         uses: actions/checkout@v7
         with:
-          repository: ${{ github.repository_owner }}/imboy
+          repository: ${{ steps.sources.outputs.backend_repository }}
+          ref: ${{ steps.sources.outputs.backend_sha }}
           path: imboy
           fetch-depth: 1
 
       - name: Checkout admin product contract sources
         uses: actions/checkout@v7
         with:
-          repository: ${{ github.repository_owner }}/imboy-admin-frontend
+          repository: ${{ steps.sources.outputs.admin_repository }}
+          ref: ${{ steps.sources.outputs.admin_sha }}
           path: imboyadmin
           fetch-depth: 1
+
+      - name: Verify actual source checkouts
+        run: python3 .github/scripts/ci_source_lock.py checkout --app . --backend ../imboy --admin ../imboyadmin --output "${{ runner.temp }}/auto-test-framework/source-checkout.json"
 
       - name: Setup Python for tooling
         if: ${{ !inputs.tests_owned_by_ci }}
@@ -80,6 +89,7 @@ jobs:
           path: |
             ${{ runner.temp }}/auto-test-framework/gate_*.log
             ${{ runner.temp }}/auto-test-framework/gate_summary.json
+            ${{ runner.temp }}/auto-test-framework/source-checkout.json
           if-no-files-found: warn
 
   # ----------------------------------------------------------------

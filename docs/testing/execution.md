@@ -185,6 +185,49 @@ worktree 准备真实生成物，源提交/执行合同/测试代码保持一致
 `--worker-product-profile full-selected` 不会自动构建/启用 feature。全部结果与前置检查收集后，
 用原完整计划 execution-summary，并传入 `--results "$REPORT_DIR/full-gates"` 及各分片目录；分片成功不代表完整回归通过。日志、原始/逐目标事件及进程 receipt 随结果上传，汇总重新核验文件、SHA256、退出码与解析计数，缺证据也会阻塞。
 
+### 跨仓库来源与 UIUX 离线证据 / Cross-repository sources and UIUX offline evidence
+
+普通 CI、可复用 quality/contract 工作流与 UIUX 离线工作流统一读取
+`.github/ci-source-lock.json` 的 Backend/Admin 仓库和完整提交 SHA。更新候选时只修改
+该锁文件并重新验证；不回退到浮动 main。App 的执行身份使用实际 checkout HEAD，
+PR 事件下通常为 GitHub 的 test-merge SHA，不能用 PR head SHA 替代。
+各源码消费 job 在运行前核对实际 HEAD 与干净源码状态，并保存 `source-checkout.json`；
+它只证明来源组合，不证明真实后端已运行或业务通过。
+
+UIUX 工作流先冻结同一 `full-plan.json`、`offline-plan.json` 与三仓 `candidate.json`。
+候选同时记录本次 invocation、GitHub run ID、attempt 与 event；同 SHA 的旧运行或旧
+attempt 收据不能自动并入新一轮结果。
+因此恢复 UIUX 运行须整次重跑并重新冻结计划；仅重跑失败 jobs 会因沿用旧 attempt 的
+候选而被拒绝。
+每个 shared-gates / worker 在执行前保存 `source_snapshot.json`，执行后复核源码并用
+`source_receipt.json` 绑定原 `gates.json` 或 `results.json`。收据包含产品生成物、
+生成器输入、允许的 diff 和文件 hash；下载后的汇总拒绝缺失/重复分区、旧候选、
+来源或结果篡改。`source-summary.json` 仅报告来源绑定；其失败也传入两份业务 summary，
+不能留下看似通过的 offline 结果。
+
+`phase1_delivery` 保持源码和产品生成物一致；`full-selected` 只允许已有生成器在隔离
+checkout 中修改登记的三仓产品生成物和 Backend 产品 manifest。每份生成物仍须逐字节
+匹配真实生成器输出，普通源文件、额外未跟踪源文件和隐藏的 index 改动不被允许。
+不得将合法产品生成差异扩大成任意 dirty workspace 豁免。
+共享 `static-analysis` 同时执行普通 CI 的全仓 Analyzer ratchet；只有 info 而退出 0
+的 `dart analyze` 不能单独证明该门通过，基线和阈值保持原样。
+
+离线仅覆盖 Linux/macOS/Web 的 unit、widget、component、sqlite-ffi、crypto-ffi、
+tooling 与 route-smoke。它保留完整计划中的 API、Golden、设备、双端和原生 UI 义务；
+当前工作流不导入独立专项证据，full 缺证据必须 BLOCKED。必须分别查看来源、覆盖率、
+offline 和 full 四个结果，工作流整体失败不自动表示离线业务断言失败。
+合入 main 本身不触发该独立工作流；匹配 paths 的 PR 或 workflow_dispatch 才执行。
+
+English: The shared source lock pins Backend/Admin commits across ordinary CI and
+UIUX. App identity is the actual checkout commit, including GitHub's PR test merge.
+Source-only checkout receipts are not runtime-backend or business acceptance.
+UIUX freezes both plans with all three source identities, checks each worker before
+and after execution, and binds its product files and original results to that candidate.
+Only generator-verified product differences are allowed. Missing, stale, duplicate or
+tampered receipts block both summaries. Offline excludes real API, Golden and device
+obligations; the full summary stays blocked until compatible same-plan specialist
+evidence is available. A merge alone is not an execution receipt.
+
 ## PR、覆盖率与门禁
 
 PR 包含逻辑、Widget、模拟集成、SQLite、加密 FFI、工具目标，含原来 `test/unit_test/`
