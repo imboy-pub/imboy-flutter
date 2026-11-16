@@ -37,9 +37,12 @@ for attempt in 1 2 3; do
       "$log"; then
     retryable=true
   elif [[ "$status" == 69 && "${1##*/}" == flutter && "${2:-}" == pub && "${3:-}" == get ]] &&
-      grep -Eq "^fatal: unable to access 'https://[^']+': Could not resolve host: [^[:space:]]+$" "$log"; then
-    # Pub reports unavailable (69) for Git DNS failures. Restrict this case to
-    # package download so earlier transport output cannot retry a failed build.
+      grep -Eq \
+        -e "^fatal: unable to access 'https://[^']+': Could not resolve host: [^[:space:]]+$" \
+        -e '^error: RPC failed; curl 56 GnuTLS recv error \(-110\): The TLS connection was non-properly terminated\.$' \
+        "$log"; then
+    # Pub reports unavailable (69) for these Git DNS or interrupted TLS transfers.
+    # Restrict to package downloads so transport output cannot retry a failed build.
     retryable=true
   fi
   if [[ "$status" -ge 128 || "$retryable" != true ]]; then

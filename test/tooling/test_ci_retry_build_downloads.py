@@ -22,6 +22,20 @@ GIT_DNS_ERROR = (
     "fatal: unable to access 'https://gitee.com/imboy-tripartite-deps/azlistview.git/': "
     'Could not resolve host: gitee.com'
 )
+GIT_TLS_ERROR = '\n'.join([
+    'Git error. Command: `git clone --mirror -- '
+    'https://gitee.com/imboy-tripartite-deps/r_upgrade.git /tmp/pub-cache/_temp/fixture`',
+    'stdout: ',
+    "stderr: Cloning into bare repository '/tmp/pub-cache/_temp/fixture'...",
+    'error: RPC failed; curl 56 GnuTLS recv error (-110): '
+    'The TLS connection was non-properly terminated.',
+    'error: 3680 bytes of body are still expected',
+    'fetch-pack: unexpected disconnect while reading sideband packet',
+    'fatal: early EOF',
+    'fatal: fetch-pack: invalid index-pack output',
+    'exit code: 128',
+    'Failed to update packages.',
+])
 
 COMMAND = r'''#!/usr/bin/env python3
 import json
@@ -119,6 +133,74 @@ class BuildDownloadRetryTest(unittest.TestCase):
         self.assertEqual(result.returncode, 69)
         self.assertEqual(len(calls), 3)
         self.assertEqual(delays, ['10', '20'])
+
+    def test_locked_pub_get_tls_disconnect_recovers_with_unchanged_arguments(self):
+        self.command = self.command.rename(self.bin_dir / 'flutter')
+        result, calls, delays = self.run_build([
+            {'stderr': GIT_TLS_ERROR, 'exit_code': 69},
+            {'stdout': 'Dependencies resolved'},
+        ], args=('pub', 'get', '--enforce-lockfile'))
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertEqual(len(calls), 2)
+        self.assertEqual(delays, ['10'])
+        self.assertIn(GIT_TLS_ERROR, result.stdout)
+        self.assertIn('Dependencies resolved', result.stdout)
+
+    def test_locked_pub_get_tls_disconnect_keeps_three_attempt_limit(self):
+        self.command = self.command.rename(self.bin_dir / 'flutter')
+        result, calls, delays = self.run_build([
+            {'stderr': GIT_TLS_ERROR, 'exit_code': 69},
+        ], args=('pub', 'get', '--enforce-lockfile'))
+        self.assertEqual(result.returncode, 69)
+        self.assertEqual(len(calls), 3)
+        self.assertEqual(delays, ['10', '20'])
+        self.assertIn('failed after 3 attempts (exit 69)', result.stderr)
+
+    def test_tls_output_does_not_retry_other_commands_or_pub_errors(self):
+        self.command = self.command.rename(self.bin_dir / 'flutter')
+        for args, status in (
+            (('build', 'apk'), 69), (('pub', 'get'), 65), (('pub', 'get'), 130),
+        ):
+            with self.subTest(args=args, status=status):
+                result, calls, delays = self.run_build([
+                    {'stderr': GIT_TLS_ERROR, 'exit_code': status}, {},
+                ], args=args)
+                self.assertEqual(result.returncode, status)
+                self.assertEqual(len(calls), 1)
+                self.assertEqual(delays, [])
+
+    def test_pub_get_git_errors_without_transport_evidence_do_not_retry(self):
+        self.command = self.command.rename(self.bin_dir / 'flutter')
+        for error in (
+            'fatal: early EOF\nfatal: fetch-pack: invalid index-pack output',
+            'fatal: Remote branch missing-revision not found in upstream origin',
+            "fatal: repository 'https://gitee.com/example/missing.git/' not found",
+            'error: RPC failed; curl 60 SSL certificate problem: certificate has expired',
+            "fatal: could not read Username for 'https://gitee.com': terminal prompts disabled",
+            'Could not resolve dependencies: incompatible package versions',
+        ):
+            with self.subTest(error=error):
+                result, calls, delays = self.run_build([
+                    {'stderr': error, 'exit_code': 69}, {},
+                ], args=('pub', 'get', '--enforce-lockfile'))
+                self.assertEqual(result.returncode, 69)
+                self.assertEqual(len(calls), 1)
+                self.assertEqual(delays, [])
+
+    def test_previous_tls_failure_does_not_retry_later_nontransport_failure(self):
+        self.command = self.command.rename(self.bin_dir / 'flutter')
+        for error in (
+            'fatal: early EOF\nfatal: fetch-pack: invalid index-pack output',
+            'fatal: Remote branch missing-revision not found in upstream origin',
+        ):
+            with self.subTest(error=error):
+                result, calls, delays = self.run_build([
+                    {'stderr': GIT_TLS_ERROR, 'exit_code': 69},
+                    {'stderr': error, 'exit_code': 69}, {},
+                ], args=('pub', 'get', '--enforce-lockfile'))
+                self.assertEqual(result.returncode, 69)
+                self.assertEqual(len(calls), 2)
+                self.assertEqual(delays, ['10'])
 
     def test_dns_output_does_not_retry_other_commands_or_pub_errors(self):
         self.command = self.command.rename(self.bin_dir / 'flutter')
