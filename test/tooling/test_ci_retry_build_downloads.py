@@ -32,6 +32,16 @@ GIT_EOF_ERROR = '\n'.join([
     'fatal: early EOF',
     'fatal: fetch-pack: invalid index-pack output',
 ])
+GIT_CURL18_EOF_ERROR = '\n'.join([
+    'Git error. Command: `git clone --mirror '
+    'https://gitee.com/imboy-tripartite-deps/audio_waveforms.git /tmp/pub-git-fixture`',
+    'error: RPC failed; curl 18 transfer closed with outstanding read data remaining',
+    'error: 12554 bytes of body are still expected',
+    'fetch-pack: unexpected disconnect while reading sideband packet',
+    'fatal: early EOF',
+    'fatal: fetch-pack: invalid index-pack output',
+])
+GIT_TRANSPORT_ERRORS = (GIT_DNS_ERROR, GIT_EOF_ERROR, GIT_CURL18_EOF_ERROR)
 
 COMMAND = r'''#!/usr/bin/env python3
 import json
@@ -114,7 +124,7 @@ class BuildDownloadRetryTest(unittest.TestCase):
 
     def test_locked_pub_get_git_transport_failure_recovers_with_unchanged_arguments(self):
         self.command = self.command.rename(self.bin_dir / 'flutter')
-        for error in (GIT_DNS_ERROR, GIT_EOF_ERROR):
+        for error in GIT_TRANSPORT_ERRORS:
             with self.subTest(error=error):
                 result, calls, delays = self.run_build([
                     {'stderr': error, 'exit_code': 69}, {},
@@ -126,7 +136,7 @@ class BuildDownloadRetryTest(unittest.TestCase):
 
     def test_locked_pub_get_git_transport_failure_keeps_three_attempt_limit(self):
         self.command = self.command.rename(self.bin_dir / 'flutter')
-        for error in (GIT_DNS_ERROR, GIT_EOF_ERROR):
+        for error in GIT_TRANSPORT_ERRORS:
             with self.subTest(error=error):
                 result, calls, delays = self.run_build([
                     {'stderr': error, 'exit_code': 69},
@@ -137,7 +147,7 @@ class BuildDownloadRetryTest(unittest.TestCase):
 
     def test_git_transport_output_does_not_retry_other_commands_or_pub_errors(self):
         self.command = self.command.rename(self.bin_dir / 'flutter')
-        for error in (GIT_DNS_ERROR, GIT_EOF_ERROR):
+        for error in GIT_TRANSPORT_ERRORS:
             for args, status in ((('build', 'apk'), 69), (('pub', 'upgrade'), 69),
                                  (('pub', 'get'), 65), (('pub', 'get'), 130)):
                 with self.subTest(error=error, args=args, status=status):
@@ -162,6 +172,15 @@ class BuildDownloadRetryTest(unittest.TestCase):
             'checksum mismatch',
             'fatal: Authentication failed for https://example.invalid/dependency.git',
         ]
+        errors.extend(GIT_CURL18_EOF_ERROR.replace(line, '')
+                      for line in GIT_CURL18_EOF_ERROR.splitlines())
+        errors.extend([
+            GIT_CURL18_EOF_ERROR.replace('https://', 'http://'),
+            GIT_CURL18_EOF_ERROR.replace('curl 18', 'curl 60'),
+            GIT_CURL18_EOF_ERROR.replace(
+                'transfer closed with outstanding read data remaining',
+                'SSL certificate verification failed'),
+        ])
         for error in errors:
             with self.subTest(error=error):
                 result, calls, delays = self.run_build([
@@ -173,7 +192,7 @@ class BuildDownloadRetryTest(unittest.TestCase):
 
     def test_previous_git_transport_failure_does_not_retry_lockfile_failure(self):
         self.command = self.command.rename(self.bin_dir / 'flutter')
-        for error in (GIT_DNS_ERROR, GIT_EOF_ERROR):
+        for error in GIT_TRANSPORT_ERRORS:
             with self.subTest(error=error):
                 result, calls, delays = self.run_build([
                     {'stderr': error, 'exit_code': 69},

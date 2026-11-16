@@ -42,11 +42,14 @@ for attempt in 1 2 3; do
     if grep -Eq "^fatal: unable to access 'https://[^']+': Could not resolve host: [^[:space:]]+$" "$log"; then
       retryable=true
     elif grep -Eq '^Git error\. Command: `git clone --mirror https://[^[:space:]]+ ' "$log" &&
-        grep -Eq '^error: RPC failed; curl 56 .*SSL_read: .*unexpected eof while reading' "$log" &&
         grep -Fxq 'fatal: early EOF' "$log" &&
-        grep -Fxq 'fatal: fetch-pack: invalid index-pack output' "$log"; then
-      # Observed Git clone truncation. A generic SSL, checksum, or pack error
-      # alone is insufficient; keep the lockfile and original command intact.
+        grep -Fxq 'fatal: fetch-pack: invalid index-pack output' "$log" &&
+        { grep -Eq '^error: RPC failed; curl 56 .*SSL_read: .*unexpected eof while reading' "$log" ||
+          { grep -Fxq 'error: RPC failed; curl 18 transfer closed with outstanding read data remaining' "$log" &&
+            grep -Eq '^error: [0-9]+ bytes of body are still expected$' "$log" &&
+            grep -Fxq 'fetch-pack: unexpected disconnect while reading sideband packet' "$log"; }; }; then
+      # Observed Git clone truncation (curl 56 or 18). A generic SSL, checksum,
+      # or pack error alone is insufficient; keep the lockfile and command intact.
       retryable=true
     fi
   fi
