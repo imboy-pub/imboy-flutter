@@ -229,3 +229,9 @@ inbox:
   undo: "Rückgängig"
   openChannels: "Kanäle öffnen"
   channelEmptyDescription: "Unter Kanäle Abonnements aktualisieren oder ausgeblendete Kanäle wiederherstellen."
+
+chatStatusOutcomeUnknown: Dieser Versuch wurde abgelehnt; Zustellung unbestätigt
+
+# ---- DSN-06 gap fill (machine-candidate 2026-11-16) ----
+e2eeMsgBeforeDevice: "Diese Nachricht wurde vor dem Beitreten dieses Geräts gesendet und kann auf diesem Gerät nicht angezeigt werden" # machine-candidate 2026-11-16
+e2eeMsgBeforeDeviceTapHint: "Diese Nachricht wurde ohne dieses Gerät verschlüsselt (z. B. Verläufe vor dem Gerätewechsel) und kann hier nicht entschlüsselt werden. Neue Nachrichten auf diesem Gerät sind nicht betroffen" # machine-candidate 2026-11-16

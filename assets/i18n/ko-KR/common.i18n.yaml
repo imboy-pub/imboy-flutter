@@ -117,6 +117,7 @@ feedbackContentRequired: 피드백 내용은 비워둘 수 없습니다
 feedbackDetails: 피드백 제안 세부 정보
 feedbackSuccessMsg: 피드백을 받았습니다. 빠르게 처리하겠습니다!
 followSystemTips: 켜면 시스템 따라 다크 모드가 켜지거나 꺼집니다
+themeBrowserLocalOnly: "테마 설정은 현재 브라우저에만 저장되며 다른 기기와 동기화되지 않습니다."
 genderUpdateFailed: 성별 설정 실패, 다시 시도해 주세요
 groupAnnouncement: 그룹 공지
 groupFileUploadSuccess: 파일 업로드 완료
@@ -942,3 +943,29 @@ legacyUploadReturnToOriginalPage: "업로드가 완료되지 않았습니다. �
 
 f2fLocationRequired: "위치 권한과 서비스를 켠 후 주변 친구와 다시 시도하세요."
 f2fMemberHint: "친구의 프로필 사진을 눌러 프로필을 보고 친구로 추가하세요."
+
+webReadOnlySettingsHint: "웹에서는 읽기 전용입니다. 앱에서 변경하세요."
+
+legacyUploadCheckLocal: "로컬 전송 상태 확인"
+
+textTooLarge: "텍스트가 64 KiB를 초과합니다. 수정한 후 다시 시도하세요."
+
+# ---- DSN-06 gap fill (machine-candidate 2026-11-16) ----
+e2eeBackupDeviceKeySyncPending: "알림: 기기 신원 동기화가 아직 완료되지 않아 이 기기에서 새 메시지를 일시적으로 복호화하지 못할 수 있습니다. 다시 로그인하면 자동으로 동기화가 완료됩니다" # machine-candidate 2026-11-16
+e2eeBackupSetupBlockedToast: "먼저 키 백업 설정을 완료해 주세요" # machine-candidate 2026-11-16
+e2eeBackupSetupBody: "복구 암호를 설정하고 클라우드 백업을 업로드해야 기기 변경이나 재설치 후 암호화된 채팅 기록을 복원할 수 있습니다. 백업이 없으면 과거 메시지를 새 기기에서 복호화할 수 없습니다." # machine-candidate 2026-11-16
+e2eeBackupSetupBusyHint: "이 기기에서 암호화해 클라우드로 업로드하는 중입니다. 잠시만 기다려 주세요. 네트워크가 불안정하면 아래 「나중에」를 눌러 건너뛸 수 있습니다" # machine-candidate 2026-11-16
+e2eeBackupSetupLater: "나중에 하기(다음 실행 때 다시 알림)" # machine-candidate 2026-11-16
+e2eeBackupSetupLaterConfirmBody: "지금 설정하지 않으면 기기 변경이나 재설치 후 이 암호화 채팅 기록을 복호화하거나 찾을 수 없습니다. 다음 실행 때 다시 알림을 드립니다." # machine-candidate 2026-11-16
+e2eeBackupSetupLaterConfirmLeave: "나중에 설정" # machine-candidate 2026-11-16
+e2eeBackupSetupLaterConfirmStay: "계속 설정" # machine-candidate 2026-11-16
+e2eeBackupSetupLaterConfirmTitle: "백업 설정을 건너뛸까요?" # machine-candidate 2026-11-16
+e2eeBackupSetupPostponedToast: "나중으로 미뤘습니다. 다음 실행 때 다시 알립니다" # machine-candidate 2026-11-16
+e2eeBackupSetupPwdHint: "복구 암호를 직접 정하거나 아래를 눌러 무작위 복구 키를 생성하세요" # machine-candidate 2026-11-16
+e2eeBackupSetupPwdTooShort: "암호는 최소 8자 이상이어야 합니다" # machine-candidate 2026-11-16
+e2eeBackupSetupSavedNote: "복구 암호가 이 기기의 보안 저장소에 저장되었습니다. 이후 키가 변경되면 자동으로 재사용되어 백업을 다시 업로드하므로 다시 입력할 필요가 없습니다." # machine-candidate 2026-11-16
+e2eeBackupSetupSubmit: "완료하고 클라우드 백업 업로드" # machine-candidate 2026-11-16
+e2eeBackupSetupTimeoutToast: "업로드 시간이 초과되었습니다. 네트워크를 확인하고 재시도하거나 나중에 설정해 주세요" # machine-candidate 2026-11-16
+e2eeBackupSetupTitle: "암호화 기록 보호" # machine-candidate 2026-11-16
+e2eeBackupSetupUploading: "업로드 중…" # machine-candidate 2026-11-16
+e2eeBackupSetupWeakHint: "암호가 짧습니다. 12자 이상을 권장합니다. 또는 아래 「복구 키 생성」으로 무작위 키를 사용하세요" # machine-candidate 2026-11-16

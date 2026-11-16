@@ -1,5 +1,7 @@
 import 'dart:io';
 
+import 'package:flutter/foundation.dart' show kIsWeb;
+
 import 'package:path_provider/path_provider.dart';
 
 import 'package:imboy/service/compliance_key_service.dart';
@@ -97,22 +99,23 @@ class E2eeSecretInventory {
   });
 
   /// 生产接线：真实 secure storage + 各 E2EE 服务内存缓存 + 临时备份文件。
-  factory E2eeSecretInventory.production() => E2eeSecretInventory(
-    readAll: StorageSecureService.to.readAll,
-    deleteKey: (key) => StorageSecureService.to.delete(key: key),
-    clearMemoryCaches: [
-      E2EEService.clearCache,
-      ComplianceKeyService.instance.clearCache,
-      GroupSessionService.to.clearMemory,
-      CollectKeychain.to.clearCache,
-    ],
-    purgeArtifacts: [
-      // 清 Olm 内存 Account/Session（其存储键由下方前缀清理兜底复核）
-      OlmSessionService.to.clearAll,
-      _purgeLocalBackupTempFiles,
-      _purgeUploadCacheFiles,
-    ],
-  );
+  factory E2eeSecretInventory.production({bool web = kIsWeb}) =>
+      E2eeSecretInventory(
+        readAll: StorageSecureService.to.readAll,
+        deleteKey: (key) => StorageSecureService.to.delete(key: key),
+        clearMemoryCaches: [
+          E2EEService.clearCache,
+          ComplianceKeyService.instance.clearCache,
+          GroupSessionService.to.clearMemory,
+          CollectKeychain.to.clearCache,
+        ],
+        purgeArtifacts: [
+          // 清 Olm 内存 Account/Session（其存储键由下方前缀清理兜底复核）
+          OlmSessionService.to.clearAll,
+          if (!web) _purgeLocalBackupTempFiles,
+          if (!web) _purgeUploadCacheFiles,
+        ],
+      );
 
   final Future<Map<String, String>> Function() readAll;
   final Future<void> Function(String key) deleteKey;

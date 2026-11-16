@@ -6,6 +6,7 @@ typedef AuthSessionScope = ({String uid, int generation, bool transitioning});
 /// Authentication identity only; no profile, tokens, storage or write methods.
 abstract interface class AuthSessionReader implements Listenable {
   AuthSessionScope get current;
+  bool get transitionFailed;
   bool isCurrent(AuthSessionScope captured);
 }
 
@@ -13,6 +14,9 @@ final AuthSessionReader authSessionReader = _LocalAuthSessionReader();
 
 class _LocalAuthSessionReader implements AuthSessionReader {
   UserRepoLocal get _source => UserRepoLocal.to;
+
+  @override
+  bool get transitionFailed => _source.isAuthTransitionFailed;
 
   @override
   AuthSessionScope get current => (

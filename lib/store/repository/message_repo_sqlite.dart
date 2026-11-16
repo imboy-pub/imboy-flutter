@@ -294,20 +294,8 @@ class MessageRepo implements MessageRepository {
         MessageRepo.action: msg.action,
         MessageRepo.e2ee: msg.e2ee != null ? json.encode(msg.e2ee) : '',
       };
-      if (targetTableName == MessageRepo.c2gTable &&
-          msg.e2ee != null &&
-          msg.senderDid != null &&
-          msg.senderDid!.isNotEmpty) {
-        insert[MessageRepo.e2ee] = jsonEncode({
-          ...msg.e2ee!,
-          MessageModel.localSenderDidKey: msg.senderDid,
-        });
-      }
-      if (targetTableName == MessageRepo.c2cTable &&
-          msg.senderDid != null &&
-          msg.senderDid!.isNotEmpty) {
-        insert[MessageColumns.senderDid] = msg.senderDid;
-      }
+      insert[MessageColumns.senderDid] = msg.senderDid;
+      _normalizeSenderDid(insert, targetTableName);
       if (kDebugMode) {}
       if (txn != null) {
         final insertedId = await txn.insert(targetTableName, insert);
@@ -339,6 +327,27 @@ class MessageRepo implements MessageRepository {
     return msg;
   }
 
+  // Only C2C has a physical sender_did column. C2G retains context in e2ee.
+  static void _normalizeSenderDid(Map<String, dynamic> data, String table) {
+    if (table == c2cTable) {
+      if (data[MessageColumns.senderDid] == null ||
+          data[MessageColumns.senderDid] == '') {
+        data.remove(MessageColumns.senderDid);
+      }
+      return;
+    }
+    final did = data.remove(MessageColumns.senderDid);
+    if (table != c2gTable || did == null || did == '') return;
+    final raw = data[e2ee];
+    final envelope = raw is String && raw.isNotEmpty ? jsonDecode(raw) : raw;
+    if (envelope is Map) {
+      data[e2ee] = jsonEncode({
+        ...envelope,
+        MessageModel.localSenderDidKey: did,
+      });
+    }
+  }
+
   // 更新信息
   @override
   Future<int> update(Map<String, dynamic> data, {Transaction? txn}) async {
@@ -347,6 +356,27 @@ class MessageRepo implements MessageRepository {
     final generation = session.sessionGeneration;
     final updateData = Map<String, dynamic>.from(data);
     final targetId = updateData[MessageRepo.id];
+    if (tableName == c2gTable &&
+        updateData[MessageColumns.senderDid] != null &&
+        !updateData.containsKey(e2ee)) {
+      final rows = txn != null
+          ? await txn.query(
+              tableName,
+              columns: [e2ee],
+              where: 'id = ?',
+              whereArgs: [targetId],
+              limit: 1,
+            )
+          : await _db.query(
+              tableName,
+              columns: [e2ee],
+              where: 'id = ?',
+              whereArgs: [targetId],
+              limit: 1,
+            );
+      if (rows.isNotEmpty) updateData[e2ee] = rows.first[e2ee];
+    }
+    _normalizeSenderDid(updateData, tableName);
     final msgId = targetId?.toString() ?? '';
     // payload: Map -> JSON 字符串
     if (updateData.containsKey(MessageRepo.payload) &&

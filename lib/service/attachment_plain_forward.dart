@@ -25,6 +25,8 @@
 ///   （文件名、宽高、时长等展示信息必须跟原消息一致）。
 library;
 
+import 'package:imboy/component/http/web_writer_http_adapter.dart';
+
 import 'dart:typed_data';
 
 import 'package:dio/dio.dart';
@@ -275,10 +277,9 @@ class PlainAttachmentForward {
   /// 状态变化，转发需要的是确定性原始字节。
   static Future<Uint8List> defaultFetchObject(String objectKey) async {
     final String url = await AssetUrlResolver.instance.resolve(objectKey);
-    final response = await Dio().get<List<int>>(
-      url,
-      options: Options(responseType: ResponseType.bytes),
-    );
+    final response = await guardWebWriterDio(
+      Dio(),
+    ).get<List<int>>(url, options: Options(responseType: ResponseType.bytes));
     final data = response.data;
     if (data == null || data.isEmpty) {
       throw const PlainAttachmentForwardException(

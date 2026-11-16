@@ -16,6 +16,8 @@ import '../../../fixtures/sqlite_migration/sqlite_migration_fixtures.dart';
 
 class _Session extends ChangeNotifier implements AuthSessionReader {
   @override
+  bool get transitionFailed => false;
+  @override
   AuthSessionScope current = (uid: 'a', generation: 1, transitioning: false);
   @override
   bool isCurrent(AuthSessionScope value) =>

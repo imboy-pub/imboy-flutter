@@ -231,3 +231,9 @@ inbox:
   undo: "تراجع"
   openChannels: "فتح القنوات"
   channelEmptyDescription: "حدّث الاشتراكات أو أعد إظهار القنوات المخفية من صفحة القنوات."
+
+chatStatusOutcomeUnknown: رُفضت هذه المحاولة؛ نتيجة التسليم غير مؤكدة
+
+# ---- DSN-06 gap fill (machine-candidate 2026-11-16) ----
+e2eeMsgBeforeDevice: "أُرسلت هذه الرسالة قبل انضمام هذا الجهاز، فلا يمكن عرضها عليه" # machine-candidate 2026-11-16
+e2eeMsgBeforeDeviceTapHint: "شُفّرت هذه الرسالة دون تضمين هذا الجهاز (مثل سجلٍ قبل تغيير الجهاز) فلا يمكن فك تشفيرها هنا؛ ولا يؤثر ذلك على الرسائل الجديدة المُرسلة والمستقبَلة على هذا الجهاز" # machine-candidate 2026-11-16

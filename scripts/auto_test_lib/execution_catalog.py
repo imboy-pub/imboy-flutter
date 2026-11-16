@@ -16,6 +16,7 @@ from collections import Counter
 from pathlib import Path, PurePosixPath
 
 from .discovery import git_head
+from .w09_fixture import TARGETS as W09_TARGETS
 
 CONTRACT_PATH = 'test/auto_test/execution_contract.json'
 SCHEMA_VERSION = 1
@@ -626,6 +627,8 @@ def build_plan(root: Path, profile: str = 'pr', platforms: list[str] | None = No
                                                **target.get('dart_defines', {}),
                                                **role.get('dart_defines', {}),
                                                **variant.get('dart_defines', {})}
+                        if platform == 'web' and row['runner'] == 'flutter-machine':
+                            row['dependencies'] = sorted(set(row['dependencies']) | {'chrome'})
                         row['id'] = instance_id(row['target'], platform, product,
                                                 row['role'], row['variant'])
                         instances.append(row)
@@ -659,8 +662,16 @@ def build_plan(root: Path, profile: str = 'pr', platforms: list[str] | None = No
          'pubspec.yaml', 'pubspec.lock',
          *[':(exclude)' + path for path in cfg.get('product_artifacts', [])]],
         capture_output=True).stdout
-    digest = hashlib.sha256(json.dumps({'contract': cfg, 'entries': catalog['entries']},
-                                     sort_keys=True).encode() + diff).hexdigest()
+    fingerprint_inputs = {'contract': cfg, 'entries': catalog['entries']}
+    if any(i['target'] in W09_TARGETS for i in selected):
+        paths = ['scripts/auto_test_lib/execution_runner.py', 'scripts/auto_test_lib/w09_fixture.py',
+                 'test/fixtures/w09_cancel/slow-put.cjs']
+        try:
+            fingerprint_inputs['w09_fixture_inputs'] = {
+                path: hashlib.sha256((Path(root) / path).read_bytes()).hexdigest() for path in paths}
+        except OSError as error:
+            raise ContractError(['W09_FIXTURE_INPUT_MISSING']) from error
+    digest = hashlib.sha256(json.dumps(fingerprint_inputs, sort_keys=True).encode() + diff).hexdigest()
     return {'schema_version': SCHEMA_VERSION, 'commit': catalog['commit'],
             'profile': profile, 'scope': 'scoped' if scoped else profile,
             'full_regression': profile == 'full' and not scoped,

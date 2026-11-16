@@ -50,6 +50,7 @@ class ConversationNotifier extends _$ConversationNotifier {
       _debounceTimers.clear();
       _batchUpdateTimer?.cancel();
       _pendingUpdates.clear();
+      _snapshotOwners.clear();
     });
 
     return ConversationState();
@@ -67,6 +68,8 @@ class ConversationNotifier extends _$ConversationNotifier {
 
   // Use a timer and map to batch state updates to prevent UI stuttering
   Timer? _batchUpdateTimer;
+  final Map<String, ({String uid, int generation})> _snapshotOwners = {};
+  final _computedTitles = Expando<bool>();
   int _conversationRevision = 0;
   int _listRequestGeneration = 0;
   final Map<String, int> _conversationKeyRevisions = {};
@@ -85,6 +88,19 @@ class ConversationNotifier extends _$ConversationNotifier {
         session.isCurrentSession(generation);
   }
 
+  // Derived member names are display-only; a persisted snapshot omits them.
+  void _carryDerivedTitle(ConversationModel next, ConversationModel? previous) {
+    if (next.type == 'C2G' &&
+        next.title.trim().isEmpty &&
+        next.computeTitle.trim().isEmpty &&
+        _computedTitles[next] != true &&
+        previous?.type == next.type &&
+        previous?.uk3 == next.uk3) {
+      next.computeTitle = previous!.computeTitle;
+      if (_computedTitles[previous] == true) _computedTitles[next] = true;
+    }
+  }
+
   // Replace single conversation
   void replaceConversation(ConversationModel obj) {
     if (obj.uk3.isEmpty) return;
@@ -96,6 +112,19 @@ class ConversationNotifier extends _$ConversationNotifier {
 
     final session = UserRepoLocal.to;
     if (session.isClearingSession) return;
+    final owner = (
+      uid: session.currentUid,
+      generation: session.sessionGeneration,
+    );
+    final pending = _pendingUpdates[obj.uk3];
+    final previous = pending != null
+        ? (pending.uid == owner.uid && pending.generation == owner.generation
+              ? pending.conversation
+              : null)
+        : (_snapshotOwners[obj.uk3] == owner
+              ? state.conversationMap[obj.uk3]
+              : null);
+    _carryDerivedTitle(obj, previous);
     _conversationRevision++;
     _conversationKeyRevisions[obj.uk3] = _conversationRevision;
     _pendingUpdates[obj.uk3] = (
@@ -116,6 +145,10 @@ class ConversationNotifier extends _$ConversationNotifier {
         final pending = entry.value;
         if (_isCurrentSession(pending.uid, pending.generation)) {
           newMap[entry.key] = pending.conversation;
+          _snapshotOwners[entry.key] = (
+            uid: pending.uid,
+            generation: pending.generation,
+          );
         }
       }
       _pendingUpdates.clear();
@@ -131,6 +164,7 @@ class ConversationNotifier extends _$ConversationNotifier {
     _conversationRemovalGenerations[uk3] =
         (_conversationRemovalGenerations[uk3] ?? 0) + 1;
     _pendingUpdates.remove(uk3);
+    _snapshotOwners.remove(uk3);
     final newMap = Map<String, ConversationModel>.from(state.conversationMap);
     newMap.remove(uk3);
     state = state.copyWith(conversationMap: newMap);
@@ -426,6 +460,7 @@ class ConversationNotifier extends _$ConversationNotifier {
       });
       obj.title = computedTitle; // 更新内存中的对象
     }
+    _computedTitles[obj] = true;
     return computedTitle;
   }
 
@@ -622,6 +657,10 @@ class ConversationNotifier extends _$ConversationNotifier {
     String trigger = 'manual',
   }) async {
     const source = 'server_authoritative_pull';
+    // LAY-04：捕获会话身份，迟到的失败/成功不得污染切换后的新账号状态。
+    final session = UserRepoLocal.to;
+    final syncUid = session.currentUid;
+    final syncGeneration = session.sessionGeneration;
     int fetchedCount = 0;
     int synced = 0;
     try {
@@ -721,6 +760,11 @@ class ConversationNotifier extends _$ConversationNotifier {
           success: true,
         ),
       );
+      // LAY-04：成功后清除失败哨兵（仅在先前有错时写，避免多余 rebuild）。
+      if (state.loadError.isNotEmpty &&
+          _isCurrentSession(syncUid, syncGeneration)) {
+        state = state.copyWith(loadError: '');
+      }
     } catch (e) {
       iPrint(
         'ConversationNotifier: authoritative sync failed: ${e.runtimeType}',
@@ -734,6 +778,11 @@ class ConversationNotifier extends _$ConversationNotifier {
           success: false,
         ),
       );
+      // LAY-04：权威拉取失败置哨兵——空态渲染据此区分「失败后本地为空」
+      // 与「真空」。有本地缓存（列表非空）时 UI 不消费此字段，不打扰。
+      if (_isCurrentSession(syncUid, syncGeneration)) {
+        state = state.copyWith(loadError: 'conversation_sync_failed');
+      }
     }
   }
 
@@ -912,6 +961,10 @@ class ConversationNotifier extends _$ConversationNotifier {
           for (final c in visible) c.uk3: c.unreadNum > 0 ? c.unreadNum : 0,
         };
         unawaited(_warmupGroupAvatars(visible));
+        _snapshotOwners.removeWhere((key, _) => !newMap.containsKey(key));
+        for (final key in newMap.keys) {
+          _snapshotOwners[key] = (uid: uid, generation: sessionGeneration);
+        }
         state = state.copyWith(
           conversationMap: newMap,
           conversationRemind: recalculateRemind ? newReminds : null,
@@ -1101,6 +1154,39 @@ class ConversationNotifier extends _$ConversationNotifier {
     }
   }
 
+  /// Refresh an already persisted status without overwriting a newer message.
+  void applyPersistedLastMessageStatus({
+    required String ownerUid,
+    required int generation,
+    required String conversationUk3,
+    required String messageId,
+    required int status,
+  }) {
+    if (!_isCurrentSession(ownerUid, generation)) return;
+    final owner = (uid: ownerUid, generation: generation);
+    final pending = _pendingUpdates[conversationUk3];
+    final previous = pending != null
+        ? (pending.uid == ownerUid && pending.generation == generation
+              ? pending.conversation
+              : null)
+        : (_snapshotOwners[conversationUk3] == owner
+              ? state.conversationMap[conversationUk3]
+              : null);
+    if (previous == null ||
+        previous.lastMsgId != messageId ||
+        !{
+          IMBoyMessageStatus.sending,
+          IMBoyMessageStatus.pendingRetry,
+          IMBoyMessageStatus.error,
+          IMBoyMessageStatus.outcomeUnknown,
+        }.contains(previous.lastMsgStatus)) {
+      return;
+    }
+    final updated = previous.copyWith(lastMsgStatus: status);
+    replaceConversation(updated);
+    AppEventBus.fireData(updated);
+  }
+
   Future<ConversationModel> createConversation({
     required String type,
     required String peerId,
@@ -1175,6 +1261,12 @@ class ConversationNotifier extends _$ConversationNotifier {
       if (db == null || !isCurrent()) return null;
       final current = await MessageReadRepo.recount(db, cm.id);
       if (current == null || current.isShow != 1 || !isCurrent()) return null;
+      // A private list rebuild already computed this current request's name.
+      // Public recounts only inherit from a snapshot published by this session.
+      if (!publishSnapshot ||
+          _snapshotOwners[cm.uk3] == (uid: uid, generation: generation)) {
+        _carryDerivedTitle(current, cm);
+      }
       if (publishSnapshot) applyConversationSnapshot(current);
       return current;
     } catch (e) {

@@ -1,0 +1,145 @@
+# customerService namespace — zh-Hant
+# DSN-06 gap fill 2026-11-16: machine-candidate translations (owner decision owner-batch-20261116).
+actionDraftWarning: "目前有未傳送草稿；確認此操作不會傳送草稿。" # machine-candidate 2026-11-16
+actionSendingWarning: "訊息正在傳送；請等待終態並核對後確認。" # machine-candidate 2026-11-16
+actionUnconfirmedWarning: "仍有訊息尚未確認；請先核對結果，目前不能提交對話操作。" # machine-candidate 2026-11-16
+actionUploadingWarning: "附件正在上傳；請等待終態並核對後確認。" # machine-candidate 2026-11-16
+activeEmptyHint: "從待接列表接單後，對話會顯示在這裡" # machine-candidate 2026-11-16
+activeEmptyTitle: "暫無處理中對話" # machine-candidate 2026-11-16
+attachAction: "附件" # machine-candidate 2026-11-16
+attachBinaryNoPreview: "二進位內容，暫不支援預覽" # machine-candidate 2026-11-16
+attachCancel: "停止後續上傳步驟" # machine-candidate 2026-11-16
+attachCancelled: "附件在上傳開始前已取消" # machine-candidate 2026-11-16
+attachConfirming: "正在確認已上傳檔案" # machine-candidate 2026-11-16
+attachPreparing: "正在準備附件" # machine-candidate 2026-11-16
+attachPresigning: "正在申請上傳權限" # machine-candidate 2026-11-16
+attachPreviewTitle: "附件預覽（企業安全通道）" # machine-candidate 2026-11-16
+attachPreviewTruncated: "只顯示部分文字；儲存檔案仍包含完整內容。" # machine-candidate 2026-11-16
+attachRetry: "重試附件上傳" # machine-candidate 2026-11-16
+attachSave: "儲存檔案" # machine-candidate 2026-11-16
+attachSaveFailed: "儲存失敗，可以重試。" # machine-candidate 2026-11-16
+attachSaved: "檔案已儲存" # machine-candidate 2026-11-16
+attachStatusUnavailable: "暫不可用 · $size" # machine-candidate 2026-11-16
+attachTooLarge: "附件須非空且不超過 25 MiB。" # machine-candidate 2026-11-16
+attachUnknown: "上傳結果尚未完整確認，未自動重試或傳送訊息。" # machine-candidate 2026-11-16
+attachUnnamedFile: "附件" # machine-candidate 2026-11-16
+attachUnsupportedType: "暫不支援該檔案類型，請更換檔案" # machine-candidate 2026-11-16
+attachUploadFailed: "附件上傳失敗，請重試" # machine-candidate 2026-11-16
+attachUploadStopped: "附件上傳未完成，已停止後續操作。請核對權限和對話狀態後重新選擇檔案。" # machine-candidate 2026-11-16
+attachUploaded: "附件已上傳" # machine-candidate 2026-11-16
+attachUploadedNotSent: "附件已上傳，但訊息傳送結果尚未確認。請核對傳送結果，不要重新上傳。" # machine-candidate 2026-11-16
+attachUploading: "正在上傳位元組：$sent / $total" # machine-candidate 2026-11-16
+channelUnavailable: "訊息通道暫不可用，等待伺服器補齊對話綁定" # machine-candidate 2026-11-16
+claimAction: "接單" # machine-candidate 2026-11-16
+claimConflict: "該對話已被其他坐席接單或狀態已變化，已為你重新整理最新佇列" # machine-candidate 2026-11-16
+claimFailed: "接單失敗，請稍後重試" # machine-candidate 2026-11-16
+claimForbidden: "坐席已被暫停，暫不能接單" # machine-candidate 2026-11-16
+claimOffboardingRequired: "目前處於離職交接，暫時不能接單" # machine-candidate 2026-11-16
+claimSuccess: "接單成功" # machine-candidate 2026-11-16
+closeAction: "關閉對話" # machine-candidate 2026-11-16
+closeBody: "關閉後客戶將進入評分環節，對話進入唯讀。" # machine-candidate 2026-11-16
+closeConflict: "對話狀態已變化，請重新整理並核對後重新確認。" # machine-candidate 2026-11-16
+closeFailed: "關閉失敗，請稍後重試" # machine-candidate 2026-11-16
+closeReasonLabel: "關閉原因（可選）" # machine-candidate 2026-11-16
+closeReasonTooLong: "關閉原因不能超過 $max 字" # machine-candidate 2026-11-16
+closeSuccess: "對話已關閉" # machine-candidate 2026-11-16
+closeTitle: "確認關閉對話" # machine-candidate 2026-11-16
+closedEmptyHint: "已關閉的對話會歸檔顯示在這裡" # machine-candidate 2026-11-16
+closedEmptyTitle: "暫無已關閉對話" # machine-candidate 2026-11-16
+closedReadonly: "對話已關閉，內容僅供檢視" # machine-candidate 2026-11-16
+countUnavailable: "--" # machine-candidate 2026-11-16
+entrySubtitle: "接單並處理排隊中的客戶對話" # machine-candidate 2026-11-16
+entryTitle: "客服工作台" # machine-candidate 2026-11-16
+inputHint: "輸入回覆內容…" # machine-candidate 2026-11-16
+loadFailedTitle: "載入失敗" # machine-candidate 2026-11-16
+loadMoreFailed: "載入更多失敗，上滑重試" # machine-candidate 2026-11-16
+loadingMore: "正在載入更多…" # machine-candidate 2026-11-16
+newMessagesJump: "有新訊息 · 檢視最新" # machine-candidate 2026-11-16
+noMore: "沒有更多了" # machine-candidate 2026-11-16
+noSeatHint: "你還沒有啟用中的客服坐席席位，請聯絡企業管理員開通" # machine-candidate 2026-11-16
+noSeatTitle: "暫無可用坐席席位" # machine-candidate 2026-11-16
+offboardingRequired: "目前處於離職交接，對話經辦權已移交，此對話已唯讀" # machine-candidate 2026-11-16
+offlineHint: "網路不可用，請檢查網路後重試" # machine-candidate 2026-11-16
+orgSelectorLabel: "企業" # machine-candidate 2026-11-16
+presenceAwayAction: "設為離開" # machine-candidate 2026-11-16
+presenceCapacityLabel: "$active/$max 對話" # machine-candidate 2026-11-16
+presenceMenuLabel: "坐席狀態" # machine-candidate 2026-11-16
+presenceResumeAction: "恢復自動" # machine-candidate 2026-11-16
+presenceStatusAway: "離開" # machine-candidate 2026-11-16
+presenceStatusBusy: "忙碌" # machine-candidate 2026-11-16
+presenceStatusOffline: "離線" # machine-candidate 2026-11-16
+presenceStatusOnline: "線上" # machine-candidate 2026-11-16
+presenceUnavailable: "狀態不可用" # machine-candidate 2026-11-16
+queuedEmptyHint: "下拉重新整理，新對話會出現在這裡" # machine-candidate 2026-11-16
+queuedEmptyTitle: "暫無待接對話" # machine-candidate 2026-11-16
+ratedReadonly: "對話已評分結束，內容僅供檢視" # machine-candidate 2026-11-16
+ratedTitle: "客戶已完成評分" # machine-candidate 2026-11-16
+ratingScoreLabel: "客戶評分：$score 星" # machine-candidate 2026-11-16
+ratingTimeLabel: "評分時間：$time" # machine-candidate 2026-11-16
+ratingUnknownTitle: "評價狀態未知" # machine-candidate 2026-11-16
+readOnlySuspended: "坐席已被暫停（suspend），訊息通道已切換為唯讀，背景收發已停止" # machine-candidate 2026-11-16
+seatAtCapacity: "席位並發已滿（處理中對話達上限），請先關閉處理中的對話或聯絡管理員調整容量" # machine-candidate 2026-11-16
+seatDisabledNotice: "席位已停用" # machine-candidate 2026-11-16
+seatLabel: "坐席" # machine-candidate 2026-11-16
+seatSuspendedNotice: "坐席已被暫停，佇列僅可檢視" # machine-candidate 2026-11-16
+sendConflict: "對話狀態已變化，已為你重新整理最新狀態" # machine-candidate 2026-11-16
+sendFailed: "傳送失敗，請稍後重試" # machine-candidate 2026-11-16
+sessionTitle: "客服對話" # machine-candidate 2026-11-16
+sourceLabel: "來源" # machine-candidate 2026-11-16
+sourceWidget: "網頁" # machine-candidate 2026-11-16
+tabActive: "處理中" # machine-candidate 2026-11-16
+tabClosed: "已關閉" # machine-candidate 2026-11-16
+tabQueued: "待接" # machine-candidate 2026-11-16
+targetAvailable: "可轉接" # machine-candidate 2026-11-16
+targetBusy: "忙碌" # machine-candidate 2026-11-16
+title: "客服工作台" # machine-candidate 2026-11-16
+transferAction: "轉接" # machine-candidate 2026-11-16
+transferConfirmBody: "將目前對話轉交給 $name？轉接後你將不再經辦此對話。" # machine-candidate 2026-11-16
+transferConfirmTitle: "確認轉接" # machine-candidate 2026-11-16
+transferConflict: "對話狀態已變化，請重新整理並核對後重新確認。" # machine-candidate 2026-11-16
+transferEmpty: "暫無可轉接的同企業客服坐席" # machine-candidate 2026-11-16
+transferFailed: "轉接失敗，請稍後重試" # machine-candidate 2026-11-16
+transferSuccess: "轉接成功" # machine-candidate 2026-11-16
+transferTitle: "轉接給同企業坐席" # machine-candidate 2026-11-16
+transferredAway: "對話已轉交給其他坐席，此對話對你唯讀" # machine-candidate 2026-11-16
+unreadBadgeLabel: "未讀 $n 條" # machine-candidate 2026-11-16
+visitorLabel: "客戶" # machine-candidate 2026-11-16
+waitingDaysHours: "$d 天 $h 小時" # machine-candidate 2026-11-16
+waitingHoursMinutes: "$h 小時 $m 分" # machine-candidate 2026-11-16
+waitingJustNow: "剛剛" # machine-candidate 2026-11-16
+waitingMinutes: "$n 分鐘" # machine-candidate 2026-11-16
+waitingRatingTitle: "對話已關閉，等待客戶評分" # machine-candidate 2026-11-16
+
+# ---- DSN-06 gap fill (machine-candidate 2026-11-16) ----
+governance:
+  actionDone: "操作已生效" # machine-candidate 2026-11-16
+  actionFailed: "操作失敗，請稍後重試" # machine-candidate 2026-11-16
+  errorForbidden: "無治理權限：客服治理僅對企業 owner/admin 開放" # machine-candidate 2026-11-16
+  errorLoadFailed: "載入失敗" # machine-candidate 2026-11-16
+  errorNoDefaultWorkspace: "企業未設定預設工作區，無法確定客服治理作用域" # machine-candidate 2026-11-16
+  errorWithCode: "${msg}（${code}）" # machine-candidate 2026-11-16
+  limitAdjustAction: "調整額度" # machine-candidate 2026-11-16
+  limitAdjustTitle: "調整席位額度" # machine-candidate 2026-11-16
+  limitAtCapacity: "已達上限" # machine-candidate 2026-11-16
+  limitCardTitle: "席位額度" # machine-candidate 2026-11-16
+  limitClearAction: "清除限制（不限）" # machine-candidate 2026-11-16
+  limitInputLabel: "席位上限（正整數，留空 = 不限）" # machine-candidate 2026-11-16
+  limitInvalidInput: "請輸入正整數" # machine-candidate 2026-11-16
+  limitSaved: "額度已更新" # machine-candidate 2026-11-16
+  limitUnlimited: "不限" # machine-candidate 2026-11-16
+  limitValueLabel: "${used}/${limit} 席位" # machine-candidate 2026-11-16
+  resumeAction: "啟用坐席" # machine-candidate 2026-11-16
+  retry: "重試" # machine-candidate 2026-11-16
+  scopeNote: "本頁為企業治理面（owner/admin）；伺服器 403 是最終權限裁決。" # machine-candidate 2026-11-16
+  seatCapacityLabel: "${active}/${max} 對話" # machine-candidate 2026-11-16
+  seatEnabledBadge: "啟用" # machine-candidate 2026-11-16
+  seatIdentityLabel: "坐席 ${identity}" # machine-candidate 2026-11-16
+  seatLimitExceededHint: "席位額度已滿：已用 ${used}/${limit}，無法新增坐席（seat_limit_exceeded）" # machine-candidate 2026-11-16
+  seatLoadMore: "載入更多" # machine-candidate 2026-11-16
+  seatSuspendedBadge: "已停用" # machine-candidate 2026-11-16
+  seatsEmpty: "暫無坐席席位" # machine-candidate 2026-11-16
+  seatsSectionTitle: "坐席席位" # machine-candidate 2026-11-16
+  suspendAction: "停用坐席" # machine-candidate 2026-11-16
+  suspendConfirmBody: "停用後不能再接新對話；進行中的對話不受影響，可隨時再啟用。" # machine-candidate 2026-11-16
+  suspendConfirmTitle: "停用該坐席？" # machine-candidate 2026-11-16
+  title: "客服治理" # machine-candidate 2026-11-16

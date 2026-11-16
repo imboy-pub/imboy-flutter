@@ -1,3 +1,6 @@
+import 'package:imboy/component/http/web_writer_http_adapter.dart';
+import 'package:imboy/service/web_writer_gate.dart';
+
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
@@ -59,6 +62,7 @@ class SubscriberNotifier extends _$SubscriberNotifier {
 
   Future<void> saveServerUrl(String url) async {
     final prefs = state.preferences ?? await SharedPreferences.getInstance();
+    requireWebWriter();
     await prefs.setString('pullServer', url);
     state = state.copyWith(serverUrl: url, preferences: prefs);
   }
@@ -119,7 +123,7 @@ class SubscriberNotifier extends _$SubscriberNotifier {
       if (localDesc == null) throw Exception('无法获取本地 SDP');
 
       // 5. POST SDP offer 到 WHEP 端点
-      final response = await Dio().post<String>(
+      final response = await guardWebWriterDio(Dio()).post<String>(
         state.serverUrl,
         data: localDesc.sdp,
         options: Options(
@@ -159,7 +163,7 @@ class SubscriberNotifier extends _$SubscriberNotifier {
   Future<void> stopSubscribe(RTCVideoRenderer remoteRenderer) async {
     if (_resourceUrl != null) {
       try {
-        await Dio().delete<void>(_resourceUrl!);
+        await guardWebWriterDio(Dio()).delete<void>(_resourceUrl!);
       } on Exception catch (e) {
         iPrint('[LiveSubscriber] 停止拉流 DELETE 失败: $e');
       }

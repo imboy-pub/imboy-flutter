@@ -72,6 +72,22 @@ void main() {
     );
     expect(resolveInitialIndex({'index': '1'}, 3, restoredIndex: 2), 2);
   });
+  test(
+    'controlled navigation input is optional and preserves callback identity',
+    () {
+      void select(int index) {}
+      final page = BottomNavigationPage(
+        restoredIndex: 2,
+        onDestinationSelected: select,
+      );
+      expect(page.restoredIndex, 2);
+      expect(page.onDestinationSelected, same(select));
+      const native = BottomNavigationPage();
+      expect(native.onDestinationSelected, isNull);
+      expect(native.restoredIndex, isNull);
+    },
+  );
+
   const tabCount = 4; // 消息/联系人/频道/我的
 
   group('BottomNavigationPage construction contract', () {

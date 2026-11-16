@@ -809,6 +809,9 @@ class _Translations$chat$en_US extends Translations$chat$zh_CN {
 	@override String get voiceCallPlaceholder => '[Voice call]';
 	@override String get notFriendCannotSend => 'You are not friends, unable to send messages';
 	@override late final _Translations$chat$inbox$en_US inbox = _Translations$chat$inbox$en_US._(_root);
+	@override String get chatStatusOutcomeUnknown => 'This attempt was rejected; delivery is unconfirmed';
+	@override String get e2eeMsgBeforeDevice => 'This message was sent before this device joined and cannot be shown here';
+	@override String get e2eeMsgBeforeDeviceTapHint => 'This message was encrypted without this device (e.g. history from before a device switch) and cannot be decrypted here; new messages sent to and from this device are unaffected';
 }
 
 // Path: common
@@ -935,6 +938,7 @@ class _Translations$common$en_US extends Translations$common$zh_CN {
 	@override String get feedbackDetails => 'Feedback details';
 	@override String get feedbackSuccessMsg => 'We have received your feedback and will process it as soon as possible!';
 	@override String get followSystemTips => 'When enabled, dark mode will follow system settings';
+	@override String get themeBrowserLocalOnly => 'Theme preferences are saved only in this browser and do not sync to other devices.';
 	@override String get genderUpdateFailed => 'Gender setting failed, please try again';
 	@override String get groupAnnouncement => 'Group announcement';
 	@override String get groupFileUploadSuccess => 'File uploaded successfully';
@@ -1763,6 +1767,27 @@ class _Translations$common$en_US extends Translations$common$zh_CN {
 	@override String get legacyUploadReturnToOriginalPage => 'The upload is incomplete. Return to the original screen, select the file again and submit; the old record is kept.';
 	@override String get f2fLocationRequired => 'Enable location permission and services, then try again with nearby friends.';
 	@override String get f2fMemberHint => 'Tap a friend’s avatar to view their profile and add them.';
+	@override String get webReadOnlySettingsHint => 'Read only on the web. Make changes in the app.';
+	@override String get legacyUploadCheckLocal => 'Check local send status';
+	@override String get textTooLarge => 'Text exceeds 64 KiB. Edit it and try again.';
+	@override String get e2eeBackupDeviceKeySyncPending => 'Note: device identity sync is not finished yet, so this device may temporarily be unable to decrypt new messages; signing in again completes the sync automatically';
+	@override String get e2eeBackupSetupBlockedToast => 'Complete key backup setup first';
+	@override String get e2eeBackupSetupBody => 'Set a recovery passphrase and upload a cloud backup so encrypted chat history can be restored on a new device or after reinstalling; without a backup, past messages cannot be decrypted on a new device.';
+	@override String get e2eeBackupSetupBusyHint => 'Encrypting on this device and uploading to the cloud; on a weak network you can tap “Later” below to skip for now';
+	@override String get e2eeBackupSetupLater => 'Later (you will be reminded again at next launch)';
+	@override String get e2eeBackupSetupLaterConfirmBody => 'If you skip setup, these encrypted chats cannot be decrypted or recovered after switching devices or reinstalling. You will be reminded again at next launch.';
+	@override String get e2eeBackupSetupLaterConfirmLeave => 'Skip for now';
+	@override String get e2eeBackupSetupLaterConfirmStay => 'Continue setup';
+	@override String get e2eeBackupSetupLaterConfirmTitle => 'Skip backup setup?';
+	@override String get e2eeBackupSetupPostponedToast => 'Postponed; you will be reminded again at next launch';
+	@override String get e2eeBackupSetupPwdHint => 'Choose your own recovery passphrase, or tap below to generate a random recovery key';
+	@override String get e2eeBackupSetupPwdTooShort => 'Passphrase must be at least 8 characters';
+	@override String get e2eeBackupSetupSavedNote => 'The recovery passphrase is stored in this device\'s secure storage; it will be reused automatically to re-upload the backup whenever keys change, without asking again.';
+	@override String get e2eeBackupSetupSubmit => 'Finish and upload cloud backup';
+	@override String get e2eeBackupSetupTimeoutToast => 'Upload timed out. Check the network and try again, or set up later';
+	@override String get e2eeBackupSetupTitle => 'Protect your encrypted history';
+	@override String get e2eeBackupSetupUploading => 'Uploading…';
+	@override String get e2eeBackupSetupWeakHint => 'This passphrase is short; 12 characters or more is recommended, or use a random key via “Generate recovery key” below';
 }
 
 // Path: complaint
@@ -4770,6 +4795,9 @@ extension on TranslationsEnUs {
 			'chat.inbox.undo' => 'Undo',
 			'chat.inbox.openChannels' => 'Open Channels',
 			'chat.inbox.channelEmptyDescription' => 'Update subscriptions or restore hidden channels from the Channels page.',
+			'chat.chatStatusOutcomeUnknown' => 'This attempt was rejected; delivery is unconfirmed',
+			'chat.e2eeMsgBeforeDevice' => 'This message was sent before this device joined and cannot be shown here',
+			'chat.e2eeMsgBeforeDeviceTapHint' => 'This message was encrypted without this device (e.g. history from before a device switch) and cannot be decrypted here; new messages sent to and from this device are unaffected',
 			'common.about' => 'About',
 			'common.aboutApp' => 'About App',
 			'common.accept' => 'Accept',
@@ -4887,6 +4915,7 @@ extension on TranslationsEnUs {
 			'common.feedbackDetails' => 'Feedback details',
 			'common.feedbackSuccessMsg' => 'We have received your feedback and will process it as soon as possible!',
 			'common.followSystemTips' => 'When enabled, dark mode will follow system settings',
+			'common.themeBrowserLocalOnly' => 'Theme preferences are saved only in this browser and do not sync to other devices.',
 			'common.genderUpdateFailed' => 'Gender setting failed, please try again',
 			'common.groupAnnouncement' => 'Group announcement',
 			'common.groupFileUploadSuccess' => 'File uploaded successfully',
@@ -5105,12 +5134,12 @@ extension on TranslationsEnUs {
 			'common.feedbackHistory' => 'Feedback history',
 			'common.confirmDelete' => 'Confirm delete',
 			'common.verificationCode' => 'Verification code',
+			_ => null,
+		} ?? switch (path) {
 			'common.feedbackContent' => 'Feedback content',
 			'common.officialReply' => 'Official reply',
 			'common.setPasswordSecurityTips' => 'Set a login password to enhance security and ensure you can always access your account.',
 			'common.locationHidden' => 'Your location has been hidden',
-			_ => null,
-		} ?? switch (path) {
 			'common.locationVisible' => 'Your location has been shown',
 			'common.noNearbyPeople' => 'No nearby people yet',
 			'common.clickSearchButtonToFind' => 'Click the search button above to find nearby people',
@@ -5619,12 +5648,12 @@ extension on TranslationsEnUs {
 			'common.fontSizeOptionLarge' => 'Large',
 			'common.fontSizeOptionExtraLarge' => 'Extra large',
 			'common.fontSizeOptionHuge' => 'Huge',
+			_ => null,
+		} ?? switch (path) {
 			'common.searchFailedRetry' => 'Search failed, please try again',
 			'common.searchDisabledTitle' => 'Message search unavailable',
 			'common.searchDisabledByEncryption' => 'End-to-end encryption is on, so the server cannot read your messages and full-text search is not available',
 			'common.amountMustPositive' => 'Amount must be greater than 0',
-			_ => null,
-		} ?? switch (path) {
 			'common.answer' => 'Answer',
 			'common.collapse' => 'Collapse',
 			'common.declineCall' => 'Decline',
@@ -5710,6 +5739,27 @@ extension on TranslationsEnUs {
 			'common.legacyUploadReturnToOriginalPage' => 'The upload is incomplete. Return to the original screen, select the file again and submit; the old record is kept.',
 			'common.f2fLocationRequired' => 'Enable location permission and services, then try again with nearby friends.',
 			'common.f2fMemberHint' => 'Tap a friend’s avatar to view their profile and add them.',
+			'common.webReadOnlySettingsHint' => 'Read only on the web. Make changes in the app.',
+			'common.legacyUploadCheckLocal' => 'Check local send status',
+			'common.textTooLarge' => 'Text exceeds 64 KiB. Edit it and try again.',
+			'common.e2eeBackupDeviceKeySyncPending' => 'Note: device identity sync is not finished yet, so this device may temporarily be unable to decrypt new messages; signing in again completes the sync automatically',
+			'common.e2eeBackupSetupBlockedToast' => 'Complete key backup setup first',
+			'common.e2eeBackupSetupBody' => 'Set a recovery passphrase and upload a cloud backup so encrypted chat history can be restored on a new device or after reinstalling; without a backup, past messages cannot be decrypted on a new device.',
+			'common.e2eeBackupSetupBusyHint' => 'Encrypting on this device and uploading to the cloud; on a weak network you can tap “Later” below to skip for now',
+			'common.e2eeBackupSetupLater' => 'Later (you will be reminded again at next launch)',
+			'common.e2eeBackupSetupLaterConfirmBody' => 'If you skip setup, these encrypted chats cannot be decrypted or recovered after switching devices or reinstalling. You will be reminded again at next launch.',
+			'common.e2eeBackupSetupLaterConfirmLeave' => 'Skip for now',
+			'common.e2eeBackupSetupLaterConfirmStay' => 'Continue setup',
+			'common.e2eeBackupSetupLaterConfirmTitle' => 'Skip backup setup?',
+			'common.e2eeBackupSetupPostponedToast' => 'Postponed; you will be reminded again at next launch',
+			'common.e2eeBackupSetupPwdHint' => 'Choose your own recovery passphrase, or tap below to generate a random recovery key',
+			'common.e2eeBackupSetupPwdTooShort' => 'Passphrase must be at least 8 characters',
+			'common.e2eeBackupSetupSavedNote' => 'The recovery passphrase is stored in this device\'s secure storage; it will be reused automatically to re-upload the backup whenever keys change, without asking again.',
+			'common.e2eeBackupSetupSubmit' => 'Finish and upload cloud backup',
+			'common.e2eeBackupSetupTimeoutToast' => 'Upload timed out. Check the network and try again, or set up later',
+			'common.e2eeBackupSetupTitle' => 'Protect your encrypted history',
+			'common.e2eeBackupSetupUploading' => 'Uploading…',
+			'common.e2eeBackupSetupWeakHint' => 'This passphrase is short; 12 characters or more is recommended, or use a random key via “Generate recovery key” below',
 			'complaint.complaint' => 'Complaint',
 			'complaint.e2eeConsentTitle' => 'Submit encrypted evidence',
 			'complaint.e2eeConsentBody' => 'This message is end-to-end encrypted and the server cannot see its content. Submitting an excerpt will disclose the selected plaintext to moderators for review. Do you consent?',
@@ -6112,6 +6162,8 @@ extension on TranslationsEnUs {
 			'groupCategory.categoryRenamed' => 'Category renamed',
 			'groupCategory.renameFailed' => 'Rename failed, please retry',
 			'groupCategory.deleteFailed' => 'Delete failed, please retry',
+			_ => null,
+		} ?? switch (path) {
 			'groupCategory.categoryDetailTip' => 'Groups under this category can be managed via "Move to Category" in the group list.',
 			'groupDiscovery.title' => 'Discover Groups',
 			'groupDiscovery.searchHint' => 'Search public groups',
@@ -6137,8 +6189,6 @@ extension on TranslationsEnUs {
 			'groupSchedule.participants' => 'Participants',
 			'groupSchedule.statusCancelled' => 'Cancelled',
 			'groupSchedule.statusInProgress' => 'In Progress',
-			_ => null,
-		} ?? switch (path) {
 			'groupSchedule.statusNotStarted' => 'Not Started',
 			'groupSchedule.statusEnded' => 'Ended',
 			'groupSchedule.cancelSuccess' => 'Schedule cancelled',
@@ -6626,6 +6676,8 @@ extension on TranslationsEnUs {
 			'organization.picker.joinConfirmWithRole' => ({required Object name, required Object role}) => 'Join "${name}" as ${role}?',
 			'organization.picker.joinRoleMember' => 'Regular member',
 			'organization.picker.joinRoleAdmin' => 'Admin',
+			_ => null,
+		} ?? switch (path) {
 			'organization.picker.joinConfirmSubmit' => 'Confirm',
 			'organization.picker.joinBack' => 'Back',
 			'organization.picker.joinQrHint' => 'Aim at the enterprise invite QR code to join',
@@ -6651,8 +6703,6 @@ extension on TranslationsEnUs {
 			'organization.inviteColleagues.codeMissingHint' => 'No active invite code yet; generate one to share',
 			'organization.inviteColleagues.generateCode' => 'Generate code',
 			'organization.inviteColleagues.generateForbidden' => 'Only enterprise admins can generate the invite code',
-			_ => null,
-		} ?? switch (path) {
 			'organization.inviteColleagues.possibleEmpty' => 'No pending colleagues',
 			'organization.inviteColleagues.possibleEmptyHint' => 'Invite your colleagues to join',
 			'organization.inviteColleagues.invitedBy' => ({required Object name}) => 'Invited by ${name}',
@@ -7140,6 +7190,8 @@ extension on TranslationsEnUs {
 			'talkRecord.exportDownloadReady' => 'File saved. This independent copy remains after access is revoked.',
 			'talkRecord.exportDownloadFailed' => 'Could not download or save; try again',
 			'talkRecord.exportExpiredTitle' => 'Export expired',
+			_ => null,
+		} ?? switch (path) {
 			'talkRecord.exportExpiredBody' => 'The download link has expired. Regenerate the export.',
 			'talkRecord.exportRegenerate' => 'Regenerate',
 			'talkRecord.exportFailedBody' => 'Export generation failed, retry available.',
@@ -7165,8 +7217,6 @@ extension on TranslationsEnUs {
 			'talkRecord.transferSuccessTitle' => 'Ownership transferred',
 			'talkRecord.transferSuccessOwner' => ({required Object name}) => 'New owner: ${name}',
 			'talkRecord.transferSuccessKeptAccess' => 'You still have view access; sharing is managed by the new owner.',
-			_ => null,
-		} ?? switch (path) {
 			'talkRecord.transferSuccessScopeUnchanged' => 'The note\'s organization and workspace are unchanged.',
 			'talkRecord.transferFailedBody' => 'Transfer failed, retry later.',
 			'talkRecord.transferConflictHint' => 'The note was updated by someone else. Refresh and retry.',

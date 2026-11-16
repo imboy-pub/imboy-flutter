@@ -350,6 +350,9 @@ contactEntry:
   loadFailed: Caricamento informazioni organizzazione non riuscito
 # ==================== ENT-APP-01 Hub organizzazione (/organization/:orgId) ====================
 hub:
+  # ---- DSN-06 gap fill (machine-candidate 2026-11-16) ----
+  adminCsGovernance: "Governance dell'assistenza" # machine-candidate 2026-11-16
+  adminCsGovernanceDesc: "Quota postazioni · Attiva/sospendi postazioni" # machine-candidate 2026-11-16
   sectionResources: Risorse dell'organizzazione
   sectionAdmin: Area admin
   zoneMembers: Membri
@@ -416,6 +419,20 @@ chart:
 
 # Space and resource navigation / 空间与资源导航
 experienceUi:
+  # ---- DSN-06 gap fill (machine-candidate 2026-11-16) ----
+  cleanupRecordLabel: "Note" # machine-candidate 2026-11-16
+  cleanupResourcesTruncated: "Sono mostrati solo i primi 20 elementi; dopo la lavorazione aggiorna e verifica il resto." # machine-candidate 2026-11-16
+  openPersonalTalkRecords: "Vedi le note face-to-face personali" # machine-candidate 2026-11-16
+  talkRecordCleanupPendingBody: "Le note sono eliminate, la pulizia dei file non è completata. L'avanzamento reale è consultabile; regole di conservazione e protezioni di elaborazione non possono essere saltate manualmente." # machine-candidate 2026-11-16
+  talkRecordCleanupPendingTitle: "Pulizia dei file audio ancora in corso" # machine-candidate 2026-11-16
+  talkRecordOrganizationOwnerPendingBody: "Trasferisci prima la responsabilità delle note face-to-face aziendali. Il trasferimento non rimuove automaticamente i riferimenti storici di identità." # machine-candidate 2026-11-16
+  talkRecordOrganizationOwnerPendingTitle: "Note face-to-face aziendali non ancora trasferite" # machine-candidate 2026-11-16
+  talkRecordPersonalPendingBody: "Gestisci prima le note face-to-face personali, poi riverifica le condizioni di eliminazione dell'account." # machine-candidate 2026-11-16
+  talkRecordPersonalPendingTitle: "Note face-to-face personali da gestire" # machine-candidate 2026-11-16
+  talkRecordRetainedIdentityPendingBody: "Elementi storici fanno ancora riferimento a questa identità; l'eliminazione dell'account non può completarsi. Il trasferimento delle note non garantisce la rimozione di tali riferimenti." # machine-candidate 2026-11-16
+  talkRecordRetainedIdentityPendingTitle: "Riferimenti storici di identità da verificare" # machine-candidate 2026-11-16
+  unknownBlockerTitle: "Restano punti da gestire" # machine-candidate 2026-11-16
+  viewTalkRecordCleanup: "Vedi avanzamento della pulizia" # machine-candidate 2026-11-16
   switchSpace: "Cambia spazio"
   personalSpace: "Spazio personale"
   enterpriseSpaces: "Spazi aziendali"

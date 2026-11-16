@@ -7,6 +7,19 @@ import 'package:imboy/service/e2ee/e2ee_secret_inventory.dart';
 /// 任一清理失败/残留必须抛 [E2eeSecretPurgeException]（fail-closed，
 /// 阻止切入另一账号）。
 void main() {
+  test(
+    'Web production retains memory and Olm but has no Native file artifacts',
+    () {
+      final web = E2eeSecretInventory.production(web: true);
+      final native = E2eeSecretInventory.production(web: false);
+      expect(web.clearMemoryCaches.length, native.clearMemoryCaches.length);
+      expect(web.clearMemoryCaches, isNotEmpty);
+      expect(native.purgeArtifacts.length, 3);
+      expect(web.purgeArtifacts.length, 1);
+      expect(web.purgeArtifacts.single, native.purgeArtifacts.first);
+    },
+  );
+
   /// 每类秘密一个 canary：RSA 身份/历史/分片、Olm account/pickle key/session、
   /// Megolm inbound、群旗标、safety number 信任态、SQLCipher key、MLS 预留、
   /// backup/recovery 元数据。

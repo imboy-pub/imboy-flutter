@@ -2,6 +2,7 @@ import 'dart:async' show unawaited;
 
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:imboy/component/http/http_client.dart';
+import 'package:imboy/store/api/group_api.dart';
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/page/group/announcement/announcement_model.dart';
 import 'package:imboy/store/repository/group_member_repo_sqlite.dart';
@@ -100,13 +101,10 @@ class GroupAnnouncementNotifier extends _$GroupAnnouncementNotifier {
       // B-6-1 修复：后端无 /api/v1/group/notice/list 路由，正确路径是
       // /api/v1/group_notice/page（imboy_router.erl:355；handler page/3 GET）。
       // QS: gid/page/size；响应 payload: {list,total,page,size}。
-      final response = await HttpClient.client.get(
-        '/api/v1/group_notice/page',
-        queryParameters: {
-          'gid': groupId,
-          'page': currentPage,
-          'size': pageSize,
-        },
+      final response = await GroupApi.announcementsPage(
+        gid: groupId,
+        page: currentPage,
+        size: pageSize,
       );
 
       if (response.code == 0) {

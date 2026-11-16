@@ -1,13 +1,3 @@
-import 'dart:typed_data';
-
-import 'package:dio/dio.dart';
-
-Future<int> directWebPut(
-  Uri target,
-  Uint8List bytes,
-  Map<String, String> headers,
-  CancelToken? cancel,
-  Duration timeout,
-  void Function(void Function()) registerAbort,
-  void Function(void Function()) unregisterAbort,
-) => throw UnsupportedError('browser transport unavailable');
+// 保留客服调用签名；无鉴权的浏览器底层运输由共享层提供。
+export 'package:imboy/component/upload/browser_direct_put_stub.dart'
+    show directWebPut;

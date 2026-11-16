@@ -231,3 +231,9 @@ inbox:
   undo: "Annuler"
   openChannels: "Ouvrir Canaux"
   channelEmptyDescription: "Actualisez vos abonnements ou rétablissez les canaux masqués depuis la page Canaux."
+
+chatStatusOutcomeUnknown: Tentative refusée ; résultat de livraison non confirmé
+
+# ---- DSN-06 gap fill (machine-candidate 2026-11-16) ----
+e2eeMsgBeforeDevice: "Ce message a été envoyé avant l'ajout de cet appareil et ne peut pas y être affiché" # machine-candidate 2026-11-16
+e2eeMsgBeforeDeviceTapHint: "Ce message a été chiffré sans cet appareil (p. ex. historique antérieur au changement d'appareil) et ne peut pas être déchiffré ici ; les nouveaux messages envoyés et reçus sur cet appareil ne sont pas affectés" # machine-candidate 2026-11-16

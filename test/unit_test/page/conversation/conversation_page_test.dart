@@ -1,4 +1,20 @@
+import 'dart:convert';
+
+import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:flutter_chat_core/flutter_chat_core.dart';
+import 'package:imboy/page/chat/chat/chat_provider.dart';
+import 'package:imboy/page/chat/chat/chat_panel.dart';
+import 'package:imboy/page/chat/chat/sqlite_chat_service.dart';
+import 'package:imboy/page/web_shell/web_shell.dart';
+import 'package:imboy/service/auth_session_scope.dart';
+import 'package:imboy/service/voice_playback_service.dart';
+import 'package:imboy/service/web_writer_gate.dart';
+
+import '../web_shell/fixtures/chat_input_io_fence.dart';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/gestures.dart' show PointerScrollEvent;
+import 'package:imboy/page/conversation/message_inbox_scroll_anchor.dart';
 import 'package:flutter/semantics.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -42,6 +58,23 @@ class _StateOverrideNotifier extends ConversationNotifier {
 
   @override
   ConversationState build() => _initial;
+}
+
+/// LAY-04：捕获重试派发（不触网络）的 notifier。
+///
+/// 错误视图的重试按钮必须重新发起权威拉取（syncAuthoritativeConversationList），
+/// 这里只计数不执行，保证断言独立于真实网络实现。
+class _RetryCapturingNotifier extends _StateOverrideNotifier {
+  _RetryCapturingNotifier(super.initial);
+
+  int syncCalls = 0;
+
+  @override
+  Future<void> syncAuthoritativeConversationList({
+    String trigger = 'manual',
+  }) async {
+    syncCalls++;
+  }
 }
 
 /// J15.b 桌面壳向量：捕获右栏派发的 ChatSelection（宿主目的地判据）。
@@ -108,6 +141,7 @@ Future<void> _pumpConv(
   Size? size,
   bool webShellHost = false,
   _CapturingWebShellNotifier? shell,
+  _StateOverrideNotifier? conversations,
 }) async {
   tester.view.devicePixelRatio = 1.0;
   tester.view.physicalSize = size ?? const Size(390, 844);
@@ -119,7 +153,9 @@ Future<void> _pumpConv(
   await tester.pumpWidget(
     ProviderScope(
       overrides: [
-        conversationProvider.overrideWith(() => _StateOverrideNotifier(state)),
+        conversationProvider.overrideWith(
+          () => conversations ?? _StateOverrideNotifier(state),
+        ),
         if (shell != null) webShellProvider.overrideWith(() => shell),
       ],
       child: TranslationProvider(
@@ -168,8 +204,507 @@ ConversationModel _conv({
   );
 }
 
+// Controlled history boundary: actual WebChatPanel/ChatPanel and real in-memory
+// controller, without product database/history/network dispatch.
+class _ReturnSessions extends ChangeNotifier implements AuthSessionReader {
+  @override
+  bool get transitionFailed => false;
+  @override
+  AuthSessionScope get current =>
+      (uid: '1', generation: 1, transitioning: false);
+  @override
+  bool isCurrent(AuthSessionScope captured) => captured == current;
+}
+
+class _ReturnShell extends WebShellNotifier {
+  @override
+  WebShellState build() => const WebShellState();
+}
+
+class _ReturnSilentVoice extends VoicePlaybackService {
+  @override
+  VoicePlaybackState build() => const VoicePlaybackState();
+}
+
+class _ReturnChat extends ChatNotifier {
+  late SqliteChatService service;
+  final loaded = <String>[];
+  @override
+  ChatState build() {
+    service = SqliteChatService(ref);
+    ref.onDispose(service.dispose);
+    return ChatState();
+  }
+
+  @override
+  SqliteChatService get chatService => service;
+  @override
+  bool get ownsCurrentSession => true;
+  @override
+  void initChatService(String chatType) {}
+  @override
+  void syncMessagesToState() =>
+      state = state.copyWith(messages: service.messages);
+  @override
+  Future<List<Message>> loadMoreMessages(
+    ConversationModel conversation, {
+    bool isInitial = false,
+    bool webNewestFirst = false,
+    bool allowPendingRetry = true,
+  }) async {
+    loaded.add(conversation.uk3);
+    final rows = <Message>[
+      TextMessage(
+        id: 'return-history',
+        authorId: conversation.peerId.toString(),
+        text: 'Controlled actual detail history',
+      ),
+    ];
+    await service.setMessages(rows, animated: false);
+    return rows;
+  }
+
+  @override
+  Future<bool> markAsRead(
+    String type,
+    String peerId,
+    List<String> msgIds, {
+    bool syncToServer = true,
+  }) async => true;
+}
+
+Future<void> _returnConversationContext(
+  WidgetTester tester,
+  double width, {
+  required bool reorder,
+}) async {
+  // This is a Browser canonical-shell contract, never a host platform override.
+  expect(kIsWeb, isTrue, reason: 'Run this group with the Chrome target');
+  final fence = ChatInputIoFence()..install();
+  final oldUid = StorageService.to.getString(Keys.currentUid);
+  addTearDown(() async {
+    try {
+      await tester.runAsync(
+        () => StorageService.to.setString(Keys.currentUid, oldUid),
+      );
+    } finally {
+      fence.verifyAndRestore();
+    }
+  });
+  await tester.runAsync(() async {
+    await prepareWebWriter();
+    await StorageService.to.setString(Keys.currentUid, '1');
+  });
+  expect(tester.takeException(), isNull);
+  final sessions = _ReturnSessions();
+  final models = List.generate(
+    50,
+    (index) => _conv(
+      id: index + 100,
+      title: 'Context conversation $index',
+      lastTime: 1750000000000 - index,
+    ),
+  );
+  final notifier = _StateOverrideNotifier(
+    ConversationState(
+      isLoading: false,
+      conversationMap: {for (final item in models) item.uk3: item},
+    ),
+  );
+  final shell = _ReturnShell();
+  final chat = _ReturnChat();
+  final scope = ProviderContainer(
+    overrides: [
+      conversationProvider.overrideWith(() => notifier),
+      webShellProvider.overrideWith(() => shell),
+      chatProvider.overrideWith(() => chat),
+      voicePlaybackServiceProvider.overrideWith(_ReturnSilentVoice.new),
+    ],
+  );
+  late GoRouter router;
+  tester.view.devicePixelRatio = 1;
+  tester.view.physicalSize = Size(width, 768);
+  addTearDown(() async {
+    await _unmount(tester);
+    router.dispose();
+    scope.dispose();
+    sessions.dispose();
+    tester.view.resetDevicePixelRatio();
+    tester.view.resetPhysicalSize();
+  });
+  router = GoRouter(
+    initialLocation: '/web_shell',
+    routes: [
+      GoRoute(
+        path: '/web_shell',
+        builder: (_, _) => WebShellPage(
+          tabMessageLabel: 'Messages',
+          tabContactLabel: 'Contacts',
+          tabChannelLabel: 'Channels',
+          tabMineLabel: 'Me',
+          welcomeTitle: 'Welcome',
+          messageTab: const ConversationPage(),
+          contactTab: const SizedBox(),
+          channelTab: const SizedBox(),
+          mineTab: const SizedBox(),
+          mobileFallback: const SizedBox(),
+          mobileFallbackBuilder: (content) => content,
+          chatBuilder: (selection) => WebChatPanel(
+            selection: selection,
+            currentUserId: '1',
+            sessionReader: sessions,
+            closeTooltip: 'Return to conversations',
+            onClose: shell.clearSelection,
+            conversationLoader: (_, peer) async =>
+                models.singleWhere((item) => item.peerId.toString() == peer),
+            contactLoader: (_) async => null,
+            groupLoader: (_) async => null,
+            inputArea: const SizedBox(),
+          ),
+          contactBuilder: (_) => const SizedBox(),
+          channelBuilder: (_) => const SizedBox(),
+          mineBuilder: (_) => const SizedBox(),
+        ),
+      ),
+    ],
+  );
+  await tester.pumpWidget(
+    UncontrolledProviderScope(
+      container: scope,
+      child: TranslationProvider(
+        child: MaterialApp.router(routerConfig: router),
+      ),
+    ),
+  );
+  await tester.pumpAndSettle();
+  final page = find.byType(ConversationPage);
+  final list = find.descendant(
+    of: page,
+    matching: find.byType(CustomScrollView),
+  );
+  final scrollable = find.descendant(
+    of: list,
+    matching: find.byWidgetPredicate(
+      (widget) =>
+          widget is Scrollable && widget.axisDirection == AxisDirection.down,
+    ),
+  );
+  final anchor = find.byKey(ValueKey('chat:${models[25].uk3}'));
+  await tester.scrollUntilVisible(anchor, 250, scrollable: scrollable);
+  await tester.pumpAndSettle();
+  final pageState = tester.state(page);
+  final scrollState = tester.state<ScrollableState>(scrollable);
+  expect(scrollState.position.pixels, greaterThan(0));
+  final relativeY = tester.getTopLeft(anchor).dy - tester.getTopLeft(list).dy;
+  if (reorder) {
+    final promoted = models.last;
+    notifier.replaceConversation(promoted.copyWith(lastTime: 1750000001000));
+    await tester.pump(const Duration(milliseconds: 110));
+    await tester.pumpAndSettle();
+    expect(
+      scope.read(conversationProvider).conversationMap[promoted.uk3]!.lastTime,
+      1750000001000,
+    );
+    expect(
+      tester
+          .widget<SliverList>(
+            find.descendant(of: page, matching: find.byType(SliverList)).last,
+          )
+          .delegate
+          .findIndexByKey(ValueKey<String>('chat:${promoted.uk3}')),
+      0,
+    );
+  } else {
+    await tester.tap(anchor);
+    await tester.pumpAndSettle();
+    expect(
+      scope.read(webShellProvider).selectedItem,
+      ChatSelection(peerId: models[25].peerId.toString(), chatType: 'C2C'),
+    );
+    expect(find.byType(WebMainPanel), findsOneWidget);
+    expect(find.byType(WebChatPanel), findsOneWidget);
+    expect(find.byType(ChatPanel), findsOneWidget);
+    expect(find.text('Controlled actual detail history'), findsOneWidget);
+    expect(chat.loaded, contains(models[25].uk3));
+    // Exercise the actual detail close control rather than a stub route pop.
+    await tester.tap(find.byTooltip('Return to conversations'));
+    await tester.pumpAndSettle();
+    expect(scope.read(webShellProvider).selectedItem, isNull);
+  }
+  expect(anchor.hitTestable(), findsOneWidget);
+  expect(tester.state(page), same(pageState));
+  expect(tester.state<ScrollableState>(scrollable), same(scrollState));
+  expect(scrollState.position.pixels, greaterThan(0));
+  expect(
+    tester.getTopLeft(anchor).dy - tester.getTopLeft(list).dy,
+    closeTo(relativeY, 1),
+  );
+  debugPrint(
+    'LAY03_ORACLE ${jsonEncode({'journey': reorder ? 'conversation_activity_reorder' : 'conversation_detail_return', 'viewport_width': width, 'anchor_uid': models[25].peerId.toString(), 'anchor_key': models[25].uk3, 'before_y': relativeY, 'after_y': tester.getTopLeft(anchor).dy - tester.getTopLeft(list).dy, 'scroll_offset_after': scrollState.position.pixels, 'filter_fixture': 'all', 'theme': Theme.of(tester.element(page)).brightness.name, 'selected_after': scope.read(webShellProvider).selectedItem?.runtimeType.toString()})}',
+  );
+}
+
+Future<void> _reorderAnchorEdge(WidgetTester tester, String scenario) async {
+  expect(kIsWeb, isTrue);
+  const base = 1750000000000;
+  final models = List.generate(
+    80,
+    (index) => _conv(
+      id: index + 1000,
+      title: 'Anchor edge $index',
+      lastTime: base - index,
+    ),
+  );
+  final notifier = _StateOverrideNotifier(
+    ConversationState(
+      isLoading: false,
+      conversationMap: {for (final item in models) item.uk3: item},
+    ),
+  );
+  await _pumpConv(
+    tester,
+    size: const Size(1024, 768),
+    webShellHost: true,
+    state: ConversationState(
+      isLoading: false,
+      conversationMap: {for (final item in models) item.uk3: item},
+    ),
+    conversations: notifier,
+  );
+  final page = find.byType(ConversationPage);
+  final list = find.descendant(
+    of: page,
+    matching: find.byType(CustomScrollView),
+  );
+  final scrollable = find.descendant(
+    of: list,
+    matching: find.byWidgetPredicate(
+      (widget) =>
+          widget is Scrollable && widget.axisDirection == AxisDirection.down,
+    ),
+  );
+  await tester.scrollUntilVisible(
+    find.byKey(ValueKey('chat:${models[25].uk3}')),
+    250,
+    scrollable: scrollable,
+  );
+  await tester.pumpAndSettle();
+  final pageState = tester.state(page);
+  final scrollState = tester.state<ScrollableState>(scrollable);
+  final viewportY = tester.getTopLeft(list).dy;
+  final viewportBottom = viewportY + tester.getSize(list).height;
+  final visible = _visibleConversations(
+    tester,
+    models,
+    viewportY,
+    viewportBottom,
+  );
+  expect(visible.length, greaterThan(1));
+  final target = scenario == 'delete' ? visible[1] : visible.first;
+  final anchor = find.byKey(ValueKey('chat:${target.uk3}'));
+  final beforeY = tester.getTopLeft(anchor).dy - viewportY;
+  if (scenario == 'delete') {
+    notifier.removeConversationFromMap(visible.first.uk3);
+  } else if (scenario == 'insert') {
+    notifier.replaceConversation(
+      _conv(id: 9999, title: 'New anchor edge', lastTime: base + 101),
+    );
+    await tester.pump(const Duration(milliseconds: 110));
+  } else {
+    // Move the visible anchor beyond the lazy cache while keeping enough tail.
+    notifier.replaceConversation(target.copyWith(lastTime: base - 55));
+    await tester.pump(const Duration(milliseconds: 110));
+    if (scenario == 'burst') {
+      notifier.replaceConversation(models.last.copyWith(lastTime: base + 100));
+      await tester.pump(const Duration(milliseconds: 110));
+    }
+  }
+  await tester.pumpAndSettle();
+  _assertReorderAnchorEdge(
+    tester,
+    scenario: scenario,
+    page: page,
+    scrollable: scrollable,
+    anchor: anchor,
+    pageState: pageState,
+    scrollState: scrollState,
+    viewportY: viewportY,
+    viewportBottom: viewportBottom,
+    beforeY: beforeY,
+    target: target,
+    removed: visible.first,
+    last: models.last,
+  );
+  await _unmount(tester);
+}
+
+List<ConversationModel> _visibleConversations(
+  WidgetTester tester,
+  List<ConversationModel> models,
+  double viewportY,
+  double viewportBottom,
+) {
+  final visible = <ConversationModel>[];
+  for (final item in models) {
+    final row = find.byKey(ValueKey('chat:${item.uk3}'));
+    if (row.evaluate().isEmpty) continue;
+    final top = tester.getTopLeft(row).dy;
+    final bottom = top + tester.getSize(row).height;
+    if (bottom > viewportY && top < viewportBottom) visible.add(item);
+  }
+  visible.sort(
+    (a, b) => tester
+        .getTopLeft(find.byKey(ValueKey('chat:${a.uk3}')))
+        .dy
+        .compareTo(tester.getTopLeft(find.byKey(ValueKey('chat:${b.uk3}'))).dy),
+  );
+  return visible;
+}
+
+void _assertReorderAnchorEdge(
+  WidgetTester tester, {
+  required String scenario,
+  required Finder page,
+  required Finder scrollable,
+  required Finder anchor,
+  required State pageState,
+  required ScrollableState scrollState,
+  required double viewportY,
+  required double viewportBottom,
+  required double beforeY,
+  required ConversationModel target,
+  required ConversationModel removed,
+  required ConversationModel last,
+}) {
+  const base = 1750000000000;
+  expect(anchor, findsOneWidget);
+  expect(
+    tester.getTopLeft(anchor).dy + tester.getSize(anchor).height,
+    greaterThan(viewportY),
+  );
+  expect(tester.getTopLeft(anchor).dy, lessThan(viewportBottom));
+  expect(tester.state(page), same(pageState));
+  expect(tester.state<ScrollableState>(scrollable), same(scrollState));
+  expect(tester.getTopLeft(anchor).dy - viewportY, closeTo(beforeY, 1));
+  final current = ProviderScope.containerOf(tester.element(page))
+      .read(conversationProvider)
+      .conversationMap;
+  if (scenario == 'delete') {
+    expect(current.containsKey(removed.uk3), isFalse);
+  } else if (scenario == 'insert') {
+    expect(
+      current.values.any((item) => item.title == 'New anchor edge'),
+      isTrue,
+    );
+  } else {
+    expect(current[target.uk3]!.lastTime, base - 55);
+  }
+  if (scenario == 'burst') expect(current[last.uk3]!.lastTime, base + 100);
+}
+
+// Isolated real helper/Scrollable harness for cancellation before the queued
+// post-frame restoration; no product data or network is involved.
+class _AnchorGuardHarness extends StatefulWidget {
+  const _AnchorGuardHarness({super.key});
+  @override
+  State<_AnchorGuardHarness> createState() => _AnchorGuardHarnessState();
+}
+
+class _AnchorGuardHarnessState extends State<_AnchorGuardHarness> {
+  final anchor = MessageInboxScrollAnchor();
+  var ids = List.generate(80, (i) => 'row-$i');
+  var scope = 'account-one/all';
+  var current = true;
+
+  @override
+  void initState() {
+    super.initState();
+    anchor.update(ids, scope, enabled: true, isCurrent: () => current);
+  }
+
+  void reorder() {
+    final next = List<String>.of(ids);
+    final item = next.removeAt(12);
+    next.insert(55, item);
+    anchor.update(next, scope, enabled: true, isCurrent: () => current);
+    setState(() => ids = next);
+  }
+
+  void changeFilter() {
+    scope = 'account-one/unread';
+    anchor.update(ids, scope, enabled: true, isCurrent: () => current);
+    setState(() {});
+  }
+
+  @override
+  void dispose() {
+    anchor.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => Listener(
+    onPointerSignal: (_) => anchor.userInput(),
+    child: NotificationListener<ScrollNotification>(
+      onNotification: anchor.onScroll,
+      child: CustomScrollView(
+        controller: anchor.controller,
+        slivers: [
+          SliverList(
+            delegate: SliverChildBuilderDelegate(
+              (context, index) => KeyedSubtree(
+                key: ValueKey(ids[index]),
+                child: anchor.row(
+                  ids[index],
+                  SizedBox(height: 72, child: Text(ids[index])),
+                ),
+              ),
+              childCount: ids.length,
+              findChildIndexCallback: (key) => key is ValueKey<String>
+                  ? (ids.indexOf(key.value) < 0 ? null : ids.indexOf(key.value))
+                  : null,
+            ),
+          ),
+        ],
+      ),
+    ),
+  );
+}
+
+Future<_AnchorGuardHarnessState> _prepareAnchorGuard(
+  WidgetTester tester,
+) async {
+  final key = GlobalKey<_AnchorGuardHarnessState>();
+  await tester.pumpWidget(MaterialApp(home: _AnchorGuardHarness(key: key)));
+  await tester.pumpAndSettle();
+  final state = key.currentState!;
+  state.anchor.controller.jumpTo(900);
+  await tester.pumpAndSettle();
+  state.reorder();
+  expect(state.anchor.lastOutcome, 'pending');
+  return state;
+}
+
+Future<void> _assertNoLateAnchorJump(
+  WidgetTester tester,
+  _AnchorGuardHarnessState state,
+  String outcome, {
+  double? expectedOffset,
+  double? userStart,
+}) async {
+  await tester.pumpAndSettle();
+  expect(state.anchor.lastOutcome, outcome);
+  final after = state.anchor.controller.offset;
+  if (expectedOffset != null) expect(after, closeTo(expectedOffset, 0.01));
+  if (userStart != null) expect(after, isNot(closeTo(userStart, 0.01)));
+  await tester.pump(const Duration(milliseconds: 200));
+  expect(state.anchor.controller.offset, closeTo(after, 0.01));
+  await tester.pumpWidget(const SizedBox.shrink());
+}
+
 void main() {
   setUpAll(() async {
+    await prepareWebWriter();
     Env.uploadKey = 'test_dummy_upload_key';
     Env.uploadScene = 'test_scene';
     IMBoyCacheManager.debugLogEnabled = false;
@@ -181,6 +716,21 @@ void main() {
     IMBoyCacheManager.debugLogEnabled = true;
     await StorageService.to.remove(Keys.currentUid);
   });
+
+  // Real Browser-only contract; host retains its existing Native cases.
+  if (kIsWeb)
+    group('Browser canonical conversation return context', () {
+      for (final width in [390.0, 1024.0]) {
+        isolatedChatInputTestWidgets(
+          'actual detail return keeps ID and Y at $width',
+          (tester) => _returnConversationContext(tester, width, reorder: false),
+        );
+        isolatedChatInputTestWidgets(
+          'actual activity reorder keeps ID and Y at $width',
+          (tester) => _returnConversationContext(tester, width, reorder: true),
+        );
+      }
+    });
 
   group('ConversationPage state rendering', () {
     testWidgets('isLoading=true → renders ShimmerList placeholder', (
@@ -220,6 +770,51 @@ void main() {
       expect(find.text('张三'), findsOneWidget);
       await _unmount(tester);
     });
+
+    // LAY-04：主列表权威拉取失败态必须与真空态可区分（错误文案 + 重试）。
+    testWidgets('loadError 非空 + 空列表 → 错误视图（非"无会话消息"）且带重试', (tester) async {
+      await _pumpConv(
+        tester,
+        state: ConversationState(isLoading: false, loadError: 'sync_failed'),
+      );
+
+      // 失败不得伪装成真空
+      expect(find.text('无会话消息'), findsNothing);
+      // 错误文案出现（t.common.loadError 的 zh_CN 文案）
+      expect(find.text('加载失败，请重试'), findsOneWidget);
+      // 重试入口出现（NoDataView 默认 t.common.buttonRetry 文案）
+      expect(find.text('重试'), findsOneWidget);
+      // 非加载态：不得回到骨架屏
+      expect(find.byType(ShimmerList), findsNothing);
+      await _unmount(tester);
+    });
+
+    testWidgets('真空态不泄漏错误文案（loadError 为空）', (tester) async {
+      await _pumpConv(tester, state: ConversationState(isLoading: false));
+
+      expect(find.text('无会话消息'), findsOneWidget);
+      expect(
+        find.text('加载失败，请重试'),
+        findsNothing,
+        reason: '真实零会话必须保持空态文案，不得误报错误',
+      );
+      await _unmount(tester);
+    });
+
+    testWidgets('错误视图的重试按钮重新触发权威同步（恰好一次）', (tester) async {
+      final initialState = ConversationState(
+        isLoading: false,
+        loadError: 'sync_failed',
+      );
+      final notifier = _RetryCapturingNotifier(initialState);
+      await _pumpConv(tester, state: initialState, conversations: notifier);
+
+      await tester.tap(find.text('重试'));
+      await tester.pump();
+
+      expect(notifier.syncCalls, 1, reason: '重试必须重新发起权威拉取');
+      await _unmount(tester);
+    });
   });
 
   group('ConversationPage AppBar', () {
@@ -251,7 +846,158 @@ void main() {
     });
   });
 
+  if (kIsWeb)
+    group('Web anchor cancellation guards', () {
+      testWidgets('wheel cancels pending restore without a later jump', (
+        tester,
+      ) async {
+        final state = await _prepareAnchorGuard(tester);
+        final start = state.anchor.controller.offset;
+        final point = tester.getCenter(find.byType(CustomScrollView));
+        await tester.sendEventToBinding(
+          PointerScrollEvent(position: point, scrollDelta: const Offset(0, 50)),
+        );
+        await _assertNoLateAnchorJump(
+          tester,
+          state,
+          'user-scroll',
+          userStart: start,
+        );
+      });
+      testWidgets('drag cancels pending restore without a later jump', (
+        tester,
+      ) async {
+        final state = await _prepareAnchorGuard(tester);
+        final start = state.anchor.controller.offset;
+        final gesture = await tester.startGesture(
+          tester.getCenter(find.byType(CustomScrollView)),
+        );
+        await gesture.moveBy(const Offset(0, -80));
+        await gesture.up();
+        await _assertNoLateAnchorJump(
+          tester,
+          state,
+          'user-scroll',
+          userStart: start,
+        );
+      });
+      testWidgets(
+        'owner change cancels pending restore without cross-account jump',
+        (tester) async {
+          final state = await _prepareAnchorGuard(tester);
+          final offset = state.anchor.controller.offset;
+          state.current = false;
+          await _assertNoLateAnchorJump(
+            tester,
+            state,
+            'scope-changed',
+            expectedOffset: offset,
+          );
+        },
+      );
+      testWidgets('filter change cancels pending restore', (tester) async {
+        final state = await _prepareAnchorGuard(tester);
+        final offset = state.anchor.controller.offset;
+        state.changeFilter();
+        await _assertNoLateAnchorJump(
+          tester,
+          state,
+          'scope-changed',
+          expectedOffset: offset,
+        );
+      });
+    });
+
+  if (kIsWeb)
+    group('Web activity anchor edge cases', () {
+      for (final scenario in ['insert', 'distant', 'burst', 'delete']) {
+        isolatedChatInputTestWidgets(
+          'keeps real row and viewport for $scenario',
+          (tester) => _reorderAnchorEdge(tester, scenario),
+        );
+      }
+    });
+
   group('ConversationPage interactions', () {
+    testWidgets('activity reorder keeps the visible conversation and offset', (
+      tester,
+    ) async {
+      const initialTimeMs = 1750000000000;
+      const promotedTimeMs = initialTimeMs + 1000;
+      final models = List.generate(
+        40,
+        (index) => _conv(
+          id: index + 1,
+          title: 'Anchor row $index',
+          lastTime: initialTimeMs - index,
+        ),
+      );
+      final initial = ConversationState(
+        isLoading: false,
+        conversationMap: {for (final item in models) item.uk3: item},
+      );
+      final notifier = _StateOverrideNotifier(initial);
+      await _pumpConv(
+        tester,
+        state: initial,
+        size: const Size(1024, 768),
+        webShellHost: true,
+        conversations: notifier,
+      );
+      final scrollable = find.descendant(
+        of: find.byType(CustomScrollView),
+        matching: find.byWidgetPredicate(
+          (widget) =>
+              widget is Scrollable &&
+              widget.axisDirection == AxisDirection.down,
+        ),
+      );
+      final anchor = find.byKey(ValueKey('chat:${models[20].uk3}'));
+      final promotedKey = ValueKey<String>('chat:${models.last.uk3}');
+      expect(anchor.hitTestable(), findsNothing);
+      await tester.scrollUntilVisible(anchor, 250, scrollable: scrollable);
+      await tester.pumpAndSettle();
+      expect(anchor.hitTestable(), findsOneWidget);
+      final before = tester.getTopLeft(anchor).dy;
+      final position = tester.state<ScrollableState>(scrollable).position;
+      expect(position.pixels, greaterThan(0));
+      expect(find.byKey(promotedKey).hitTestable(), findsNothing);
+      expect(
+        tester
+            .widget<SliverList>(find.byType(SliverList).last)
+            .delegate
+            .findIndexByKey(promotedKey),
+        39,
+      );
+
+      // Exercise the real batched provider update used by incoming messages.
+      notifier.replaceConversation(
+        models.last.copyWith(lastTime: promotedTimeMs),
+      );
+      await tester.pump(const Duration(milliseconds: 110));
+      await tester.pumpAndSettle();
+      final scope = ProviderScope.containerOf(
+        tester.element(find.byType(ConversationPage)),
+      );
+      expect(
+        scope
+            .read(conversationProvider)
+            .conversationMap[models.last.uk3]!
+            .lastTime,
+        promotedTimeMs,
+      );
+      expect(
+        tester
+            .widget<SliverList>(find.byType(SliverList).last)
+            .delegate
+            .findIndexByKey(promotedKey),
+        0,
+      );
+      expect(anchor.hitTestable(), findsOneWidget);
+      expect(tester.getTopLeft(anchor).dy, closeTo(before, 1));
+      await _unmount(tester);
+    });
+
     for (final type in ['C2C', 'C2G']) {
       testWidgets(
         'J15.a $type avatar tap routes by peerId and preserves scroll',

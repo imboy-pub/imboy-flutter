@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:imboy/page/chat/widget/message_bubble_style.dart';
+import 'package:imboy/theme/default/app_colors.dart';
 
 /// MessageBubbleStyle 纯样式逻辑契约测试（TypeB）
 ///
@@ -97,8 +98,10 @@ void main() {
           isSentByMe: true,
         );
       });
-      expect(style.color, Colors.white);
-      expect(style.fontSize, 16);
+      // 发送方文本跟随主题令牌 sentMessageText（深色面板减眩光，非纯白）。
+      expect(style.color, AppColors.sentMessageText);
+      // DSN-04 O1（属主裁决 2026-11-16）：聊天正文 17pt 合同。
+      expect(style.fontSize, 17);
     });
   });
 }

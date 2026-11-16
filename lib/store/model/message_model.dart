@@ -123,6 +123,11 @@ class IMBoyMessageStatus {
   /// 流转：→ sending (10)（用户重试时）
   static const int error = 41;
 
+  /// The latest attempt was rejected; an earlier attempt may have committed.
+  static const int outcomeUnknown = 42;
+
+  static const String localStatusMetadataKey = '_imboy_local_status';
+
   // ==================== 辅助方法 ====================
 
   /// 判断是否为发送状态（10-19）

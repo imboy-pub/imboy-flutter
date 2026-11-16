@@ -8,6 +8,45 @@ import 'package:imboy/store/service/user_profile_service.dart';
 /// 统一 PersonalInfoPage 与 ProfilePage 重复的「PUT 更新字段 + 同步本地缓存」逻辑，
 /// 消除 DRY 漂移。通过可选回调注入隔离 HttpClient / UserRepoLocal 单例依赖。
 void main() {
+  group('Web settings own projection', () {
+    for (final value in [false, 0, 'false', '0', 'no', 'off', ' FALSE ']) {
+      test('legacy explicit visibility false remains false: $value', () {
+        final parsed = UserProfileService.parseWebSettings({
+          'allow_search': 2,
+          'enable_visibility_read': value,
+          'visibility_read_fraction': '0.83',
+          'visibility_read_delay_ms': '1350',
+          'font_size': 'huge',
+          'manual_pending': 'must-not-copy',
+        });
+        expect(parsed['allow_search'], isFalse);
+        expect(parsed['enable_visibility_read'], isFalse);
+        expect(parsed['visibility_read_fraction'], .83);
+        expect(parsed['visibility_read_delay_ms'], 1350);
+        expect(parsed['font_size'], 'huge');
+        expect(parsed.length, 5);
+      });
+    }
+    test('complete empty setting keeps existing model defaults', () {
+      final parsed = UserProfileService.parseWebSettings(<String, dynamic>{});
+      expect(parsed['enable_visibility_read'], isTrue);
+      expect(parsed['font_size'], 'normal');
+    });
+    for (final bad in [
+      null,
+      {'enable_visibility_read': 'garbage'},
+      {'allow_search': <Object?>[]},
+      {'visibility_read_fraction': 'oops'},
+      {'font_size': 'extra_large'},
+    ]) {
+      test('known bad settings never silently fall back: $bad', () {
+        expect(
+          () => UserProfileService.parseWebSettings(bad),
+          throwsFormatException,
+        );
+      });
+    }
+  });
   group('UserProfileService.updateField', () {
     test('成功时返回 true，并以 {field,value} 发起 PUT', () async {
       Map<String, dynamic>? sentData;

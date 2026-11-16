@@ -44,7 +44,7 @@ class ComposerField extends StatefulWidget {
   final String? hintText;
 
   /// 硬上限（按 grapheme 计数，与 [TextField.maxLength] 一致）。
-  final int maxLength;
+  final int? maxLength;
 
   /// 计数变警示色的阈值；为空时取 [maxLength] 的 90%。
   /// 频道发布栏传入折叠阈值（280），提示作者"超过将被折叠"。
@@ -95,7 +95,7 @@ class ComposerFieldState extends State<ComposerField> {
   }
 
   int get _warnThreshold =>
-      widget.warnThreshold ?? (widget.maxLength * 0.9).floor();
+      widget.warnThreshold ?? ((widget.maxLength ?? 1000) * 0.9).floor();
 
   @override
   void initState() {
@@ -272,6 +272,7 @@ class ComposerFieldState extends State<ComposerField> {
         // 字数提示仅在接近阈值时出现，消除常驻 "0/2000" 噪音；
         // 频道 warnThreshold=280(折叠区)一到即显并提示"超过将折叠"。
         if (widget.showCounter &&
+            widget.maxLength != null &&
             _controller.text.characters.length >= _warnThreshold)
           _buildCounter(context),
         // 面板被父级托管时不内联渲染（否则会被输入框那一列的宽度夹住）。

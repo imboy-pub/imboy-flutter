@@ -1,3 +1,5 @@
+import 'package:imboy/service/web_writer_gate.dart';
+
 import 'dart:async';
 import 'dart:convert';
 
@@ -44,6 +46,15 @@ class MessageOfflineService {
   /// 私有构造函数
   MessageOfflineService._internal() {
     onInit();
+  }
+
+  /// Cancel pull requests without clearing cursors, backlog, or account state.
+  static void suspendForStorageFailure() {
+    final current = _instance;
+    if (current == null) return;
+    current._pullRequestedSubscription?.cancel();
+    current._pullRequestedSubscription = null;
+    current._hasPendingPullRequest = false;
   }
 
   static const int _maxPullCount = 20;
@@ -135,6 +146,7 @@ class MessageOfflineService {
 
   /// 初始化服务（订阅事件）
   void onInit() {
+    if (!isWebWriterReady) return;
     // 恢复持久化游标：StorageService 未就绪时 readStoredCursor 返回 0，
     // 退化为一次性全量拉取（与旧行为一致，无正确性风险）
     _c2cLastMsgAt = readStoredCursor(Keys.offlineCursorC2c);

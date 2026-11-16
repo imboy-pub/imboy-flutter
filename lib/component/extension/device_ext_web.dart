@@ -3,6 +3,7 @@
 /// 仅在 Web 平台编译和使用
 library;
 
+import 'package:imboy/service/web_writer_gate.dart';
 import 'package:web/web.dart' as web;
 
 /// Web 浏览器 API 包装器
@@ -42,15 +43,18 @@ class WebBrowserStub {
     try {
       return _window.localStorage.getItem(key);
     } catch (e) {
+      if (key == 'web_device_id') rethrow;
       return null;
     }
   }
 
   /// 设置本地存储项
   void setItem(String key, String value) {
+    requireWebWriter();
     try {
       _window.localStorage.setItem(key, value);
     } catch (e) {
+      if (key == 'web_device_id') rethrow;
       // 忽略存储错误
     }
   }

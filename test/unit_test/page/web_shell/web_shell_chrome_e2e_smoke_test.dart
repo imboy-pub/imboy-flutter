@@ -14,6 +14,7 @@
 library;
 
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -92,6 +93,7 @@ Future<ProviderContainer> _pumpShell(
           tabMineLabel: 'Me',
           welcomeTitle: 'WelcomeTitle',
           welcomeSubtitle: 'WelcomeSub',
+          navigationLeading: const Text('SPACE', key: ValueKey('space-entry')),
           messageTab: _kMessageTab,
           contactTab: _kContactTab,
           channelTab: _kChannelTab,
@@ -131,6 +133,45 @@ Future<ProviderContainer> _pumpShell(
 
 void main() {
   group('Web Shell + 真实 ChatPanel — Chrome 组件 smoke', () {
+    for (final width in [899.0, 900.0, 901.0, 1199.0, 1200.0, 1201.0]) {
+      testWidgets('Chrome actual panels and return at $width', (tester) async {
+        final container = await _pumpShell(tester, size: Size(width, 800));
+        if (width < 900) {
+          expect(find.byKey(const ValueKey('mobile-fallback')), findsOneWidget);
+          return;
+        }
+        final list = tester.element(find.byKey(const ValueKey('msg-tab')));
+        expect(
+          find.byType(WebMainPanel),
+          width < 1200 ? findsNothing : findsOneWidget,
+        );
+        container
+            .read(webShellProvider.notifier)
+            .selectItem(
+              const ChatSelection(peerId: 'u-layout', chatType: 'C2C'),
+            );
+        await tester.pumpAndSettle(const Duration(milliseconds: 350));
+        expect(find.byType(ChatPanel), findsOneWidget);
+        expect(
+          find.byType(WebMiddlePanel),
+          width < 1200 ? findsNothing : findsOneWidget,
+        );
+        expect(find.byKey(const ValueKey('space-entry')), findsOneWidget);
+        if (width < 1200) {
+          await tester.tap(find.byType(CupertinoNavigationBarBackButton));
+        } else {
+          await tester.tap(find.byTooltip('Close'));
+        }
+        await tester.pumpAndSettle(const Duration(milliseconds: 350));
+        expect(
+          tester.element(find.byKey(const ValueKey('msg-tab'))),
+          same(list),
+        );
+        expect(container.read(webShellProvider).selectedItem, isNull);
+        expect(tester.takeException(), isNull);
+      });
+    }
+
     testWidgets('默认三栏 + welcome 屏', (tester) async {
       await _pumpShell(tester);
       expect(find.byType(WebNavRail), findsOneWidget);

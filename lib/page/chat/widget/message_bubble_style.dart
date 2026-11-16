@@ -33,9 +33,12 @@ class MessageBubbleStyle {
               ? AppColors.darkReceivedMessageBackground
               : AppColors.lightReceivedMessageBackground);
 
-    // 高亮状态：统一走品牌蓝半透明，避免双蓝色标失控
+    // 高亮/选中态：实色主题气泡 token（DSN-05 S1：原 primary@0.2 半透明
+    // 叠底复合 #C9D9F3 与正文白字仅 1.333:1；实色 token 与白字 ≥5.35:1）。
     if (isHighlighted) {
-      bubbleColor = AppColors.primary.withValues(alpha: isDark ? 0.3 : 0.2);
+      bubbleColor = isDark
+          ? AppColors.darkSentMessageBackground
+          : AppColors.lightSentMessageBackground;
     }
 
     return BoxDecoration(
@@ -114,7 +117,9 @@ class MessageBubbleStyle {
 
     return context
         .textStyle(
-          FontSizeType.medium,
+          // DSN-04 O1：聊天正文 17pt 合同（DESIGN.md §chat），与
+          // ChatTypography.bodyLarge(17,w400) 对齐；原 medium(16) 偏离合同。
+          FontSizeType.body,
           fontWeight: FontWeight.w400,
           color: isSentByMe
               ? AppColors.sentMessageText

@@ -230,3 +230,9 @@ inbox:
   undo: "復原"
   openChannels: "前往頻道"
   channelEmptyDescription: "在頻道頁更新訂閱清單，也可以恢復已隱藏的頻道。"
+
+chatStatusOutcomeUnknown: 本次遭拒，傳送結果待確認
+
+# ---- DSN-06 gap fill (machine-candidate 2026-11-16) ----
+e2eeMsgBeforeDevice: "此訊息傳送於本裝置加入之前，無法在本裝置顯示" # machine-candidate 2026-11-16
+e2eeMsgBeforeDeviceTapHint: "該訊息加密時未包含本裝置（如換裝置前的歷史訊息），無法在此解密；不影響本裝置收發的新訊息" # machine-candidate 2026-11-16

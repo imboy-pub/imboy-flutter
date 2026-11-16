@@ -1,3 +1,5 @@
+import 'package:imboy/service/web_writer_gate.dart';
+
 import 'dart:convert';
 import 'dart:io';
 
@@ -141,6 +143,7 @@ class AccountLocalDataService {
     required String endpoint,
     required bool clearLastSessionData,
   }) async {
+    requireWebWriter();
     _validateIdentity(uid, environment, endpoint);
     final currentUid = StorageService.to.getString(Keys.currentUid);
     if (currentUid.isNotEmpty) {
@@ -278,6 +281,7 @@ class AccountLocalDataService {
     await CurrentOrganizationStore.removeAccount(uid);
     OrganizationCache.disposeAccount(uid);
     if (clearLastSessionData) {
+      requireWebWriter();
       _clearSessionMemory();
       await StorageService.to.persistPreference(
         () => StorageService.to.remove(Keys.e2eePurgePending),

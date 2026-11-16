@@ -1,0 +1,57 @@
+# attachmentManager namespace — fr-FR
+# DSN-06 gap fill 2026-11-16: machine-candidate translations (owner decision owner-batch-20261116).
+allChannels: "Tous les canaux" # machine-candidate 2026-11-16
+allGroups: "Tous les groupes" # machine-candidate 2026-11-16
+allPeople: "Tous les auteurs du téléversement" # machine-candidate 2026-11-16
+cacheAction: "Vider le cache temporaire" # machine-candidate 2026-11-16
+cacheConfirmBody: "Le cache temporaire de téléchargement et d'aperçu sera vidé. L'historique des discussions, les clés de chiffrement et les pièces jointes d'entreprise dans le cloud ne seront pas supprimés. Certains contenus devront être téléchargés à nouveau lors d'une prochaine consultation." # machine-candidate 2026-11-16
+cacheConfirmTitle: "Vider le cache temporaire ?" # machine-candidate 2026-11-16
+cacheFailed: "Échec du vidage du cache. Réessayez plus tard" # machine-candidate 2026-11-16
+centerHint: "Recherche les pièces jointes des groupes, canaux et notes en face à face de l'espace de travail actuel que vous êtes autorisé à consulter." # machine-candidate 2026-11-16
+clearFilters: "Effacer les filtres" # machine-candidate 2026-11-16
+clearFiltersAction: "Effacer les filtres" # machine-candidate 2026-11-16
+dateRange: "Période" # machine-candidate 2026-11-16
+emptyHint: "Essayez d'autres mots-clés ou filtres" # machine-candidate 2026-11-16
+emptyLocal: "Aucune pièce jointe consultable sur cet appareil" # machine-candidate 2026-11-16
+emptySearch: "Aucune pièce jointe correspondante trouvée" # machine-candidate 2026-11-16
+enterpriseBoundary: "Les pièces jointes marquées « Conservation d'entreprise » sont conservées dans le cloud de l'entreprise ; elles ne sont pas supprimées lors du vidage du cache de l'appareil ou de l'historique des discussions. Les droits d'accès restent régis par ceux du groupe, du canal ou de la note en face à face d'origine." # machine-candidate 2026-11-16
+enterpriseHint: "Choisissez un groupe de l'espace de travail actuel pour voir les fichiers du cloud." # machine-candidate 2026-11-16
+enterpriseRetained: "Conservation d'entreprise" # machine-candidate 2026-11-16
+enterpriseTitle: "Pièces jointes d'entreprise" # machine-candidate 2026-11-16
+enterpriseUnmanaged: "Hors conservation" # machine-candidate 2026-11-16
+governanceAction: "Gouvernance des pièces jointes" # machine-candidate 2026-11-16
+governanceExtendAction: "Prolonger la conservation" # machine-candidate 2026-11-16
+governanceExtendUntil: "Prolonger jusqu'au" # machine-candidate 2026-11-16
+governanceHoldAction: "Appliquer un gel légal" # machine-candidate 2026-11-16
+governanceHoldReason: "Motif du gel (200 caractères max)" # machine-candidate 2026-11-16
+governancePhysicalPending: "Une purge approuvée ne signifie pas que le fichier est déjà supprimé ; l'avancement réel est visible dans l'état de purge." # machine-candidate 2026-11-16
+governancePurgeAction: "Approuver la purge" # machine-candidate 2026-11-16
+governancePurgeApproved: "Purge approuvée" # machine-candidate 2026-11-16
+governancePurgeConfirm: "Approuver la purge de cette pièce jointe ? Après approbation, l'état de gouvernance est irréversible. La purge ne commencera que si toutes les conditions de protection (références, téléversement, traitement) sont remplies." # machine-candidate 2026-11-16
+governanceRefreshConflict: "La version de l'enregistrement a changé. Actualisez, vérifiez puis renvoyez." # machine-candidate 2026-11-16
+governanceReleaseHoldAction: "Lever le gel légal" # machine-candidate 2026-11-16
+groupSource: "Pièces jointes de groupe" # machine-candidate 2026-11-16
+loadFailed: "Échec du chargement des pièces jointes. Réessayez" # machine-candidate 2026-11-16
+loadMore: "Charger plus" # machine-candidate 2026-11-16
+localOnly: "Index local des messages" # machine-candidate 2026-11-16
+moreFailed: "Impossible de charger davantage. Réessayez plus tard." # machine-candidate 2026-11-16
+openSource: "Voir le message d'origine" # machine-candidate 2026-11-16
+organizationCenterHint: "Recherche les pièces jointes de l'entreprise auxquelles vous avez accès, y compris les notes en face à face non rattachées à un espace de travail." # machine-candidate 2026-11-16
+personSearch: "Nom, compte ou numéro de l'auteur du téléversement" # machine-candidate 2026-11-16
+personalBoundary: "Visible sur cet appareil ne signifie pas sauvegardé dans le cloud. Vider le cache conserve l'index des messages ; après suppression de l'historique des discussions, rien n'est restauré automatiquement. Les contenus chiffrés exigent toujours des clés disponibles." # machine-candidate 2026-11-16
+personalHint: "Recherche les pièces jointes d'après l'historique local des discussions. Touchez un fichier pour revenir au message d'origine." # machine-candidate 2026-11-16
+personalTitle: "Pièces jointes de l'appareil" # machine-candidate 2026-11-16
+resultCount: "${count} pièces jointes au total" # machine-candidate 2026-11-16
+retryAction: "Réessayer" # machine-candidate 2026-11-16
+searchGroupsHint: "Rechercher des groupes" # machine-candidate 2026-11-16
+searchHint: "Rechercher un nom de pièce jointe" # machine-candidate 2026-11-16
+selectChannelTitle: "Choisir un canal" # machine-candidate 2026-11-16
+selectGroupTitle: "Choisir un groupe" # machine-candidate 2026-11-16
+sourceAll: "Toutes les sources" # machine-candidate 2026-11-16
+sourceChannels: "Canaux" # machine-candidate 2026-11-16
+sourceGroups: "Groupes" # machine-candidate 2026-11-16
+sourceTalkRecords: "Notes en face à face" # machine-candidate 2026-11-16
+storageHint: "Ici, vous gérez l'occupation de l'appareil ; pour rechercher et consulter les pièces jointes, utilisez les pièces jointes de l'appareil." # machine-candidate 2026-11-16
+talkRecordSourceHint: "Consultez les notes en face à face ; la lecture et l'export restent régis par les droits sur la note." # machine-candidate 2026-11-16
+title: "Pièces jointes" # machine-candidate 2026-11-16
+unavailableSource: "La conversation source n'existe plus ; impossible d'ouvrir la pièce jointe en toute sécurité" # machine-candidate 2026-11-16

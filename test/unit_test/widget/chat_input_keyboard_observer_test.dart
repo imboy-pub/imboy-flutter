@@ -26,7 +26,7 @@ Widget _wrap(ValueNotifier<double> composerHeight) {
           type: 'C2C',
           peerId: 'peer_1',
           composerHeight: composerHeight,
-          onSendPressed: (_) async => true,
+          onSendPressed: (_) async => const ComposerSendReceipt(true),
         ),
       ),
     ),

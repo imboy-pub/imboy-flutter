@@ -51,6 +51,11 @@ class ChatPanel extends ConsumerWidget {
   /// 消息列表（null = 占位模式 / 空列表 = 显示空消息状态 / 非空 = 渲染列表）
   final List<Message>? messages;
 
+  /// Explicit loading/error state; avoids old or falsely empty history.
+  final Widget? historyPlaceholder;
+  final Widget? headerLeading;
+  final Widget? headerAccessory;
+
   /// 当前用户 ID（messages 非 null 时必填）
   final String? currentUserId;
 
@@ -62,6 +67,9 @@ class ChatPanel extends ConsumerWidget {
 
   /// 消息单击回调（可选）
   final void Function(Message message)? onMessageTap;
+  final Widget? Function(BuildContext, Message, int)? messageContentBuilder;
+  final Widget? Function(BuildContext, Message)? messageStatusBuilder;
+  final Widget Function(BuildContext, Message, Widget)? messageItemWrapper;
 
   /// 上拉到底加载更多（可选，分页）
   final Future<void> Function()? onEndReached;
@@ -76,6 +84,16 @@ class ChatPanel extends ConsumerWidget {
   /// - 测试: `inputArea: TextField(...)` 或 `inputArea: SizedBox.shrink()`
   /// - 只读模式: `inputArea: null`
   final Widget? inputArea;
+  final ScrollController? scrollController;
+  final Object? readingSessionKey;
+  final ({String id, double y})? initialReadingAnchor;
+  final void Function(({String id, double y})?)? onReadingAnchor;
+  final VoidCallback? onReadingUserInput;
+  final VoidCallback? onReadingRestoreComplete;
+  final bool preserveReadingPosition;
+  final void Function(List<Message>, bool)? onNewMessages;
+  final bool Function()? isCurrent;
+  final Widget? messageOverlay;
 
   const ChatPanel({
     super.key,
@@ -85,12 +103,28 @@ class ChatPanel extends ConsumerWidget {
     required this.closeTooltip,
     this.onClose,
     this.messages,
+    this.historyPlaceholder,
+    this.headerLeading,
+    this.headerAccessory,
     this.currentUserId,
     this.onMessageLongPress,
     this.onMessageDoubleTap,
     this.onMessageTap,
+    this.messageContentBuilder,
+    this.messageStatusBuilder,
+    this.messageItemWrapper,
     this.onEndReached,
     this.inputArea,
+    this.scrollController,
+    this.readingSessionKey,
+    this.initialReadingAnchor,
+    this.onReadingAnchor,
+    this.onReadingUserInput,
+    this.onReadingRestoreComplete,
+    this.preserveReadingPosition = false,
+    this.onNewMessages,
+    this.isCurrent,
+    this.messageOverlay,
   }) : assert(
          messages == null ||
              (currentUserId != null &&
@@ -113,6 +147,8 @@ class ChatPanel extends ConsumerWidget {
             chatType: chatType,
             closeTooltip: closeTooltip,
             onClose: onClose,
+            leading: headerLeading,
+            accessory: headerAccessory,
           ),
           Divider(
             height: 0.5,
@@ -120,16 +156,38 @@ class ChatPanel extends ConsumerWidget {
             color: colorScheme.outlineVariant,
           ),
           Expanded(
-            child: messages == null
-                ? _ChatPanelPlaceholder(peerId: peerId, chatType: chatType)
-                : ChatMessageList(
-                    messages: messages!,
-                    currentUserId: currentUserId!,
-                    onMessageLongPress: onMessageLongPress!,
-                    onMessageDoubleTap: onMessageDoubleTap!,
-                    onMessageTap: onMessageTap,
-                    onEndReached: onEndReached,
-                  ),
+            child: Stack(
+              fit: StackFit.expand,
+              children: [
+                historyPlaceholder ??
+                    (messages == null
+                        ? _ChatPanelPlaceholder(
+                            peerId: peerId,
+                            chatType: chatType,
+                          )
+                        : ChatMessageList(
+                            messages: messages!,
+                            currentUserId: currentUserId!,
+                            onMessageLongPress: onMessageLongPress!,
+                            onMessageDoubleTap: onMessageDoubleTap!,
+                            onMessageTap: onMessageTap,
+                            messageContentBuilder: messageContentBuilder,
+                            messageStatusBuilder: messageStatusBuilder,
+                            messageItemWrapper: messageItemWrapper,
+                            onEndReached: onEndReached,
+                            scrollController: scrollController,
+                            readingSessionKey: readingSessionKey,
+                            initialReadingAnchor: initialReadingAnchor,
+                            onReadingAnchor: onReadingAnchor,
+                            onReadingUserInput: onReadingUserInput,
+                            onReadingRestoreComplete: onReadingRestoreComplete,
+                            preserveReadingPosition: preserveReadingPosition,
+                            onNewMessages: onNewMessages,
+                            isCurrent: isCurrent,
+                          )),
+                ?messageOverlay,
+              ],
+            ),
           ),
           ?inputArea,
         ],
@@ -144,12 +202,15 @@ class _ChatPanelHeader extends StatelessWidget {
   final String chatType;
   final String closeTooltip;
   final VoidCallback? onClose;
+  final Widget? leading, accessory;
 
   const _ChatPanelHeader({
     required this.title,
     required this.chatType,
     required this.closeTooltip,
     required this.onClose,
+    this.leading,
+    this.accessory,
   });
 
   @override
@@ -164,15 +225,18 @@ class _ChatPanelHeader extends StatelessWidget {
       child: Row(
         children: [
           // avatar 占位（2.1.b 接入真实头像）
-          CircleAvatar(
-            radius: 18,
-            backgroundColor: colorScheme.primary.withAlpha(31),
-            child: Icon(
-              chatType == 'C2G' ? CupertinoIcons.group : CupertinoIcons.person,
-              size: 18,
-              color: colorScheme.primary,
-            ),
-          ),
+          leading ??
+              CircleAvatar(
+                radius: 18,
+                backgroundColor: colorScheme.primary.withAlpha(31),
+                child: Icon(
+                  chatType == 'C2G'
+                      ? CupertinoIcons.group
+                      : CupertinoIcons.person,
+                  size: 18,
+                  color: colorScheme.primary,
+                ),
+              ),
           AppSpacing.horizontalMedium,
           Expanded(
             child: Text(
@@ -184,9 +248,17 @@ class _ChatPanelHeader extends StatelessWidget {
               overflow: TextOverflow.ellipsis,
             ),
           ),
+          if (accessory != null) accessory!,
           if (onClose != null)
             IconButton(
-              icon: const Icon(CupertinoIcons.xmark_circle_fill),
+              // F2（uxfix-batch1）：头部图标按钮补显式语义标签。icon semanticLabel
+              // 与 tooltip 同源（调用方注入的 i18n 串），与 DesktopNavigationRail
+              // 折叠按钮（Semantics label + Tooltip 同串）的既有模式一致，
+              // 保证 aria-label 恒非空（禁止硬编码中文）。
+              icon: Icon(
+                CupertinoIcons.xmark_circle_fill,
+                semanticLabel: closeTooltip,
+              ),
               tooltip: closeTooltip,
               onPressed: onClose,
               color: colorScheme.onSurfaceVariant,

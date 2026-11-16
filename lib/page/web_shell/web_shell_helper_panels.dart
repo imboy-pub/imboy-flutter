@@ -1,15 +1,14 @@
 import 'package:flutter/cupertino.dart';
-import 'package:imboy/component/ui/app_loading.dart';
 import 'package:flutter/material.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 
-import 'package:imboy/config/routes.dart';
 import 'package:imboy/i18n/strings.g.dart';
-import 'package:imboy/store/repository/user_repo_local.dart';
+import 'package:imboy/store/repository/user_repo_provider.dart';
+import 'package:imboy/page/mine/setting/setting_page.dart';
+import 'package:imboy/page/personal_info/personal_info/personal_info_page.dart';
 
-/// Phase 3.2-min — Web Shell Mine Tab 最小面板
+/// Web Shell 复用现有设置与只读个人资料页面。
 class WebMineMinPanel extends ConsumerWidget {
   final String? section;
   final String logoutLabel;
@@ -22,65 +21,17 @@ class WebMineMinPanel extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-    final t = Translations.of(context);
-    final uid = UserRepoLocal.to.currentUid;
-    return Container(
-      color: colorScheme.surface,
-      padding: AppSpacing.allXLarge,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          CircleAvatar(
-            radius: 40,
-            backgroundColor: colorScheme.primaryContainer,
-            child: Icon(
-              CupertinoIcons.person,
-              size: 40,
-              color: colorScheme.onPrimaryContainer,
-            ),
-          ),
-          AppSpacing.verticalRegular,
-          Text(
-            uid.isEmpty ? t.common.notLoggedIn : 'UID: $uid',
-            style: theme.textTheme.titleMedium,
-          ),
-          if (section != null) ...[
-            AppSpacing.verticalSmall,
-            Text(
-              'section: $section',
-              style: theme.textTheme.bodySmall?.copyWith(
-                color: colorScheme.onSurfaceVariant,
-              ),
-            ),
-          ],
-          AppSpacing.verticalXLarge,
-          OutlinedButton.icon(
-            key: const ValueKey('web-mine-logout-btn'),
-            onPressed: uid.isEmpty
-                ? null
-                : () async {
-                    final ok = await UserRepoLocal.to.quitLogin();
-                    if (!context.mounted) return;
-                    if (ok) {
-                      context.go(AppRoutes.signIn);
-                    } else {
-                      AppLoading.showToast(
-                        t.common.logoutFailed,
-                        duration: const Duration(seconds: 2),
-                      );
-                    }
-                  },
-            icon: const Icon(CupertinoIcons.arrow_uturn_left),
-            label: Text(logoutLabel),
-            style: OutlinedButton.styleFrom(minimumSize: const Size(180, 44)),
-          ),
-        ],
+    final user = ref.watch(currentUserProvider);
+    if (user == null) {
+      return Center(child: Text(context.t.common.notLoggedIn));
+    }
+    return switch (section) {
+      'setting' || 'settings' => const SettingPage(webMode: true),
+      _ => PersonalInfoPage(
+        key: ValueKey('web-personal-info:${user.uid}'),
+        readOnly: true,
       ),
-    );
+    };
   }
 }
 

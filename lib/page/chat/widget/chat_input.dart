@@ -13,7 +13,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart'
     show ProviderScope, ProviderSubscription;
-import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/chat/mention_model.dart';
 import 'package:imboy/component/chat/mention_list_widget.dart';
 import 'package:imboy/component/chat/mention_text_formatter.dart';
@@ -24,6 +23,12 @@ import 'package:imboy/page/chat/widget/quick_reply_manage_page.dart';
 import 'package:imboy/page/chat/widget/chat_input_types.dart';
 import 'package:imboy/service/quick_reply_service.dart';
 import 'package:imboy/service/account_draft_store.dart';
+import 'package:imboy/service/pending_text_send.dart';
+import 'package:imboy/service/plaintext_text_limit.dart';
+import 'package:imboy/component/ui/app_loading.dart';
+
+export 'package:imboy/service/pending_text_send.dart'
+    show ComposerSendReceipt, ComposerSubmission;
 import 'package:imboy/service/storage.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/theme/default/app_radius.dart';
@@ -57,7 +62,7 @@ class ChatInput extends StatefulWidget {
     this.textInputAction = TextInputAction.newline,
     this.maxLines = 6,
     this.minLines = 1,
-    this.maxLength = 1000,
+    this.maxLength,
     this.contentInsertionConfiguration,
     // @提及功能回调
     this.onMentionsChanged,
@@ -70,7 +75,8 @@ class ChatInput extends StatefulWidget {
   final String peerId; // 对方ID
   final bool? isAttachmentUploading; // 附件是否正在上传
   final VoidCallback? onAttachmentPressed; // 附件按钮点击事件
-  final Future<bool> Function(String) onSendPressed; // 发送按钮回调
+  final Future<ComposerSendReceipt> Function(ComposerSubmission)
+  onSendPressed; // 发送按钮回调
   final void Function(String)? onTextChanged; // 文本变更回调
   final void Function()? onTextFieldTap; // 输入框点击回调
   final SendButtonVisibilityMode sendButtonVisibilityMode; // 发送按钮模式
@@ -120,6 +126,9 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
   late AnimationController _bottomHeightController; // 兼容旧动画逻辑
   late final AccountDraftStore _drafts;
   Timer? _debounceTimer;
+  bool _sendInFlight = false;
+  int _textRevision = 0;
+  String _lastDraftText = '';
 
   final _emojiShowing = ValueNotifier<bool>(false); // 是否显示表情面板
   final _inputType = ValueNotifier<InputType>(InputType.text); // 当前输入类型
@@ -275,10 +284,10 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
   void _initTextController() {
     if (widget.sendButtonVisibilityMode == SendButtonVisibilityMode.editing) {
       _sendButtonVisible.value = _textController.text.trim().isNotEmpty;
-      _textController.addListener(_handleTextControllerChange);
     } else {
       _sendButtonVisible.value = true;
     }
+    _textController.addListener(_handleTextControllerChange);
   }
 
   /// 初始化动画控制器（用于底部面板展开/收起动画，实际已被丝滑高度控制替代）
@@ -645,27 +654,29 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
     );
   }
 
+  void _refreshTextState() {
+    final text = _textController.text.trim();
+    _sendButtonVisible.value =
+        widget.sendButtonVisibilityMode == SendButtonVisibilityMode.always ||
+        text.isNotEmpty;
+    _characterCount.value = text.characters.length;
+    _syncQuickRepliesVisibility();
+  }
+
   /// 处理文本控制器变化（带节流，存储草稿，发送文本变更回调）
   void _handleTextControllerChange() {
+    if (_lastDraftText != _textController.text) {
+      _lastDraftText = _textController.text;
+      _textRevision++;
+    }
     if (_debounceTimer?.isActive ?? false) {
       _debounceTimer?.cancel();
     }
     _debounceTimer = Timer(const Duration(milliseconds: 300), () {
       if (!mounted) return;
-      final text = _textController.text.trim();
-      _sendButtonVisible.value = text.isNotEmpty;
-      _characterCount.value = text.characters.length;
-      _syncQuickRepliesVisibility();
+      _refreshTextState();
 
-      // 超长自动裁剪并存储草稿
-      if (text.length <= (widget.maxLength ?? 1000)) {
-        unawaited(
-          _drafts.save(
-            _textController.text,
-            cursor: _textController.selection.baseOffset,
-          ),
-        );
-      }
+      unawaited(_persistDraft());
 
       if (_drafts.isCurrent) widget.onTextChanged?.call(_textController.text);
     });
@@ -674,6 +685,8 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
   @override
   void dispose() {
     _debounceTimer?.cancel();
+    _textController.removeListener(_handleTextControllerChange);
+    unawaited(_persistDraft());
     WidgetsBinding.instance.removeObserver(_keyboardObserver);
     _inputFocusNode.dispose();
     _keyboardListenerFocusNode.dispose();
@@ -705,7 +718,7 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
 
   /// 设置文本内容（支持emoji安全插入/裁剪，保持光标位置）
   void _setText(String insertText) {
-    final maxLength = widget.maxLength ?? 1000;
+    final maxLength = widget.maxLength;
     final oldValue = _textController.value;
 
     int start = oldValue.selection.start;
@@ -721,19 +734,15 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
 
     String newText = oldValue.text.replaceRange(start, end, insertText);
 
-    // emoji安全长度判断
-    if (newText.characters.length > maxLength) {
-      final allowInsertLength =
-          maxLength - (oldValue.text.characters.length - (end - start));
-      if (allowInsertLength <= 0) return;
-      insertText = insertText.characters.take(allowInsertLength).toString();
-      newText = oldValue.text.replaceRange(start, end, insertText);
-    }
-    if (newText.length > maxLength) {
-      final allowInsertLength =
-          maxLength - (oldValue.text.length - (end - start));
-      if (allowInsertLength <= 0) return;
-      insertText = insertText.substring(0, allowInsertLength);
+    // Explicit caller limits count graphemes; never split UTF-16 surrogate pairs.
+    if (maxLength != null && newText.characters.length > maxLength) {
+      final retained = oldValue.text
+          .replaceRange(start, end, '')
+          .characters
+          .length;
+      final available = maxLength - retained;
+      if (available <= 0) return;
+      insertText = insertText.characters.take(available).toString();
       newText = oldValue.text.replaceRange(start, end, insertText);
     }
     final offset = start + insertText.length;
@@ -752,30 +761,72 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
   }
 
   /// 处理发送按钮点击（异步发送，草稿清理，安全判断 mounted）
+  Future<bool> _persistDraft() async {
+    _debounceTimer?.cancel();
+    try {
+      await _drafts.save(
+        _textController.text,
+        cursor: _textController.selection.baseOffset,
+      );
+      return true;
+    } catch (error) {
+      debugPrint('[chat-input] draft save: ${error.runtimeType}');
+      if (mounted && _drafts.isCurrent) {
+        unawaited(AppLoading.showError(t.common.saveFailed));
+      }
+      return false;
+    }
+  }
+
   Future<void> _handleSendPressed() async {
-    if (!_drafts.isCurrent) return;
-    final submittedText = _textController.text;
-    final trimmedText = submittedText.trim();
-    iPrint('📤 [ChatInput._handleSendPressed] 开始: text="$trimmedText"');
-    if (trimmedText.isNotEmpty) {
-      iPrint('📤 [ChatInput._handleSendPressed] 调用 widget.onSendPressed');
-      final res = await widget.onSendPressed(trimmedText);
-      iPrint('📤 [ChatInput._handleSendPressed] onSendPressed 返回: $res');
-      if (!mounted || !_drafts.isCurrent) return;
-      if (res && _textController.text == submittedText) {
+    if (!_drafts.isCurrent || _sendInFlight) return;
+    final text = _textController.text.trim();
+    if (text.isEmpty) return;
+    if (PlaintextTextLimit.exceeded(text)) {
+      AppLoading.showBackendError(t.common.textTooLarge);
+      await _persistDraft();
+      return;
+    }
+    final revision = _textRevision;
+    final type = widget.type;
+    final peer = widget.peerId;
+    bool current() =>
+        mounted &&
+        _drafts.isCurrent &&
+        widget.type == type &&
+        widget.peerId == peer;
+    _sendInFlight = true;
+    var accepted = false;
+    try {
+      final submission = (text: text, draftSaved: _persistDraft());
+      final receipt = await widget.onSendPressed(submission);
+      if (!current() || !receipt.accepted) return;
+      accepted = true;
+      final unchanged = _textRevision == revision;
+      if (unchanged) {
         _textController.clear();
-        unawaited(_drafts.clear());
-        // 清空 @提及数据
         _mentionData = const MentionData();
         _notifyMentionsChanged();
-        iPrint('✅ [ChatInput._handleSendPressed] 发送成功，已清空输入框');
-        // 发送后自动收起键盘
-        FocusScope.of(context).unfocus();
-      } else if (!res) {
-        iPrint('⚠️ [ChatInput._handleSendPressed] 发送失败，保留输入框内容');
       }
-    } else {
-      iPrint('⚠️ [ChatInput._handleSendPressed] 输入为空，跳过发送');
+      _refreshTextState();
+      // Persist the empty or next draft before releasing its original send identity.
+      if (!await _persistDraft() || !current()) return;
+      final pending = receipt.completedPendingJson;
+      if (pending != null) await _drafts.clearPendingSend(pending);
+      if (mounted && current() && unchanged && _textRevision == revision + 1) {
+        FocusScope.of(context).unfocus();
+      }
+    } catch (error) {
+      debugPrint('[chat-input] send completion: ${error.runtimeType}');
+      if (current()) {
+        unawaited(
+          AppLoading.showError(
+            accepted ? t.common.saveFailed : t.common.sendFailed,
+          ),
+        );
+      }
+    } finally {
+      _sendInFlight = false;
     }
   }
 

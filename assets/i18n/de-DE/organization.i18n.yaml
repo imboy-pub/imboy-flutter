@@ -350,6 +350,9 @@ contactEntry:
   loadFailed: Organisationsdaten konnten nicht geladen werden
 # ==================== ENT-APP-01 Organisations-Hub (/organization/:orgId) ====================
 hub:
+  # ---- DSN-06 gap fill (machine-candidate 2026-11-16) ----
+  adminCsGovernance: "Support-Governance" # machine-candidate 2026-11-16
+  adminCsGovernanceDesc: "Seat-Kontingent · Seats aktivieren/aussetzen" # machine-candidate 2026-11-16
   sectionResources: Organisationsressourcen
   sectionAdmin: Adminbereich
   zoneMembers: Mitglieder
@@ -416,6 +419,20 @@ chart:
 
 # Space and resource navigation / 空间与资源导航
 experienceUi:
+  # ---- DSN-06 gap fill (machine-candidate 2026-11-16) ----
+  cleanupRecordLabel: "Notizen" # machine-candidate 2026-11-16
+  cleanupResourcesTruncated: "Es werden nur die ersten 20 Einträge angezeigt. Nach Abarbeitung bitte aktualisieren und die restlichen Einträge prüfen." # machine-candidate 2026-11-16
+  openPersonalTalkRecords: "Persönliche Face-to-face-Notizen ansehen" # machine-candidate 2026-11-16
+  talkRecordCleanupPendingBody: "Die Notizen wurden gelöscht, die Datei-Bereinigung ist noch nicht abgeschlossen. Der echte Fortschritt ist einsehbar. Aufbewahrungsregeln und Verarbeitungsschutz können nicht manuell übersprungen werden." # machine-candidate 2026-11-16
+  talkRecordCleanupPendingTitle: "Audiodateien werden noch bereinigt" # machine-candidate 2026-11-16
+  talkRecordOrganizationOwnerPendingBody: "Bitte zuerst die Verantwortung für die Unternehmens-Face-to-face-Notizen übergeben. Die Übergabe löst historische Identitätsreferenzen nicht automatisch auf." # machine-candidate 2026-11-16
+  talkRecordOrganizationOwnerPendingTitle: "Unternehmens-Face-to-face-Notizen noch nicht übergeben" # machine-candidate 2026-11-16
+  talkRecordPersonalPendingBody: "Bitte zuerst die persönlichen Face-to-face-Notizen bearbeiten und danach die Löschbedingungen erneut prüfen." # machine-candidate 2026-11-16
+  talkRecordPersonalPendingTitle: "Persönliche Face-to-face-Notizen offen" # machine-candidate 2026-11-16
+  talkRecordRetainedIdentityPendingBody: "Historische Einträge referenzieren diese Identität noch. Die Kontolöschung kann derzeit nicht abgeschlossen werden. Eine Übergabe der Einträge garantiert nicht, dass diese Referenzen entfallen." # machine-candidate 2026-11-16
+  talkRecordRetainedIdentityPendingTitle: "Historische Identitätsreferenzen zu prüfen" # machine-candidate 2026-11-16
+  unknownBlockerTitle: "Es gibt noch offene Punkte" # machine-candidate 2026-11-16
+  viewTalkRecordCleanup: "Bereinigungsfortschritt ansehen" # machine-candidate 2026-11-16
   switchSpace: "Space wechseln"
   personalSpace: "Persönlicher Space"
   enterpriseSpaces: "Unternehmens-Spaces"

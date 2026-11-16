@@ -1,11 +1,18 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:imboy/component/ui/ios_settings_ui.dart';
+import 'package:imboy/component/ui/resource_page_layout.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:photo_view/photo_view.dart';
 
 import 'package:imboy/component/extension/imboy_cache_manager.dart';
 import 'package:imboy/config/const.dart';
+import 'package:imboy/component/ui/detail_settings_tile.dart';
+import 'package:imboy/page/personal_info/profile/profile_page.dart';
+import 'package:imboy/page/personal_info/widget/more_page.dart';
+import 'package:imboy/page/web_shell/web_shell_helper_panels.dart';
 import 'package:imboy/config/env.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/personal_info/personal_info/personal_info_page.dart';
@@ -78,17 +85,138 @@ void main() {
     await StorageService.to.remove(Keys.currentUser);
   });
 
-  Future<void> pumpPage(WidgetTester tester) async {
+  Future<void> pumpPage(WidgetTester tester, {bool readOnly = false}) async {
     await tester.pumpWidget(
       ProviderScope(
         child: TranslationProvider(
-          child: const MaterialApp(home: PersonalInfoPage()),
+          child: MaterialApp(home: PersonalInfoPage(readOnly: readOnly)),
         ),
       ),
     );
     // 一次 pump 让 Scaffold 渲染；不 pumpAndSettle 避免 cachedImageProvider
     // 内部网络拉取定时器卡住测试
     await tester.pump();
+  }
+
+  for (final readOnly in [false, true]) {
+    testWidgets(
+      'personal content bounds preserve platform/editable contract $readOnly',
+      (tester) async {
+        tester.view.devicePixelRatio = 1;
+        tester.view.physicalSize = const Size(1400, 900);
+        addTearDown(tester.view.reset);
+        await pumpPage(tester, readOnly: readOnly);
+        final expected = kIsWeb && readOnly
+            ? ResourcePageLayout.maxWidth
+            : null;
+        expect(
+          tester
+              .widget<IosPageTemplate>(find.byType(IosPageTemplate))
+              .contentMaxWidth,
+          expected,
+        );
+        final body = tester.getRect(find.byType(SingleChildScrollView));
+        expect(body.width, closeTo(expected ?? 1400, 1));
+        expect(body.center.dx, closeTo(700, 1));
+        final nickname = tester.widget<DetailSettingsTile>(
+          find.byWidgetPredicate(
+            (w) =>
+                w is DetailSettingsTile &&
+                w.title is Text &&
+                (w.title as Text).data == t.account.nickname,
+          ),
+        );
+        expect(nickname.onTap == null, readOnly);
+      },
+    );
+  }
+
+  testWidgets(
+    'read-only personal information retains fields without edit actions',
+    (tester) async {
+      await pumpPage(tester, readOnly: true);
+      expect(find.text('Tester'), findsWidgets);
+      expect(find.text('imboy_tester'), findsOneWidget);
+      expect(find.byIcon(CupertinoIcons.camera_fill), findsNothing);
+      final nickname = tester.widget<DetailSettingsTile>(
+        find.byWidgetPredicate(
+          (widget) =>
+              widget is DetailSettingsTile &&
+              widget.title is Text &&
+              (widget.title as Text).data == t.account.nickname,
+        ),
+      );
+      expect(nickname.value, 'Tester');
+      expect(nickname.onTap, isNull);
+      expect(find.text(t.account.loginEmail), findsNothing);
+    },
+  );
+
+  testWidgets('read-only extended information has no edit callbacks', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      ProviderScope(
+        child: TranslationProvider(
+          child: const MaterialApp(home: MorePage(readOnly: true)),
+        ),
+      ),
+    );
+    await tester.pump();
+    for (final tile in tester.widgetList<DetailSettingsTile>(
+      find.byType(DetailSettingsTile),
+    )) {
+      expect(tile.onTap, isNull);
+    }
+    expect(find.text(t.account.gender), findsOneWidget);
+    expect(find.text(t.account.region), findsOneWidget);
+    expect(find.text(t.account.signature), findsOneWidget);
+  });
+
+  testWidgets('profile entry delegates to the existing read-only page', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      ProviderScope(
+        child: TranslationProvider(
+          child: const MaterialApp(home: ProfilePage(readOnly: true)),
+        ),
+      ),
+    );
+    await tester.pump();
+    expect(
+      tester.widget<PersonalInfoPage>(find.byType(PersonalInfoPage)).readOnly,
+      isTrue,
+    );
+    expect(find.byIcon(CupertinoIcons.camera_fill), findsNothing);
+  });
+
+  for (final section in <String?>[null, 'settings']) {
+    testWidgets('Web mine adopts actual pages for section=$section', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        ProviderScope(
+          child: TranslationProvider(
+            child: MaterialApp(
+              home: WebMineMinPanel(
+                section: section,
+                logoutLabel: t.common.buttonLogout,
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.pump();
+      expect(find.text('section: $section'), findsNothing);
+      if (section == null) {
+        expect(find.byType(PersonalInfoPage), findsOneWidget);
+        expect(find.text('Tester'), findsWidgets);
+      } else {
+        expect(find.text(t.common.languageSetting), findsOneWidget);
+        expect(find.byType(CupertinoSwitch), findsNothing);
+      }
+    });
   }
 
   testWidgets('H1 (single ClipOval): avatar uses exactly one ClipOval, '

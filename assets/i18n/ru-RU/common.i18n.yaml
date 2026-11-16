@@ -117,6 +117,7 @@ feedbackContentRequired: Содержание обратной связи не �
 feedbackDetails: Детали обратной связи
 feedbackSuccessMsg: Обратная связь получена. Мы обработаем её!
 followSystemTips: Тёмная тема следует системным настройкам
+themeBrowserLocalOnly: "Настройки темы сохраняются только в этом браузере и не синхронизируются с другими устройствами."
 genderUpdateFailed: Не удалось установить пол, попробуйте снова
 groupAnnouncement: Объявление группы
 groupFileUploadSuccess: Файл загружен
@@ -951,3 +952,29 @@ legacyUploadReturnToOriginalPage: "Загрузка не завершена. В�
 
 f2fLocationRequired: "Включите разрешение и службы геолокации и повторите попытку с друзьями рядом."
 f2fMemberHint: "Нажмите на аватар, чтобы открыть профиль и добавить друга."
+
+webReadOnlySettingsHint: "В веб-версии доступен только просмотр. Измените настройку в приложении."
+
+legacyUploadCheckLocal: "Проверить локальный статус отправки"
+
+textTooLarge: "Текст превышает 64 KiB. Измените его и повторите попытку."
+
+# ---- DSN-06 gap fill (machine-candidate 2026-11-16) ----
+e2eeBackupDeviceKeySyncPending: "Примечание: синхронизация удостоверения устройства не завершена, это устройство может временно не расшифровывать новые сообщения; после повторного входа синхронизация завершится автоматически" # machine-candidate 2026-11-16
+e2eeBackupSetupBlockedToast: "Сначала завершите настройку резервной копии ключей" # machine-candidate 2026-11-16
+e2eeBackupSetupBody: "Задайте фразу восстановления и загрузите облачную резервную копию — только тогда зашифрованную историю можно вернуть при смене устройства или переустановке; без копии прошлые сообщения на новом устройстве не расшифровать." # machine-candidate 2026-11-16
+e2eeBackupSetupBusyHint: "Шифрование на устройстве и загрузка в облако; при слабой сети можно нажать «Позже» ниже и пропустить" # machine-candidate 2026-11-16
+e2eeBackupSetupLater: "Позже (напомнит при следующем запуске)" # machine-candidate 2026-11-16
+e2eeBackupSetupLaterConfirmBody: "Если пропустить настройку, эти зашифрованные чаты нельзя будет расшифровать или вернуть после смены устройства или переустановки. При следующем запуске напомним снова." # machine-candidate 2026-11-16
+e2eeBackupSetupLaterConfirmLeave: "Пропустить" # machine-candidate 2026-11-16
+e2eeBackupSetupLaterConfirmStay: "Продолжить настройку" # machine-candidate 2026-11-16
+e2eeBackupSetupLaterConfirmTitle: "Пропустить настройку копии?" # machine-candidate 2026-11-16
+e2eeBackupSetupPostponedToast: "Отложено; напомним при следующем запуске" # machine-candidate 2026-11-16
+e2eeBackupSetupPwdHint: "Задайте свою фразу восстановления или нажмите ниже для генерации случайного ключа" # machine-candidate 2026-11-16
+e2eeBackupSetupPwdTooShort: "Фраза — минимум 8 символов" # machine-candidate 2026-11-16
+e2eeBackupSetupSavedNote: "Фраза восстановления сохранена в защищённом хранилище устройства; при смене ключей она автоматически используется для повторной выгрузки копии без повторного ввода." # machine-candidate 2026-11-16
+e2eeBackupSetupSubmit: "Завершить и выгрузить копию в облако" # machine-candidate 2026-11-16
+e2eeBackupSetupTimeoutToast: "Время загрузки истекло. Проверьте сеть и повторите или настройте позже" # machine-candidate 2026-11-16
+e2eeBackupSetupTitle: "Защитите свою шифрованную историю" # machine-candidate 2026-11-16
+e2eeBackupSetupUploading: "Загрузка…" # machine-candidate 2026-11-16
+e2eeBackupSetupWeakHint: "Фраза короткая; рекомендуем 12+ символов или случайный ключ кнопкой «Сгенерировать ключ» ниже" # machine-candidate 2026-11-16

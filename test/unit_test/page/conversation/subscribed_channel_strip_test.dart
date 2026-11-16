@@ -19,6 +19,8 @@ import 'package:imboy/store/repository/channel_inbox_preference_repo_sqlite.dart
 
 class _Session extends ChangeNotifier implements AuthSessionReader {
   @override
+  bool get transitionFailed => false;
+  @override
   AuthSessionScope current = (
     uid: 'fixture',
     generation: 1,

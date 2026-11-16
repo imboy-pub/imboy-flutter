@@ -1,3 +1,11 @@
+import 'dart:typed_data';
+
+import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:imboy/component/http/browser_received_attachment.dart';
+import 'package:imboy/component/ui/app_loading.dart';
+import 'package:imboy/service/account_local_task_registry.dart';
+import 'package:imboy/service/auth_session_scope.dart';
+import 'package:imboy/service/web_writer_gate.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart'
@@ -322,7 +330,11 @@ void showTextMessage(String text) {
 }
 
 /// 确认是否打开文件
-void confirmOpenFile(BuildContext context, String uri) {
+void confirmOpenFile(BuildContext context, String uri, {String? fileName}) {
+  final owner = AccountLocalTaskOwner.capture();
+  final session = authSessionReader.current;
+  final generation = IMBoyCacheManager().generationFor(owner);
+  var opening = false;
   showDialog<void>(
     context: context,
     builder: (context) => CupertinoAlertDialog(
@@ -338,16 +350,88 @@ void confirmOpenFile(BuildContext context, String uri) {
         CupertinoButton(
           child: Text(t.common.buttonConfirm),
           onPressed: () async {
+            if (opening) {
+              return;
+            }
+            opening = true;
             Navigator.of(context).pop();
-            final tmpF = await IMBoyCacheManager().getSingleFile(
+            await _openReceivedFile(
               uri,
-              validateImageData: false, // 文件下载不验证图片格式
+              fileName ?? t.chat.unknownFile,
+              owner,
+              session,
+              generation,
             );
-            await OpenFile.open(tmpF.path);
           },
         ),
       ],
     ),
     barrierDismissible: true,
   );
+}
+
+Future<void> _openReceivedFile(
+  String uri,
+  String name,
+  AccountLocalTaskOwner owner,
+  AuthSessionScope session,
+  int generation,
+) async {
+  final cache = IMBoyCacheManager();
+  void check() {
+    requireWebWriter();
+    if (!authSessionReader.isCurrent(session) ||
+        owner != AccountLocalTaskOwner.capture() ||
+        cache.generationFor(owner) != generation) {
+      throw const MediaCacheCleanupException();
+    }
+  }
+
+  try {
+    check();
+    if (kIsWeb) {
+      final bytes = await cache.getBytes(
+        uri,
+        validateImageData: false,
+        revalidate: true,
+        owner: owner,
+      );
+      check();
+      _saveOwnedBytes(bytes, name, owner, check);
+    } else {
+      final tmpF = await cache.getSingleFile(
+        uri,
+        validateImageData: false,
+        owner: owner,
+      );
+      check();
+      await OpenFile.open(tmpF.path);
+    }
+  } on Object {
+    if (authSessionReader.isCurrent(session)) {
+      AppLoading.showError(t.common.groupFileOpenFailed);
+    }
+  }
+}
+
+void _saveOwnedBytes(
+  Uint8List bytes,
+  String name,
+  AccountLocalTaskOwner owner,
+  void Function() check,
+) {
+  final saving = AccountLocalTaskRegistry.instance.register(owner);
+  try {
+    saveBrowserResourceBytes(
+      bytes,
+      name,
+      requireCurrent: () {
+        saving.throwIfCancelled();
+        check();
+        saving.throwIfCancelled();
+      },
+    );
+  } finally {
+    saving.finish();
+  }
 }

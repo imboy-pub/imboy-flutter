@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:flutter/cupertino.dart' show CupertinoPage;
+import 'package:imboy/page/passport/login_page.dart';
+import 'package:imboy/page/passport/web_login_page.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:imboy/app_core/feature_flags/app_feature_registry.dart';
@@ -54,6 +58,47 @@ Future<void> _login() =>
     StorageService.to.setString(Keys.currentUid, 'synthetic').then((_) {});
 
 void main() {
+  for (final width in [641.0, 900.0]) {
+    testWidgets('production signin builder preserves platform auth at $width', (
+      tester,
+    ) async {
+      final router = await _setup(tester);
+      tester.view.devicePixelRatio = 1;
+      tester.view.physicalSize = Size(width, 900);
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+      final route = router.configuration.routes
+          .whereType<GoRoute>()
+          .singleWhere((route) => route.path == '/sign_in');
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Builder(
+            builder: (context) {
+              final page = route.pageBuilder!(
+                context,
+                GoRouterState(
+                  router.configuration,
+                  uri: Uri.parse('/sign_in'),
+                  matchedLocation: '/sign_in',
+                  fullPath: '/sign_in',
+                  pathParameters: const {},
+                  pageKey: const ValueKey('platform-signin'),
+                ),
+              ) as CupertinoPage;
+              if (kIsWeb || width >= 900) {
+                expect(page.child, isA<WebLoginPage>());
+              } else {
+                expect(page.child, isA<LoginPage>());
+              }
+              return const SizedBox.shrink();
+            },
+          ),
+        ),
+      );
+      await tester.pumpWidget(const SizedBox.shrink());
+    });
+  }
+
   testWidgets(
     'OA callback is public, existing-account choice restores protected association page',
     (tester) async {

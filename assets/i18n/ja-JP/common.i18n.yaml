@@ -117,6 +117,7 @@ feedbackContentRequired: フィードバック内容を空にすることはで�
 feedbackDetails: フィードバック詳細
 feedbackSuccessMsg: フィードバックをいただきありがとうございます。できるだけ早く対応いたします！
 followSystemTips: オンにすると、システムのダークモードのオン/オフに従います
+themeBrowserLocalOnly: "テーマ設定はこのブラウザーにのみ保存され、他のデバイスには同期されません。"
 genderUpdateFailed: 性別設定に失敗しました。もう一度お試しください
 groupAnnouncement: グループのお知らせ
 groupFileUploadSuccess: ファイルをアップロードしました
@@ -951,3 +952,29 @@ legacyUploadReturnToOriginalPage: "アップロードが未完了です。元の
 
 f2fLocationRequired: "位置情報の権限とサービスを有効にして、近くの友達と再試行してください。"
 f2fMemberHint: "友達のアイコンをタップしてプロフィールを表示し、友達を追加します。"
+
+webReadOnlySettingsHint: "Webでは閲覧のみです。変更はアプリで行ってください。"
+
+legacyUploadCheckLocal: "ローカルの送信状態を確認"
+
+textTooLarge: "テキストが64 KiBを超えています。編集して再試行してください。"
+
+# ---- DSN-06 gap fill (machine-candidate 2026-11-16) ----
+e2eeBackupDeviceKeySyncPending: "ヒント: デバイス身元の同期がまだ完了していないため、このデバイスでは新しいメッセージを一時的に復号できない場合があります。再ログイン後に自動的に同期が完了します" # machine-candidate 2026-11-16
+e2eeBackupSetupBlockedToast: "先に鍵バックアップの設定を完了してください" # machine-candidate 2026-11-16
+e2eeBackupSetupBody: "復元パスフレーズを設定してクラウドバックアップをアップロードすると、機種変更や再インストール時に暗号化されたチャット履歴を復元できます。バックアップがない場合、過去のメッセージは新しいデバイスで復号できません。" # machine-candidate 2026-11-16
+e2eeBackupSetupBusyHint: "この端末で暗号化しクラウドへアップロード中です。お待ちください。回線が不安定な場合は下の「後で」で先にスキップできます" # machine-candidate 2026-11-16
+e2eeBackupSetupLater: "後で行う（次回起動時にも再度案内します）" # machine-candidate 2026-11-16
+e2eeBackupSetupLaterConfirmBody: "設定をスキップすると、機種変更や再インストール後にこれらの暗号化チャット記録を復号・復元できません。次回起動時にも再度案内します。" # machine-candidate 2026-11-16
+e2eeBackupSetupLaterConfirmLeave: "設定しない" # machine-candidate 2026-11-16
+e2eeBackupSetupLaterConfirmStay: "設定を続ける" # machine-candidate 2026-11-16
+e2eeBackupSetupLaterConfirmTitle: "バックアップ設定をスキップしますか？" # machine-candidate 2026-11-16
+e2eeBackupSetupPostponedToast: "後で行いました。次回起動時に再度案内します" # machine-candidate 2026-11-16
+e2eeBackupSetupPwdHint: "復元パスフレーズを自分で設定するか、下をタップしてランダムな復元キーを生成" # machine-candidate 2026-11-16
+e2eeBackupSetupPwdTooShort: "パスフレーズは8文字以上にしてください" # machine-candidate 2026-11-16
+e2eeBackupSetupSavedNote: "復元パスフレーズはこの端末のセキュアストレージに保存されました。今後の鍵変更時には自動的に再利用されてバックアップが再アップロードされるため、再入力は不要です。" # machine-candidate 2026-11-16
+e2eeBackupSetupSubmit: "完了してクラウドバックアップをアップロード" # machine-candidate 2026-11-16
+e2eeBackupSetupTimeoutToast: "アップロードがタイムアウトしました。ネットワークを確認して再試行するか、後で設定してください" # machine-candidate 2026-11-16
+e2eeBackupSetupTitle: "暗号化履歴を保護" # machine-candidate 2026-11-16
+e2eeBackupSetupUploading: "アップロード中…" # machine-candidate 2026-11-16
+e2eeBackupSetupWeakHint: "パスフレーズが短いです。12文字以上を推奨します。または下の「復元キーを生成」でランダムキーをご利用ください" # machine-candidate 2026-11-16

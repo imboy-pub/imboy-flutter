@@ -1,0 +1,57 @@
+# attachmentManager namespace — it-IT
+# DSN-06 gap fill 2026-11-16: machine-candidate translations (owner decision owner-batch-20261116).
+allChannels: "Tutti i canali" # machine-candidate 2026-11-16
+allGroups: "Tutti i gruppi" # machine-candidate 2026-11-16
+allPeople: "Tutti gli autori del caricamento" # machine-candidate 2026-11-16
+cacheAction: "Svuota la cache temporanea" # machine-candidate 2026-11-16
+cacheConfirmBody: "Verrà svuotata la cache temporanea di download e anteprima. Cronologia chat, chiavi di cifratura e allegati aziendali nel cloud non verranno eliminati. Alcuni contenuti dovranno essere riscaricati alla prossima visualizzazione." # machine-candidate 2026-11-16
+cacheConfirmTitle: "Svuotare la cache temporanea?" # machine-candidate 2026-11-16
+cacheFailed: "Svuotamento della cache non riuscito. Riprova più tardi" # machine-candidate 2026-11-16
+centerHint: "Cerca gli allegati di gruppi, canali e note face-to-face dell'area di lavoro attuale che sei autorizzato a vedere." # machine-candidate 2026-11-16
+clearFilters: "Azzera i filtri" # machine-candidate 2026-11-16
+clearFiltersAction: "Azzera i filtri" # machine-candidate 2026-11-16
+dateRange: "Periodo" # machine-candidate 2026-11-16
+emptyHint: "Prova a modificare parole chiave o filtri" # machine-candidate 2026-11-16
+emptyLocal: "Nessun allegato consultabile su questo dispositivo" # machine-candidate 2026-11-16
+emptySearch: "Nessun allegato corrispondente trovato" # machine-candidate 2026-11-16
+enterpriseBoundary: "Gli allegati contrassegnati «Conservazione aziendale» restano nel cloud aziendale e non vengono eliminati svuotando la cache del dispositivo o la cronologia chat. I diritti di visualizzazione restano quelli del gruppo, del canale o della nota face-to-face di origine." # machine-candidate 2026-11-16
+enterpriseHint: "Scegli un gruppo dell'area di lavoro attuale per vedere i file nel cloud." # machine-candidate 2026-11-16
+enterpriseRetained: "Conservazione aziendale" # machine-candidate 2026-11-16
+enterpriseTitle: "Allegati aziendali" # machine-candidate 2026-11-16
+enterpriseUnmanaged: "Fuori conservazione" # machine-candidate 2026-11-16
+governanceAction: "Governance degli allegati" # machine-candidate 2026-11-16
+governanceExtendAction: "Estendi la conservazione" # machine-candidate 2026-11-16
+governanceExtendUntil: "Estendi fino al" # machine-candidate 2026-11-16
+governanceHoldAction: "Applica blocco legale" # machine-candidate 2026-11-16
+governanceHoldReason: "Motivo del blocco (max 200 caratteri)" # machine-candidate 2026-11-16
+governancePhysicalPending: "Un'eliminazione approvata non significa che il file sia già rimosso; l'avanzamento reale è visibile nello stato di pulizia." # machine-candidate 2026-11-16
+governancePurgeAction: "Approva la pulizia" # machine-candidate 2026-11-16
+governancePurgeApproved: "Pulizia approvata" # machine-candidate 2026-11-16
+governancePurgeConfirm: "Approvare la pulizia di questo allegato? Dopo l'approvazione lo stato di governance è irreversibile. La pulizia inizierà solo se saranno soddisfatte tutte le condizioni di protezione (riferimenti, caricamento, elaborazione)." # machine-candidate 2026-11-16
+governanceRefreshConflict: "La versione del record è cambiata. Aggiorna, verifica e invia di nuovo." # machine-candidate 2026-11-16
+governanceReleaseHoldAction: "Revoca il blocco legale" # machine-candidate 2026-11-16
+groupSource: "Allegati di gruppo" # machine-candidate 2026-11-16
+loadFailed: "Caricamento degli allegati non riuscito. Riprova" # machine-candidate 2026-11-16
+loadMore: "Carica altri" # machine-candidate 2026-11-16
+localOnly: "Indice locale dei messaggi" # machine-candidate 2026-11-16
+moreFailed: "Impossibile caricare altri allegati. Riprova più tardi." # machine-candidate 2026-11-16
+openSource: "Vedi il messaggio di origine" # machine-candidate 2026-11-16
+organizationCenterHint: "Cerca gli allegati dell'azienda che sei autorizzato a vedere, incluse le note face-to-face non assegnate a un'area di lavoro." # machine-candidate 2026-11-16
+personSearch: "Nome, account o numero dell'autore del caricamento" # machine-candidate 2026-11-16
+personalBoundary: "Visibile su questo dispositivo non significa salvato nel cloud. Svuotare la cache conserva l'indice dei messaggi; dopo l'eliminazione della cronologia chat nulla viene ripristinato automaticamente. I contenuti cifrati richiedono comunque chiavi disponibili." # machine-candidate 2026-11-16
+personalHint: "Trova gli allegati in base alla cronologia chat locale. Tocca un file per tornare al messaggio di origine." # machine-candidate 2026-11-16
+personalTitle: "Allegati sul dispositivo" # machine-candidate 2026-11-16
+resultCount: "${count} allegati in totale" # machine-candidate 2026-11-16
+retryAction: "Riprova" # machine-candidate 2026-11-16
+searchGroupsHint: "Cerca gruppi" # machine-candidate 2026-11-16
+searchHint: "Cerca nome allegato" # machine-candidate 2026-11-16
+selectChannelTitle: "Scegli canale" # machine-candidate 2026-11-16
+selectGroupTitle: "Scegli gruppo" # machine-candidate 2026-11-16
+sourceAll: "Tutte le origini" # machine-candidate 2026-11-16
+sourceChannels: "Canali" # machine-candidate 2026-11-16
+sourceGroups: "Gruppi" # machine-candidate 2026-11-16
+sourceTalkRecords: "Note face-to-face" # machine-candidate 2026-11-16
+storageHint: "Qui gestisci lo spazio del dispositivo; per cercare e vedere gli allegati usa gli allegati sul dispositivo." # machine-candidate 2026-11-16
+talkRecordSourceHint: "Consulta le note face-to-face; riproduzione ed esportazione restano regolati dai diritti sulla nota." # machine-candidate 2026-11-16
+title: "Allegati" # machine-candidate 2026-11-16
+unavailableSource: "La conversazione di origine non esiste più; impossibile aprire l'allegato in sicurezza" # machine-candidate 2026-11-16

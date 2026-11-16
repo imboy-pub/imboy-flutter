@@ -45,6 +45,8 @@ const kIdentityId = '7266418340025468902';
 
 class _DeliveryAuth extends ChangeNotifier implements AuthSessionReader {
   @override
+  bool get transitionFailed => false;
+  @override
   AuthSessionScope current = (
     uid: 'synthetic-seat',
     generation: 1,

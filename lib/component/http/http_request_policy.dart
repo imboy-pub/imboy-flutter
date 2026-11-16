@@ -1,9 +1,153 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
+import 'package:imboy/service/web_writer_gate.dart';
 
 const httpNoAutoRetry = 'http_no_auto_retry';
 const httpSuppressErrorToast = 'http_suppress_error_toast';
 const httpRequestGuard = 'http_request_guard';
+
+const _webHumanMethods = <String, String>{
+  'bootstrap': 'GET',
+  'passport/login': 'POST',
+  'refreshtoken': 'POST',
+  'passport/qr_login/create': 'POST',
+  'passport/qr_login/status': 'GET',
+  'passport/qr_login/cancel': 'POST',
+  'passport/qr_login/subscribe': 'GET',
+  'msg/offline': 'GET',
+  'msg/offline_ack': 'POST',
+  'msg/history': 'GET',
+  'msg': 'GET',
+  'msg/result': 'GET',
+  'conversation/mine': 'GET',
+  'conversation/pin': 'POST',
+  'conversation/unpin': 'POST',
+  'conversation/delete': 'POST',
+  'conversation/restore': 'POST',
+  'conversation/pinned': 'GET',
+  'conversation/manual_pending': 'POST',
+  'conversation/manual_pending/list': 'GET',
+  'friend/list': 'GET',
+  'friend/add': 'POST',
+  'friend/confirm': 'POST',
+  'user/show': 'GET',
+  'user/me': 'GET',
+  'user/setting': 'POST',
+  'user_device/delete': 'POST',
+  'group/page': 'GET',
+  'group/detail': 'GET',
+  'group_member/page': 'GET',
+  'group_notice/page': 'GET',
+  'attachment/direct/register': 'POST',
+  'attachment/direct/declare': 'POST',
+  'attachment/direct/grant': 'POST',
+  'attachment/direct/renew': 'POST',
+  'attachment/direct/finalize': 'POST',
+  'attachment/direct/status': 'GET',
+  'attachment/view_url': 'GET',
+  'organizations/mine': 'GET',
+  'workspaces/mine': 'GET',
+  'channels/subscribed': 'GET',
+  'channels/unread/summary': 'GET',
+};
+
+const webHumanPublicPaths = <String>{
+  '/api/v1/init',
+  '/api/v1/passport/login',
+  '/api/v1/passport/qr_login/create',
+  '/api/v1/passport/qr_login/status',
+  '/api/v1/passport/qr_login/cancel',
+  '/api/v1/passport/qr_login/subscribe',
+  '/api/v1/web/bootstrap',
+  '/api/v1/web/passport/login',
+  '/api/v1/web/passport/qr_login/create',
+  '/api/v1/web/passport/qr_login/status',
+  '/api/v1/web/passport/qr_login/cancel',
+  '/api/v1/web/passport/qr_login/subscribe',
+  '/api/v1/app/manifest',
+  '/api/v1/app/policy',
+};
+
+/// Metadata allowed by Web Human CORS; credentials are added per request.
+const webHumanMetadataHeaders = <String>{
+  'content-type',
+  'accept',
+  'did',
+  'dname',
+  'vsn',
+  'pkg',
+  'terminology-profile',
+  'tz_offset',
+};
+
+/// Explicit control aliases only. Resource/capability URLs use bare transports.
+Uri webHumanRequestUri(String method, Uri input, Uri apiRoot) {
+  const rejected = FormatException('Unsupported Web Human request');
+  try {
+    if (!{'http', 'https'}.contains(apiRoot.scheme) ||
+        apiRoot.host.isEmpty ||
+        apiRoot.userInfo.isNotEmpty ||
+        !{'', '/'}.contains(apiRoot.path) ||
+        apiRoot.hasQuery ||
+        apiRoot.hasFragment)
+      throw rejected;
+    // Check before Dio's uri getter normalizes dot segments and double slashes.
+    final rawUri = input.toString();
+    final rawPath = rawUri.split(RegExp(r'[?#]')).first;
+    if (rawPath.contains(RegExp(r'[%\\]')) ||
+        rawPath.contains(RegExp(r'(^|/)\.{1,2}(/|$)')))
+      throw rejected;
+    if (input.userInfo.isNotEmpty ||
+        input.hasFragment ||
+        (!input.hasScheme &&
+            (!rawUri.startsWith('/') || rawUri.startsWith('//')))) {
+      throw rejected;
+    }
+    final uri = apiRoot.resolveUri(input);
+    if (uri.origin != apiRoot.origin ||
+        uri.path.contains('//') ||
+        uri.normalizePath().path != uri.path ||
+        uri.queryParametersAll.keys.any(
+          (key) => const {
+            'tk',
+            'rtk',
+            'token',
+            'refreshtoken',
+            'authorization',
+            'imboy-refreshtoken',
+          }.contains(key.toLowerCase()),
+        ))
+      throw rejected;
+    final verb = method.toUpperCase();
+    if (const {
+          '/api/v1/app/manifest',
+          '/api/v1/app/policy',
+        }.contains(uri.path) &&
+        verb == 'GET')
+      return uri;
+    final web = uri.path.startsWith('/api/v1/web/');
+    final prefix = web ? '/api/v1/web/' : '/api/v1/';
+    if (!uri.path.startsWith(prefix)) throw rejected;
+    final original = uri.path.substring(prefix.length);
+    final suffix = !web && original == 'init' ? 'bootstrap' : original;
+    if ((!web && suffix == 'bootstrap' && original != 'init') ||
+        (suffix == 'msg' &&
+            uri.queryParametersAll['action'] != null &&
+            (uri.queryParametersAll['action']!.length != 1 ||
+                uri.queryParameters['action'] != 'history_backfill')))
+      throw rejected;
+    final dynamicRead = RegExp(
+      r'^(workspaces/[1-9][0-9]*(/(branding|channels|groups))?|channel/[1-9][0-9]*(/messages)?)$',
+    ).hasMatch(suffix);
+    if (_webHumanMethods[suffix] != verb && !(dynamicRead && verb == 'GET')) {
+      throw rejected;
+    }
+    return uri.replace(path: '/api/v1/web/$suffix');
+  } catch (_) {
+    // Parsing errors must not echo raw URLs or capability/token values.
+    throw rejected;
+  }
+}
 
 /// Diagnostic URLs never include credentials, query values or fragments.
 String safeHttpUri(Object uri) {
@@ -28,6 +172,7 @@ class HttpRequestGuardInterceptor extends Interceptor {
   @override
   void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
     try {
+      requireWebWriter();
       final guard = options.extra[httpRequestGuard];
       if (guard != null) (guard as void Function())();
       handler.next(options);

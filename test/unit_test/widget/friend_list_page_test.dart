@@ -13,6 +13,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:go_router/go_router.dart';
+import 'package:imboy/component/widget/user_online_status_widget.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/contact/contact/contact_page.dart';
 import 'package:imboy/page/contact/contact/contact_provider.dart';
@@ -309,6 +311,132 @@ void main() {
       expect(find.byIcon(CupertinoIcons.person_add), findsOneWidget);
       expect(find.byKey(const Key('add_friend_button')), findsOneWidget);
     });
+  });
+
+  group('ContactPage —— 索引实际命中区域', () {
+    for (final hosted in [true, false]) {
+      testWidgets(
+        'index hit target under ${hosted ? 'WebShell' : 'other'} host',
+        (tester) async {
+          _useIphoneViewport(tester);
+          var rowTaps = 0;
+          final longName = List.filled(40, 'Alice').join();
+          final longContact = ContactModel(
+            peerId: 1001,
+            nickname: longName,
+            nameIndex: 'A',
+            status: 'online',
+            lastSeenAt: 1700000000000,
+            onPressed: () => rowTaps++,
+          );
+          final routes = GoRouter(
+            initialLocation: hosted ? '/web_shell' : '/contacts',
+            routes: [
+              GoRoute(
+                path: hosted ? '/web_shell' : '/contacts',
+                builder: (_, _) => const ContactPage(),
+              ),
+            ],
+          );
+          addTearDown(routes.dispose);
+          await tester.pumpWidget(
+            TranslationProvider(
+              child: ProviderScope(
+                overrides: [
+                  contactProvider.overrideWith(
+                    () => _StateOverrideNotifier(
+                      ContactState(
+                        contactList: [
+                          longContact,
+                          ..._buildFakeContacts().skip(1),
+                        ],
+                        indexBarData: const {'A', 'B', '#'},
+                        isLoading: false,
+                      ),
+                    ),
+                  ),
+                ],
+                child: MaterialApp.router(routerConfig: routes),
+              ),
+            ),
+          );
+          await tester.pumpAndSettle();
+          final indexFinder = find.byType(BaseIndexBar);
+          expect(indexFinder, findsOneWidget);
+          final rect = tester.getRect(indexFinder);
+          final title = find.text(longName);
+          final subtitle = find.descendant(
+            of: find.byType(UserOnlineStatusWidget),
+            matching: find.byType(Text),
+          );
+          expect(title, findsOneWidget);
+          expect(subtitle, findsOneWidget);
+          if (hosted) {
+            expect(tester.getRect(title).right, lessThanOrEqualTo(rect.left));
+            expect(
+              tester.getRect(subtitle).right,
+              lessThanOrEqualTo(rect.left),
+            );
+          }
+          expect(rect.width, hosted ? greaterThanOrEqualTo(44) : equals(30));
+          final list = tester.widget<AzListView>(find.byType(AzListView));
+          expect(
+            list.padding,
+            hosted ? const EdgeInsets.only(right: 48) : isNull,
+          );
+          final index = tester.widget<IndexBar>(find.byType(IndexBar));
+          final events = <String>[];
+          final notifier = index.indexBarDragNotifier!;
+          void observe() {
+            final event = notifier.dragDetails.value;
+            if (event.action == IndexBarDragDetails.actionDown) {
+              events.add(event.tag!);
+            }
+          }
+
+          notifier.dragDetails.addListener(observe);
+          try {
+            final y =
+                rect.top + (index.data.indexOf('A') + 0.5) * index.itemHeight;
+            // Fixed 47px from the right is inside the added 48px target, outside30.
+            final pointer = await tester.startGesture(
+              Offset(rect.right - 47, y),
+            );
+            await tester.pump();
+            await pointer.cancel();
+            await tester.pumpAndSettle();
+            expect(events, hosted ? equals(['A']) : isEmpty);
+            events.clear();
+            // Both hosts must still dispatch the real package event at the center.
+            final center = await tester.startGesture(Offset(rect.center.dx, y));
+            await tester.pump();
+            await center.cancel();
+            await tester.pumpAndSettle();
+            expect(events, equals(['A']));
+            // The reserved strip must not dispatch the underlying long contact row.
+            if (hosted) {
+              await tester.tapAt(
+                Offset(rect.right - 1, tester.getCenter(title).dy),
+              );
+              await tester.pumpAndSettle();
+              expect(rowTaps, 0);
+            }
+            await tester.tap(title);
+            await tester.pumpAndSettle();
+            expect(
+              rowTaps,
+              1,
+              reason: 'ordinary contact activation stays connected',
+            );
+            expect(tester.takeException(), isNull);
+          } finally {
+            notifier.dragDetails.removeListener(observe);
+          }
+          await tester.pumpWidget(const SizedBox.shrink());
+          await tester.pumpAndSettle();
+        },
+      );
+    }
   });
 
   group('ContactPage —— 视觉/无障碍收口', () {

@@ -3,6 +3,9 @@ import 'package:imboy/component/http/http_response.dart';
 import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
+import 'package:imboy/store/model/user_model.dart';
+import 'package:imboy/theme/default/font_types.dart';
+import 'package:imboy/modules/messaging/domain/policy/visibility_read_rules.dart';
 
 /// 用户资料更新服务。
 ///
@@ -13,6 +16,67 @@ import 'package:imboy/store/repository/user_repo_local.dart';
 /// 通过可选回调注入 HttpClient / UserRepoLocal 单例，便于纯单元测试。
 class UserProfileService {
   const UserProfileService._();
+
+  /// Preserve supported legacy encodings, never turn malformed privacy into a default.
+  static Map<String, dynamic> parseWebSettings(dynamic raw) {
+    if (raw is! Map) throw const FormatException('Missing profile settings');
+    final settings = Map<String, dynamic>.from(raw);
+    bool booleanValue(dynamic v) =>
+        v is bool ||
+        (v is num && v.isFinite) ||
+        (v is String &&
+            const [
+              'true',
+              'false',
+              '1',
+              '0',
+              'yes',
+              'no',
+              'on',
+              'off',
+            ].contains(v.trim().toLowerCase()));
+    bool numericValue(dynamic v) =>
+        v is bool ||
+        (v is num && v.isFinite) ||
+        (v is String &&
+            (num.tryParse(v)?.isFinite == true ||
+                const ['true', 'false'].contains(v.toLowerCase())));
+    for (final key in ['allow_search', 'enable_visibility_read']) {
+      if (settings.containsKey(key) &&
+          !booleanValue(settings[key]) &&
+          !(key == 'allow_search' &&
+              settings[key] is String &&
+              (settings[key] as String).trim() == '2')) {
+        throw FormatException('Invalid setting: $key');
+      }
+    }
+    for (final key in [
+      'visibility_read_fraction',
+      'visibility_read_delay_ms',
+    ]) {
+      if (settings.containsKey(key) && !numericValue(settings[key])) {
+        throw FormatException('Invalid setting: $key');
+      }
+    }
+    if (settings.containsKey('font_size') &&
+        (settings['font_size'] is! String ||
+            FontSizeOption.fromValue(settings['font_size'] as String) ==
+                null)) {
+      throw const FormatException('Invalid font setting');
+    }
+    final model = UserSettingModel.fromJson(settings);
+    return {
+      'allow_search': model.allowSearch,
+      'enable_visibility_read': model.enableVisibilityRead,
+      'visibility_read_fraction': normalizeVisibilityFraction(
+        model.visibilityReadFraction,
+      ),
+      'visibility_read_delay_ms': normalizeVisibilityDelayMs(
+        model.visibilityReadDelayMs,
+      ),
+      'font_size': model.fontSize,
+    };
+  }
 
   /// 隐私设置字段集合：这些字段在本地缓存中归属 `setting` 子对象。
   static const Set<String> settingFields = {

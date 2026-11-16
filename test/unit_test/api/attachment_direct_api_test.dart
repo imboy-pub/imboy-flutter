@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:async';
+import 'dart:typed_data';
 
 import 'package:dio/dio.dart' show CancelToken;
 
@@ -14,6 +15,7 @@ import 'package:imboy/config/init.dart' show serviceContainer;
 import 'package:imboy/store/api/attachment_direct_api.dart';
 
 part 'attachment_direct_cancellation_cases.dart';
+part 'attachment_direct_source_cases.dart';
 
 class _StatusHttpClient implements app_http.HttpClient {
   final List<({String path, Map<String, dynamic>? query})> requests = [];
@@ -126,11 +128,87 @@ void main() {
     },
   });
 
+  _registerDirectSourceTests(grantPayload: grantPayload);
+
   _registerDirectCancellationTests(
     writeFile: writeFile,
     ok: ok,
     grantPayload: grantPayload,
   );
+
+  for (final resume in [false, true]) {
+    test(
+      'renew CONFIRMED needs no grant or further PUT (resume=$resume)',
+      () async {
+        final file = writeFile('winner.png', [1, 2]);
+        final actions = <String>[];
+        final stages = <DirectCheckpointStage>[];
+        var puts = 0;
+        Future<IMBoyHttpResponse> session(
+          String path, {
+          Map<String, dynamic>? body,
+        }) async {
+          final action = path.split('/').last;
+          actions.add(action);
+          return switch (action) {
+            'register' => ok({
+              'object_key': 'u1/file/winner',
+              'state': 'RESERVED',
+            }),
+            'declare' => ok({'state': 'DECLARED'}),
+            'grant' => grantPayload('https://storage.invalid/first', 1, 'YQ=='),
+            'status' => ok({
+              'state': 'GRANTED',
+              'expected': {
+                'sha256': await sha256OfFile(file),
+                'size_bytes': '2',
+                'mime': 'image/png',
+              },
+              'attempts': [<String, dynamic>{}],
+            }),
+            'renew' => ok({
+              'object_key': 'u1/file/winner',
+              'state': 'CONFIRMED',
+            }),
+            _ => throw StateError('Unexpected action $action'),
+          };
+        }
+
+        Future<void> put(String _, File _, int _, Map<String, String> _) async {
+          puts++;
+          throw const SocketException('uncertain storage response');
+        }
+
+        Future<void> checkpoint(DirectCheckpoint event) async {
+          stages.add(event.stage);
+        }
+
+        final result = resume
+            ? await DirectAttachmentApi.resumeDirect(
+                objectKey: 'u1/file/winner',
+                file: file,
+                mime: 'image/png',
+                sessionFn: session,
+                putFn: put,
+                checkpoint: checkpoint,
+              )
+            : await DirectAttachmentApi.uploadFile(
+                file,
+                fileName: 'winner.png',
+                mime: 'image/png',
+                sessionFn: session,
+                putFn: put,
+                checkpoint: checkpoint,
+              );
+        expect(result.state, 'CONFIRMED');
+        expect(result.objectKey, 'u1/file/winner');
+        expect(puts, resume ? 0 : 1);
+        expect(actions.where((action) => action == 'renew'), hasLength(1));
+        expect(actions, isNot(contains('finalize')));
+        expect(stages.last, DirectCheckpointStage.confirmed);
+      },
+    );
+  }
 
   test('status 和恢复使用 GET 查询 object_key', () async {
     final client = _StatusHttpClient();
@@ -605,12 +683,17 @@ void main() {
     ).readAsStringSync();
     expect(api, contains("part 'attachment_direct_transport.dart';"));
     expect(transport, contains("part of 'attachment_direct_api.dart';"));
-    final String src = '$api\n$transport';
+    final sourceEngine = File(
+      'lib/store/api/attachment_direct_source_engine.dart',
+    ).readAsStringSync();
+    final sourceAdapter = File('lib/store/api/attachment_direct_source.dart')
+        .readAsStringSync();
+    final String src = '$api\n$transport\n$sourceEngine\n$sourceAdapter';
     // 调用级断言（注释文本不算）：无 readAsBytes( / readAsBytesSync( 调用
     expect(
       RegExp(r'readAsBytes\w*\s*\(').allMatches(src),
       isEmpty,
-      reason: 'R04：direct-v1 链路禁止整文件读入内存',
+      reason: 'R04：原生文件 hash/PUT 不得调用 File 整读接口',
     );
   });
 

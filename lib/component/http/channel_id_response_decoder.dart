@@ -13,6 +13,7 @@ enum ChannelResponseShape {
   groupList,
   groupCreate,
   groupMember,
+  groupNotice,
   groupWorkspace,
   groupSocket,
   trustSocket,
@@ -23,6 +24,8 @@ enum ChannelResponseShape {
   people,
   fts,
   messageResult,
+  conversation,
+  login,
 }
 
 /// Opt-in Dio response decoder. Set it on a JSON request for the matching
@@ -41,7 +44,8 @@ ResponseDecoder channelIdResponseDecoder(ChannelResponseShape shape) =>
     };
 
 /// Preserve raw decimal ID tokens before Dio's JSON parser can round them.
-/// Only channel and creator IDs in detail and subscribed list payloads are in scope. Other values retain standard JSON decoding semantics.
+/// Each response shape selects only its declared identity paths. Counts,
+/// timestamps, content and other values retain standard JSON semantics.
 String rewriteChannelIds(String source, ChannelResponseShape shape) {
   final decoded = jsonDecode(source); // Validate before scanning.
   return _Scanner(source, shape, decoded).rewrite();
@@ -178,7 +182,25 @@ class _Scanner {
           offlineAction == 'apply_friend_confirm';
       final offlineTrust = offlineAction == 'e2ee_trust_changed';
       final offlineDeviceKey = offlineAction == 'e2ee_device_key_changed';
-      final selected = shape == ChannelResponseShape.messageResult
+      final selected = shape == ChannelResponseShape.conversation
+          ? _matches(path, const ['payload', '*', 'conversation_id']) ||
+                ['list', 'items', 'rows'].any(
+                  (list) =>
+                      _matches(path, ['payload', list, '*', 'conversation_id']),
+                )
+          : shape == ChannelResponseShape.login
+          ? ['uid', 'user_id'].any((key) => _matches(path, ['payload', key]))
+          : shape == ChannelResponseShape.groupNotice
+          ? ['list', 'items'].any(
+              (list) => [
+                'id',
+                'notice_id',
+                'group_id',
+                'publisher_id',
+                'user_id',
+              ].any((key) => _matches(path, ['payload', list, '*', key])),
+            )
+          : shape == ChannelResponseShape.messageResult
           ? _matches(path, const ['payload', 'peer_id'])
           : shape == ChannelResponseShape.fts
           ? ['list', 'items'].any(

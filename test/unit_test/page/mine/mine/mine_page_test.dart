@@ -2,10 +2,16 @@ import 'dart:convert';
 
 import 'package:dio/dio.dart';
 import 'package:imboy/component/http/http_client.dart';
+import 'package:imboy/component/http/http_request_policy.dart';
 import 'package:imboy/modules/customer_service/infrastructure/cs_api.dart';
 import 'package:imboy/modules/customer_service/presentation/cs_workspace_routes.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:imboy/page/mine/mine/mine_menu.dart';
+import 'package:imboy/component/ui/resource_page_layout.dart';
+import 'package:imboy/theme/default/app_breakpoints.dart';
+import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -28,6 +34,7 @@ import 'package:imboy/page/mine/mine/mine_page.dart';
 import 'package:imboy/page/mine/mine/mine_shortcut.dart';
 import 'package:imboy/modules/customer_service/presentation/cs_workspace_entry.dart';
 import 'package:imboy/service/storage.dart';
+import 'package:imboy/service/web_writer_gate.dart';
 
 /// 已批准的「常用工具」布局：空间切换并入资料区，个人/企业入口分流。
 class _TestExperience extends ProductExperienceNotifier {
@@ -203,8 +210,131 @@ Future<void> _pumpMine(
   await tester.pumpAndSettle();
 }
 
+// Web Human deliberately does not expose the CS namespace. This is a real
+// fail-closed/no-dispatch probe, not a Web seat eligibility acceptance test.
+Future<void> _expectWebCsNamespaceRejected(
+  WidgetTester tester,
+  _EligibleSeatAdapter adapter,
+) async {
+  expect(
+    () => webHumanRequestUri(
+      'GET',
+      Uri.parse('/api/v1/cs/me/seat-contexts'),
+      Uri.parse('http://127.0.0.1:9800'),
+    ),
+    throwsFormatException,
+  );
+  await tester.runAsync(() async {
+    await expectLater(
+      CsApi().seatContexts(),
+      throwsA(
+        isA<CsApiException>().having(
+          (error) => error.message,
+          'guard rejection',
+          'Web Human request rejected',
+        ),
+      ),
+    );
+  });
+  expect(
+    adapter.requests,
+    0,
+    reason: 'CS namespace denied before transport regardless of synthetic eligibility',
+  );
+}
+
 void main() {
-  setUpAll(() {
+  for (final width in [390.0, 848.0, 1106.0, 1400.0]) {
+    for (final enterprise in [false, true]) {
+      testWidgets(
+        'Mine density $width enterprise=$enterprise platformWeb=$kIsWeb',
+        (tester) async {
+          await _pumpMine(tester, width: width, enterprise: enterprise);
+          final section = find.byWidgetPredicate(
+            (widget) =>
+                widget is MineSection &&
+                widget.title ==
+                    (enterprise
+                        ? t.main.mineSettingsSupport
+                        : t.main.mineManagementSupport),
+          );
+          expect(section, findsOneWidget);
+          final bounds = tester.getRect(section);
+          final bodyWidth = kIsWeb && !enterprise
+              ? width
+              : width.clamp(0, ResourcePageLayout.maxWidth).toDouble();
+          expect(bounds.width, closeTo(bodyWidth - AppSpacing.regular * 2, 1));
+          expect(bounds.center.dx, closeTo(width / 2, 1));
+          if (kIsWeb && !enterprise) {
+            expect(bounds.left, closeTo(AppSpacing.regular, 1));
+            expect(width - bounds.right, closeTo(AppSpacing.regular, 1));
+          }
+          Finder menu(String label) => find.byWidgetPredicate(
+            (widget) => widget is MineMenuTile && widget.title == label,
+          );
+          final settings = tester.getRect(menu(t.main.setting));
+          final feedback = tester.getRect(menu(t.common.feedback));
+          final split =
+              kIsWeb && !enterprise && bounds.width >= AppBreakpoints.wide;
+          if (enterprise) {
+            expect(find.byType(MineMenuTile), findsNWidgets(2));
+            expect(menu(t.main.storageSpace), findsNothing);
+            expect(menu(t.account.loginDeviceManagement), findsNothing);
+            expect(menu(t.appeal.title), findsNothing);
+            expect(settings.left, closeTo(feedback.left, 1));
+            expect(feedback.top, greaterThan(settings.top));
+          } else {
+            expect(find.byType(MineMenuTile), findsNWidgets(5));
+            final storage = tester.getRect(menu(t.main.storageSpace));
+            final devices = tester.getRect(
+              menu(t.account.loginDeviceManagement),
+            );
+            final appeal = tester.getRect(menu(t.appeal.title));
+            expect(devices.top, greaterThan(storage.top));
+            expect(feedback.top, greaterThan(settings.top));
+            if (split) {
+              expect(storage.top, closeTo(appeal.top, 1));
+              expect(storage.left, closeTo(devices.left, 1));
+              expect(storage.right, lessThan(appeal.left));
+              expect(appeal.left, closeTo(settings.left, 1));
+              expect(settings.left, closeTo(feedback.left, 1));
+              expect(settings.top, greaterThan(appeal.top));
+            } else {
+              expect(appeal.top, greaterThan(devices.top));
+              expect(settings.left, closeTo(storage.left, 1));
+              expect(appeal.left, closeTo(storage.left, 1));
+            }
+          }
+          final router = GoRouter.of(tester.element(find.byType(MinePage)));
+          final targets = [
+            if (!enterprise) ...[
+              (t.main.storageSpace, '/storage_space'),
+              (t.account.loginDeviceManagement, '/devices'),
+              (t.appeal.title, '/mine/appeal'),
+            ],
+            (t.main.setting, '/mine/setting'),
+            (t.common.feedback, '/feedback'),
+          ];
+          for (final target in targets) {
+            final row = menu(target.$1);
+            await tester.ensureVisible(row);
+            await tester.pumpAndSettle();
+            await tester.tap(row);
+            await tester.pumpAndSettle();
+            expect(router.state.uri.path, target.$2);
+            router.pop();
+            await tester.pumpAndSettle();
+            expect(router.state.uri.path, '/mine');
+          }
+          expect(tester.takeException(), isNull);
+        },
+      );
+    }
+  }
+
+  setUpAll(() async {
+    await prepareWebWriter();
+    if (kIsWeb) expect(isWebWriterReady, isTrue);
     Env.uploadKey = 'test_dummy_upload_key';
     Env.uploadScene = 'test_scene';
     IMBoyCacheManager.debugLogEnabled = false;
@@ -404,7 +534,62 @@ void main() {
   });
 
   for (final fail in [false, true]) {
-    testWidgets('客服权限失败时保持隐藏：networkFailure=$fail', (tester) async {
+    testWidgets(
+      kIsWeb
+          ? 'Web rejects unsupported CS namespace without dispatch: adapterFailure=$fail'
+          : '客服权限失败时保持隐藏：networkFailure=$fail',
+      (tester) async {
+        const secureChannel = MethodChannel(
+          'plugins.it_nomads.com/flutter_secure_storage',
+        );
+        TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+            .setMockMethodCallHandler(
+              secureChannel,
+              (call) async =>
+                  call.method == 'readAll' ? <String, String>{} : null,
+            );
+        addTearDown(
+          () => TestDefaultBinaryMessengerBinding
+              .instance
+              .defaultBinaryMessenger
+              .setMockMethodCallHandler(secureChannel, null),
+        );
+        final adapter = _EligibleSeatAdapter(seatEnabled: false, fail: fail);
+        HttpClient.adapterForTest = adapter;
+        addTearDown(() => HttpClient.adapterForTest = null);
+        await _pumpMine(tester);
+        await tester.runAsync(() async {
+          await Future<void>.delayed(const Duration(milliseconds: 100));
+        });
+        await tester.pumpAndSettle();
+        if (kIsWeb) {
+          await _expectWebCsNamespaceRejected(tester, adapter);
+          expect(find.text(t.customerService.entryTitle), findsNothing);
+          expect(tester.takeException(), isNull);
+          return;
+        }
+        if (fail) {
+          // 让实际 HTTP 重试链耗尽，验证失败后的入口而非尚在加载的占位。
+          for (var attempt = 0; attempt < 3; attempt++) {
+            await tester.pump(const Duration(seconds: 8));
+            await tester.runAsync(() async {
+              await Future<void>.delayed(const Duration(milliseconds: 20));
+            });
+            await tester.pumpAndSettle();
+          }
+        }
+        expect(adapter.requests, greaterThan(0));
+        expect(find.text(t.customerService.entryTitle), findsNothing);
+        expect(tester.takeException(), isNull);
+      },
+    );
+  }
+
+  testWidgets(
+    kIsWeb
+        ? 'Web refuses synthetic eligible CS response and keeps personal entry hidden'
+        : '合格坐席个人模式入口可见且可打开',
+    (tester) async {
       const secureChannel = MethodChannel(
         'plugins.it_nomads.com/flutter_secure_storage',
       );
@@ -418,84 +603,72 @@ void main() {
         () => TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
             .setMockMethodCallHandler(secureChannel, null),
       );
-      final adapter = _EligibleSeatAdapter(seatEnabled: false, fail: fail);
+      final adapter = _EligibleSeatAdapter();
       HttpClient.adapterForTest = adapter;
       addTearDown(() => HttpClient.adapterForTest = null);
+      if (kIsWeb) {
+        await _expectWebCsNamespaceRejected(tester, adapter);
+      } else {
+        await tester.runAsync(() async {
+          await CsApi().seatContexts();
+        });
+      }
       await _pumpMine(tester);
       await tester.runAsync(() async {
         await Future<void>.delayed(const Duration(milliseconds: 100));
       });
       await tester.pumpAndSettle();
-      if (fail) {
-        // 让实际 HTTP 重试链耗尽，验证失败后的入口而非尚在加载的占位。
-        for (var attempt = 0; attempt < 3; attempt++) {
-          await tester.pump(const Duration(seconds: 8));
-          await tester.runAsync(() async {
-            await Future<void>.delayed(const Duration(milliseconds: 20));
-          });
-          await tester.pumpAndSettle();
-        }
+      if (kIsWeb) {
+        expect(adapter.requests, 0);
+        expect(find.text('客服工作台'), findsNothing);
+        expect(tester.takeException(), isNull);
+        return;
       }
-      expect(adapter.requests, greaterThan(0));
-      expect(find.text(t.customerService.entryTitle), findsNothing);
-      expect(tester.takeException(), isNull);
-    });
-  }
+      expect(find.text('客服工作台'), findsOneWidget);
+      await tester.ensureVisible(find.text('客服工作台'));
+      await tester.tap(find.text('客服工作台'));
+      await tester.pumpAndSettle();
+      expect(find.text('客服工作台目标'), findsOneWidget);
+    },
+  );
 
-  testWidgets('合格坐席个人模式入口可见且可打开', (tester) async {
-    const secureChannel = MethodChannel(
-      'plugins.it_nomads.com/flutter_secure_storage',
-    );
-    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
-        .setMockMethodCallHandler(
-          secureChannel,
-          (call) async => call.method == 'readAll' ? <String, String>{} : null,
-        );
-    addTearDown(
-      () => TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
-          .setMockMethodCallHandler(secureChannel, null),
-    );
-    HttpClient.adapterForTest = _EligibleSeatAdapter();
-    addTearDown(() => HttpClient.adapterForTest = null);
-    await tester.runAsync(() async {
-      await CsApi().seatContexts();
-    });
-    await _pumpMine(tester);
-    await tester.runAsync(() async {
-      await Future<void>.delayed(const Duration(milliseconds: 100));
-    });
-    await tester.pumpAndSettle();
-    expect(find.text('客服工作台'), findsOneWidget);
-    await tester.ensureVisible(find.text('客服工作台'));
-    await tester.tap(find.text('客服工作台'));
-    await tester.pumpAndSettle();
-    expect(find.text('客服工作台目标'), findsOneWidget);
-  });
-
-  testWidgets('合格坐席企业模式入口也不渲染（入口收敛到工作台）', (tester) async {
-    // 预热一份合格坐席上下文，证明"不渲染"是模式门控而非坐席资格缺失；
-    // 企业模式下页面不挂载 CsWorkspaceEntryTile，不会发起 seat-contexts。
-    const secureChannel = MethodChannel(
-      'plugins.it_nomads.com/flutter_secure_storage',
-    );
-    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
-        .setMockMethodCallHandler(
-          secureChannel,
-          (call) async => call.method == 'readAll' ? <String, String>{} : null,
-        );
-    addTearDown(
-      () => TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
-          .setMockMethodCallHandler(secureChannel, null),
-    );
-    HttpClient.adapterForTest = _EligibleSeatAdapter();
-    addTearDown(() => HttpClient.adapterForTest = null);
-    await tester.runAsync(() async {
-      await CsApi().seatContexts();
-    });
-    await _pumpMine(tester, enterprise: true);
-    expect(find.text('客服工作台'), findsNothing);
-    expect(find.byType(CsWorkspaceEntryTile), findsNothing);
-  });
+  testWidgets(
+    kIsWeb
+        ? 'Web unsupported CS namespace has zero dispatch in enterprise Mine'
+        : '合格坐席企业模式入口也不渲染（入口收敛到工作台）',
+    (tester) async {
+      // Native prewarms eligible contexts to isolate enterprise mode gating.
+      // Web instead proves the unsupported CS namespace never reaches transport;
+      // it does not claim seat eligibility or CS Web feature qualification.
+      const secureChannel = MethodChannel(
+        'plugins.it_nomads.com/flutter_secure_storage',
+      );
+      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+          .setMockMethodCallHandler(
+            secureChannel,
+            (call) async =>
+                call.method == 'readAll' ? <String, String>{} : null,
+          );
+      addTearDown(
+        () => TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+            .setMockMethodCallHandler(secureChannel, null),
+      );
+      final adapter = _EligibleSeatAdapter();
+      HttpClient.adapterForTest = adapter;
+      addTearDown(() => HttpClient.adapterForTest = null);
+      if (kIsWeb) {
+        await _expectWebCsNamespaceRejected(tester, adapter);
+      } else {
+        await tester.runAsync(() async {
+          await CsApi().seatContexts();
+        });
+      }
+      await _pumpMine(tester, enterprise: true);
+      if (kIsWeb) expect(adapter.requests, 0);
+      expect(find.text('客服工作台'), findsNothing);
+      expect(find.byType(CsWorkspaceEntryTile), findsNothing);
+    },
+  );
 
   group('MinePage navigation', () {
     for (final entry in <String, String>{

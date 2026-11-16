@@ -21,3 +21,21 @@ cancelSchedule: إلغاء الفعالية
 scheduleIdMissing: معرّف الفعالية مفقود، لا يمكن عرض التفاصيل
 untitledSchedule: "موعد بدون عنوان"
 cardViewAndAttend: "عرض التفاصيل وتأكيد الحضور"
+
+# ---- DSN-06 gap fill (machine-candidate 2026-11-16) ----
+allParticipants: "جميع المشاركين ($count)" # machine-candidate 2026-11-16
+attendSummary: "يشارك $attending/$total" # machine-candidate 2026-11-16
+cardViewDetail: "عرض التفاصيل" # machine-candidate 2026-11-16
+collapseParticipants: "طي" # machine-candidate 2026-11-16
+duration: "المدة المتوقعة $minutes دقيقة" # machine-candidate 2026-11-16
+hintToday: "اليوم" # machine-candidate 2026-11-16
+hintTomorrow: "غدًا" # machine-candidate 2026-11-16
+organizer: "المنظّم" # machine-candidate 2026-11-16
+participantAttending: "شارك" # machine-candidate 2026-11-16
+participantDeclined: "رفض" # machine-candidate 2026-11-16
+participantPending: "بانتظار الرد" # machine-candidate 2026-11-16
+remindBefore: "تذكير قبل البدء بـ $minutes دقيقة" # machine-candidate 2026-11-16
+sectionLater: "لاحقًا" # machine-candidate 2026-11-16
+sectionThisWeek: "هذا الأسبوع" # machine-candidate 2026-11-16
+sectionToday: "اليوم" # machine-candidate 2026-11-16
+startsHint: "يبدأ $hint الساعة $time" # machine-candidate 2026-11-16

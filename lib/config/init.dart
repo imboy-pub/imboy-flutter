@@ -1,3 +1,5 @@
+import 'package:imboy/service/ack_manager.dart';
+import 'package:imboy/service/account_local_task_registry.dart';
 import 'package:imboy/config/local_external_services_policy.dart';
 import 'package:imboy/app_core/feature_flags/runtime_feature_recovery.dart';
 
@@ -9,7 +11,8 @@ import 'dart:typed_data';
 import 'package:imboy/page/group/group_avatar_cache.dart';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
-import 'package:flutter/foundation.dart' show kDebugMode, kIsWeb;
+import 'package:flutter/foundation.dart'
+    show kDebugMode, kIsWeb, kReleaseMode, visibleForTesting;
 import 'package:flutter/cupertino.dart';
 
 import 'package:imboy/component/helper/ntp.dart';
@@ -37,6 +40,7 @@ import 'package:imboy/component/upload/resumable_attachment_uploader.dart';
 import 'package:imboy/service/message_retry.dart';
 import 'package:imboy/service/message_webrtc.dart';
 import 'package:imboy/service/storage.dart';
+import 'package:imboy/service/web_writer_gate.dart';
 import 'package:imboy/service/account_local_data_service.dart';
 import 'package:imboy/service/storage_secure.dart';
 import 'package:imboy/service/websocket.dart';
@@ -56,6 +60,9 @@ import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:xid/xid.dart';
 
 import 'env.dart';
+import 'env_factory_web.dart' as webEnv;
+
+import 'package:imboy/service/rsa.dart' show RSAService;
 
 import 'package:go_router/go_router.dart';
 import 'package:imboy/i18n/strings.g.dart';
@@ -73,6 +80,7 @@ var logger = Logger();
 /// initConfig 缓存（避免重复请求）
 Map<String, dynamic>? _initConfigCache;
 Completer<Map<String, dynamic>>? _initConfigCompleter;
+(String, String)? _initConfigScope;
 Completer<Map<String, int>>? _groupSelfHealCompleter;
 
 // ice 配置信息
@@ -166,18 +174,74 @@ final serviceContainer = ServiceContainer();
 class AppInitializer {
   static bool _initialized = false;
 
+  static bool _observingWriterFailure = false;
+
+  static void _observeWriterFailure() {
+    if (!kIsWeb || _observingWriterFailure) return;
+    _observingWriterFailure = true;
+    unawaited(webWriterFailure.then((_) => _suspendForWriterFailure()));
+  }
+
+  static void _suspendForWriterFailure() {
+    _isAppDisposing = true;
+    void stop(void Function() action) {
+      try {
+        action();
+      } on Object catch (error) {
+        AppLogger.warning('Writer pause failed: ${error.runtimeType}');
+      }
+    }
+
+    stop(AccountLocalTaskRegistry.instance.suspendForStorageFailure);
+    stop(PersistentMessageQueue.suspendForStorageFailure);
+    stop(MessageRetry.suspendForStorageFailure);
+    stop(MessageOfflineService.suspendForStorageFailure);
+    stop(AckManager.suspendForStorageFailure);
+    stop(WebSocketService.suspendForStorageFailure);
+    stop(RuntimeFeatureRecovery.dispose);
+    if (serviceContainer.isRegistered<NetworkMonitorService>()) {
+      stop(NetworkMonitorService.to.dispose);
+    }
+    stop(AppUpgradeService.to.dispose);
+    gTimer?.cancel();
+    gTimer = null;
+    final connectivity = _connectivitySubscription;
+    _connectivitySubscription = null;
+    if (connectivity != null) {
+      unawaited(
+        connectivity.cancel().catchError((Object error) {
+          AppLogger.warning(
+            'Writer connectivity pause failed: ${error.runtimeType}',
+          );
+        }),
+      );
+    }
+    unawaited(
+      GroupAvatarMemberCache.instance.suspendAndDrain().catchError((
+        Object error,
+      ) {
+        AppLogger.warning('Writer avatar pause failed: ${error.runtimeType}');
+      }),
+    );
+  }
+
   static Future<void> initialize({
     required String env,
     required String signKeyVsn,
   }) async {
     LocalExternalServicesPolicy.validateEnvironment(env);
+    await prepareWebWriter();
+    _observeWriterFailure();
     if (_initialized) return;
     GroupAvatarMemberCache.instance.resume();
 
     try {
       await _initializeCore(env: env, signKeyVsn: signKeyVsn);
+      requireWebWriter();
       await _initializeServices();
+      requireWebWriter();
       await _initializeListeners();
+      requireWebWriter();
       // 当前字体初始化应该放到最后
       currentFontSize.value = UserRepoLocal.to.setting.fontSize;
       // 成功后才置位：失败路径不置位，InitErrorPage 的「重试」才能重新
@@ -207,11 +271,14 @@ class AppInitializer {
 
     // 初始化存储 - 必须在使用前先初始化
     await StorageService.init();
+    requireWebWriter();
     // Freeze legacy storage evidence before environment setup or any writer.
     await AccountLocalDataService.captureInitialOwnership();
+    requireWebWriter();
 
     // 【重要】先设置环境变量，确保数据库路径正确
     await _setupEnvironment(env, false);
+    requireWebWriter();
 
     // 初始化用户仓库 - 必须在数据库迁移之前注册
     // UserRepoLocal 现在是单例，会自动初始化
@@ -230,6 +297,7 @@ class AppInitializer {
 
     // 获取设备信息
     await _setupDeviceInfo();
+    requireWebWriter();
 
     // 配置HTTP客户端
     _setupHttpClient();
@@ -310,26 +378,37 @@ class AppInitializer {
   static Future<void> _setupDeviceInfo() async {
     serviceContainer.put(DeviceExt());
 
-    // 【改进】添加错误处理和日志
-    try {
-      deviceId = await DeviceExt.did;
+    if (kIsWeb) {
+      deviceId = '';
+      try {
+        final persistentId = await DeviceExt.did;
+        requireWebWriter();
+        deviceId = persistentId;
+      } on Object {
+        throw StateError('Persistent Web device identity is unavailable');
+      }
+    } else {
+      // 【改进】添加错误处理和日志
+      try {
+        deviceId = await DeviceExt.did;
 
-      if (deviceId.isEmpty) {
-        iPrint('❌ [INIT] deviceId 获取失败，使用备用方案');
+        if (deviceId.isEmpty) {
+          iPrint('❌ [INIT] deviceId 获取失败，使用备用方案');
+          deviceId = Xid().toString();
+        }
+
+        iPrint('✅ [INIT] deviceId 初始化成功 (长度: ${deviceId.length})');
+
+        // 验证deviceId长度
+        if (deviceId.length < 5) {
+          throw Exception('deviceId 长度过短: ${deviceId.length}');
+        }
+      } on Exception catch (e) {
+        iPrint('❌ [INIT] deviceId 初始化异常: ${e.runtimeType}');
+        // 使用错误备用方案
         deviceId = Xid().toString();
+        iPrint('⚠️  [INIT] 使用备用deviceId');
       }
-
-      iPrint('✅ [INIT] deviceId 初始化成功 (长度: ${deviceId.length})');
-
-      // 验证deviceId长度
-      if (deviceId.length < 5) {
-        throw Exception('deviceId 长度过短: ${deviceId.length}');
-      }
-    } on Exception catch (e) {
-      iPrint('❌ [INIT] deviceId 初始化异常: ${e.runtimeType}');
-      // 使用错误备用方案
-      deviceId = Xid().toString();
-      iPrint('⚠️  [INIT] 使用备用deviceId');
     }
 
     final packageInfo = await PackageInfo.fromPlatform();
@@ -353,7 +432,152 @@ class AppInitializer {
     };
   }
 
+  static (String, String) _currentInitScope() {
+    final root = Env().apiBaseUrl;
+    return (currentEnv, kIsWeb ? webEnv.validateWebApiBaseUrl(root) : root);
+  }
+
+  static Map<String, dynamic>? get currentWebBootstrap {
+    if (!kIsWeb || _initConfigCache == null) return null;
+    try {
+      if (_initConfigScope == _currentInitScope()) {
+        return Map<String, dynamic>.unmodifiable(_initConfigCache!);
+      }
+    } on Object {
+      // An unavailable/new public origin cannot reuse a previous bootstrap.
+    }
+    clearInitConfigCache();
+    return null;
+  }
+
+  static bool _isInitScopeCurrent((String, String) scope) {
+    try {
+      return _initConfigScope == scope && scope == _currentInitScope();
+    } on Object {
+      return false;
+    }
+  }
+
+  static String _webBootstrapUrl(dynamic value, {required bool socket}) {
+    if (value is! String || value.isEmpty || RegExp(r'\s').hasMatch(value)) {
+      throw const FormatException('Invalid Web bootstrap URL');
+    }
+    final uri = Uri.tryParse(value);
+    final secure = socket ? 'wss' : 'https';
+    final local = socket ? 'ws' : 'http';
+    if (uri == null ||
+        !uri.hasAuthority ||
+        uri.host.isEmpty ||
+        uri.authority.contains('@') ||
+        uri.hasQuery ||
+        uri.hasFragment ||
+        (uri.hasPort && (uri.port <= 0 || uri.port > 65535)) ||
+        (socket && uri.path != '/api/v1/web/ws') ||
+        !(uri.scheme == secure ||
+            (!kReleaseMode &&
+                uri.scheme == local &&
+                webEnv.isWebLoopbackHost(uri.host)))) {
+      throw const FormatException('Invalid Web bootstrap URL');
+    }
+    return socket ? uri.toString() : value.replaceFirst(RegExp(r'/+$'), '');
+  }
+
+  @visibleForTesting
+  static Map<String, dynamic> validateWebBootstrapPayload(dynamic raw) {
+    if (raw is! Map || raw.keys.any((key) => key is! String)) {
+      throw const FormatException('Invalid Web bootstrap payload');
+    }
+    final payload = Map<String, dynamic>.from(raw);
+    final rsa = payload['login_pwd_rsa_encrypt'];
+    final key = payload['login_rsa_pub_key'];
+    final features = payload['features'];
+    final terms = payload['terminology'];
+    if (!const ['0', '1'].contains(rsa) ||
+        key is! String ||
+        features is! Map ||
+        features.entries.any((e) => e.key is! String || e.value is! bool) ||
+        terms is! Map ||
+        terms['profile'] is! String ||
+        (terms['profile'] as String).isEmpty ||
+        terms['hash'] is! String ||
+        (terms['hash'] as String).isEmpty ||
+        terms['terms'] is! Map ||
+        (terms['terms'] as Map).entries.any(
+          (e) =>
+              e.key is! String ||
+              e.value is! String ||
+              (e.value as String).isEmpty,
+        ) ||
+        !const [
+          'chat',
+          'workspace',
+        ].contains(payload['effective_product_experience']) ||
+        payload['config_version'] is! String ||
+        (payload['config_version'] as String).isEmpty) {
+      throw const FormatException('Invalid Web bootstrap fields');
+    }
+    if (rsa == '1' || key.isNotEmpty) _validateWebBootstrapKey(key);
+    payload['ws_url'] = _webBootstrapUrl(payload['ws_url'], socket: true);
+    payload['public_base_url'] = _webBootstrapUrl(
+      payload['public_base_url'],
+      socket: false,
+    );
+    // Copy JSON containers before persistence awaits or publishing the cache.
+    dynamic freeze(dynamic value) {
+      if (value is Map) {
+        return Map<dynamic, dynamic>.unmodifiable(
+          value.map((key, item) => MapEntry(key, freeze(item))),
+        );
+      }
+      if (value is List) return List<dynamic>.unmodifiable(value.map(freeze));
+      return value;
+    }
+
+    return Map<String, dynamic>.unmodifiable(
+      payload.map((key, value) => MapEntry(key, freeze(value))),
+    );
+  }
+
+  static void _validateWebBootstrapKey(String key) {
+    if (!key.startsWith('-----BEGIN PUBLIC KEY-----') ||
+        !key.trimRight().endsWith('-----END PUBLIC KEY-----')) {
+      throw const FormatException('Invalid Web bootstrap RSA key');
+    }
+    final publicKey = RSAService.parsePublicKeyFromPem(key);
+    if (publicKey.modulus == null ||
+        publicKey.modulus!.bitLength < 2048 ||
+        publicKey.exponent == null ||
+        publicKey.exponent! <= BigInt.one ||
+        publicKey.exponent!.isEven) {
+      throw const FormatException('Invalid Web bootstrap RSA key');
+    }
+  }
+
+  static Future<void> _persistWebBootstrap(
+    Map<String, dynamic> payload,
+    void Function() requireCurrent,
+  ) async {
+    final values = <String, String>{
+      Keys.wsUrl: payload['ws_url'] as String,
+      Keys.apiPublicKey: payload['login_rsa_pub_key'] as String,
+      Keys.publicBaseUrl: payload['public_base_url'] as String,
+      Keys.effectiveProductExperience:
+          payload['effective_product_experience'] as String,
+    };
+    for (final entry in values.entries) {
+      requireCurrent();
+      final saved = await StorageService.to.setString(entry.key, entry.value);
+      requireCurrent();
+      if (!saved) throw StateError('Web bootstrap persistence failed');
+    }
+  }
+
   static Future<Map<String, dynamic>> initConfig() async {
+    final scope = _currentInitScope();
+    if (_initConfigScope != scope) {
+      clearInitConfigCache();
+      _initConfigScope = scope;
+    }
     // 1. 如果已有缓存，直接返回
     if (_initConfigCache != null) {
       if (kDebugMode) debugPrint('🔧 initConfig: 返回缓存结果');
@@ -364,7 +588,13 @@ class AppInitializer {
     final pendingCompleter = _initConfigCompleter;
     if (pendingCompleter != null) {
       if (kDebugMode) debugPrint('🔧 initConfig: 等待进行中的请求');
-      return await pendingCompleter.future;
+      final result = await pendingCompleter.future;
+      if (!_isInitScopeCurrent(scope) ||
+          (!result.containsKey('error') &&
+              !identical(_initConfigCache, result))) {
+        return {'error': t.common.initConfigFetchFailed};
+      }
+      return result;
     }
 
     // 3. 创建新的 Completer 并开始请求
@@ -373,6 +603,13 @@ class AppInitializer {
     // 局部变量 completer 而非重新解引用静态字段，避免 `!` 空值崩溃。
     final completer = Completer<Map<String, dynamic>>();
     _initConfigCompleter = completer;
+    void requireCurrent() {
+      if (!_isInitScopeCurrent(scope) ||
+          !identical(_initConfigCompleter, completer)) {
+        throw StateError('Initialization scope changed');
+      }
+    }
+
     if (kDebugMode) debugPrint('🔧 initConfig: 开始获取配置');
 
     try {
@@ -382,8 +619,9 @@ class AppInitializer {
       for (int attempt = 1; attempt <= maxRetries; attempt++) {
         if (kDebugMode) {}
 
+        requireCurrent();
         resp1 = await HttpClient.client
-            .get(API.initConfig)
+            .get(kIsWeb ? '${scope.$2}/api/v1/web/bootstrap' : API.initConfig)
             .timeout(
               const Duration(seconds: 10),
               onTimeout: () {
@@ -397,12 +635,14 @@ class AppInitializer {
 
         if (kDebugMode) {}
 
+        requireCurrent();
         if (resp1.ok) break;
 
         if (attempt < maxRetries) {
           final delay = Duration(seconds: 1 << (attempt - 1)); // 1s, 2s, 4s
           if (kDebugMode) {}
           await Future<dynamic>.delayed(delay);
+          requireCurrent();
         }
       }
 
@@ -416,63 +656,69 @@ class AppInitializer {
         return error;
       }
 
-      // res_v2 = AES-256-GCM 自包含密文（AEAD 有认证 + 每次随机 IV）；
-      // res = 旧的 AES-256-CBC + 固定 IV + 无认证标签，仅在后端
-      // init_config_legacy_cbc=on 的过渡期还会下发。优先吃 v2。
-      final encryptedV2 =
-          IMBoyHttpResponse.payloadStr(resp1.payload, 'res_v2') ?? '';
-      final encrypted =
-          IMBoyHttpResponse.payloadStr(resp1.payload, 'res') ?? '';
-      final bool useGcm = encryptedV2.isNotEmpty;
-      if (kDebugMode) {
-        debugPrint(
-          '🔧 initConfig: 加密内容长度='
-          '${useGcm ? encryptedV2.length : encrypted.length}'
-          ' 模式=${useGcm ? "gcm" : "cbc(legacy)"}',
-        );
-      }
-
-      if (!useGcm && encrypted.isEmpty) {
-        if (kDebugMode) debugPrint('❌ initConfig: ��密内容为空');
-        final error = {"error": t.common.initConfigProtocolError};
-        completer.complete(error);
-        return error;
-      }
-
-      if (kDebugMode) debugPrint('🔧 initConfig: 开始解密配置');
-      final key = await Env.signKey();
-      if (kDebugMode) debugPrint('🔐 [INIT] signKey initialized');
-      final String md5Key = EncrypterService.md5(key);
-      final String decrypted;
-      try {
-        decrypted = useGcm
-            ? utf8.decode(
-                EncrypterService.aesGcmDecryptSelfContained(
-                  encryptedV2,
-                  Uint8List.fromList(utf8.encode(md5Key)),
-                ),
-              )
-            : EncrypterService.aesDecrypt(
-                encrypted,
-                md5Key,
-                Env().solidifiedKeyIv,
-              );
-      } on Exception catch (e) {
-        // H2 真机走查发现③：解密失败 = 密钥不匹配或密文损坏——能走到这里
-        // 说明网络与后端都正常，笼统报"请检查网络连接"会误导排障方向。
-        // 单独分类并给出行动指引（更新应用/核对密钥）。
+      late final Map<String, dynamic> payload;
+      if (kIsWeb) {
+        payload = validateWebBootstrapPayload(resp1.payload);
+      } else {
+        // res_v2 = AES-256-GCM 自包含密文（AEAD 有认证 + 每次随机 IV）；
+        // res = 旧的 AES-256-CBC + 固定 IV + 无认证标签，仅在后端
+        // init_config_legacy_cbc=on 的过渡期还会下发。优先吃 v2。
+        final encryptedV2 =
+            IMBoyHttpResponse.payloadStr(resp1.payload, 'res_v2') ?? '';
+        final encrypted =
+            IMBoyHttpResponse.payloadStr(resp1.payload, 'res') ?? '';
+        final bool useGcm = encryptedV2.isNotEmpty;
         if (kDebugMode) {
-          debugPrint('❌ initConfig: 配置解密失败（APP 与服务端密钥不一致？）: $e');
+          debugPrint(
+            '🔧 initConfig: 加密内容长度='
+            '${useGcm ? encryptedV2.length : encrypted.length}'
+            ' 模式=${useGcm ? "gcm" : "cbc(legacy)"}',
+          );
         }
-        final error = {"error": t.common.initConfigDecryptFailed};
-        if (!completer.isCompleted) {
+
+        if (!useGcm && encrypted.isEmpty) {
+          if (kDebugMode) debugPrint('❌ initConfig: ��密内容为空');
+          final error = {"error": t.common.initConfigProtocolError};
           completer.complete(error);
+          return error;
         }
-        return error;
+
+        if (kDebugMode) debugPrint('🔧 initConfig: 开始解密配置');
+        final key = await Env.signKey();
+        requireCurrent();
+        if (kDebugMode) debugPrint('🔐 [INIT] signKey initialized');
+        final String md5Key = EncrypterService.md5(key);
+        final String decrypted;
+        try {
+          decrypted = useGcm
+              ? utf8.decode(
+                  EncrypterService.aesGcmDecryptSelfContained(
+                    encryptedV2,
+                    Uint8List.fromList(utf8.encode(md5Key)),
+                  ),
+                )
+              : EncrypterService.aesDecrypt(
+                  encrypted,
+                  md5Key,
+                  Env().solidifiedKeyIv,
+                );
+        } on Exception catch (e) {
+          // H2 真机走查发现③：解密失败 = 密钥不匹配或密文损坏——能走到这里
+          // 说明网络与后端都正常，笼统报"请检查网络连接"会误导排障方向。
+          // 单独分类并给出行动指引（更新应用/核对密钥）。
+          if (kDebugMode) {
+            debugPrint('❌ initConfig: 配置解密失败（APP 与服务端密钥不一致？）: $e');
+          }
+          final error = {"error": t.common.initConfigDecryptFailed};
+          if (!completer.isCompleted) {
+            completer.complete(error);
+          }
+          return error;
+        }
+        payload = jsonDecode(decrypted) as Map<String, dynamic>;
+        if (kDebugMode) debugPrint('🔧 initConfig: 解密完成');
       }
-      Map<String, dynamic> payload =
-          jsonDecode(decrypted) as Map<String, dynamic>;
-      if (kDebugMode) debugPrint('🔧 initConfig: 解密完成');
+      requireCurrent();
 
       if (payload.containsKey('error')) {
         if (kDebugMode) debugPrint('❌ initConfig: payload包含错误');
@@ -487,75 +733,105 @@ class AppInitializer {
         );
       }
 
-      final wsUrl = payload['ws_url'];
-      if (kDebugMode) {
-        debugPrint(
-          '🔧 initConfig 诊断: ws_url=${wsUrl == null ? "null" : "(${wsUrl.runtimeType}, len=${wsUrl.toString().length})"}',
-        );
-      }
-
-      if (wsUrl != null && wsUrl.isNotEmpty == true) {
-        await StorageService.to.setString(Keys.wsUrl, wsUrl as String);
-        if (kDebugMode) debugPrint('✅ initConfig: Saved ws_url to storage');
+      if (kIsWeb) {
+        await _persistWebBootstrap(payload, requireCurrent);
       } else {
-        if (kDebugMode) {}
-      }
+        requireCurrent();
+        final wsUrl = payload['ws_url'];
+        if (kDebugMode) {
+          debugPrint(
+            '🔧 initConfig 诊断: ws_url=${wsUrl == null ? "null" : "(${wsUrl.runtimeType}, len=${wsUrl.toString().length})"}',
+          );
+        }
 
-      // null 安全转换：后端 E2EE 改造后 upload_key/upload_scene 可能为空串或缺失，
-      // 直接 `as String` 遇 null 会抛 TypeError(Error 子类)，无法被 on Exception 捕获，导致 init 硬崩
-      await StorageService.to.setString(
-        Keys.uploadUrl,
-        IMBoyHttpResponse.payloadStr(payload, 'upload_url') ?? '',
-      );
-      // H8: upload_key 改用加密安全存储，同时更新内存缓存供同步访问。
-      // macOS 桌面 ad-hoc 签名（project.pbxproj: CODE_SIGN_IDENTITY="-"、
-      // DEVELOPMENT_TEAM="") 下 keychain-access-groups 无有效 team 前缀，
-      // Keychain 一律拒绝 → PlatformException -34018，安全存储 read/write 均抛；
-      // 此处隔离该失败，避免单个 upload_key 拖垮整个 initConfig
-      //（否则 apiPublicKey/缓存无法落盘 → 登录链断）。
-      try {
-        await StorageSecureService.to.write(
-          key: Keys.uploadKey,
-          value: IMBoyHttpResponse.payloadStr(payload, 'upload_key') ?? '',
+        if (wsUrl != null && wsUrl.isNotEmpty == true) {
+          requireCurrent();
+          await StorageService.to.setString(Keys.wsUrl, wsUrl as String);
+          requireCurrent();
+          if (kDebugMode) debugPrint('✅ initConfig: Saved ws_url to storage');
+        } else {
+          if (kDebugMode) {}
+        }
+
+        // null 安全转换：后端 E2EE 改造后 upload_key/upload_scene 可能为空串或缺失，
+        // 直接 `as String` 遇 null 会抛 TypeError(Error 子类)，无法被 on Exception 捕获，导致 init 硬崩
+        requireCurrent();
+        await StorageService.to.setString(
+          Keys.uploadUrl,
+          IMBoyHttpResponse.payloadStr(payload, 'upload_url') ?? '',
         );
-        await Env.getUploadKey(); // populate in-memory cache
-      } on Exception catch (e) {
-        AppLogger.warning('upload_key secure persistence unavailable: $e');
+        requireCurrent();
+        // H8: upload_key 改用加密安全存储，同时更新内存缓存供同步访问。
+        // macOS 桌面 ad-hoc 签名（project.pbxproj: CODE_SIGN_IDENTITY="-"、
+        // DEVELOPMENT_TEAM="") 下 keychain-access-groups 无有效 team 前缀，
+        // Keychain 一律拒绝 → PlatformException -34018，安全存储 read/write 均抛；
+        // 此处隔离该失败，避免单个 upload_key 拖垮整个 initConfig
+        //（否则 apiPublicKey/缓存无法落盘 → 登录链断）。
+        try {
+          await StorageSecureService.to.write(
+            key: Keys.uploadKey,
+            value: IMBoyHttpResponse.payloadStr(payload, 'upload_key') ?? '',
+          );
+          requireCurrent();
+          await Env.getUploadKey(); // populate in-memory cache
+          requireCurrent();
+        } on Exception catch (e) {
+          AppLogger.warning('upload_key secure persistence unavailable: $e');
+        }
+        requireCurrent();
+        await StorageService.to.setString(
+          Keys.uploadScene,
+          IMBoyHttpResponse.payloadStr(payload, 'upload_scene') ?? '',
+        );
+
+        requireCurrent();
+        await StorageService.to.setString(
+          Keys.apiPublicKey,
+          IMBoyHttpResponse.payloadStr(payload, 'login_rsa_pub_key') ?? '',
+        );
+
+        // 公开资源直读基址（scope=public，如头像）：缺失时存空串，
+        // Env.publicBaseUrl 读取时回退到内置默认（见 resource-access-control.md §9）。
+        requireCurrent();
+        await StorageService.to.setString(
+          Keys.publicBaseUrl,
+          IMBoyHttpResponse.payloadStr(payload, 'public_base_url') ?? '',
+        );
+
+        // 保留旧安装级体验字段的缓存兼容；首页模式由账号本机选择决定，
+        // 不再用服务端默认值代替用户选择企业。
+        requireCurrent();
+        await StorageService.to.setString(
+          Keys.effectiveProductExperience,
+          IMBoyHttpResponse.payloadStr(
+                payload,
+                'effective_product_experience',
+              ) ??
+              '',
+        );
       }
-      await StorageService.to.setString(
-        Keys.uploadScene,
-        IMBoyHttpResponse.payloadStr(payload, 'upload_scene') ?? '',
-      );
-
-      await StorageService.to.setString(
-        Keys.apiPublicKey,
-        IMBoyHttpResponse.payloadStr(payload, 'login_rsa_pub_key') ?? '',
-      );
-
-      // 公开资源直读基址（scope=public，如头像）：缺失时存空串，
-      // Env.publicBaseUrl 读取时回退到内置默认（见 resource-access-control.md §9）。
-      await StorageService.to.setString(
-        Keys.publicBaseUrl,
-        IMBoyHttpResponse.payloadStr(payload, 'public_base_url') ?? '',
-      );
-
-      // 保留旧安装级体验字段的缓存兼容；首页模式由账号本机选择决定，
-      // 不再用服务端默认值代替用户选择企业。
-      await StorageService.to.setString(
-        Keys.effectiveProductExperience,
-        IMBoyHttpResponse.payloadStr(payload, 'effective_product_experience') ??
-            '',
-      );
+      requireCurrent();
 
       // 4. 缓存结果并完成
-      _initConfigCache = payload;
-      completer.complete(payload);
-      return payload;
-    } on Exception catch (e, stack) {
+      final result = kIsWeb
+          ? Map<String, dynamic>.unmodifiable(payload)
+          : payload;
+      _initConfigCache = result;
+      completer.complete(result);
+      return result;
+    } on Object catch (e, stack) {
       // 记录真实异常以便诊断（如 macOS Keychain entitlement 缺失会抛 PlatformException）
-      AppLogger.error("initConfig failed during payload persistence", e, stack);
+      if (kIsWeb) {
+        AppLogger.error('Web bootstrap failed: ${e.runtimeType}');
+      } else {
+        AppLogger.error(
+          "initConfig failed during payload persistence",
+          e,
+          stack,
+        );
+      }
       if (kDebugMode) {
-        debugPrint('❌ initConfig: 配置处理异常 ${e.runtimeType}: $e');
+        debugPrint('❌ initConfig: 配置处理异常 ${e.runtimeType}');
       }
       final error = {"error": t.common.initConfigFetchFailed};
       // 确保在异常情况下也清理 Completer
@@ -574,6 +850,7 @@ class AppInitializer {
   }
 
   static Future<void> _initializeServices() async {
+    requireWebWriter();
     // UserRepoLocal 已在 _initializeCore() 中提前注册
 
     // AppEventBus 已改为静态方法封装，无需注册
@@ -593,7 +870,12 @@ class AppInitializer {
       logger.i(
         '🔧 Fetching initConfig (apiPublicKey empty: ${strEmpty(Env.apiPublicKey)}, cache null: ${_initConfigCache == null})',
       );
-      await initConfig();
+      final config = await initConfig();
+      requireWebWriter();
+      if (kIsWeb &&
+          (config.containsKey('error') || currentWebBootstrap == null)) {
+        throw StateError('Web bootstrap initialization failed');
+      }
     } else {
       logger.i('✅ Using cached initConfig (apiPublicKey exists)');
     }
@@ -604,9 +886,11 @@ class AppInitializer {
     );
     AppManifestService.loadFromCache();
     await RuntimeFeatureRecovery.refreshNow();
+    requireWebWriter();
 
     // 初始化WebSocket和相关服务
     await _initializeWebSocketServices();
+    requireWebWriter();
     unawaited(ResumableAttachmentUploader.recoverCurrentSession());
 
     // 初始化推送通知服务（FCM token 注册 + 前台消息监听）
@@ -629,9 +913,11 @@ class AppInitializer {
   }
 
   static Future<void> _initializeWebSocketServices() async {
+    requireWebWriter();
     // 注册消息队列服务
     final messageQueue = PersistentMessageQueue.to;
     await messageQueue.init();
+    requireWebWriter();
     serviceContainer.put(messageQueue);
 
     // 使用lazyPut注册消息相关服务，避免循环依赖问题
@@ -761,6 +1047,7 @@ class AppInitializer {
   }
 
   static Future<void> _initializeListeners() async {
+    requireWebWriter();
     // 应用生命周期监听
     WidgetsBinding.instance.addObserver(
       LifecycleEventHandler(
@@ -783,10 +1070,12 @@ class AppInitializer {
   }
 
   static Future<void> _onAppResume() async {
+    if (!isWebWriterReady) return;
     logger.i("App resumed");
     unawaited(RuntimeFeatureRecovery.refreshNow());
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
+      if (!isWebWriterReady) return;
       if (UserRepoLocal.to.isLoggedIn) {
         final token = await UserRepoLocal.to.accessToken;
         if (tokenExpired(token)) {
@@ -849,6 +1138,7 @@ class AppInitializer {
   static Future<void> _onConnectivityChanged(
     List<ConnectivityResult> results,
   ) async {
+    if (!isWebWriterReady) return;
     logger.i("Connectivity changed: $results");
     if (!results.contains(ConnectivityResult.none)) {
       unawaited(RuntimeFeatureRecovery.refreshNow());
@@ -875,6 +1165,7 @@ class AppInitializer {
   static void clearInitConfigCache() {
     _initConfigCache = null;
     _initConfigCompleter = null;
+    _initConfigScope = null;
     if (kDebugMode) debugPrint('🔧 initConfig: 缓存已清理');
   }
 

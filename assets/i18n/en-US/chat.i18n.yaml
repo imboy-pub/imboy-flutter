@@ -227,3 +227,9 @@ inbox:
   undo: "Undo"
   openChannels: "Open Channels"
   channelEmptyDescription: "Update subscriptions or restore hidden channels from the Channels page."
+
+chatStatusOutcomeUnknown: This attempt was rejected; delivery is unconfirmed
+
+# ==================== E2EE message states (DSN-06 gap fill) ====================
+e2eeMsgBeforeDevice: "This message was sent before this device joined and cannot be shown here" # machine-candidate 2026-11-16
+e2eeMsgBeforeDeviceTapHint: "This message was encrypted without this device (e.g. history from before a device switch) and cannot be decrypted here; new messages sent to and from this device are unaffected" # machine-candidate 2026-11-16

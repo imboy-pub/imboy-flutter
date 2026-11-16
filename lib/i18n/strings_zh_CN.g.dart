@@ -2141,6 +2141,9 @@ class Translations$chat$zh_CN {
 	String get notFriendCannotSend => '非好友关系，无法发送消息';
 
 	late final Translations$chat$inbox$zh_CN inbox = Translations$chat$inbox$zh_CN.internal(_root);
+
+	/// zh-CN: '本次被拒，发送结果待确认'
+	String get chatStatusOutcomeUnknown => '本次被拒，发送结果待确认';
 }
 
 // Path: common
@@ -2525,6 +2528,9 @@ class Translations$common$zh_CN {
 
 	/// zh-CN: '开启后，将跟随系统打开或关闭深色模式'
 	String get followSystemTips => '开启后，将跟随系统打开或关闭深色模式';
+
+	/// zh-CN: '主题设置仅保存在当前浏览器，不会同步到其他设备。'
+	String get themeBrowserLocalOnly => '主题设置仅保存在当前浏览器，不会同步到其他设备。';
 
 	/// zh-CN: '性别设置失败，请重试'
 	String get genderUpdateFailed => '性别设置失败，请重试';
@@ -5018,6 +5024,15 @@ class Translations$common$zh_CN {
 
 	/// zh-CN: '点击朋友头像查看资料并添加好友'
 	String get f2fMemberHint => '点击朋友头像查看资料并添加好友';
+
+	/// zh-CN: 'Web 端仅供查看，请在 App 中修改。'
+	String get webReadOnlySettingsHint => 'Web 端仅供查看，请在 App 中修改。';
+
+	/// zh-CN: '检查本地发送状态'
+	String get legacyUploadCheckLocal => '检查本地发送状态';
+
+	/// zh-CN: '文本超过64 KiB，请修改后重试'
+	String get textTooLarge => '文本超过64 KiB，请修改后重试';
 }
 
 // Path: complaint
@@ -11764,6 +11779,7 @@ extension on Translations {
 			'chat.inbox.undo' => '撤销',
 			'chat.inbox.openChannels' => '前往频道',
 			'chat.inbox.channelEmptyDescription' => '在频道页更新订阅列表，也可以恢复已隐藏的频道。',
+			'chat.chatStatusOutcomeUnknown' => '本次被拒，发送结果待确认',
 			'common.about' => '关于',
 			'common.aboutApp' => '关于应用',
 			'common.accept' => '接受',
@@ -11889,6 +11905,7 @@ extension on Translations {
 			'common.feedbackDetails' => '反馈建议明细',
 			'common.feedbackSuccessMsg' => '你的反馈问题我们已经收到了，会尽快处理！',
 			'common.followSystemTips' => '开启后，将跟随系统打开或关闭深色模式',
+			'common.themeBrowserLocalOnly' => '主题设置仅保存在当前浏览器，不会同步到其他设备。',
 			'common.genderUpdateFailed' => '性别设置失败，请重试',
 			'common.groupAnnouncement' => '群公告',
 			'common.groupFileUploadSuccess' => '文件上传成功',
@@ -12099,10 +12116,10 @@ extension on Translations {
 			'common.verificationCodeSentToEmail' => '验证码将发送至该邮箱，请在有效期内完成验证',
 			'common.verificationCodeSentToMobile' => '验证码将发送至该手机，请在有效期内完成验证',
 			'common.sendFailed' => '发送失败',
-			'common.forceOffline' => '下线',
-			'common.forceDeviceOffline' => '让该设备下线',
 			_ => null,
 		} ?? switch (path) {
+			'common.forceOffline' => '下线',
+			'common.forceDeviceOffline' => '让该设备下线',
 			'common.forceDeviceOfflineConfirm' => '将向该设备发送下线指令，确认继续？',
 			'common.confirmForceOffline' => '确认下线',
 			'common.forceOfflineCommandSent' => '已发送下线指令',
@@ -12613,10 +12630,10 @@ extension on Translations {
 			'common.imageLoadFailed' => '加载失败',
 			'common.loadFailedWithError' => ({required Object error}) => '加载失败: ${error}',
 			'common.webAudioNotSupported' => 'Web 平台暂不支持语音消息播放',
-			'common.e2eeKeyRecreationFailed' => ({required Object error}) => '密钥创建失败: ${error}',
-			'common.redPacket' => '红包',
 			_ => null,
 		} ?? switch (path) {
+			'common.e2eeKeyRecreationFailed' => ({required Object error}) => '密钥创建失败: ${error}',
+			'common.redPacket' => '红包',
 			'common.transfer' => '转账',
 			'common.withdraw' => '提现',
 			'common.redPacketSend' => '发红包',
@@ -12722,6 +12739,9 @@ extension on Translations {
 			'common.legacyUploadReturnToOriginalPage' => '原上传未完成，请返回原页面重新选择文件并提交；原记录已保留。',
 			'common.f2fLocationRequired' => '请开启定位权限和定位服务，和身边的朋友一起重试',
 			'common.f2fMemberHint' => '点击朋友头像查看资料并添加好友',
+			'common.webReadOnlySettingsHint' => 'Web 端仅供查看，请在 App 中修改。',
+			'common.legacyUploadCheckLocal' => '检查本地发送状态',
+			'common.textTooLarge' => '文本超过64 KiB，请修改后重试',
 			'complaint.complaint' => '投诉',
 			'complaint.e2eeConsentTitle' => '提交加密消息证据',
 			'complaint.e2eeConsentBody' => '该消息为端到端加密消息，服务器无法查看其内容。提交内容摘录会将你选择的消息明文随工单披露给审核员用于核实举报。是否同意提交？',
@@ -13124,13 +13144,13 @@ extension on Translations {
 			'groupCategory.categoryRenamed' => '分组重命名成功',
 			'groupCategory.renameFailed' => '重命名失败，请重试',
 			'groupCategory.deleteFailed' => '删除失败，请重试',
+			_ => null,
+		} ?? switch (path) {
 			'groupCategory.categoryDetailTip' => '该分组下的群聊可以在群组列表中通过「移入分组」进行管理',
 			'groupDiscovery.title' => '发现群组',
 			'groupDiscovery.searchHint' => '搜索公开群',
 			'groupDiscovery.allCategories' => '全部',
 			'groupDiscovery.sortPopular' => '热门',
-			_ => null,
-		} ?? switch (path) {
 			'groupDiscovery.sortNewest' => '最新',
 			'groupDiscovery.emptyTitle' => '暂无公开群，稍后再来看看',
 			'groupDiscovery.searchEmpty' => '无匹配的公开群',
@@ -13638,13 +13658,13 @@ extension on Translations {
 			'organization.picker.joinConfirmWithRole' => ({required Object role, required Object name}) => '确认以 ${role} 身份加入「${name}」？',
 			'organization.picker.joinRoleMember' => '普通成员',
 			'organization.picker.joinRoleAdmin' => '管理员',
+			_ => null,
+		} ?? switch (path) {
 			'organization.picker.joinConfirmSubmit' => '确认加入',
 			'organization.picker.joinBack' => '返回修改',
 			'organization.picker.joinQrHint' => '对准企业邀请二维码即可自动加入',
 			'organization.picker.joinQrInvalid' => '不是有效的企业邀请二维码',
 			'organization.inviteColleagues.title' => '邀请同事',
-			_ => null,
-		} ?? switch (path) {
 			'organization.inviteColleagues.tabInvite' => '邀请同事',
 			'organization.inviteColleagues.tabPossible' => '可能的同事',
 			'organization.inviteColleagues.wechatInvite' => '微信邀请同事',
@@ -14152,13 +14172,13 @@ extension on Translations {
 			'talkRecord.exportDownloadReady' => '文件已保存；这是独立副本，撤销权限不会删除该副本。',
 			'talkRecord.exportDownloadFailed' => '下载或保存失败，可重试',
 			'talkRecord.exportExpiredTitle' => '导出已到期',
+			_ => null,
+		} ?? switch (path) {
 			'talkRecord.exportExpiredBody' => '下载链接已过期，请重新生成导出。',
 			'talkRecord.exportRegenerate' => '重新生成',
 			'talkRecord.exportFailedBody' => '生成导出失败，可重试。',
 			'talkRecord.exportConflictHint' => '记录已被他人更新，请刷新后重试。',
 			'talkRecord.exportFixtureHint' => '组件阶段：下载链接为 fixture 示例，不产生真实文件。',
-			_ => null,
-		} ?? switch (path) {
 			'talkRecord.transferTitle' => '移交管理责任',
 			'talkRecord.transferScopeHint' => '移交仅变更管理责任人；记录归属（企业与工作区）保持不变。',
 			'talkRecord.transferCreatedByHint' => '创建者记录保持不变；此动作与分享权限相互独立。',

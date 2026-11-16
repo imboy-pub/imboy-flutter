@@ -1,9 +1,13 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter/semantics.dart'
+    show CustomSemanticsAction, SemanticsAction;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:imboy/component/ui/bot_badge.dart';
+import 'package:imboy/component/ui/cell_pressable.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/conversation/widget/message_inbox_tile.dart';
 import 'package:imboy/theme/default/app_colors.dart';
@@ -27,6 +31,7 @@ Widget _tile(
   VoidCallback? onTap,
   VoidCallback? onLongPress,
   VoidCallback? onTapAvatar,
+  Map<CustomSemanticsAction, VoidCallback>? customSemanticsActions,
 }) => MessageInboxTile(
   avatar: GestureDetector(
     onTap: onTapAvatar,
@@ -67,6 +72,7 @@ Widget _tile(
       : null,
   onTap: onTap,
   onLongPress: onLongPress,
+  customSemanticsActions: customSemanticsActions,
 );
 
 Future<void> _pump(
@@ -107,6 +113,20 @@ Color _badgeColor(WidgetTester tester, String label) {
     find.ancestor(of: find.text(label), matching: find.byType(Container)).first,
   );
   return (badge.decoration! as BoxDecoration).color!;
+}
+
+Color? _focusColor(WidgetTester tester) {
+  final box = tester.widget<DecoratedBox>(
+    find.descendant(
+      of: find.byType(CellPressable),
+      matching: find.byWidgetPredicate(
+        (widget) =>
+            widget is DecoratedBox &&
+            widget.position == DecorationPosition.foreground,
+      ),
+    ),
+  );
+  return (box.decoration as BoxDecoration).color;
 }
 
 class _InboxThemeNotifier extends ThemeNotifier {
@@ -203,9 +223,31 @@ void main() {
     try {
       await _pump(
         tester,
-        (context) => _tile(context, unreadCount: 250, isMuted: true),
+        (context) => _tile(
+          context,
+          unreadCount: 250,
+          isMuted: true,
+          onTap: () {},
+          customSemanticsActions: {
+            CustomSemanticsAction(label: t.chat.markRead): () {},
+          },
+        ),
       );
       expect(_badgeColor(tester, '99+'), AppColors.iosGray3);
+      await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+      await tester.pump();
+      final data = tester.getSemantics(find.text(_title)).getSemanticsData();
+      expect(data.label, contains(_title));
+      expect(data.label, contains(_preview));
+      expect(data.flagsCollection.isButton, isTrue);
+      expect(data.flagsCollection.isFocused.toBoolOrNull(), isTrue);
+      expect(
+        data.customSemanticsActionIds?.map(
+          (id) => CustomSemanticsAction.getAction(id)?.label,
+        ),
+        contains(t.chat.markRead),
+      );
+
       expect(
         find.bySemanticsLabel(
           RegExp(RegExp.escape(t.common.unreadCount(count: '250'))),
@@ -268,6 +310,107 @@ void main() {
     expect(rowTaps, 1);
     await tester.pumpAndSettle();
   });
+
+  testWidgets(
+    'semantic row and avatar taps retain separate callbacks and bounds',
+    (tester) async {
+      final handle = tester.ensureSemantics();
+      try {
+        var rowTaps = 0;
+        var avatarTaps = 0;
+        await _pump(
+          tester,
+          (context) => _tile(
+            context,
+            onTap: () => rowTaps++,
+            onTapAvatar: () => avatarTaps++,
+          ),
+        );
+        final row = tester.getSemantics(find.text(_title));
+        row.owner!.performAction(row.id, SemanticsAction.tap);
+        await tester.pump();
+        expect(rowTaps, 1);
+        expect(avatarTaps, 0);
+        final avatar = tester.getSemantics(find.byKey(_avatarKey));
+        expect(avatar.id, isNot(row.id));
+        expect(
+          avatar.rect.width,
+          lessThanOrEqualTo(MessageInboxTile.avatarSize),
+        );
+        expect(
+          avatar.rect.height,
+          lessThanOrEqualTo(MessageInboxTile.avatarSize),
+        );
+        expect(avatar.getSemanticsData().label, contains(t.account.avatar));
+        expect(
+          avatar.getSemanticsData().hasAction(SemanticsAction.tap),
+          isTrue,
+        );
+        avatar.owner!.performAction(avatar.id, SemanticsAction.tap);
+        await tester.pump();
+        expect(avatarTaps, 1);
+        expect(rowTaps, 1);
+      } finally {
+        handle.dispose();
+      }
+    },
+  );
+
+  testWidgets('noninteractive avatar has no semantic button or tap action', (
+    tester,
+  ) async {
+    final handle = tester.ensureSemantics();
+    try {
+      await _pump(tester, (context) => _tile(context, onTap: () {}));
+      final avatar = tester.getSemantics(find.byKey(_avatarKey));
+      expect(avatar.getSemanticsData().flagsCollection.isButton, isFalse);
+      expect(avatar.getSemanticsData().hasAction(SemanticsAction.tap), isFalse);
+    } finally {
+      handle.dispose();
+    }
+  });
+
+  for (final brightness in Brightness.values) {
+    testWidgets(
+      'inbox row supports keyboard focus and activation: $brightness',
+      (tester) async {
+        var rowTaps = 0;
+        await _pump(
+          tester,
+          (context) => Column(
+            children: [
+              _tile(context, onTap: () => rowTaps++),
+              TextButton(onPressed: () {}, child: const Text('Next control')),
+            ],
+          ),
+          brightness: brightness,
+        );
+        await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+        await tester.pump();
+        expect(Focus.of(tester.element(find.text(_title))).hasFocus, isTrue);
+        expect(_focusColor(tester), isNot(AppColors.transparent));
+        await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+        await tester.sendKeyEvent(LogicalKeyboardKey.space);
+        expect(rowTaps, 2);
+        await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+        await tester.pump();
+        expect(_focusColor(tester), AppColors.transparent);
+        expect(
+          Focus.of(tester.element(find.text('Next control'))).hasFocus,
+          isTrue,
+        );
+        await tester.sendKeyDownEvent(LogicalKeyboardKey.shiftLeft);
+        await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+        await tester.sendKeyUpEvent(LogicalKeyboardKey.shiftLeft);
+        await tester.pump();
+        expect(Focus.of(tester.element(find.text(_title))).hasFocus, isTrue);
+        expect(_focusColor(tester), isNot(AppColors.transparent));
+        await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+        expect(rowTaps, 3);
+        expect(tester.takeException(), isNull);
+      },
+    );
+  }
 
   testWidgets('pressed feedback follows the system reduced-motion preference', (
     tester,

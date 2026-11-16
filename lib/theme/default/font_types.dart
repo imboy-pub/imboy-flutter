@@ -4,6 +4,22 @@ import 'package:imboy/theme/theme_manager.dart' show ThemeManager;
 // 统一对外导出 ThemeManager，方便其它文件只引入 font_types.dart 即可使用 ThemeManager
 export 'package:imboy/theme/theme_manager.dart' show ThemeManager;
 
+/// 应用级字体回退链（F5/PERF-05，uxfix-batch1 2026-11-16）。
+///
+/// 首位挂内嵌的 [NotoSansSC] 中文字体子集（pubspec `fonts:` 声明，i18n 全
+/// locale 字符 + GB2312 一级常用字 + ASCII + 标点，见
+/// assets/fonts/NotoSansSC-*-subset.otf）：CanvasKit 遇到未覆盖字形时才会
+/// 触发 fonts.gstatic 动态 fallback（PERF-05 netlog 实锤 7 分片命中），
+/// 中文字形由子集本地命中后引擎不再外拉。其后保持原系统回退顺序不变
+/// （桌面端无子集覆盖的生僻字形仍走系统字体）。
+const List<String> kAppFontFamilyFallback = [
+  'NotoSansSC',
+  'PingFang SC',
+  'Heiti SC',
+  'Microsoft YaHei',
+  'sans-serif',
+];
+
 /// 字体大小类型枚举
 /// 提供类型安全的字体大小定义，避免使用字符串常量
 enum FontSizeType {

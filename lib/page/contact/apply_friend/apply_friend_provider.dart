@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'package:flutter/foundation.dart' show kIsWeb;
+
 import 'package:dio/dio.dart';
 import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/component/helper/datetime.dart';
@@ -108,7 +110,11 @@ class ApplyFriendNotifier extends _$ApplyFriendNotifier {
       IMBoyHttpResponse resp = await HttpClient.client.post(
         "${Env().apiBaseUrl}${API.addFriend}",
         data: msg,
-        options: Options(contentType: "application/x-www-form-urlencoded"),
+        options: Options(
+          contentType: kIsWeb
+              ? Headers.jsonContentType
+              : "application/x-www-form-urlencoded",
+        ),
       );
 
       if (resp.ok) {

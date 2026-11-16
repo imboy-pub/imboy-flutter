@@ -21,3 +21,21 @@ cancelSchedule: スケジュールをキャンセル
 scheduleIdMissing: スケジュールIDがありません。詳細を表示できません
 untitledSchedule: "無題の予定"
 cardViewAndAttend: "詳細を見て参加を確認"
+
+# ---- DSN-06 gap fill (machine-candidate 2026-11-16) ----
+allParticipants: "全参加者（$count）" # machine-candidate 2026-11-16
+attendSummary: "$attending/$total 人が参加" # machine-candidate 2026-11-16
+cardViewDetail: "詳細を表示" # machine-candidate 2026-11-16
+collapseParticipants: "折りたたむ" # machine-candidate 2026-11-16
+duration: "約$minutes分" # machine-candidate 2026-11-16
+hintToday: "今日" # machine-candidate 2026-11-16
+hintTomorrow: "明日" # machine-candidate 2026-11-16
+organizer: "主催者" # machine-candidate 2026-11-16
+participantAttending: "参加済み" # machine-candidate 2026-11-16
+participantDeclined: "辞退" # machine-candidate 2026-11-16
+participantPending: "未回答" # machine-candidate 2026-11-16
+remindBefore: "開始$minutes分前に通知" # machine-candidate 2026-11-16
+sectionLater: "それ以降" # machine-candidate 2026-11-16
+sectionThisWeek: "今週" # machine-candidate 2026-11-16
+sectionToday: "今日" # machine-candidate 2026-11-16
+startsHint: "$hint $time 開始" # machine-candidate 2026-11-16

@@ -143,7 +143,10 @@ class AppColors {
   static const Color darkOnErrorContainer = Color(0xFFFFDAD6);
 
   // ============ 聊天相关颜色 ============
-  static const Color lightSentMessageBackground = primary;
+  // DSN-05 R06/R07：#F5F7FA on primary(#2474E5) = 4.159 < 4.5。属主裁决
+  // 2026-11-16 采纳评审候选 RC-1：亮色发送气泡改用 primaryDark
+  // （#F5F7FA on #1565C0 = 5.354 ≥ 4.5；纯白字 5.746）。
+  static const Color lightSentMessageBackground = primaryDark;
   static const Color lightReceivedMessageBackground = Color(0xFFFFFFFF);
   // 暗色发送气泡：采用深邃沉稳的皇家蓝 #1D5EC2（白字对比度 5.45:1，达标 WCAG AA），
   // 消除原高明度 #3D8BF0 在夜间大面积连续气泡下的刺眼发光感。
@@ -190,6 +193,10 @@ class AppColors {
   // ============ iOS 语义色 ============
   static const Color iosBlue = Color(0xFF007AFF);
   static const Color iosBlueDark = Color(0xFF0A84FF);
+
+  /// 暗色高对比 iOS 蓝：#0A84FF 在暗色气泡 #262629 上仅 4.137:1（DSN-05
+  /// R21/R22 同族暗色面），可交互文字用 #409CFF（气泡上 5.33 / 表面 6.01）。
+  static const Color iosBlueDarkHighContrast = Color(0xFF409CFF);
   static const Color iosRed = Color(0xFFFF3B30);
   static const Color iosRedDark = Color(0xFFFF453A);
   static const Color iosGreen = Color(0xFF34C759);

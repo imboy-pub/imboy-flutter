@@ -3,6 +3,11 @@ import 'dart:typed_data';
 
 import 'package:crypto/crypto.dart';
 import 'package:dio/dio.dart';
+import 'package:imboy/component/http/http_request_policy.dart';
+import 'package:imboy/component/http/web_writer_http_adapter.dart';
+import 'package:imboy/service/account_local_task_registry.dart';
+import 'package:imboy/service/auth_session_scope.dart';
+import 'package:imboy/service/web_writer_gate.dart';
 import 'package:flutter/foundation.dart' show kIsWeb, visibleForTesting;
 
 import 'cs_direct_web_put_stub.dart'
@@ -49,6 +54,13 @@ class CsAssetPutTransport {
     if (adapter != null) _dio.httpClientAdapter = adapter;
   }
   final Dio _dio;
+  Dio? _memberDio;
+
+  // A separate member view keeps later guest/direct calls off the writer wrapper.
+  // The original _dio alone owns/closes their shared underlying adapter.
+  Dio _memberClient() => _memberDio ??= guardWebWriterDio(
+    Dio(_dio.options.copyWith())..httpClientAdapter = _dio.httpClientAdapter,
+  );
   final Duration _webTimeout;
   final Set<void Function()> _webAborters = {};
   bool _closed = false;
@@ -73,7 +85,23 @@ class CsAssetPutTransport {
     required Map<String, dynamic> authenticatedHeaders,
     CancelToken? cancelToken,
     ProgressCallback? onSendProgress,
+    void Function()? beforeDispatch,
   }) async {
+    if (kIsWeb) requireWebWriter();
+    final session = kIsWeb ? authSessionReader.current : null;
+    final owner = kIsWeb ? AccountLocalTaskOwner.capture() : null;
+    void memberGuard() {
+      requireWebWriter();
+      if (_closed ||
+          !authSessionReader.isCurrent(session!) ||
+          AccountLocalTaskOwner.capture() != owner) {
+        throw const CsAssetPutException(CsAssetPutFailure.cancelled);
+      }
+      beforeDispatch?.call();
+    }
+
+    final guard = kIsWeb ? memberGuard : null;
+    guard?.call();
     final target = _memberTarget(
       url,
       apiOrigin,
@@ -90,7 +118,9 @@ class CsAssetPutTransport {
       cancelToken,
       onSendProgress,
       ResponseType.json,
+      memberGuard: guard,
     );
+    guard?.call();
     if (response.statusCode != 200) {
       throw CsAssetPutException(
         CsAssetPutFailure.invalidAcknowledgement,
@@ -295,19 +325,23 @@ class CsAssetPutTransport {
     Map<String, String> headers,
     CancelToken? cancel,
     ProgressCallback? progress,
-    ResponseType responseType,
-  ) async {
+    ResponseType responseType, {
+    void Function()? memberGuard,
+  }) async {
     if (cancel?.isCancelled == true) {
       throw const CsAssetPutException(CsAssetPutFailure.cancelled);
     }
+    memberGuard?.call();
+    final client = memberGuard == null ? _dio : _memberClient();
     try {
-      final response = await _dio.putUri<Object?>(
+      final response = await client.putUri<Object?>(
         target,
         data: Stream<List<int>>.value(bytes),
         cancelToken: cancel,
         onSendProgress: progress,
         options: Options(
           responseType: responseType,
+          extra: {if (memberGuard != null) httpRequestGuard: memberGuard},
           headers: {
             'Content-Type': 'application/octet-stream',
             'Content-Length': bytes.length,

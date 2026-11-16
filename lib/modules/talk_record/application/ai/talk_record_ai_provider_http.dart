@@ -1,3 +1,5 @@
+import 'package:imboy/component/http/web_writer_http_adapter.dart';
+
 import 'dart:async';
 import 'dart:convert';
 import 'dart:typed_data';
@@ -215,7 +217,7 @@ class TalkRecordAiProviderHttp {
       adapterFactory?.call() ?? dio.httpClientAdapter,
       guard,
     );
-    return dio;
+    return guardWebWriterDio(dio);
   }
 
   Future<Map<String, Object?>> _request(

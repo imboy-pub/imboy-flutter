@@ -21,3 +21,21 @@ cancelSchedule: Annuler l'événement
 scheduleIdMissing: ID de l'événement manquant, détails indisponibles
 untitledSchedule: "Événement sans titre"
 cardViewAndAttend: "Voir les détails et confirmer"
+
+# ---- DSN-06 gap fill (machine-candidate 2026-11-16) ----
+allParticipants: "Tous les participants ($count)" # machine-candidate 2026-11-16
+attendSummary: "$attending/$total participants" # machine-candidate 2026-11-16
+cardViewDetail: "Voir les détails" # machine-candidate 2026-11-16
+collapseParticipants: "Réduire" # machine-candidate 2026-11-16
+duration: "Durée prévue : $minutes minutes" # machine-candidate 2026-11-16
+hintToday: "Aujourd'hui" # machine-candidate 2026-11-16
+hintTomorrow: "Demain" # machine-candidate 2026-11-16
+organizer: "Organisateur" # machine-candidate 2026-11-16
+participantAttending: "Participe" # machine-candidate 2026-11-16
+participantDeclined: "Refusé" # machine-candidate 2026-11-16
+participantPending: "En attente" # machine-candidate 2026-11-16
+remindBefore: "Rappel $minutes minutes avant le début" # machine-candidate 2026-11-16
+sectionLater: "Plus tard" # machine-candidate 2026-11-16
+sectionThisWeek: "Cette semaine" # machine-candidate 2026-11-16
+sectionToday: "Aujourd'hui" # machine-candidate 2026-11-16
+startsHint: "Commence $hint à $time" # machine-candidate 2026-11-16

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/font_types.dart';
 import 'package:imboy/i18n/strings.g.dart';
+import 'package:imboy/service/web_writer_gate.dart';
 
 /// 初始化失败兜底页 / Init failure fallback page
 ///
@@ -34,7 +35,11 @@ class _InitErrorPageState extends State<InitErrorPage> {
     if (_retrying) return;
     setState(() => _retrying = true);
     try {
-      await widget.onRetry();
+      if (widget.error is WebWriterGateFailure) {
+        await reloadWebWriterPage();
+      } else {
+        await widget.onRetry();
+      }
     } catch (e) {
       // bootstrap 内部已兜底渲染新的错误页；此处仅防御性记录
       debugPrint('[InitErrorPage] retry threw: $e');
@@ -46,6 +51,9 @@ class _InitErrorPageState extends State<InitErrorPage> {
 
   @override
   Widget build(BuildContext context) {
+    final writerFailure = widget.error is WebWriterGateFailure
+        ? widget.error as WebWriterGateFailure
+        : null;
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       home: CupertinoPageScaffold(
@@ -64,7 +72,7 @@ class _InitErrorPageState extends State<InitErrorPage> {
                   ),
                   const SizedBox(height: 16),
                   Text(
-                    '应用初始化失败',
+                    writerFailure == null ? '应用初始化失败' : 'Web 暂时无法打开',
                     style: context.textStyle(
                       FontSizeType.large,
                       fontWeight: FontWeight.w600,
@@ -72,8 +80,10 @@ class _InitErrorPageState extends State<InitErrorPage> {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    '可能是网络或本地存储异常导致，请重试；'
-                    '若持续失败请重新安装或联系客服。',
+                    writerFailure == null
+                        ? '可能是网络或本地存储异常导致，请重试；'
+                              '若持续失败请重新安装或联系客服。'
+                        : _writerFailureDescription(writerFailure.kind),
                     textAlign: TextAlign.center,
                     style: context.textStyle(
                       FontSizeType.normal,
@@ -81,16 +91,17 @@ class _InitErrorPageState extends State<InitErrorPage> {
                     ),
                   ),
                   const SizedBox(height: 12),
-                  SelectableText(
-                    widget.error.toString(),
-                    style: context
-                        .textStyle(
-                          FontSizeType.caption2,
-                          color: AppColors.textSecondary,
-                        )
-                        .copyWith(fontFamily: 'monospace'),
-                    maxLines: 6,
-                  ),
+                  if (writerFailure == null)
+                    SelectableText(
+                      widget.error.toString(),
+                      style: context
+                          .textStyle(
+                            FontSizeType.caption2,
+                            color: AppColors.textSecondary,
+                          )
+                          .copyWith(fontFamily: 'monospace'),
+                      maxLines: 6,
+                    ),
                   const SizedBox(height: 24),
                   FilledButton.icon(
                     onPressed: _retrying ? null : _retry,
@@ -101,7 +112,13 @@ class _InitErrorPageState extends State<InitErrorPage> {
                             child: CupertinoActivityIndicator(),
                           )
                         : const Icon(CupertinoIcons.arrow_clockwise),
-                    label: Text(_retrying ? t.common.retrying : t.common.retry),
+                    label: Text(
+                      _retrying
+                          ? t.common.retrying
+                          : writerFailure == null
+                          ? t.common.retry
+                          : '刷新页面',
+                    ),
                   ),
                 ],
               ),
@@ -112,3 +129,12 @@ class _InitErrorPageState extends State<InitErrorPage> {
     );
   }
 }
+
+// Pre-i18n startup fallback, matching this existing page's boot-copy policy.
+String _writerFailureDescription(WebWriterFailureKind kind) => switch (kind) {
+  WebWriterFailureKind.occupied =>
+    '另一个 ImBoy 页面正在使用本地会话。请关闭其他 ImBoy 页面后刷新本页；不要清除浏览器数据。',
+  WebWriterFailureKind.unavailable =>
+    '本地存储未能准备完成，请在受支持的浏览器和安全连接中刷新重试；不要清除浏览器数据。',
+  WebWriterFailureKind.poisoned => '本页的本地存储不能继续使用，请刷新页面重新读取已保存的数据；不要清除浏览器数据。',
+};

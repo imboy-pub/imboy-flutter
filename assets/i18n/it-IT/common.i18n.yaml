@@ -117,6 +117,7 @@ feedbackContentRequired: Il contenuto del feedback non può essere vuoto
 feedbackDetails: Dettagli feedback
 feedbackSuccessMsg: Abbiamo ricevuto il tuo feedback, lo gestiremo il prima possibile!
 followSystemTips: Dopo l'attivazione, seguirà il sistema per attivare o disattivare la modalità scura
+themeBrowserLocalOnly: "Le impostazioni del tema vengono salvate solo in questo browser e non sono sincronizzate con gli altri dispositivi."
 genderUpdateFailed: Impostazione genere non riuscita, riprova
 groupAnnouncement: Annuncio gruppo
 groupFileUploadSuccess: File caricato
@@ -945,3 +946,29 @@ legacyUploadReturnToOriginalPage: "Il caricamento è incompleto. Torna alla pagi
 
 f2fLocationRequired: "Attiva il permesso e i servizi di localizzazione e riprova con gli amici vicini."
 f2fMemberHint: "Tocca un avatar per vedere il profilo e aggiungere la persona agli amici."
+
+webReadOnlySettingsHint: "Sul Web è disponibile solo la lettura. Modifica questa impostazione nell’app."
+
+legacyUploadCheckLocal: "Controlla stato di invio locale"
+
+textTooLarge: "Il testo supera 64 KiB. Modificalo e riprova."
+
+# ---- DSN-06 gap fill (machine-candidate 2026-11-16) ----
+e2eeBackupDeviceKeySyncPending: "Nota: la sincronizzazione dell'identità del dispositivo non è completata; questo dispositivo potrebbe momentaneamente non decifrare i nuovi messaggi. Dopo un nuovo accesso la sincronizzazione si completerà automaticamente" # machine-candidate 2026-11-16
+e2eeBackupSetupBlockedToast: "Completa prima la configurazione del backup delle chiavi" # machine-candidate 2026-11-16
+e2eeBackupSetupBody: "Solo dopo aver impostato una frase di recupero e caricato il backup nel cloud sarà possibile ritrovare la cronologia chat cifrata a cambio dispositivo o reinstallazione; senza backup, i messaggi della cronologia saranno indecifrabili sul nuovo dispositivo." # machine-candidate 2026-11-16
+e2eeBackupSetupBusyHint: "Cifratura locale e caricamento sul cloud in corso, attendi; con rete debole puoi toccare «Più tardi» qui sotto per saltare" # machine-candidate 2026-11-16
+e2eeBackupSetupLater: "Più tardi (verrà ricordato al prossimo avvio)" # machine-candidate 2026-11-16
+e2eeBackupSetupLaterConfirmBody: "Senza configurazione, questa cronologia chat cifrata sarà indecifrabile e irreperibile dopo un cambio dispositivo o una reinstallazione. Al prossimo avvio verrai ricordato di nuovo." # machine-candidate 2026-11-16
+e2eeBackupSetupLaterConfirmLeave: "Non configurare" # machine-candidate 2026-11-16
+e2eeBackupSetupLaterConfirmStay: "Continua la configurazione" # machine-candidate 2026-11-16
+e2eeBackupSetupLaterConfirmTitle: "Non configurare il backup?" # machine-candidate 2026-11-16
+e2eeBackupSetupPostponedToast: "Rinviato; al prossimo avvio verrai ricordato di nuovo" # machine-candidate 2026-11-16
+e2eeBackupSetupPwdHint: "Scegli la tua frase di recupero, oppure tocca qui sotto per generare una chiave di recupero casuale" # machine-candidate 2026-11-16
+e2eeBackupSetupPwdTooShort: "La frase deve avere almeno 8 caratteri" # machine-candidate 2026-11-16
+e2eeBackupSetupSavedNote: "La frase di recupero è salvata nell'archivio sicuro del dispositivo; ai futuri cambi delle chiavi il backup sarà ricaricato automaticamente, senza reinserirla." # machine-candidate 2026-11-16
+e2eeBackupSetupSubmit: "Completa e carica il backup nel cloud" # machine-candidate 2026-11-16
+e2eeBackupSetupTimeoutToast: "Timeout del caricamento; controlla la rete e riprova, oppure configura più tardi" # machine-candidate 2026-11-16
+e2eeBackupSetupTitle: "Proteggi la tua cronologia cifrata" # machine-candidate 2026-11-16
+e2eeBackupSetupUploading: "Caricamento in corso…" # machine-candidate 2026-11-16
+e2eeBackupSetupWeakHint: "Frase breve; sono consigliati almeno 12 caratteri, oppure tocca «Genera chiave di recupero» qui sotto per usare una chiave casuale" # machine-candidate 2026-11-16

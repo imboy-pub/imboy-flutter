@@ -383,10 +383,23 @@ flutter:
   uses-material-design: true
 
   # ┌─ Custom Fonts ──────────────────────────────────────────────────┐
+  # DSN-06（属主裁决 2026-11-16）：IMBoyIcon/iconfont.ttf 曾在此声明但 lib/ 零代码
+  # 引用（grep 全库无 'IMBoyIcon'），属孤儿打包资源，已移除。
+  # 如需自定义图标字体，重新声明并在代码中通过 IconData('family') 引用。
+  #
+  # F5（PERF-05，uxfix-batch1 2026-11-16）：内嵌中文字体子集。App 未内嵌 CJK
+  # 字体时，CanvasKit 渲染中文会向 fonts.gstatic 动态拉 NotoSansSC 分片
+  # （perf05-nocdn-fix-20261116/netlog-samesession-verdict.json：同会话 7 个
+  # woff2 分片命中）。子集来源：Noto Sans CJK SC（OFL 许可）Regular/Bold，
+  # pyftsubset 收录 i18n 10 locale 全部字符串 + GB2312 一级常用字 3755 +
+  # ASCII + 常用标点（5225 字符，单文件约 2MB）。挂接点：
+  # lib/theme/default/font_types.dart kAppFontFamilyFallback。
   fonts:
-    - family: IMBoyIcon  # 自定义图标字体
+    - family: NotoSansSC
       fonts:
-        - asset: assets/fonts/iconfont.ttf
+        - asset: assets/fonts/NotoSansSC-Regular-subset.otf
+        - asset: assets/fonts/NotoSansSC-Bold-subset.otf
+          weight: 700
 
   # ┌─ Assets & Resources ────────────────────────────────────────────┐
   assets:

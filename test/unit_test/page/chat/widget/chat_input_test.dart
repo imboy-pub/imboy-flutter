@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
 import 'package:flutter/cupertino.dart';
@@ -43,7 +44,7 @@ Future<void> _pump(
             body: ChatInput(
               type: 'C2C',
               peerId: 'peer_1',
-              onSendPressed: (text) async => true,
+              onSendPressed: (text) async => const ComposerSendReceipt(true),
               composerHeight: composerHeight,
               isMuted: isMuted,
               muteMessage: muteMessage,
@@ -82,7 +83,7 @@ Future<void> _pumpType(
             body: ChatInput(
               type: type,
               peerId: 'peer_1',
-              onSendPressed: (text) async => true,
+              onSendPressed: (text) async => const ComposerSendReceipt(true),
               composerHeight: composerHeight,
             ),
           ),
@@ -110,6 +111,56 @@ void main() {
     IMBoyCacheManager.debugLogEnabled = true;
     await StorageService.to.remove(Keys.currentUid);
   });
+
+  for (final bytes in [65535, 65536, 65537]) {
+    testWidgets('Native UTF8 boundary $bytes keeps complete input', (
+      tester,
+    ) async {
+      const prefix = '中👩‍👩‍👧‍👦é\n';
+      final text =
+          prefix + List.filled(bytes - utf8.encode(prefix).length, 'a').join();
+      final raw = '  $text  ';
+      final height = ValueNotifier<double>(52);
+      addTearDown(height.dispose);
+      final submitted = <String>[];
+      await tester.pumpWidget(
+        ProviderScope(
+          child: TranslationProvider(
+            child: MaterialApp(
+              home: Scaffold(
+                body: ChatInput(
+                  type: 'C2C',
+                  peerId: 'peer_1',
+                  composerHeight: height,
+                  onSendPressed: (value) async {
+                    submitted.add(value.text);
+                    return const ComposerSendReceipt(false);
+                  },
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.pump();
+      final field = find.byKey(const Key('chat_message_input'));
+      await tester.enterText(field, raw);
+      final input = tester.widget<EditableText>(find.byType(EditableText));
+      input.controller.selection = const TextSelection.collapsed(offset: 3);
+      await tester.pump(const Duration(milliseconds: 700));
+      expect(input.controller.text, raw);
+      await tester.tap(find.byKey(const ValueKey('send_button')));
+      await tester.pump(const Duration(milliseconds: 100));
+      expect(submitted, bytes <= 65536 ? [text] : isEmpty);
+      expect(input.controller.text, raw);
+      expect(
+        input.controller.selection,
+        const TextSelection.collapsed(offset: 3),
+      );
+      expect(input.focusNode.hasFocus, true);
+      await _unmount(tester);
+    });
+  }
 
   testWidgets('输入栏与 App 主题同步，系统设置相反也不出现浅色底板', (tester) async {
     addTearDown(tester.platformDispatcher.clearPlatformBrightnessTestValue);
@@ -208,7 +259,7 @@ void main() {
       final widget = ChatInput(
         type: 'C2C',
         peerId: 'peer_1',
-        onSendPressed: (text) async => true,
+        onSendPressed: (text) async => const ComposerSendReceipt(true),
         composerHeight: composerHeight,
       );
 
@@ -222,7 +273,7 @@ void main() {
       expect(widget.autofocus, false);
       expect(widget.maxLines, 6);
       expect(widget.minLines, 1);
-      expect(widget.maxLength, 1000);
+      expect(widget.maxLength, isNull);
       expect(widget.handleSafeArea, true);
       // 默认 sendButtonVisibilityMode（editing）
       expect(widget.textCapitalization, TextCapitalization.sentences);
@@ -237,7 +288,7 @@ void main() {
       final widget = ChatInput(
         type: 'C2G',
         peerId: 'group_1',
-        onSendPressed: (text) async => true,
+        onSendPressed: (text) async => const ComposerSendReceipt(true),
         composerHeight: composerHeight,
       );
       expect(widget, isA<StatefulWidget>());
@@ -251,7 +302,7 @@ void main() {
       final widget = ChatInput(
         type: 'C2G',
         peerId: 'group_42',
-        onSendPressed: (text) async => true,
+        onSendPressed: (text) async => const ComposerSendReceipt(true),
         composerHeight: composerHeight,
         isMuted: true,
         muteMessage: '管理员将群禁言',
@@ -351,7 +402,8 @@ void main() {
                 child: ChatInput(
                   type: 'C2C',
                   peerId: 'peer_1',
-                  onSendPressed: (text) async => true,
+                  onSendPressed: (text) async =>
+                      const ComposerSendReceipt(true),
                   composerHeight: composerHeight,
                   onInputLayerExpandedChanged: states.add,
                 ),
@@ -408,7 +460,7 @@ void main() {
               body: ChatInput(
                 type: 'C2C',
                 peerId: 'peer_1',
-                onSendPressed: (text) async => true,
+                onSendPressed: (text) async => const ComposerSendReceipt(true),
                 composerHeight: composerHeight,
               ),
             ),
@@ -472,7 +524,7 @@ void main() {
                   peerId: 'peer_1',
                   onSendPressed: (text) async {
                     sendCalls++;
-                    return true;
+                    return const ComposerSendReceipt(true);
                   },
                   composerHeight: composerHeight,
                 ),
@@ -509,7 +561,8 @@ void main() {
                 body: ChatInput(
                   type: 'C2C',
                   peerId: 'peer_1',
-                  onSendPressed: (_) => completion.future,
+                  onSendPressed: (_) async =>
+                      ComposerSendReceipt(await completion.future),
                   composerHeight: composerHeight,
                 ),
               ),
@@ -551,7 +604,7 @@ void main() {
                 body: ChatInput(
                   type: 'C2C',
                   peerId: 'peer_1',
-                  onSendPressed: (_) async => false,
+                  onSendPressed: (_) async => const ComposerSendReceipt(false),
                   composerHeight: composerHeight,
                 ),
               ),
@@ -673,7 +726,8 @@ void main() {
                     ChatInput(
                       type: 'C2G',
                       peerId: 'g1',
-                      onSendPressed: (_) async => true,
+                      onSendPressed: (_) async =>
+                          const ComposerSendReceipt(true),
                       composerHeight: composerHeight,
                     ),
                   ],

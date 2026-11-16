@@ -4,8 +4,12 @@ import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:imboy/component/extension/imboy_cache_manager.dart';
+import 'package:imboy/component/helper/image_dimensions.dart';
 import 'package:imboy/service/account_local_task_registry.dart';
 import 'package:imboy/service/auth_session_scope.dart';
+import 'package:imboy/service/web_writer_gate.dart';
+
+export '../helper/image_dimensions.dart' show isWebImagePreviewSizeAllowed;
 
 /// gate 后的 debug 日志：仅 [IMBoyCacheManager.debugLogEnabled] 为 true 时输出
 /// 复用 IMBoyCacheManager 的全局 flag 让测试可统一关闭两边的日志
@@ -84,7 +88,14 @@ class IMBoyCachedImageProvider extends ImageProvider<IMBoyCachedImageProvider> {
     final cache = IMBoyCacheManager();
     final owner = key._owner;
     final generation = key._generation;
+    final task = kIsWeb && owner.uid.isNotEmpty
+        ? AccountLocalTaskRegistry.instance.register(owner)
+        : null;
     void requireCurrentLoad() {
+      if (kIsWeb) {
+        requireWebWriter();
+      }
+      task?.throwIfCancelled();
       if (cache.generationFor(owner) != generation ||
           (key._session != null &&
               !authSessionReader.isCurrent(key._session)) ||
@@ -96,102 +107,139 @@ class IMBoyCachedImageProvider extends ImageProvider<IMBoyCachedImageProvider> {
     // 重试机制：最多尝试3次
     const maxAttempts = 3;
 
-    for (int attempt = 0; attempt < maxAttempts; attempt++) {
-      requireCurrentLoad();
-      try {
-        if (kDebugMode) {
-          _log('加载图片 (尝试 ${attempt + 1}/$maxAttempts)');
-        }
-
-        final file = await cache.getSingleFile(
-          key.url,
-          headers: key.headers,
-          publicDirect: key.publicDirect,
-          owner: owner,
-        );
+    try {
+      for (int attempt = 0; attempt < maxAttempts; attempt++) {
         requireCurrentLoad();
-
-        // 验证文件存在且可读
-        if (!await file.exists()) {
-          _log('⚠️ 文件不存在');
-          if (attempt < maxAttempts - 1) {
-            await _clearCacheAndRetry(key.url, owner, generation);
-            continue;
-          }
-          throw StateError('文件不存在 (已尝试 $maxAttempts 次)');
-        }
-
-        // 读取文件字节
-        final bytes = await file.readAsBytes();
-        requireCurrentLoad();
-
-        if (bytes.isEmpty) {
-          _log('⚠️ 文件为空');
-          if (attempt < maxAttempts - 1) {
-            await _clearCacheAndRetry(key.url, owner, generation);
-            continue;
-          }
-          throw StateError('文件为空 (已尝试 $maxAttempts 次)');
-        }
-
-        // 尝试解码图片
         try {
-          final buffer = await ui.ImmutableBuffer.fromUint8List(bytes);
-          final codec = await decode(buffer);
-          if (cache.generationFor(owner) != generation ||
-              (key._session != null &&
-                  !authSessionReader.isCurrent(key._session)) ||
-              (owner.uid.isNotEmpty &&
-                  owner != AccountLocalTaskOwner.capture())) {
-            codec.dispose();
-            throw const MediaCacheCleanupException();
+          if (kDebugMode) {
+            _log('加载图片 (尝试 ${attempt + 1}/$maxAttempts)');
           }
-          // debugPrint('✅ 图片加载成功: $url');
-          return codec;
-        } on Exception catch (decodeError) {
-          if (decodeError is MediaCacheCleanupException ||
-              decodeError is AccountLocalTaskCancelledException) {
+
+          final Uint8List bytes;
+          if (kIsWeb) {
+            bytes = await cache.getBytes(
+              key.url,
+              headers: key.headers,
+              publicDirect: key.publicDirect,
+              revalidate: true,
+              owner: owner,
+            );
+          } else {
+            final file = await cache.getSingleFile(
+              key.url,
+              headers: key.headers,
+              publicDirect: key.publicDirect,
+              owner: owner,
+            );
+            requireCurrentLoad();
+            if (!await file.exists()) {
+              _log('⚠️ 文件不存在');
+              if (attempt < maxAttempts - 1) {
+                await _clearCacheAndRetry(key.url, owner, generation);
+                continue;
+              }
+              throw StateError('文件不存在 (已尝试 $maxAttempts 次)');
+            }
+            bytes = await file.readAsBytes();
+            requireCurrentLoad();
+          }
+          requireCurrentLoad();
+
+          if (bytes.isEmpty) {
+            _log('⚠️ 文件为空');
+            if (attempt < maxAttempts - 1) {
+              await _clearCacheAndRetry(key.url, owner, generation);
+              continue;
+            }
+            throw StateError('文件为空 (已尝试 $maxAttempts 次)');
+          }
+
+          // 尝试解码图片
+          try {
+            final codec = await _decodeBytes(bytes, decode, requireCurrentLoad);
+            try {
+              requireCurrentLoad();
+            } on Object {
+              codec.dispose();
+              rethrow;
+            }
+            // debugPrint('✅ 图片加载成功: $url');
+            return codec;
+          } on Exception catch (decodeError) {
+            if (decodeError is ImageNotFoundException ||
+                decodeError is MediaCacheCleanupException ||
+                decodeError is AccountLocalTaskCancelledException) {
+              rethrow;
+            }
+            _log('⚠️ 图片解码失败: ${decodeError.runtimeType}');
+            if (attempt < maxAttempts - 1) {
+              await _clearCacheAndRetry(key.url, owner, generation);
+              continue;
+            }
             rethrow;
           }
-          _log('⚠️ 图片解码失败: ${decodeError.runtimeType}');
-          if (attempt < maxAttempts - 1) {
-            await _clearCacheAndRetry(key.url, owner, generation);
-            continue;
+        } on Exception catch (e) {
+          if (e is ImageNotFoundException ||
+              e is MediaCacheCleanupException ||
+              e is AccountLocalTaskCancelledException) {
+            rethrow;
           }
-          rethrow;
-        }
-      } on Exception catch (e) {
-        if (e is MediaCacheCleanupException ||
-            e is AccountLocalTaskCancelledException) {
-          rethrow;
-        }
-        requireCurrentLoad();
-        // 404/401/403 无法通过重试解决，直接降级占位（不重试、不暴露异常）
-        if (_isNotFoundError(e)) {
-          _log('❌ 图片资源不可显示 (404/401/403)');
-          throw ImageNotFoundException();
-        }
+          requireCurrentLoad();
+          // 404/401/403 无法通过重试解决，直接降级占位（不重试、不暴露异常）
+          if (_isNotFoundError(e)) {
+            _log('❌ 图片资源不可显示 (404/401/403)');
+            throw ImageNotFoundException();
+          }
 
-        if (kDebugMode) {
-          _log(
-            '❌ IMBoyCachedImageProvider 加载失败 (尝试 ${attempt + 1}/$maxAttempts): ${e.runtimeType}',
+          if (kDebugMode) {
+            _log(
+              '❌ IMBoyCachedImageProvider 加载失败 (尝试 ${attempt + 1}/$maxAttempts): ${e.runtimeType}',
+            );
+          }
+
+          if (attempt == maxAttempts - 1) {
+            // 最后一次尝试失败，重新抛出异常
+            rethrow;
+          }
+
+          // 等待一段时间后重试
+          await Future<dynamic>.delayed(
+            Duration(milliseconds: 200 * (attempt + 1)),
           );
         }
+      }
 
-        if (attempt == maxAttempts - 1) {
-          // 最后一次尝试失败，重新抛出异常
-          rethrow;
-        }
+      // 理论上不会到达这里，但为了类型安全
+      throw StateError('图片加载失败');
+    } finally {
+      task?.finish();
+    }
+  }
 
-        // 等待一段时间后重试
-        await Future<dynamic>.delayed(
-          Duration(milliseconds: 200 * (attempt + 1)),
-        );
+  Future<ui.Codec> _decodeBytes(
+    Uint8List bytes,
+    ImageDecoderCallback decode,
+    void Function() requireCurrent,
+  ) async {
+    requireCurrent();
+    if (kIsWeb) {
+      final dimensions = readImageDimensions(bytes);
+      requireCurrent();
+      if (!isWebImagePreviewSizeAllowed(dimensions.width, dimensions.height)) {
+        throw ImageNotFoundException('Image exceeds browser preview budget');
       }
     }
-
-    // 理论上不会到达这里，但为了类型安全
-    throw StateError('图片加载失败');
+    final buffer = await ui.ImmutableBuffer.fromUint8List(bytes);
+    var delegated = false;
+    try {
+      requireCurrent();
+      delegated = true;
+      return await decode(buffer);
+    } finally {
+      if (!delegated) {
+        buffer.dispose();
+      }
+    }
   }
 
   /// 清除缓存并准备重试

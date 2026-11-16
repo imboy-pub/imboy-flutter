@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart' show PlatformException;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:imboy/service/web_writer_gate.dart';
 
 /// 安全存储服务 - 基于 FlutterSecureStorage
 /// Secure storage service based on FlutterSecureStorage
@@ -106,6 +107,7 @@ class StorageSecureService {
     WindowsOptions? wOptions,
   }) async {
     try {
+      requireWebWriter();
       return await _self.write(
         key: key,
         value: value,
@@ -126,6 +128,7 @@ class StorageSecureService {
       }
       // 同名旧条目（旧 accessibility）挡住了 SecItemAdd。插件的 delete 会跨
       // accessibility / synchronizable 变体清除，删掉后重写即可。
+      requireWebWriter();
       await _self.delete(
         key: key,
         iOptions: iOptions,
@@ -135,6 +138,7 @@ class StorageSecureService {
         mOptions: mOptions,
         wOptions: wOptions,
       );
+      requireWebWriter();
       return await _self.write(
         key: key,
         value: value,
@@ -167,6 +171,7 @@ class StorageSecureService {
     MacOsOptions? mOptions,
     WindowsOptions? wOptions,
   }) async {
+    requireWebWriter();
     final value = await _self.read(
       key: key,
       iOptions: iOptions,
@@ -230,6 +235,7 @@ class StorageSecureService {
     MacOsOptions? mOptions,
     WindowsOptions? wOptions,
   }) async {
+    requireWebWriter();
     try {
       return await _self.delete(
         key: key,
@@ -252,6 +258,7 @@ class StorageSecureService {
   /// 合并旧 accessibility 条目：E2EE 清除流程用 readAll 枚举待删密钥，
   /// 漏掉旧条目会导致"已清除"的密钥仍留在设备上。
   Future<Map<String, String>> readAll() async {
+    requireWebWriter();
     final current = await _self.readAll();
     if (!_isApple) return current;
     final legacy = await _self.readAll(

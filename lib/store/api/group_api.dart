@@ -95,7 +95,11 @@ class GroupApi extends HttpClient {
     );
   }
 
-  Future<Map<String, dynamic>> detail({required String gid}) async {
+  Future<Map<String, dynamic>> detail({
+    required String gid,
+    bool strict = false,
+    bool syncEncryptionMode = true,
+  }) async {
     IMBoyHttpResponse resp = await get(
       API.groupDetail,
       options: Options(
@@ -105,7 +109,10 @@ class GroupApi extends HttpClient {
       ),
       queryParameters: {"gid": gid},
     );
-    if (resp.ok == false) {
+    if (!resp.ok) {
+      if (strict) {
+        throw BadRequestException(message: resp.msg, code: resp.code);
+      }
       AppLoading.showError(resp.msg);
     }
     if (!resp.ok) return <String, dynamic>{};
@@ -115,7 +122,7 @@ class GroupApi extends HttpClient {
     final e2eeMode =
         payload['e2ee_mode'] ??
         (payload['group'] is Map ? payload['group']['e2ee_mode'] : null);
-    if (e2eeMode != null) {
+    if (syncEncryptionMode && e2eeMode != null) {
       await GroupSessionService.to.setGroupE2EEMode(
         gid,
         int.tryParse(e2eeMode.toString()) ?? 0,
@@ -123,6 +130,22 @@ class GroupApi extends HttpClient {
     }
     return payload;
   }
+
+  /// Existing group notice read endpoint, shared by management and read-only UI.
+  static Future<IMBoyHttpResponse> announcementsPage({
+    required String gid,
+    int page = 1,
+    int size = 20,
+    HttpClient? client,
+  }) => (client ?? HttpClient.client).get(
+    '/api/v1/group_notice/page',
+    options: Options(
+      responseDecoder: channelIdResponseDecoder(
+        ChannelResponseShape.groupNotice,
+      ),
+    ),
+    queryParameters: {'gid': gid, 'page': page, 'size': size},
+  );
 
   /// 获取群备注（仅自己可见）
   Future<String?> getRemark({required String gid}) async {

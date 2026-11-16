@@ -1,3 +1,5 @@
+import 'package:dio/dio.dart';
+import 'package:imboy/component/http/channel_id_response_decoder.dart';
 import 'package:imboy/component/http/http_client.dart';
 import 'package:imboy/component/http/http_response.dart';
 import 'package:imboy/config/const.dart';
@@ -74,6 +76,11 @@ class ConversationApi extends HttpClient {
     final resp = await get(
       API.conversationList,
       queryParameters: query.isEmpty ? null : query,
+      options: Options(
+        responseDecoder: channelIdResponseDecoder(
+          ChannelResponseShape.conversation,
+        ),
+      ),
     );
     if (!resp.ok || resp.payload == null) {
       return const [];
@@ -144,7 +151,14 @@ class ConversationApi extends HttpClient {
 
   /// 获取服务端权威置顶会话列表
   Future<List<Map<String, dynamic>>> pinnedList() async {
-    final resp = await get(API.conversationPinned);
+    final resp = await get(
+      API.conversationPinned,
+      options: Options(
+        responseDecoder: channelIdResponseDecoder(
+          ChannelResponseShape.conversation,
+        ),
+      ),
+    );
     if (!resp.ok || resp.payload == null) {
       return const [];
     }

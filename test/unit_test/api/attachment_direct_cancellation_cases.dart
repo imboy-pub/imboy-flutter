@@ -60,4 +60,62 @@ void _registerDirectCancellationTests({
       }
     },
   );
+  test('resumeDirect token aborts waiting PUT without finalize', () async {
+    final server = await HttpServer.bind(InternetAddress.loopbackIPv4, 0);
+    final entered = Completer<void>(), release = Completer<void>();
+    final served = server.first.then((request) async {
+      await request.drain<void>();
+      entered.complete();
+      await release.future;
+      try {
+        await request.response.close();
+      } on Object {
+        // The client deliberately aborts this attempt.
+      }
+    });
+    final actions = <String>[];
+    final token = CancelToken();
+    final file = writeFile('resume-cancel.png', [1, 2, 3, 4]);
+    final upload = DirectAttachmentApi.resumeDirect(
+      objectKey: 'u1/file/resume-cancel',
+      file: file,
+      mime: 'image/png',
+      cancelToken: token,
+      sessionFn: (path, {body}) async {
+        final action = path.split('/').last;
+        actions.add(action);
+        return switch (action) {
+          'status' => ok({
+            'state': 'GRANTED',
+            'expected': {
+              'sha256': await sha256OfFile(file),
+              'size_bytes': '4',
+              'mime': 'image/png',
+            },
+            'attempts': [<String, dynamic>{}],
+          }),
+          'renew' => grantPayload(
+            'http://127.0.0.1:${server.port}/put',
+            2,
+            'YQ==',
+          ),
+          _ => throw StateError('Unexpected action $action'),
+        };
+      },
+    );
+    final failed = expectLater(
+      upload.timeout(const Duration(seconds: 2)),
+      throwsA(isA<DirectUploadCancelled>()),
+    );
+    try {
+      await entered.future.timeout(const Duration(seconds: 2));
+      token.cancel('account cleanup');
+      await failed;
+      expect(actions, ['status', 'renew']);
+    } finally {
+      if (!release.isCompleted) release.complete();
+      await server.close(force: true);
+      await served;
+    }
+  });
 }

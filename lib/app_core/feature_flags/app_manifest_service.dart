@@ -1,3 +1,7 @@
+import 'package:imboy/component/http/http_request_policy.dart';
+import 'package:imboy/service/auth_session_scope.dart';
+import 'package:imboy/service/account_local_task_registry.dart';
+import 'package:imboy/service/web_writer_gate.dart';
 import 'package:flutter/foundation.dart';
 import 'package:dio/dio.dart';
 import 'package:imboy/component/http/http_client.dart';
@@ -207,13 +211,28 @@ class AppManifestService {
     final scope = _scope;
     final epoch = _epoch;
     final request = ++_latestRequest;
-    bool current() =>
-        FeatureScope.matches(scope, epoch) && request == _latestRequest;
     if (scope == null) return false;
     try {
+      final session = kIsWeb ? authSessionReader.current : null;
+      final owner = kIsWeb ? AccountLocalTaskOwner.capture() : null;
+      bool current() =>
+          (!kIsWeb ||
+              (isWebWriterReady &&
+                  !session!.transitioning &&
+                  authSessionReader.current == session &&
+                  AccountLocalTaskOwner.capture() == owner)) &&
+          FeatureScope.matches(scope, epoch) &&
+          request == _latestRequest;
       final options = Options(
         validateStatus: (s) => s == 200 || s == 304,
-        headers: _etag != null ? {'if-none-match': _etag} : null,
+        headers: !kIsWeb && _etag != null ? {'if-none-match': _etag} : null,
+        extra: kIsWeb
+            ? {
+                httpRequestGuard: () {
+                  if (!current()) throw StateError('Manifest owner changed');
+                },
+              }
+            : null,
       );
       // 显式拼接完整 URL，不依赖 Dio 实例的 baseUrl：
       // HttpClient._setDefaultConfig 只在走 get/post/... 包装方法时才回填
@@ -246,7 +265,9 @@ class AppManifestService {
       AppFeatureRegistry.configurationChanged();
       return true;
     } catch (error) {
-      debugPrint('[app_manifest_service] setString error: $error');
+      debugPrint(
+        '[app_manifest_service] refresh failed (${error.runtimeType})',
+      );
       return false;
     }
   }

@@ -1,4 +1,9 @@
+import 'package:imboy/service/web_writer_gate.dart';
+
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -10,62 +15,28 @@ import '../dynamic_color_manager.dart';
 
 part 'theme_provider.g.dart';
 
-/// ThemeMode Provider - 用于 MaterialApp.themeMode
-///
-/// 这是从本地存储读取的主题模式
+/// MaterialApp mode is a projection of the same persisted theme state.
 @riverpod
 class ThemeModeNotifier extends _$ThemeModeNotifier {
   @override
-  ThemeMode build() {
-    _loadThemeMode();
-    return ThemeMode.system;
-  }
+  ThemeMode build() => ref.watch(
+    themeProvider.select(
+      (value) => value.followSystemTheme
+          ? ThemeMode.system
+          : value.isDarkMode
+          ? ThemeMode.dark
+          : ThemeMode.light,
+    ),
+  );
 
-  /// 从本地存储加载主题模式
-  void _loadThemeMode() {
-    // 同步加载初始值
-    try {
-      final prefs = SharedPreferences.getInstance();
-      prefs.then((prefs) {
-        final followSystem = prefs.getBool('theme_follow_system') ?? false;
-        final isDarkMode = prefs.getBool('theme_is_dark_mode') ?? false;
+  Future<void> setThemeMode(ThemeMode mode) =>
+      ref.read(themeProvider.notifier).setThemeMode(mode);
 
-        final mode = followSystem
-            ? ThemeMode.system
-            : (isDarkMode ? ThemeMode.dark : ThemeMode.light);
-        state = mode;
-      });
-    } catch (e) {
-      debugPrint('[theme_provider] block error: $e');
-    }
-  }
+  Future<void> toggleTheme(bool isDark) =>
+      setThemeMode(isDark ? ThemeMode.dark : ThemeMode.light);
 
-  /// 设置主题模式
-  void setThemeMode(ThemeMode mode) {
-    state = mode;
-    // 保存到本地存储
-    try {
-      final prefs = SharedPreferences.getInstance();
-      prefs.then((prefs) {
-        prefs.setBool('theme_follow_system', mode == ThemeMode.system);
-        if (mode != ThemeMode.system) {
-          prefs.setBool('theme_is_dark_mode', mode == ThemeMode.dark);
-        }
-      });
-    } catch (e) {
-      debugPrint('[theme_provider] setBool error: $e');
-    }
-  }
-
-  /// 切换主题模式
-  void toggleTheme(bool isDark) {
-    setThemeMode(isDark ? ThemeMode.dark : ThemeMode.light);
-  }
-
-  /// 设置跟随系统
-  void setFollowSystem(bool follow) {
-    setThemeMode(follow ? ThemeMode.system : ThemeMode.light);
-  }
+  Future<void> setFollowSystem(bool follow) =>
+      setThemeMode(follow ? ThemeMode.system : ThemeMode.light);
 }
 
 /// 主题状态
@@ -111,38 +82,121 @@ class ThemeState {
 /// 使用 Riverpod 管理主题状态，支持亮色/暗色模式切换、字体缩放等功能
 @riverpod
 class ThemeNotifier extends _$ThemeNotifier {
-  // 用于存储加载前的初始主题
   late ThemeData _cachedLightTheme;
   late ThemeData _cachedDarkTheme;
+  Future<void> _writes = Future<void>.value();
+  int _fontRequestRevision = 0;
+  bool _preferencesLoaded = false;
+
+  /// Capture before an account restore; a newer explicit choice wins.
+  int get fontRequestRevision => _fontRequestRevision;
 
   @override
   ThemeState build() {
-    // 缓存初始主题
     _cachedLightTheme = AppTheme.getLightThemeFromOption(FontSizeOption.normal);
     _cachedDarkTheme = AppTheme.getDarkThemeFromOption(FontSizeOption.normal);
-
-    // 异步初始化主题设置
-    _initializeTheme();
-
+    // Queue initialization before any user action; a late read cannot overtake it.
+    unawaited(
+      loadThemePreference().catchError((Object error) {
+        debugPrint('[theme] initial preference read: ${error.runtimeType}');
+      }),
+    );
     return const ThemeState();
   }
 
-  /// 初始化主题系统
-  Future<void> _initializeTheme() async {
+  Future<void> _enqueue(
+    Future<void> Function() operation, {
+    bool loadFirst = true,
+  }) {
+    final result = _writes.then((_) async {
+      if (!ref.mounted) return;
+      if (loadFirst && !_preferencesLoaded) await _readPreferences();
+      if (ref.mounted) await operation();
+    });
+    _writes = result.then<void>((_) {}, onError: (Object _, StackTrace _) {});
+    return result;
+  }
+
+  void _publishPreferences(ThemeState next) {
+    if (!ref.mounted) return;
+    state = state.copyWith(
+      isDarkMode: next.isDarkMode,
+      fontSizeOption: next.fontSizeOption,
+      followSystemTheme: next.followSystemTheme,
+      useDynamicColor: next.useDynamicColor,
+    );
+    _cachedLightTheme = AppTheme.getLightThemeFromOption(next.fontSizeOption);
+    _cachedDarkTheme = AppTheme.getDarkThemeFromOption(next.fontSizeOption);
+  }
+
+  Future<void> _writeValue(
+    SharedPreferences prefs,
+    String key,
+    Object? value,
+  ) async {
+    requireWebWriter();
+    final saved = switch (value) {
+      null => await prefs.remove(key),
+      bool value => await prefs.setBool(key, value),
+      String value => await prefs.setString(key, value),
+      _ => throw StateError('Invalid theme preference type'),
+    };
+    if (!saved) throw StateError('Could not persist theme preference');
+  }
+
+  /// SharedPreferences updates its cache optimistically. Compensate partial
+  /// multi-key writes and reload on failure; never publish a failed selection.
+  Future<void> _commit(
+    ThemeState next, {
+    Future<bool> Function()? saveAccountFont,
+    bool Function()? isCurrent,
+  }) async {
+    bool current() =>
+        isWebWriterReady && ref.mounted && (isCurrent?.call() ?? true);
+    if (!current()) throw StateError('Theme preference owner changed');
+    final prefs = await SharedPreferences.getInstance();
+    if (!current()) throw StateError('Theme preference owner changed');
+    final values = <String, Object>{
+      'theme_is_dark_mode': next.isDarkMode,
+      'theme_font_size': next.fontSizeOption.value,
+      'theme_follow_system': next.followSystemTheme,
+      'theme_use_dynamic_color': next.useDynamicColor,
+    };
+    final before = {for (final key in values.keys) key: prefs.get(key)};
+    final touched = <String>[];
     try {
-      // 检测动态颜色支持
-      await detectDynamicColorSupport();
-
-      // 加载主题设置
-      await loadThemePreference();
-
-      // 如果设置为跟随系统主题，则应用系统主题
-      if (state.followSystemTheme) {
-        applySystemTheme();
+      for (final entry in values.entries) {
+        if (before[entry.key] == entry.value) continue;
+        touched.add(entry.key);
+        await _writeValue(prefs, entry.key, entry.value);
+        if (!current()) throw StateError('Theme preference owner changed');
       }
-    } catch (e) {
-      debugPrint('[theme_provider] applySystemTheme error: $e');
+      if (saveAccountFont != null && !await saveAccountFont()) {
+        throw StateError('Account font preference was not saved');
+      }
+      if (!current()) throw StateError('Theme preference owner changed');
+    } on Object catch (error, stack) {
+      Object? rollbackError;
+      for (final key in touched.reversed) {
+        try {
+          await _writeValue(prefs, key, before[key]);
+        } on Object catch (error) {
+          rollbackError ??= error;
+        }
+      }
+      try {
+        await prefs.reload();
+      } on Object catch (error) {
+        rollbackError ??= error;
+      }
+      if (rollbackError != null) {
+        throw StateError(
+          'Theme save failed; durable preference recovery failed',
+        );
+      }
+      Error.throwWithStackTrace(error, stack);
     }
+    _publishPreferences(next);
   }
 
   /// 获取亮色主题（支持动态字体缩放）
@@ -166,112 +220,128 @@ class ThemeNotifier extends _$ThemeNotifier {
   /// 获取缓存的暗色主题（用于初始化）
   ThemeData get cachedDarkTheme => _cachedDarkTheme;
 
-  /// 切换主题（带动画效果）
-  Future<void> toggleTheme({bool? isDark, Duration? duration}) async {
-    if (state.isThemeChanging) return; // 防止重复切换
+  /// A manual toggle commits through the same queue as mode and font changes.
+  Future<void> toggleTheme({bool? isDark, Duration? duration}) =>
+      _enqueue(() async {
+        state = state.copyWith(isThemeChanging: true);
+        try {
+          await _commit(
+            state.copyWith(
+              isDarkMode: isDark ?? !state.isDarkMode,
+              followSystemTheme: false,
+            ),
+          );
+          await Future<void>.delayed(
+            duration ?? const Duration(milliseconds: 300),
+          );
+        } finally {
+          if (ref.mounted) state = state.copyWith(isThemeChanging: false);
+        }
+      });
 
-    state = state.copyWith(isThemeChanging: true);
+  Future<void> setThemeMode(ThemeMode mode) => _enqueue(() async {
+    final dark = mode == ThemeMode.system
+        ? WidgetsBinding.instance.platformDispatcher.platformBrightness ==
+              Brightness.dark
+        : mode == ThemeMode.dark;
+    await _commit(
+      state.copyWith(
+        isDarkMode: dark,
+        followSystemTheme: mode == ThemeMode.system,
+      ),
+    );
+  });
 
-    try {
-      final targetDarkMode = isDark ?? !state.isDarkMode;
-
-      // 更新主题模式
-      state = state.copyWith(isDarkMode: targetDarkMode);
-
-      // 保存主题设置
-      await _saveThemePreference();
-
-      // 等待动画完成
-      final animationDuration = duration ?? const Duration(milliseconds: 300);
-      await Future<dynamic>.delayed(animationDuration);
-    } finally {
-      state = state.copyWith(isThemeChanging: false);
-    }
-  }
-
-  /// 根据系统主题自动切换
+  /// System brightness is effective state, not a new manual preference write.
   void applySystemTheme() {
-    final brightness =
-        WidgetsBinding.instance.platformDispatcher.platformBrightness;
-    final systemIsDark = brightness == Brightness.dark;
-
-    if (state.isDarkMode != systemIsDark) {
-      toggleTheme(isDark: systemIsDark);
-    }
+    unawaited(
+      _enqueue(() async {
+        if (!state.followSystemTheme) return;
+        final dark =
+            WidgetsBinding.instance.platformDispatcher.platformBrightness ==
+            Brightness.dark;
+        state = state.copyWith(isDarkMode: dark);
+      }).catchError((Object error) {
+        debugPrint('[theme] system brightness: ${error.runtimeType}');
+      }),
+    );
   }
 
-  /// 保存主题设置到本地存储
-  Future<void> _saveThemePreference() async {
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setBool('theme_is_dark_mode', state.isDarkMode);
-      await prefs.setString('theme_font_size', state.fontSizeOption.value);
-      await prefs.setBool('theme_follow_system', state.followSystemTheme);
-      await prefs.setBool('theme_use_dynamic_color', state.useDynamicColor);
-    } catch (e) {
-      debugPrint('[theme_provider] setBool error: $e');
-    }
+  Future<void> loadThemePreference() =>
+      _enqueue(_readPreferences, loadFirst: false);
+
+  Future<void> _readPreferences() async {
+    final supported = await DynamicColorManager.instance
+        .isDynamicColorSupported();
+    if (!ref.mounted) return;
+    final prefs = await SharedPreferences.getInstance();
+    if (!ref.mounted) return;
+    final follow = prefs.getBool('theme_follow_system') ?? false;
+    final dark = follow
+        ? WidgetsBinding.instance.platformDispatcher.platformBrightness ==
+              Brightness.dark
+        : prefs.getBool('theme_is_dark_mode') ?? false;
+    final option =
+        FontSizeOption.fromValue(prefs.getString('theme_font_size') ?? '') ??
+        FontSizeOption.normal;
+    state = state.copyWith(isDynamicColorSupported: supported);
+    _publishPreferences(
+      state.copyWith(
+        isDarkMode: dark,
+        fontSizeOption: option,
+        followSystemTheme: follow,
+        useDynamicColor:
+            supported && (prefs.getBool('theme_use_dynamic_color') ?? false),
+      ),
+    );
+    _preferencesLoaded = true;
   }
 
-  /// 从本地存储加载主题设置
-  Future<void> loadThemePreference() async {
-    try {
-      final prefs = await SharedPreferences.getInstance();
-
-      // 加载所有主题设置
-      final isDarkMode = prefs.getBool('theme_is_dark_mode') ?? false;
-      final fontSizeValue = prefs.getString('theme_font_size') ?? 'normal';
-      final fontSizeOption =
-          FontSizeOption.fromValue(fontSizeValue) ?? FontSizeOption.normal;
-      final followSystemTheme = prefs.getBool('theme_follow_system') ?? false;
-      final useDynamicColor = prefs.getBool('theme_use_dynamic_color') ?? false;
-
-      // 更新状态
-      state = state.copyWith(
-        isDarkMode: isDarkMode,
-        fontSizeOption: fontSizeOption,
-        followSystemTheme: followSystemTheme,
-        useDynamicColor: useDynamicColor,
-      );
-
-      // 更新缓存的主题
-      _cachedLightTheme = AppTheme.getLightThemeFromOption(fontSizeOption);
-      _cachedDarkTheme = AppTheme.getDarkThemeFromOption(fontSizeOption);
-    } catch (e) {
-      // 使用默认设置
-      state = const ThemeState();
-    }
-  }
+  /// Startup account font takes precedence over the device fallback, but never
+  /// over an explicit choice made during startup. This restoration does no IO write.
+  Future<void> restoreAccountFontSize(
+    String value, {
+    required bool Function() isCurrent,
+    int expectedRevision = 0,
+  }) => _enqueue(() async {
+    if (_fontRequestRevision != expectedRevision || !isCurrent()) return;
+    final option = FontSizeOption.fromValue(value) ?? FontSizeOption.normal;
+    _publishPreferences(state.copyWith(fontSizeOption: option));
+  });
 
   /// 获取当前主题的颜色
   Color getThemeColor(String colorKey) {
+    final isDark = state.followSystemTheme
+        ? WidgetsBinding.instance.platformDispatcher.platformBrightness ==
+              Brightness.dark
+        : state.isDarkMode;
     switch (colorKey) {
       case 'primary':
-        return state.isDarkMode ? AppColors.primaryLight : AppColors.primary;
+        return isDark ? AppColors.primaryLight : AppColors.primary;
       case 'surface':
-        if (state.isDarkMode) {
+        if (isDark) {
           return AppColors.getDarkSurface(false, Brightness.dark);
         }
         return AppColors.lightSurface;
       case 'background':
-        if (state.isDarkMode) {
+        if (isDark) {
           return AppColors.getDarkBackground(false, Brightness.dark);
         }
         return AppColors.lightBackground;
       case 'textPrimary':
-        if (state.isDarkMode) {
+        if (isDark) {
           return AppColors.darkTextPrimary;
         }
         return AppColors.lightTextPrimary;
       case 'textSecondary':
-        if (state.isDarkMode) {
+        if (isDark) {
           return AppColors.darkTextSecondary;
         }
         return AppColors.lightTextSecondary;
       case 'border':
-        return state.isDarkMode ? AppColors.darkBorder : AppColors.lightBorder;
+        return isDark ? AppColors.darkBorder : AppColors.lightBorder;
       case 'error':
-        return state.isDarkMode ? AppColors.darkError : AppColors.lightError;
+        return isDark ? AppColors.darkError : AppColors.lightError;
       default:
         return getThemeColor('textPrimary');
     }
@@ -324,12 +394,9 @@ class ThemeNotifier extends _$ThemeNotifier {
       fontSize: getScaledFontSize(type, context: context),
       fontWeight: fontWeight ?? FontWeight.normal,
       color: color,
-      fontFamilyFallback: const [
-        'PingFang SC',
-        'Heiti SC',
-        'Microsoft YaHei',
-        'sans-serif',
-      ],
+      // F5（PERF-05）：首位挂内嵌 NotoSansSC 中文子集，阻断 fonts.gstatic 动态
+      // 字体拉取（与 ThemeData.fontFamilyFallback 同源 kAppFontFamilyFallback）。
+      fontFamilyFallback: kAppFontFamilyFallback,
     );
   }
 
@@ -348,31 +415,25 @@ class ThemeNotifier extends _$ThemeNotifier {
     }
   }
 
-  /// 更新字体大小选项并刷新主题
-  Future<void> updateFontSize(String fontSizeValue) async {
-    final option =
-        FontSizeOption.fromValue(fontSizeValue) ?? FontSizeOption.normal;
+  Future<void> updateFontSize(String value) => updateFontSizeOption(
+    FontSizeOption.fromValue(value) ?? FontSizeOption.normal,
+  );
 
-    state = state.copyWith(fontSizeOption: option);
-
-    // 更新缓存的主题
-    _cachedLightTheme = AppTheme.getLightThemeFromOption(option);
-    _cachedDarkTheme = AppTheme.getDarkThemeFromOption(option);
-
-    // 保存设置
-    await _saveThemePreference();
-  }
-
-  /// 更新字体大小选项
-  Future<void> updateFontSizeOption(FontSizeOption option) async {
-    state = state.copyWith(fontSizeOption: option);
-
-    // 更新缓存的主题
-    _cachedLightTheme = AppTheme.getLightThemeFromOption(option);
-    _cachedDarkTheme = AppTheme.getDarkThemeFromOption(option);
-
-    // 保存设置
-    await _saveThemePreference();
+  /// Font callers can bind their existing account-setting write to this same
+  /// commit. No other preference action can overtake its save or compensation.
+  Future<void> updateFontSizeOption(
+    FontSizeOption option, {
+    Future<bool> Function()? saveAccountFont,
+    bool Function()? isCurrent,
+  }) {
+    _fontRequestRevision++;
+    return _enqueue(
+      () => _commit(
+        state.copyWith(fontSizeOption: option),
+        saveAccountFont: saveAccountFont,
+        isCurrent: isCurrent,
+      ),
+    );
   }
 
   /// 获取当前字体大小的字符串值（兼容旧版本）
@@ -418,36 +479,26 @@ class ThemeNotifier extends _$ThemeNotifier {
     };
   }
 
-  /// 更新跟随系统主题设置
-  Future<void> updateFollowSystemTheme(bool followSystem) async {
-    state = state.copyWith(followSystemTheme: followSystem);
-    await _saveThemePreference();
-  }
+  Future<void> updateFollowSystemTheme(bool followSystem) =>
+      setThemeMode(followSystem ? ThemeMode.system : ThemeMode.light);
 
-  /// 更新动态颜色设置
-  Future<void> updateUseDynamicColor(bool useDynamic) async {
-    state = state.copyWith(useDynamicColor: useDynamic);
-    await _saveThemePreference();
-  }
+  Future<void> updateUseDynamicColor(bool useDynamic) => _enqueue(
+    () => _commit(
+      state.copyWith(
+        useDynamicColor: useDynamic && state.isDynamicColorSupported,
+      ),
+    ),
+  );
 
-  /// 检测动态颜色支持
-  Future<void> detectDynamicColorSupport() async {
-    try {
-      final isSupported = await DynamicColorManager.instance
-          .isDynamicColorSupported();
-      state = state.copyWith(isDynamicColorSupported: isSupported);
-
-      // 如果不支持动态颜色，禁用动态颜色设置
-      if (!isSupported && state.useDynamicColor) {
-        state = state.copyWith(useDynamicColor: false);
-      }
-    } catch (e) {
-      state = state.copyWith(isDynamicColorSupported: false);
-      if (state.useDynamicColor) {
-        state = state.copyWith(useDynamicColor: false);
-      }
-    }
-  }
+  Future<void> detectDynamicColorSupport() => _enqueue(() async {
+    final supported = await DynamicColorManager.instance
+        .isDynamicColorSupported();
+    if (!ref.mounted) return;
+    state = state.copyWith(
+      isDynamicColorSupported: supported,
+      useDynamicColor: supported && state.useDynamicColor,
+    );
+  });
 
   /// 获取动态颜色信息（用于调试）
   Future<Map<String, dynamic>> getDynamicColorInfo() async {

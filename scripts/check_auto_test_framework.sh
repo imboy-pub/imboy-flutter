@@ -267,7 +267,19 @@ if [ ! -f "$BACKEND_ROOT/scripts/generate_product_features.py" ]; then
   DRIFT_DETAIL="backend repo not available at $BACKEND_ROOT（CI 环境无 ../imboy；无法只读核对 profile 漂移）"
   printf 'BLOCKED_PRODUCT_DRIFT: %s\n' "$DRIFT_DETAIL"
   printf '[gate] %-26s ENV(-) %s（必需契约未验证）\n' "product_drift" "$DRIFT_DETAIL"
-elif (cd "$BACKEND_ROOT" && python3 scripts/generate_product_features.py --check --app-dir "$APP_ROOT") >"$AUTO_TEST_REPORT_ROOT/gate_drift.log" 2>&1; then
+elif [ "${IMBOY_ADMIN_ROOT+x}" = x ] && [ -z "$IMBOY_ADMIN_ROOT" ]; then
+  DRIFT_STATUS="BLOCKED_PRODUCT_DRIFT"
+  DRIFT_DETAIL="IMBOY_ADMIN_ROOT was explicitly set to an empty path"
+  printf 'BLOCKED_PRODUCT_DRIFT: %s\n' "$DRIFT_DETAIL"
+  printf '[gate] %-26s ENV(-) %s（必需契约未验证）\n' "product_drift" "$DRIFT_DETAIL"
+elif (
+  cd "$BACKEND_ROOT" || exit
+  drift_args=(--check --app-dir "$APP_ROOT")
+  if [ "${IMBOY_ADMIN_ROOT+x}" = x ]; then
+    drift_args+=(--admin-dir "$IMBOY_ADMIN_ROOT")
+  fi
+  python3 scripts/generate_product_features.py "${drift_args[@]}"
+) >"$AUTO_TEST_REPORT_ROOT/gate_drift.log" 2>&1; then
   DRIFT_STATUS="OK"
   DRIFT_DETAIL="product feature manifest 与当前产品生成物一致"
   printf '[gate] %-26s OK %s\n' "product_drift" "$DRIFT_DETAIL"

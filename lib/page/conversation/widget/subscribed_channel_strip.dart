@@ -193,8 +193,10 @@ class _ChannelInboxTile extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final brightness = Theme.of(context).brightness;
+    // DSN-05 R20：暗色 0.75 复合 #79797F on #1C1C1E = 3.932 < 4.5；
+    // 暗色提至 0.9（≈5.1:1），亮色维持 0.75（既有观感，实测达标）。
     final secondary = AppColors.getTextSecondary(brightness)
-        .withValues(alpha: 0.75);
+        .withValues(alpha: brightness == Brightness.dark ? 0.9 : 0.75);
     return MessageInboxTile(
       key: ValueKey('channel-inbox-row-${summary.channelId}'),
       avatar: _ChannelAvatar(avatar: summary.avatar, name: summary.name),

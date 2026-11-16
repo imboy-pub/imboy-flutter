@@ -22,6 +22,7 @@ class GroupMemberApi extends HttpClient {
     required String gid,
     int page = 1,
     int size = 10,
+    bool strict = false,
   }) async {
     IMBoyHttpResponse resp = await get(
       API.groupMemberPage,
@@ -35,7 +36,9 @@ class GroupMemberApi extends HttpClient {
 
     // debugPrint("GroupMemberApi/page resp: ${resp.payload.toString()}");
     if (!resp.ok) {
-      // AppLoading.showBackendError(resp.msg);
+      if (strict) {
+        throw GroupMemberApiException(resp.code, resp.msg);
+      }
       return null;
     }
     return resp.payload is Map<String, dynamic>

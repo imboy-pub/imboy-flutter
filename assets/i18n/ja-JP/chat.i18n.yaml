@@ -232,3 +232,9 @@ inbox:
   undo: "元に戻す"
   openChannels: "チャンネルを開く"
   channelEmptyDescription: "チャンネル画面で登録一覧の更新や非表示チャンネルの復元ができます。"
+
+chatStatusOutcomeUnknown: 今回の送信は拒否されました。送信結果は未確認です
+
+# ---- DSN-06 gap fill (machine-candidate 2026-11-16) ----
+e2eeMsgBeforeDevice: "このメッセージはこのデバイスの参加前に送信されたため、このデバイスでは表示できません" # machine-candidate 2026-11-16
+e2eeMsgBeforeDeviceTapHint: "このメッセージはこのデバイスを含めずに暗号化されています（例: 機種変更前の履歴）。ここでは復号できません。このデバイスで送受信する新しいメッセージには影響しません" # machine-candidate 2026-11-16

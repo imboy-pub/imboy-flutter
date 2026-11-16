@@ -3,8 +3,10 @@ import 'dart:io';
 import 'package:go_router/go_router.dart';
 import 'package:imboy/component/ui/detail_settings_tile.dart';
 import 'package:imboy/component/ui/common_bar.dart';
+import 'package:imboy/component/ui/resource_page_layout.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
 
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:photo_view/photo_view.dart';
@@ -20,6 +22,7 @@ import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/font_types.dart';
 
 import 'package:imboy/store/repository/user_repo_local.dart';
+import 'package:imboy/store/repository/user_repo_provider.dart';
 import 'package:imboy/store/service/user_profile_service.dart';
 import 'package:imboy/i18n/strings.g.dart';
 
@@ -28,7 +31,9 @@ import '../widget/more_page.dart';
 
 /// 个人信息页面 - 像素级对齐 iOS 17 Premium 风格
 class PersonalInfoPage extends ConsumerStatefulWidget {
-  const PersonalInfoPage({super.key});
+  const PersonalInfoPage({super.key, this.readOnly = kIsWeb});
+
+  final bool readOnly;
 
   @override
   ConsumerState<PersonalInfoPage> createState() => _PersonalInfoPageState();
@@ -36,7 +41,9 @@ class PersonalInfoPage extends ConsumerStatefulWidget {
 
 class _PersonalInfoPageState extends ConsumerState<PersonalInfoPage> {
   static const String _avatarHeroTag = 'personal_info_avatar_hero';
-  String currentUserAvatar = UserRepoLocal.to.current.avatar;
+  String? _avatarOverride;
+  String get currentUserAvatar =>
+      _avatarOverride ?? UserRepoLocal.to.currentUser?.avatar ?? '';
   MediaPickerCapability get _picker =>
       CapabilityLocator.I.get<MediaPickerCapability>();
 
@@ -44,10 +51,23 @@ class _PersonalInfoPageState extends ConsumerState<PersonalInfoPage> {
   Widget build(BuildContext context) {
     final brightness = Theme.of(context).brightness;
     final isDark = brightness == Brightness.dark;
-    final nickname = UserRepoLocal.to.current.nickname;
-    final account = UserRepoLocal.to.current.account;
+    final user = ref.watch(currentUserProvider);
+    if (user == null) {
+      return IosPageTemplate(
+        contentMaxWidth: kIsWeb && widget.readOnly
+            ? ResourcePageLayout.maxWidth
+            : null,
+        title: t.common.personalInformation,
+        child: Center(child: Text(t.common.notLoggedIn)),
+      );
+    }
+    final nickname = user.nickname;
+    final account = user.account;
 
     return IosPageTemplate(
+      contentMaxWidth: kIsWeb && widget.readOnly
+          ? ResourcePageLayout.maxWidth
+          : null,
       title: t.common.personalInformation,
       useLargeTitle: false,
       child: Column(
@@ -62,24 +82,26 @@ class _PersonalInfoPageState extends ConsumerState<PersonalInfoPage> {
               DetailSettingsTile(
                 title: Text(t.account.nickname),
                 value: nickname.isEmpty ? t.common.notSet : nickname,
-                onTap: () async {
-                  final result = await Navigator.push(
-                    context,
-                    CupertinoPageRoute<dynamic>(
-                      builder: (_) => const SetNicknamePage(),
-                    ),
-                  );
-                  if (result == true && mounted) setState(() {});
-                },
+                onTap: widget.readOnly
+                    ? null
+                    : () async {
+                        final result = await Navigator.push(
+                          context,
+                          CupertinoPageRoute<dynamic>(
+                            builder: (_) => const SetNicknamePage(),
+                          ),
+                        );
+                        if (result == true && mounted) setState(() {});
+                      },
               ),
               DetailSettingsTile(
                 title: Text(t.account.account),
                 value: account,
               ),
-              if (UserRepoLocal.to.current.email.isNotEmpty)
+              if (user.email.isNotEmpty)
                 DetailSettingsTile(
                   title: Text(t.account.loginEmail),
-                  value: UserRepoLocal.to.current.email,
+                  value: user.email,
                 ),
             ],
           ),
@@ -101,7 +123,9 @@ class _PersonalInfoPageState extends ConsumerState<PersonalInfoPage> {
                 title: Text(t.common.moreInfo),
                 onTap: () => Navigator.push(
                   context,
-                  CupertinoPageRoute<dynamic>(builder: (_) => const MorePage()),
+                  CupertinoPageRoute<dynamic>(
+                    builder: (_) => MorePage(readOnly: widget.readOnly),
+                  ),
                 ),
               ),
             ],
@@ -174,30 +198,31 @@ class _PersonalInfoPageState extends ConsumerState<PersonalInfoPage> {
                     ),
                   ),
                 ),
-                Positioned(
-                  right: 0,
-                  bottom: 0,
-                  child: CupertinoButton(
-                    padding: const EdgeInsets.all(6),
-                    minimumSize: const Size(44, 44),
-                    onPressed: () => _showAvatarBottomSheet(context),
-                    child: Container(
-                      width: 32,
-                      height: 32,
-                      decoration: BoxDecoration(
-                        color: AppColors.primary,
-                        shape: BoxShape.circle,
-                        border: Border.all(color: scaffoldBg, width: 2),
-                      ),
-                      child: Icon(
-                        CupertinoIcons.camera_fill,
-                        semanticLabel: t.common.avatarEditAvatar,
-                        size: 14,
-                        color: AppColors.onPrimary,
+                if (!widget.readOnly)
+                  Positioned(
+                    right: 0,
+                    bottom: 0,
+                    child: CupertinoButton(
+                      padding: const EdgeInsets.all(6),
+                      minimumSize: const Size(44, 44),
+                      onPressed: () => _showAvatarBottomSheet(context),
+                      child: Container(
+                        width: 32,
+                        height: 32,
+                        decoration: BoxDecoration(
+                          color: AppColors.primary,
+                          shape: BoxShape.circle,
+                          border: Border.all(color: scaffoldBg, width: 2),
+                        ),
+                        child: Icon(
+                          CupertinoIcons.camera_fill,
+                          semanticLabel: t.common.avatarEditAvatar,
+                          size: 14,
+                          color: AppColors.onPrimary,
+                        ),
                       ),
                     ),
                   ),
-                ),
               ],
             ),
           ),
@@ -292,7 +317,7 @@ class _PersonalInfoPageState extends ConsumerState<PersonalInfoPage> {
       // 与 ProfilePage 共用同一实现，避免双入口逻辑漂移。
       if (await UserProfileService.updateField("avatar", url)) {
         setState(() {
-          currentUserAvatar = url!;
+          _avatarOverride = url!;
         });
       }
     }

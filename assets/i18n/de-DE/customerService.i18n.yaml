@@ -1,0 +1,143 @@
+# customerService namespace — de-DE
+# DSN-06 gap fill 2026-11-16: machine-candidate translations (owner decision owner-batch-20261116).
+entryTitle: "Support-Arbeitsbereich" # machine-candidate 2026-11-16
+entrySubtitle: "Wartende Kundenkonversationen übernehmen und bearbeiten" # machine-candidate 2026-11-16
+title: "Support-Arbeitsbereich" # machine-candidate 2026-11-16
+tabQueued: "Wartend" # machine-candidate 2026-11-16
+tabActive: "Aktiv" # machine-candidate 2026-11-16
+tabClosed: "Geschlossen" # machine-candidate 2026-11-16
+countUnavailable: "--" # machine-candidate 2026-11-16
+orgSelectorLabel: "Organisation" # machine-candidate 2026-11-16
+noSeatTitle: "Kein verfügbarer Seat" # machine-candidate 2026-11-16
+noSeatHint: "Sie haben keinen aktivierten Support-Seat. Bitte wenden Sie sich an die Administration des Unternehmens" # machine-candidate 2026-11-16
+waitingJustNow: "gerade eben" # machine-candidate 2026-11-16
+waitingMinutes: "$n Min." # machine-candidate 2026-11-16
+waitingHoursMinutes: "$h Std. $m Min." # machine-candidate 2026-11-16
+waitingDaysHours: "$d T. $h Std." # machine-candidate 2026-11-16
+sourceWidget: "Web" # machine-candidate 2026-11-16
+sourceLabel: "Quelle" # machine-candidate 2026-11-16
+queuedEmptyTitle: "Keine wartenden Konversationen" # machine-candidate 2026-11-16
+queuedEmptyHint: "Zum Aktualisieren nach unten ziehen. Neue Konversationen erscheinen hier" # machine-candidate 2026-11-16
+loadingMore: "Weitere werden geladen…" # machine-candidate 2026-11-16
+loadMoreFailed: "Mehr laden fehlgeschlagen. Zum Wiederholen nach oben wischen" # machine-candidate 2026-11-16
+noMore: "Keine weiteren Konversationen" # machine-candidate 2026-11-16
+claimAction: "Übernehmen" # machine-candidate 2026-11-16
+claimSuccess: "Übernommen" # machine-candidate 2026-11-16
+claimConflict: "Diese Konversation wurde von einem anderen Seat übernommen oder ihr Status hat sich geändert. Die Warteschlange wurde aktualisiert" # machine-candidate 2026-11-16
+claimOffboardingRequired: "Eine Übergabe im Rahmen des Austritts läuft. Übernehmen ist derzeit nicht möglich" # machine-candidate 2026-11-16
+claimForbidden: "Der Seat ist ausgesetzt. Übernehmen ist derzeit nicht möglich" # machine-candidate 2026-11-16
+claimFailed: "Übernehmen fehlgeschlagen. Bitte später erneut versuchen" # machine-candidate 2026-11-16
+seatAtCapacity: "Die Seat-Kapazität ist erschöpft (Limit aktiver Konversationen erreicht). Schließen Sie eine aktive Konversation oder lassen Sie das Limit von einem Admin anpassen" # machine-candidate 2026-11-16
+activeEmptyTitle: "Keine aktiven Konversationen" # machine-candidate 2026-11-16
+activeEmptyHint: "Übernehmen Sie eine Konversation aus der Warteschlange; sie erscheint dann hier" # machine-candidate 2026-11-16
+closedEmptyTitle: "Keine geschlossenen Konversationen" # machine-candidate 2026-11-16
+closedEmptyHint: "Geschlossene Konversationen werden hier archiviert" # machine-candidate 2026-11-16
+loadFailedTitle: "Laden fehlgeschlagen" # machine-candidate 2026-11-16
+offlineHint: "Netzwerk nicht verfügbar. Bitte Verbindung prüfen und erneut versuchen" # machine-candidate 2026-11-16
+seatSuspendedNotice: "Seat ausgesetzt; die Warteschlange ist nur lesbar" # machine-candidate 2026-11-16
+sessionTitle: "Support-Konversation" # machine-candidate 2026-11-16
+channelUnavailable: "Nachrichtenkanal derzeit nicht verfügbar. Es wird auf die serverseitige Sitzungsanbindung gewartet" # machine-candidate 2026-11-16
+visitorLabel: "Kunde" # machine-candidate 2026-11-16
+seatLabel: "Agent" # machine-candidate 2026-11-16
+inputHint: "Antwort eingeben…" # machine-candidate 2026-11-16
+attachAction: "Anhang" # machine-candidate 2026-11-16
+attachUploaded: "Anhang hochgeladen" # machine-candidate 2026-11-16
+attachPreviewTitle: "Anhangsvorschau (sicherer Unternehmenskanal)" # machine-candidate 2026-11-16
+attachUnnamedFile: "Anhang" # machine-candidate 2026-11-16
+attachStatusUnavailable: "Nicht verfügbar · $size" # machine-candidate 2026-11-16
+attachUnsupportedType: "Dieser Dateityp wird nicht unterstützt. Bitte andere Datei wählen" # machine-candidate 2026-11-16
+attachBinaryNoPreview: "Binärinhalt, keine Vorschau verfügbar" # machine-candidate 2026-11-16
+transferAction: "Übertragen" # machine-candidate 2026-11-16
+transferTitle: "An einen Agenten im selben Unternehmen übertragen" # machine-candidate 2026-11-16
+transferEmpty: "Keine übertragbaren Support-Seats im Unternehmen" # machine-candidate 2026-11-16
+targetAvailable: "Verfügbar" # machine-candidate 2026-11-16
+targetBusy: "Beschäftigt" # machine-candidate 2026-11-16
+transferConfirmTitle: "Übertragen bestätigen" # machine-candidate 2026-11-16
+transferConfirmBody: "Diese Konversation an $name übertragen? Sie bearbeiten sie danach nicht mehr." # machine-candidate 2026-11-16
+transferSuccess: "Übertragen" # machine-candidate 2026-11-16
+transferConflict: "Der Konversationsstatus hat sich geändert. Bitte aktualisieren, prüfen und erneut bestätigen." # machine-candidate 2026-11-16
+transferFailed: "Übertragen fehlgeschlagen. Bitte später erneut versuchen" # machine-candidate 2026-11-16
+closeAction: "Konversation schließen" # machine-candidate 2026-11-16
+closeTitle: "Schließen bestätigen" # machine-candidate 2026-11-16
+closeBody: "Nach dem Schließen wird der Kunde zur Bewertung gebeten; die Konversation wird schreibgeschützt." # machine-candidate 2026-11-16
+closeReasonLabel: "Grund (optional)" # machine-candidate 2026-11-16
+closeReasonTooLong: "Der Grund darf höchstens $max Zeichen haben" # machine-candidate 2026-11-16
+closeSuccess: "Konversation geschlossen" # machine-candidate 2026-11-16
+closeConflict: "Der Konversationsstatus hat sich geändert. Bitte aktualisieren, prüfen und erneut bestätigen." # machine-candidate 2026-11-16
+closeFailed: "Schließen fehlgeschlagen. Bitte später erneut versuchen" # machine-candidate 2026-11-16
+waitingRatingTitle: "Geschlossen. Es wird auf die Bewertung des Kunden gewartet" # machine-candidate 2026-11-16
+ratedTitle: "Der Kunde hat diese Konversation bewertet" # machine-candidate 2026-11-16
+ratingScoreLabel: "Kundenbewertung: $score Sterne" # machine-candidate 2026-11-16
+ratingUnknownTitle: "Bewertungsstatus unbekannt" # machine-candidate 2026-11-16
+ratingTimeLabel: "Bewertet um: $time" # machine-candidate 2026-11-16
+readOnlySuspended: "Seat ausgesetzt; der Kanal ist schreibgeschützt und die Hintergrund-Synchronisation wurde gestoppt" # machine-candidate 2026-11-16
+offboardingRequired: "Eine Übergabe im Rahmen des Austritts läuft. Die Bearbeitung wurde übergeben; diese Konversation ist schreibgeschützt" # machine-candidate 2026-11-16
+closedReadonly: "Konversation geschlossen; Inhalt nur sichtbar" # machine-candidate 2026-11-16
+ratedReadonly: "Konversation bewertet und abgeschlossen; Inhalt nur sichtbar" # machine-candidate 2026-11-16
+sendFailed: "Senden fehlgeschlagen. Bitte später erneut versuchen" # machine-candidate 2026-11-16
+sendConflict: "Der Sitzungsstatus hat sich geändert. Der aktuelle Status wurde für Sie neu geladen" # machine-candidate 2026-11-16
+attachUploadFailed: "Anhangs-Upload fehlgeschlagen. Bitte erneut versuchen" # machine-candidate 2026-11-16
+transferredAway: "Diese Konversation wurde an einen anderen Agenten übertragen und ist für Sie schreibgeschützt" # machine-candidate 2026-11-16
+presenceMenuLabel: "Seat-Status" # machine-candidate 2026-11-16
+presenceUnavailable: "Status nicht verfügbar" # machine-candidate 2026-11-16
+seatDisabledNotice: "Seat deaktiviert" # machine-candidate 2026-11-16
+presenceStatusOnline: "Online" # machine-candidate 2026-11-16
+presenceStatusAway: "Abwesend" # machine-candidate 2026-11-16
+presenceStatusBusy: "Beschäftigt" # machine-candidate 2026-11-16
+presenceStatusOffline: "Offline" # machine-candidate 2026-11-16
+presenceAwayAction: "Auf abwesend setzen" # machine-candidate 2026-11-16
+presenceResumeAction: "Automatik fortsetzen" # machine-candidate 2026-11-16
+presenceCapacityLabel: "$active/$max Konversationen" # machine-candidate 2026-11-16
+unreadBadgeLabel: "$n ungelesen" # machine-candidate 2026-11-16
+actionDraftWarning: "Es gibt einen ungesendeten Entwurf. Das Bestätigen dieser Aktion sendet den Entwurf nicht." # machine-candidate 2026-11-16
+actionSendingWarning: "Eine Nachricht wird gesendet. Bitte den Endzustand abwarten, prüfen und dann bestätigen." # machine-candidate 2026-11-16
+actionUploadingWarning: "Ein Anhang wird hochgeladen. Bitte den Endzustand abwarten, prüfen und dann bestätigen." # machine-candidate 2026-11-16
+actionUnconfirmedWarning: "Es gibt noch unbestätigte Nachrichten. Bitte zuerst das Ergebnis prüfen; eine Konversationsaktion ist derzeit nicht möglich." # machine-candidate 2026-11-16
+attachSave: "Datei speichern" # machine-candidate 2026-11-16
+attachSaved: "Datei gespeichert" # machine-candidate 2026-11-16
+attachSaveFailed: "Speichern fehlgeschlagen. Sie können es erneut versuchen." # machine-candidate 2026-11-16
+attachPreparing: "Anhang wird vorbereitet" # machine-candidate 2026-11-16
+attachPresigning: "Upload-Berechtigung wird angefragt" # machine-candidate 2026-11-16
+attachUploading: "Bytes werden hochgeladen: $sent / $total" # machine-candidate 2026-11-16
+attachConfirming: "Hochgeladene Datei wird bestätigt" # machine-candidate 2026-11-16
+attachCancelled: "Anhang wurde vor dem Upload abgebrochen" # machine-candidate 2026-11-16
+attachUnknown: "Das Upload-Ergebnis ist nicht vollständig bestätigt. Kein automatischer Wiederholungsversuch; es wurde keine Nachricht gesendet." # machine-candidate 2026-11-16
+attachRetry: "Anhangs-Upload erneut versuchen" # machine-candidate 2026-11-16
+attachCancel: "Weitere Upload-Schritte stoppen" # machine-candidate 2026-11-16
+attachTooLarge: "Der Anhang darf nicht leer und höchstens 25 MiB groß sein." # machine-candidate 2026-11-16
+attachPreviewTruncated: "Es wird nur ein Teil des Textes angezeigt. Beim Speichern bleibt die Datei vollständig." # machine-candidate 2026-11-16
+attachUploadedNotSent: "Der Anhang wurde hochgeladen, aber der Nachrichtenversand ist nicht bestätigt. Bitte Sendepergebnis prüfen und nicht erneut hochladen." # machine-candidate 2026-11-16
+attachUploadStopped: "Der Upload wurde nicht abgeschlossen. Weitere Schritte wurden gestoppt. Bitte Berechtigungen und Sitzungsstatus prüfen und die Datei neu wählen." # machine-candidate 2026-11-16
+newMessagesJump: "Neue Nachrichten · Zu den Neuesten springen" # machine-candidate 2026-11-16
+governance:
+  title: "Support-Governance" # machine-candidate 2026-11-16
+  scopeNote: "Dies ist die Governance-Ebene des Unternehmens (Owner/Admin). Ein serverseitiger 403 ist die endgültige Berechtigungsentscheidung." # machine-candidate 2026-11-16
+  limitCardTitle: "Seat-Kontingent" # machine-candidate 2026-11-16
+  limitUnlimited: "Unbegrenzt" # machine-candidate 2026-11-16
+  limitValueLabel: "${used}/${limit} Seats" # machine-candidate 2026-11-16
+  limitAtCapacity: "Kontingent ausgeschöpft" # machine-candidate 2026-11-16
+  limitAdjustAction: "Kontingent anpassen" # machine-candidate 2026-11-16
+  limitAdjustTitle: "Seat-Kontingent anpassen" # machine-candidate 2026-11-16
+  limitInputLabel: "Seat-Limit (positive ganze Zahl, leer = unbegrenzt)" # machine-candidate 2026-11-16
+  limitClearAction: "Limit entfernen (unbegrenzt)" # machine-candidate 2026-11-16
+  limitInvalidInput: "Bitte eine positive ganze Zahl eingeben" # machine-candidate 2026-11-16
+  limitSaved: "Kontingent aktualisiert" # machine-candidate 2026-11-16
+  seatsSectionTitle: "Seats" # machine-candidate 2026-11-16
+  seatsEmpty: "Noch keine Seats" # machine-candidate 2026-11-16
+  seatEnabledBadge: "Aktiviert" # machine-candidate 2026-11-16
+  seatSuspendedBadge: "Ausgesetzt" # machine-candidate 2026-11-16
+  seatIdentityLabel: "Seat ${identity}" # machine-candidate 2026-11-16
+  seatCapacityLabel: "${active}/${max} Konversationen" # machine-candidate 2026-11-16
+  seatLoadMore: "Mehr laden" # machine-candidate 2026-11-16
+  suspendAction: "Seat aussetzen" # machine-candidate 2026-11-16
+  resumeAction: "Seat reaktivieren" # machine-candidate 2026-11-16
+  suspendConfirmTitle: "Diesen Seat aussetzen?" # machine-candidate 2026-11-16
+  suspendConfirmBody: "Ausgesetzte Seats können keine neuen Konversationen übernehmen. Laufende Konversationen bleiben unberührt; eine Reaktivierung ist jederzeit möglich." # machine-candidate 2026-11-16
+  actionDone: "Aktion angewendet" # machine-candidate 2026-11-16
+  actionFailed: "Aktion fehlgeschlagen. Bitte später erneut versuchen" # machine-candidate 2026-11-16
+  errorForbidden: "Zugriff verweigert: Support-Governance ist Owner/Admin des Unternehmens vorbehalten" # machine-candidate 2026-11-16
+  errorNoDefaultWorkspace: "Für das Unternehmen ist kein Standard-Arbeitsbereich festgelegt; der Governance-Geltungsbereich ist unbestimmt" # machine-candidate 2026-11-16
+  errorLoadFailed: "Laden fehlgeschlagen" # machine-candidate 2026-11-16
+  errorWithCode: "${msg} (Code ${code})" # machine-candidate 2026-11-16
+  seatLimitExceededHint: "Seat-Kontingent ausgeschöpft: ${used}/${limit} belegt, keine weiteren Seats möglich (seat_limit_exceeded)" # machine-candidate 2026-11-16
+  retry: "Erneut versuchen" # machine-candidate 2026-11-16

@@ -6,6 +6,7 @@ selected instance and prerequisite has a matching successful receipt.
 """
 from __future__ import annotations
 
+import base64
 import contextlib
 import ctypes.util
 import hashlib
@@ -27,6 +28,7 @@ from urllib.parse import unquote, urlparse
 
 from .machine_events import parse_machine_events
 from .result import classify_attempts, overall_exit_code
+from .w09_fixture import W09Fixture, FixtureFailure, TARGET as W09_TARGET, TARGETS as W09_TARGETS, FIXTURE as W09_FIXTURE
 
 IDENTITY = ('id', 'commit', 'profile', 'suite', 'target', 'platform',
             'product_profile', 'role', 'variant', 'selected')
@@ -362,8 +364,33 @@ def _persist_process_receipt(receipt, evidence_dir):
 
 
 def execute_process(command, env, evidence_dir, *, cwd=None, timeout=900, log_path=None,
-                    separate_stderr=False, observer=None):
+                    separate_stderr=False, observer=None, redactions=()):
     """Keep live logs, then freeze evidence after stopping a timed-out process group."""
+    if redactions:
+        evidence_dir = Path(evidence_dir)
+        evidence_dir.mkdir(parents=True, exist_ok=True)
+        final_log = Path(log_path) if log_path else evidence_dir / 'machine.jsonl'
+        final_machine = evidence_dir / 'machine.jsonl' if separate_stderr else final_log
+        if separate_stderr and final_log == final_machine:
+            final_log = evidence_dir / 'process.log'
+        final_log.parent.mkdir(parents=True, exist_ok=True)
+        secrets = set(redactions)
+        secrets.update(base64.b64encode(('W09_CANCEL_NONCE=' + secret).encode()).decode() for secret in redactions)
+        with tempfile.TemporaryDirectory(prefix='w09-private-') as private:
+            receipt = execute_process(command, env, private, cwd=cwd, timeout=timeout,
+                                      separate_stderr=separate_stderr, observer=observer)
+            for source, destination in {(receipt['log'], final_log), (receipt['machine'], final_machine)}:
+                data = Path(source).read_text(encoding='utf-8', errors='replace')
+                for secret in secrets:
+                    data = data.replace(secret, '<redacted>')
+                destination.write_text(data, encoding='utf-8')
+                os.chmod(destination, 0o600)
+            safe_command = receipt['command']
+            for secret in secrets:
+                safe_command = [arg.replace(secret, '<redacted>') for arg in safe_command]
+            receipt.update(log=str(final_log), machine=str(final_machine), command=safe_command,
+                           lines=final_machine.read_text(encoding='utf-8').splitlines())
+            return _persist_process_receipt(receipt, evidence_dir)
     evidence_dir = Path(evidence_dir)
     evidence_dir.mkdir(parents=True, exist_ok=True)
     log = Path(log_path) if log_path else evidence_dir / 'machine.jsonl'
@@ -376,35 +403,45 @@ def execute_process(command, env, evidence_dir, *, cwd=None, timeout=900, log_pa
     with contextlib.ExitStack() as stack:
         output = stack.enter_context(machine.open('w', encoding='utf-8'))
         errors = stack.enter_context(log.open('w', encoding='utf-8')) if separate_stderr else subprocess.STDOUT
+        if redactions:
+            os.chmod(machine, 0o600)
+            os.chmod(log, 0o600)
         try:
             if os.name != 'posix':
                 raise OSError('PROCESS_SUPERVISION_UNAVAILABLE: a POSIX host is required for owned process groups')
             with subprocess.Popen(command, cwd=cwd, env=env, stdout=output,
                                   stderr=errors, text=True, start_new_session=True) as process:
-                deadline = time.monotonic() + timeout
-                while True:
-                    try:
-                        code = process.wait(timeout=min(0.05, timeout) if observer else timeout)
-                        break
-                    except subprocess.TimeoutExpired:
-                        if time.monotonic() >= deadline:
-                            code, error = 124, 'RUNNER_TIMEOUT'
-                        elif observer:
-                            try:
-                                error = observer(machine)
-                            except Exception as exc:
-                                error = 'RUNNER_OBSERVER_FAILED:' + type(exc).__name__
-                            if not error:
-                                continue
-                            code = 130
-                        else:
-                            code, error = 124, 'RUNNER_TIMEOUT'
-                        # The unreaped leader pins this owned group identity.
-                        with contextlib.suppress(ProcessLookupError):
-                            os.killpg(process.pid, signal.SIGKILL)
-                        process.wait()
-                        interrupted = True
-                        break
+                try:
+                    deadline = time.monotonic() + timeout
+                    while True:
+                        try:
+                            code = process.wait(timeout=min(0.05, timeout) if observer else timeout)
+                            break
+                        except subprocess.TimeoutExpired:
+                            if time.monotonic() >= deadline:
+                                code, error = 124, 'RUNNER_TIMEOUT'
+                            elif observer:
+                                try:
+                                    error = observer(machine)
+                                except Exception as exc:
+                                    error = 'RUNNER_OBSERVER_FAILED:' + type(exc).__name__
+                                if not error:
+                                    continue
+                                code = 130
+                            else:
+                                code, error = 124, 'RUNNER_TIMEOUT'
+                            # The unreaped leader pins this owned group identity.
+                            with contextlib.suppress(ProcessLookupError):
+                                os.killpg(process.pid, signal.SIGKILL)
+                            process.wait()
+                            interrupted = True
+                            break
+                except BaseException:
+                    # Reap the owned group before Popen.__exit__ waits on it.
+                    with contextlib.suppress(ProcessLookupError):
+                        os.killpg(process.pid, signal.SIGKILL)
+                    process.wait(timeout=5)
+                    raise
         except OSError as exc:
             code, error = 127, f'{type(exc).__name__}: {exc}'
     if interrupted:
@@ -501,6 +538,9 @@ def _default_preflight(root, instance, env):
             missing.append('flutter-sdk: install the pinned Flutter SDK and expose flutter on PATH')
         if not (root / '.dart_tool/package_config.json').is_file():
             missing.append('dart-packages: run flutter pub get')
+    if instance.get('target') in W09_TARGETS:
+        if not shutil.which('node', path=env.get('PATH')) or not (root / W09_FIXTURE).is_file():
+            missing.append('w09-fixture: Node and owned fixture required')
     dependencies = instance.get('dependencies', [])
     if 'backend-source' in dependencies:
         backend = Path(env.get('IMBOY_BACKEND_ROOT', root.parent / 'imboy'))
@@ -690,7 +730,7 @@ def run_plan(root, plan, artifact_dir, *, env=None, worker_platform=None, covera
                    instance.get('variant'), instance.get('role'), instance.get('test_name'),
                    json.dumps(instance.get('dart_defines', {}), sort_keys=True),
                    tuple(sorted(instance.get('dependencies', []))), bool(coverage and instance.get('coverage')))
-            if runner != 'flutter-machine' or instance.get('suite') == 'route-smoke':
+            if runner != 'flutter-machine' or instance.get('suite') == 'route-smoke' or instance['target'] in W09_TARGETS:
                 key += (instance['id'],)
             groups[key].append(instance)
     batches = list(_execution_batches(groups.values()))
@@ -745,11 +785,30 @@ def run_plan(root, plan, artifact_dir, *, env=None, worker_platform=None, covera
                         results.append(row)
                     pending = []
                     break
+                fixture = None
+                if group[0]['target'] in W09_TARGETS:
+                    if len(pending) != 1 or group[0]['platform'] != 'web':
+                        row = _base(plan, pending[0], 'BLOCKED', 'W09_FIXTURE_SCOPE_INVALID')
+                        results.append(row)
+                        pending = []
+                        break
+                    try:
+                        fixture = W09Fixture(root, runtime_env).start()
+                    except FixtureFailure:
+                        row = _base(plan, pending[0], 'BLOCKED', 'W09_FIXTURE_START_FAILED')
+                        results.append(row)
+                        pending = []
+                        break
+                    stack.callback(fixture.stop)
+                    invocation['command'] += [f'--dart-define=W09_CANCEL_ORIGIN={fixture.origin}',
+                                               f'--dart-define=W09_CANCEL_NONCE={fixture.nonce}']
                 if (output / 'lcov.info').is_file():
                     (output / 'lcov.info').unlink()
                 receipt = execute_process(invocation['command'], invocation.get('env', runtime_env), output,
                                           cwd=invocation.get('cwd', root), log_path=invocation.get('log_path'),
-                                          separate_stderr=invocation.get('evidence_kind') == 'python-machine')
+                                          separate_stderr=invocation.get('evidence_kind') == 'python-machine',
+                                          **({'observer': fixture.observer, 'redactions': [fixture.nonce]} if fixture else {}))
+                fixture_ok = not fixture or (fixture.observer(None) is None and fixture.stop())
                 receipt['product_artifact'] = adapters.product_artifact_evidence(root, group[0], runtime_env)
                 receipt['related_evidence'] = invocation.get('evidence_artifacts', [])
                 if group[0].get('coverage') and (output / 'lcov.info').is_file():
@@ -761,6 +820,8 @@ def run_plan(root, plan, artifact_dir, *, env=None, worker_platform=None, covera
                 retry = []
                 for instance in pending:
                     attempt = _record_attempt(root, plan, instance, receipt, streams[instance['target']])
+                    if not fixture_ok:
+                        attempt['execution_errors'].append('W09_FIXTURE_CLEANUP_OR_EXIT_FAILED')
                     if instance.get('coverage') and not receipt.get('coverage') and attempt['parsed'].get('test_status') == 'PASS':
                         attempt['execution_errors'].append('MISSING_COVERAGE_RESULT')
                     attempt_records[instance['id']].append(attempt)

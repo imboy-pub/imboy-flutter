@@ -8,6 +8,9 @@ ATF-603：quality.yml 与本地调用同一入口命令。
 from __future__ import annotations
 
 import os
+import json
+import shutil
+import tempfile
 import subprocess
 import sys
 import unittest
@@ -134,6 +137,71 @@ class TestGateCiParity(unittest.TestCase):
         self.assertIn('execution-run', suite)
         self.assertNotIn('flutter devices', suite)
         self.assertNotIn('find integration_test', suite)
+
+
+class TestProductDriftAdminRoot(unittest.TestCase):
+    """Exercise the actual gate with an isolated generator spy."""
+
+    def _run(self, admin_root, generator_exit=0):
+        with tempfile.TemporaryDirectory(prefix='imboy-gate-admin-') as tmp:
+            root = Path(tmp)
+            app = root / 'app'
+            backend = root / 'backend'
+            (app / 'scripts' / 'auto_test_lib').mkdir(parents=True)
+            (backend / 'scripts').mkdir(parents=True)
+            shutil.copyfile(GATE, app / 'scripts' / 'check_auto_test_framework.sh')
+            (app / 'scripts' / 'auto_test.py').write_text('')
+            (app / 'scripts' / 'capture_integration_screenshots.py').write_text('')
+            (app / 'scripts' / 'auto_test_lib' / 'dummy.py').write_text('')
+            (backend / 'scripts' / 'generate_product_features.py').write_text(
+                'import json, os, sys\n'
+                'from pathlib import Path\n'
+                "Path(os.environ['GATE_ARGS_CAPTURE']).write_text(json.dumps(sys.argv[1:]))\n"
+                "sys.exit(int(os.environ['GATE_GENERATOR_EXIT']))\n"
+            )
+            env = dict(os.environ)
+            env.pop('AUTO_TEST_FRAMEWORK_NEGATIVE', None)
+            env.pop('IMBOY_ADMIN_ROOT', None)
+            if admin_root is not None:
+                env['IMBOY_ADMIN_ROOT'] = admin_root
+            env.update({
+                'IMBOY_BACKEND_ROOT': str(backend),
+                'AUTO_TEST_REPORT_ROOT': str(root / 'report'),
+                'GATE_ARGS_CAPTURE': str(root / 'generator-args.json'),
+                'GATE_GENERATOR_EXIT': str(generator_exit),
+            })
+            result = subprocess.run(
+                ['bash', str(app / 'scripts' / 'check_auto_test_framework.sh'), '--checks-only'],
+                cwd=app, env=env, text=True, capture_output=True, timeout=30,
+            )
+            args_path = root / 'generator-args.json'
+            args = json.loads(args_path.read_text()) if args_path.exists() else None
+            summary = json.loads((root / 'report' / 'gate_summary.json').read_text())
+            return args, summary['environment'], str(app), result.returncode
+
+    def test_unset_preserves_generator_default(self):
+        args, env, app, _ = self._run(None)
+        self.assertEqual(args, ['--check', '--app-dir', app])
+        self.assertEqual(env['product_drift_status'], 'OK')
+
+    def test_explicit_path_with_spaces_is_one_argument(self):
+        args, env, app, _ = self._run('/tmp/admin tree')
+        self.assertEqual(args, ['--check', '--app-dir', app, '--admin-dir', '/tmp/admin tree'])
+        self.assertEqual(env['product_drift_status'], 'OK')
+
+    def test_explicit_empty_blocks_without_calling_generator(self):
+        args, env, _, code = self._run('')
+        self.assertIsNone(args)
+        self.assertEqual(env['product_drift_status'], 'BLOCKED_PRODUCT_DRIFT')
+        self.assertTrue(env['product_drift_is_gate_fatal'])
+        self.assertIn('empty path', env['product_drift_detail'])
+        self.assertNotEqual(code, 0)
+
+    def test_generator_failure_stays_blocked(self):
+        args, env, app, code = self._run('/missing/admin', generator_exit=2)
+        self.assertEqual(args, ['--check', '--app-dir', app, '--admin-dir', '/missing/admin'])
+        self.assertEqual(env['product_drift_status'], 'BLOCKED_PRODUCT_DRIFT')
+        self.assertNotEqual(code, 0)
 
 
 if __name__ == '__main__':

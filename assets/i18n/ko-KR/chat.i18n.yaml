@@ -231,3 +231,9 @@ inbox:
   undo: "실행 취소"
   openChannels: "채널 열기"
   channelEmptyDescription: "채널 화면에서 구독 목록을 업데이트하거나 숨긴 채널을 복원하세요."
+
+chatStatusOutcomeUnknown: 이번 전송이 거부되었습니다. 전송 결과를 확인할 수 없습니다
+
+# ---- DSN-06 gap fill (machine-candidate 2026-11-16) ----
+e2eeMsgBeforeDevice: "이 메시지는 이 기기가 참여하기 전에 전송되어 이 기기에서 표시할 수 없습니다" # machine-candidate 2026-11-16
+e2eeMsgBeforeDeviceTapHint: "이 메시지는 이 기기를 포함하지 않고 암호화되었습니다(예: 기기 변경 전 과거 메시지). 여기서 복호화할 수 없습니다. 이 기기에서 주고받는 새 메시지에는 영향이 없습니다" # machine-candidate 2026-11-16

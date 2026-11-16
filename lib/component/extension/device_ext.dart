@@ -15,6 +15,7 @@ import 'device_ext_web_stub.dart' if (dart.library.html) 'device_ext_web.dart';
 /// - 支持 Web 平台
 class DeviceExt extends DeviceInfoPlugin {
   static DeviceExt? _instance;
+  String? _webDeviceId;
   static DeviceExt get to {
     _instance ??= DeviceExt();
     return _instance!;
@@ -36,12 +37,25 @@ class DeviceExt extends DeviceInfoPlugin {
 
       // 生成唯一的设备 ID（使用 localStorage 持久化）
       String? deviceId = browser.getItem('web_device_id');
+      if (_webDeviceId != null && _webDeviceId != deviceId) {
+        throw StateError('Web device identity changed during this session');
+      }
       if (deviceId == null || deviceId.isEmpty) {
         final newDeviceId =
             'web_${DateTime.now().millisecondsSinceEpoch}_${_generateRandomString(8)}';
         browser.setItem('web_device_id', newDeviceId);
         deviceId = newDeviceId;
       }
+
+      if (deviceId.isEmpty ||
+          deviceId.runes.length > 128 ||
+          utf8.decode(utf8.encode(deviceId)) != deviceId) {
+        throw StateError('Invalid persistent Web device identity');
+      }
+      if (browser.getItem('web_device_id') != deviceId) {
+        throw StateError('Web device identity persistence failed');
+      }
+      _webDeviceId = deviceId;
 
       return {
         "cos": "web",

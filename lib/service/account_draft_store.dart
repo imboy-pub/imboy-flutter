@@ -58,6 +58,31 @@ class AccountDraftStore {
     });
   }
 
+  String readPendingSend() {
+    final keys = _keys;
+    if (keys == null || !isCurrent) return '';
+    return StorageService.to.getString(
+      owner.preferenceKey('${keys.text}:pending'),
+    );
+  }
+
+  Future<void> savePendingSend(String value) => _write((task, keys) async {
+    await StorageService.to.persistPreference(
+      () => StorageService.to.setString(
+        owner.preferenceKey('${keys.text}:pending'),
+        value,
+      ),
+    );
+  });
+
+  Future<void> clearPendingSend(String expected) => _write((task, keys) async {
+    final key = owner.preferenceKey('${keys.text}:pending');
+    if (StorageService.to.getString(key) != expected) return;
+    await StorageService.to.persistPreference(
+      () => StorageService.to.remove(key),
+    );
+  });
+
   Future<void> clear() => _write((task, keys) async {
     await StorageService.to.persistPreference(
       () => StorageService.to.remove(keys.text),

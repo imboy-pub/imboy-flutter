@@ -21,12 +21,15 @@ class WebMiddlePanel extends StatefulWidget {
   /// 是否保持所有 tab 同时 mount（默认 true）。
   final bool keepAlive;
 
+  final bool showDivider;
+
   const WebMiddlePanel({
     super.key,
     required this.currentTab,
     required this.tabs,
     this.width = 360,
     this.keepAlive = true,
+    this.showDivider = true,
   }) : assert(tabs.length >= 2, 'WebMiddlePanel 至少需要 2 个 tabs'),
        assert(currentTab >= 0 && currentTab < tabs.length, 'currentTab 越界');
 
@@ -111,9 +114,14 @@ class _WebMiddlePanelState extends State<WebMiddlePanel> {
       width: widget.width,
       decoration: BoxDecoration(
         color: colorScheme.surface,
-        border: Border(
-          right: BorderSide(color: colorScheme.outlineVariant, width: 0.5),
-        ),
+        border: widget.showDivider
+            ? Border(
+                right: BorderSide(
+                  color: colorScheme.outlineVariant,
+                  width: 0.5,
+                ),
+              )
+            : null,
       ),
       child: content,
     );

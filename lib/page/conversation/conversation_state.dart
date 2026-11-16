@@ -5,6 +5,10 @@ class ConversationState {
   final bool isLoading;
   final Map<String, ConversationModel> conversationMap;
   final String connectDesc;
+
+  /// LAY-04：主列表权威拉取失败哨兵（非空=最近一次权威同步失败）。
+  /// 仅用于区分「真空」与「失败后本地为空」的空态渲染；具体内容不消费。
+  final String loadError;
   final Map<String, int> conversationRemind;
 
   /// W09.a（§6.7/J17.c）：人工待处理（服务端 user_setting 元数据的
@@ -15,6 +19,7 @@ class ConversationState {
     this.isLoading = true,
     this.conversationMap = const {},
     this.connectDesc = '',
+    this.loadError = '',
     this.conversationRemind = const {},
     this.manualPending = const {},
   });
@@ -23,6 +28,7 @@ class ConversationState {
     bool? isLoading,
     Map<String, ConversationModel>? conversationMap,
     String? connectDesc,
+    String? loadError,
     Map<String, int>? conversationRemind,
     Map<String, bool>? manualPending,
   }) {
@@ -30,6 +36,7 @@ class ConversationState {
       isLoading: isLoading ?? this.isLoading,
       conversationMap: conversationMap ?? this.conversationMap,
       connectDesc: connectDesc ?? this.connectDesc,
+      loadError: loadError ?? this.loadError,
       conversationRemind: conversationRemind ?? this.conversationRemind,
       manualPending: manualPending ?? this.manualPending,
     );

@@ -23,6 +23,40 @@ import 'package:imboy/service/login_account_history_service.dart';
 import 'package:imboy/service/storage.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 
+// Keep the synthetic test credentials while excluding shared service ports.
+final class _IsolatedPassportEnv implements Env {
+  const _IsolatedPassportEnv(this.original);
+  final Env original;
+  @override
+  String get apiBaseUrl => 'http://127.0.0.1:0';
+  @override
+  String? get wsUrl => 'ws://127.0.0.1:0/ws';
+  @override
+  String get solidifiedKey => original.solidifiedKey;
+  @override
+  String get solidifiedKeyIv => original.solidifiedKeyIv;
+  @override
+  String get iosAppId => original.iosAppId;
+  @override
+  String get aMapIosKey => original.aMapIosKey;
+  @override
+  String get aMapAndroidKey => original.aMapAndroidKey;
+  @override
+  String get aMapWebKey => original.aMapWebKey;
+  @override
+  String get jiguangAppKey => original.jiguangAppKey;
+  @override
+  String get alipayAppId => original.alipayAppId;
+  @override
+  String get alipayUniversalLink => original.alipayUniversalLink;
+  @override
+  String get openaiApiKey => original.openaiApiKey;
+  @override
+  String get anthropicApiKey => original.anthropicApiKey;
+  @override
+  bool get aiTestEnabled => original.aiTestEnabled;
+}
+
 class _LoginNotifier extends PassportNotifier {
   @override
   PassportState build() {
@@ -112,6 +146,11 @@ Future<String> _configResponse() async {
 }
 
 void main() {
+  envMap['dev'] = _IsolatedPassportEnv(envMap['dev']!);
+  currentEnv = 'dev';
+  if (const String.fromEnvironment('WS_URL_OVERRIDE').isNotEmpty) {
+    throw StateError('Unexpected WebSocket override in isolated test');
+  }
   late ProviderContainer container;
   late _LoginAdapter adapter;
   late DeviceInfoPlatform originalDeviceInfo;

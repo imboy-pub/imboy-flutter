@@ -21,3 +21,21 @@ cancelSchedule: 일정 취소
 scheduleIdMissing: 일정 ID가 없어 상세정보를 볼 수 없습니다
 untitledSchedule: "제목 없는 일정"
 cardViewAndAttend: "상세 보기 및 참석 확인"
+
+# ---- DSN-06 gap fill (machine-candidate 2026-11-16) ----
+allParticipants: "전체 참여자($count)" # machine-candidate 2026-11-16
+attendSummary: "$attending/$total명 참가" # machine-candidate 2026-11-16
+cardViewDetail: "상세 보기" # machine-candidate 2026-11-16
+collapseParticipants: "접기" # machine-candidate 2026-11-16
+duration: "약 $minutes분" # machine-candidate 2026-11-16
+hintToday: "오늘" # machine-candidate 2026-11-16
+hintTomorrow: "내일" # machine-candidate 2026-11-16
+organizer: "주최자" # machine-candidate 2026-11-16
+participantAttending: "참가함" # machine-candidate 2026-11-16
+participantDeclined: "거절함" # machine-candidate 2026-11-16
+participantPending: "응답 대기" # machine-candidate 2026-11-16
+remindBefore: "시작 $minutes분 전 알림" # machine-candidate 2026-11-16
+sectionLater: "이후" # machine-candidate 2026-11-16
+sectionThisWeek: "이번 주" # machine-candidate 2026-11-16
+sectionToday: "오늘" # machine-candidate 2026-11-16
+startsHint: "$hint $time 시작" # machine-candidate 2026-11-16

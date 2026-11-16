@@ -1,4 +1,6 @@
+import 'package:imboy/service/web_writer_gate.dart';
 import 'package:imboy/service/server_ack_receipts.dart';
+import 'package:imboy/service/c2g_send_gate.dart';
 import 'package:imboy/store/api/msg_api.dart';
 import 'package:imboy/store/repository/message_repo_sqlite.dart';
 import 'package:imboy/store/repository/attachment_upload_task_repo_sqlite.dart';
@@ -26,6 +28,7 @@ import 'package:web_socket_channel/web_socket_channel.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/helper/jwt.dart';
 import 'package:imboy/component/http/http_client.dart' show defaultHeaders;
+import 'package:imboy/component/http/http_request_policy.dart' show safeHttpUri;
 import 'package:imboy/config/const.dart';
 import 'package:imboy/config/env.dart';
 import 'package:imboy/store/api/user_api.dart';
@@ -47,8 +50,38 @@ enum SocketStatus { connecting, connected, disconnected }
 /// - v2: IMBoy 分层二进制协议 v2（通过 imboy.v2 子协议协商）
 enum FramingMode { none, v2 }
 
+enum _C2gSendResult { sent, held, terminal, conflict, stale }
+
+enum _QueueReconcileResult { completed, terminal, deferred, stale }
+
 /// v2 子协议名称（最高优先级）
 const String kSubProtocolV2 = 'imboy.v2';
+
+/// Human Web authentication uses one raw-token subprotocol beside v2.
+List<String> webHumanSocketProtocols(String rawToken) {
+  if (rawToken.isEmpty || rawToken.toLowerCase().startsWith('bearer ')) {
+    throw StateError('WebSocket requires a raw access token');
+  }
+  final auth =
+      'imboy.auth.${base64Url.encode(utf8.encode(rawToken)).replaceAll('=', '')}';
+  if (auth.length > 8192) {
+    throw StateError('WebSocket authentication protocol is too long');
+  }
+  return [kSubProtocolV2, auth];
+}
+
+Uri webHumanSocketUri(String value) {
+  final uri = Uri.parse(value);
+  if ((uri.scheme != 'ws' && uri.scheme != 'wss') ||
+      uri.host.isEmpty ||
+      uri.userInfo.isNotEmpty ||
+      uri.hasQuery ||
+      uri.hasFragment ||
+      uri.path != '/api/v1/web/ws') {
+    throw StateError('Invalid Human WebSocket URL');
+  }
+  return uri;
+}
 
 class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
   // 单例模式
@@ -115,6 +148,13 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
   @visibleForTesting
   Future<void> Function()? afterOutboxBeginForTest;
 
+  @visibleForTesting
+  Future<void> Function()? beforeC2gGateCheckForTest;
+
+  @visibleForTesting
+  Future<bool> Function(String chatType, String peerId, String messageId)?
+  outboxCommittedForTest;
+
   String _outboxAttemptToken() {
     final random = Random.secure();
     return base64UrlEncode(List<int>.generate(24, (_) => random.nextInt(256)));
@@ -152,6 +192,7 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
 
   /// 初始化服务
   void init() {
+    if (!isWebWriterReady) return;
     // 防止重复初始化导致多次订阅
     if (_initialized) return;
     _initialized = true;
@@ -224,6 +265,17 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
         }),
       );
     }
+  }
+
+  /// Stop existing transport work without clearing backlog or account data.
+  static void suspendForStorageFailure() {
+    final current = _instance;
+    if (current == null) return;
+    unawaited(
+      current.closeSocket(permanent: true).catchError((Object error) {
+        AppLogger.warning('WebSocket pause failed: ${error.runtimeType}');
+      }),
+    );
   }
 
   /// 释放资源
@@ -330,11 +382,12 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
 
   /// 判断是否需要建立连接
   bool _shouldReconnect() {
-    return UserRepoLocal.to.isLoggedIn && !_connecting;
+    return isWebWriterReady && UserRepoLocal.to.isLoggedIn && !_connecting;
   }
 
   /// 对外接口：建立连接
   Future<void> openSocket({String from = ''}) async {
+    if (!isWebWriterReady) return;
     // 自愈：quitLogin/permanent 关闭销毁单例后，新实例无人调 init()，
     // EventBus 发送订阅缺失会导致上行消息静默全丢（2026-08-10 实证）。
     // init() 有 _initialized 防重，幂等；其内部 openSocket(from:'init')
@@ -381,6 +434,7 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
 
     WebSocketChannel? attemptChannel;
     bool isCurrentAttempt() =>
+        isWebWriterReady &&
         generation == _connectionGeneration &&
         connectionOwner.isNotEmpty &&
         UserRepoLocal.to.currentUid == connectionOwner &&
@@ -416,10 +470,11 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
       ];
 
       if (kIsWeb) {
-        // Web 平台使用 WebSocketChannel.connect (protocols 作为位置参数)
+        if (!isCurrentAttempt()) return;
+        requireWebWriter();
         attemptChannel = WebSocketChannel.connect(
-          Uri.parse(wsUrl),
-          protocols: protocols,
+          webHumanSocketUri(wsUrl),
+          protocols: webHumanSocketProtocols(token),
         );
       } else {
         // 移动端/桌面端使用 IOWebSocketChannel
@@ -443,6 +498,11 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
       if (!isCurrentAttempt() || !identical(_channel, attemptChannel)) {
         await attemptChannel.sink.close();
         return;
+      }
+
+      if (kIsWeb && _selectedProtocol(attemptChannel) != kSubProtocolV2) {
+        await attemptChannel.sink.close(1002, 'WebSocket protocol mismatch');
+        throw StateError('WebSocket protocol mismatch');
       }
 
       // 检测服务端选中的子协议，设置 framing 模式
@@ -499,7 +559,7 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
         },
         cancelOnError: true,
       );
-      AppLogger.info('WebSocket 连接成功: ${Env.effectiveWsUrl}');
+      AppLogger.info('WebSocket 连接成功: ${getWebSocketUrl()}');
     } catch (e) {
       if (isCurrentAttempt()) {
         AppLogger.error('WebSocket 连接失败: ${e.runtimeType}');
@@ -525,6 +585,7 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
 
   /// 处理连接失败后的操作
   Future<void> _handleConnectionFailure(Object error) async {
+    if (!isWebWriterReady) return;
     // 在调度重连前必须先清零 _connecting，否则 _shouldReconnect() 因 !_connecting==false 而提前终止
     _connecting = false;
     _updateStatus(SocketStatus.disconnected);
@@ -595,11 +656,13 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
 
   /// v2 心跳：发送 heartbeatPing frame
   void _sendV2Heartbeat() {
+    if (!isWebWriterReady) return;
     if (_framing != FramingMode.v2 || _channel == null) return;
     final seq = _v2PingSeq;
     _v2PingSeq = (_v2PingSeq + 1) & 0xFFFF;
     try {
       final bytes = ImboyFrame.heartbeatPing(seq);
+      requireWebWriter();
       _channel!.sink.add(bytes);
     } catch (e) {
       iPrint('> ws: v2 heartbeat 发送失败: ${e.runtimeType}');
@@ -611,6 +674,7 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
   /// 若上一轮 pong 一直未到（_v1PongTimer 仍在跑），说明连接早已死透，
   /// 直接判定失败并重连，不再等待这一轮的探测结果。
   void _sendV1Heartbeat() {
+    if (!isWebWriterReady) return;
     if (_framing == FramingMode.v2 || _channel == null) return;
     if (_v1PongTimer != null) {
       iPrint('> ws: v1 heartbeat 上一轮 pong 仍未到，判定连接已死');
@@ -618,6 +682,7 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
       return;
     }
     try {
+      requireWebWriter();
       _channel!.sink.add('ping');
       _v1PongTimer = Timer(_v1PongTimeout, _handleV1HeartbeatTimeout);
     } catch (e) {
@@ -636,6 +701,7 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
 
   /// 处理收到的 v2 二进制帧（不抛出）
   void _handleV2Binary(Uint8List bytes) {
+    if (!isWebWriterReady) return;
     try {
       final result = ImboyFrame.tryDecode(bytes);
       if (result == null) {
@@ -653,6 +719,7 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
             final seq = ByteData.sublistView(frame.payload)
                 .getUint16(0, Endian.big);
             try {
+              requireWebWriter();
               _channel?.sink.add(ImboyFrame.heartbeatPong(seq));
             } catch (e) {
               iPrint('> ws: v2 pong 回包失败: ${e.runtimeType}');
@@ -799,6 +866,7 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
   /// 处理接收到的消息（优化版：非阻塞立即分发）
   /// Process received messages (optimized: non-blocking immediate dispatch)
   void _onMessage(dynamic message) {
+    if (!isWebWriterReady) return;
     // v2 路径：binary 数据走 frame 解码
     if (_framing == FramingMode.v2 && message is List<int>) {
       _handleV2Binary(
@@ -924,6 +992,7 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
 
   /// 统一处理消息确认（包含ACK和撤回确认）
   void _handleMessageAck(String action, String messageId, {String? reason}) {
+    if (!isWebWriterReady) return;
     final normalizedAction = action.toUpperCase();
     if (normalizedAction.endsWith('_ACK') &&
         normalizedAction != 'CLIENT_ACK' &&
@@ -1006,6 +1075,7 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
     final uid = actor.currentUid;
     final generation = actor.sessionGeneration;
     bool current() =>
+        isWebWriterReady &&
         uid.isNotEmpty &&
         actor.currentUid == uid &&
         actor.isCurrentSession(generation) &&
@@ -1035,6 +1105,7 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
   }
 
   void _handleRawMessage(dynamic rawMessage) {
+    if (!isWebWriterReady) return;
     try {
       AppEventBus.fireData({
         'type': 'RAW_MESSAGE',
@@ -1055,6 +1126,7 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
 
   /// 发送积压消息（优化版：加边界、异常、速率限制、并发防护）
   Future<void> _flushMessageQueue() async {
+    if (!isWebWriterReady) return;
     if (_isFlushing) return;
     _isFlushing = true;
     try {
@@ -1067,6 +1139,7 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
       final ownerUid = session.currentUid;
       final generation = session.sessionGeneration;
       bool current() =>
+          isWebWriterReady &&
           ownerUid.isNotEmpty &&
           session.currentUid == ownerUid &&
           session.isCurrentSession(generation) &&
@@ -1129,36 +1202,56 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
                 final peerId = decoded is Map
                     ? decoded['to']?.toString()
                     : null;
-                var committed = false;
-                if ((chatType == 'c2c' || chatType == 'c2g') &&
-                    peerId != null &&
-                    peerId.isNotEmpty) {
-                  try {
-                    committed = await MsgApi()
-                        .isCommitted(
-                          chatType: chatType!,
-                          peerId: peerId,
-                          messageId: queuedId,
-                        )
-                        .timeout(const Duration(seconds: 2));
-                  } on Object {
-                    committed = false;
-                  }
-                }
-                if (!current()) break;
-                if (committed &&
-                    await uploads.reconcileOutboxCommitted(
-                      queuedId,
+                Future<_QueueReconcileResult> reconcile() async {
+                  if (chatType == 'c2g') {
+                    final check = await C2gSendGate.check(
                       ownerUid,
-                      isCurrent: current,
-                    )) {
+                      queuedId,
+                      peerId,
+                    );
+                    if (!current()) return _QueueReconcileResult.stale;
+                    if (check == C2gSendCheck.terminal) {
+                      return _QueueReconcileResult.terminal;
+                    }
+                    if (check == C2gSendCheck.identityMismatch) {
+                      return _QueueReconcileResult.deferred;
+                    }
+                  }
+                  var committed = false;
+                  if ((chatType == 'c2c' || chatType == 'c2g') &&
+                      peerId != null &&
+                      peerId.isNotEmpty) {
+                    try {
+                      final lookup = outboxCommittedForTest;
+                      committed =
+                          await (lookup != null
+                                  ? lookup(chatType!, peerId, queuedId)
+                                  : MsgApi().isCommitted(
+                                      chatType: chatType!,
+                                      peerId: peerId,
+                                      messageId: queuedId,
+                                    ))
+                              .timeout(const Duration(seconds: 2));
+                    } on Object {
+                      committed = false;
+                    }
+                  }
+                  if (!current()) return _QueueReconcileResult.stale;
+                  if (!committed ||
+                      !await uploads.reconcileOutboxCommitted(
+                        queuedId,
+                        ownerUid,
+                        isCurrent: current,
+                      )) {
+                    return _QueueReconcileResult.deferred;
+                  }
                   final messages = MessageRepo(
                     tableName: MessageRepo.getTableName(
                       chatType!.toUpperCase(),
                     ),
                   );
                   final result = await messages.find(queuedId);
-                  if (!current()) break;
+                  if (!current()) return _QueueReconcileResult.stale;
                   if (result != null) {
                     ServerAckReceipts.announceVerified(
                       message: result,
@@ -1167,6 +1260,15 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
                       isCurrent: current,
                     );
                   }
+                  return _QueueReconcileResult.completed;
+                }
+
+                final result = chatType == 'c2g'
+                    ? await C2gSendGate.run(ownerUid, queuedId, reconcile)
+                    : await reconcile();
+                if (result == _QueueReconcileResult.stale) break;
+                if (result == _QueueReconcileResult.completed ||
+                    result == _QueueReconcileResult.terminal) {
                   _messageQueue.removeAccepted(queued);
                 } else {
                   deferred.add(queued);
@@ -1187,10 +1289,43 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
               }
               break;
             }
-            final payload = _outboundPayload(queued.data);
-            final sink = selectedChannel.sink;
-            sinkInvoked = true;
-            sink.add(payload);
+            final result = await _guardedSend(
+              message: queued.data,
+              messageId: queuedId,
+              ownerUid: ownerUid,
+              current: () =>
+                  current() &&
+                  _status == SocketStatus.connected &&
+                  identical(_channel, selectedChannel),
+              send: () {
+                final payload = _outboundPayload(queued.data);
+                final sink = selectedChannel.sink;
+                requireWebWriter();
+                sinkInvoked = true;
+                sink.add(payload);
+              },
+            );
+            if (result != _C2gSendResult.sent) {
+              if (began && current()) {
+                await AttachmentUploadTaskRepo().cancelUnsentOutboxAttempt(
+                  attemptAnchor!,
+                  ownerUid,
+                  attemptToken!,
+                  isCurrent: current,
+                );
+              }
+              if (result == _C2gSendResult.terminal && current()) {
+                _messageQueue.removeAccepted(queued);
+                continue;
+              }
+              if ((result == _C2gSendResult.held ||
+                      result == _C2gSendResult.conflict) &&
+                  current()) {
+                deferred.add(queued);
+                continue;
+              }
+              break;
+            }
             _messageQueue.removeAccepted(queued);
           } catch (_) {
             if (began && !sinkInvoked && current()) {
@@ -1239,6 +1374,7 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
       if (!tokenExpired(token)) return token;
       return await _refreshAccessToken();
     } catch (e) {
+      if (!isWebWriterReady) return '';
       iPrint('> ws: token refresh failed: ${e.runtimeType}');
       await quitLoginAndNavigateToSignIn(source: 'websocket_relogin');
       return '';
@@ -1265,9 +1401,10 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
   }
 
   void _onClose() {
+    if (!isWebWriterReady) return;
     if (_status == SocketStatus.disconnected) return;
     final int closeCode = _channel?.closeCode ?? 0;
-    final String closeReason = _channel?.closeReason ?? '';
+    final String closeReason = kIsWeb ? '' : _channel?.closeReason ?? '';
     iPrint('> ws_onClose: 连接丢失 $closeCode: $closeReason;');
 
     _updateStatus(SocketStatus.disconnected);
@@ -1381,6 +1518,55 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
     }
   }
 
+  bool _isC2gBusiness(String message) {
+    if (_isControlAck(message)) return false;
+    try {
+      final data = jsonDecode(message);
+      return data is Map && data['type']?.toString().toUpperCase() == 'C2G';
+    } on FormatException {
+      return false;
+    }
+  }
+
+  String? _wirePeerId(String message) {
+    try {
+      final data = jsonDecode(message);
+      return data is Map ? data['to']?.toString() : null;
+    } on FormatException {
+      return null;
+    }
+  }
+
+  Future<_C2gSendResult> _guardedSend({
+    required String message,
+    required String? messageId,
+    required String ownerUid,
+    required bool Function() current,
+    required void Function() send,
+  }) async {
+    if (!_isC2gBusiness(message) || messageId == null || messageId.isEmpty) {
+      if (!current()) return _C2gSendResult.stale;
+      send();
+      return _C2gSendResult.sent;
+    }
+    return C2gSendGate.run(ownerUid, messageId, () async {
+      await beforeC2gGateCheckForTest?.call();
+      final check = await C2gSendGate.check(
+        ownerUid,
+        messageId,
+        _wirePeerId(message),
+      );
+      if (!current()) return _C2gSendResult.stale;
+      if (check == C2gSendCheck.held) return _C2gSendResult.held;
+      if (check == C2gSendCheck.terminal) return _C2gSendResult.terminal;
+      if (check == C2gSendCheck.identityMismatch) {
+        return _C2gSendResult.conflict;
+      }
+      send();
+      return _C2gSendResult.sent;
+    });
+  }
+
   /// 发送消息核心方法（优化版：简化确认机制）
   Future<bool> sendMessage(
     String message,
@@ -1392,6 +1578,7 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
     final ownerUid = actor.currentUid;
     final generation = actor.sessionGeneration;
     bool current() =>
+        isWebWriterReady &&
         ownerUid.isNotEmpty &&
         actor.currentUid == ownerUid &&
         actor.isCurrentSession(generation) &&
@@ -1465,10 +1652,33 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
           }
           return false;
         }
-        final payload = _outboundPayload(message);
-        final sink = selectedChannel.sink;
-        sinkInvoked = true;
-        sink.add(payload);
+        final result = await _guardedSend(
+          message: message,
+          messageId: gateId,
+          ownerUid: ownerUid,
+          current: () =>
+              current() &&
+              _status == SocketStatus.connected &&
+              identical(_channel, selectedChannel),
+          send: () {
+            final payload = _outboundPayload(message);
+            final sink = selectedChannel.sink;
+            requireWebWriter();
+            sinkInvoked = true;
+            sink.add(payload);
+          },
+        );
+        if (result != _C2gSendResult.sent) {
+          if (began && current()) {
+            await uploads.cancelUnsentOutboxAttempt(
+              gateId!,
+              ownerUid,
+              token,
+              isCurrent: current,
+            );
+          }
+          return false;
+        }
         _logMessageSent(message, messageId);
         // 出站确认/重发由 MessageRetry 状态机负责（调用方 addToRetryQueue），
         // 此处不再做本地待确认簿记。
@@ -1516,8 +1726,9 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
   }
 
   /// 同步发送消息（用于 ACK 等需要立即发送的场景）
-  /// 不经过消息队列，直接通过 WebSocket 发送
+  /// 业务消息必须经过异步发送门，避免绕过持久拒绝状态。
   bool sendDirect(dynamic message) {
+    if (!isWebWriterReady || !_isDirectControl(message)) return false;
     if (_status == SocketStatus.connected && _channel != null) {
       try {
         dynamic payload;
@@ -1527,6 +1738,7 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
           // 二进制数据直接发送
           payload = message;
         }
+        requireWebWriter();
         _channel!.sink.add(payload);
         return true;
       } catch (e) {
@@ -1537,6 +1749,55 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
     return false;
   }
 
+  bool _isDirectControl(dynamic message) {
+    if (message is String) {
+      if (message == 'ping' || message == 'pong') return true;
+      if (message.startsWith('CLIENT_ACK,')) {
+        final fields = message.split(',');
+        return fields.length == 4 &&
+            {'C2C', 'C2G', 'C2S', 'S2C', 'WEBRTC'}.contains(fields[1]) &&
+            fields[2].isNotEmpty &&
+            fields[3].isNotEmpty;
+      }
+      try {
+        final data = jsonDecode(message);
+        if (data is! Map ||
+            !{
+              'message_revoke_ack',
+              'message_edit_ack',
+            }.contains(data['action']) ||
+            !{'C2C', 'C2G', 'C2S'}.contains(data['type']) ||
+            data['id']?.toString().isEmpty != false) {
+          return false;
+        }
+        final payload = data['payload'];
+        return payload is Map &&
+            payload['original_msg_id']?.toString().isNotEmpty == true;
+      } on FormatException {
+        return false;
+      }
+    }
+    if (message is! List<int>) return false;
+    try {
+      final decoded = ImboyFrame.decodeStreamSafe(Uint8List.fromList(message));
+      if (decoded.hasError ||
+          decoded.remaining.isNotEmpty ||
+          decoded.frames.isEmpty) {
+        return false;
+      }
+      return decoded.frames.every(
+        (frame) => switch (frame.type) {
+          FrameType.heartbeatPing ||
+          FrameType.heartbeatPong => frame.payload.length == 2,
+          FrameType.ack || FrameType.nack => frame.payload.length == 8,
+          _ => false,
+        },
+      );
+    } on Object {
+      return false;
+    }
+  }
+
   /// 处理消息发送失败
   Future<void> _handleSendFailure(
     String message,
@@ -1545,7 +1806,8 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
     int generation,
   ) async {
     final session = UserRepoLocal.to;
-    if (session.currentUid != ownerUid ||
+    if (!isWebWriterReady ||
+        session.currentUid != ownerUid ||
         !session.isCurrentSession(generation) ||
         session.isClearingSession) {
       return;
@@ -1595,6 +1857,7 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
 
   /// 消息发送前检查
   bool _preMessageCheck(String message) {
+    if (!isWebWriterReady) return false;
     if (!UserRepoLocal.to.isLoggedIn || UserRepoLocal.to.isClearingSession) {
       iPrint('> ws: 消息丢弃（用户未登录）');
       return false;
@@ -1659,7 +1922,15 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
 
   /// 获取WebSocket URL
   /// Get WebSocket URL
-  String? getWebSocketUrl() => Env.effectiveWsUrl;
+  String? getWebSocketUrl() {
+    final url = Env.effectiveWsUrl;
+    if (!kIsWeb || url == null || url.isEmpty) return url;
+    try {
+      return safeHttpUri(webHumanSocketUri(url));
+    } on Object {
+      return null;
+    }
+  }
 
   /// 获取消息队列大小
   /// Get message queue size

@@ -229,3 +229,5 @@ inbox:
   undo: "撤销"
   openChannels: "前往频道"
   channelEmptyDescription: "在频道页更新订阅列表，也可以恢复已隐藏的频道。"
+
+chatStatusOutcomeUnknown: 本次被拒，发送结果待确认

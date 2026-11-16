@@ -20,6 +20,8 @@ import 'cs_session_attachment_page_test.dart'
 import 'cs_auth_fixture.dart';
 
 class SyntheticAuthReader extends ChangeNotifier implements AuthSessionReader {
+  @override
+  bool get transitionFailed => false;
   SyntheticAuthReader(this.current);
   @override
   AuthSessionScope current;

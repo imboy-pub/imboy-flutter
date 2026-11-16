@@ -20,7 +20,7 @@ class DeepLinkRouterBridge {
 
   /// 冷启动：消费初始深链（App 由外部 VIEW intent 拉起）。
   static Future<void> consumeInitialLink(GoRouter router) async {
-    if (!Platform.isAndroid) return;
+    if (kIsWeb || !Platform.isAndroid) return;
     try {
       final link = await _channel.invokeMethod<String>('getInitialLink');
       if (link != null && link.isNotEmpty) {
@@ -35,7 +35,7 @@ class DeepLinkRouterBridge {
 
   /// 热启动：监听 native 推送的深链（App 已在前台时收到 VIEW intent）。
   static void watchIncomingLinks(GoRouter router) {
-    if (!Platform.isAndroid) return;
+    if (kIsWeb || !Platform.isAndroid) return;
     _channel.setMethodCallHandler((call) async {
       if (call.method == 'onDeepLink') {
         final link = call.arguments;

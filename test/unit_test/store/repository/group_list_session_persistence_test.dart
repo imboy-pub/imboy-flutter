@@ -37,6 +37,8 @@ class _DelayedTransactionDatabase implements Database {
 
 class _Auth extends ChangeNotifier implements AuthSessionReader {
   @override
+  bool get transitionFailed => false;
+  @override
   AuthSessionScope current = (uid: '1001', generation: 1, transitioning: false);
   int checks = 0;
   int? invalidateAt;

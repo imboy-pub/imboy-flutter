@@ -1,3 +1,4 @@
+import 'package:imboy/component/http/web_writer_http_adapter.dart';
 import 'package:imboy/config/local_external_services_policy.dart';
 
 import 'dart:async';
@@ -291,6 +292,7 @@ class AMapApi {
       "page_size": page.toString(),
       "page_num": size.toString(),
     };
+    guardWebWriterDio(_dio);
     return await _dio.get(
       "https://restapi.amap.com/v5/place/around",
       queryParameters: queryParameters,
@@ -315,6 +317,7 @@ class AMapApi {
       "page_num": size.toString(),
     };
     // https://lbs.amap.com/api/webservice/guide/api/newpoisearch
+    guardWebWriterDio(_dio);
     return await _dio.get(
       "https://restapi.amap.com/v5/place/text",
       queryParameters: queryParameters,
@@ -352,6 +355,7 @@ class AMapApi {
     required double longitude,
   }) async {
     try {
+      guardWebWriterDio(_dio);
       final resp = await _dio.get<List<int>>(
         staticMapUrl(latitude: latitude, longitude: longitude),
         options: Options(responseType: ResponseType.bytes),

@@ -3,6 +3,8 @@ import 'package:imboy/app_core/feature_flags/feature_keys.dart';
 
 import 'dart:async';
 
+import 'package:flutter/foundation.dart' show kIsWeb;
+
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -50,11 +52,13 @@ import 'package:imboy/i18n/strings.g.dart';
 import 'conversation_provider.dart';
 import 'message_inbox_channel_host.dart';
 import 'message_inbox_entry.dart';
+import 'message_inbox_scroll_anchor.dart';
 import 'widget/message_inbox_channel_status.dart';
 import 'widget/message_inbox_filter_bar.dart';
 import 'widget/message_inbox_tile.dart';
 import 'widget/message_inbox_actions.dart';
 import 'widget/conversation_item.dart';
+import 'widget/web_conversation_group_title.dart';
 
 /// 会话点击是否应派发到 Web Shell 右栏：仅当当前页面挂载于 `/web_shell`
 /// 路由下时，[webShellProvider] 才有消费者（[WebShellPage] 三栏布局会
@@ -110,6 +114,19 @@ class _ConversationPageState extends ConsumerState<ConversationPage> {
   MessageInboxFilter _filter = MessageInboxFilter.all;
   bool _retryingChannels = false;
 
+  /// LAY-04：主列表错误视图重试进行中（渲染回骨架屏并防重入）。
+  bool _retryingMainList = false;
+  final _inboxAnchor = MessageInboxScrollAnchor();
+  WebConversationGroupTitles? _safeGroupTitles;
+
+  WebConversationGroupTitles get _groupTitles =>
+      _safeGroupTitles ??= WebConversationGroupTitles()
+        ..addListener(_onGroupTitlesChanged);
+
+  void _onGroupTitlesChanged() {
+    if (mounted) setState(() {});
+  }
+
   void _onSearchChanged(String value) {
     final q = value.trim().toLowerCase();
     if (q == _searchQuery) return;
@@ -123,6 +140,18 @@ class _ConversationPageState extends ConsumerState<ConversationPage> {
       await refresh();
     } finally {
       if (mounted) setState(() => _retryingChannels = false);
+    }
+  }
+
+  /// LAY-04：主列表错误视图的重试——重新发起权威同步并回拉本地列表。
+  /// 期间回到骨架屏（waiting），busy 防重入镜像 [_retryChannels]。
+  Future<void> _retryMainList(ConversationNotifier notifier) async {
+    if (_retryingMainList) return;
+    setState(() => _retryingMainList = true);
+    try {
+      await notifier.syncAuthoritativeConversationList(trigger: 'retry');
+    } finally {
+      if (mounted) setState(() => _retryingMainList = false);
     }
   }
 
@@ -174,6 +203,8 @@ class _ConversationPageState extends ConsumerState<ConversationPage> {
 
   @override
   void dispose() {
+    _safeGroupTitles?.removeListener(_onGroupTitlesChanged);
+    _safeGroupTitles?.dispose();
     ssMsg?.cancel();
     ssExtend?.cancel();
     _localeSubscription?.cancel();
@@ -182,6 +213,7 @@ class _ConversationPageState extends ConsumerState<ConversationPage> {
     _authoritySyncSub?.cancel();
     _e2eeRecoverySub?.cancel();
     _searchCtrl.dispose();
+    _inboxAnchor.dispose();
     super.dispose();
   }
 
@@ -325,6 +357,9 @@ class _ConversationPageState extends ConsumerState<ConversationPage> {
     final filter = !showChannels && _filter == MessageInboxFilter.channel
         ? MessageInboxFilter.all
         : _filter;
+    final canStartWebConversation =
+        _isWebShellHosted(context) &&
+        (kIsWeb || AppBreakpoints.isWide(MediaQuery.sizeOf(context).width));
     final entries = [
       // CHANNEL records are not chat rows: the adapter checks scope and access.
       for (final model in state.conversations)
@@ -336,7 +371,9 @@ class _ConversationPageState extends ConsumerState<ConversationPage> {
               'C2G' => MessageInboxKind.group,
               _ => MessageInboxKind.other,
             },
-            title: model.displayTitle,
+            title: kIsWeb && model.type == 'C2G'
+                ? _groupTitles.title(model.peerId.toString())
+                : model.displayTitle,
             preview: model.subtitle,
             lastTime: model.lastTime,
             unreadCount: state.conversationRemind[model.uk3] ?? model.unreadNum,
@@ -354,6 +391,33 @@ class _ConversationPageState extends ConsumerState<ConversationPage> {
     final indexes = <String, int>{
       for (var i = 0; i < filtered.length; i++) filtered[i].key: i,
     };
+    final anchorEnabled = _isWebShellHosted(context);
+    final owner = UserRepoLocal.to;
+    final anchorUid = owner.currentUid;
+    final anchorGeneration = owner.sessionGeneration;
+    final anchorFilter = _filter;
+    final anchorQuery = _searchQuery;
+    final anchorChannels = AppFeatureRegistry.isEnabled(FeatureKeys.channel);
+    _inboxAnchor.update(
+      [for (final item in filtered) item.key],
+      (
+        filter,
+        _searchQuery,
+        showChannels,
+        owner.currentUid,
+        owner.sessionGeneration,
+      ),
+      enabled: anchorEnabled,
+      isCurrent: () =>
+          mounted &&
+          owner.currentUid == anchorUid &&
+          !owner.isAuthTransitioning &&
+          !owner.isClearingSession &&
+          owner.isCurrentSession(anchorGeneration) &&
+          _filter == anchorFilter &&
+          _searchQuery == anchorQuery &&
+          AppFeatureRegistry.isEnabled(FeatureKeys.channel) == anchorChannels,
+    );
     final includesChannels =
         showChannels &&
         (filter == MessageInboxFilter.all ||
@@ -363,6 +427,7 @@ class _ConversationPageState extends ConsumerState<ConversationPage> {
         includesChannels && (channels.isLoading || _retryingChannels);
     final waiting =
         (filter != MessageInboxFilter.channel && state.isLoading) ||
+        _retryingMainList ||
         channelBusy;
     final channelError = includesChannels && channels.error != null;
     final channelNotice =
@@ -378,7 +443,8 @@ class _ConversationPageState extends ConsumerState<ConversationPage> {
       });
     }
 
-    return IosPageTemplate(
+    final page = IosPageTemplate(
+      controller: anchorEnabled ? _inboxAnchor.controller : null,
       title: widget.title ?? t.chat.titleMessage,
       leading: widget.leading,
       backgroundColor: brightness == Brightness.dark
@@ -495,6 +561,22 @@ class _ConversationPageState extends ConsumerState<ConversationPage> {
           ),
         if (filtered.isEmpty && !channelNotice && waiting)
           const SliverFillRemaining(child: ShimmerList())
+        else if (filtered.isEmpty &&
+            !channelNotice &&
+            _searchQuery.isEmpty &&
+            filter == MessageInboxFilter.all &&
+            state.loadError.isNotEmpty)
+          // LAY-04：主列表权威拉取失败——与真空态三重可区分
+          //（不同文案/图标 + 重试按钮；NoDataView 默认 retryLabel=「重试」）。
+          SliverFillRemaining(
+            hasScrollBody: false,
+            child: NoDataView(
+              key: const ValueKey('conversation-list-error'),
+              text: t.common.loadError,
+              icon: CupertinoIcons.exclamationmark_circle,
+              onTop: () => unawaited(_retryMainList(notifier)),
+            ),
+          )
         else if (filtered.isEmpty && !channelNotice)
           SliverFillRemaining(
             hasScrollBody: false,
@@ -515,10 +597,16 @@ class _ConversationPageState extends ConsumerState<ConversationPage> {
                   ? () => context.push('/channel')
                   : filter != MessageInboxFilter.all || _searchQuery.isNotEmpty
                   ? clearView
+                  : canStartWebConversation
+                  ? () => ref.read(webShellProvider.notifier).switchTab(1)
                   : null,
               retryLabel:
                   filter == MessageInboxFilter.channel && _searchQuery.isEmpty
                   ? t.chat.inbox.openChannels
+                  : filter == MessageInboxFilter.all &&
+                        _searchQuery.isEmpty &&
+                        canStartWebConversation
+                  ? t.organization.directory.title
                   : t.chat.inbox.clearFilters,
             ),
           )
@@ -532,7 +620,9 @@ class _ConversationPageState extends ConsumerState<ConversationPage> {
                   return Column(
                     key: ValueKey(entry.key),
                     children: [
-                      entry.builder(context),
+                      anchorEnabled
+                          ? _inboxAnchor.row(entry.key, entry.builder(context))
+                          : entry.builder(context),
                       if (index < filtered.length - 1)
                         Padding(
                           padding: const EdgeInsetsDirectional.only(
@@ -555,6 +645,15 @@ class _ConversationPageState extends ConsumerState<ConversationPage> {
           ),
       ],
     );
+    return anchorEnabled
+        ? Listener(
+            onPointerSignal: (_) => _inboxAnchor.userInput(),
+            child: NotificationListener<ScrollNotification>(
+              onNotification: _inboxAnchor.onScroll,
+              child: page,
+            ),
+          )
+        : page;
   }
 
   Widget _buildConversationRow(
@@ -701,20 +800,23 @@ class _ConversationPageState extends ConsumerState<ConversationPage> {
       // 「已读 / 置顶 / 删除」三个操作对他们完全不可达。
       // 挂上后可从读屏的「操作」菜单里选。
       child: Builder(
-        builder: (rowContext) => Semantics(
-          customSemanticsActions: <CustomSemanticsAction, VoidCallback>{
-            CustomSemanticsAction(label: markReadLabel): () =>
-                unawaited(onToggleRead()),
-            CustomSemanticsAction(label: pinLabel): () =>
-                unawaited(onTogglePin(rowContext)),
-            CustomSemanticsAction(label: t.common.buttonDelete): () =>
-                unawaited(onDelete()),
-          },
-          child: ConversationItem(
+        builder: (rowContext) {
+          Widget item(String? safeTitle) => ConversationItem(
+            displayTitleOverride: safeTitle,
+            customSemanticsActions: <CustomSemanticsAction, VoidCallback>{
+              CustomSemanticsAction(label: markReadLabel): () =>
+                  unawaited(onToggleRead()),
+              CustomSemanticsAction(label: pinLabel): () =>
+                  unawaited(onTogglePin(rowContext)),
+              CustomSemanticsAction(label: t.common.buttonDelete): () =>
+                  unawaited(onDelete()),
+            },
             model: model,
             onLongPress: () => showMessageInboxActions(
               context,
-              title: model.displayTitle,
+              title: safeTitle == null
+                  ? model.displayTitle
+                  : (safeTitle.isEmpty ? t.main.unnamed : safeTitle),
               actions: [
                 MessageInboxAction(
                   markReadLabel,
@@ -742,7 +844,8 @@ class _ConversationPageState extends ConsumerState<ConversationPage> {
             onTap: () {
               final useSplitView =
                   _isWebShellHosted(context) &&
-                  AppBreakpoints.isWide(MediaQuery.sizeOf(context).width);
+                  (kIsWeb ||
+                      AppBreakpoints.isWide(MediaQuery.sizeOf(context).width));
               final action = resolveConversationTap(
                 useSplitView: useSplitView,
                 peerId: model.peerId.toString(),
@@ -752,7 +855,7 @@ class _ConversationPageState extends ConsumerState<ConversationPage> {
                 // 聊天页就把 TSID 显示给用户（批次 14 实测）。
                 // 也不能传 displayTitle —— 兜底后的「未命名」
                 // 会堵死聊天页继续查群名/成员名的那条链。
-                title: model.resolvedTitle,
+                title: safeTitle ?? model.resolvedTitle,
                 avatar: model.avatar,
                 sign: model.sign,
               );
@@ -782,11 +885,19 @@ class _ConversationPageState extends ConsumerState<ConversationPage> {
                   ? '/group/detail/${model.peerId}'
                   : '/contact/people/${model.peerId}',
               extra: model.type == 'C2G'
-                  ? {'title': model.title}
+                  ? {'title': safeTitle ?? model.title}
                   : {'scene': ''},
             ),
-          ),
-        ),
+          );
+          return kIsWeb && model.type == 'C2G'
+              ? WebConversationGroupTitle(
+                  key: ValueKey(model.uk3),
+                  groupId: model.peerId.toString(),
+                  titles: _groupTitles,
+                  builder: item,
+                )
+              : item(null);
+        },
       ),
     );
   }

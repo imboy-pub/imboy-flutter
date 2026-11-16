@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/semantics.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
@@ -199,6 +200,51 @@ void main() {
     expect(find.text('好友乙'), findsOneWidget, reason: '预览移除后仅剩列表行一处');
     expect(find.textContaining('(1)'), findsNothing, reason: '移除后完成按钮人数提示应消失');
     expect(_doneButton(tester).onPressed, isNull, reason: '移除后回到未选状态，完成按钮应禁用');
+  });
+
+  testWidgets('连续选择两名联系人后均显示在预览中', (tester) async {
+    await _openPage(tester);
+
+    await tester.tap(find.text('好友乙'));
+    await tester.pump();
+    await tester.tap(find.text('成员甲'));
+    await tester.pump();
+
+    expect(find.text('好友乙'), findsNWidgets(2));
+    expect(find.text('成员甲'), findsNWidgets(2));
+    expect(find.textContaining('(2)'), findsOneWidget);
+  });
+
+  testWidgets('无障碍激活联系人会选择而不是预览头像', (tester) async {
+    await db.update(
+      'contact',
+      {'avatar': 'def_avatar.png'},
+      where: 'peer_id = ?',
+      whereArgs: [8002],
+    );
+    addTearDown(
+      () => db.update(
+        'contact',
+        {'avatar': ''},
+        where: 'peer_id = ?',
+        whereArgs: [8002],
+      ),
+    );
+    final semantics = tester.ensureSemantics();
+    try {
+      await _openPage(tester);
+      final node = tester.getSemantics(find.text('好友乙'));
+      tester.binding.pipelineOwner.semanticsOwner!.performAction(
+        node.id,
+        SemanticsAction.tap,
+      );
+      await tester.pump();
+
+      expect(find.textContaining('(1)'), findsOneWidget);
+      expect(find.text('好友乙'), findsNWidgets(2));
+    } finally {
+      semantics.dispose();
+    }
   });
 
   testWidgets('流程C 提交建群并防重复点击', (tester) async {

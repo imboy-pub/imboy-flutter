@@ -14,6 +14,9 @@ import 'package:imboy/service/auth_session_scope.dart';
 import 'package:imboy/service/e2ee_service.dart';
 import 'package:imboy/service/ack_manager.dart';
 import 'package:imboy/service/server_ack_receipts.dart';
+import 'package:imboy/service/c2g_rejection_hold.dart';
+import 'package:imboy/service/c2g_send_gate.dart';
+import 'package:imboy/service/web_writer_gate.dart';
 import 'package:imboy/service/app_logger.dart';
 import 'package:imboy/service/sqlite.dart';
 import 'package:imboy/service/olm_session_service.dart';
@@ -112,6 +115,9 @@ part 'message_notifications.dart';
 /// MessageService.instance.processMessage(type, data);
 /// ```
 class MessageService with EventSubscriptionManager {
+  @visibleForTesting
+  Future<void> Function()? beforeAckUiPublishForTest;
+
   /// DB 就绪等待窗口：须大于 SqliteService 的初始化失败冷却（5s）+ 重试余量
   static const _dbReadyWaitTimeout = Duration(seconds: 8);
 
@@ -384,6 +390,12 @@ class MessageService with EventSubscriptionManager {
     } else if (type.endsWith('_SERVER_ACK')) {
       if (data['type']?.toString() != type) return;
       await _receiveServerAck(
+        data,
+        ownerUid: ownerUid,
+        sessionGeneration: sessionGeneration,
+      );
+    } else if (type == 'C2G_ERROR') {
+      await _receiveC2gRejection(
         data,
         ownerUid: ownerUid,
         sessionGeneration: sessionGeneration,
@@ -1414,7 +1426,103 @@ class MessageService with EventSubscriptionManager {
 
   /// Handle server-side ACK for sent messages
   /// 处理服务端发送确认
+  Future<void> _receiveC2gRejection(
+    Map<String, dynamic> data, {
+    String? ownerUid,
+    int? sessionGeneration,
+  }) async {
+    if (data['type'] != 'C2G_ERROR' ||
+        int.tryParse(data['code']?.toString() ?? '') != 403) {
+      return;
+    }
+    final id = parseModelString(data['id']);
+    final actor = UserRepoLocal.to;
+    final uid = ownerUid ?? actor.currentUid;
+    final generation = sessionGeneration ?? actor.sessionGeneration;
+    bool current() =>
+        isWebWriterReady &&
+        uid.isNotEmpty &&
+        actor.currentUid == uid &&
+        actor.isCurrentSession(generation) &&
+        !actor.isClearingSession &&
+        !actor.isAuthTransitioning;
+    if (id.isEmpty || !current()) return;
+
+    try {
+      await C2gSendGate.run(uid, id, () async {
+        if (!current()) return;
+        final repo = getMessageRepo('C2G');
+        final message = await repo.find(id);
+        if (!current() || message == null) return;
+        final db = await SqliteService.to.db;
+        if (!current() || db == null) return;
+        final held = await C2gRejectionHold.persist(
+          db: db,
+          messageId: id,
+          ownerUid: uid,
+          expectedAutoId: message.autoId,
+          expectedPeerId: message.toId.toString(),
+          isCurrent: current,
+        );
+        if (!held || !current()) return;
+        AppEventBus.fire(
+          RemoveFromRetryQueueRequestedEvent(
+            messageId: id,
+            messageType: 'C2G',
+            reason: 'server_rejection_unknown',
+            ownerUid: uid,
+            sessionGeneration: generation,
+          ),
+        );
+        final updated = await repo.find(id);
+        if (!current() || updated == null) return;
+        final display = await updated.toTypeMessage();
+        if (!current()) return;
+        AppEventBus.fireData([display], 'List<Message>');
+        if (updated.status == IMBoyMessageStatus.outcomeUnknown) {
+          _conversationNotifier.applyPersistedLastMessageStatus(
+            ownerUid: uid,
+            generation: generation,
+            conversationUk3: updated.conversationUk3,
+            messageId: id,
+            status: IMBoyMessageStatus.outcomeUnknown,
+          );
+        }
+      });
+    } on Object catch (error) {
+      iPrint(
+        '[C2G_ERROR] cannot preserve uncertain outcome: ${error.runtimeType}',
+      );
+    }
+  }
+
   Future<void> _receiveServerAck(
+    Map<String, dynamic> data, {
+    String? ownerUid,
+    int? sessionGeneration,
+  }) async {
+    final uid = ownerUid ?? UserRepoLocal.to.currentUid;
+    final id = parseModelString(data['id']);
+    if (data['type'] == 'C2G_SERVER_ACK' && uid.isNotEmpty && id.isNotEmpty) {
+      await C2gSendGate.run(
+        uid,
+        id,
+        () => _receiveServerAckLocked(
+          data,
+          ownerUid: uid,
+          sessionGeneration: sessionGeneration,
+        ),
+      );
+      return;
+    }
+    await _receiveServerAckLocked(
+      data,
+      ownerUid: ownerUid,
+      sessionGeneration: sessionGeneration,
+    );
+  }
+
+  Future<void> _receiveServerAckLocked(
     Map<String, dynamic> data, {
     String? ownerUid,
     int? sessionGeneration,
@@ -1494,11 +1602,13 @@ class MessageService with EventSubscriptionManager {
         candidate.fromId.toString() != ownerUid ||
         candidate.isAuthor != 1 ||
         candidate.conversationUk3.isEmpty ||
-        !{
-          IMBoyMessageStatus.sending,
-          IMBoyMessageStatus.pendingRetry,
-          IMBoyMessageStatus.error,
-        }.contains(candidate.status)) {
+        (!{
+              IMBoyMessageStatus.sending,
+              IMBoyMessageStatus.pendingRetry,
+              IMBoyMessageStatus.error,
+            }.contains(candidate.status) &&
+            !(chatType == 'C2G' &&
+                candidate.status == C2gRejectionHold.outcomeUnknown))) {
       return;
     }
     final peerId = chatType == 'C2S'
@@ -1565,7 +1675,10 @@ class MessageService with EventSubscriptionManager {
     );
 
     iPrint('✅ [SERVER_ACK] 消息状态已更新为 sent: msgId=$msgId');
-    AppEventBus.fireData([await msg.toTypeMessage()], 'messages');
+    final display = await msg.toTypeMessage();
+    await beforeAckUiPublishForTest?.call();
+    if (!current()) return;
+    AppEventBus.fireData([display], 'messages');
     await _conversationNotifier.updateConversationByMsgId(msgId, {
       ConversationRepo.lastMsgStatus: IMBoyMessageStatus.sent,
     });

@@ -1,7 +1,12 @@
 #!/bin/bash
 # ImBoy Web 生产构建脚本
 
-cd "$(dirname "$0")/.."
+if [ "$#" -ne 0 ]; then
+  echo 'Unsupported Web production build arguments.' >&2
+  exit 64
+fi
+cd "$(dirname "$0")/.." || exit 1
+python3 scripts/check_web_delivery_config.py || exit $?
 test -s web/pkg/vodozemac_bindings_dart.js
 test -s web/pkg/vodozemac_bindings_dart_bg.wasm
 echo "🔨 构建 ImBoy Web 应用（生产版本）..."

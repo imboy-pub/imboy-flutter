@@ -10,6 +10,8 @@
 /// null，不把坏数据回显到界面（沿用 org_group_rename_pending_store 先例）。
 library;
 
+import 'package:imboy/service/web_writer_gate.dart';
+
 import 'dart:convert';
 import 'dart:math';
 
@@ -106,6 +108,7 @@ Future<void> saveCreationIntent({
     if (_intentFailures.contains(key)) {
       throw StateError('creation intent storage unavailable');
     }
+    requireWebWriter();
     try {
       if (!await prefs.setString(key, jsonEncode(intent.toMap()))) {
         throw StateError('creation intent storage unavailable');
@@ -181,6 +184,7 @@ Future<void> clearCreationIntent({
         return;
       }
     }
+    requireWebWriter();
     try {
       if (!await prefs.remove(key)) {
         throw StateError('creation intent storage unavailable');

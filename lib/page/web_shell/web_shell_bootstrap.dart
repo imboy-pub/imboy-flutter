@@ -19,18 +19,55 @@
 ///   ConversationPage 等 ProviderScope 重链路做无价值 mock）
 library;
 
+import 'dart:async';
+
+import 'package:imboy/store/api/group_member_api.dart';
+
+import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:go_router/go_router.dart';
+import 'package:imboy/page/chat_shell/personal_navigation_layout.dart';
+
+import 'package:imboy/component/chat/message_scroll_provider.dart';
+
+import 'package:imboy/service/auth_session_scope.dart';
+import 'package:imboy/service/account_local_task_registry.dart'
+    show AccountLocalTaskOwner;
+import 'package:imboy/service/event_bus.dart' show AppEventBus;
+import 'package:imboy/service/events/common_events.dart'
+    show ConversationAuthoritySyncEvent;
+import 'package:imboy/store/model/conversation_model.dart';
+import 'package:imboy/store/repository/message_repo_sqlite.dart';
+import 'package:imboy/store/repository/user_repo_provider.dart';
+import 'package:imboy/store/model/user_model.dart';
+import 'package:imboy/store/service/user_profile_service.dart';
+import 'package:imboy/utils/conversation_uk3_generator.dart';
+import 'package:imboy/page/chat/chat/mixin/chat_event_subscription_manager.dart';
+import 'package:imboy/page/chat/chat/utils/chat_page_utils.dart';
+import 'package:imboy/page/chat/widget/chat_input.dart' show ChatInputState;
+
+import 'package:imboy/app_core/feature_flags/app_feature_registry.dart';
+import 'package:imboy/app_core/feature_flags/feature_keys.dart';
+import 'package:imboy/app_core/feature_flags/feature_revision_provider.dart';
+import 'package:imboy/page/bottom_navigation/bottom_navigation_provider.dart';
+import 'package:imboy/page/conversation/conversation_provider.dart';
 import 'package:imboy/component/ui/app_loading.dart';
+import 'package:imboy/component/helper/datetime.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:flutter/services.dart' show Clipboard, ClipboardData;
 import 'package:flutter_chat_core/flutter_chat_core.dart'
-    show ImageMessage, Message, TextMessage;
+    show ImageMessage, FileMessage, Message, ChatOperation;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:xid/xid.dart';
 
-import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/ui/avatar_fallback.dart';
+import 'package:imboy/component/chat/message.dart' show confirmOpenFile;
+import 'package:imboy/theme/default/config/chat_theme_config.dart';
+import 'package:imboy/theme/providers/theme_provider.dart';
+
+import 'web_message_content.dart';
+import 'web_visible_message_read.dart';
+
 import 'package:imboy/component/ui/cupertino_modal_surface.dart';
 
 import 'package:imboy/config/init.dart' show appName;
@@ -40,6 +77,7 @@ import 'package:imboy/modules/messaging/public.dart' show MessagingFacade;
 import 'package:imboy/modules/social_graph/public.dart';
 import 'package:imboy/page/bottom_navigation/bottom_navigation_page.dart';
 import 'package:imboy/page/chat/chat/chat_panel.dart';
+import 'package:imboy/page/chat/widget/chat_history_status.dart';
 import 'package:imboy/page/chat/chat/chat_provider.dart';
 import 'package:imboy/page/conversation/conversation_page.dart';
 import 'package:imboy/page/mine/mine/mine_page.dart';
@@ -54,10 +92,108 @@ import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/component/image_gallery/image_gallery.dart'
     show zoomInPhotoView;
 
+import 'web_chat_input.dart';
+import 'web_chat_selection_guard.dart';
+import 'web_reading_anchor_store.dart';
 import 'web_chat_title_resolver.dart';
 import 'web_message_actions.dart';
 import 'web_shell.dart';
 import 'web_shell_helper_panels.dart';
+import 'web_group_info_panel.dart';
+import 'web_group_composer_gate.dart';
+
+import 'package:imboy/component/ui/avatar.dart' show SmartGroupAvatar;
+import 'package:imboy/theme/default/app_sizes.dart';
+import 'package:imboy/theme/default/app_breakpoints.dart';
+
+import 'package:imboy/page/group/group_list/group_list_service.dart';
+import 'package:imboy/service/sqlite.dart';
+import 'package:imboy/store/model/group_member_model.dart';
+import 'package:imboy/store/repository/group_member_repo_sqlite.dart';
+import 'package:imboy/theme/default/app_colors.dart';
+import 'package:imboy/theme/default/font_types.dart';
+
+part 'web_chat_panel.dart';
+part 'web_group_message_author.dart';
+part 'web_chat_reading_restore.dart';
+
+({bool enabled, double fraction, int delayMs})? _webReadPolicy(
+  String currentUserId,
+  UserModel? user,
+) {
+  final repo = UserRepoLocal.to;
+  if (user == null ||
+      user.uid != currentUserId ||
+      repo.currentUid != user.uid ||
+      !repo.hasCurrentProfileSettings)
+    return null;
+  try {
+    final setting = UserProfileService.parseWebSettings(user.setting);
+    return (
+      enabled: setting['enable_visibility_read'] as bool,
+      fraction: setting['visibility_read_fraction'] as double,
+      delayMs: setting['visibility_read_delay_ms'] as int,
+    );
+  } on FormatException {
+    return null;
+  }
+}
+
+/// Keep the existing mobile navigation UI, projected from the route state only.
+class _CanonicalWebMobileFallback extends ConsumerWidget {
+  const _CanonicalWebMobileFallback({this.content});
+  final Widget? content;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    // Legacy and Native entries keep their original navigation owner.
+    if (!kIsWeb || GoRouterState.of(context).uri.path != '/web_shell') {
+      return const BottomNavigationPage();
+    }
+    ref.watch(featureRevisionProvider);
+    final shell = ref.watch(webShellProvider);
+    final owner = authSessionReader.current;
+    final channelAvailable = personalChannelTabAvailable();
+    final index = mobileIndexForPersonalTab(
+      PersonalNavigationTab.values[shell.currentTab],
+      channelAvailable: channelAvailable,
+    );
+    final tab = personalTabFromMobileIndex(
+      index,
+      channelAvailable: channelAvailable,
+    );
+    if (tab.index != shell.currentTab) {
+      final session = authSessionReader.current;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!context.mounted ||
+            !authSessionReader.isCurrent(session) ||
+            GoRouter.of(context).routeInformationProvider.value.uri.path !=
+                '/web_shell' ||
+            ref.read(webShellProvider) != shell ||
+            personalChannelTabAvailable() != channelAvailable)
+          return;
+        ref.read(webShellProvider.notifier).switchTab(tab.index);
+      });
+    }
+    return BottomNavigationPage(
+      restoredIndex: index,
+      content: content,
+      onDestinationSelected: (next) {
+        if (!context.mounted ||
+            !authSessionReader.isCurrent(owner) ||
+            personalChannelTabAvailable() != channelAvailable ||
+            GoRouter.of(context).routeInformationProvider.value.uri.path !=
+                '/web_shell')
+          return;
+        final selected = personalTabFromMobileIndex(
+          next,
+          channelAvailable: channelAvailable,
+        );
+        ref.read(webShellProvider.notifier).switchTab(selected.index);
+      },
+    );
+  }
+}
 
 /// Web Shell 业务接线层（i18n + 业务 page 注入）
 class WebShellBootstrap extends ConsumerWidget {
@@ -65,6 +201,7 @@ class WebShellBootstrap extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    ref.watch(featureRevisionProvider);
     final t = Translations.of(context);
 
     return WebShellPage(
@@ -81,18 +218,22 @@ class WebShellBootstrap extends ConsumerWidget {
       // welcomeSubtitle 暂不传：避免新增 i18n key（Phase 4 桌面增强时再补）
 
       // Tab 中栏内容 — 与 BottomNavigationPage._buildPageList() 顺序对齐
-      messageTab: const ConversationPage(),
+      messageTab: ConversationPage(
+        leading: MediaQuery.sizeOf(context).width < AppBreakpoints.mobile
+            ? const PersonalShellDrawerAvatarButton()
+            : null,
+      ),
       contactTab: ContactPage(),
       channelTab: compiledChannelListPage() ?? const SizedBox.shrink(),
       mineTab: MinePage(),
 
       // 2.6 Chat selection → 真实 ChatPanel
-      // Phase 2.1.b-4 + b-6: 抽 _WebChatPanel ConsumerStatefulWidget
+      // Phase 2.1.b-4 + b-6: 抽 WebChatPanel ConsumerStatefulWidget
       // - initState/didUpdateWidget 主动 initChatService + loadMoreMessages(isInitial)
       // - build 内 ref.watch chatProvider.messages 响应式更新
       // 真实 ChatInput 接入留待 Phase 2.1.c
       // 昵称解析（contact_repo）留待 2.1.d
-      chatBuilder: (sel) => _WebChatPanel(
+      chatBuilder: (sel) => WebChatPanel(
         // ValueKey 触发不同 peer/type 时 Flutter 重建 State（确保 initState 重跑）
         key: ValueKey('${sel.chatType}:${sel.peerId}'),
         selection: sel,
@@ -101,23 +242,23 @@ class WebShellBootstrap extends ConsumerWidget {
         onClose: () => ref.read(webShellProvider.notifier).clearSelection(),
         // Phase 2.1.c: 真实可输入 + 可发送的简化 Web 输入区
         // 仅文本，不含 ExtraItems / 录音 / 相机（留待后续切片按需扩展）
-        inputArea: _WebChatInput(
+        inputArea: WebChatInput(
           selection: sel,
           currentUserId: UserRepoLocal.to.currentUid,
         ),
       ),
       // Phase 3.0: 真实联系人详情面板（avatar + title + sign + 发消息按钮）
-      contactBuilder: (sel) => _WebContactInfoPanel(
+      contactBuilder: (sel) => WebContactInfoPanel(
         key: ValueKey('contact:${sel.uid}'),
         selection: sel,
         sendButtonLabel: t.chat.sendMessage,
         closeTooltip: t.common.cancel,
         onClose: () => ref.read(webShellProvider.notifier).clearSelection(),
         onSendMessage: () {
-          // 派发 ChatSelection → chatBuilder 渲染 _WebChatPanel
+          // 派发 ChatSelection → chatBuilder 渲染 WebChatPanel
           ref
               .read(webShellProvider.notifier)
-              .selectItem(ChatSelection(peerId: sel.uid, chatType: 'C2C'));
+              .openChat(ChatSelection(peerId: sel.uid, chatType: 'C2C'));
         },
       ),
       // TODO 广州第一期交付后实现：频道详情面板。Phase 2/3 前的占位面板
@@ -132,372 +273,22 @@ class WebShellBootstrap extends ConsumerWidget {
       ),
 
       // mobile fallback — < 900px 时无缝复用移动端入口
-      mobileFallback: const BottomNavigationPage(),
+      mobileFallback: const _CanonicalWebMobileFallback(),
+      mobileFallbackBuilder: (content) =>
+          _CanonicalWebMobileFallback(content: content),
 
-      // Badge counts — 暂不接入 provider（Phase 1.1.h.1.b 时再 ref.watch
-      // unreadMessageCountProvider 等真实数据源）
-    );
-  }
-}
-
-/// Phase 2.1.b-6 — Web Shell 内嵌聊天面板（主动加载 + 响应式刷新）
-///
-/// initState / didUpdateWidget：
-/// - chat_provider.notifier.initChatService(chatType) 创建/复用 SqliteChatService
-/// - ConversationRepo.findByPeerId 查找对应会话；找到则 loadMoreMessages(isInitial:true)
-/// - 找不到会话（如联系人长按未聊过）→ 不创建会话记录，messages 留空
-///
-/// build：
-/// - ref.watch(chatProvider.select((s) => s.messages)) 响应式拿到消息
-class _WebChatPanel extends ConsumerStatefulWidget {
-  final ChatSelection selection;
-  final String currentUserId;
-  final String closeTooltip;
-  final VoidCallback onClose;
-  final Widget inputArea;
-
-  const _WebChatPanel({
-    super.key,
-    required this.selection,
-    required this.currentUserId,
-    required this.closeTooltip,
-    required this.onClose,
-    required this.inputArea,
-  });
-
-  @override
-  ConsumerState<_WebChatPanel> createState() => _WebChatPanelState();
-}
-
-class _WebChatPanelState extends ConsumerState<_WebChatPanel> {
-  // Phase 2.1.d 异步解析的 peer 元数据（contact 或 group），决策标题用
-  ContactModel? _resolvedContact;
-  GroupModel? _resolvedGroup;
-
-  @override
-  void initState() {
-    super.initState();
-    _activate();
-  }
-
-  @override
-  void didUpdateWidget(covariant _WebChatPanel oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    final selChanged =
-        oldWidget.selection.peerId != widget.selection.peerId ||
-        oldWidget.selection.chatType != widget.selection.chatType;
-    if (selChanged) {
-      // 切 peer 时清空旧元数据，避免显示上一会话的标题
-      setState(() {
-        _resolvedContact = null;
-        _resolvedGroup = null;
-      });
-      _activate();
-    }
-  }
-
-  /// 主动激活：init service + 加载初始消息 + 解析 peer 标题元数据
-  /// （推迟到 post-frame 避免 build 期 mutate）
-  Future<void> _activate() async {
-    await WidgetsBinding.instance.endOfFrame;
-    if (!mounted) return;
-
-    final notifier = ref.read(chatProvider.notifier);
-    notifier.initChatService(widget.selection.chatType);
-
-    // 并行：加载消息 + 解析 peer title
-    final conv = await ConversationRepo().findByPeerId(
-      widget.selection.chatType,
-      widget.selection.peerId,
-    );
-    if (!mounted) return;
-    if (conv != null) {
-      await notifier.loadMoreMessages(conv, isInitial: true);
-      if (!mounted) return;
-    }
-
-    // 解析 peer 标题元数据（按 chatType 分发）
-    await _resolvePeerTitle();
-  }
-
-  Future<void> _resolvePeerTitle() async {
-    switch (widget.selection.chatType) {
-      case 'C2C':
-        final c = await ContactRepo().findByUid(widget.selection.peerId);
-        if (!mounted) return;
-        setState(() => _resolvedContact = c);
-      case 'C2G':
-        final g = await GroupRepo().findById(widget.selection.peerId);
-        if (!mounted) return;
-        setState(() => _resolvedGroup = g);
-      default:
-        // 未知 chatType：保持 _resolvedContact/_resolvedGroup 为 null → fallback peerId
-        break;
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final messages = ref.watch(chatProvider.select((s) => s.messages));
-    final title = pickChatTitle(
-      chatType: widget.selection.chatType,
-      peerId: widget.selection.peerId,
-      contactTitle: _resolvedContact?.title,
-      groupTitle: _resolvedGroup?.title,
-    );
-    return ChatPanel(
-      peerId: widget.selection.peerId,
-      chatType: widget.selection.chatType,
-      title: title,
-      closeTooltip: widget.closeTooltip,
-      onClose: widget.onClose,
-      messages: messages,
-      currentUserId: widget.currentUserId,
-      onMessageLongPress: _handleLongPress,
-      onMessageDoubleTap: (message) {
-        if (message is ImageMessage) {
-          zoomInPhotoView(context, message.source);
-        }
-      },
-      inputArea: widget.inputArea,
-    );
-  }
-
-  /// Phase 2.1.b-5a/c — 长按消息：弹底部菜单
-  ///
-  /// 当前菜单项（按可见性条件）：
-  /// - 复制（resolveCopyableText 非 null 时）— 真实写入 Clipboard
-  /// - 撤回（canShowRecallAction true 时，即自己发的 + 时间窗内）— 已接 _revokeMessage
-  /// - 取消
-  ///
-  /// 后续切片可扩展：转发 / 收藏 / 删除 / 引用回复。
-  void _handleLongPress(Message message) {
-    final copyable = resolveCopyableText(message);
-    final canRecall = canShowRecallAction(
-      message: message,
-      currentUserId: widget.currentUserId,
-      nowMs: DateTime.now().millisecondsSinceEpoch,
-    );
-
-    // 没有任何可操作项时不弹菜单（避免空白菜单困惑用户）
-    if (copyable == null && !canRecall) return;
-
-    final ctx = context;
-    final t = Translations.of(ctx);
-    showCupertinoModalPopup<void>(
-      context: ctx,
-      builder: (sheetCtx) {
-        return CupertinoModalSurface(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              if (copyable != null)
-                ListTile(
-                  key: const ValueKey('web-msg-action-copy'),
-                  leading: const Icon(CupertinoIcons.doc_on_doc),
-                  title: Text(t.common.buttonCopy),
-                  onTap: () async {
-                    Navigator.of(sheetCtx).pop();
-                    await Clipboard.setData(ClipboardData(text: copyable));
-                    if (!ctx.mounted) return;
-                    AppLoading.showToast(
-                      t.main.copied,
-                      duration: const Duration(seconds: 1),
-                    );
-                  },
-                ),
-              if (canRecall)
-                ListTile(
-                  key: const ValueKey('web-msg-action-recall'),
-                  leading: const Icon(CupertinoIcons.arrow_counterclockwise),
-                  title: Text(t.chat.revoke),
-                  onTap: () {
-                    Navigator.of(sheetCtx).pop();
-                    _revokeMessage(message);
-                  },
-                ),
-              ListTile(
-                key: const ValueKey('web-msg-action-cancel'),
-                leading: const Icon(CupertinoIcons.xmark),
-                title: Text(t.common.cancel),
-                onTap: () => Navigator.of(sheetCtx).pop(),
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
-
-  /// Phase 2.1.b-5d — 撤回消息（接 MessagingFacade.sendRevokeMessage）
-  ///
-  /// 决策已由 [canShowRecallAction] 在菜单显示前过滤；本方法假设入参可撤回。
-  /// 失败时仅 SnackBar 提示，不抛异常给上层（避免 widget tree unhandled future）。
-  Future<void> _revokeMessage(Message message) async {
-    final ctx = context;
-    final t = Translations.of(ctx);
-    try {
-      final ok = await MessagingFacade.instance.sendRevokeMessage(
-        message.id,
-        widget.selection.chatType,
-      );
-      if (!ctx.mounted) return;
-      AppLoading.showToast(
-        ok ? t.common.revokeSuccess : t.common.revokeFailed,
-        duration: const Duration(seconds: 2),
-      );
-    } catch (e) {
-      if (!ctx.mounted) return;
-      AppLoading.showToast(
-        '${t.common.revokeFailed}: $e',
-        duration: const Duration(seconds: 2),
-      );
-    }
-  }
-}
-
-/// Phase 2.1.c — Web 简化输入区（文本可输入 + 发送）
-///
-/// 与 mobile [ChatInput] 的差异：
-/// - 仅文本输入，无 ExtraItems（图片/文件/录音/相机/地点等）
-/// - 无 typing indicator / 无 quote / 无 mentions UI
-/// - 无 composerHeightNotifier 联动（Web Shell 三栏布局不需要动态高度）
-///
-/// 沿用 mobile chat_page._addMessage 模式：
-/// - chatProvider.notifier.addMessage(...) 写入会话 + 触发后端发送
-/// - chatProvider.notifier.chatService?.insertMessage(...) 插入到内存消息列表
-/// - 后续 syncMessagesToState 自动触发 ChatPanel 重建
-class _WebChatInput extends ConsumerStatefulWidget {
-  final ChatSelection selection;
-  final String currentUserId;
-
-  const _WebChatInput({required this.selection, required this.currentUserId});
-
-  @override
-  ConsumerState<_WebChatInput> createState() => _WebChatInputState();
-}
-
-class _WebChatInputState extends ConsumerState<_WebChatInput> {
-  final TextEditingController _controller = TextEditingController();
-  bool _sending = false;
-  String _peerAvatar = '';
-
-  @override
-  void initState() {
-    super.initState();
-    _loadPeerAvatar();
-  }
-
-  Future<void> _loadPeerAvatar() async {
-    if (widget.selection.chatType != 'C2C') return;
-    final contact = await ContactRepo().findByUid(widget.selection.peerId);
-    if (!mounted) return;
-    setState(() => _peerAvatar = contact?.avatar ?? '');
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  Future<void> _send() async {
-    final text = _controller.text.trim();
-    if (text.isEmpty || _sending || widget.currentUserId.isEmpty) return;
-
-    setState(() => _sending = true);
-    try {
-      final notifier = ref.read(chatProvider.notifier);
-      final textMessage = TextMessage(
-        authorId: widget.currentUserId,
-        createdAt: DateTime.fromMillisecondsSinceEpoch(
-          DateTimeHelper.millisecond(),
-          isUtc: true,
-        ),
-        id: Xid().toString(),
-        text: text,
-        metadata: {'peer_id': widget.selection.peerId},
-      );
-
-      await notifier.addMessage(
-        widget.currentUserId,
-        widget.selection.peerId,
-        _peerAvatar,
-        widget.selection.peerId, // peerTitle 暂用 peerId
-        widget.selection.chatType,
-        textMessage,
-      );
-      await notifier.chatService?.insertMessage(
-        textMessage,
-        index: notifier.chatService?.messages.length ?? 0,
-        animated: true,
-      );
-
-      if (mounted) _controller.clear();
-    } catch (e) {
-      debugPrint('[web_shell_bootstrap] clear error: $e');
-    } finally {
-      if (mounted) setState(() => _sending = false);
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-    final t = Translations.of(context);
-    final canSend = !_sending && widget.currentUserId.isNotEmpty;
-    return Container(
-      padding: AppSpacing.allMedium,
-      decoration: BoxDecoration(
-        color: colorScheme.surfaceContainer,
-        border: Border(
-          top: BorderSide(color: colorScheme.outlineVariant, width: 0.5),
-        ),
+      messageBadgeCount: ref.watch(
+        conversationProvider.select((state) => state.chatMsgRemindCounter),
       ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Expanded(
-            child: TextField(
-              enableSuggestions: false,
-              autocorrect: false,
-              key: const ValueKey('web-chat-input-field'),
-              controller: _controller,
-              minLines: 1,
-              maxLines: 5,
-              textInputAction: TextInputAction.send,
-              onSubmitted: (_) => _send(),
-              decoration: InputDecoration(
-                hintText: t.chat.sendMessage,
-                isDense: true,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(20),
-                  borderSide: BorderSide(color: colorScheme.outlineVariant),
-                ),
-                contentPadding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 10,
-                ),
-              ),
-            ),
-          ),
-          AppSpacing.horizontalSmall,
-          IconButton(
-            key: const ValueKey('web-chat-input-send-btn'),
-            icon: _sending
-                ? const SizedBox(
-                    width: 20,
-                    height: 20,
-                    child: CupertinoActivityIndicator(),
-                  )
-                : const Icon(CupertinoIcons.arrow_up_circle),
-            tooltip: 'Send',
-            onPressed: canSend ? _send : null,
-            color: canSend ? colorScheme.primary : colorScheme.onSurfaceVariant,
-          ),
-        ],
+      contactBadgeCount: ref.watch(
+        newFriendRemindProvider.select((requests) => requests.length),
       ),
+      channelBadgeCount: AppFeatureRegistry.isEnabled(FeatureKeys.channel)
+          ? compiledChannelUnreadCount(ref)
+          : 0,
+      // LAY-06：channel-off（feature 关或频道页未编译）时 rail 不渲染频道死入口。
+      // featureRevisionProvider 已 watch → 远程开关翻转随 rebuild。
+      channelTabAvailable: personalChannelTabAvailable(),
     );
   }
 }
@@ -511,60 +302,114 @@ class _WebChatInputState extends ConsumerState<_WebChatInput> {
 /// - 仅展示基础字段，不接入备注编辑 / 加好友 / 加入黑名单 / 删除等管理操作
 /// - 不接入朋友圈/标签等扩展信息
 /// - 这些留待后续切片（contactBuilder 渐进式增强）
-class _WebContactInfoPanel extends ConsumerStatefulWidget {
+class WebContactInfoPanel extends ConsumerStatefulWidget {
   final ContactSelection selection;
   final String sendButtonLabel;
   final String closeTooltip;
   final VoidCallback onClose;
   final VoidCallback onSendMessage;
+  final AuthSessionReader? sessionReader;
+  final Future<ContactModel?> Function(String)? contactLoader;
 
-  const _WebContactInfoPanel({
+  const WebContactInfoPanel({
     super.key,
     required this.selection,
     required this.sendButtonLabel,
     required this.closeTooltip,
     required this.onClose,
     required this.onSendMessage,
+    this.sessionReader,
+    this.contactLoader,
   });
 
   @override
-  ConsumerState<_WebContactInfoPanel> createState() =>
-      _WebContactInfoPanelState();
+  ConsumerState<WebContactInfoPanel> createState() =>
+      WebContactInfoPanelState();
 }
 
-class _WebContactInfoPanelState extends ConsumerState<_WebContactInfoPanel> {
+class WebContactInfoPanelState extends ConsumerState<WebContactInfoPanel> {
   ContactModel? _contact;
   bool _loading = true;
+  bool _failed = false;
+  int _request = 0;
+  AuthSessionScope? _owner;
+  late final AuthSessionReader _sessions;
+
+  bool get _active => _owner != null && _sessions.isCurrent(_owner!);
+
+  void _onAuthChanged() {
+    if (!mounted || _owner == _sessions.current) return;
+    _request++;
+    final sameUser = _owner?.uid == _sessions.current.uid;
+    setState(() {
+      _contact = null;
+      _loading = true;
+      _failed = false;
+    });
+    if (sameUser && !_sessions.current.transitioning) unawaited(_load());
+  }
+
+  @override
+  void dispose() {
+    _request++;
+    _sessions.removeListener(_onAuthChanged);
+    super.dispose();
+  }
 
   @override
   void initState() {
     super.initState();
-    _load();
+    _sessions = widget.sessionReader ?? authSessionReader;
+    _sessions.addListener(_onAuthChanged);
+    unawaited(_load());
   }
 
   @override
-  void didUpdateWidget(covariant _WebContactInfoPanel oldWidget) {
+  void didUpdateWidget(covariant WebContactInfoPanel oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.selection.uid != widget.selection.uid) {
       setState(() {
         _contact = null;
         _loading = true;
+        _failed = false;
       });
       _load();
     }
   }
 
   Future<void> _load() async {
-    final c = await ContactRepo().findByUid(widget.selection.uid);
-    if (!mounted) return;
-    setState(() {
-      _contact = c;
-      _loading = false;
-    });
+    final request = ++_request;
+    final selection = widget.selection;
+    final owner = _sessions.current;
+    _owner = owner;
+    bool current() =>
+        mounted &&
+        request == _request &&
+        selection == widget.selection &&
+        _sessions.isCurrent(owner);
+    if (!current()) return;
+    try {
+      final value =
+          await (widget.contactLoader?.call(selection.uid) ??
+              ContactRepo().findByUid(selection.uid));
+      if (!current()) return;
+      setState(() {
+        _contact = value;
+        _loading = false;
+        _failed = false;
+      });
+    } on Object {
+      if (!current()) return;
+      setState(() {
+        _loading = false;
+        _failed = true;
+      });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    if (!_active) return const SizedBox.shrink();
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     final c = _contact;
@@ -596,6 +441,32 @@ class _WebContactInfoPanelState extends ConsumerState<_WebContactInfoPanel> {
           Expanded(
             child: _loading
                 ? const Center(child: CupertinoActivityIndicator())
+                : _failed
+                ? Center(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          Translations.of(context)
+                              .common
+                              .operationFailedAgainLater,
+                        ),
+                        CupertinoButton(
+                          onPressed: () {
+                            if (!_active) return;
+                            setState(() {
+                              _loading = true;
+                              _failed = false;
+                            });
+                            unawaited(_load());
+                          },
+                          child: Text(
+                            Translations.of(context).common.buttonRetry,
+                          ),
+                        ),
+                      ],
+                    ),
+                  )
                 : c == null
                 ? _buildUnsyncedBody(theme, colorScheme)
                 : _buildContactBody(theme, colorScheme, c),
@@ -638,7 +509,9 @@ class _WebContactInfoPanelState extends ConsumerState<_WebContactInfoPanel> {
             AppSpacing.verticalXLarge,
             CupertinoButton(
               key: const ValueKey('web-contact-unsynced-send-msg-btn'),
-              onPressed: widget.onSendMessage,
+              onPressed: () {
+                if (_active) widget.onSendMessage();
+              },
               minimumSize: const Size(200, 44),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
@@ -720,7 +593,9 @@ class _WebContactInfoPanelState extends ConsumerState<_WebContactInfoPanel> {
           // "发消息"按钮
           CupertinoButton(
             key: const ValueKey('web-contact-send-msg-btn'),
-            onPressed: widget.onSendMessage,
+            onPressed: () {
+              if (_active) widget.onSendMessage();
+            },
             minimumSize: const Size(200, 44),
             child: Row(
               mainAxisSize: MainAxisSize.min,

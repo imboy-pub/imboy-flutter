@@ -4,7 +4,7 @@ import 'package:imboy/service/message_s2c.dart';
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
   test(
-    'offline read sync failures propagate on every retry of the same frame',
+    'unauthenticated read sync fails on every retry of the same frame',
     () async {
       final frame = <String, dynamic>{
         'id': 'offline_failed_read_sync_probe',
@@ -16,11 +16,11 @@ void main() {
           'msg_ids': ['116835000000000001'],
         },
       };
-      // No application ProviderContainer is installed: the real handler fails.
+      // No authenticated owner is installed: reject before local writes/ACK.
       for (var attempt = 0; attempt < 2; attempt++) {
         await expectLater(
           MessageS2CService.switchS2C(frame, propagateErrors: true),
-          throwsA(isA<AssertionError>()),
+          throwsA(isA<StateError>()),
         );
       }
     },

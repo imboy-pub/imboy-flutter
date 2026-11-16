@@ -117,6 +117,7 @@ feedbackContentRequired: لا يمكن أن يكون محتوى الملاحظا
 feedbackDetails: تفاصيل الاقتراحات والملاحظات
 feedbackSuccessMsg: لقد تلقينا مشكلتك، وسنقوم بمعالجتها في أسرع وقت ممكن!
 followSystemTips: عند التمكين، سيتم تشغيل أو إيقاف الوضع الداكن وفقاً لإعدادات النظام
+themeBrowserLocalOnly: "تُحفظ إعدادات المظهر في هذا المتصفح فقط، ولا تتم مزامنتها مع الأجهزة الأخرى."
 genderUpdateFailed: فشل تعيين الجنس، يرجى المحاولة مرة أخرى
 groupAnnouncement: إعلان المجموعة
 groupFileUploadSuccess: تم رفع الملف
@@ -954,3 +955,29 @@ legacyUploadReturnToOriginalPage: "لم يكتمل الرفع. عُد إلى ا�
 
 f2fLocationRequired: "فعّل إذن الموقع وخدمات الموقع، ثم حاول مجددًا مع الأصدقاء القريبين."
 f2fMemberHint: "اضغط على صورة صديق لعرض ملفه الشخصي وإضافته."
+
+webReadOnlySettingsHint: "للعرض فقط على الويب. يمكنك التعديل في التطبيق."
+
+legacyUploadCheckLocal: "التحقق من حالة الإرسال المحلية"
+
+textTooLarge: "يتجاوز النص 64 KiB. عدّله وحاول مرة أخرى."
+
+# ---- DSN-06 gap fill (machine-candidate 2026-11-16) ----
+e2eeBackupDeviceKeySyncPending: "تنبيه: لم يكتمل بعد مزامنة هوية الجهاز، وقد يتعذر على هذا الجهاز مؤقتًا فك تشفير الرسائل الجديدة؛ وستكتمل المزامنة تلقائيًا بعد تسجيل الدخول مجددًا" # machine-candidate 2026-11-16
+e2eeBackupSetupBlockedToast: "أكمل إعداد النسخ الاحتياطي للمفاتيح أولًا" # machine-candidate 2026-11-16
+e2eeBackupSetupBody: "فقط بعد تعيين عبارة الاسترداد ورفع النسخة الاحتياطية إلى السحابة يمكن استعادة سجل المحادثات المشفّر عند تغيير الجهاز أو إعادة التثبيت؛ وبدون نسخة احتياطية لن يمكن فك تشفير رسائل السجل على الجهاز الجديد." # machine-candidate 2026-11-16
+e2eeBackupSetupBusyHint: "جارٍ التشفير محليًا والرفع إلى السحابة، فانتظر قليلًا؛ وعند ضعف الشبكة يمكنك النقر على «لاحقًا» أدناه للتخطي" # machine-candidate 2026-11-16
+e2eeBackupSetupLater: "لاحقًا (سيبقى التذكير عند التشغيل القادم)" # machine-candidate 2026-11-16
+e2eeBackupSetupLaterConfirmBody: "بدون الإعداد، لن يمكن فك تشفير سجل المحادثات المشفّر هذا ولا استعادته بعد تغيير الجهاز أو إعادة التثبيت. وسيبقى التذكير عند التشغيل القادم." # machine-candidate 2026-11-16
+e2eeBackupSetupLaterConfirmLeave: "عدم الإعداد" # machine-candidate 2026-11-16
+e2eeBackupSetupLaterConfirmStay: "متابعة الإعداد" # machine-candidate 2026-11-16
+e2eeBackupSetupLaterConfirmTitle: "عدم إعداد النسخة الاحتياطية؟" # machine-candidate 2026-11-16
+e2eeBackupSetupPostponedToast: "تم التأجيل، وسيتكرر التذكير عند التشغيل القادم" # machine-candidate 2026-11-16
+e2eeBackupSetupPwdHint: "اختر عبارة الاسترداد بنفسك، أو انقر أدناه لتوليد مفتاح استرداد عشوائي" # machine-candidate 2026-11-16
+e2eeBackupSetupPwdTooShort: "يجب ألا تقل العبارة عن 8 خانات" # machine-candidate 2026-11-16
+e2eeBackupSetupSavedNote: "حُفظت عبارة الاسترداد في وحدة التخزين الآمنة على هذا الجهاز؛ وعند تغيّر المفاتيح لاحقًا سيُعاد رفع النسخة الاحتياطية بها تلقائيًا دون إعادة إدخال." # machine-candidate 2026-11-16
+e2eeBackupSetupSubmit: "إكمال ورفع النسخة الاحتياطية إلى السحابة" # machine-candidate 2026-11-16
+e2eeBackupSetupTimeoutToast: "انتهت مهلة الرفع، فتحقق من الشبكة ثم أعد المحاولة أو أعد الإعداد لاحقًا" # machine-candidate 2026-11-16
+e2eeBackupSetupTitle: "احمِ سجلّك المشفّر" # machine-candidate 2026-11-16
+e2eeBackupSetupUploading: "جارٍ الرفع…" # machine-candidate 2026-11-16
+e2eeBackupSetupWeakHint: "العبارة قصيرة، ويُنصح بـ 12 خانة فأكثر، أو انقر «توليد مفتاح استرداد» أدناه لاستخدام مفتاح عشوائي" # machine-candidate 2026-11-16

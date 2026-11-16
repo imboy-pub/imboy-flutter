@@ -58,9 +58,14 @@ WebShellState parseShellRouteParams(Map<String, String> params) {
     return WebShellState(currentTab: tabIndex);
   }
 
+  final chatType = params[kRouteParamType] ?? 'C2C';
+  if (tabIndex == 0 && chatType != 'C2C' && chatType != 'C2G') {
+    return const WebShellState();
+  }
+
   // 根据 tab 类型构造对应 selection
   final WebSelection selection = switch (tabIndex) {
-    0 => ChatSelection(peerId: id, chatType: params[kRouteParamType] ?? 'C2C'),
+    0 => ChatSelection(peerId: id, chatType: chatType),
     1 => ContactSelection(uid: id),
     2 => ChannelSelection(channelId: id),
     3 => MineSelection(section: id),

@@ -231,3 +231,9 @@ inbox:
   undo: "Annulla"
   openChannels: "Apri Canali"
   channelEmptyDescription: "Aggiorna le iscrizioni o ripristina i canali nascosti dalla pagina Canali."
+
+chatStatusOutcomeUnknown: Tentativo rifiutato; consegna da verificare
+
+# ---- DSN-06 gap fill (machine-candidate 2026-11-16) ----
+e2eeMsgBeforeDevice: "Questo messaggio è stato inviato prima dell'aggiunta di questo dispositivo e non può essere mostrato su di esso" # machine-candidate 2026-11-16
+e2eeMsgBeforeDeviceTapHint: "Il messaggio è stato cifrato senza questo dispositivo (es. cronologia precedente al cambio) e non può essere decifrato qui; i nuovi messaggi inviati e ricevuti su questo dispositivo non sono interessati" # machine-candidate 2026-11-16

@@ -21,6 +21,7 @@ class IncomingBackupHandler {
   /// 冷启动时消费初始共享文件；返回本地文件路径或 null（无备份文件）。
   /// 先查 share_handler（SEND），再查 backup_intent channel（VIEW）。
   static Future<String?> consumeInitialFile() async {
+    if (kIsWeb) return null;
     try {
       // 1. share_handler：处理 ACTION_SEND (Android) / Share Extension (iOS)
       final media = await ShareHandler.instance.getInitialSharedMedia();
@@ -57,6 +58,7 @@ class IncomingBackupHandler {
   /// 热启动时监听共享文件流；收到 `.enc` 备份文件时发出本地路径。
   /// 合并 share_handler 的 stream 和 backup_intent 的 onNewViewFile 事件。
   static Stream<String> watchIncomingFiles() {
+    if (kIsWeb) return const Stream<String>.empty();
     final controller = StreamController<String>();
 
     // 1. share_handler stream（ACTION_SEND / iOS Share Extension）。

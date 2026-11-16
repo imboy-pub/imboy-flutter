@@ -1,4 +1,6 @@
 // ignore_for_file: implementation_imports
+import 'package:imboy/service/web_writer_gate.dart';
+
 import 'dart:convert';
 import 'dart:math';
 import 'dart:typed_data';
@@ -149,6 +151,22 @@ class RSAService {
     _isInitialized = false;
     _cachedPublicKey = null;
     _cachedPrivateKey = null;
+  }
+
+  /// 登出时清除 Web 平台登录加密 RSA 密钥材料
+  ///
+  /// SEC-02（属主裁决 2026-11-16「以清除为准」）：[_initializeWeb] 写入
+  /// localStorage 的 rsa_public_key/rsa_private_key 原先在登出后保留，
+  /// 与 rsa.dart 声称的清除语义矛盾。登出时随 secure token 一并清除并
+  /// 重置内存缓存；下次登录由 [_initializeWeb] 重新生成每用户唯一密钥对。
+  /// 非 Web 平台为 no-op（stub removeItem 为空实现）。
+  static Future<void> clearWebKeysForLogout() async {
+    _isInitialized = false;
+    _cachedPublicKey = null;
+    _cachedPrivateKey = null;
+    final storage = webWindow.localStorage;
+    storage.removeItem('rsa_public_key');
+    storage.removeItem('rsa_private_key');
   }
 
   /// 生成RSA密钥对
@@ -626,6 +644,7 @@ class RSAService {
       // 不再使用固定的测试密钥（安全漏洞 S3）
 
       final keyPair = await generateRSAKeyPairWeb();
+      requireWebWriter();
 
       _cachedPublicKey = keyPair['publicKey'];
       _cachedPrivateKey = keyPair['privateKey'];

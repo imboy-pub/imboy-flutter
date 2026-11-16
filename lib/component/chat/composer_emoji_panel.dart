@@ -18,7 +18,7 @@ const double kComposerEmojiPanelHeight = 250;
 void insertEmojiAtCursor(
   TextEditingController controller,
   String emoji, {
-  required int maxLength,
+  required int? maxLength,
   ValueChanged<String>? onChanged,
 }) {
   final value = controller.value;
@@ -29,7 +29,7 @@ void insertEmojiAtCursor(
     start = end = text.length;
   }
   final newText = text.replaceRange(start, end, emoji);
-  if (newText.characters.length > maxLength) return;
+  if (maxLength != null && newText.characters.length > maxLength) return;
   controller.value = TextEditingValue(
     text: newText,
     selection: TextSelection.collapsed(offset: start + emoji.length),
@@ -64,7 +64,7 @@ class ComposerEmojiPanel extends StatelessWidget {
 
   final TextEditingController controller;
   final Color backgroundColor;
-  final int maxLength;
+  final int? maxLength;
   final ValueChanged<String>? onChanged;
 
   @override

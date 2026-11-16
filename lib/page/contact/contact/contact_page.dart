@@ -2,6 +2,8 @@ import 'package:imboy/app_core/feature_flags/feature_revision_provider.dart';
 
 import 'dart:async';
 
+import 'package:flutter/foundation.dart' show kIsWeb;
+
 import 'package:azlistview/azlistview.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -23,6 +25,7 @@ import 'package:imboy/theme/default/app_breakpoints.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_radius.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
+import 'package:imboy/theme/default/app_sizes.dart';
 import 'package:imboy/theme/default/font_types.dart';
 
 import 'contact_menu_decoration.dart';
@@ -180,7 +183,7 @@ class _ContactPageState extends ConsumerState<ContactPage> {
     }
     final useSplitView =
         _isWebShellHosted(context) &&
-        AppBreakpoints.isWide(MediaQuery.sizeOf(context).width);
+        (kIsWeb || AppBreakpoints.isWide(MediaQuery.sizeOf(context).width));
     if (useSplitView) {
       ref
           .read(webShellProvider.notifier)
@@ -194,7 +197,7 @@ class _ContactPageState extends ConsumerState<ContactPage> {
     if (!model.isMenuEntry) {
       final useSplitView =
           _isWebShellHosted(context) &&
-          AppBreakpoints.isWide(MediaQuery.sizeOf(context).width);
+          (kIsWeb || AppBreakpoints.isWide(MediaQuery.sizeOf(context).width));
       final action = resolveConversationTap(
         useSplitView: useSplitView,
         peerId: model.peerId.toString(),
@@ -206,7 +209,7 @@ class _ContactPageState extends ConsumerState<ContactPage> {
       if (action is WebSelectChat) {
         ref
             .read(webShellProvider.notifier)
-            .selectItem(
+            .openChat(
               ChatSelection(peerId: action.peerId, chatType: action.chatType),
             );
       } else if (action is MobilePushChat) {
@@ -509,7 +512,13 @@ class _ContactPageState extends ConsumerState<ContactPage> {
                     if (tag == '↑') return const SizedBox.shrink();
                     return _buildSusItem(context, tag);
                   },
+                  padding: _isWebShellHosted(context)
+                      ? const EdgeInsets.only(right: AppSizes.touchTarget)
+                      : null,
                   indexBarData: barData,
+                  indexBarWidth: _isWebShellHosted(context)
+                      ? AppSizes.touchTarget
+                      : kIndexBarWidth,
                   indexBarOptions: IndexBarOptions(
                     needRebuild: true,
                     indexHintDecoration: BoxDecoration(

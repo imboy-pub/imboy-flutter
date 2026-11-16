@@ -1,7 +1,9 @@
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:imboy/component/ui/ios_settings_ui.dart';
+import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/providers/theme_provider.dart';
@@ -60,38 +62,25 @@ class DarkModelNotifier extends _$DarkModelNotifier {
     );
   }
 
-  Future<void> configSwitchOnChanged(bool value) async {
-    if (state.switchValue == value) return;
-    state = state.copyWith(switchValue: value);
-    final themeModeNotifier = ref.read(themeModeProvider.notifier);
-    final themeNotifier = ref.read(themeProvider.notifier);
-    if (value) {
-      themeModeNotifier.setFollowSystem(true);
-      themeNotifier.applySystemTheme();
-      state = state.copyWith(selectIndex: 2);
-    } else {
-      themeModeNotifier.setFollowSystem(false);
-      configLocalTheme();
-    }
-  }
+  Future<void> configSwitchOnChanged(bool value) =>
+      ref.read(themeModeProvider.notifier).setFollowSystem(value);
 
-  Future<void> tapDarkItem(int index) async {
-    if (state.selectIndex == index) return;
-    state = state.copyWith(selectIndex: index);
-    final themeModeNotifier = ref.read(themeModeProvider.notifier);
-    final themeNotifier = ref.read(themeProvider.notifier);
-    themeModeNotifier.setFollowSystem(false);
-    if (index == 2) {
-      await themeNotifier.toggleTheme(isDark: false);
-    } else if (index == 3) {
-      await themeNotifier.toggleTheme(isDark: true);
-    }
-  }
+  Future<void> tapDarkItem(int index) => ref
+      .read(themeModeProvider.notifier)
+      .setThemeMode(index == 3 ? ThemeMode.dark : ThemeMode.light);
 }
 
 /// 深色模式设置页面 - 像素级对齐 iOS 设置风
 class DarkModelPage extends ConsumerWidget {
   const DarkModelPage({super.key});
+
+  Future<void> _apply(Future<void> Function() action) async {
+    try {
+      await action();
+    } on Object {
+      await AppLoading.showError(t.common.settingFailedPleaseTryAgain);
+    }
+  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -106,16 +95,26 @@ class DarkModelPage extends ConsumerWidget {
         children: [
           ImBoySettingsSection(
             header: Text(t.common.sectionDisplay.toUpperCase()),
+            footer: kIsWeb ? Text(t.common.themeBrowserLocalOnly) : null,
             children: [
               ImBoySettingsTile(
                 title: Text(t.main.followSystem),
                 subtitle: Text(t.common.followSystemTips),
-                trailing: CupertinoSwitch(
-                  value: state.switchValue,
-                  activeTrackColor: AppColors.getIosBlue(brightness),
-                  onChanged: (val) => ref
-                      .read(darkModelProvider.notifier)
-                      .configSwitchOnChanged(val),
+                // DEF-A11YNEW-02：CupertinoSwitch 自身语义只有 toggled 状态、
+                // 没有可访问名（收据 appearance dump：role=switch text=''）。
+                // 把行标题挂成开关的语义 label——外层注解沿单子语义链并入
+                // 开关节点，引擎渲染为 aria-label，读屏播报「跟随系统, 开关」。
+                trailing: Semantics(
+                  label: t.main.followSystem,
+                  child: CupertinoSwitch(
+                    value: state.switchValue,
+                    activeTrackColor: AppColors.getIosBlue(brightness),
+                    onChanged: (val) => _apply(
+                      () => ref
+                          .read(darkModelProvider.notifier)
+                          .configSwitchOnChanged(val),
+                    ),
+                  ),
                 ),
               ),
             ],
@@ -142,8 +141,10 @@ class DarkModelPage extends ConsumerWidget {
                               color: AppColors.getIosBlue(brightness),
                             )
                           : const SizedBox.shrink(),
-                      onTap: () =>
-                          ref.read(darkModelProvider.notifier).tapDarkItem(2),
+                      onTap: () => _apply(
+                        () =>
+                            ref.read(darkModelProvider.notifier).tapDarkItem(2),
+                      ),
                     ),
                   ),
                 ),
@@ -160,8 +161,10 @@ class DarkModelPage extends ConsumerWidget {
                               color: AppColors.getIosBlue(brightness),
                             )
                           : const SizedBox.shrink(),
-                      onTap: () =>
-                          ref.read(darkModelProvider.notifier).tapDarkItem(3),
+                      onTap: () => _apply(
+                        () =>
+                            ref.read(darkModelProvider.notifier).tapDarkItem(3),
+                      ),
                     ),
                   ),
                 ),

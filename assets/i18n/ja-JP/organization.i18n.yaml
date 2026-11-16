@@ -371,6 +371,9 @@ hub:
   adminManage: 企業管理
   adminManageDesc: ワークスペース · グループ · チャンネル管理
 
+  # ---- DSN-06 gap fill (machine-candidate 2026-11-16) ----
+  adminCsGovernance: "サポートガバナンス" # machine-candidate 2026-11-16
+  adminCsGovernanceDesc: "エージェント枠 · エージェントの停止/有効化" # machine-candidate 2026-11-16
 wsMembers:
   title: "ワークスペースメンバー · ${ws}"
   invite: メンバーを招待
@@ -431,3 +434,17 @@ experienceUi:
   accountCheck: "アカウント削除前の確認"
   workspaceContext: "ワークスペース：${name}"
   noIntro: "紹介文はまだありません"
+  # ---- DSN-06 gap fill (machine-candidate 2026-11-16) ----
+  cleanupRecordLabel: "記録" # machine-candidate 2026-11-16
+  cleanupResourcesTruncated: "最初の20件のみ表示しています。対応後に更新して残りを確認してください。" # machine-candidate 2026-11-16
+  openPersonalTalkRecords: "個人の対面チャット記録を表示" # machine-candidate 2026-11-16
+  talkRecordCleanupPendingBody: "記録は削除済みですが、ファイルのクリーンアップは未完了です。実際の進行状況を確認できます。保持ルールや処理の保護を手動でスキップすることはできません。" # machine-candidate 2026-11-16
+  talkRecordCleanupPendingTitle: "録音ファイルをクリーンアップ中" # machine-candidate 2026-11-16
+  talkRecordOrganizationOwnerPendingBody: "先に企業の対面チャット記録の管理責任を移管してください。移管しても過去の身元参照は自動的には解除されません。" # machine-candidate 2026-11-16
+  talkRecordOrganizationOwnerPendingTitle: "企業の対面チャット記録は未移管です" # machine-candidate 2026-11-16
+  talkRecordPersonalPendingBody: "先に個人の対面チャット記録を処理してから、アカウント削除条件を再確認してください。" # machine-candidate 2026-11-16
+  talkRecordPersonalPendingTitle: "個人の対面チャット記録の対応が必要" # machine-candidate 2026-11-16
+  talkRecordRetainedIdentityPendingBody: "過去の記録がこの身元を参照しているため、現時点ではアカウント削除を完了できません。記録を移管してもこれらの参照が解除されるとは限りません。" # machine-candidate 2026-11-16
+  talkRecordRetainedIdentityPendingTitle: "過去の身元参照の確認が必要" # machine-candidate 2026-11-16
+  unknownBlockerTitle: "他に対応が必要な項目があります" # machine-candidate 2026-11-16
+  viewTalkRecordCleanup: "クリーンアップの進行状況を表示" # machine-candidate 2026-11-16

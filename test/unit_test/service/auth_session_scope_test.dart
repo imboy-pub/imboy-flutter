@@ -202,17 +202,20 @@ void main() {
       isFalse,
     );
     expect(reader.current.transitioning, isTrue);
+    expect(reader.transitionFailed, isTrue);
     expect(reader.isCurrent(captured), isFalse);
     expect(
       await repo.quitLogin(expectedGeneration: captured.generation),
       isFalse,
     );
     expect(reader.current.transitioning, isTrue);
+    expect(reader.transitionFailed, isTrue);
     refuseDelete = false;
     await StorageService.to.setString(Keys.currentUid, '1001');
     await StorageService.to.remove(Keys.e2eePurgePending);
     expect(await login(), isTrue);
     expect(reader.current.transitioning, isFalse);
+    expect(reader.transitionFailed, isFalse);
   });
   test(
     'reentrant logout from login listener stays after the accepted outer login',

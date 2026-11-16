@@ -55,10 +55,12 @@ class _LoginInformation extends StatelessWidget {
       children: [
         Row(
           children: [
-            const Icon(
-              CupertinoIcons.chat_bubble,
-              size: AppSizes.iconSizeXLarge,
-              color: AppColors.primary,
+            Image.asset(
+              'assets/images/imboy_logo0.png',
+              width: AppSizes.iconSizeXLarge,
+              height: AppSizes.iconSizeXLarge,
+              fit: BoxFit.contain,
+              excludeFromSemantics: true,
             ),
             AppSpacing.horizontalRegular,
             Expanded(
@@ -79,27 +81,6 @@ class _LoginInformation extends StatelessWidget {
           CupertinoIcons.device_phone_portrait,
           t.chat.webFeatureMultiDevice,
           t.chat.webFeatureMultiDeviceDesc,
-        ),
-        AppSpacing.verticalXXLarge,
-        _feature(
-          context,
-          CupertinoIcons.lock,
-          t.chat.webFeatureE2EE,
-          t.chat.webFeatureE2EEDesc,
-        ),
-        AppSpacing.verticalXXLarge,
-        _feature(
-          context,
-          CupertinoIcons.bell,
-          t.common.webFeatureNotification,
-          t.common.webFeatureNotificationDesc,
-        ),
-        AppSpacing.verticalXXLarge,
-        _feature(
-          context,
-          CupertinoIcons.paperclip,
-          t.chat.webFeatureFileTransfer,
-          t.chat.webFeatureFileTransferDesc,
         ),
       ],
     ),

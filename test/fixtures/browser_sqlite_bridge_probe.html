@@ -1,0 +1,45 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Isolated SQLite bridge client</title>
+<script>
+window.bridgeIdbEvents = [];
+const originalOpen = IDBFactory.prototype.open;
+IDBFactory.prototype.open = function(...args) {
+  if (args[0] === 'sqflite_databases') bridgeIdbEvents.push({event:'open', at:performance.now()});
+  return originalOpen.apply(this,args);
+};
+let abortNext = false;
+window.bridgeAbortNextWrite = () => { abortNext = true; };
+const originalTransaction = IDBDatabase.prototype.transaction;
+IDBDatabase.prototype.transaction = function(...args) {
+  const tx = originalTransaction.apply(this, args);
+  if (this.name === 'sqflite_databases' && args[1] === 'readwrite') {
+    tx.addEventListener('complete', () => bridgeIdbEvents.push({event:'complete', at:performance.now()}));
+    tx.addEventListener('abort', () => bridgeIdbEvents.push({event:'abort', at:performance.now()}));
+    if (abortNext) {
+      abortNext = false;
+      queueMicrotask(() => tx.abort());
+    }
+  }
+  return tx;
+};
+</script>
+<script>
+(() => {
+  const parameters = new URLSearchParams(location.search);
+  const sri = parameters.get('sri'), preparation = parameters.get('preparation');
+  const fail = error => window.parent.postMessage(
+    {kind:'bridge-bootstrap-error',frame:window.name,error},location.origin);
+  if (!/^sha256-[A-Za-z0-9+/]{43}=$/.test(sri ?? '') ||
+      !/^[0-9a-f]{64}$/.test(preparation ?? '')) {
+    fail('Controlled preparation identity is missing');
+    return;
+  }
+  const script = document.createElement('script');
+  script.src = 'browser_sqlite_bridge_probe.js';
+  script.integrity = sri;
+  script.crossOrigin = 'anonymous';
+  script.onerror = () => fail('Pinned probe JS missing or integrity mismatch');
+  document.head.append(script);
+})();
+</script>
