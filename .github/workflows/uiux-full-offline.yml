@@ -151,7 +151,8 @@ jobs:
   workers:
     name: Offline (${{ matrix.platform }}, ${{ matrix.suite }}, ${{ matrix.product }})
     needs: [plan, gates]
-    runs-on: ${{ matrix.platform == 'macos' && 'macos-latest' || 'ubuntu-24.04' }}
+    # Use the standard Intel pool; arm64 capacity can cancel jobs before checkout.
+    runs-on: ${{ matrix.platform == 'macos' && 'macos-26-intel' || 'ubuntu-24.04' }}
     timeout-minutes: 120
     strategy:
       fail-fast: false

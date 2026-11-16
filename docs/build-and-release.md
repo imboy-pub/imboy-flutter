@@ -1,7 +1,7 @@
 # 构建 / 发布（Build & Release）
 
 > **最后更新 / Last updated**: 2026-11-16
-> **真源 / Source of truth**: `scripts/build_play_aab.sh` · `scripts/check_play_release.sh` · `scripts/verify_web_shell.sh` · `scripts/build_android_apk.sh` · `android/app/build.gradle.kts` · `android/settings.gradle.kts` · `.github/workflows/ci.yml`
+> **真源 / Source of truth**: `scripts/build_play_aab.sh` · `scripts/check_play_release.sh` · `scripts/verify_web_shell.sh` · `scripts/build_android_apk.sh` · `android/app/build.gradle.kts` · `android/settings.gradle.kts` · `.github/workflows/ci.yml` · `.github/workflows/uiux-full-offline.yml` · `scripts/auto_test_lib/execution_runner.py`
 > 本文由脚本内容提取生成；脚本改动后须同步本页。
 
 ## Android
@@ -107,6 +107,26 @@ flutter build apk --debug --flavor standard
 | AAB 产物 | `bundle/standardRelease/app-standard-release.aab` 存在（仅 WARN，不检查签名或版本） |
 | flutter.versionCode | `android/local.properties` 已配置（仅 WARN；未配置请用 build_play_aab.sh 保证单调） |
 | 商店 URL | `$PLAY_BASE_URL/privacy-policy` 与 `/account-deletion` 可达（10s 超时） |
+
+## macOS CI 与 iOS 构建 / macOS CI and iOS builds
+
+普通 PR 与 UIUX 离线的 macOS 宿主测试、iOS 构建使用标准
+`macos-26-intel` runner。`macos-latest` 当前指向 arm64 池；已观察到容量不足使
+任务多次分配失败、在执行前取消。固定同一 macOS 大版本的 Intel 标签，
+测试选择、产品矩阵、覆盖率与来源绑定规则保持；该标签并不保证无排队。
+标签及可用软件以 [GitHub runner images](https://github.com/actions/runner-images) 为准。
+
+iOS job 记录实际宿主架构、Xcode 与 iphoneos SDK 版本，仍执行完整
+`flutter build ios --release --no-codesign`。Intel 宿主上的构建成功只证明
+该 CI 构建链路，不代表 Apple Silicon 宿主测试、真机功能验收或正式签名发布。
+
+PR and UIUX macOS host tests and the iOS build use the standard `macos-26-intel`
+runner after observed arm64 capacity failures cancelled jobs before execution.
+Keep the same macOS major version, test selection, product matrix, coverage and
+source-binding gates; the label does not guarantee immediate runner availability.
+The iOS job records the actual host architecture, Xcode and iphoneos SDK, and
+still performs the full unsigned Release build. Host CI does not replace physical
+device acceptance, Apple Silicon host testing, or release signing.
 
 ## Web Shell 验证
 

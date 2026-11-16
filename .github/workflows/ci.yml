@@ -455,7 +455,7 @@ jobs:
   # ==================== iOS构建任务 ====================
   build-ios:
     name: Build iOS
-    runs-on: macos-latest
+    runs-on: macos-26-intel
     needs: [test-summary]
     if: github.event_name == 'pull_request' || (github.event_name == 'push' && github.ref == 'refs/heads/main') || github.event_name == 'workflow_dispatch'
     env:
@@ -470,6 +470,12 @@ jobs:
       - name: Checkout pinned submodules (bounded retry)
         timeout-minutes: 10
         run: bash .github/scripts/ci_checkout_submodules.sh
+
+      - name: Report macOS build toolchain
+        run: |
+          uname -m
+          xcodebuild -version
+          xcrun --sdk iphoneos --show-sdk-version
 
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
