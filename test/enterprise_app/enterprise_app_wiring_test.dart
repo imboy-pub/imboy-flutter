@@ -74,8 +74,11 @@ void main() {
       final String notification = read(
         'lib/service/message_notifications.dart',
       );
+      final String persistence = read('lib/service/message_persistence.dart');
       expect(src.contains("part 'message_notifications.dart';"), isTrue);
-      expect(src.contains('_showMessageNotification('), isTrue);
+      expect(src.contains("part 'message_persistence.dart';"), isTrue);
+      expect(persistence.contains("part of 'message.dart';"), isTrue);
+      expect(persistence.contains('_showMessageNotification('), isTrue);
       expect(notification.contains("part of 'message.dart';"), isTrue);
       expect(notification.contains('hostedMessageNotificationPrefix('), isTrue);
       expect(
