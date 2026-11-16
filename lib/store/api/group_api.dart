@@ -13,7 +13,29 @@ import 'package:imboy/store/api/list_cursor_client.dart';
 import 'package:imboy/store/model/channel_decimal_id.dart';
 import 'package:imboy/store/model/workspace_model.dart' show EntityId;
 
+typedef GroupQrcodeInvite = ({String token, int expiredAt});
+
 class GroupApi extends HttpClient {
+  /// Only the server may mint an invitation that authorizes group membership.
+  Future<GroupQrcodeInvite> qrcodeInvite(String groupId) async {
+    final response = await post(
+      '/api/v1/group/qrcode_token',
+      data: {'gid': groupId},
+    );
+    response.throwIfFailed();
+    final payload = IMBoyHttpResponse.payloadAsMap(response.payload);
+    final token = payload['token'];
+    final expiry = payload['exp'];
+    if (payload['gid']?.toString() != groupId ||
+        token is! String ||
+        token.isEmpty ||
+        expiry is! int ||
+        expiry <= 0) {
+      throw const FormatException('Invalid group invitation response');
+    }
+    return (token: token, expiredAt: expiry);
+  }
+
   void _validateGroupList(dynamic payload) {
     final rows = payload is Map ? payload['list'] : null;
     if (rows is! List) return;
