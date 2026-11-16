@@ -22,8 +22,8 @@ library;
 
 import 'dart:async';
 
-import 'package:flutter/cupertino.dart' show CupertinoIcons;
-import 'package:flutter/material.dart';
+import 'package:cupertino_ui/cupertino_ui.dart' show CupertinoIcons;
+import 'package:material_ui/material_ui.dart';
 
 import 'package:imboy/component/helper/func.dart' show iPrint;
 import 'package:imboy/i18n/strings.g.dart';

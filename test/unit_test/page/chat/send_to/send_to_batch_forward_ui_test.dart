@@ -14,7 +14,7 @@ library;
 
 import 'dart:async';
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart'
     show Message, TextMessage;
 import 'package:flutter_riverpod/flutter_riverpod.dart';

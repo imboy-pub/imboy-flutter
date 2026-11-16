@@ -11,7 +11,7 @@
 ///   顶层路由——治理域独立于坐席工作台，不得混入 Seat 会话域）。
 library;
 
-import 'package:flutter/cupertino.dart';
+import 'package:cupertino_ui/cupertino_ui.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:imboy/store/model/workspace_model.dart' show EntityId;

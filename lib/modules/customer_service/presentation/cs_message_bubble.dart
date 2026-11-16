@@ -1,7 +1,7 @@
 import 'dart:typed_data';
 import 'dart:math' show min;
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:intl/intl.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/modules/customer_service/infrastructure/cs_api.dart';

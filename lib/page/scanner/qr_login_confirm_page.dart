@@ -11,7 +11,7 @@
 /// 已被 `qr_login_confirm_rules_test.dart` 覆盖（31 单测）。
 library;
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:imboy/page/scanner/qr_login_confirm_content.dart';

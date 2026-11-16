@@ -13,7 +13,7 @@
 /// `SizedBox.shrink()`，在 `Row` 中不占位。
 library;
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/group/group_member/group_member_mute_rules.dart';
 import 'package:imboy/theme/default/app_colors.dart';

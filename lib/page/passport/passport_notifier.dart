@@ -13,8 +13,8 @@ import 'dart:io';
 /// Temporary compatibility implementation for the identity module shell.
 /// New module-facing callers should prefer `package:imboy/modules/identity/public.dart`.
 import 'package:flutter/foundation.dart' show kDebugMode, kIsWeb;
-import 'package:flutter/material.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:material_ui/material_ui.dart';
+import 'package:cupertino_ui/cupertino_ui.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';

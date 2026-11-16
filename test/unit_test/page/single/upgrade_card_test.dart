@@ -2,7 +2,7 @@
 // negativeBtn 文案为空串时按钮隐藏（Visibility isNotEmpty），
 // 非空时显示——upgrade_page.dart 的初始构造与 initGeneral() 文案重建
 // 共同依赖此契约保证「force 升级不提供下次再说」。
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/i18n/strings.g.dart';

@@ -15,8 +15,8 @@
 //     --dart-define=PEER_TITLE=<Android真机账号昵称> \
 //     --dart-define=TEST_ALLOW_C2C_PING=true
 
-import 'package:flutter/cupertino.dart' show CupertinoIcons;
-import 'package:flutter/material.dart';
+import 'package:cupertino_ui/cupertino_ui.dart' show CupertinoIcons;
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';

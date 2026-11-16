@@ -1,0 +1,418 @@
+{
+  "schema_version": 1,
+  "package": "emoji_picker_flutter",
+  "upstream": {
+    "source_kind": "hosted",
+    "version": "4.5.4",
+    "repository": "https://github.com/Fintasys/emoji_picker_flutter",
+    "archive_url": "https://pub.dev/api/archives/emoji_picker_flutter-4.5.4.tar.gz",
+    "archive_sha256": "50f4da413a3dc5d2f59f2b0835ab3b3cce76c0779eb275058213506e6709503b",
+    "archive_verification": "Downloaded archive SHA256 matches the checked-in baseline pubspec.lock."
+  },
+  "vendoring": {
+    "included_paths": [
+      "lib",
+      "LICENSE",
+      "pubspec.yaml",
+      "NOTICES",
+      "android",
+      "ios",
+      "macos",
+      "windows",
+      "linux"
+    ],
+    "excluded_paths": [
+      "test/",
+      "example/",
+      "examples/",
+      "benchmark/",
+      "screenshots/",
+      "screenshot/",
+      "README.md",
+      "CHANGELOG.md",
+      "analysis_options.yaml",
+      "publication-only images and binaries"
+    ],
+    "rationale": "Preserve the locked runtime implementation, licenses, native registrations and declared runtime assets. Migrate public UI-library ownership and explicitly typed contracts; record local source API/style and deprecated-API changes individually below. No private Flutter SDK imports, compatibility facade, added analyzer ignores or relaxed gates."
+  },
+  "original_files_sha256": {
+    "LICENSE": "f137aad42b44fc4c76f50b5d5c9cf98900f2198574af6d4980dc870bc2ddc9b4",
+    "NOTICES": "383b812054506454a7185b5d04a43aa7726660466231195bf328b467df9d2b1d",
+    "android/build.gradle": "f899fee2908347d552e7f185dcc866ccaf74bb4fab39b3b9e5003e79790a1dee",
+    "android/gradle.properties": "b1e114bf6dc9c036895d0909014ffc9f6e8fe30cce98c109786f49bb3d29bcf4",
+    "android/gradle/wrapper/gradle-wrapper.properties": "08777a83c1c5e6b10f2b42e5773142bea69359dc1a1d7b72f7f29f44599f1b66",
+    "android/settings.gradle": "5e99b0da7938e24013dfb1a07f8472aac3c329536a77c7c6bdd9e1f8089f9d10",
+    "android/src/main/AndroidManifest.xml": "25949033375c6415b48d30b87665cda5e5d3bd7a02d5836fcda42903bc52251c",
+    "android/src/main/kotlin/com/fintasys/emoji_picker_flutter/EmojiPickerFlutterPlugin.kt": "6557cd293b8373e7116f9e1e1ee0ee49a30ed4edd3236aaaf499cf9e15b0e14f",
+    "ios/emoji_picker_flutter.podspec": "90c9102b1e7bb9612322cc3616cf182a767614dac09f46a4f02572d1b29879ca",
+    "ios/emoji_picker_flutter/Package.swift": "8b8892dd158ba7e234d90b4c6147ccd20dc2d211ebe0142822708dd5917e6def",
+    "ios/emoji_picker_flutter/Sources/emoji_picker_flutter/EmojiPickerFlutterPlugin.swift": "f6d9553c2d1cfff131a31e62eec91899ed284ae1d169dd067f00f43667113f74",
+    "lib/emoji_picker_flutter.dart": "7aba5a590cf00ef7af45dadd9346da68e8f86f4025339a97e877a548345c6ae2",
+    "lib/emoji_picker_flutter_method_channel.dart": "ef6c8677f2f852bce29132e460021447d65ca0d3cd07701e9c66222b7380ef8b",
+    "lib/emoji_picker_flutter_platform_interface.dart": "954b10f63a33e80eda2c32c56855fe6abaa6301ee079421ead5dba2b253be1e0",
+    "lib/emoji_picker_flutter_web.dart": "cdc5d03ccd625b8b0dbce884ad7f2137d2efc9c76754bfa69249850aa11851ea",
+    "lib/emoji_picker_method_channel.dart": "34554b4424f7865f4761a392d5423c2b950381ff3aebd864f01393d3806f305b",
+    "lib/emoji_picker_platform_interface.dart": "0c701c92680ea129735e911e6810672b7999aa35739d9036465c26bac815b315",
+    "lib/locales/default_emoji_set_locale.dart": "1aab27bdb4b6bbf16846d78fab850499c22753745601bd534e570213cd59cd4c",
+    "lib/locales/emoji_set.dart": "15317ab89ae47572bc9f7a2f6eefd009a9b1aa646a7b8282b2dfa9cf18d42d8a",
+    "lib/locales/emoji_set_de.dart": "2a1861a97385069c5a10ae4f2556f521997993607dcf1151aa6e9adf1635484c",
+    "lib/locales/emoji_set_en.dart": "011020a630e4160a32a23e29d515039f0ac7f3d1d26dbb70a516f89d86ffe9dd",
+    "lib/locales/emoji_set_es.dart": "c21c1cf204dc4cbdd36148bc5fde32afcde383322a953f2cf32488f54d01ca6d",
+    "lib/locales/emoji_set_fr.dart": "03784a9dd62f888837aba1f9f6cc2c41b764214ff69e87cea815fca46ae71762",
+    "lib/locales/emoji_set_hi.dart": "fae36e00cebaa9d9d3129df8690c3013f9971ffcee59c185dcacc3cc588a2599",
+    "lib/locales/emoji_set_it.dart": "6d6e226c8245f949b03eda9c7a62ecc13159387fcbf1103168d6b0e55dd941a9",
+    "lib/locales/emoji_set_ja.dart": "0156de87ba45f33add7d3dcf3231580ac1db843e7b774438066070d32e1d3f20",
+    "lib/locales/emoji_set_nl.dart": "43b970587fbaa649cdcb1481ff363e8b52c6bc9818cedd9547dbd528755c3134",
+    "lib/locales/emoji_set_pt.dart": "64c928107e94f075f76b4d0cdf8650f91951b6eb256619360e0a4e9e18cb0a1a",
+    "lib/locales/emoji_set_ru.dart": "177f523f66cfc0e9c2bb87ad5e62ec2ec8c2800b0ba60c6bb5efa38ed9e9c469",
+    "lib/locales/emoji_set_zh.dart": "055aa1aefbceef711b3d6916d137f023c287fe2ec770c635aa5a73bc6e640240",
+    "lib/src/bottom_action_bar/bottom_action_bar.dart": "86bd1b3d3aa34ff5b245f26b1bd505e76a42ec4ec16786506ff05bbdef021ac2",
+    "lib/src/bottom_action_bar/bottom_action_bar_config.dart": "21b35b7ae11537667e8ee272bcd64ab901873fc6717c66fe95d6510832ac399e",
+    "lib/src/bottom_action_bar/default_bottom_action_bar.dart": "0674e6e933c36b28baae978f502c06339973978ca698185b467444614341472c",
+    "lib/src/category_view/category_emoji.dart": "d00282035132836e9136e8bbbf363f4e8f7529e736a3d3194e770522deb07697",
+    "lib/src/category_view/category_extra_tab.dart": "f7d28c0e8ffd1a309b153cd6d4652791202da344f0a8edfe8a3785040632eb91",
+    "lib/src/category_view/category_icon.dart": "e623b0b819c44377a8ed22eb343d402b9e6493433cc3bef5db256398787137b0",
+    "lib/src/category_view/category_icons.dart": "06032cd582ac3cf0636c4d075764bc8cbdc28e31f5bde4515e60581fc77e39de",
+    "lib/src/category_view/category_view.dart": "cfc5b805f5d1aef3371f69b0082299e7f6f421141a72ddaf98262303002e25c7",
+    "lib/src/category_view/category_view_config.dart": "d31904f766e5acf6808a5cd7341c3a9a3859d88bfbe0285a5b8249e38eed3a04",
+    "lib/src/category_view/default_category_tab_bar.dart": "fb81c8dd3e697d300b026073b9ea165babf1ad51119c34f35386635894192880",
+    "lib/src/category_view/default_category_view.dart": "f7c92b36745543b1a746c40a98d5bf558baf7b216717591360f21d5447198584",
+    "lib/src/category_view/recent_tab_behavior.dart": "ed0bc88596a889fa536099cd6b4b3507df033f3ab3a1112cfb833ff9154b2ad8",
+    "lib/src/config.dart": "db9e4b4213cb0f947bf335625d01840ef6f939b0c2851ba23149af67c5e79c1f",
+    "lib/src/core/io/io_helper.dart": "1b80bc038e3168176545c076e55813216d5d1562cfde7fa206f0311467af01c2",
+    "lib/src/core/io/io_web.dart": "20223ed5166f377a31373b4a68f212298cd09d96cdbab7014011251140b6fd9e",
+    "lib/src/default_emoji_set.dart": "e64bc7bc37b399ec8b5f2879a3ac49fd81bb07eed62e6c012e123c0f353bc65d",
+    "lib/src/emoji.dart": "094970c88e7c8117de68a5fb7f9ddb58695fb658b3486fbaac80d1d027193bc6",
+    "lib/src/emoji_picker.dart": "616badae5d30a556874a05720175f8599f0dbd2fe5c70641673ff0f3ba945017",
+    "lib/src/emoji_picker_controller.dart": "ecbdf6a9dcdf0f2ee40dda509041f2755ba81a7d72986536f2f3fdac4ffbf156",
+    "lib/src/emoji_picker_internal_utils.dart": "a6ee4e2a6cde2ffcf8124540d0fd77c7b14a2f549adbc1ff98567ba08b282754",
+    "lib/src/emoji_picker_utils.dart": "4c42920304a2d3f30cfc7f4440ef42b4656c4464904d0ff7d10e8a865842252a",
+    "lib/src/emoji_text_editing_controller.dart": "2bd3cef102d123549227ee954911d1f2c1e83fb29148d67a393c732d04bdf718",
+    "lib/src/emoji_text_style.dart": "ae324f0c190737ce9d5357b5db740990fdfae4d9d9b1ce56ab703ae75598119d",
+    "lib/src/emoji_view/default_emoji_picker_view.dart": "3c0e946cd443f85d103553167fc07e1f5bce867821349e31c0185da342613451",
+    "lib/src/emoji_view/emoji_container.dart": "1c52f667c1aad41b3f4ecf142f6628935a7ad88eae541ba22f0962fecaf4207b",
+    "lib/src/emoji_view/emoji_picker_view.dart": "456efd1635e4973f3fa30ca43a3ee9c64ee23a93bffac5af4559b4c5a8b9460b",
+    "lib/src/emoji_view/emoji_view_config.dart": "f5d063a2b28d6755d32f85989cd7b844deefec8cbe6d7fda68adcce58fce4368",
+    "lib/src/emoji_view_state.dart": "6c26f0909f6a73555a59048ed5e654c4117c4c1d91892248aec189af06c59027",
+    "lib/src/recent_emoji.dart": "bd5113ec6d0baf4aac46e28499f5c761f42965796f7fba124a94e38b2f3c5422",
+    "lib/src/search_view/default_search_view.dart": "fe8226f1058b97e788c6356f6a0996a388189ce7a3391f2874e6502a612c4e7b",
+    "lib/src/search_view/search_view.dart": "2ca2335175a6bfdc2665bd200ebc7237c6bbf626758dd612f857d7d15499f422",
+    "lib/src/search_view/search_view_config.dart": "6239c4b2281469da28006d9f8a10b6e4b9a290c57eba8a4d61ae07c16eaca9da",
+    "lib/src/skin_tones/emoji_skin_tones.dart": "34fe4e028a8973e6dea1b88d8dfee2b95a9c9c187ed436f8df8d9d474ccf087f",
+    "lib/src/skin_tones/skin_tone_config.dart": "40f3214164e95d9f0c803d21d050fe4a05de048cee75cc574612910c72bbda6c",
+    "lib/src/skin_tones/skin_tone_overlay.dart": "19af98f532e5157f92c9cb6789e29d2b7a325f06162f7068c3762134655f0f39",
+    "lib/src/skin_tones/triangle_decoration.dart": "21311224920c137522ae3b6ef6d21a793c1a7dc2a6c637efae8990cde30f18f3",
+    "lib/src/view_order_config.dart": "a3dfe3a6ffcc1854cb7c2a7cea4756b72f5d795f3cf3d4b64e61f0263403ae7f",
+    "lib/src/widgets/backspace_button.dart": "18eadd5101f48ab3c3ab0c331d9e9c647165bb0e8ba88d024b09488a09ae9525",
+    "lib/src/widgets/emoji_cell.dart": "6efd2b83d0a77cd7fde2286066ddfe1f02102207d2bce6f5f11ad5446abdf2c7",
+    "lib/src/widgets/search_button.dart": "40edd4cdc22aec19f164e8609820b2588405bf9e4a62d6b780af5fddb827aaa0",
+    "linux/CMakeLists.txt": "4283a92d79b61016c8f4dfd6166bb78091b073a10b00e4ae4b22d9f578d80789",
+    "linux/emoji_picker_flutter_plugin.cc": "b33b234e1b55f22e75758a024b24909d8aa6f92be315be0a99a0e8f4496ddc67",
+    "linux/emoji_picker_flutter_plugin_private.h": "d472a6f2022708b8d5987df661deab75d757ecb45992faf2b74b16fc973fc37a",
+    "linux/include/emoji_picker_flutter/emoji_picker_flutter_plugin.h": "0e3fef297fc8b1bc74740cde8e651c2238b8a23100826ba7fccd968b2423fbe3",
+    "macos/emoji_picker_flutter.podspec": "f73face54145e6ff0a36277b3167a1361ed8ab395e5606ca64d50ca9e4e25289",
+    "macos/emoji_picker_flutter/Package.swift": "8b8892dd158ba7e234d90b4c6147ccd20dc2d211ebe0142822708dd5917e6def",
+    "macos/emoji_picker_flutter/Sources/emoji_picker_flutter/EmojiPickerFlutterPlugin.swift": "d2c462c1340292ff32bc7a3f3a57695266b31188e7b29c7a5f5cc86c569ae51c",
+    "pubspec.yaml": "3e58d5e3ac10b4651943c7f108e7d538f7d99b26c166cb5743be6cab9e9cf737",
+    "windows/CMakeLists.txt": "0e46ebe8ced15c0f4e5f68df5d1590174822e6c9918bc853654f1780d4649842",
+    "windows/emoji_picker_flutter_plugin.cpp": "f634e5f513c02ac38746bc5b2b0b9e454386930a4cb5cf0dfe4307deea03551f",
+    "windows/emoji_picker_flutter_plugin.h": "4b4a934cd091160ff1167f74926fda3ceda264565afcfe351e575137f3018789",
+    "windows/emoji_picker_flutter_plugin_c_api.cpp": "5b847a749b2675ea402ed62ce0fc23bc0822ad6ad489dcb6fe14ec3e61f79c18",
+    "windows/include/emoji_picker_flutter/emoji_picker_flutter_plugin_c_api.h": "d0c2ea953a77601e3e5edec20ee77829aa8ec36161ec764b7070cc8f5b5ef3e3",
+    "windows/test/emoji_picker_flutter_plugin_test.cpp": "6b2727c188b40b196530cce021fe43690f7d7503f0cf6b54056767c7f2988b8a"
+  },
+  "modifications": [
+    {
+      "path": "lib/locales/default_emoji_set_locale.dart",
+      "changes": [
+        "Replace the public legacy Material import with package:material_ui/material_ui.dart; preserve widget logic and public signatures."
+      ]
+    },
+    {
+      "path": "lib/locales/emoji_set_de.dart",
+      "changes": [
+        "Update references to lowerCamelCase local-fork enum members; retain category order, emoji content and default behavior."
+      ]
+    },
+    {
+      "path": "lib/locales/emoji_set_en.dart",
+      "changes": [
+        "Update references to lowerCamelCase local-fork enum members; retain category order, emoji content and default behavior."
+      ]
+    },
+    {
+      "path": "lib/locales/emoji_set_es.dart",
+      "changes": [
+        "Update references to lowerCamelCase local-fork enum members; retain category order, emoji content and default behavior."
+      ]
+    },
+    {
+      "path": "lib/locales/emoji_set_fr.dart",
+      "changes": [
+        "Update references to lowerCamelCase local-fork enum members; retain category order, emoji content and default behavior."
+      ]
+    },
+    {
+      "path": "lib/locales/emoji_set_hi.dart",
+      "changes": [
+        "Update references to lowerCamelCase local-fork enum members; retain category order, emoji content and default behavior."
+      ]
+    },
+    {
+      "path": "lib/locales/emoji_set_it.dart",
+      "changes": [
+        "Update references to lowerCamelCase local-fork enum members; retain category order, emoji content and default behavior."
+      ]
+    },
+    {
+      "path": "lib/locales/emoji_set_ja.dart",
+      "changes": [
+        "Update references to lowerCamelCase local-fork enum members; retain category order, emoji content and default behavior."
+      ]
+    },
+    {
+      "path": "lib/locales/emoji_set_nl.dart",
+      "changes": [
+        "Update references to lowerCamelCase local-fork enum members; retain category order, emoji content and default behavior."
+      ]
+    },
+    {
+      "path": "lib/locales/emoji_set_pt.dart",
+      "changes": [
+        "Update references to lowerCamelCase local-fork enum members; retain category order, emoji content and default behavior."
+      ]
+    },
+    {
+      "path": "lib/locales/emoji_set_ru.dart",
+      "changes": [
+        "Update references to lowerCamelCase local-fork enum members; retain category order, emoji content and default behavior."
+      ]
+    },
+    {
+      "path": "lib/locales/emoji_set_zh.dart",
+      "changes": [
+        "Update references to lowerCamelCase local-fork enum members; retain category order, emoji content and default behavior."
+      ]
+    },
+    {
+      "path": "lib/src/bottom_action_bar/bottom_action_bar.dart",
+      "changes": [
+        "Replace the public legacy Material import with package:material_ui/material_ui.dart; preserve widget logic and public signatures."
+      ]
+    },
+    {
+      "path": "lib/src/bottom_action_bar/bottom_action_bar_config.dart",
+      "changes": [
+        "Replace the public legacy Material import with package:material_ui/material_ui.dart; preserve widget logic and public signatures."
+      ]
+    },
+    {
+      "path": "lib/src/bottom_action_bar/default_bottom_action_bar.dart",
+      "changes": [
+        "Replace the public legacy Material import with package:material_ui/material_ui.dart; preserve widget logic and public signatures."
+      ]
+    },
+    {
+      "path": "lib/src/category_view/category_extra_tab.dart",
+      "changes": [
+        "Rename enum members while retaining their indices, original name strings and toString strings; values.byName is a local-fork API change and uses the new declarations. Stored Emoji/RecentEmoji JSON is unchanged."
+      ]
+    },
+    {
+      "path": "lib/src/category_view/category_icon.dart",
+      "changes": [
+        "Replace the public legacy Material import with package:material_ui/material_ui.dart; preserve widget logic and public signatures."
+      ]
+    },
+    {
+      "path": "lib/src/category_view/category_icons.dart",
+      "changes": [
+        "Replace the public legacy Material import with package:material_ui/material_ui.dart; preserve widget logic and public signatures.",
+        "Update references to lowerCamelCase local-fork enum members; retain category order, emoji content and default behavior."
+      ]
+    },
+    {
+      "path": "lib/src/category_view/category_view.dart",
+      "changes": [
+        "Replace the public legacy Material import with package:material_ui/material_ui.dart; preserve widget logic and public signatures.",
+        "Update references to lowerCamelCase local-fork enum members; retain category order, emoji content and default behavior."
+      ]
+    },
+    {
+      "path": "lib/src/category_view/category_view_config.dart",
+      "changes": [
+        "Replace the public legacy Material import with package:material_ui/material_ui.dart; preserve widget logic and public signatures.",
+        "Update references to lowerCamelCase local-fork enum members; retain category order, emoji content and default behavior."
+      ]
+    },
+    {
+      "path": "lib/src/category_view/default_category_tab_bar.dart",
+      "changes": [
+        "Replace the public legacy Material import with package:material_ui/material_ui.dart; preserve widget logic and public signatures."
+      ]
+    },
+    {
+      "path": "lib/src/category_view/default_category_view.dart",
+      "changes": [
+        "Replace the public legacy Material import with package:material_ui/material_ui.dart; preserve widget logic and public signatures.",
+        "Update references to lowerCamelCase local-fork enum members; retain category order, emoji content and default behavior."
+      ]
+    },
+    {
+      "path": "lib/src/category_view/recent_tab_behavior.dart",
+      "changes": [
+        "Rename enum members while retaining their indices, original name strings and toString strings; values.byName is a local-fork API change and uses the new declarations. Stored Emoji/RecentEmoji JSON is unchanged."
+      ]
+    },
+    {
+      "path": "lib/src/config.dart",
+      "changes": [
+        "Replace the public legacy Material import with package:material_ui/material_ui.dart; preserve widget logic and public signatures."
+      ]
+    },
+    {
+      "path": "lib/src/default_emoji_set.dart",
+      "changes": [
+        "Update references to lowerCamelCase local-fork enum members; retain category order, emoji content and default behavior."
+      ]
+    },
+    {
+      "path": "lib/src/emoji.dart",
+      "changes": [
+        "Replace the public legacy Material import with package:material_ui/material_ui.dart; preserve widget logic and public signatures."
+      ]
+    },
+    {
+      "path": "lib/src/emoji_picker.dart",
+      "changes": [
+        "Replace the public legacy Material import with package:material_ui/material_ui.dart; preserve widget logic and public signatures.",
+        "Update references to lowerCamelCase local-fork enum members; retain category order, emoji content and default behavior.",
+        "Rename Category and ButtonMode members; preserve indices, CategoryExtension.name lowercase results, and original toString strings. ButtonMode.name retains its old uppercase strings. This is a source API change: values.byName uses the new declarations, so full reflection compatibility is not claimed. No enum is stored in recent-emoji preferences."
+      ]
+    },
+    {
+      "path": "lib/src/emoji_picker_controller.dart",
+      "changes": [
+        "Update a documentation example from raw print to debugPrint; no executable code changes.",
+        "Update references to lowerCamelCase local-fork enum members; retain category order, emoji content and default behavior."
+      ]
+    },
+    {
+      "path": "lib/src/emoji_picker_utils.dart",
+      "changes": [
+        "Replace the public legacy Material import with package:material_ui/material_ui.dart; preserve widget logic and public signatures.",
+        "Update references to lowerCamelCase local-fork enum members; retain category order, emoji content and default behavior.",
+        "Rename the public local-fork constant EmojiRegex to emojiRegex; its value is unchanged.",
+        "Rename the public local-fork constant DefaultEmojiTextStyle to defaultEmojiTextStyle; its value is unchanged."
+      ]
+    },
+    {
+      "path": "lib/src/emoji_text_style.dart",
+      "changes": [
+        "Replace the public legacy Material import with package:material_ui/material_ui.dart; preserve widget logic and public signatures.",
+        "Rename the public local-fork constant DefaultEmojiTextStyle to defaultEmojiTextStyle; its value is unchanged."
+      ]
+    },
+    {
+      "path": "lib/src/emoji_view/default_emoji_picker_view.dart",
+      "changes": [
+        "Replace the public legacy Material import with package:material_ui/material_ui.dart; preserve widget logic and public signatures.",
+        "Update references to lowerCamelCase local-fork enum members; retain category order, emoji content and default behavior."
+      ]
+    },
+    {
+      "path": "lib/src/emoji_view/emoji_container.dart",
+      "changes": [
+        "Replace the public legacy Material import with package:material_ui/material_ui.dart; preserve widget logic and public signatures.",
+        "Update references to lowerCamelCase local-fork enum members; retain category order, emoji content and default behavior."
+      ]
+    },
+    {
+      "path": "lib/src/emoji_view/emoji_picker_view.dart",
+      "changes": [
+        "Replace the public legacy Material import with package:material_ui/material_ui.dart; preserve widget logic and public signatures."
+      ]
+    },
+    {
+      "path": "lib/src/emoji_view/emoji_view_config.dart",
+      "changes": [
+        "Replace the public legacy Material import with package:material_ui/material_ui.dart; preserve widget logic and public signatures.",
+        "Update references to lowerCamelCase local-fork enum members; retain category order, emoji content and default behavior.",
+        "Rename the public local-fork constant DefaultNoRecentsWidget to defaultNoRecentsWidget; its value is unchanged."
+      ]
+    },
+    {
+      "path": "lib/src/emoji_view_state.dart",
+      "changes": [
+        "Replace the public legacy Material import with package:material_ui/material_ui.dart; preserve widget logic and public signatures."
+      ]
+    },
+    {
+      "path": "lib/src/search_view/default_search_view.dart",
+      "changes": [
+        "Replace the public legacy Material import with package:material_ui/material_ui.dart; preserve widget logic and public signatures."
+      ]
+    },
+    {
+      "path": "lib/src/search_view/search_view.dart",
+      "changes": [
+        "Replace the public legacy Material import with package:material_ui/material_ui.dart; preserve widget logic and public signatures."
+      ]
+    },
+    {
+      "path": "lib/src/search_view/search_view_config.dart",
+      "changes": [
+        "Replace the public legacy Material import with package:material_ui/material_ui.dart; preserve widget logic and public signatures."
+      ]
+    },
+    {
+      "path": "lib/src/skin_tones/skin_tone_config.dart",
+      "changes": [
+        "Replace the public legacy Material import with package:material_ui/material_ui.dart; preserve widget logic and public signatures."
+      ]
+    },
+    {
+      "path": "lib/src/skin_tones/skin_tone_overlay.dart",
+      "changes": [
+        "Replace the public legacy Material import with package:material_ui/material_ui.dart; preserve widget logic and public signatures."
+      ]
+    },
+    {
+      "path": "lib/src/skin_tones/triangle_decoration.dart",
+      "changes": [
+        "Replace the public legacy Material import with package:material_ui/material_ui.dart; preserve widget logic and public signatures."
+      ]
+    },
+    {
+      "path": "lib/src/widgets/backspace_button.dart",
+      "changes": [
+        "Replace the public legacy Material import with package:material_ui/material_ui.dart; preserve widget logic and public signatures.",
+        "Rename the timer-local callback without changing its repeat intervals or cancellation."
+      ]
+    },
+    {
+      "path": "lib/src/widgets/emoji_cell.dart",
+      "changes": [
+        "Replace the public legacy Material import with package:material_ui/material_ui.dart; preserve widget logic and public signatures.",
+        "Replace the public legacy Cupertino import with package:cupertino_ui/cupertino_ui.dart; preserve widget logic and public signatures.",
+        "Update references to lowerCamelCase local-fork enum members; retain category order, emoji content and default behavior.",
+        "Rename the public local-fork constant DefaultEmojiTextStyle to defaultEmojiTextStyle; its value is unchanged."
+      ]
+    },
+    {
+      "path": "lib/src/widgets/search_button.dart",
+      "changes": [
+        "Replace the public legacy Material import with package:material_ui/material_ui.dart; preserve widget logic and public signatures."
+      ]
+    },
+    {
+      "path": "pubspec.yaml",
+      "changes": [
+        "Mark the application-owned source copy publish_to: none.",
+        "Remove publication-only screenshots metadata; screenshots are not runtime assets.",
+        "Declare the Dart >=3.13 and Flutter >=3.47 minimum required by the selected public UI packages.",
+        "Declare material_ui ^1.11.0 and cupertino_ui ^1.1.6 as direct runtime dependencies."
+      ]
+    }
+  ]
+}

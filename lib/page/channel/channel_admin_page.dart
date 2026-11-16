@@ -4,8 +4,8 @@ import 'dart:async';
 
 import 'package:imboy/theme/default/font_types.dart';
 
-import 'package:flutter/material.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:material_ui/material_ui.dart';
+import 'package:cupertino_ui/cupertino_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:imboy/component/helper/func.dart' show iPrint;
 import 'package:imboy/component/ui/common_bar.dart';
@@ -595,7 +595,6 @@ class _ContactPickerSheetState extends State<_ContactPickerSheet> {
                           if (role == null || !context.mounted) return;
                           final userId = c['peer_id']?.toString() ?? '';
                           if (userId.isEmpty) return;
-                          // ignore: use_build_context_synchronously
                           Navigator.pop(context, (userId: userId, role: role));
                         },
                       );

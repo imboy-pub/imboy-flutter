@@ -29,7 +29,8 @@
 //
 // 运行配方同 channel_subscriber_acceptance_test.dart（TEST_ALLOW_GROUP_MEMBER_ACCEPTANCE=true）。
 
-import 'package:flutter/material.dart' show Navigator;
+import 'package:flutter/foundation.dart' show debugPrintSynchronously;
+import 'package:material_ui/material_ui.dart' show Navigator;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -154,8 +155,7 @@ void main() {
       seconds: 8,
     );
     if (!onContinue) {
-      // ignore: avoid_print
-      print(
+      debugPrintSynchronously(
         'DIAG signupAccount=${container.read(passportProvider).signupAccount} '
         'fallback=${tester.any(find.text('返回'))} '
         'pin=${tester.any(find.byType(MaterialPinField))}',

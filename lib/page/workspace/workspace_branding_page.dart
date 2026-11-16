@@ -5,7 +5,7 @@
 /// 重建主题，无需离开页面即可看到主色变化。
 library;
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:imboy/component/ui/app_loading.dart';

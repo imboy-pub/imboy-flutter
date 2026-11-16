@@ -1,4 +1,5 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart' show debugPrintSynchronously;
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
@@ -53,8 +54,7 @@ class _CapturePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final extra = GoRouterState.of(context).extra;
-    // ignore: avoid_print
-    print('[capture] extra=$extra');
+    debugPrintSynchronously('[capture] extra=$extra');
     return Scaffold(
       body: Text('captured:${extra is Map ? extra['peerTitle'] : 'NO-EXTRA'}'),
     );

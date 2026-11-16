@@ -12,7 +12,7 @@
 /// 这里只钉"高度 == 直径"和"宽度 >= 高度"这两条与字体无关的不变量。
 library;
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:imboy/component/ui/badge_widget.dart';

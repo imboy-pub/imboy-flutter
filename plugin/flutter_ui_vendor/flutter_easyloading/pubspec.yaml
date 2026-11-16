@@ -1,0 +1,32 @@
+name: flutter_easyloading
+description: A lightweight, customizable loading and toast overlay for Flutter applications.
+version: 4.0.2
+publish_to: none
+homepage: https://github.com/nslogx/flutter_easyloading
+repository: https://github.com/nslogx/flutter_easyloading
+issue_tracker: https://github.com/nslogx/flutter_easyloading/issues
+
+topics:
+  - loading
+  - progress
+  - toast
+  - overlay
+  - widgets
+
+environment:
+  sdk: ">=3.6.0 <4.0.0"
+  flutter: ">=3.47.0"
+
+dependencies:
+  material_ui: ^1.11.0
+  flutter:
+    sdk: flutter
+
+  flutter_spinkit: ^5.2.2
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+
+flutter:

@@ -26,7 +26,7 @@
 //     --dart-define=TEST_PASSWORD=admin888 \
 //     --dart-define=TEST_ALLOW_WORKSPACE_ACCEPTANCE=true
 
-import 'package:flutter/cupertino.dart';
+import 'package:cupertino_ui/cupertino_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';

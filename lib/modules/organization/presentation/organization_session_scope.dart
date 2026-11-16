@@ -1,7 +1,7 @@
 /// Local organization UI scope follows the authoritative login session.
 library;
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:imboy/store/repository/user_repo_provider.dart';
 

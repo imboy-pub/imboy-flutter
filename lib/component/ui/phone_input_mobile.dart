@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_radius.dart';
@@ -36,7 +36,7 @@ class MobilePhoneInputWidget extends StatelessWidget {
         onInputChanged(full, local);
       },
       selectorConfig: const SelectorConfig(
-        selectorType: PhoneInputSelectorType.DIALOG,
+        selectorType: PhoneInputSelectorType.dialog,
         trailingSpace: false,
       ),
       ignoreBlank: false,

@@ -4,8 +4,8 @@
 /// 简介默认一行折叠/点击展开、整卡 onTap 进编辑、简介点击不触达编辑。
 library;
 
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
+import 'package:cupertino_ui/cupertino_ui.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 

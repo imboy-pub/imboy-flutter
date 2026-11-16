@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "package": "flutter_rating_bar",
+  "upstream": {
+    "source_kind": "hosted",
+    "version": "4.0.1",
+    "repository": "https://github.com/sarbagyastha/flutter_rating_bar",
+    "archive_url": "https://pub.dev/api/archives/flutter_rating_bar-4.0.1.tar.gz",
+    "archive_sha256": "d2af03469eac832c591a1eba47c91ecc871fe5708e69967073c043b2d775ed93",
+    "archive_verification": "Downloaded archive SHA256 matches the checked-in baseline pubspec.lock."
+  },
+  "vendoring": {
+    "included_paths": [
+      "lib",
+      "LICENSE",
+      "pubspec.yaml"
+    ],
+    "excluded_paths": [
+      "test/",
+      "example/",
+      "examples/",
+      "benchmark/",
+      "screenshots/",
+      "screenshot/",
+      "README.md",
+      "CHANGELOG.md",
+      "analysis_options.yaml",
+      "publication-only images and binaries"
+    ],
+    "rationale": "Preserve the locked runtime implementation, licenses, native registrations and declared runtime assets. Migrate public UI-library ownership and explicitly typed contracts; record local source API/style and deprecated-API changes individually below. No private Flutter SDK imports, compatibility facade, added analyzer ignores or relaxed gates."
+  },
+  "original_files_sha256": {
+    "LICENSE": "bfc72878da4fa54b21b724a77380fa0103df3acef73bca311dcc4a2403f6ca73",
+    "lib/flutter_rating_bar.dart": "29a832536405a09b442ea8b5fc062bd6a66c94b99bf95ae8929f944452c46afc",
+    "lib/src/rating_bar.dart": "ffe7b8a0f60de85cd8c6a7c3ab2b818bab4cd158d2546e5d2a6ff39555e29592",
+    "lib/src/rating_bar_indicator.dart": "abf6c66341f5b7e7873cf4a586e823f6a11a26ba7ac7e28a0e06ee01370c5dc8",
+    "pubspec.yaml": "4f6663627c2f18702a0cd1400844440e5e0988ec62d7a2a796786bab684b3019"
+  },
+  "modifications": [
+    {
+      "path": "lib/src/rating_bar.dart",
+      "changes": [
+        "Replace the public legacy Material import with package:material_ui/material_ui.dart; preserve widget logic and public signatures.",
+        "Accept optional Widget keys; use typed Dart 3.12 private-field initializing formals while retaining the public ratingWidget/itemBuilder argument names and their non-null types.",
+        "Return State<RatingBar> without exposing its private implementation; make immutable helper constructors const, rename local variables and order child arguments last without altering rating calculations.",
+        "Replace Matrix4.scale(-1, 1, 1) with scaleByDouble(-1, 1, 1, 1), preserving the horizontal reflection including its homogeneous coordinate."
+      ]
+    },
+    {
+      "path": "lib/src/rating_bar_indicator.dart",
+      "changes": [
+        "Replace the public legacy Material import with package:material_ui/material_ui.dart; preserve widget logic and public signatures.",
+        "Make the immutable constructor const with an optional Widget key; expose State<RatingBarIndicator> while retaining its private implementation.",
+        "Replace deprecated Matrix4.scale with the equivalent scaleByDouble(-1, 1, 1, 1) reflection."
+      ]
+    },
+    {
+      "path": "pubspec.yaml",
+      "changes": [
+        "Mark the application-owned source copy publish_to: none.",
+        "Declare the Dart >=3.13 and Flutter >=3.47 minimum required by the selected public UI packages.",
+        "Declare material_ui ^1.11.0 as a direct runtime dependency."
+      ]
+    }
+  ]
+}

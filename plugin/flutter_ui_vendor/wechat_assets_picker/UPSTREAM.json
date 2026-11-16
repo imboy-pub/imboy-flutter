@@ -1,0 +1,281 @@
+{
+  "schema_version": 1,
+  "package": "wechat_assets_picker",
+  "upstream": {
+    "version": "10.1.3",
+    "repository": "https://github.com/fluttercandies/flutter_wechat_assets_picker",
+    "package_url": "https://pub.dev/packages/wechat_assets_picker/versions/10.1.3",
+    "archive_url": "https://pub.dev/api/archives/wechat_assets_picker-10.1.3.tar.gz",
+    "archive_sha256": "ccd92f3e8c968e2cbad939bce82b454e798a7669c1e4ab74e871822ce2440b2d",
+    "published": "2026-07-19T10:13:52.440929Z"
+  },
+  "vendoring": {
+    "purpose": "Use the standalone public Material/Cupertino libraries while preserving upstream runtime behavior.",
+    "included_paths": [
+      "lib/**",
+      "LICENSE",
+      "pubspec.yaml",
+      "assets/icon/"
+    ],
+    "excluded_top_level_entries": [
+      "CHANGELOG.md",
+      "CODEOWNERS",
+      "README-ZH.md",
+      "README.md",
+      "analysis_options.yaml",
+      "example",
+      "guides",
+      "screenshots",
+      "test"
+    ],
+    "verification": "Downloaded archive SHA-256 matches pubspec.lock and the pub.dev release API; each copied original file matches the installed package and published archive byte-for-byte."
+  },
+  "original_files_sha256": {
+    "LICENSE": "c46fc48ace5f8785ccc817dde754d729f3311b2bc9a10274142f3eae8131ac8e",
+    "assets/icon/indicator-live-photos.png": "29745f6c40e5339675d4da9460393a3c7163aea03a1e7ea72c98d8bebd36f9f6",
+    "lib/builder.dart": "336d9fcd30dfc9aebbc6ca64481703c211167e1d09c62f35a5522f748ad485b5",
+    "lib/src/constants/config.dart": "44ff30554844ef40aa8a53b4307885be99b9cc860572d2ce5095780c24b801e7",
+    "lib/src/constants/constants.dart": "1450baefa98dfff5a7935ccc73742c15542cfb9278cb6c0372d32c074f9ad91d",
+    "lib/src/constants/custom_scroll_physics.dart": "376d58713efdd176cb19e3c2bd5706d2a2c71f67c01753fb869f31a666d9603d",
+    "lib/src/constants/enums.dart": "d4ab1013cc4c5ba4479710647b99792639bd9e6c2bdb44d79050c69fe3d5e2e8",
+    "lib/src/constants/typedefs.dart": "44428d30806cf649979cbe8cc7aadb27a7785afd1d86c2ac725270dbf4ba62ea",
+    "lib/src/delegates/asset_grid_drag_selection_coordinator.dart": "193dfc5f6bb0d900a5590f147cf0dc8d0ad67f829a9561bd78150520ffbd4b39",
+    "lib/src/delegates/asset_picker_builder_delegate.dart": "09c531b14cd09014c937476f6fe80734b9ca818975ba07ab135f733a34d76476",
+    "lib/src/delegates/asset_picker_delegate.dart": "1559a34c44326ef17dd28fa34f0bdbffd42aeeec98bdeb5be8608c636a9ff290",
+    "lib/src/delegates/asset_picker_text_delegate.dart": "fd41d8c9bd1b844717945d058aaa33444c56ba38a6a751c3f78b40377dbb32f9",
+    "lib/src/delegates/asset_picker_viewer_builder_delegate.dart": "4e39108fefb71f110f47ec47054734515f7d8a571593cbc0cc1f0d4884ba73fd",
+    "lib/src/delegates/sort_path_delegate.dart": "7701cccc83e957521f8b09802a464a0d265e6f6d40bad3755c42ade9a106d5a4",
+    "lib/src/internals/singleton.dart": "8167b9ca59e20202e304e171c87e7701ded996d04569e1ee2ad926143eff9c4b",
+    "lib/src/models/path_wrapper.dart": "48f0ba312c9c2cdbfd91e6360dd06d09142aeaeb11ad05d1431c24f420a3e0f2",
+    "lib/src/models/special_item.dart": "e4b48b33735d96395afc4fc329bfc44629d8664ecc1448db0d2b55eb8c1029cd",
+    "lib/src/provider/asset_picker_provider.dart": "ea009dddc88e346d4c2f5c302d3d05ada1d84ad8f8fbe309d5dd86ed5611fa7c",
+    "lib/src/provider/asset_picker_viewer_provider.dart": "f627d1dda4d7769ecb92514e8ce327007cd32a2770d023efc5fafc5b5b0e4c3b",
+    "lib/src/widget/asset_picker.dart": "20f09b79260187ade3431edd0b122146fa5e8699994c511b718d1aecbbac1bc4",
+    "lib/src/widget/asset_picker_app_bar.dart": "c4be6d213192070119614b29799fa87e358f6e73849216b9e8a14dae4d555885",
+    "lib/src/widget/asset_picker_page_route.dart": "154415377b28e7f7d399de9a920523963f346d5f0d656bb7b6468488302d1b7f",
+    "lib/src/widget/asset_picker_viewer.dart": "d3b1d98887af694a0b4435adf21d495999dae52a718756033ed1544cc112e205",
+    "lib/src/widget/builder/asset_entity_grid_item_builder.dart": "e7951857d067f2b890166f7597dd2f1e9fefe3fdc4594b6b1a1b3f03e4f6bb6d",
+    "lib/src/widget/builder/audio_page_builder.dart": "7b4b17b46fb325df3bf4b334a0f76a5f9ff4764d53e87e869320703d31211d3a",
+    "lib/src/widget/builder/fade_image_builder.dart": "75e907e7d34819b183f7eab0db61b3aa1e75fe93bb84bb9fc7f4448d59d3914d",
+    "lib/src/widget/builder/image_page_builder.dart": "d788dfb533e2ee349c4a4eb2c722d55fdc2fd63f6107493789b53f465d57f4ff",
+    "lib/src/widget/builder/video_page_builder.dart": "e703a64147c5fa27419ed7469f869e68830545c4681febe044e26e410521846a",
+    "lib/wechat_assets_picker.dart": "7e3631f5766a985f59af909d436836fb4661cf73fbcbdcd9eff76c22aff03dbf",
+    "pubspec.yaml": "33676ccdd7ae4e6cbd3029f4de117679ae92850fe089d4b982d791f521423186"
+  },
+  "modifications": [
+    {
+      "path": "lib/src/constants/config.dart",
+      "changes": [
+        "Add a local modification notice; retain the upstream copyright header."
+      ],
+      "import_replacements": [
+        {
+          "from": "package:flutter/material.dart",
+          "to": "package:material_ui/material_ui.dart",
+          "occurrences": 1
+        }
+      ]
+    },
+    {
+      "path": "lib/src/constants/custom_scroll_physics.dart",
+      "changes": [
+        "Add a local modification notice; retain the upstream copyright header."
+      ],
+      "import_replacements": [
+        {
+          "from": "package:flutter/cupertino.dart",
+          "to": "package:cupertino_ui/cupertino_ui.dart",
+          "occurrences": 1
+        }
+      ]
+    },
+    {
+      "path": "lib/src/delegates/asset_picker_builder_delegate.dart",
+      "changes": [
+        "Add a local modification notice; retain the upstream copyright header.",
+        "Replace deprecated Color.withOpacity/opacity with withValues(alpha:)/a, retaining the requested alpha values with the current Color precision.",
+        "Stop selection or parent-route completion when the supplied context has unmounted across the selection predicate or viewer await.",
+        "Give decoded MethodCall map keys and values explicit Object? types without narrowing accepted channel payloads."
+      ],
+      "import_replacements": [
+        {
+          "from": "package:flutter/material.dart",
+          "to": "package:material_ui/material_ui.dart",
+          "occurrences": 1
+        }
+      ]
+    },
+    {
+      "path": "lib/src/delegates/asset_picker_delegate.dart",
+      "changes": [
+        "Add a local modification notice; retain the upstream copyright header.",
+        "Return null after an awaited permission request if the caller context is unmounted, before allocating the default picker/provider or taking ownership of a supplied delegate."
+      ],
+      "import_replacements": [
+        {
+          "from": "package:flutter/material.dart",
+          "to": "package:material_ui/material_ui.dart",
+          "occurrences": 1
+        }
+      ]
+    },
+    {
+      "path": "lib/src/delegates/asset_picker_viewer_builder_delegate.dart",
+      "changes": [
+        "Add a local modification notice; retain the upstream copyright header.",
+        "Replace deprecated Color.withOpacity/opacity with withValues(alpha:)/a, retaining the requested alpha values with the current Color precision.",
+        "Use the existing Asset, Path, and Provider type parameters for public viewer state/widget references instead of raw generic types.",
+        "Check the supplied context after an awaited selection predicate before mutating providers/notifiers, and before confirmation callbacks navigate."
+      ],
+      "import_replacements": [
+        {
+          "from": "package:flutter/material.dart",
+          "to": "package:material_ui/material_ui.dart",
+          "occurrences": 1
+        }
+      ]
+    },
+    {
+      "path": "lib/src/provider/asset_picker_provider.dart",
+      "changes": [
+        "Add a local modification notice; retain the upstream copyright header."
+      ],
+      "import_replacements": [
+        {
+          "from": "package:flutter/material.dart",
+          "to": "package:material_ui/material_ui.dart",
+          "occurrences": 1
+        }
+      ]
+    },
+    {
+      "path": "lib/src/widget/asset_picker.dart",
+      "changes": [
+        "Add a local modification notice; retain the upstream copyright header."
+      ],
+      "import_replacements": [
+        {
+          "from": "package:flutter/material.dart",
+          "to": "package:material_ui/material_ui.dart",
+          "occurrences": 1
+        }
+      ]
+    },
+    {
+      "path": "lib/src/widget/asset_picker_app_bar.dart",
+      "changes": [
+        "Add a local modification notice; retain the upstream copyright header."
+      ],
+      "import_replacements": [
+        {
+          "from": "package:flutter/material.dart",
+          "to": "package:material_ui/material_ui.dart",
+          "occurrences": 1
+        }
+      ]
+    },
+    {
+      "path": "lib/src/widget/asset_picker_page_route.dart",
+      "changes": [
+        "Add a local modification notice; retain the upstream copyright header."
+      ],
+      "import_replacements": [
+        {
+          "from": "package:flutter/material.dart",
+          "to": "package:material_ui/material_ui.dart",
+          "occurrences": 1
+        }
+      ]
+    },
+    {
+      "path": "lib/src/widget/asset_picker_viewer.dart",
+      "changes": [
+        "Add a local modification notice; retain the upstream copyright header.",
+        "Return null after permission resolution when the caller context is unmounted, without taking ownership of the supplied viewer delegate."
+      ],
+      "import_replacements": [
+        {
+          "from": "package:flutter/material.dart",
+          "to": "package:material_ui/material_ui.dart",
+          "occurrences": 1
+        }
+      ]
+    },
+    {
+      "path": "lib/src/widget/builder/asset_entity_grid_item_builder.dart",
+      "changes": [
+        "Add a local modification notice; retain the upstream copyright header."
+      ],
+      "import_replacements": [
+        {
+          "from": "package:flutter/material.dart",
+          "to": "package:material_ui/material_ui.dart",
+          "occurrences": 1
+        }
+      ]
+    },
+    {
+      "path": "lib/src/widget/builder/audio_page_builder.dart",
+      "changes": [
+        "Add a local modification notice; retain the upstream copyright header."
+      ],
+      "import_replacements": [
+        {
+          "from": "package:flutter/material.dart",
+          "to": "package:material_ui/material_ui.dart",
+          "occurrences": 1
+        }
+      ]
+    },
+    {
+      "path": "lib/src/widget/builder/fade_image_builder.dart",
+      "changes": [
+        "Add a local modification notice; retain the upstream copyright header."
+      ],
+      "import_replacements": [
+        {
+          "from": "package:flutter/material.dart",
+          "to": "package:material_ui/material_ui.dart",
+          "occurrences": 1
+        }
+      ]
+    },
+    {
+      "path": "lib/src/widget/builder/image_page_builder.dart",
+      "changes": [
+        "Add a local modification notice; retain the upstream copyright header.",
+        "Give the awaited animation delay its unused void result type explicitly."
+      ],
+      "import_replacements": [
+        {
+          "from": "package:flutter/material.dart",
+          "to": "package:material_ui/material_ui.dart",
+          "occurrences": 1
+        }
+      ]
+    },
+    {
+      "path": "lib/src/widget/builder/video_page_builder.dart",
+      "changes": [
+        "Add a local modification notice; retain the upstream copyright header."
+      ],
+      "import_replacements": [
+        {
+          "from": "package:flutter/material.dart",
+          "to": "package:material_ui/material_ui.dart",
+          "occurrences": 1
+        }
+      ]
+    },
+    {
+      "path": "pubspec.yaml",
+      "changes": [
+        "Add publish_to: none for this repository-local patched copy.",
+        "Add direct dependency material_ui ^1.11.0 for the migrated public imports.",
+        "Add direct dependency cupertino_ui ^1.1.6 for the migrated public imports.",
+        "Remove publishing-only screenshots metadata; screenshot files are not runtime assets.",
+        "Preserve the upstream version, SDK/Flutter constraints, non-UI dependencies, and runtime asset declarations."
+      ]
+    }
+  ]
+}

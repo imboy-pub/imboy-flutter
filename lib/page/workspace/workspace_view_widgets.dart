@@ -4,8 +4,8 @@
 /// 颜色/间距/字号全部经 AppColors / AppSpacing / FontSizeType 消费。
 library;
 
-import 'package:flutter/material.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:material_ui/material_ui.dart';
+import 'package:cupertino_ui/cupertino_ui.dart';
 
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/component/http/http_exceptions.dart' show HttpException;

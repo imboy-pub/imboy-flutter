@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_chat_ui/flutter_chat_ui.dart' show IsTypingIndicator;
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/service/events/events.dart';

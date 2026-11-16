@@ -8,7 +8,7 @@
 // 资料页可读本地缓存，本测试不能宣称个人页每次打开必然发起网络请求。
 
 import 'package:dio/dio.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:imboy/component/http/http_client.dart' as http;

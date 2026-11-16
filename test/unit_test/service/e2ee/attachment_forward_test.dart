@@ -34,6 +34,8 @@ import 'package:imboy/config/const.dart';
 import 'package:imboy/service/storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+part 'attachment_forward_fixtures.dart';
+
 Uint8List _plain(int n, [int seed = 7]) =>
     Uint8List.fromList(List<int>.generate(n, (i) => (i * 31 + seed) & 0xFF));
 
@@ -77,36 +79,6 @@ _sealSource({
     ciphertext: sealed.ciphertext,
     plaintext: pt,
   );
-}
-
-/// 捕获上传链三个 seam（多次调用按序记录）。
-///
-/// [label] 用于区分不同 capture 实例产出的 object_key——真实服务端每次
-/// presign 都签发全新 key，fake 若按实例各自从 0 计数会在跨实例断言时撞名。
-class _UploadCapture {
-  _UploadCapture([this.label = 'x']);
-
-  final String label;
-  final List<String> objectKeys = [];
-  final List<Uint8List> putBytes = [];
-  final List<Map<String, dynamic>> confirmBodies = [];
-
-  PresignFn get presignFn => (f, m) async {
-    final k = 'u-dest/$label/${objectKeys.length}/$f';
-    objectKeys.add(k);
-    return IMBoyHttpResponse.success(<String, dynamic>{
-      'put_url': 'https://example.invalid/put/${objectKeys.length}',
-      'object_key': k,
-    });
-  };
-
-  PutFn get putFn =>
-      (url, b, mime, process) async => putBytes.add(b);
-
-  ConfirmFn get confirmFn => (body) async {
-    confirmBodies.add(body);
-    return IMBoyHttpResponse.success(<String, dynamic>{});
-  };
 }
 
 /// 默认目标语境：转发者 3003 → C2C 目标会话 c2c:3003:4004。

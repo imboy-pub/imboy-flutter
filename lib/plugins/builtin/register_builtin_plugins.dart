@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:imboy/component/chat/message_audio_builder.dart';
 import 'package:imboy/component/chat/message_expression_builder.dart';
 import 'package:imboy/component/chat/message_file_builder.dart';

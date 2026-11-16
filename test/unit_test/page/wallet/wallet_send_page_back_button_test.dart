@@ -20,7 +20,7 @@
 // 运行方式 / How to run:
 //   flutter test test/unit_test/page/wallet/wallet_send_page_back_button_test.dart
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/component/ui/common_bar.dart';

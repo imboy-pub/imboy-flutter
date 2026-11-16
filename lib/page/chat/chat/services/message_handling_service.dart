@@ -20,7 +20,7 @@ import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:xid/xid.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/modules/messaging/infrastructure/message_model_mapper.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:cupertino_ui/cupertino_ui.dart';
 
 // 日志记录器
 final _msgLogger = Logger(printer: PrettyPrinter(methodCount: 0));

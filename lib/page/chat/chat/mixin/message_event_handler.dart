@@ -3,7 +3,7 @@
 /// 处理所有消息相关的用户交互事件
 library;
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart';
 import 'package:imboy/service/message_type_constants.dart';
 // 导入 UserCollectHelper 用于判断消息是否可收藏

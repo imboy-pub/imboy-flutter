@@ -6,7 +6,7 @@
 /// `ListTile` + `Switch.adaptive`，消除群模块最后一个 Material 组件。
 library;
 
-import 'package:flutter/cupertino.dart';
+import 'package:cupertino_ui/cupertino_ui.dart';
 import 'package:imboy/theme/default/font_types.dart';
 
 class GroupNoticeDisabledTile extends StatelessWidget {

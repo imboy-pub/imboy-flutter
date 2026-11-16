@@ -1,0 +1,20 @@
+name: highlight_text
+description: With this package you can highlight words and create specific styles and actions.
+version: 1.8.0
+publish_to: none
+homepage: https://github.com/desconexo/highlight_text
+
+environment:
+  sdk: ">=3.13.0 <4.0.0"
+  flutter: ">=3.47.0"
+
+dependencies:
+  material_ui: ^1.11.0
+  flutter:
+    sdk: flutter
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+flutter:

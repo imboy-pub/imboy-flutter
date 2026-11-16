@@ -7,7 +7,7 @@
 /// - 纯包装契约：壳不额外包裹 Scaffold / 导航控件（子树原样）
 library;
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';

@@ -1,7 +1,7 @@
 /// 企业布局接线：加载工作区并应用企业品牌主题。
 library;
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:imboy/page/workspace_shell/workspace_branding_theme.dart';

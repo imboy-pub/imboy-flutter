@@ -1,4 +1,4 @@
-import 'package:flutter/cupertino.dart';
+import 'package:cupertino_ui/cupertino_ui.dart';
 import 'package:imboy/theme/default/app_sizes.dart';
 
 // CupertinoSearchTextField's Icon-only slot fixes the button to the icon's box.

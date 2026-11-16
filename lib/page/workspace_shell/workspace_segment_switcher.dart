@@ -1,4 +1,4 @@
-import 'package:flutter/cupertino.dart';
+import 'package:cupertino_ui/cupertino_ui.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
 
 /// 企业壳页内分段切换器 — 当前消息页（群聊/频道）在用；通讯录页的

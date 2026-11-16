@@ -3,7 +3,7 @@
 // 本用例只读取现有生产数据，不创建群、不修改群信息、不增删成员，
 // 用于在群会话不存在时仍能验证群管理入口和已有群数据是否可达。
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:imboy/page/group/group_list/group_list_page.dart';

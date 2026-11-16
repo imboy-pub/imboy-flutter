@@ -5,8 +5,8 @@
 // 无匹配空态(AT-SC10) / 历史回填重搜(AT-SC1)。
 // 前置同 ms_core_acceptance_test.dart。
 
-import 'package:flutter/cupertino.dart' show CupertinoIcons;
-import 'package:flutter/material.dart';
+import 'package:cupertino_ui/cupertino_ui.dart' show CupertinoIcons;
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:highlight_text/highlight_text.dart';

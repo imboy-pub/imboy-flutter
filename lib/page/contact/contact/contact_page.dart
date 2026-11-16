@@ -3,8 +3,8 @@ import 'package:imboy/app_core/feature_flags/feature_revision_provider.dart';
 import 'dart:async';
 
 import 'package:azlistview/azlistview.dart';
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
+import 'package:cupertino_ui/cupertino_ui.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:imboy/component/helper/datetime.dart';

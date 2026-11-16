@@ -20,7 +20,7 @@
 /// 仅保留的 `MentionTextEditorHelper` 服务于 `chat_input.dart`（@ 候选弹窗）。
 library;
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:imboy/component/chat/mention_model.dart';
 
 /// C5 前缀白名单：`@` 前的字符是否允许触发候选弹窗。

@@ -29,7 +29,7 @@
 //     --dart-define=PEER_TITLE=演示用户Bob \
 //     --dart-define=TEST_ALLOW_BUSINESS_WRITES=true
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/component/helper/ntp.dart';
 import 'package:imboy/component/chat/message_revoked_builder.dart';

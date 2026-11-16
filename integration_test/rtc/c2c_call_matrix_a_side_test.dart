@@ -21,8 +21,8 @@
 // 则整组标 BLOCKED_DEVICE）；后端为本地 imboy 节点 + 本地 LiveKit（rtc_e2e_test.sh
 // KEEP=1 产出）；A/B 为本地合成账号且互为好友。
 
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
+import 'package:cupertino_ui/cupertino_ui.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/component/webrtc/func.dart';

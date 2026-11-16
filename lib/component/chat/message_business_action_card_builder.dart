@@ -13,7 +13,7 @@
 ///   待语义冻结后在此接入。
 library;
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 import 'package:flutter_chat_core/flutter_chat_core.dart';
 

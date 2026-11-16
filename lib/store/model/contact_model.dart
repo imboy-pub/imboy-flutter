@@ -1,5 +1,5 @@
 import 'package:azlistview/azlistview.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:cupertino_ui/cupertino_ui.dart';
 
 /// 联系人数据模型
 /// 纯数据模型，不包含响应式状态

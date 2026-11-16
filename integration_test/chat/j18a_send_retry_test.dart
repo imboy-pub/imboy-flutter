@@ -13,7 +13,7 @@
 //
 // 与 j18d 同源 harness；运行契约（dart-define）见文件尾部注释。
 
-import 'package:flutter/cupertino.dart';
+import 'package:cupertino_ui/cupertino_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/page/chat/chat/chat_message_item.dart';
 import 'package:imboy/service/event_bus.dart';

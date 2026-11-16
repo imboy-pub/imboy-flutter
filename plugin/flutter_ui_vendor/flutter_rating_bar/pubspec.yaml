@@ -1,0 +1,19 @@
+name: flutter_rating_bar
+description: A simple yet fully customizable ratingbar for flutter which also include a rating bar indicator, supporting any fraction of rating.
+version: 4.0.1
+publish_to: none
+repository: https://github.com/sarbagyastha/flutter_rating_bar
+homepage: https://sarbagyastha.com.np
+
+environment:
+  sdk: ">=3.13.0 <4.0.0"
+  flutter: ">=3.47.0"
+
+dependencies:
+  material_ui: ^1.11.0
+  flutter:
+    sdk: flutter
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter

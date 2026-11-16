@@ -1,4 +1,4 @@
-import 'package:flutter/cupertino.dart';
+import 'package:cupertino_ui/cupertino_ui.dart';
 import 'package:imboy/config/const.dart' show Keys;
 import 'package:imboy/service/storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';

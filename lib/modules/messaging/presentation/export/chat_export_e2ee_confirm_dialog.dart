@@ -15,7 +15,7 @@
 /// 范式）。
 library;
 
-import 'package:flutter/cupertino.dart';
+import 'package:cupertino_ui/cupertino_ui.dart';
 
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/theme/default/app_spacing.dart';

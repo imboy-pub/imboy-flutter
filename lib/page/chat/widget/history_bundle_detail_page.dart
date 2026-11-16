@@ -16,7 +16,7 @@
 /// - 其余/未知 entry 类型 → fallback 描述（不崩溃、不猜测）。
 library;
 
-import 'package:flutter/cupertino.dart';
+import 'package:cupertino_ui/cupertino_ui.dart';
 import 'package:flutter/foundation.dart' show listEquals;
 import 'package:imboy/component/chat/message.dart' show confirmOpenFile;
 import 'package:imboy/component/image_gallery/image_gallery.dart'
@@ -24,7 +24,7 @@ import 'package:imboy/component/image_gallery/image_gallery.dart'
 import 'package:imboy/service/e2ee/attachment_open_registry.dart';
 import 'package:imboy/service/e2ee/attachment_opener.dart';
 import 'package:imboy/service/e2ee/attachment_seal_policy.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:imboy/component/chat/message_history_bundle_builder.dart'
     show historyBundleEntries, historyBundleEntryIcon;
 import 'package:imboy/component/helper/datetime.dart';

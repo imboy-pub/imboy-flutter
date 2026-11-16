@@ -71,102 +71,7 @@ import 'package:imboy/config/init.dart';
 
 import '../../../fixtures/sqlite_migration/sqlite_migration_fixtures.dart';
 
-const String _sessionId = 'kR8pQmXv2TnL7yFwZ0aBcDeGhIjKlMnOpQrStUvWxYz';
-
-/// 恒等协议：只替换密码学，不替换 wiring。
-/// metadata 形状对照真实 `OlmProtocol.encrypt`（olm_protocol.dart:65-78）。
-class _IdentityOlmProtocol implements E2eeSessionProtocol {
-  bool rejectDuplicate = false;
-  bool commitInbound = false;
-  Future<void> Function()? beforeDecrypt;
-  @override
-  ProtocolSuite get suite => ProtocolSuite.olm;
-
-  @override
-  Future<void> initialize({
-    required String userId,
-    required String deviceId,
-  }) async {}
-
-  @override
-  Future<E2eeCiphertext> encrypt({
-    required String plaintext,
-    required List<RecipientDevice> recipients,
-    required E2eeContext context,
-  }) async {
-    return E2eeCiphertext(plaintext, {
-      'protocol': suite.protocol,
-      'version': suite.version,
-      'e2ee_suite': suite.legacyWire,
-      'peer_uid': '100',
-      'peer_device_id': 'dev-sender',
-      'message_type': 1,
-      'session_id': _sessionId,
-    });
-  }
-
-  @override
-  Future<String> decrypt({
-    required String ciphertext,
-    required Map<String, dynamic> metadata,
-    E2eeContext? context,
-  }) async {
-    if (rejectDuplicate) throw DuplicateMessageException('test');
-    if (commitInbound) {
-      final store = await OlmSessionService.to.cryptoStore;
-      await store!.commitInboundResult(
-        messageId: metadata['message_id'] as String,
-        scope: metadata['inbox_scope'] as String,
-        ciphertextDigest: metadata['ciphertext_digest'] as String,
-        decryptedPayload: ciphertext,
-      );
-    }
-    await beforeDecrypt?.call();
-    return ciphertext;
-  }
-
-  @override
-  Future<void> clearAll() async {}
-}
-
-class _IdentityMegolmProtocol implements E2eeSessionProtocol {
-  final List<Map<String, dynamic>> decryptMetadata = [];
-
-  @override
-  ProtocolSuite get suite => ProtocolSuite.megolm;
-
-  @override
-  Future<void> initialize({
-    required String userId,
-    required String deviceId,
-  }) async {}
-
-  @override
-  Future<E2eeCiphertext> encrypt({
-    required String plaintext,
-    required List<RecipientDevice> recipients,
-    required E2eeContext context,
-  }) async => E2eeCiphertext(plaintext, {
-    'protocol': suite.protocol,
-    'version': suite.version,
-    'e2ee_suite': suite.legacyWire,
-    'gid': 'group-1',
-    'session_id': _sessionId,
-  });
-
-  @override
-  Future<String> decrypt({
-    required String ciphertext,
-    required Map<String, dynamic> metadata,
-    E2eeContext? context,
-  }) async {
-    decryptMetadata.add(Map<String, dynamic>.from(metadata));
-    return ciphertext;
-  }
-
-  @override
-  Future<void> clearAll() async {}
-}
+part 'v3_receive_path_e2e_fixtures.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -190,98 +95,10 @@ void main() {
       'nickname': 'Synthetic peer',
     });
 
-    // 顺序要紧：先让 bootstrap 完成一次真实注册（把内部 _registered 置 true），
-    // 再清空 registry 换入恒等协议。否则解密时 ensureRegistered() 会再注册
-    // 真实 OlmProtocol，与恒等协议撞 'already registered: olm'。
-    E2eeBootstrap.resetForTest();
-    E2eeBootstrap.ensureRegistered();
-    E2eeProtocolRegistry.resetForTest();
-    olmProtocol = _IdentityOlmProtocol();
-    E2eeProtocolRegistry.register(olmProtocol);
-    groupProtocol = _IdentityMegolmProtocol();
-    E2eeProtocolRegistry.register(groupProtocol);
+    (olmProtocol, groupProtocol) = _registerV3ReceiveProtocols();
   });
 
-  tearDown(() async {
-    MessageService.to.dispose();
-    MessageRetry.instance.dispose();
-    await MessageRetry.instance.debugWaitForIdle();
-    E2eeBootstrap.resetForTest();
-    SqliteService.setDbForTest(null);
-    await db.close();
-  });
-
-  const plainBody = 'inbound v3 body';
-
-  /// 复刻 `chat_network_service._encryptC2COlmFanOut` 的实际产出形状：
-  /// e2ee 为 fan_out/devices 结构，**外层 payload 为空串**（密文在信封内）。
-  /// 信封挂在本机 deviceId 下，与生产接收侧按 deviceId 取信封一致。
-  Future<Map<String, dynamic>> buildV3Message(
-    String msgId, {
-    String action = 'message',
-  }) async {
-    final myDid = deviceId;
-    final encrypted = await E2eeOutboundRouter.encryptV3(
-      suite: ProtocolSuite.olm,
-      plaintext: jsonEncode({'msg_type': 'text', 'body': plainBody}),
-      recipients: [
-        RecipientDevice(deviceId: myDid, keyId: 'k1', publicKey: 'pk-1'),
-      ],
-      context: E2eeContext(peerUid: '200', peerDeviceId: myDid, scope: 'c2c'),
-      messageId: msgId,
-      senderUid: '100',
-      senderDid: 'dev-sender',
-      destination: '200',
-      messageType: 'text',
-      action: action,
-      sessionRef: _sessionId,
-      createdAtMs: 1753500000000,
-    );
-
-    final envelope = Map<String, dynamic>.from(encrypted.metadata);
-    envelope.remove('meta_version');
-
-    return {
-      'id': msgId,
-      'type': 'C2C',
-      'from': '100',
-      'to': '200',
-      'msg_type': 'text',
-      'e2ee': {
-        'meta_version': 3,
-        'protocol': 'olm',
-        'version': 1,
-        'fan_out': 'per_device',
-        'devices': {myDid: envelope},
-      },
-      'payload': encrypted.ciphertext, // v3: 恒为空串
-      'created_at': 1753500000000,
-      'sender_did': 'dev-sender',
-      'sender_dtype': 'ios',
-    };
-  }
-
-  Future<void> seedExisting(
-    Map<String, dynamic> frame,
-    Object payload, {
-    int status = 20,
-  }) => db
-      .insert('msg_c2c', {
-        'id': frame['id'],
-        'type': frame['type'],
-        'from_id': frame['from'],
-        'to_id': frame['to'],
-        'msg_type': frame['msg_type'],
-        'sender_did': frame['sender_did'],
-        'created_at': frame['created_at'],
-        'e2ee': jsonEncode(frame['e2ee']),
-        'payload': payload is String ? payload : jsonEncode(payload),
-        'status': status,
-        'is_author': 0,
-        'topic_id': 0,
-        'conversation_uk3': 'C2C_200_100',
-      })
-      .then((_) {});
+  tearDown(() => _tearDownV3ReceiveFixture(db));
 
   group('existing PFv3 恢复', () {
     setUp(() async {
@@ -305,7 +122,7 @@ void main() {
       ]) {
         final id = old is String ? 'recover-empty' : 'recover-failed';
         final frame = await buildV3Message(id);
-        await seedExisting(frame, old);
+        await seedExisting(db, frame, old);
         expect(await MessageService.to.persistInboundMessage(frame), isTrue);
         final row = (await db.query(
           'msg_c2c',
@@ -340,7 +157,7 @@ void main() {
 
     test('DB失败保留staging供重试；篡改、账号切换均拒绝物化', () async {
       final frame = await buildV3Message('recover-rollback');
-      await seedExisting(frame, {'_e2ee_failed': true});
+      await seedExisting(db, frame, {'_e2ee_failed': true});
       await db.execute(
         "CREATE TRIGGER fail_recovery BEFORE UPDATE OF payload ON msg_c2c BEGIN SELECT RAISE(ABORT, 'injected'); END",
       );
@@ -365,7 +182,7 @@ void main() {
         isTrue,
       );
       final switched = await buildV3Message('recover-switched');
-      await seedExisting(switched, {'_e2ee_failed': true});
+      await seedExisting(db, switched, {'_e2ee_failed': true});
       olmProtocol.beforeDecrypt = () async {
         await StorageService.to.setString(Keys.currentUid, '300');
       };
@@ -393,7 +210,10 @@ void main() {
     test('completion失败后重试补发一次UI，并保留本地焚毁计时起点', () async {
       final frame = await buildV3Message('recover-completion');
       final readAt = DateTime.now().millisecondsSinceEpoch;
-      await seedExisting(frame, {'_e2ee_failed': true, 'burn_read_at': readAt});
+      await seedExisting(db, frame, {
+        '_e2ee_failed': true,
+        'burn_read_at': readAt,
+      });
       final events = <DataWrapperEvent<dynamic>>[];
       final sub = AppEventBus.on<DataWrapperEvent<dynamic>>().listen(
         events.add,
@@ -447,7 +267,7 @@ void main() {
       ].indexed) {
         final id = 'recover-protected-${entry.$1}';
         final frame = await buildV3Message(id);
-        await seedExisting(frame, entry.$2.$2, status: entry.$2.$1);
+        await seedExisting(db, frame, entry.$2.$2, status: entry.$2.$1);
         expect(await MessageService.to.persistInboundMessage(frame), isTrue);
         expect(
           (await db.query(
@@ -863,21 +683,7 @@ void main() {
     });
 
     test('非 v3 信封必须返回 null，交回 v1/v2 路径处理', () async {
-      final v2 = {
-        'id': 'inbound-v2-001',
-        'type': 'C2C',
-        'from': '100',
-        'to': '200',
-        'msg_type': 'text',
-        'e2ee': {
-          'protocol': 'olm',
-          'version': 1,
-          'e2ee_suite': 'OLM.V1',
-          'session_id': _sessionId,
-        },
-        'payload': jsonEncode({'msg_type': 'text', 'body': plainBody}),
-        'created_at': 1753500000000,
-      };
+      final v2 = _v2OlmMessage();
 
       expect(
         await E2EEService.decryptInboundV3(data: v2),
@@ -910,22 +716,7 @@ void main() {
 
     test('C2G Megolm v2 扁平 metadata 必须走 Megolm 入站路由', () async {
       final result = await E2EEService.decryptIncomingPayload(
-        payload: {
-          'id': 'inbound-c2g-001',
-          'type': 'C2G',
-          'from': '100',
-          'to': 'group-1',
-          'msg_type': 'text',
-          'e2ee': {
-            'protocol': 'megolm',
-            'version': 1,
-            'e2ee_suite': 'MEGOLM.V1',
-            'meta_version': 2,
-            'gid': 'group-1',
-            'session_id': _sessionId,
-          },
-          'payload': jsonEncode({'msg_type': 'text', 'body': plainBody}),
-        },
+        payload: _v2MegolmMessage(),
       );
       expect(result['_e2ee_failed'], isNot(true));
       expect(result['_e2ee_megolm_verified'], isTrue);

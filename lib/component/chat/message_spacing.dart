@@ -7,7 +7,7 @@
 /// @since 2026-01-09
 library;
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 /// 消息组件统一间距系统
 ///

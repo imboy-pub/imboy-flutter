@@ -10,8 +10,8 @@
 ///   4. 终态（Success / 错误状态）显示关闭按钮且语义清晰
 library;
 
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
+import 'package:cupertino_ui/cupertino_ui.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/page/scanner/qr_login_confirm_content.dart';
 import 'package:imboy/page/scanner/qr_login_confirm_rules.dart';

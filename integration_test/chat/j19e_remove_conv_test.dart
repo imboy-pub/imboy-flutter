@@ -18,7 +18,7 @@
 // （alice role=4 群主 + bob/carol role=1 + 世代行 start_seq=1 + 2 条
 // bob 发送的 [J19E-SEED] 种子消息）。
 
-import 'package:flutter/cupertino.dart';
+import 'package:cupertino_ui/cupertino_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/page/chat/chat/chat_page.dart';
 import 'package:imboy/page/conversation/widget/conversation_item.dart';

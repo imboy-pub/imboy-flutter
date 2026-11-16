@@ -26,7 +26,7 @@
 // C2G forbidden and the full J18.f acceptance require separate evidence;
 // a synthetic C2C 403 must not stand in for group membership revocation.
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/app_core/feature_flags/app_feature_registry.dart';

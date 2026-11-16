@@ -1,0 +1,177 @@
+{
+  "schema_version": 1,
+  "package": "wechat_camera_picker",
+  "upstream": {
+    "version": "4.6.0",
+    "repository": "https://github.com/fluttercandies/flutter_wechat_camera_picker",
+    "package_url": "https://pub.dev/packages/wechat_camera_picker/versions/4.6.0",
+    "archive_url": "https://pub.dev/api/archives/wechat_camera_picker-4.6.0.tar.gz",
+    "archive_sha256": "9249a48902da1cacc03e40c49fd6b658d4ef1bd3890636e97d2d733f1576a3a8",
+    "published": "2026-07-25T17:28:32.290275Z"
+  },
+  "vendoring": {
+    "purpose": "Use the standalone public Material/Cupertino libraries while preserving upstream runtime behavior.",
+    "included_paths": [
+      "lib/**",
+      "LICENSE",
+      "pubspec.yaml"
+    ],
+    "excluded_top_level_entries": [
+      "CHANGELOG.md",
+      "CODEOWNERS",
+      "README-ZH.md",
+      "README.md",
+      "_config.yml",
+      "analysis_options.yaml",
+      "example",
+      "guides",
+      "screenshots"
+    ],
+    "verification": "Downloaded archive SHA-256 matches pubspec.lock and the pub.dev release API; each copied original file matches the installed package and published archive byte-for-byte."
+  },
+  "original_files_sha256": {
+    "LICENSE": "2b96286959638d6894ec8eaa761f139d2186372f8f1d6af64e9329e67a26b39d",
+    "lib/src/constants/config.dart": "ac2e98aca6b3df9a382e97b3b540a2e2622731e5b7ff3e5687fab195907e889a",
+    "lib/src/constants/enums.dart": "2762ad2db5de59d81964a2397edc5aaf62107cfcf0e56cff2bb77aa5e5189e5c",
+    "lib/src/constants/type_defs.dart": "e5e1142a4bb1d956b474b94c49e0a3757349935dae4aed52babfcb7335cfc514",
+    "lib/src/delegates/camera_picker_text_delegate.dart": "23d3a86b5b23ab219ad378bbc7e5e9070641f6e49378be713c7c80ae4af70f89",
+    "lib/src/internals/methods.dart": "e95f232938d39e61bf522c9f02f9e953ae65db9d6582b4a810918866a004572a",
+    "lib/src/internals/singleton.dart": "640d618e2fea1ef94aa9cf1d97d724db027eae1697c3ab9023956755d58e0d96",
+    "lib/src/states/camera_picker_state.dart": "ea9a22f74e6a38627c02331dbc8900019fa9fe13161d16820da81de51482bfae",
+    "lib/src/states/camera_picker_viewer_state.dart": "0c48fc771fddd523c5157110ae3205185c5a3a79b7d4c21cf2e2d1beefdb103b",
+    "lib/src/widgets/camera_focus_point.dart": "1a941c3f32c542c6f39b6aaa98124ccc3631cf6aec5886d27ddd942de3a35501",
+    "lib/src/widgets/camera_picker.dart": "4528ef6cc64b9b171df3ad2cd142f035c394b718aa543042aa4b4bd5b7515abb",
+    "lib/src/widgets/camera_picker_page_route.dart": "9f5b199883ee31b591d25ba74fbe6b2a4561c1434ce0f3cc7c363fcc47bb6526",
+    "lib/src/widgets/camera_picker_viewer.dart": "c080804583d5e3d36d092ee609f33609177182b6258f963ecf606374a788653a",
+    "lib/src/widgets/camera_progress_button.dart": "1bc28a0ad66151ad15e45a1691eef629330047a9b2e3256d6bc5ed0d8767df4f",
+    "lib/wechat_camera_picker.dart": "a4f4557f25ae03364a013a539e5fed903b66164dae70592216b7b87f751d7f3e",
+    "pubspec.yaml": "32a474e84f813f429b65962fc987e6a6bc1f0c188307b5694869b1cfb2b66099"
+  },
+  "modifications": [
+    {
+      "path": "lib/src/constants/config.dart",
+      "changes": [
+        "Add a local modification notice; retain the upstream copyright header."
+      ],
+      "import_replacements": [
+        {
+          "from": "package:flutter/material.dart",
+          "to": "package:material_ui/material_ui.dart",
+          "occurrences": 1
+        }
+      ]
+    },
+    {
+      "path": "lib/src/constants/type_defs.dart",
+      "changes": [
+        "Update documentation examples from raw print to debugPrint; no executable code changes.",
+        "Add a local modification notice; retain the upstream copyright header."
+      ]
+    },
+    {
+      "path": "lib/src/states/camera_picker_state.dart",
+      "changes": [
+        "Add a local modification notice; retain the upstream copyright header.",
+        "Declare Object and StackTrace parameters on catchError callbacks; preserve existing error handler behavior.",
+        "Check State.mounted after viewer completion before navigation or confirmation; make the existing recording-controller liveness guard explicit to static analysis.",
+        "Avoid accessing an unmounted State context when starting preview; evict the preview image cache in finally, including cancellation and exceptions.",
+        "If preview is cancelled before navigation, delete its captured file only under the existing shouldDeletePreviewFile and absent onEntitySaving ownership rule."
+      ],
+      "import_replacements": [
+        {
+          "from": "package:flutter/material.dart",
+          "to": "package:material_ui/material_ui.dart",
+          "occurrences": 1
+        }
+      ]
+    },
+    {
+      "path": "lib/src/states/camera_picker_viewer_state.dart",
+      "changes": [
+        "Add a local modification notice; retain the upstream copyright header.",
+        "Declare Object and StackTrace parameters on the preview-file deletion catchError callback; preserve its existing handler and fallback return value."
+      ],
+      "import_replacements": [
+        {
+          "from": "package:flutter/material.dart",
+          "to": "package:material_ui/material_ui.dart",
+          "occurrences": 1
+        }
+      ]
+    },
+    {
+      "path": "lib/src/widgets/camera_focus_point.dart",
+      "changes": [
+        "Add a local modification notice; retain the upstream copyright header."
+      ],
+      "import_replacements": [
+        {
+          "from": "package:flutter/material.dart",
+          "to": "package:material_ui/material_ui.dart",
+          "occurrences": 1
+        }
+      ]
+    },
+    {
+      "path": "lib/src/widgets/camera_picker.dart",
+      "changes": [
+        "Add a local modification notice; retain the upstream copyright header."
+      ],
+      "import_replacements": [
+        {
+          "from": "package:flutter/material.dart",
+          "to": "package:material_ui/material_ui.dart",
+          "occurrences": 1
+        }
+      ]
+    },
+    {
+      "path": "lib/src/widgets/camera_picker_page_route.dart",
+      "changes": [
+        "Add a local modification notice; retain the upstream copyright header."
+      ],
+      "import_replacements": [
+        {
+          "from": "package:flutter/material.dart",
+          "to": "package:material_ui/material_ui.dart",
+          "occurrences": 1
+        }
+      ]
+    },
+    {
+      "path": "lib/src/widgets/camera_picker_viewer.dart",
+      "changes": [
+        "Add a local modification notice; retain the upstream copyright header."
+      ],
+      "import_replacements": [
+        {
+          "from": "package:flutter/material.dart",
+          "to": "package:material_ui/material_ui.dart",
+          "occurrences": 1
+        }
+      ]
+    },
+    {
+      "path": "lib/src/widgets/camera_progress_button.dart",
+      "changes": [
+        "Add a local modification notice; retain the upstream copyright header."
+      ],
+      "import_replacements": [
+        {
+          "from": "package:flutter/material.dart",
+          "to": "package:material_ui/material_ui.dart",
+          "occurrences": 1
+        }
+      ]
+    },
+    {
+      "path": "pubspec.yaml",
+      "changes": [
+        "Add publish_to: none for this repository-local patched copy.",
+        "Add direct dependency material_ui ^1.11.0 for the migrated public imports.",
+        "Remove publishing-only screenshots metadata; screenshot files are not runtime assets.",
+        "Preserve the upstream version, SDK/Flutter constraints, non-UI dependencies, and runtime asset declarations."
+      ]
+    }
+  ]
+}

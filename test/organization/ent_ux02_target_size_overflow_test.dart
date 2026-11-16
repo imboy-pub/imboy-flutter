@@ -6,7 +6,7 @@
 /// 结果由 DEVICE-01/02 代证（本卡不冒充）。
 library;
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:imboy/modules/customer_service/presentation/cs_governance_page.dart';

@@ -8,8 +8,8 @@
 /// OrgJoinScannerPage 解析；明码 8 位 A-Z2-9（排除 0/O/1/I）供口令传达。
 library;
 
-import 'package:flutter/cupertino.dart' show CupertinoIcons;
-import 'package:flutter/material.dart';
+import 'package:cupertino_ui/cupertino_ui.dart' show CupertinoIcons;
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 

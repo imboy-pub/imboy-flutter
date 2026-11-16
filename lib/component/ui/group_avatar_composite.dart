@@ -1,7 +1,8 @@
 import 'dart:async';
 import 'dart:ui' as ui;
 
-import 'package:flutter/cupertino.dart' show CupertinoIcons, TextPainter;
+import 'package:cupertino_ui/cupertino_ui.dart'
+    show CupertinoIcons, TextPainter;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/painting.dart';
 

@@ -29,7 +29,7 @@
 // 隔离前置：仅限合成部署 + 专用演示账号；本脚本不发消息、不改偏好，
 // 仅做列表导航与右栏派发断言。
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/page/chat/chat/chat_page.dart';

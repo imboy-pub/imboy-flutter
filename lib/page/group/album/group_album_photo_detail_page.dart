@@ -1,9 +1,10 @@
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
+import 'package:cupertino_ui/cupertino_ui.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/helper/func.dart';
+import 'package:imboy/component/image_gallery/photo_view_loading.dart';
 import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/nodata_view.dart';
@@ -269,6 +270,7 @@ class _GroupAlbumPhotoDetailPageState
               child: url.isNotEmpty
                   ? PhotoView(
                       imageProvider: cachedImageProvider(url, w: 0),
+                      loadingBuilder: buildPhotoViewLoading,
                       backgroundDecoration: const BoxDecoration(
                         color: Colors.transparent,
                       ),

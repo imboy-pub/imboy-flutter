@@ -5,7 +5,7 @@
 /// 颜色解析留给调用方的 themeNotifier，保持纯函数无 Widget 依赖。
 library;
 
-import 'package:flutter/cupertino.dart';
+import 'package:cupertino_ui/cupertino_ui.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart';
 import 'package:imboy/i18n/strings.g.dart';
 

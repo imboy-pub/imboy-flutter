@@ -3,8 +3,8 @@ import 'dart:convert';
 
 import 'package:imboy/component/http/channel_id_response_decoder.dart';
 
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart' show showDialog;
+import 'package:cupertino_ui/cupertino_ui.dart';
+import 'package:material_ui/material_ui.dart' show showDialog;
 import 'package:imboy/component/ui/app_loading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';

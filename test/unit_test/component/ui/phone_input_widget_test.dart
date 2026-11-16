@@ -13,15 +13,106 @@
 /// - 切换国家码后，localNumber 仍为用户输入原文，fullNumber 带新国家码。
 library;
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:imboy/component/ui/phone_input.dart';
+import 'package:imboy/component/ui/phone_input_mobile.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/theme/default/theme.dart';
 
 void main() {
+  testWidgets('移动端号码输入使用新暗色 UI、真实旗帜和国家选择弹窗', (tester) async {
+    String? capturedFull;
+    String? capturedLocal;
+    const decoration = InputDecoration(
+      labelText: '移动号码',
+      filled: true,
+      fillColor: Color(0xff243342),
+    );
+    await tester.pumpWidget(
+      TranslationProvider(
+        child: MaterialApp(
+          theme: AppTheme.getDarkTheme(),
+          locale: const Locale('zh', 'CN'),
+          supportedLocales: const [Locale('zh', 'CN')],
+          localizationsDelegates: GlobalMaterialLocalizations.delegates,
+          home: Scaffold(
+            body: MobilePhoneInputWidget(
+              initialValue: '',
+              decoration: decoration,
+              onInputChanged: (full, local) {
+                capturedFull = full;
+                capturedLocal = local;
+              },
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    final input = find.descendant(
+      of: find.byType(MobilePhoneInputWidget),
+      matching: find.byType(TextField),
+    );
+    expect(input, findsOneWidget);
+    final field = tester.widget<TextField>(input);
+    expect(field.decoration!.labelText, decoration.labelText);
+    expect(field.decoration!.fillColor, decoration.fillColor);
+    expect(Theme.of(tester.element(input)).brightness, Brightness.dark);
+
+    const flagAsset = AssetImage(
+      'assets/flags/cn.png',
+      package: 'intl_phone_number_input',
+    );
+    await tester.runAsync(
+      () => precacheImage(flagAsset, tester.element(input)),
+    );
+    await tester.pumpAndSettle();
+    final flag = find.byWidgetPredicate(
+      (widget) => widget is Image && widget.image == flagAsset,
+    );
+    expect(flag, findsOneWidget);
+    expect(
+      tester
+          .widget<RawImage>(
+            find.descendant(of: flag, matching: find.byType(RawImage)),
+          )
+          .image,
+      isNotNull,
+      reason: '国旗资源必须真正解码，不能被上游 errorBuilder 静默隐藏',
+    );
+
+    await tester.enterText(input, '13800000001');
+    await tester.pumpAndSettle();
+    expect(capturedFull, '+8613800000001');
+    expect(capturedLocal, '13800000001');
+
+    await tester.tap(find.byKey(const Key('intl_dropdown_key')));
+    await tester.pumpAndSettle();
+    final dialog = find.byType(AlertDialog);
+    expect(dialog, findsOneWidget);
+    final dialogContext = tester.element(dialog);
+    expect(Theme.of(dialogContext).brightness, Brightness.dark);
+    expect(MaterialLocalizations.of(dialogContext).copyButtonLabel, '复制');
+    await tester.enterText(
+      find.byKey(const Key('intl_search_input_key')),
+      'United States',
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('intl_country_US_key')));
+    await tester.pumpAndSettle();
+    expect(dialog, findsNothing);
+    expect(find.text('+1'), findsOneWidget);
+
+    await tester.enterText(input, '2025550123');
+    await tester.pumpAndSettle();
+    expect(capturedFull, '+12025550123');
+    expect(capturedLocal, '2025550123');
+    expect(tester.takeException(), isNull);
+  });
+
   testWidgets('国家码文字随实际 AppTheme 深浅切换保持可读', (tester) async {
     for (final mode in [ThemeMode.light, ThemeMode.dark, ThemeMode.light]) {
       await tester.pumpWidget(

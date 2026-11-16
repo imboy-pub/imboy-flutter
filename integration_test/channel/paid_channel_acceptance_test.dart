@@ -33,7 +33,8 @@
 //     --dart-define=TEST_PAID_CHANNEL_ID=<fixture 输出> \
 //     --dart-define=TEST_ALLOW_PAID_CHANNEL_WRITES=true
 
-import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart' show debugPrintSynchronously;
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:imboy/main.dart' as app;
@@ -90,8 +91,9 @@ Future<bool> _boot(WidgetTester tester) async {
     // 恢复出上一账号时 quitLogin 清态，让本轮按 define 指定账号重登。
     final currentUid = UserRepoLocal.to.currentUid;
     if (currentUid.isNotEmpty && currentUid != _expectedUid) {
-      // ignore: avoid_print
-      print('[AT-CP] 清旧会话：$currentUid → $_expectedUid，quitLogin');
+      debugPrintSynchronously(
+        '[AT-CP] 清旧会话：$currentUid → $_expectedUid，quitLogin',
+      );
       await UserRepoLocal.to.quitLogin();
       final navCtx = tester.element(find.byType(Navigator).first);
       GoRouter.of(navCtx).go('/welcome');
@@ -400,8 +402,7 @@ void main() {
       seconds: 15,
     );
     expect(fallback, isTrue, reason: '假单号应渲染兜底视图（不崩溃）');
-    // ignore: avoid_print
-    print(
+    debugPrintSynchronously(
       'DIAG CP7: 假单号落点文本=${tester.widgetList(find.bySubtype<Text>()).whereType<Text>().map((w) => w.data).whereType<String>().toSet().take(12).join(" | ")}',
     );
   });

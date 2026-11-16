@@ -4,7 +4,7 @@
 /// 未知值原样展示，绝不臆造语义（ORG-A13）。
 library;
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/modules/organization/domain/organization_models.dart';

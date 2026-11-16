@@ -3,7 +3,7 @@
 // 覆盖：subtitle 为空保持 44pt 单行（零回归基线）、subtitle 非空双行
 // 52pt、长文本省略不溢出、深浅色副行用次级文本色、leading/actions
 // 布局不受 subtitle 影响。
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:imboy/page/workspace_shell/workspace_top_bar.dart';

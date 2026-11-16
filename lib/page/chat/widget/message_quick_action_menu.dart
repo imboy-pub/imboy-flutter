@@ -3,7 +3,7 @@
 /// 提供右键/辅助点击时的快捷操作菜单
 library;
 
-import 'package:flutter/cupertino.dart';
+import 'package:cupertino_ui/cupertino_ui.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
 
 import 'package:imboy/i18n/strings.g.dart';

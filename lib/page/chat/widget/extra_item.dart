@@ -2,8 +2,8 @@ import 'package:imboy/app_core/feature_flags/feature_revision_provider.dart';
 
 import 'dart:typed_data';
 
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
+import 'package:cupertino_ui/cupertino_ui.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:carousel_slider_plus/carousel_slider_plus.dart';
 import 'package:imboy/component/ui/app_loading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

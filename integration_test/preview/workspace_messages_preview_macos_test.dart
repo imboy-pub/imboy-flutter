@@ -9,11 +9,13 @@
 // 不依赖后端/账号：ProviderScope 注入 mock WorkspaceApi（复用单测
 // workspace_conversations_page_test 的接线），macOS 真渲染拿真实字体
 // 与组件管线。
+import 'package:flutter/foundation.dart' show debugPrintSynchronously;
+
 import 'dart:convert';
 import 'dart:math' as math;
 import 'dart:ui' as ui;
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -185,8 +187,9 @@ Future<void> _shoot(WidgetTester tester, String name) async {
   debugPrint('[AI_PNG_BEGIN:$name:${b64.length}]');
   const chunkSize = 800;
   for (var i = 0; i < b64.length; i += chunkSize) {
-    // ignore: avoid_print
-    print(b64.substring(i, math.min(i + chunkSize, b64.length)));
+    debugPrintSynchronously(
+      b64.substring(i, math.min(i + chunkSize, b64.length)),
+    );
   }
   debugPrint('[AI_PNG_END:$name:${b64.length}]');
   await tester.pump(const Duration(milliseconds: 200));

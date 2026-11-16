@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 import 'package:imboy/store/model/channel_order_model.dart';
 import 'package:imboy/theme/default/app_colors.dart';

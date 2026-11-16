@@ -1,5 +1,5 @@
 // integration_test/channel/channel_subscribed_detail_consistency_test.dart
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/component/ui/flat_list_tile.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';

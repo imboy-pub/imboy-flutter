@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 /// 用于监听 child（比如 ChatInput）高度变化，并自动同步到 ValueNotifier
 /// 优化版本：添加更流畅的动画效果，让消息列表向上移动更加丝滑
