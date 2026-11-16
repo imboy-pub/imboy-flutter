@@ -214,10 +214,6 @@ class HttpClient {
   @visibleForTesting
   static HttpClientAdapter? adapterForTest;
 
-  /// 防止并发 Token 刷新：仅同一会话共享刷新结果。
-  static Completer<String>? _tokenRefreshCompleter;
-  static _RequestSession? _tokenRefreshSession;
-
   /// 防止重复处理登录过期流程
   static Completer<void>? _loginExpiredCompleter;
   static int? _loginExpiredGeneration;
@@ -311,7 +307,7 @@ class HttpClient {
     }
 
     if (tokenExpired(tk)) {
-      tk = await _refreshTokenWithMutex(session, uri);
+      tk = await _refreshToken(session, uri);
       _requireSession(session, uri);
     }
     final headers = await defaultHeaders();
@@ -322,44 +318,23 @@ class HttpClient {
     _dio.options.headers.addAll(headers);
   }
 
-  /// 带互斥锁的 Token 刷新：并发请求共享同一次刷新结果
-  Future<String> _refreshTokenWithMutex(
-    _RequestSession session,
-    String uri,
-  ) async {
-    if (_tokenRefreshCompleter != null && _tokenRefreshSession == session) {
-      final token = await _tokenRefreshCompleter!.future;
-      _requireSession(session, uri);
-      return token;
+  /// UserApi owns the shared refresh, including non-HTTP callers.
+  Future<String> _refreshToken(_RequestSession session, String uri) async {
+    final rtk = await UserRepoLocal.to.refreshToken;
+    _requireSession(session, uri);
+    if (rtk.isEmpty) return '';
+    // Another caller may have completed its refresh while storage was pending.
+    final currentToken = await UserRepoLocal.to.accessToken;
+    _requireSession(session, uri);
+    if (currentToken.isNotEmpty && !tokenExpired(currentToken)) {
+      return currentToken;
     }
-    final completer = Completer<String>();
-    _tokenRefreshCompleter = completer;
-    _tokenRefreshSession = session;
-    try {
-      final rtk = await UserRepoLocal.to.refreshToken;
-      _requireSession(session, uri);
-      if (rtk.isEmpty) {
-        completer.complete('');
-        return '';
-      }
-      final newTk = await UserApi.to.refreshAccessTokenApi(
-        rtk,
-        checkNewToken: false,
-      );
-      _requireSession(session, uri);
-      completer.complete(newTk);
-      return newTk;
-    } catch (e, stack) {
-      completer.completeError(e, stack);
-      // The owner also throws; consume the shared future if there are no waiters.
-      unawaited(completer.future.catchError((Object _) => ''));
-      rethrow;
-    } finally {
-      if (identical(_tokenRefreshCompleter, completer)) {
-        _tokenRefreshCompleter = null;
-        _tokenRefreshSession = null;
-      }
-    }
+    final token = await UserApi.to.refreshAccessTokenApi(
+      rtk,
+      checkNewToken: false,
+    );
+    _requireSession(session, uri);
+    return token;
   }
 
   /// 处理 Token 过期的后续流程（弹窗提示 + 跳转登录页）
