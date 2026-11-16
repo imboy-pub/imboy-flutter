@@ -1,5 +1,3 @@
-import 'package:flutter/foundation.dart';
-
 import 'package:imboy/config/const.dart';
 import 'package:imboy/component/http/http_client.dart';
 import 'package:imboy/component/http/http_response.dart';
@@ -30,7 +28,6 @@ class PushApi extends HttpClient {
     required String platform,
     required String deviceId,
   }) async {
-    if (kDebugMode) {}
     IMBoyHttpResponse resp = await post(
       API.pushRegister,
       data: {
@@ -40,7 +37,6 @@ class PushApi extends HttpClient {
         'device_id': deviceId,
       },
     );
-    if (kDebugMode) {}
     return resp.ok;
   }
 
@@ -48,12 +44,10 @@ class PushApi extends HttpClient {
   ///
   /// [deviceId] 设备 ID
   Future<bool> unregister({required String deviceId}) async {
-    if (kDebugMode) {}
     IMBoyHttpResponse resp = await post(
       API.pushUnregister,
       data: {'device_id': deviceId},
     );
-    if (kDebugMode) {}
     return resp.ok;
   }
 }

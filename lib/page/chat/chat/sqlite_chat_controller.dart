@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -90,7 +89,6 @@ class SqliteChatController
     iPrint('removeMessageById: 开始删除消息, ID: $id, 当前消息数量: ${_messages.length}');
 
     // 打印所有消息ID以便调试
-    if (kDebugMode) {}
 
     final index = _messages.indexWhere((m) => m.id == id);
     iPrint('removeMessageById: 消息ID: $id, 在列表中的索引: $index');

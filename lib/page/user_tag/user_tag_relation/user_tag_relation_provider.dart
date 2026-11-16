@@ -369,7 +369,6 @@ class UserTagRelationNotifier extends _$UserTagRelationNotifier {
           .where((tagName) => !resolvedTagIdByName.containsKey(tagName))
           .toList();
       if (unresolved.isNotEmpty) {
-        if (kDebugMode) {}
         return false;
       }
     }
@@ -377,7 +376,6 @@ class UserTagRelationNotifier extends _$UserTagRelationNotifier {
     for (final tagName in plan.toRemove) {
       final tagId = resolvedTagIdByName[tagName];
       if (tagId == null || tagId <= 0) {
-        if (kDebugMode) {}
         return false;
       }
       final removed = await _userTagApi.removeRelation(

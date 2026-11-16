@@ -197,9 +197,7 @@ class E2EEApi extends HttpClient {
     );
   }
 
-  void debugLogUserKeys(List<Map<String, dynamic>> list) {
-    if (kDebugMode) {}
-  }
+  void debugLogUserKeys(List<Map<String, dynamic>> list) {}
 
   /// 获取当前活跃的合规公钥
   ///

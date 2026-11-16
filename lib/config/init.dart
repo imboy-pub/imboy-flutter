@@ -18,9 +18,7 @@ import 'package:imboy/config/const.dart';
 import 'package:imboy/service/encrypter.dart';
 import 'package:imboy/service/migration_service.dart';
 import 'package:imboy/service/websocket_message_queue.dart';
-import 'package:logger/logger.dart';
 import 'package:package_info_plus/package_info_plus.dart';
-import 'package:wakelock_plus/wakelock_plus.dart';
 
 import 'package:imboy/component/extension/device_ext.dart';
 import 'package:imboy/component/extension/imboy_cache_manager.dart';
@@ -68,8 +66,6 @@ part 'service_container.dart';
 
 IMBoyCacheManager cacheManager = IMBoyCacheManager();
 
-var logger = Logger();
-
 /// initConfig 缓存（避免重复请求）
 Map<String, dynamic>? _initConfigCache;
 Completer<Map<String, dynamic>>? _initConfigCompleter;
@@ -107,12 +103,12 @@ Future<void> quitLoginAndNavigateToSignIn({required String source}) async {
 void navigateToSignIn({String source = 'unknown'}) {
   final generation = UserRepoLocal.to.sessionGeneration;
   if (_isAppDisposing) {
-    logger.i('navigateToSignIn skipped (app disposing), source=$source');
+    AppLogger.info('navigateToSignIn skipped (app disposing), source=$source');
     return;
   }
 
   if (_isNavigatingToSignIn) {
-    logger.i('navigateToSignIn skipped (in-flight), source=$source');
+    AppLogger.info('navigateToSignIn skipped (in-flight), source=$source');
     return;
   }
 
@@ -200,11 +196,6 @@ class AppInitializer {
       iPrint('✅ [INIT] Web 平台初始化');
     }
 
-    // 保持屏幕常亮（Web 平台不需要）
-    if (!kIsWeb) {
-      await WakelockPlus.enable();
-    }
-
     // 初始化存储 - 必须在使用前先初始化
     await StorageService.init();
     // Freeze legacy storage evidence before environment setup or any writer.
@@ -248,7 +239,7 @@ class AppInitializer {
         maxAge: Duration(days: 7),
       );
       if (cleaned > 0) {
-        logger.i('Cleaned up $cleaned old migration backups');
+        AppLogger.info('Cleaned up $cleaned old migration backups');
       }
     } on Exception catch (e) {
       AppLogger.warning(
@@ -275,7 +266,7 @@ class AppInitializer {
 
     // 检测环境变化，清除缓存并重新获取配置
     if (previousEnv.isNotEmpty && previousEnv != currentEnv) {
-      logger.i('🔄 Environment changed from $previousEnv to $currentEnv');
+      AppLogger.info('🔄 Environment changed from $previousEnv to $currentEnv');
       // 【关键】清除 initConfig 缓存，强制从新环境获取配置
       clearInitConfigCache();
 
@@ -289,20 +280,20 @@ class AppInitializer {
       await StorageService.to.remove(Keys.effectiveProductExperience);
       await AppFeatureRegistry.clear();
 
-      logger.i(
+      AppLogger.info(
         '🔄 Cleared all cached configurations due to environment change',
       );
 
       // 配置请求依赖 HttpClient，而 HttpClient 在 _initializeCore 的后段
       // 注册。这里仅清理旧缓存，交由 _initializeServices 在 HttpClient
       // 注册后统一拉取，避免环境切换时出现 “Service HttpClient not registered”。
-      logger.i(
+      AppLogger.info(
         '🔄 New environment configuration fetch deferred until HttpClient setup',
       );
     }
 
     await StorageService.to.setString('env', currentEnv);
-    logger.i(
+    AppLogger.info(
       "Running in environment: $currentEnv, Env().apiBaseUrl: ${Env().apiBaseUrl}, wsUrl: ${Env.effectiveWsUrl};",
     );
   }
@@ -380,8 +371,6 @@ class AppInitializer {
       const maxRetries = 3;
       IMBoyHttpResponse? resp1;
       for (int attempt = 1; attempt <= maxRetries; attempt++) {
-        if (kDebugMode) {}
-
         resp1 = await HttpClient.client
             .get(API.initConfig)
             .timeout(
@@ -395,20 +384,15 @@ class AppInitializer {
               },
             );
 
-        if (kDebugMode) {}
-
         if (resp1.ok) break;
 
         if (attempt < maxRetries) {
           final delay = Duration(seconds: 1 << (attempt - 1)); // 1s, 2s, 4s
-          if (kDebugMode) {}
           await Future<dynamic>.delayed(delay);
         }
       }
 
-      if (kDebugMode) {}
       if (!resp1!.ok) {
-        if (kDebugMode) {}
         final error = {
           "error": t.common.initConfigNetworkError(code: resp1.code.toString()),
         };
@@ -497,8 +481,6 @@ class AppInitializer {
       if (wsUrl != null && wsUrl.isNotEmpty == true) {
         await StorageService.to.setString(Keys.wsUrl, wsUrl as String);
         if (kDebugMode) debugPrint('✅ initConfig: Saved ws_url to storage');
-      } else {
-        if (kDebugMode) {}
       }
 
       // null 安全转换：后端 E2EE 改造后 upload_key/upload_scene 可能为空串或缺失，
@@ -590,12 +572,12 @@ class AppInitializer {
     final needFetchConfig =
         strEmpty(Env.apiPublicKey) || _initConfigCache == null;
     if (needFetchConfig) {
-      logger.i(
+      AppLogger.info(
         '🔧 Fetching initConfig (apiPublicKey empty: ${strEmpty(Env.apiPublicKey)}, cache null: ${_initConfigCache == null})',
       );
       await initConfig();
     } else {
-      logger.i('✅ Using cached initConfig (apiPublicKey exists)');
+      AppLogger.info('✅ Using cached initConfig (apiPublicKey exists)');
     }
 
     AppFeatureRegistry.bindScope(
@@ -669,7 +651,9 @@ class AppInitializer {
     String source = 'manual',
   }) async {
     if (_groupSelfHealCompleter != null) {
-      logger.i('Group membership self-heal already running, source=$source');
+      AppLogger.info(
+        'Group membership self-heal already running, source=$source',
+      );
       return _groupSelfHealCompleter!.future;
     }
     _groupSelfHealCompleter = Completer<Map<String, int>>();
@@ -710,7 +694,9 @@ class AppInitializer {
 
     final connectivityResult = await Connectivity().checkConnectivity();
     if (connectivityResult.contains(ConnectivityResult.none)) {
-      logger.i('Group membership self-heal skipped (offline), source=$source');
+      AppLogger.info(
+        'Group membership self-heal skipped (offline), source=$source',
+      );
       return {'skipped': 1, 'errors': 0, 'reason': 0};
     }
 
@@ -719,7 +705,7 @@ class AppInitializer {
         '${Keys.groupMembershipSelfHealPrefix}_${currentEnv}_$uid';
     final lastMark = StorageService.to.getString(markerKey);
     if (!force && lastMark == dayMark) {
-      logger.i(
+      AppLogger.info(
         'Group membership self-heal skipped (already done today), source=$source',
       );
       return {'skipped': 1, 'errors': 0, 'reason': 1};
@@ -744,7 +730,7 @@ class AppInitializer {
       if (errors == 0) {
         await StorageService.to.setString(markerKey, dayMark);
       }
-      logger.i(
+      AppLogger.info(
         'Group membership self-heal done: '
         'groupRows=$groupRows, ownerRows=$ownerRows, joinRows=$joinRows, '
         'managerRows=$managerRows, '
@@ -783,7 +769,7 @@ class AppInitializer {
   }
 
   static Future<void> _onAppResume() async {
-    logger.i("App resumed");
+    AppLogger.info("App resumed");
     unawaited(RuntimeFeatureRecovery.refreshNow());
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
@@ -802,7 +788,7 @@ class AppInitializer {
           // 如果WebSocket连接正常，直接拉取离线消息即可
           final wsService = WebSocketService.to;
           if (wsService.status == SocketStatus.connected) {
-            logger.i('App恢复，WebSocket已连接，拉取离线消息...');
+            AppLogger.info('App恢复，WebSocket已连接，拉取离线消息...');
             // 【关键优化】App恢复时主动拉取离线消息，兜底处理
             await MessageOfflineService.instance.requestPull(
               source: 'AppResume',
@@ -810,11 +796,11 @@ class AppInitializer {
             );
             unawaited(triggerGroupMembershipSelfHeal(source: 'app_resume'));
           } else {
-            logger.i('App恢复，WebSocket未连接(${wsService.status})，主动重连...');
+            AppLogger.info('App恢复，WebSocket未连接(${wsService.status})，主动重连...');
             wsService.openSocket(from: 'AppResume');
           }
         } else {
-          logger.i('WebSocket服务未注册，跳过连接检查');
+          AppLogger.info('WebSocket服务未注册，跳过连接检查');
         }
 
         // 检查是否需要设置密码
@@ -835,7 +821,7 @@ class AppInitializer {
 
   static Future<void> _refreshToken() async {
     try {
-      logger.i('Refreshing expired token');
+      AppLogger.info('Refreshing expired token');
       final refreshToken = await UserRepoLocal.to.refreshToken;
       if (refreshToken != "") {
         await UserApi.to.refreshAccessTokenApi(refreshToken);
@@ -849,14 +835,14 @@ class AppInitializer {
   static Future<void> _onConnectivityChanged(
     List<ConnectivityResult> results,
   ) async {
-    logger.i("Connectivity changed: $results");
+    AppLogger.info("Connectivity changed: $results");
     if (!results.contains(ConnectivityResult.none)) {
       unawaited(RuntimeFeatureRecovery.refreshNow());
     }
 
     // 检查WebSocket服务是否已注册
     if (!serviceContainer.isRegistered<WebSocketService>()) {
-      logger.i('WebSocket服务未注册，跳过连接状态处理');
+      AppLogger.info('WebSocket服务未注册，跳过连接状态处理');
       return;
     }
 
@@ -880,7 +866,7 @@ class AppInitializer {
 
   /// 释放资源（在应用退出或重新初始化前调用）
   static Future<void> dispose() async {
-    logger.i('Disposing AppInitializer resources...');
+    AppLogger.info('Disposing AppInitializer resources...');
     _isAppDisposing = true;
     RuntimeFeatureRecovery.dispose();
     await GroupAvatarMemberCache.instance.suspendAndDrain();
@@ -924,7 +910,7 @@ class AppInitializer {
     // 清理 initConfig 缓存
     clearInitConfigCache();
 
-    logger.i('AppInitializer dispose completed');
+    AppLogger.info('AppInitializer dispose completed');
   }
 
   /// 重置初始化状态（用于测试或重新初始化）
@@ -932,6 +918,6 @@ class AppInitializer {
     _initialized = false;
     _isAppDisposing = false;
     serviceContainer.clear();
-    logger.i('AppInitializer reset completed');
+    AppLogger.info('AppInitializer reset completed');
   }
 }
