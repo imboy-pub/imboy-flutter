@@ -209,11 +209,15 @@ class MessageRepo implements MessageRepository {
     bool outbound = false,
     bool attachmentCommit = false,
   }) async {
-    if (outbound && txn == null) {
+    if (txn == null) {
       if (attachmentCommit) {
         throw StateError('attachment commit requires transaction');
       }
-      return _db.transaction((tx) => insert(msg, txn: tx, outbound: true));
+      final result = await _db.transaction(
+        (tx) => insert(msg, txn: tx, outbound: outbound),
+      );
+      _db.clearQueryCache();
+      return result;
     }
     final session = UserRepoLocal.to;
     final ownerUid = session.currentUid;
@@ -230,7 +234,7 @@ class MessageRepo implements MessageRepository {
     final targetTableName = MessageRepo.getTableName(msgType);
 
     if (outbound && !attachmentCommit) {
-      final active = await txn!.query(
+      final active = await txn.query(
         'attachment_upload_task',
         columns: ['id'],
         where:
@@ -243,23 +247,14 @@ class MessageRepo implements MessageRepository {
       }
     }
 
-    int? count;
-    if (txn != null) {
-      count = await txn
-          .rawQuery(
-            'SELECT COUNT(*) as count FROM $targetTableName WHERE id = ?',
-            [msg.id],
-          )
-          .then((result) => result.first['count'] as int?);
-    } else {
-      count = await _db.count(
-        targetTableName,
-        where: "id=?",
-        whereArgs: [msg.id],
-      );
-    }
+    final count = await txn
+        .rawQuery(
+          'SELECT COUNT(*) as count FROM $targetTableName WHERE id = ?',
+          [msg.id],
+        )
+        .then((result) => result.first['count'] as int?);
     if (count == 0 && outbound) {
-      final tables = await txn!.rawQuery(
+      final tables = await txn.rawQuery(
         "SELECT name FROM sqlite_master WHERE type = 'table' AND name IN (?, ?, ?)",
         ['attachment_send_gate', 'message_send_attempt', 'server_ack_receipt'],
       );
@@ -308,24 +303,26 @@ class MessageRepo implements MessageRepository {
           msg.senderDid!.isNotEmpty) {
         insert[MessageColumns.senderDid] = msg.senderDid;
       }
-      if (kDebugMode) {}
-      if (txn != null) {
-        final insertedId = await txn.insert(targetTableName, insert);
-        if (outbound && targetTableName == MessageRepo.c2sTable) {
-          await txn.execute(
-            'CREATE TABLE IF NOT EXISTS c2s_message_peer '
-            '(user_id TEXT NOT NULL, message_id TEXT NOT NULL, auto_id INTEGER NOT NULL, peer TEXT NOT NULL, '
-            'PRIMARY KEY(user_id, message_id))',
-          );
-          await txn.insert('c2s_message_peer', {
-            'user_id': msg.fromId,
-            'message_id': msg.id,
-            'auto_id': insertedId,
-            'peer': msg.toId,
-          });
-        }
-      } else {
-        await _db.insert(targetTableName, insert);
+      // Inbound redelivery must never REPLACE an existing row or its metadata.
+      final insertedId = await txn.insert(
+        targetTableName,
+        insert,
+        conflictAlgorithm: outbound
+            ? ConflictAlgorithm.abort
+            : ConflictAlgorithm.ignore,
+      );
+      if (outbound && targetTableName == MessageRepo.c2sTable) {
+        await txn.execute(
+          'CREATE TABLE IF NOT EXISTS c2s_message_peer '
+          '(user_id TEXT NOT NULL, message_id TEXT NOT NULL, auto_id INTEGER NOT NULL, peer TEXT NOT NULL, '
+          'PRIMARY KEY(user_id, message_id))',
+        );
+        await txn.insert('c2s_message_peer', {
+          'user_id': msg.fromId,
+          'message_id': msg.id,
+          'auto_id': insertedId,
+          'peer': msg.toId,
+        });
       }
 
       if (session.currentUid == ownerUid &&
@@ -333,8 +330,6 @@ class MessageRepo implements MessageRepository {
           !session.isClearingSession) {
         _scheduleFtsReindex(msg.id, targetTableName);
       }
-    } else {
-      if (kDebugMode) {}
     }
     return msg;
   }
@@ -446,49 +441,10 @@ class MessageRepo implements MessageRepository {
     }
   }
 
-  /// 按消息行**旧值**清掉既有 FTS 索引行（必须在行删除之前调用）。
-  ///
-  /// v37 基线的 FTS5 表是 contentless：优先按 rowid 直接 DELETE（常规
-  /// FTS5 表命中即删）；contentless 表 DELETE 命中行会抛错，此时回退为
-  /// `'delete'` 命令并从消息行读取原 payload/msg_type/status（与 v38
-  /// 触发器同源表达式，见 [ftsTextContentSql]）。全部为 best-effort：
-  /// 失败仅记录，不阻断主写入。
-  Future<void> _ftsRemoveStaleIndexEntry(String msgId) async {
-    final ftsTable = '${tableName}_fts';
-    const guard = messageFtsRepositoryMaintenanceGuardSql;
-    try {
-      final db = await _db.db;
-      if (db == null) return;
-      try {
-        await db.rawUpdate(
-          'DELETE FROM $ftsTable '
-          'WHERE rowid = (SELECT ${MessageRepo.autoId} FROM $tableName '
-          'WHERE ${MessageRepo.id} = ?) AND $guard',
-          [msgId],
-        );
-        return;
-      } on Object {
-        // contentless 表命中已有行时 DELETE 会抛错 → 回退 'delete' 命令。
-      }
-      await db.rawUpdate(
-        "INSERT INTO $ftsTable($ftsTable, rowid, id, conversation_uk3, text_content) "
-        "SELECT 'delete', ${MessageRepo.autoId}, ${MessageRepo.id}, "
-        '${MessageRepo.conversationUk3}, ${ftsTextContentSql('')} '
-        'FROM $tableName WHERE ${MessageRepo.id} = ? AND $guard',
-        [msgId],
-      );
-    } on Object catch (e) {
-      AppLogger.error(
-        '[message_repo_sqlite] FTS stale entry cleanup failed: '
-        'errType=${e.runtimeType}',
-      );
-    }
-  }
-
   /// 按 WHERE 范围批量清掉 FTS 索引行（必须在消息行删除**之前**调用，
   /// 'delete' 命令需要从行内读取建索引时的原值）。
   ///
-  /// 与 [_ftsRemoveStaleIndexEntry] 同构的双分支 best-effort：
+  /// 清理采用双分支 best-effort（单条与批量删除共用）：
   /// 优先按 rowid 集合直接 DELETE（常规 FTS5 表命中即删）；contentless
   /// 表命中已有行会抛错，此时回退为单条批量 `'delete'` 命令，从消息行
   /// 读取原 payload/msg_type/status（与 v38 删除触发器同源表达式，见
@@ -498,12 +454,13 @@ class MessageRepo implements MessageRepository {
   /// 失败仅记录，不阻断主删除。
   Future<void> _ftsRemoveStaleIndexRange(
     String where,
-    List<Object?> whereArgs,
-  ) async {
+    List<Object?> whereArgs, {
+    Transaction? txn,
+  }) async {
     final ftsTable = '${tableName}_fts';
     const guard = messageFtsRepositoryMaintenanceGuardSql;
     try {
-      final db = await _db.db;
+      final DatabaseExecutor? db = txn ?? await _db.db;
       if (db == null) return;
       try {
         await db.rawUpdate(
@@ -826,24 +783,18 @@ class MessageRepo implements MessageRepository {
 
   // 根据ID删除信息
   @override
-  Future<int> delete(String id) async {
-    // 清索引 + 删行整体置于重索引锁内，与 _reindexFts 延迟任务互斥，
-    // 消除两个方向的窄竞态：①「入库→延迟索引」窗口内被（阅后即焚）删除，
-    // 任务随后把已删消息写回索引；②清理完成后、删行前，任务按旧行回写。
-    return _ftsReindexLock.synchronized(() async {
-      // 行删除**之前**清 FTS 索引：contentless 索引无法事后回查列值，
-      // 'delete' 命令依赖行内旧 payload/msg_type/status 原值（见 v38 同源
-      // 表达式）。best-effort，失败不阻断删除。
-      if (tableName == MessageRepo.c2cTable ||
-          tableName == MessageRepo.c2gTable) {
-        await _ftsRemoveStaleIndexEntry(id);
-      }
-      return _db.delete(
-        tableName,
-        where: '${MessageRepo.id} = ?',
-        whereArgs: [id],
-      );
-    });
+  Future<int> delete(String id, {Transaction? txn}) async {
+    if (txn == null) return runInFtsTransaction((tx) => delete(id, txn: tx));
+    // A supplied transaction must already hold the FTS lock, as above.
+    if (tableName == MessageRepo.c2cTable ||
+        tableName == MessageRepo.c2gTable) {
+      await _ftsRemoveStaleIndexRange('${MessageRepo.id} = ?', [id], txn: txn);
+    }
+    return txn.delete(
+      tableName,
+      where: '${MessageRepo.id} = ?',
+      whereArgs: [id],
+    );
   }
 
   // 根据UID删除信息
@@ -871,12 +822,24 @@ class MessageRepo implements MessageRepository {
   /// 批量更新消息状态
   /// Batch update message status.
   @override
-  Future<int> batchUpdateStatus(List<String> messageIds, int status) async {
+  Future<int> batchUpdateStatus(
+    List<String> messageIds,
+    int status, {
+    Transaction? txn,
+  }) async {
     if (messageIds.isEmpty) return 0;
 
     final placeholders = messageIds.map((_) => '?').join(',');
     final whereClause = '${MessageRepo.id} IN ($placeholders)';
 
+    if (txn != null) {
+      return txn.update(
+        tableName,
+        {MessageRepo.status: status},
+        where: whereClause,
+        whereArgs: messageIds,
+      );
+    }
     return await _db.update(
       tableName,
       {MessageRepo.status: status},
@@ -885,17 +848,31 @@ class MessageRepo implements MessageRepository {
     );
   }
 
+  Future<List<MessageModel>> findByIds(List<String> ids, {Transaction? txn}) =>
+      _reader.findByIds(ids, txn: txn);
+
+  /// Acquire the FTS lock before opening SQL, so a delayed index writer cannot
+  /// resurrect deleted rows or wait on a transaction that is waiting on it.
+  static Future<T> runInFtsTransaction<T>(
+    Future<T> Function(Transaction) action,
+  ) => _ftsReindexLock.synchronized(() async {
+    final result = await SqliteService.to.transaction(action);
+    SqliteService.to.clearQueryCache();
+    return result;
+  });
+
+  /// [txn] must belong to [runInFtsTransaction], preserving the lock order.
   @override
-  Future<int> deleteByConversationId(String uk3) async {
-    // 退群清空会话消息：批量清索引 + 置于重索引锁内，理由同 [deleteByUid]。
-    return _ftsReindexLock.synchronized(() async {
-      final where = '${MessageRepo.conversationUk3} = ?';
-      if (tableName == MessageRepo.c2cTable ||
-          tableName == MessageRepo.c2gTable) {
-        await _ftsRemoveStaleIndexRange(where, [uk3]);
-      }
-      return _db.delete(tableName, where: where, whereArgs: [uk3]);
-    });
+  Future<int> deleteByConversationId(String uk3, {Transaction? txn}) async {
+    if (txn == null) {
+      return runInFtsTransaction((tx) => deleteByConversationId(uk3, txn: tx));
+    }
+    final where = '${MessageRepo.conversationUk3} = ?';
+    if (tableName == MessageRepo.c2cTable ||
+        tableName == MessageRepo.c2gTable) {
+      await _ftsRemoveStaleIndexRange(where, [uk3], txn: txn);
+    }
+    return txn.delete(tableName, where: where, whereArgs: [uk3]);
   }
 
   @override

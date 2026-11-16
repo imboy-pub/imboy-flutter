@@ -184,8 +184,22 @@ class DatabaseSnapshotService {
 
     try {
       await Directory(dir).create(recursive: true);
+      // Reserve a slot before allocating another full database copy. Failed
+      // migrations retry this path too; post-success cleanup alone is unbounded.
+      await cleanup(
+        base: base,
+        env: env,
+        uid: uid,
+        keepCount: defaultKeepCount - 1,
+      );
+      final retained = await listSnapshots(base: base, env: env, uid: uid);
+      if (retained.length >= defaultKeepCount) {
+        return SnapshotResult.failure(
+          'cannot enforce snapshot retention before copy',
+        );
+      }
     } catch (e) {
-      return SnapshotResult.failure('cannot create snapshot dir: $e');
+      return SnapshotResult.failure('cannot prepare snapshot dir: $e');
     }
 
     // 1) 清掉历史中断残留的 .tmp（VACUUM INTO 要求目标不存在），
@@ -414,7 +428,21 @@ class DatabaseSnapshotService {
     await for (final e in dir.list()) {
       if (e is File && e.path.endsWith('.db')) files.add(e);
     }
-    files.sort((a, b) => b.path.compareTo(a.path)); // 时间戳在名中，字典序≈时间序
+    // Version prefixes are not chronological (v9 > v39 lexically, and a
+    // downgrade may produce a newer lower-version snapshot). Parse creation
+    // time; use mtime only for legacy names and path as a stable tie-breaker.
+    final createdAt = <String, int>{};
+    for (final file in files) {
+      final match = RegExp(r'^snapshot_v(?:\d+|x)_(\d+)\.db$')
+          .firstMatch(p.basename(file.path));
+      createdAt[file.path] =
+          int.tryParse(match?.group(1) ?? '') ??
+          (await file.stat()).modified.millisecondsSinceEpoch;
+    }
+    files.sort((a, b) {
+      final byTime = createdAt[b.path]!.compareTo(createdAt[a.path]!);
+      return byTime != 0 ? byTime : b.path.compareTo(a.path);
+    });
     return files;
   }
 

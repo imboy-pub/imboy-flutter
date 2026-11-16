@@ -2,10 +2,10 @@ import 'dart:convert';
 
 import 'package:flutter/foundation.dart' show visibleForTesting;
 
-import 'package:flutter_chat_core/flutter_chat_core.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/service/message.dart';
 import 'package:imboy/service/message_type_constants.dart';
+import 'package:imboy/service/message_preview_text.dart';
 import 'package:imboy/service/sqlite.dart';
 import 'package:xid/xid.dart';
 
@@ -222,37 +222,8 @@ class MessageActions {
     }
   }
 
-  Future<void> _updateReadMessages(MessageRepo repo, List<String> ids) async {
-    final session = UserRepoLocal.to;
-    final uid = session.currentUid;
-    final generation = session.sessionGeneration;
-    void requireCurrent() {
-      if (uid.isEmpty ||
-          session.currentUid != uid ||
-          !session.isCurrentSession(generation) ||
-          session.isClearingSession) {
-        throw StateError('read action session changed');
-      }
-    }
-
-    requireCurrent();
-    final updated = <Message>[];
-    for (final id in ids) {
-      requireCurrent();
-      final message = await MessageService.to.updateStatus(
-        repo,
-        id,
-        IMBoyMessageStatus.seen,
-      );
-      requireCurrent();
-      if (message == null) throw StateError('read target update failed');
-      final converted = await message.toTypeMessage();
-      requireCurrent();
-      updated.add(converted);
-    }
-    requireCurrent();
-    if (updated.isNotEmpty) AppEventBus.fireData(updated);
-  }
+  Future<void> _updateReadMessages(MessageRepo repo, List<String> ids) =>
+      MessageService.to.updateReadMessages(repo, ids);
 
   Future<void> _handleReactionAction(Map<String, dynamic> data) async {
     final session = UserRepoLocal.to;
@@ -1283,228 +1254,219 @@ class MessageActions {
     }
   }
 
-  /// 处理 C2C 消息删除（双方）
-  ///
-  /// 用于：
-  /// - MessageS2CService._handleC2CDelEveryone
+  /// Delete the persisted C2C row before notifying an optional chat page.
   static Future<void> handleC2CDeleteMessage({
     required String oldMsgId,
     required String from,
     required String to,
   }) async {
-    try {
-      final currentUid = UserRepoLocal.to.currentUid;
-      final peerId = currentUid == from ? to : from;
-
-      // 静态方法中创建新的仓库实例
-      final conversationRepo = ConversationRepo();
-      final conversation = await conversationRepo.findByPeerId('C2C', peerId);
-      final messageRepo = MessageRepo(tableName: MessageRepo.c2cTable);
-      final oldMsg = await messageRepo.find(oldMsgId);
-
-      iPrint(
-        '🗑️ C2C 删除检查: conversation=${conversation != null}, oldMsg=${oldMsg != null}',
-      );
-
-      if (conversation == null || oldMsg == null) {
-        return;
-      }
-
-      final msg = await oldMsg.toTypeMessage();
-      // 发布删除消息事件，由聊天界面订阅处理
-      AppEventBus.fire(
-        ChatExtendEvent(
-          type: 'delete_msg',
-          payload: {'conversation': conversation, 'msg': msg},
-        ),
-      );
-    } on Object catch (e, s) {
-      iPrint('❌ [handleC2CDeleteMessage] 处理异常: $e; $s');
+    final uid = UserRepoLocal.to.currentUid;
+    if (uid != from && uid != to) {
+      throw const FormatException('delete frame has no current participant');
     }
+    await _deleteMessageForEveryone(
+      oldMsgId: oldMsgId,
+      type: 'C2C',
+      peerId: uid == from ? to : from,
+    );
   }
 
-  /// 处理 C2G 消息删除（所有人）
-  ///
-  /// 用于：
-  /// - MessageS2CService._handleC2GDelEveryone
+  /// Delete the persisted group row even when no chat page is open.
   static Future<void> handleC2GDeleteMessage({
     required String oldMsgId,
     required String groupId,
+  }) => _deleteMessageForEveryone(
+    oldMsgId: oldMsgId,
+    type: 'C2G',
+    peerId: groupId,
+  );
+
+  static Future<void> _deleteMessageForEveryone({
+    required String oldMsgId,
+    required String type,
+    required String peerId,
   }) async {
-    try {
-      // 静态方法中创建新的仓库实例
-      final conversationRepo = ConversationRepo();
-      final conversation = await conversationRepo.findByPeerId('C2G', groupId);
-      final messageRepo = MessageRepo(tableName: MessageRepo.c2gTable);
-      final oldMsg = await messageRepo.find(oldMsgId);
-
-      iPrint(
-        '🗑️ C2G 删除检查: conversation=${conversation != null}, oldMsg=${oldMsg != null}',
-      );
-
-      if (conversation == null || oldMsg == null) {
-        return;
+    if (oldMsgId.isEmpty || peerId.isEmpty) {
+      throw const FormatException('delete frame requires message and peer');
+    }
+    final session = UserRepoLocal.to;
+    final uid = session.currentUid;
+    final generation = session.sessionGeneration;
+    void requireCurrent() {
+      if (uid.isEmpty ||
+          session.currentUid != uid ||
+          !session.isCurrentSession(generation) ||
+          session.isAuthTransitioning) {
+        throw StateError('delete action session changed');
       }
+    }
 
-      final msg = await oldMsg.toTypeMessage();
-      // 发布删除消息事件，由聊天界面订阅处理
+    requireCurrent();
+    final repo = MessageRepo(tableName: MessageRepo.getTableName(type));
+    final conversation = await MessageRepo.runInFtsTransaction((txn) async {
+      requireCurrent();
+      final original = await repo.find(oldMsgId, txn: txn);
+      requireCurrent();
+      var conversation = await ConversationRepo().findByPeerId(
+        type,
+        peerId,
+        txn: txn,
+      );
+      requireCurrent();
+      if (original != null) {
+        final originalPeer = type == 'C2G' || original.fromId.toString() == uid
+            ? original.toId.toString()
+            : original.fromId.toString();
+        if (originalPeer != peerId) {
+          throw const FormatException('delete frame conversation mismatch');
+        }
+        final removed = await repo.delete(oldMsgId, txn: txn);
+        requireCurrent();
+        if (removed != 1) throw StateError('delete target not removed');
+      }
+      if (conversation != null && conversation.lastMsgId == oldMsgId) {
+        final previous = await txn.query(
+          repo.tableName,
+          columns: [
+            MessageRepo.id,
+            MessageRepo.createdAt,
+            MessageRepo.msgType,
+            MessageRepo.status,
+            MessageRepo.payload,
+          ],
+          where: '${MessageRepo.conversationUk3} = ?',
+          whereArgs: [conversation.uk3],
+          orderBy: '${MessageRepo.createdAt} DESC, ${MessageRepo.autoId} DESC',
+          limit: 1,
+        );
+        requireCurrent();
+        final row = previous.isEmpty ? null : previous.single;
+        final body = parseModelJsonMap(row?[MessageRepo.payload]) ?? {};
+        // The old head payload contains message text as well as local
+        // preferences. Carry only preferences forward, never deleted content.
+        final payload = <String, dynamic>{
+          ...body,
+          ...ConversationRepo.retainedSettingsPayload(conversation.payload),
+        };
+        final msgType = parseModelString(row?[MessageRepo.msgType]);
+        final status = parseModelInt(row?[MessageRepo.status]);
+        final values = <String, dynamic>{
+          ConversationRepo.lastMsgId: parseModelString(row?[MessageRepo.id]),
+          ConversationRepo.lastTime: parseModelInt(row?[MessageRepo.createdAt]),
+          ConversationRepo.lastMsgStatus: status,
+          ConversationRepo.msgType: msgType,
+          ConversationRepo.subtitle: row == null
+              ? ''
+              : messagePreviewText(
+                  IMBoyMessageStatus.isRevokedStatus(status)
+                      ? 'revoked'
+                      : msgType,
+                  body,
+                ),
+          ConversationRepo.payload: jsonEncode(payload),
+        };
+        await ConversationRepo().updateById(conversation.id, values, txn: txn);
+        conversation = await ConversationRepo().findById(
+          conversation.id,
+          txn: txn,
+        );
+        requireCurrent();
+      }
+      return conversation;
+    });
+    requireCurrent();
+    SqliteService.to.clearQueryCache(repo.tableName);
+    // No model conversion/network lookup is needed for a removal. Replays
+    // still notify the page, including when the row was already removed.
+    if (conversation != null) {
+      AppEventBus.fireData(conversation);
       AppEventBus.fire(
         ChatExtendEvent(
           type: 'delete_msg',
-          payload: {'conversation': conversation, 'msg': msg},
+          payload: {'conversation': conversation, 'message_id': oldMsgId},
         ),
       );
-    } on Object catch (e, s) {
-      iPrint('❌ [handleC2GDeleteMessage] 处理异常: $e; $s');
     }
   }
 
-  /// 处理非好友错误
-  ///
-  /// 用于：
-  /// - MessageS2CService._handleNotAFriend
-  ///
-  /// 参数：
-  /// - [msgId]: 消息ID
-  /// - [chatType]: 会话类型 (C2C/C2G)
   static Future<void> handleNotAFriendError({
     required String? msgId,
     required String chatType,
-  }) async {
-    final ownerUid = UserRepoLocal.to.currentUid;
-    final generation = UserRepoLocal.to.sessionGeneration;
-    try {
-      // 1. 打印调试日志
-      iPrint('🚫 [NOT_A_FRIEND] msgId=$msgId, chatType=$chatType');
+  }) => _handleSendRejection(
+    msgId: msgId,
+    reason: 'not_a_friend',
+    errorMessage: t.chat.notFriendCannotSend,
+  );
 
-      // 2. 通过事件总线通知 UI 显示错误提示
-      try {
-        AppEventBus.fire(
-          AppErrorEvent(
-            message: t.chat.notFriendCannotSend,
-            errorType: 'not_a_friend',
-          ),
-        );
-        iPrint('✅ [NOT_A_FRIEND] 已发送错误提示事件');
-      } on Object catch (e) {
-        iPrint('[message_actions] iPrint error: $e');
-      }
-
-      // 3. 更新消息状态为失败
-      // 4. 从重试队列移除
-      if (msgId != null && msgId.isNotEmpty) {
-        try {
-          // 更新消息状态为 error（失败）
-          AppEventBus.fire(
-            MessageStatusUpdateRequestedEvent(
-              messageId: msgId,
-              messageType: chatType,
-              newStatus: 41, // IMBoyMessageStatus.error
-              ownerUid: ownerUid,
-              sessionGeneration: generation,
-              notifyUI: true,
-            ),
-          );
-          iPrint('✅ [NOT_A_FRIEND] 消息状态已更新为 error: msgId=$msgId');
-        } on Object catch (e) {
-          iPrint('[message_actions] iPrint error: $e');
-        }
-
-        try {
-          // 从重试队列移除（不重试）
-          AppEventBus.fire(
-            RemoveFromRetryQueueRequestedEvent(
-              messageId: msgId,
-              messageType: chatType,
-              ownerUid: ownerUid,
-              sessionGeneration: generation,
-              reason: 'not_a_friend',
-            ),
-          );
-          iPrint('🗑️ [NOT_A_FRIEND] 消息已从重试队列移除: msgId=$msgId');
-        } on Object catch (e) {
-          iPrint('[message_actions] iPrint error: $e');
-        }
-      }
-    } on Object catch (e, s) {
-      iPrint('❌ [handleNotAFriendError] 处理异常: error=$e\nstacktrace=$s');
-    }
-  }
-
-  /// 处理黑名单错误（对方将您加入黑名单）
-  ///
-  /// 当服务端返回 `in_denylist` 事件时调用，说明接收方已将发送方加入黑名单。
-  ///
-  /// 处理流程：
-  /// 1. 打印调试日志
-  /// 2. 通过事件总线通知 UI 显示错误提示
-  /// 3. 更新消息状态为失败（status=41）
-  /// 4. 从重试队列移除（停止重试）
-  ///
-  /// 参数：
-  /// - [msgId]: 消息ID
-  /// - [chatType]: 会话类型 (C2C/C2G)
   static Future<void> handleDenylistError({
     required String? msgId,
     required String chatType,
-  }) async {
-    final ownerUid = UserRepoLocal.to.currentUid;
-    final generation = UserRepoLocal.to.sessionGeneration;
-    try {
-      // 1. 打印调试日志
-      iPrint('🚫 [DENYLIST] msgId=$msgId, chatType=$chatType');
+  }) => _handleSendRejection(
+    msgId: msgId,
+    reason: 'in_denylist',
+    errorMessage: t.common.chatErrorInDenylist,
+  );
 
-      // 2. 通过事件总线通知 UI 显示错误提示
-      try {
+  /// S2C is the error envelope's type, not the original message's table.
+  /// Persist failure before stopping retries or acknowledging the rejection.
+  static Future<void> _handleSendRejection({
+    required String? msgId,
+    required String reason,
+    required String errorMessage,
+  }) async {
+    final session = UserRepoLocal.to;
+    final uid = session.currentUid;
+    final generation = session.sessionGeneration;
+    void requireCurrent() {
+      if (uid.isEmpty ||
+          session.currentUid != uid ||
+          !session.isCurrentSession(generation) ||
+          session.isAuthTransitioning) {
+        throw StateError('send rejection session changed');
+      }
+    }
+
+    requireCurrent();
+    if (msgId != null && msgId.isNotEmpty) {
+      final database = await SqliteService.to.db;
+      requireCurrent();
+      if (database == null) throw StateError('rejection database unavailable');
+      for (final type in ['C2C', 'C2G', 'C2S']) {
+        final repo = MessageRepo(tableName: MessageRepo.getTableName(type));
+        final original = await repo.find(msgId);
+        requireCurrent();
+        if (original == null) continue;
+        if (original.fromId.toString() != uid) {
+          throw const FormatException('rejected message belongs to a peer');
+        }
+        final updated = await MessageService.to.updateStatus(
+          repo,
+          msgId,
+          IMBoyMessageStatus.error,
+        );
+        requireCurrent();
+        if (updated == null) throw StateError('rejected message not updated');
         AppEventBus.fire(
-          AppErrorEvent(
-            message: t.common.chatErrorInDenylist,
-            errorType: 'in_denylist',
+          RemoveFromRetryQueueRequestedEvent(
+            messageId: msgId,
+            messageType: type,
+            ownerUid: uid,
+            sessionGeneration: generation,
+            reason: reason,
           ),
         );
-        iPrint('✅ [DENYLIST] 已发送错误提示事件');
-      } on Object catch (e) {
-        iPrint('[message_actions] iPrint error: $e');
-      }
-
-      // 3. 更新消息状态为失败
-      // 4. 从重试队列移除
-      if (msgId != null && msgId.isNotEmpty) {
         try {
-          // 更新消息状态为 error（失败）
-          AppEventBus.fire(
-            MessageStatusUpdateRequestedEvent(
-              messageId: msgId,
-              messageType: chatType,
-              newStatus: 41, // IMBoyMessageStatus.error
-              ownerUid: ownerUid,
-              sessionGeneration: generation,
-              notifyUI: true,
-            ),
-          );
-          iPrint('✅ [DENYLIST] 消息状态已更新为 error: msgId=$msgId');
-        } on Object catch (e) {
-          iPrint('[message_actions] iPrint error: $e');
+          final message = await updated.toTypeMessage();
+          requireCurrent();
+          AppEventBus.fireData([message], 'List<Message>');
+        } on Object catch (error) {
+          requireCurrent();
+          iPrint('send rejection UI update failed: ${error.runtimeType}');
         }
-
-        try {
-          // 从重试队列移除（不重试）
-          AppEventBus.fire(
-            RemoveFromRetryQueueRequestedEvent(
-              messageId: msgId,
-              messageType: chatType,
-              ownerUid: ownerUid,
-              sessionGeneration: generation,
-              reason: 'in_denylist',
-            ),
-          );
-          iPrint('🗑️ [DENYLIST] 消息已从重试队列移除: msgId=$msgId');
-        } on Object catch (e) {
-          iPrint('[message_actions] iPrint error: $e');
-        }
+        break;
       }
-    } on Object catch (e, s) {
-      iPrint('❌ [handleDenylistError] 处理异常: error=$e\nstacktrace=$s');
     }
+    requireCurrent();
+    AppEventBus.fire(AppErrorEvent(message: errorMessage, errorType: reason));
   }
 }

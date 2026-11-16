@@ -5,6 +5,7 @@ import 'package:imboy/service/message_retry.dart';
 import 'package:imboy/service/sqlite.dart';
 import 'package:imboy/store/model/conversation_model.dart';
 import 'package:imboy/store/model/channel_decimal_id.dart';
+import 'package:imboy/store/model/model_parse_utils.dart';
 import 'package:imboy/store/repository/message_repo_sqlite.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:sqflite_sqlcipher/sqflite.dart';
@@ -42,6 +43,29 @@ class ConversationRepo {
   static String isShow = "is_show";
 
   final SqliteService _db = SqliteService.to;
+
+  /// Keep conversation settings when removing its last message payload.
+  /// Message text, system previews and the authoritative head must not survive.
+  static Map<String, dynamic> retainedSettingsPayload(
+    Map<String, dynamic>? previous,
+  ) {
+    final retained = <String, dynamic>{
+      for (final key in const [
+        'last_read_auto_id',
+        'is_pinned',
+        'burn_enabled',
+        'burn_after_ms',
+        'member_generation_id',
+      ])
+        if (previous?.containsKey(key) ?? false) key: previous![key],
+    };
+    final authoritative = parseModelJsonMap(previous?['authoritative']);
+    if (authoritative != null) {
+      retained['authoritative'] = Map<String, dynamic>.from(authoritative)
+        ..remove('last_msg');
+    }
+    return retained;
+  }
 
   Future<bool> hideForAccount({
     required String account,
@@ -172,7 +196,11 @@ class ConversationRepo {
     if (txn != null) {
       return await txn.insert(ConversationRepo.tableName, insert);
     } else {
-      return await _db.insert(ConversationRepo.tableName, insert);
+      final inserted = await _db.transaction(
+        (tx) => tx.insert(ConversationRepo.tableName, insert),
+      );
+      _db.clearQueryCache(ConversationRepo.tableName);
+      return inserted;
     }
   }
 
@@ -244,6 +272,13 @@ class ConversationRepo {
     Transaction? txn,
     bool autoIncrement = true,
   }) async {
+    if (txn == null) {
+      final saved = await _db.transaction(
+        (tx) => save(obj, txn: tx, autoIncrement: autoIncrement),
+      );
+      _db.clearQueryCache(ConversationRepo.tableName);
+      return saved;
+    }
     iPrint('ConversationRepo_save type=${obj.type} lastMsgId=${obj.lastMsgId}');
     final ConversationModel? oldObj = await findByPeerId(
       obj.type,
@@ -257,6 +292,9 @@ class ConversationRepo {
       initial.id = await insert(initial, txn: txn);
       return initial;
     }
+    // Late delivery still contributes unread counts, but cannot replace a
+    // newer preview. The lookup and update share the same transaction.
+    final advanceHead = obj.lastTime >= oldObj.lastTime;
     // 存在旧会话，合并更新
     // 核心安全点 [C1]：未读计数和艾特计数走 SQL-level 自增相加，由 SQLite 在事务锁线程中原子计算，绝不在 Dart 内存中进行绝对值覆写！
     //
@@ -270,13 +308,15 @@ class ConversationRepo {
         '${ConversationRepo.title} = ?',
       if (oldObj.avatar.isEmpty && obj.avatar.isNotEmpty)
         '${ConversationRepo.avatar} = ?',
-      '${ConversationRepo.subtitle} = ?',
-      '${ConversationRepo.lastTime} = ?',
-      '${ConversationRepo.lastMsgId} = ?',
-      '${ConversationRepo.lastMsgStatus} = ?',
-      '${ConversationRepo.msgType} = ?',
+      if (advanceHead) ...[
+        '${ConversationRepo.subtitle} = ?',
+        '${ConversationRepo.lastTime} = ?',
+        '${ConversationRepo.lastMsgId} = ?',
+        '${ConversationRepo.lastMsgStatus} = ?',
+        '${ConversationRepo.msgType} = ?',
+        '${ConversationRepo.payload} = ?',
+      ],
       '${ConversationRepo.isShow} = 1',
-      '${ConversationRepo.payload} = ?',
       if (autoIncrement) ...[
         '${ConversationRepo.unreadNum} = ${ConversationRepo.unreadNum} + ?',
         '${ConversationRepo.mentionUnread} = ${ConversationRepo.mentionUnread} + ?',
@@ -287,12 +327,14 @@ class ConversationRepo {
     final args = <dynamic>[
       if (oldObj.title.isEmpty && obj.title.isNotEmpty) obj.title,
       if (oldObj.avatar.isEmpty && obj.avatar.isNotEmpty) obj.avatar,
-      obj.subtitle,
-      obj.lastTime,
-      obj.lastMsgId,
-      obj.lastMsgStatus,
-      obj.msgType,
-      jsonEncode(obj.payload),
+      if (advanceHead) ...[
+        obj.subtitle,
+        obj.lastTime,
+        obj.lastMsgId,
+        obj.lastMsgStatus,
+        obj.msgType,
+        jsonEncode(obj.payload),
+      ],
       if (autoIncrement) ...[
         obj.unreadNum, // 增量值
         obj.mentionUnread, // 艾特增量值
@@ -300,13 +342,7 @@ class ConversationRepo {
       oldObj.id,
     ];
 
-    if (txn != null) {
-      await txn.rawUpdate(sql, args);
-    } else {
-      await _db.transaction((t) async {
-        await t.rawUpdate(sql, args);
-      });
-    }
+    await txn.rawUpdate(sql, args);
     return (await findByPeerId(obj.type, obj.peerId.toString(), txn: txn))!;
   }
 
@@ -594,8 +630,13 @@ class ConversationRepo {
   }
 
   /// 从重试队列中清除指定消息列表
-  void _cleanupRetryQueue(List<String> msgIds, String uk3) {
-    if (msgIds.isEmpty) return;
+  void _cleanupRetryQueue(List<String> msgIds, String uk3, int generation) {
+    final session = UserRepoLocal.to;
+    if (msgIds.isEmpty ||
+        !session.isCurrentSession(generation) ||
+        session.isAuthTransitioning) {
+      return;
+    }
     for (final msgId in msgIds) {
       try {
         MessageRetry.instance.removeFromRetryQueue(msgId);
@@ -633,18 +674,17 @@ class ConversationRepo {
   ///
   /// 使用事务确保原子性：要么全部成功，要么全部回滚
   Future<ConversationModel?> clearMessages(ConversationModel model) async {
-    return await _db.transaction((txn) async {
+    final generation = UserRepoLocal.to.sessionGeneration;
+    var msgIds = <String>[];
+    final cleared = await MessageRepo.runInFtsTransaction((txn) async {
       final tableName = MessageRepo.getTableName(model.type);
+      final current = await findById(model.id, txn: txn);
 
       // v16: id 列从 TEXT 迁移到 INTEGER，toString() 兼容两种返回
-      final msgIds = await _queryMessageIds(txn, tableName, model.uk3);
-      _cleanupRetryQueue(msgIds, model.uk3);
+      msgIds = await _queryMessageIds(txn, tableName, model.uk3);
 
-      final deletedCount = await txn.delete(
-        tableName,
-        where: '${MessageRepo.conversationUk3} = ?',
-        whereArgs: [model.uk3],
-      );
+      final deletedCount = await MessageRepo(tableName: tableName)
+          .deleteByConversationId(model.uk3, txn: txn);
 
       // 清空 last_msg 相关字段（避免会话飘到顶部）
       await txn.update(
@@ -655,39 +695,20 @@ class ConversationRepo {
           ConversationRepo.lastMsgStatus: 0,
           ConversationRepo.subtitle: '',
           ConversationRepo.msgType: '',
+          ConversationRepo.payload: jsonEncode(
+            retainedSettingsPayload(current?.payload),
+          ),
         },
         where: '${ConversationRepo.id} = ?',
         whereArgs: [model.id],
       );
       iPrint('清空聊天记录: conversationUk3=${model.uk3}, 删除消息数=$deletedCount');
 
-      final maps = await txn.query(
-        ConversationRepo.tableName,
-        columns: [
-          ConversationRepo.id,
-          ConversationRepo.userId,
-          'CAST(peer_id AS TEXT) AS peer_id',
-          ConversationRepo.avatar,
-          ConversationRepo.title,
-          ConversationRepo.subtitle,
-          ConversationRepo.region,
-          ConversationRepo.sign,
-          ConversationRepo.lastTime,
-          ConversationRepo.lastMsgId,
-          ConversationRepo.lastMsgStatus,
-          ConversationRepo.unreadNum,
-          ConversationRepo.mentionUnread,
-          ConversationRepo.isMuted,
-          ConversationRepo.payload,
-          ConversationRepo.type,
-          ConversationRepo.msgType,
-          ConversationRepo.isShow,
-        ],
-        where: '${ConversationRepo.id} = ?',
-        whereArgs: [model.id],
-      );
-      return maps.isNotEmpty ? ConversationModel.fromJson(maps.first) : null;
+      return findById(model.id, txn: txn);
     });
+    // The in-memory queue cannot roll back with SQLite.
+    _cleanupRetryQueue(msgIds, model.uk3, generation);
+    return cleared;
   }
 
   /// 删除会话及其所有消息（事务保证原子性）
@@ -697,24 +718,22 @@ class ConversationRepo {
   /// 返回删除的消息数量
   ///
   /// 该方法在一个事务中完成以下操作：
-  /// 1. 查询并清理该会话所有消息的重试队列
+  /// 1. 查询该会话所有消息 ID，提交成功后清理重试队列
   /// 2. 删除该会话的所有消息
   /// 3. 删除会话记录本身
   ///
   /// 使用事务确保原子性：要么全部成功，要么全部回滚
   Future<int> deleteConversation(ConversationModel model) async {
-    return await _db.transaction((txn) async {
+    final generation = UserRepoLocal.to.sessionGeneration;
+    var msgIds = <String>[];
+    final deleted = await MessageRepo.runInFtsTransaction((txn) async {
       final tableName = MessageRepo.getTableName(model.type);
 
       // v16: id 列从 TEXT 迁移到 INTEGER，toString() 兼容两种返回
-      final msgIds = await _queryMessageIds(txn, tableName, model.uk3);
-      _cleanupRetryQueue(msgIds, model.uk3);
+      msgIds = await _queryMessageIds(txn, tableName, model.uk3);
 
-      final deletedCount = await txn.delete(
-        tableName,
-        where: '${MessageRepo.conversationUk3} = ?',
-        whereArgs: [model.uk3],
-      );
+      final deletedCount = await MessageRepo(tableName: tableName)
+          .deleteByConversationId(model.uk3, txn: txn);
 
       await txn.delete(
         ConversationRepo.tableName,
@@ -725,6 +744,8 @@ class ConversationRepo {
 
       return deletedCount;
     });
+    _cleanupRetryQueue(msgIds, model.uk3, generation);
+    return deleted;
   }
 
   // 记得及时关闭数据库，防止内存泄漏

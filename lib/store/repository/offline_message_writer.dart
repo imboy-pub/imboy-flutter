@@ -29,6 +29,7 @@ import 'package:imboy/service/app_logger.dart';
 import 'package:imboy/store/repository/message_repo_types.dart';
 
 part 'offline_message_preview.dart';
+part 'offline_message_replay.dart';
 
 /// 离线批量写入：消息/会话事务提交、重投快照恢复与提交后通知。
 class OfflineMessageWriter {
@@ -377,13 +378,12 @@ class OfflineMessageWriter {
         if (onS2CMessage == null) {
           throw StateError('offline S2C messages require a handler');
         }
-        func_helper.iPrint("开始处理 ${s2cMessages.length} 条 S2C 消息");
-        for (final msgData in s2cMessages) {
-          requireCurrent();
-          await onS2CMessage(msgData);
-          requireCurrent();
-          addAckId((msgData['msg_id'] ?? msgData['id']).toString());
-        }
+        await _replayOfflineControlMessages(
+          s2cMessages,
+          onS2CMessage,
+          requireCurrent,
+          addAckId,
+        );
       }
     } on Object catch (e, s) {
       func_helper.iPrint('批量插入离线消息失败: ${e.runtimeType}');

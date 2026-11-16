@@ -107,17 +107,19 @@ class DatabaseMigrationOrchestrator {
       );
     }
 
-    // 预检：独立连接只读检查（不在任何迁移事务中）
+    // 同版本只探测可读性、版本和关键结构；全库完整性检查限定在迁移前后。
+    // Same-version opens retain the schema gate without scanning message pages.
     final preflight = await _preflight(
       dbPath: dbPath,
       password: password,
       opener: open,
+      targetVersion: targetVersion,
     );
     if (preflight == null) {
       return const PreMigrationDecision._(
         proceed: false,
         abortReason:
-            'preflight failed: quick_check/foreign_key_check not ok '
+            'preflight failed: schema/quick_check/foreign_key_check not ok '
             'or database unreadable (corrupt / wrong key)',
       );
     }
@@ -278,18 +280,28 @@ class DatabaseMigrationOrchestrator {
     required String dbPath,
     String? password,
     required DatabaseOpener opener,
+    required int targetVersion,
   }) async {
     sq.Database? db;
     var transferOwnership = false;
     try {
       db = await opener(dbPath, password);
-      final quick = await db.rawQuery('PRAGMA quick_check');
-      if (quick.first.values.first != 'ok') {
-        return null;
-      }
-      final fk = await db.rawQuery('PRAGMA foreign_key_check');
-      if (fk.isNotEmpty) {
-        return null;
+      final version =
+          (await db.rawQuery('PRAGMA user_version')).first.values.first as int;
+      if (version == targetVersion) {
+        // This inspects sqlite_master/table_info only. A matching version is
+        // insufficient if a required table or column is missing.
+        if ((await SchemaContract.verifyInvariants(
+          db,
+          version: version,
+        )).isNotEmpty) {
+          return null;
+        }
+      } else {
+        final quick = await db.rawQuery('PRAGMA quick_check');
+        if (quick.first.values.first != 'ok') return null;
+        final fk = await db.rawQuery('PRAGMA foreign_key_check');
+        if (fk.isNotEmpty) return null;
       }
       transferOwnership = true;
       return db;
