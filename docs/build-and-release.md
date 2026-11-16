@@ -1,7 +1,7 @@
 # 构建 / 发布（Build & Release）
 
 > **最后更新 / Last updated**: 2026-11-16
-> **真源 / Source of truth**: `scripts/build_play_aab.sh` · `scripts/check_play_release.sh` · `scripts/verify_web_shell.sh` · `scripts/build_android_apk.sh` · `android/app/build.gradle.kts` · `.github/workflows/ci.yml`
+> **真源 / Source of truth**: `scripts/build_play_aab.sh` · `scripts/check_play_release.sh` · `scripts/verify_web_shell.sh` · `scripts/build_android_apk.sh` · `android/app/build.gradle.kts` · `android/settings.gradle.kts` · `.github/workflows/ci.yml`
 > 本文由脚本内容提取生成；脚本改动后须同步本页。
 
 ## Android
@@ -14,15 +14,17 @@ file. Recheck these rules when upgrading Tobias; keep AGP validation enabled.
 
 ### 构建用 JDK / Build JDK
 
-GitHub Actions 使用 Temurin JDK 21 运行 Android 的 Gradle/Lint 构建。
-当前 AGP 9.3.1 所带的 Lint 在 JDK 17 下会触发 `List.removeLast()` 的
-`NoSuchMethodError`（[官方问题 #522845800](https://developer.android.com/build/releases/agp-9-3-0-release-notes)）。
-本地复现 CI 构建时也使用 JDK 21。应用的 Java source/target compatibility
-与 Kotlin JVM target 仍为 17；Lint 检查保持启用。
+GitHub Actions 使用 Temurin JDK 17 运行 Android 的 Gradle/Lint 构建。
+AGP 固定为 9.3.2，该补丁修复 9.3.1 所带 Lint 在 JDK 17 下的
+`List.removeLast()` 崩溃（[官方问题 #522845800](https://developer.android.com/build/releases/agp-9-3-0-release-notes)）。
+本地复现 CI 构建时也使用 JDK 17：`ic_storage_space` 未显式设置
+Kotlin JVM target，切换 JDK 21 会使其与 Java target 17 不一致。
+应用 Java/Kotlin target 17、Gradle 9.5.0、Kotlin 2.4.20 与 Lint 检查保持。
 
-GitHub Actions runs Gradle and Android Lint on Temurin JDK 21 to avoid the
-AGP 9.3.1 bundled-lint crash on JDK 17. Use JDK 21 when reproducing CI locally;
-the application's Java/Kotlin targets remain 17 and lint checks stay enabled.
+GitHub Actions runs Gradle and Android Lint on Temurin JDK 17 with AGP 9.3.2,
+which fixes the bundled-lint crash on JDK 17. Use JDK 17 locally as well:
+ic_storage_space inherits its Kotlin JVM target from the JDK.
+Keep application targets at 17, Gradle 9.5.0, Kotlin 2.4.20, and lint enabled.
 
 ### Maven 仓库选择
 
