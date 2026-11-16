@@ -296,13 +296,14 @@ raise SystemExit(code)
             project = Path(directory)
             scripts = project / '.github/scripts'
             scripts.mkdir(parents=True)
-            shutil.copyfile(ROOT / '.github/scripts/ci_prepare_chrome.sh', scripts / 'ci_prepare_chrome.sh')
+            for name in ('ci_prepare_chrome.sh', 'ci_retry_build_downloads.sh'):
+                shutil.copyfile(ROOT / '.github/scripts' / name, scripts / name)
             for name, label in (('ci_patch_path_deps.sh', 'path-deps'),
                                 ('ci_gen_env.sh', 'env'), ('ci_build_vod.sh', 'vod')):
                 (scripts / name).write_text('#!/bin/sh\nprintf "' + label + ' %s\\n" "$*" >> "$CI_FIXTURE_CALLS"\n')
             binaries = project / 'installed browsers'
             binaries.mkdir()
-            for name in ('bash', 'mkdir', 'tee'):
+            for name in ('bash', 'mkdir', 'tee', 'mktemp', 'rm'):
                 executable = shutil.which(name)
                 self.assertIsNotNone(executable)
                 (binaries / name).symlink_to(executable)

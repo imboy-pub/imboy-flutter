@@ -122,7 +122,7 @@ jobs:
             python3 -m pip install --disable-pip-version-check --require-hashes --only-binary=:all: -r scripts/requirements-tooling.txt
           fi
           bash .github/scripts/ci_patch_path_deps.sh --check
-          flutter pub get --enforce-lockfile
+          bash .github/scripts/ci_retry_build_downloads.sh flutter pub get --enforce-lockfile
           bash .github/scripts/ci_gen_env.sh
           if [ "$WORKER_PLATFORM" = web ]; then
             mkdir -p "$WORKER_EVIDENCE_DIR"
@@ -397,7 +397,7 @@ jobs:
       - name: Get dependencies
         run: |
           bash .github/scripts/ci_patch_path_deps.sh --check
-          flutter pub get --enforce-lockfile
+          bash .github/scripts/ci_retry_build_downloads.sh flutter pub get --enforce-lockfile
           bash .github/scripts/ci_gen_env.sh
           bash .github/scripts/ci_build_vod.sh
 
@@ -483,7 +483,7 @@ jobs:
       - name: Get dependencies
         run: |
           bash .github/scripts/ci_patch_path_deps.sh --check
-          flutter pub get --enforce-lockfile
+          bash .github/scripts/ci_retry_build_downloads.sh flutter pub get --enforce-lockfile
           bash .github/scripts/ci_gen_env.sh
           bash .github/scripts/ci_build_vod.sh
 
@@ -567,7 +567,7 @@ jobs:
         run: |
           python3 scripts/check_sdk_compatibility.py
           bash .github/scripts/ci_patch_path_deps.sh --check
-          flutter pub get --enforce-lockfile
+          bash .github/scripts/ci_retry_build_downloads.sh flutter pub get --enforce-lockfile
           bash .github/scripts/ci_gen_env.sh
           bash .github/scripts/ci_build_vod.sh
       - name: Run each route in its own process

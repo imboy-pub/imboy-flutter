@@ -119,7 +119,7 @@ jobs:
           set -euo pipefail
           bash .github/scripts/ci_ensure_system_sqlite.sh
           bash .github/scripts/ci_patch_path_deps.sh --check
-          flutter pub get --enforce-lockfile
+          bash .github/scripts/ci_retry_build_downloads.sh flutter pub get --enforce-lockfile
           bash .github/scripts/ci_gen_env.sh
           bash .github/scripts/uiux_full_prepare_product.sh phase1_delivery
           sudo apt-get update -qq
@@ -211,7 +211,7 @@ jobs:
             python3 -m pip install --disable-pip-version-check --require-hashes --only-binary=:all: -r scripts/requirements-tooling.txt
           fi
           bash .github/scripts/ci_patch_path_deps.sh --check
-          flutter pub get --enforce-lockfile
+          bash .github/scripts/ci_retry_build_downloads.sh flutter pub get --enforce-lockfile
           bash .github/scripts/ci_gen_env.sh
           bash .github/scripts/uiux_full_prepare_product.sh "$WORKER_PRODUCT"
           if [ "$WORKER_PLATFORM" = web ]; then

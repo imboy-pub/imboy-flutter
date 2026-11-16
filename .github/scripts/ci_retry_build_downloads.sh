@@ -36,11 +36,19 @@ for attempt in 1 2 3; do
       -e "failed downloading 'https://[^']+'.*badResponseStatusCode\($retryable_http\)" \
       "$log"; then
     retryable=true
-  elif [[ "$status" == 69 && "${1##*/}" == flutter && "${2:-}" == pub && "${3:-}" == get ]] &&
-      grep -Eq "^fatal: unable to access 'https://[^']+': Could not resolve host: [^[:space:]]+$" "$log"; then
-    # Pub reports unavailable (69) for Git DNS failures. Restrict this case to
-    # package download so earlier transport output cannot retry a failed build.
-    retryable=true
+  elif [[ "$status" == 69 && "${1##*/}" == flutter && "${2:-}" == pub && "${3:-}" == get ]]; then
+    # Pub reports unavailable (69) for Git transport failures. Restrict these
+    # signatures to package download, never a later failed build or test.
+    if grep -Eq "^fatal: unable to access 'https://[^']+': Could not resolve host: [^[:space:]]+$" "$log"; then
+      retryable=true
+    elif grep -Eq '^Git error\. Command: `git clone --mirror https://[^[:space:]]+ ' "$log" &&
+        grep -Eq '^error: RPC failed; curl 56 .*SSL_read: .*unexpected eof while reading' "$log" &&
+        grep -Fxq 'fatal: early EOF' "$log" &&
+        grep -Fxq 'fatal: fetch-pack: invalid index-pack output' "$log"; then
+      # Observed Git clone truncation. A generic SSL, checksum, or pack error
+      # alone is insufficient; keep the lockfile and original command intact.
+      retryable=true
+    fi
   fi
   if [[ "$status" -ge 128 || "$retryable" != true ]]; then
     exit "$status"
