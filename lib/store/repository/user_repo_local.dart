@@ -649,12 +649,12 @@ class UserRepoLocal extends ChangeNotifier {
         () => StorageService.to.setBool(_oaLoginRevokedKey, true),
       );
       final logoutUid = currentUid;
+      final logoutOwner = AccountLocalTaskOwner.capture(uid: logoutUid);
       AppFeatureRegistry.bindScope(endpoint: Env().apiBaseUrl, uid: '');
       RuntimeFeatureRecovery.dispose();
       iPrint("> quitLogin: Starting logout process");
       if (to.isLoggedIn) {
         iPrint("> quitLogin: User is logged in");
-        //WebSocketService.to.sendMessage("logout");
       } else {
         iPrint("> quitLogin: User is not logged in");
       }
@@ -729,7 +729,7 @@ class UserRepoLocal extends ChangeNotifier {
           purgeFailed = true;
         }
         try {
-          await E2eeSecretInventory.production().purgeAll();
+          await E2eeSecretInventory.production(owner: logoutOwner).purgeAll();
           await StorageService.to.remove(Keys.e2eePurgePending);
           iPrint("> quitLogin: E2EE secrets purged");
         } on Object catch (e, s) {

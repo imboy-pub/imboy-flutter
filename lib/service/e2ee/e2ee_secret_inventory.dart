@@ -4,6 +4,8 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 
 import 'package:path_provider/path_provider.dart';
 
+import 'package:imboy/service/account_local_files.dart';
+import 'package:imboy/service/account_local_task_registry.dart';
 import 'package:imboy/service/compliance_key_service.dart';
 import 'package:imboy/service/e2ee/collect_keychain.dart';
 import 'package:imboy/service/e2ee_service.dart';
@@ -102,35 +104,45 @@ class E2eeSecretInventory {
   });
 
   /// 生产接线：真实 secure storage + 各 E2EE 服务内存缓存 + 临时备份文件。
-  factory E2eeSecretInventory.production() => E2eeSecretInventory(
-    readAll: StorageSecureService.to.readAll,
-    deleteKey: (key) => StorageSecureService.to.delete(key: key),
-    clearMemoryCaches: [
-      E2EEService.clearCache,
-      EncrypterService.clearKeyCache,
-      ComplianceKeyService.instance.clearCache,
-      GroupSessionService.to.clearMemory,
-      CollectKeychain.to.clearCache,
-    ],
-    purgeArtifacts: [
-      // 清 Olm 内存 Account/Session（其存储键由下方前缀清理兜底复核）
-      OlmSessionService.to.clearAll,
-      _purgeLocalBackupTempFiles,
-      _purgeUploadCacheFiles,
-    ],
-    runPurge: StorageSecureService.to.purgeE2eeKeys,
-  );
+  factory E2eeSecretInventory.production({AccountLocalTaskOwner? owner}) {
+    final capturedOwner = owner ?? AccountLocalTaskOwner.capture();
+    return E2eeSecretInventory(
+      readAll: StorageSecureService.to.readAll,
+      deleteKey: (key) => StorageSecureService.to.delete(key: key),
+      clearMemoryCaches: [
+        E2EEService.clearCache,
+        EncrypterService.clearKeyCache,
+        ComplianceKeyService.instance.clearCache,
+        GroupSessionService.to.clearMemory,
+        CollectKeychain.to.clearCache,
+      ],
+      purgeArtifacts: [
+        // 清 Olm 内存 Account/Session（其存储键由下方前缀清理兜底复核）
+        OlmSessionService.to.clearAll,
+        () => _purgeLocalBackupTempFiles(capturedOwner),
+        _purgeUploadCacheFiles,
+      ],
+      runPurge: StorageSecureService.to.purgeE2eeKeys,
+    );
+  }
 
   /// Settings deletes RSA identity/recovery material while the account remains
   /// open. It must never delete SQLCipher keys or unrelated account secrets.
-  factory E2eeSecretInventory.identityKeys() => E2eeSecretInventory(
-    readAll: StorageSecureService.to.readAll,
-    deleteKey: (key) => StorageSecureService.to.delete(key: key),
-    keyPrefixes: const ['e2ee_'],
-    clearMemoryCaches: [E2EEService.clearCache, EncrypterService.clearKeyCache],
-    purgeArtifacts: [_purgeLocalBackupTempFiles],
-    runPurge: StorageSecureService.to.purgeE2eeKeys,
-  );
+  factory E2eeSecretInventory.identityKeys() {
+    // Bind the deletion target before waiting behind an earlier native write.
+    final owner = AccountLocalTaskOwner.capture();
+    return E2eeSecretInventory(
+      readAll: StorageSecureService.to.readAll,
+      deleteKey: (key) => StorageSecureService.to.delete(key: key),
+      keyPrefixes: const ['e2ee_'],
+      clearMemoryCaches: [
+        E2EEService.clearCache,
+        EncrypterService.clearKeyCache,
+      ],
+      purgeArtifacts: [() => _purgeLocalBackupTempFiles(owner)],
+      runPurge: StorageSecureService.to.purgeE2eeKeys,
+    );
+  }
 
   final List<String> keyPrefixes;
   final Future<Map<String, String>> Function() readAll;
@@ -411,14 +423,24 @@ class E2eeSecretInventory {
   }
 
   /// 删除 E2EELocalBackupService 落在临时目录的加密备份文件。
-  static Future<void> _purgeLocalBackupTempFiles() async {
+  static Future<void> _purgeLocalBackupTempFiles(
+    AccountLocalTaskOwner owner,
+  ) async {
     if (kIsWeb) return;
     final tempDir = await getTemporaryDirectory();
-    await for (final entry in tempDir.list()) {
-      if (entry is! File) continue;
-      final name = entry.uri.pathSegments.last;
-      if (name.startsWith('imboy_e2ee_backup_') && name.endsWith('.enc')) {
-        await entry.delete();
+    final directories = [
+      tempDir, // Legacy exports predate account-scoped temporary directories.
+      if (owner.uid.isNotEmpty)
+        Directory(AccountLocalFiles.folderFor(tempDir.path, owner)),
+    ];
+    for (final directory in directories) {
+      if (!await directory.exists()) continue;
+      await for (final entry in directory.list(followLinks: false)) {
+        if (entry is! File) continue;
+        final name = entry.uri.pathSegments.last;
+        if (name.startsWith('imboy_e2ee_backup_') && name.endsWith('.enc')) {
+          await entry.delete();
+        }
       }
     }
   }
