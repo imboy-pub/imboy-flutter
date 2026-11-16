@@ -19,15 +19,19 @@ library;
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/config/const.dart';
+import 'package:imboy/page/conversation/conversation_provider.dart';
 import 'package:imboy/service/e2ee/crypto_store.dart';
 import 'package:imboy/service/events/events.dart';
+import 'package:imboy/service/message.dart';
 import 'package:imboy/service/message_actions.dart';
 import 'package:imboy/service/message_retry.dart';
 import 'package:imboy/service/retry_policy.dart';
 import 'package:imboy/service/sqlite.dart';
 import 'package:imboy/service/storage.dart';
+import 'package:imboy/store/model/message_model.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
@@ -91,9 +95,9 @@ Map<String, dynamic> _v3Envelope() => {
   'protected_header': {'message_id': 'm-1', 'sender_uid': 1001},
 };
 
-/// Observe the real SQLite UPDATE completion, rather than guessing how many
-/// Dart event turns an FFI database operation needs. Only ACK SQL uses this
-/// handle; fixture setup and assertions use the underlying database directly.
+/// Forward real message persistence and observe only outbox confirmation SQL.
+/// Rejections now read/update the original message before stopping retries;
+/// those legitimate operations must not be mistaken for successful delivery.
 class _AckDatabase implements Database {
   _AckDatabase(this.delegate, {this.holdUpdate = false});
 
@@ -103,26 +107,77 @@ class _AckDatabase implements Database {
   final releaseUpdate = Completer<void>();
   final confirmed = Completer<void>();
   final probed = Completer<void>();
-  int openChecks = 0;
+  int confirmationProbes = 0;
 
   @override
-  bool get isOpen {
-    openChecks++;
-    return delegate.isOpen;
-  }
+  bool get isOpen => delegate.isOpen;
+
+  @override
+  Future<List<Map<String, Object?>>> query(
+    String table, {
+    bool? distinct,
+    List<String>? columns,
+    String? where,
+    List<Object?>? whereArgs,
+    String? groupBy,
+    String? having,
+    String? orderBy,
+    int? limit,
+    int? offset,
+  }) => delegate.query(
+    table,
+    distinct: distinct,
+    columns: columns,
+    where: where,
+    whereArgs: whereArgs,
+    groupBy: groupBy,
+    having: having,
+    orderBy: orderBy,
+    limit: limit,
+    offset: offset,
+  );
+
+  @override
+  Future<int> update(
+    String table,
+    Map<String, Object?> values, {
+    String? where,
+    List<Object?>? whereArgs,
+    ConflictAlgorithm? conflictAlgorithm,
+  }) => delegate.update(
+    table,
+    values,
+    where: where,
+    whereArgs: whereArgs,
+    conflictAlgorithm: conflictAlgorithm,
+  );
+
+  @override
+  Future<void> execute(String sql, [List<Object?>? arguments]) =>
+      delegate.execute(sql, arguments);
 
   @override
   Future<List<Map<String, Object?>>> rawQuery(
     String sql, [
     List<Object?>? arguments,
   ]) async {
+    final isConfirmationProbe =
+        sql.contains('sqlite_master') &&
+        arguments?.contains('crypto_outbox') == true;
+    if (isConfirmationProbe) confirmationProbes++;
     final rows = await delegate.rawQuery(sql, arguments);
-    if (!probed.isCompleted) probed.complete();
+    if (isConfirmationProbe && !probed.isCompleted) probed.complete();
     return rows;
   }
 
   @override
   Future<int> rawUpdate(String sql, [List<Object?>? arguments]) async {
+    if (!RegExp(
+      r'^\s*UPDATE\s+crypto_outbox\b',
+      caseSensitive: false,
+    ).hasMatch(sql)) {
+      return delegate.rawUpdate(sql, arguments);
+    }
     if (!updateStarted.isCompleted) updateStarted.complete();
     if (holdUpdate) await releaseUpdate.future;
     try {
@@ -143,6 +198,9 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   late MessageRetry retry;
+  MessageService? messages;
+  late ProviderContainer container;
+  late ProviderSubscription<ConversationState> conversationListener;
   final sendRequests = <WebSocketMessageSendRequestEvent>[];
   late Database db;
   late StreamSubscription<WebSocketMessageSendRequestEvent> sendSubscription;
@@ -156,6 +214,18 @@ void main() {
     db = await databaseFactoryFfi.openDatabase(inMemoryDatabasePath);
     await db.execute(_msgC2cDdl);
     await db.execute(_contactDdl);
+    await db.execute(
+      'CREATE TABLE conversation ('
+      'id INTEGER PRIMARY KEY, user_id INTEGER, peer_id INTEGER, '
+      'avatar TEXT, title TEXT, subtitle TEXT, last_time INTEGER, '
+      'region TEXT, sign TEXT, last_msg_id TEXT, last_msg_status INTEGER, '
+      'unread_num INTEGER, mention_unread INTEGER, is_muted INTEGER, '
+      'type TEXT, msg_type TEXT, is_show INTEGER, payload TEXT)',
+    );
+    await db.execute(
+      'CREATE TABLE msg_c2c_fts ('
+      'id TEXT, conversation_uk3 TEXT, text_content TEXT)',
+    );
     // 重发路径经 send-gate 读 attachment_upload_task（迁移 v33 建表，
     // 内存库需自带；attachment_send_gate/message_send_attempt 由仓储
     // CREATE IF NOT EXISTS 自建）。缺表会让 claim 查询抛错 → 重试循环
@@ -188,6 +258,9 @@ void main() {
     });
     SqliteService.setDbForTest(db);
     expect(await SqliteService.to.db, isNotNull);
+    container = ProviderContainer();
+    conversationListener = container.listen(conversationProvider, (_, _) {});
+    MessageService.setProviderContainer(container);
     retry = MessageRetry.instance;
     await retry.debugWaitForIdle();
     sendSubscription = AppEventBus.on<WebSocketMessageSendRequestEvent>()
@@ -199,11 +272,15 @@ void main() {
     retry.dispose();
     await sendSubscription.cancel();
     sendRequests.clear();
+    conversationListener.close();
+    container.dispose();
     SqliteService.setDbForTest(null);
     await db.close();
     SharedPreferences.setMockInitialValues({});
     await StorageService.init();
   });
+
+  tearDownAll(() => messages?.dispose());
 
   Future<void> insertEncryptedRow(String id, Map<String, dynamic> e2ee) async {
     await db.insert('msg_c2c', {
@@ -221,6 +298,38 @@ void main() {
       'action': '',
       'e2ee': jsonEncode(e2ee),
     });
+  }
+
+  Future<void> insertPendingRejection(String id) async {
+    messages ??= MessageService.to;
+    await insertEncryptedRow(id, _v3Envelope());
+    await db.update(
+      'msg_c2c',
+      {
+        'status': IMBoyMessageStatus.sending,
+        'payload': jsonEncode({'text': 'Synthetic outgoing local cache'}),
+      },
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+    final row = (await db.query(
+      'msg_c2c',
+      where: 'id = ?',
+      whereArgs: [id],
+    )).single;
+    expect(row['from_id'], 1001);
+    expect(row['is_author'], 1);
+    expect(row['status'], IMBoyMessageStatus.sending);
+  }
+
+  Future<void> expectRejectedMessage(String id) async {
+    final row = (await db.query(
+      'msg_c2c',
+      where: 'id = ?',
+      whereArgs: [id],
+    )).single;
+    expect(row['status'], IMBoyMessageStatus.error);
+    expect(row['e2ee'], jsonEncode(_v3Envelope()));
   }
 
   /// 把队列中该消息的退避间隔拨到已到期（与 062 harness 的 _makeDue 同法）。
@@ -408,6 +517,8 @@ void main() {
       await store.ensureSchema();
       await store.insertOutbox(id: id, payload: jsonEncode(_v3Envelope()));
       final original = await store.getOutboxEntry(id);
+      final isRejection = reason == 'not_a_friend' || reason == 'in_denylist';
+      if (isRejection) await insertPendingRejection(id);
       retry.addToRetryQueue(id, 'C2C');
       final pending = retry.getRetryInfo(id);
       final observed = _AckDatabase(db);
@@ -415,16 +526,17 @@ void main() {
 
       for (var delivery = 0; delivery < 2; delivery++) {
         await deliverRemoval(id, reason);
-        // The db getter runs synchronously before confirmation's first await.
-        // Drain an incorrectly started confirmation too: the old implementation
-        // must fail on persisted state, without racing SQLite or teardown.
-        if (observed.openChecks > 0) await observed.confirmed.future;
+        // Drain an incorrectly started outbox confirmation before checking
+        // persisted state. Message-table reads/writes are allowed for rejection.
+        if (observed.confirmationProbes > 0) await observed.confirmed.future;
         expect(
           retry.getRetryInfo(id),
           reason == 'client_ack_confirm' ? same(pending) : isNull,
         );
+        if (isRejection) await expectRejectedMessage(id);
         await expectRecoverable(store, id, original);
-        expect(observed.openChecks, 0);
+        expect(observed.confirmationProbes, 0);
+        expect(observed.updateStarted.isCompleted, isFalse);
       }
     });
   }
@@ -435,13 +547,17 @@ void main() {
     await store.ensureSchema();
     await store.insertOutbox(id: id, payload: jsonEncode(_v3Envelope()));
     final original = await store.getOutboxEntry(id);
+    await insertPendingRejection(id);
     retry.addToRetryQueue(id, 'C2C');
     final rejected = _AckDatabase(db);
     SqliteService.setDbForTest(rejected);
     await deliverRemoval(id, 'not_a_friend');
-    if (rejected.openChecks > 0) await rejected.confirmed.future;
+    if (rejected.confirmationProbes > 0) await rejected.confirmed.future;
     expect(retry.getRetryInfo(id), isNull);
+    await expectRejectedMessage(id);
     await expectRecoverable(store, id, original);
+    expect(rejected.confirmationProbes, 0);
+    expect(rejected.updateStarted.isCompleted, isFalse);
 
     final confirmed = _AckDatabase(db);
     SqliteService.setDbForTest(confirmed);
@@ -475,6 +591,7 @@ void main() {
     await store.ensureSchema();
     await store.insertOutbox(id: id, payload: jsonEncode(_v3Envelope()));
     final original = await store.getOutboxEntry(id);
+    await insertPendingRejection(id);
     retry.addToRetryQueue(id, 'C2C');
     final ack = _AckDatabase(db, holdUpdate: true);
     SqliteService.setDbForTest(ack);
@@ -484,8 +601,10 @@ void main() {
       final rejection = _AckDatabase(db);
       SqliteService.setDbForTest(rejection);
       await deliverRemoval(id, 'in_denylist');
-      if (rejection.openChecks > 0) await rejection.confirmed.future;
+      if (rejection.confirmationProbes > 0) await rejection.confirmed.future;
+      expect(rejection.confirmationProbes, 0);
       expect(rejection.updateStarted.isCompleted, isFalse);
+      await expectRejectedMessage(id);
       await expectRecoverable(store, id, original);
       expect(retry.getRetryInfo(id), isNull);
     } finally {
