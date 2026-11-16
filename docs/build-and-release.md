@@ -1,7 +1,7 @@
 # 构建 / 发布（Build & Release）
 
-> **最后更新 / Last updated**: 2026-11-09
-> **真源 / Source of truth**: `scripts/build_play_aab.sh` · `scripts/check_play_release.sh` · `scripts/verify_web_shell.sh` · `scripts/build_android_apk.sh` · `android/app/build.gradle.kts`
+> **最后更新 / Last updated**: 2026-11-16
+> **真源 / Source of truth**: `scripts/build_play_aab.sh` · `scripts/check_play_release.sh` · `scripts/verify_web_shell.sh` · `scripts/build_android_apk.sh` · `android/app/build.gradle.kts` · `.github/workflows/ci.yml`
 > 本文由脚本内容提取生成；脚本改动后须同步本页。
 
 ## Android
@@ -11,6 +11,18 @@ Tobias 5.3.4 的 consumer rules 含 AGP 9 禁止的全局选项。App 构建改�
 升级 Tobias 时须同步核对规则，不能关闭 AGP 校验或移除支付 SDK 的保留规则。
 Android builds replace Tobias 5.3.4's consumer rules with the checked-in keep-only
 file. Recheck these rules when upgrading Tobias; keep AGP validation enabled.
+
+### 构建用 JDK / Build JDK
+
+GitHub Actions 使用 Temurin JDK 21 运行 Android 的 Gradle/Lint 构建。
+当前 AGP 9.3.1 所带的 Lint 在 JDK 17 下会触发 `List.removeLast()` 的
+`NoSuchMethodError`（[官方问题 #522845800](https://developer.android.com/build/releases/agp-9-3-0-release-notes)）。
+本地复现 CI 构建时也使用 JDK 21。应用的 Java source/target compatibility
+与 Kotlin JVM target 仍为 17；Lint 检查保持启用。
+
+GitHub Actions runs Gradle and Android Lint on Temurin JDK 21 to avoid the
+AGP 9.3.1 bundled-lint crash on JDK 17. Use JDK 21 when reproducing CI locally;
+the application's Java/Kotlin targets remain 17 and lint checks stay enabled.
 
 ### Maven 仓库选择
 
@@ -35,7 +47,7 @@ Gradle 分发包与 Swift Package Manager 二进制包仍使用各自的原下�
 配置回归使用真实 Gradle、生产 Kotlin DSL 与 loopback 合成 Maven 服务：
 
 ```bash
-python3 .github/scripts/ci_check_android_repositories.py --gradle /path/to/gradle-8.14/bin/gradle --artifact-dir /tmp/imboy-maven-check
+python3 .github/scripts/ci_check_android_repositories.py --gradle /path/to/gradle-9.5.0/bin/gradle --artifact-dir /tmp/imboy-maven-check
 ```
 
 也可在一次 Android 构建成功后省略 `--gradle`，复用 Wrapper 已安装的同版本 Gradle。

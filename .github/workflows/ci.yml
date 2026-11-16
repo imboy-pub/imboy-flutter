@@ -378,11 +378,13 @@ jobs:
         timeout-minutes: 10
         run: bash .github/scripts/ci_checkout_submodules.sh
 
-      - name: Setup JDK 17 (explicit AGP 8.11 / Gradle 8.14 toolchain)
+      # AGP 9.3.1 lint calls Java 21 APIs on JDK 17 (Google issue 522845800).
+      # This changes the build runtime; app Java/Kotlin targets remain 17.
+      - name: Setup JDK 21 for Android lint
         uses: actions/setup-java@v6
         with:
           distribution: temurin
-          java-version: '17'
+          java-version: '21'
 
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
