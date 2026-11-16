@@ -23,7 +23,9 @@ class SourceLockTest(unittest.TestCase):
         self.addCleanup(environment.stop)
         self.temp = tempfile.TemporaryDirectory()
         self.addCleanup(self.temp.cleanup)
-        self.base = Path(self.temp.name)
+        # macOS temp paths can contain /var -> /private/var. Match the CLI's
+        # canonical repository roots before calling the internal helpers.
+        self.base = Path(self.temp.name).resolve()
         self.roots = {name: self.base / name for name in ('app', 'backend', 'admin')}
         for root in self.roots.values():
             root.mkdir()
