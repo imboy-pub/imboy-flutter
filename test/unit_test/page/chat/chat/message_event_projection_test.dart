@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -47,8 +47,9 @@ void main() {
       await tester.pumpWidget(
         ProviderScope(
           overrides: [chatProvider.overrideWith(() => notifier)],
-          child: MaterialApp(
-            home: Consumer(
+          child: Directionality(
+            textDirection: TextDirection.ltr,
+            child: Consumer(
               builder: (_, ref, _) {
                 ref.watch(chatProvider);
                 subscriptions ??= ChatEventSubscriptionManager(

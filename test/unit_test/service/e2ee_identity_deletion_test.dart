@@ -157,8 +157,9 @@ void main() {
       final legacy = Completer<String?>();
       readOverride = (key, args) async {
         if (key != 'e2ee_private_key') return entries[key];
-        if ((args['options'] as Map)['accessibility'] != 'unlocked')
+        if ((args['options'] as Map)['accessibility'] != 'unlocked') {
           return null;
+        }
         entered.complete();
         return legacy.future;
       };

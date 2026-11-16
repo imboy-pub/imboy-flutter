@@ -219,8 +219,9 @@ void main() {
         onS2CMessage: (message) async {
           final id = message['id'] as String;
           handled.add(id);
-          if (id == 's2c-poison')
+          if (id == 's2c-poison') {
             throw const FormatException('synthetic poison');
+          }
         },
       );
       expect(handled, ['s2c-good-before', 's2c-poison', 's2c-good-after']);

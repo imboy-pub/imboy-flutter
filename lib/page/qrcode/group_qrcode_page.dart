@@ -78,14 +78,14 @@ class _GroupQrCodePageState extends ConsumerState<GroupQrCodePage> {
       actions: [
         CupertinoButton(
           padding: EdgeInsets.zero,
+          onPressed: invite == null
+              ? null
+              : () => _showGroupBottomSheet(context),
           child: Icon(
             CupertinoIcons.ellipsis_circle,
             size: 22,
             semanticLabel: t.common.buttonMore,
           ),
-          onPressed: invite == null
-              ? null
-              : () => _showGroupBottomSheet(context),
         ),
       ],
       child: Padding(
