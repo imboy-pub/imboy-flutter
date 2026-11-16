@@ -113,7 +113,7 @@ jobs:
         run: python3 scripts/check_sdk_compatibility.py
 
       - name: Get dependencies
-        run: flutter pub get
+        run: bash .github/scripts/ci_retry_build_downloads.sh flutter pub get
 
       - name: Materialize CI environment
         run: bash .github/scripts/ci_gen_env.sh
@@ -165,7 +165,7 @@ jobs:
         run: python3 scripts/check_sdk_compatibility.py
 
       - name: Get dependencies
-        run: flutter pub get
+        run: bash .github/scripts/ci_retry_build_downloads.sh flutter pub get
 
       - name: Materialize CI environment
         run: bash .github/scripts/ci_gen_env.sh
