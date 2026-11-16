@@ -263,15 +263,32 @@ Set<String> _initialSessionUids(Set<String> preferenceKeys) {
     throw const AccountLocalDataOwnershipException();
   }
   if (profile.isEmpty) return uids;
-  final profileUid = _initialOwnerUid(profile['user_id'] ?? profile['uid']);
+  // DEF-LOGOUT-RELOAD-INIT-POISON：quitLogin 会把已登出会话的资料净化为
+  // 仅含 _login_account_identity_v1 所有权标记的形状（顶层无 user_id/uid）。
+  // 该 stale 形状必须被识别为「已安全登出」而不是不可归因证据——否则每次
+  // 登出后的 reload 都会在启动清点时抛 Ownership 异常并持久落 InitErrorPage
+  // （清 localStorage 才能恢复）。所有权仍由标记归因：标记可解析 → 记为
+  // 会话 uid；标记缺失/损坏 → 证据不可读，维持 fail-closed。
+  final marker = profile.containsKey(LoginAccountHistoryService.localProfileKey)
+      ? LoginAccountIdentity.fromJson(
+          profile[LoginAccountHistoryService.localProfileKey],
+        )
+      : null;
+  final rawProfileUid = profile['user_id'] ?? profile['uid'];
+  if (rawProfileUid == null) {
+    // Identity-only signed-out profile: the marker is the only owner proof.
+    if (marker == null) {
+      throw const AccountLocalDataOwnershipException();
+    }
+    uids.add(marker.uid);
+    return uids;
+  }
+  final profileUid = _initialOwnerUid(rawProfileUid);
   if (currentUid.isNotEmpty && currentUid != profileUid) {
     throw const AccountLocalDataOwnershipException();
   }
   uids.add(profileUid);
   if (profile.containsKey(LoginAccountHistoryService.localProfileKey)) {
-    final marker = LoginAccountIdentity.fromJson(
-      profile[LoginAccountHistoryService.localProfileKey],
-    );
     if (marker == null || marker.uid != profileUid) {
       throw const AccountLocalDataOwnershipException();
     }

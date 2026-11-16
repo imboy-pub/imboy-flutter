@@ -26,6 +26,8 @@ import 'package:imboy/service/storage_secure.dart';
 import 'package:imboy/component/upload/resumable_attachment_uploader.dart';
 import 'package:imboy/service/asset_url_resolver.dart';
 import 'package:imboy/service/websocket.dart';
+import 'package:imboy/service/websocket_message_queue.dart'
+    show PersistentMessageQueue;
 import 'package:imboy/store/model/user_model.dart';
 import 'package:imboy/service/app_logger.dart';
 
@@ -735,6 +737,37 @@ class UserRepoLocal extends ChangeNotifier {
             await StorageService.to.remove(key);
           }
         }
+      }
+
+      // DEF-LOGOUT-RELOAD-INIT-POISON（属主裁决 owner-batch4 修复窗 R6b）：
+      // 登出除草稿键外，还需使两类 per-uid 残留失效，避免登出后 reload 的
+      // 启动清点（AccountLocalDataService.captureInitialOwnership）被毒化：
+      // 1) ws_message_queue 中属主为登出 uid 的残留帧——正常帧虽可被启动
+      //    清点归因，但任何损坏帧都会被读侧视为不可归因证据而 fail-closed
+      //    （InitErrorPage）；属主已登出，帧没有再投递的意义。
+      // 2) app_features/app_manifest/app_manifest_etag 的 *_scoped_* 旧 uid
+      //    缓存——下次 init 以 uid='' 绑定 scope 不会读到它们，但残留会在
+      //    持久存储保留旧 uid 载荷（census 实证 3814B 存活）。属主解码复用
+      //    AccountLocalDataService.isScopedFeatureCacheOwnedBy（与历史账号
+      //    清理授权链同一口径），不会误删其他账号的 scoped 缓存。
+      try {
+        await PersistentMessageQueue.removeAccount(logoutUid);
+      } on Object catch (error, stack) {
+        // 队列残留不毒化正常形状的启动清点，清失败不阻断登出，仅记日志。
+        AppLogger.error(
+          '[user_repo_local] ws message queue purge failed',
+          error,
+          stack,
+        );
+      }
+      for (final key in StorageService.to.getKeys().where(
+        (k) => AccountLocalDataService.isScopedFeatureCacheOwnedBy(
+          k,
+          uid: logoutUid,
+          endpoint: Env().apiBaseUrl,
+        ),
+      )) {
+        await StorageService.to.remove(key);
       }
 
       // SEC02 同批：current_user 登出后残留 504B 用户资料（昵称/头像等

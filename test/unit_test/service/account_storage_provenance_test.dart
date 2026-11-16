@@ -234,6 +234,39 @@ void main() {
       expect(unused(fresh), isTrue);
     });
   }
+  // DEF-LOGOUT-RELOAD-INIT-POISON：quitLogin 会把已登出会话资料净化为仅含
+  // _login_account_identity_v1 的形状；启动清点必须识别该 stale 形状并经
+  // 标记归因属主，而不是抛 Ownership 异常把 reload 钉死在 InitErrorPage。
+  test(
+    'signed-out identity-only profile no longer poisons startup inventory',
+    () async {
+      // 模拟 quitLogin 的净化写入（user_repo_local.dart sanitize current_user）。
+      await StorageService.setMap(Keys.currentUser, {
+        LoginAccountHistoryService.localProfileKey: selected.toJson(),
+      });
+      await capture();
+      // 旧属主经标记归因，仍视为已占用（不是 fresh storage）。
+      expect(unused(selected), isFalse);
+      // 新账号在该安装上仍可拿到 durable account-scoped proof（授权链不断）。
+      expect(unused(fresh), isTrue);
+      final account = await remember(fresh);
+      expect(account.storageOwnershipVerified, isTrue);
+      expect(() => history.requireIndependentStorage(account), returnsNormally);
+    },
+  );
+  test(
+    'identity-only profile with an unreadable ownership marker fails closed',
+    () async {
+      await StorageService.setMap(Keys.currentUser, {
+        LoginAccountHistoryService.localProfileKey: {'uid': selected.uid},
+      });
+      await expectLater(
+        capture(),
+        throwsA(isA<AccountStorageInventoryUnavailableException>()),
+      );
+      expect(unused(fresh), isFalse);
+    },
+  );
   test('failed startup inventory can retry before login and preserve later cleanup', () async {
     expect(unused(fresh), isFalse);
     await expectLater(
