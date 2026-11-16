@@ -11,6 +11,115 @@ import 'app_colors.dart';
 class AppTheme {
   AppTheme._();
 
+  /// F5（PERF-05 R6b）：Cupertino 全角色文本样式挂 NotoSansSC 子集回退链。
+  ///
+  /// 逐字段复刻 SDK 默认（cupertino/text_theme.dart 的
+  /// `_kDefault*TextStyle` 常量与 `_TextThemeDefaultsBuilder` 派生口径），
+  /// 仅补 `fontFamilyFallback` 首位挂内嵌 NotoSansSC 子集。
+  ///
+  /// 为什么这是 fonts.gstatic 外拉的缺口：'CupertinoSystemText'/'CupertinoSystemDisplay'
+  /// 在 web 未注册，且 SDK 各角色默认样式不带任何 fallback——
+  /// CupertinoNavigationBar 标题、CupertinoTextField、CupertinoDialog/
+  /// DialogAction、CupertinoPicker 等全部 Cupertino 组件的中文文本走
+  /// 「字族未命中 → 引擎默认字体 → CanvasKit gstatic Noto 分片」
+  /// （netlog 117/118 实锤）。挂链后子集本地命中，外拉归零。
+  /// Apple 原生端系统字族照常命中，渲染零变化。
+  ///
+  /// 必须逐角色提供：CupertinoTextThemeData 的派生样式**不与 textStyle
+  /// 合并**（`navTitleTextStyle => _navTitleTextStyle ?? _defaults.navTitleTextStyle`），
+  /// 只给 textStyle 时其余角色仍走无链的 SDK 硬编码默认。
+  /// 颜色口径：label/inactiveGray 沿用 SDK 动态色（亮暗语义不变）；
+  /// action/navAction/actionSmall 按 `_TextThemeDefaultsBuilder` 的
+  /// `copyWith(color: primaryColor)` 派生口径用 primaryDark（DSN-03
+  /// 主色决策）着色，避免改色回归。
+  static CupertinoTextThemeData get _cupertinoTextTheme {
+    const chain = kAppFontFamilyFallback;
+    const primaryActionColor = AppColors.primaryDark;
+    return const CupertinoTextThemeData(
+      textStyle: TextStyle(
+        inherit: false,
+        fontFamily: 'CupertinoSystemText',
+        fontSize: 17.0,
+        letterSpacing: -0.41,
+        color: CupertinoColors.label,
+        decoration: TextDecoration.none,
+        fontFamilyFallback: chain,
+      ),
+      tabLabelTextStyle: TextStyle(
+        inherit: false,
+        fontFamily: 'CupertinoSystemText',
+        fontSize: 10.0,
+        fontWeight: FontWeight.w500,
+        letterSpacing: -0.24,
+        color: CupertinoColors.inactiveGray,
+        fontFamilyFallback: chain,
+      ),
+      navTitleTextStyle: TextStyle(
+        inherit: false,
+        fontFamily: 'CupertinoSystemText',
+        fontSize: 17.0,
+        fontWeight: FontWeight.w600,
+        letterSpacing: -0.41,
+        color: CupertinoColors.label,
+        fontFamilyFallback: chain,
+      ),
+      navLargeTitleTextStyle: TextStyle(
+        inherit: false,
+        fontFamily: 'CupertinoSystemDisplay',
+        fontSize: 34.0,
+        fontWeight: FontWeight.w700,
+        letterSpacing: 0.38,
+        color: CupertinoColors.label,
+        fontFamilyFallback: chain,
+      ),
+      pickerTextStyle: TextStyle(
+        inherit: false,
+        fontFamily: 'CupertinoSystemDisplay',
+        fontSize: 21.0,
+        fontWeight: FontWeight.w400,
+        letterSpacing: -0.6,
+        color: CupertinoColors.label,
+        fontFamilyFallback: chain,
+      ),
+      dateTimePickerTextStyle: TextStyle(
+        inherit: false,
+        fontFamily: 'CupertinoSystemDisplay',
+        fontSize: 21.0,
+        letterSpacing: 0.4,
+        fontWeight: FontWeight.normal,
+        color: CupertinoColors.label,
+        fontFamilyFallback: chain,
+      ),
+      actionTextStyle: TextStyle(
+        inherit: false,
+        fontFamily: 'CupertinoSystemText',
+        fontSize: 17.0,
+        letterSpacing: -0.41,
+        color: primaryActionColor,
+        decoration: TextDecoration.none,
+        fontFamilyFallback: chain,
+      ),
+      navActionTextStyle: TextStyle(
+        inherit: false,
+        fontFamily: 'CupertinoSystemText',
+        fontSize: 17.0,
+        letterSpacing: -0.41,
+        color: primaryActionColor,
+        decoration: TextDecoration.none,
+        fontFamilyFallback: chain,
+      ),
+      actionSmallTextStyle: TextStyle(
+        inherit: false,
+        fontFamily: 'CupertinoSystemText',
+        fontSize: 15.0,
+        letterSpacing: -0.23,
+        color: primaryActionColor,
+        decoration: TextDecoration.none,
+        fontFamilyFallback: chain,
+      ),
+    );
+  }
+
   static ThemeData getLightTheme({
     double fontScale = 1.0,
     BuildContext? context,
@@ -104,6 +213,8 @@ class AppTheme {
         primaryColor: AppColors.primaryDark,
         brightness: Brightness.light,
         scaffoldBackgroundColor: AppColors.lightBackground,
+        // F5（PERF-05 R6b）：Cupertino 全组件文本挂 NotoSansSC 回退链。
+        textTheme: _cupertinoTextTheme,
       ),
       pageTransitionsTheme: const PageTransitionsTheme(
         builders: {
@@ -158,6 +269,8 @@ class AppTheme {
         // 同亮色主题注释：Cupertino 主色统一 primaryDark（DEV-1/DEV-2）。
         primaryColor: AppColors.primaryDark,
         brightness: Brightness.dark,
+        // F5（PERF-05 R6b）：同亮色主题，Cupertino 全组件文本挂回退链。
+        textTheme: _cupertinoTextTheme,
         scaffoldBackgroundColor: AppColors.darkSurfaceGrouped,
       ),
       pageTransitionsTheme: const PageTransitionsTheme(
