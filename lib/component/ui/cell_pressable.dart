@@ -79,6 +79,15 @@ class _CellPressableState extends State<CellPressable> {
     final hasLongPress = widget.onLongPress != null;
 
     final enabled = hasTap || hasLongPress;
+
+    // DEF-SETTINGS-WIDE-TILE-MOUSE-DEAD（R6b 修复窗）：container 归组语义必须
+    // 与 tap action / button 角色收敛在**同一个语义节点**上——web 引擎的
+    // tappable（flt-tappable + click→SemanticsAction.tap）与 tabindex 都按
+    // 最终合并节点渲染，节点拆开会把裸鼠标事件引到无 tap handler 的节点上。
+    // 本组件经 container:true 使外层吸收 Focus（includeSemantics 默认 true
+    // 注入 focusable/focused）与内层 button/tap 的全部标志，恰好形成单一
+    // 合并节点；改动层级顺序（如把 container 移到内层）会让 Focus 的显式
+    // Semantics 不再并入 button 节点（键盘聚焦断言回归），勿动此结构。
     return Semantics(
       // Keep this control's focus, actions, and child label together when
       // another CellPressable surrounds it. Read-only cells need no boundary.
