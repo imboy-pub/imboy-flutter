@@ -6,8 +6,7 @@ import 'package:dio/dio.dart';
 import 'package:dio/io.dart';
 
 import 'package:flutter/foundation.dart'
-    show kIsWeb, kReleaseMode, visibleForTesting;
-import 'package:flutter/material.dart';
+    show VoidCallback, kIsWeb, kReleaseMode, visibleForTesting;
 
 import 'package:imboy/config/const.dart';
 import 'package:imboy/config/env.dart';

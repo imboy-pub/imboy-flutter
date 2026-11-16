@@ -10,7 +10,7 @@ import 'package:imboy/page/group/group_avatar_cache.dart';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/foundation.dart' show kDebugMode, kIsWeb;
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/widgets.dart';
 
 import 'package:imboy/component/helper/ntp.dart';
 import 'package:imboy/component/http/http_response.dart';
