@@ -348,6 +348,13 @@
       "classifier": "host-dart"
     },
     {
+      "id": "golden-pending-review",
+      "prefixes": [
+        "test/golden_pending_review/"
+      ],
+      "classifier": "host-dart"
+    },
+    {
       "id": "host-ux-matrix",
       "prefixes": [
         "test/ux_matrix/"

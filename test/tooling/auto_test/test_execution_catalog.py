@@ -201,7 +201,11 @@ class ExecutionCatalogTest(unittest.TestCase):
         self.expect_contract_error('UNKNOWN_PROFILE_PREFIX')
 
     def test_web_shell_prefix_automatically_selects_new_owned_tests_on_their_platforms(self):
-        self.cfg['profiles']['web-shell'] = load_contract(ROOT)['profiles']['web-shell']
+        # Prefix auto-selection semantics: the repository web-shell profile also pins
+        # explicit targets that only exist in the real repository; this synthetic repo
+        # exercises the prefix mechanism alone, so the pinned targets are dropped.
+        self.cfg['profiles']['web-shell'] = {
+            **load_contract(ROOT)['profiles']['web-shell'], 'targets': []}
         host = 'test/unit_test/page/web_shell/new_view_test.dart'
         browser = 'test/unit_test/page/web_shell/new_browser_test.dart'
         self.put(host, WIDGET)
