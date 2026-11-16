@@ -1,4 +1,4 @@
-name: UIUX full offline evidence
+name: UIUX offline gates
 
 on:
   pull_request:
@@ -8,14 +8,15 @@ on:
       - '.github/scripts/ci_source_lock.py'
       - '.github/scripts/uiux_full_*'
       - 'test/tooling/auto_test/test_ci_source_lock.py'
-      - 'test/tooling/auto_test/test_uiux_full_matrix.py'
+      - 'test/tooling/auto_test/test_gate.py'
+      - 'test/tooling/auto_test/test_uiux_full_*.py'
   workflow_dispatch:
 
 permissions:
   contents: read
 
 env:
-  FLUTTER_VERSION: '3.50.0'
+  FLUTTER_VERSION: '3.47.5'
 
 jobs:
   plan:
@@ -47,7 +48,9 @@ jobs:
       - name: Check partition contract
         run: |
           python3 test/tooling/auto_test/test_uiux_full_matrix.py
+          python3 test/tooling/auto_test/test_uiux_full_summary.py
           python3 test/tooling/auto_test/test_ci_source_lock.py
+          python3 test/tooling/auto_test/test_gate.py TestGateCiParity.test_ci_checks_out_sibling_backend_sources_for_domain_tests
       - name: Freeze plans and derive product workers
         id: matrix
         shell: bash
@@ -264,7 +267,7 @@ jobs:
           if-no-files-found: warn
 
   reconcile:
-    name: Reconcile scoped and full obligations
+    name: Offline acceptance (full regression reported separately)
     if: always()
     needs: [plan, gates, workers]
     runs-on: ubuntu-24.04
@@ -287,7 +290,7 @@ jobs:
         with:
           pattern: uiux-worker-*
           path: ${{ runner.temp }}/uiux-results/workers
-      - name: Reconcile coverage and both plans
+      - name: Enforce offline scope and preserve full obligation report
         if: always()
         shell: bash
         run: |
@@ -313,9 +316,14 @@ jobs:
             --output "$out/full-summary.json"
           full_rc=$?
           printf 'sources=%s coverage=%s offline=%s full=%s\n' "$sources_rc" "$coverage_rc" "$offline_rc" "$full_rc"
-          printf '%s\n' 'Offline scope excludes API, device and Golden obligations. This workflow does not import specialist evidence; full status must remain blocked until a compatible same-plan orchestrator is implemented.' >> "$GITHUB_STEP_SUMMARY"
-          # Missing real API, Golden and device results remain blocked.
-          if [ "$sources_rc" -ne 0 ] || [ "$coverage_rc" -ne 0 ] || [ "$offline_rc" -ne 0 ] || [ "$full_rc" -ne 0 ]; then exit 1; fi
+          # Full must be BLOCKED solely by the exact declared specialist difference.
+          # A real failure, flaky result or unexpected missing evidence still fails CI.
+          python3 .github/scripts/uiux_full_summary.py \
+            --full-plan "$RUNNER_TEMP/uiux-plan/full-plan.json" \
+            --offline-plan "$RUNNER_TEMP/uiux-plan/offline-plan.json" \
+            --summary-dir "$out" --step-summary "$GITHUB_STEP_SUMMARY" \
+            --sources-rc "$sources_rc" --coverage-rc "$coverage_rc" \
+            --offline-rc "$offline_rc" --full-rc "$full_rc"
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         if: always()
         with:

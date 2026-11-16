@@ -212,10 +212,18 @@ checkout 中修改登记的三仓产品生成物和 Backend 产品 manifest。�
 共享 `static-analysis` 同时执行普通 CI 的全仓 Analyzer ratchet；只有 info 而退出 0
 的 `dart analyze` 不能单独证明该门通过，基线和阈值保持原样。
 
-离线仅覆盖 Linux/macOS/Web 的 unit、widget、component、sqlite-ffi、crypto-ffi、
-tooling 与 route-smoke。它保留完整计划中的 API、Golden、设备、双端和原生 UI 义务；
-当前工作流不导入独立专项证据，full 缺证据必须 BLOCKED。必须分别查看来源、覆盖率、
-offline 和 full 四个结果，工作流整体失败不自动表示离线业务断言失败。
+`UIUX offline gates` 的 CI 绿只证明 Linux/macOS/Web 的 unit、widget、component、
+sqlite-ffi、crypto-ffi、tooling 与 route-smoke，以及三仓来源绑定、共享门禁和原有
+38% Linux 覆盖率全部通过。它保留完整计划中的 API、Golden、设备、双端和原生 UI
+义务；当前工作流不导入独立专项证据，原 `full-summary.json` 缺证据仍必须为
+`BLOCKED` / `INCOMPLETE_EXECUTION` / `complete_regression=false`，不改写为通过。
+
+独立 `offline-ci-summary.json` 只给离线 CI 判定：来源、coverage、offline 的真实
+退出码和报告必须全通过；full 的缺失实例必须恰为冻结 full/offline 计划的专项差集，
+逐行仍为 `BLOCKED/MISSING_RESULT` 且没有执行记录。full 中离线结果须与 offline
+报告一致。真实 FAIL、FLAKY、意外缺失、上游失败、身份或证据异常、无法读取的报告
+均使 CI 失败，不能以“专项尚未执行”吞掉。Job Summary 同时展示四份报告；离线 CI
+成功不能用作全量验收，full 仍待同计划、同候选的独立专项证据完成。
 合入 main 本身不触发该独立工作流；匹配 paths 的 PR 或 workflow_dispatch 才执行。
 
 English: The shared source lock pins Backend/Admin commits across ordinary CI and
@@ -224,9 +232,13 @@ Source-only checkout receipts are not runtime-backend or business acceptance.
 UIUX freezes both plans with all three source identities, checks each worker before
 and after execution, and binds its product files and original results to that candidate.
 Only generator-verified product differences are allowed. Missing, stale, duplicate or
-tampered receipts block both summaries. Offline excludes real API, Golden and device
-obligations; the full summary stays blocked until compatible same-plan specialist
-evidence is available. A merge alone is not an execution receipt.
+tampered receipts block both summaries. A green `UIUX offline gates` check certifies
+only the declared offline instances, shared gates, source binding and unchanged 38%
+Linux coverage threshold. The original full report remains BLOCKED with
+`complete_regression=false`; only the exact specialist difference may be missing.
+Real failures, flaky results, unexpected missing instances and invalid evidence still
+fail CI. `offline-ci-summary.json` records this separate scope decision without changing
+full-regression acceptance. A merge alone is not an execution receipt.
 
 ## PR、覆盖率与门禁
 
@@ -277,9 +289,14 @@ Python、C/C++ 构建工具、pkg-config、libGLU 和 `libsqlite3-dev`。Git 必
 包状态不正确或动态库加载失败仍会阻断，既有 SQLite 真实测试继续完整执行。
 Ubuntu workers verify the installed package and load the system library; missing packages use bounded installation.
 
-Flutter 使用 `ci.yml` 的精确 `3.50.0` pin，Dart 由其附带并通过 SDK 检查；
+Flutter 使用 `ci.yml` 的精确 `3.47.5` pin，Dart 3.13.4 由其附带并通过 SDK 检查；
 `flutter pub get --enforce-lockfile` 保留 Git/path 依赖及 lockfile 校验。
-CI pins Flutter 3.50.0 with its bundled Dart SDK; existing analyzer and Golden baselines remain unchanged.
+当前 UI 与第三方依赖仍使用 SDK 内 Material/Cupertino；3.50 的独立 UI 库迁移尚未完成，
+因此恢复原有可兼容的 SDK pin，同时保留 Analyzer、文件行数与覆盖率门禁。
+SDK 升级须连同依赖公开类型、主题/本地化及原生构建验证，不能仅修改工作流版本号。
+CI pins Flutter 3.47.5 / Dart 3.13.4 while the current UI dependencies use the in-framework
+design libraries. A future SDK upgrade must validate dependency types, themes/localizations
+and native builds together. Analyzer, file-size, coverage and Golden baselines remain unchanged.
 Debian 单独固定 Rust `1.98.1`，复用 `ci_build_vod.sh` 从解析后的插件源码构建，
 不使用 Ubuntu 构建产物。Cargo 依赖沿用现有脚本的解析流程，本次未增加 `--locked`；
 固定 Rust 编译器不等于冻结全部 Rust 依赖。SDK/pub 缓存的 key 与路径都有 Debian 13 前缀，原生 build
@@ -472,7 +489,7 @@ fonts 文件 SHA-256，及 baselines 按 target 列出的基线文件 SHA-256。
   执行器不复制、下载或提交系统字体，也不允许图标缺失后静默降级为方块。
 - 使用该 loader 的 Golden 还校验真实 `flutter --version --machine` 的 frameworkVersion
   与 `kFlutterVersionPin` 一致，并核对清单的 frameworkRevision/engineRevision。
-  当前专项登记为 Flutter 3.47.7；普通 PR 使用 3.50.0，PR 成功不能证明该像素环境就绪。
+  当前专项登记为 Flutter 3.47.7；普通 PR 使用 3.47.5，PR 成功不能证明该像素环境就绪。
   原有本机字体路径和专项准备见 [专项 fixture 说明](specialist-fixtures.md)。
 
 预检通过只证明声明的输入当前可用，像素通过仍须实际比较已批准基线并核验机器事件。
