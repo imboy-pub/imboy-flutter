@@ -259,7 +259,7 @@ void main() {
     test('对照组：群未开 E2EE + 全局 plaintext → 明文行必须照常重投', () async {
       expect(await GroupSessionService.to.isGroupE2EE(_gid), isFalse);
       const id = 'gg0000000000000ct01';
-      await _insertGroupMsg(id, status: IMBoyMessageStatus.error);
+      await _insertGroupMsg(id, status: IMBoyMessageStatus.pendingRetry);
 
       await driveRetry(id);
 
@@ -277,7 +277,7 @@ void main() {
       expect(await GroupSessionService.to.isGroupE2EE(_gid), isTrue);
 
       const id = 'gg0000000000000ct02';
-      await _insertGroupMsg(id, status: IMBoyMessageStatus.error);
+      await _insertGroupMsg(id, status: IMBoyMessageStatus.pendingRetry);
 
       await driveRetry(id);
 
@@ -288,6 +288,10 @@ void main() {
             '群级 E2EE 独立于全局策略（P0-B B4）。'
             '只看全局策略会让开了群级 E2EE 的群的明文行照常重发 = 明文出网',
       );
+      final stored = await MessageRepo(tableName: MessageRepo.c2gTable)
+          .find(id);
+      expect(stored?.status, IMBoyMessageStatus.error);
+      expect(retry.getRetryInfo(id), isNull);
     });
 
     test('手动重试：群已开 E2EE + 明文行 → 不得出网', () async {
@@ -313,7 +317,7 @@ void main() {
       const id = 'gg0000000000000ct03';
       await _insertGroupMsg(
         id,
-        status: IMBoyMessageStatus.error,
+        status: IMBoyMessageStatus.pendingRetry,
         e2ee: <String, dynamic>{
           'meta_version': 3,
           'protocol': 'megolm',

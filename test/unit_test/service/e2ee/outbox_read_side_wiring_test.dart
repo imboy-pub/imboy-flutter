@@ -291,7 +291,7 @@ void main() {
       'payload': '',
       'created_at': DateTime.now().millisecondsSinceEpoch,
       'is_author': 1,
-      'status': 41, // IMBoyMessageStatus.error=41（在重试状态集内）
+      'status': IMBoyMessageStatus.pendingRetry,
       'conversation_uk3': 'C2C_1001_2002',
       'topic_id': 0,
       'msg_type': 'text',

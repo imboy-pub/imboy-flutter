@@ -420,7 +420,7 @@ void main() {
       });
 
       const id = 'sm00000000000000t010';
-      final msg = await _insertMsg(id, status: IMBoyMessageStatus.error);
+      final msg = await _insertMsg(id, status: IMBoyMessageStatus.pendingRetry);
       // 该行是明文（e2ee 为空），策略却要求加密 → 正是「该加密却是明文」。
       expect(msg.e2ee, isNull);
       retry.addToRetryQueue(id, 'C2C');
