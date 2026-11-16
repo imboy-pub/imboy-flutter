@@ -12,8 +12,8 @@
 //     --dart-define=TEST_PHONE="$TEST_PHONE" \
 //     --dart-define=TEST_PASSWORD="$TEST_PASSWORD"
 
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
+import 'package:cupertino_ui/cupertino_ui.dart';
+import 'package:material_ui/material_ui.dart';
 // findsWidgets 等 matcher 不由 patrol_finders 导出，需直接取自 flutter_test
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/main.dart' as app;

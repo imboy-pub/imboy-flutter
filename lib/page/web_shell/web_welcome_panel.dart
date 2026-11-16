@@ -10,8 +10,8 @@
 /// - **最大宽度约束**：长文案在大屏不会撑满，居中阅读体验更佳
 library;
 
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
+import 'package:cupertino_ui/cupertino_ui.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
 
 /// Web Shell 默认欢迎屏

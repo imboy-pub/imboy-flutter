@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 
 /// 呼吸缩放图标：3 秒循环 1.0↔1.05，用于空状态让画面不"死"。

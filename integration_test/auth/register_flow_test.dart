@@ -7,8 +7,8 @@
 //     --dart-define=APP_ENV=local_office \
 //     -d <real_device_id>
 
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
+import 'package:cupertino_ui/cupertino_ui.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/page/passport/manage_account_page.dart';

@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:imboy/i18n/strings.g.dart' show t;
 import 'package:imboy/theme/theme_manager.dart' show ThemeManager;
 // 统一对外导出 ThemeManager，方便其它文件只引入 font_types.dart 即可使用 ThemeManager

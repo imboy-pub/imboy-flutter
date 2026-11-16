@@ -23,7 +23,7 @@
 // 宿主握手（编排脚本执行 /tmp/j17d_cas.erl，SEED_ACTION=set_true|set_false）：
 //   「J17D ready」→ set_true；「J17D CASE_D_DONE」→ set_false。
 
-import 'package:flutter/cupertino.dart';
+import 'package:cupertino_ui/cupertino_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/page/conversation/widget/conversation_item.dart';
 import 'package:imboy/store/api/conversation_api.dart';

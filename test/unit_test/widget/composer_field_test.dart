@@ -10,7 +10,7 @@
 //   flutter test test/widget/composer_field_test.dart
 
 import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/component/chat/composer_field.dart';
 import 'package:imboy/theme/default/app_colors.dart';

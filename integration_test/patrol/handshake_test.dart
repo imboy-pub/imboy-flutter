@@ -9,7 +9,7 @@
 //   patrol test --target integration_test/patrol/handshake_test.dart \
 //     --device XWE6R19916004085
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:patrol/patrol.dart';
 

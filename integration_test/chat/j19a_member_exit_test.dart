@@ -31,7 +31,7 @@
 //     --dart-define=TEST_GROUP_TITLE=<群名> \
 //     --dart-define=TEST_ALLOW_BUSINESS_WRITES=true
 
-import 'package:flutter/cupertino.dart';
+import 'package:cupertino_ui/cupertino_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/page/chat/chat/chat_page.dart';

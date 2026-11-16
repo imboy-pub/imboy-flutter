@@ -5,7 +5,7 @@
 /// 清理失败重试、角色门控（viewer 无删除）、返回列表路径、路由可达。
 library;
 
-import 'package:flutter/cupertino.dart';
+import 'package:cupertino_ui/cupertino_ui.dart';
 import 'package:imboy/store/model/talk_record/talk_record_model.dart';
 import 'package:flutter_test/flutter_test.dart';
 

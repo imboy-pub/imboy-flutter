@@ -14,7 +14,7 @@
 /// ChatShell 挂载方式）。
 library;
 
-import 'package:flutter/cupertino.dart';
+import 'package:cupertino_ui/cupertino_ui.dart';
 import 'package:go_router/go_router.dart';
 
 import '../barrel/pages_barrel.dart';

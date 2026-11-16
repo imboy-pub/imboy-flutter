@@ -17,7 +17,7 @@
 //
 // 前置：j16a 已把 bob C2C DND 置 on。
 
-import 'package:flutter/cupertino.dart';
+import 'package:cupertino_ui/cupertino_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/page/chat/chat_setting/chat_setting_page.dart';
 import 'package:imboy/page/conversation/widget/conversation_item.dart';

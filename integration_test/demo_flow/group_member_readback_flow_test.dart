@@ -1,7 +1,7 @@
 // P0 群管理跨设备回读：成员只读核对管理员写入的测试群。
 // 不创建、不修改、不删除任何群数据。
 
-import 'package:flutter/cupertino.dart';
+import 'package:cupertino_ui/cupertino_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:imboy/component/http/http_client.dart';

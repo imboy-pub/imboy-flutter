@@ -15,7 +15,8 @@
 //     --dart-define=TEST_EXPECTED_UID=<B-uid> --dart-define=PEER_UID=<A-uid> \
 //     --dart-define=H2_RUN_TAG=<tag>
 
-import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart' show debugPrintSynchronously;
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart' show TextMessage;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -177,16 +178,14 @@ void main() {
     await settle(tester, maxSeconds: 8);
     expect(find.byType(ChatPage), findsOneWidget, reason: 'ChatPage(A↔B) 应已打开');
     await takeScreenshot(tester, 'h2_c2c_macB_01_chat_ready');
-    // ignore: avoid_print
-    print('[H2-C2C] B 侧就绪，等待 A 的 marker=$aToBMarker');
+    debugPrintSynchronously('[H2-C2C] B 侧就绪，等待 A 的 marker=$aToBMarker');
 
     // 轮询最多 5 分钟：A 的密文经 WS 到达 → Olm 入站解密 → 气泡渲染明文
     var received = false;
     for (var i = 0; i < 900 && !received; i++) {
       await tester.pump(const Duration(seconds: 1));
       if (i % 15 == 14) {
-        // ignore: avoid_print
-        print('[H2-C2C] B 侧等待 A 消息 ${(i + 1)}s');
+        debugPrintSynchronously('[H2-C2C] B 侧等待 A 消息 ${(i + 1)}s');
       }
       received = tester.any(
         find.textContaining(aToBMarker, findRichText: true),
@@ -196,8 +195,7 @@ void main() {
       fail('900 秒内 B 侧未出现 A 的解密明文（WS 投递 / Olm 入站解密链断裂）');
     }
     await takeScreenshot(tester, 'h2_c2c_macB_02_received_decrypted');
-    // ignore: avoid_print
-    print('[H2-C2C] B 侧已解密渲染 A 的消息：$aToBMarker');
+    debugPrintSynchronously('[H2-C2C] B 侧已解密渲染 A 的消息：$aToBMarker');
 
     // 回复：真实 provider 发送链（PolicyGate → Olm 出站加密 → WS 提交）
     final chatCtx = tester.element(find.byType(ChatPage).first);
@@ -233,8 +231,7 @@ void main() {
 
     // 本地持久化证据：dump ChatService.messages（真相源 = 本地 SQLCipher 库）
     final msgs = notifier.chatService?.messages ?? const [];
-    // ignore: avoid_print
-    print(
+    debugPrintSynchronously(
       '[H2-C2C] B 侧本地消息列表(${msgs.length}) '
       '${msgs.map((m) => '${m.authorId == selfUid ? "B" : "A"}:${m.id}').join(",")}',
     );
@@ -244,7 +241,6 @@ void main() {
       reason: 'A 的消息应已进入 B 本地库（SQLCipher 持久化）',
     );
     drainKnownFrameworkExceptions(tester);
-    // ignore: avoid_print
-    print('[H2-C2C] B 侧 PASS');
+    debugPrintSynchronously('[H2-C2C] B 侧 PASS');
   }, timeout: const Timeout(Duration(minutes: 18)));
 }

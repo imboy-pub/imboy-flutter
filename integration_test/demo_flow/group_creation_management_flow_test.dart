@@ -6,7 +6,7 @@
 // 及 GroupDetailPage 回读核对。不会解散群、退群、移除成员、开启群级 E2EE
 // 或操作第三方成员。
 
-import 'package:flutter/cupertino.dart';
+import 'package:cupertino_ui/cupertino_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:imboy/component/http/http_client.dart';

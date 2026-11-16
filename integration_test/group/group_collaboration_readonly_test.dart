@@ -3,8 +3,8 @@
 // 只读取现有生产数据，不创建日程、任务或投票，也不确认参加或提交选项。
 // 目的：验证群协作入口和三个列表页能够挂载，数据为空时也必须正常显示空态。
 
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
+import 'package:cupertino_ui/cupertino_ui.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/page/group/schedule/group_schedule_page.dart';
 import 'package:imboy/page/group/task/group_task_page.dart';

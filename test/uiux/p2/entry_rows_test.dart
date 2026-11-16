@@ -7,7 +7,7 @@
 ///  4. P2 外其他 Tab 快照/行为不变（本卡只改工作台分支外观与 CS 槽）
 library;
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/component/ui/resource_entry_tile.dart';
 

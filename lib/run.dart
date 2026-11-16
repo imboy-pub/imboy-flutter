@@ -2,13 +2,16 @@ import 'dart:async';
 import 'dart:ui' show PlatformDispatcher;
 
 import 'package:flutter/foundation.dart' show kDebugMode, kIsWeb;
-import 'package:flutter/material.dart';
+import 'package:cupertino_ui/cupertino_ui.dart'
+    show GlobalCupertinoLocalizations;
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
 import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/modules/talk_record/presentation/talk_record_recording_host.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:flutter_localizations/flutter_localizations.dart'
+    show GlobalWidgetsLocalizations;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -171,10 +174,8 @@ class _IMBoyAppState extends ConsumerState<IMBoyApp> {
     _incomingBackupSub = IncomingBackupHandler.watchIncomingFiles().listen(
       (path) {
         final ctx = navigatorKey.currentContext;
-        // navigatorKey 是全局 key（config/init.dart），生命周期长于任何 widget；
-        // 非 null 即可安全导航。linter 无法识别这点，故显式忽略。
-        if (ctx != null) {
-          // ignore: use_build_context_synchronously
+        // Resolve the current navigator for each event and guard its lifetime.
+        if (ctx != null && ctx.mounted) {
           ctx.go('/e2ee_backup_import', extra: {'initialFilePath': path});
         }
       },

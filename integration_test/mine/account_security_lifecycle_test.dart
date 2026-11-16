@@ -34,8 +34,9 @@
 // 宿主编排（/tmp/as_orchestrate.sh）按序：场景间用 psql/curl 切换
 // password/email 状态并做服务端断言；终章注销消耗 SmokeEmpty。
 
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart' show Navigator, TextField;
+import 'package:flutter/foundation.dart' show debugPrintSynchronously;
+import 'package:cupertino_ui/cupertino_ui.dart';
+import 'package:material_ui/material_ui.dart' show Navigator, TextField;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
@@ -263,8 +264,7 @@ void main() {
         final t = (w as Text).data;
         if (t != null) texts.add(t);
       }
-      // ignore: avoid_print
-      print(
+      debugPrintSynchronously(
         'DIAG AS1 toast 未现，页面文本(${texts.length}): '
         '${texts.take(40).join(" | ")}',
       );
@@ -328,8 +328,7 @@ void main() {
     );
     if (!guidePage) {
       final cu = UserRepoLocal.to.currentUser;
-      // ignore: avoid_print
-      print(
+      debugPrintSynchronously(
         'DIAG AS2 引导页未现: cacheEmail=${cu?.email} '
         'cacheMobile=${cu?.mobile} uid=${UserRepoLocal.to.currentUid}',
       );
@@ -338,8 +337,7 @@ void main() {
         final t = (w as Text).data;
         if (t != null && t.isNotEmpty) texts.add(t);
       }
-      // ignore: avoid_print
-      print(
+      debugPrintSynchronously(
         'DIAG AS2 页面文本(${texts.length}): '
         '${texts.take(30).join(" | ")}',
       );
@@ -456,16 +454,14 @@ void main() {
       listen: false,
     );
     final st = container.read(changeLoginPasswordProvider);
-    // ignore: avoid_print
-    print(
+    debugPrintSynchronously(
       'DIAG AS4 二次提交前: existingLen=${st.existingPassword.length} '
       'newLen=${st.newPassword.length} confirmLen=${st.confirmLength} '
       'canSubmit=${st.canSubmit}',
     );
     await _fillChangePassword(tester, 'admin888x', 'admin888c');
     final st2 = container.read(changeLoginPasswordProvider);
-    // ignore: avoid_print
-    print(
+    debugPrintSynchronously(
       'DIAG AS4 二次提交后: isLoading=${st2.isLoading} '
       'canSubmit=${st2.canSubmit}',
     );

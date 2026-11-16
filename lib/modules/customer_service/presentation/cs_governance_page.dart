@@ -23,8 +23,8 @@
 /// - TSID lossless：identity/org id 全链 String（entityIdOf）。
 library;
 
-import 'package:flutter/cupertino.dart' show CupertinoIcons;
-import 'package:flutter/material.dart';
+import 'package:cupertino_ui/cupertino_ui.dart' show CupertinoIcons;
+import 'package:material_ui/material_ui.dart';
 
 import 'package:imboy/i18n/strings.g.dart';
 

@@ -4,8 +4,8 @@
 // 进会话列表、打开指定 C2C、经真实输入链发送/提交文本、等待正向 sent、
 // 轮询 toast、按文本定位气泡 widget。
 
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
+import 'package:cupertino_ui/cupertino_ui.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/config/init.dart' show AppInitializer;

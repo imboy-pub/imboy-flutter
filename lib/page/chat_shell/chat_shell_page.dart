@@ -12,7 +12,7 @@
 ///   子页仍负责消息角标、连接状态及自己的页面操作。
 library;
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
 
 import 'chat_shell_breakpoint.dart';

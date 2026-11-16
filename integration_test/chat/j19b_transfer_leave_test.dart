@@ -16,7 +16,7 @@
 // 运行契约同 J18.a/J19.a（TEST_PHONE/TEST_PASSWORD/TEST_EXPECTED_UID/
 // TEST_GROUP_ID/TEST_GROUP_TITLE + TEST_ALLOW_BUSINESS_WRITES=true）。
 
-import 'package:flutter/cupertino.dart';
+import 'package:cupertino_ui/cupertino_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/page/chat/chat/chat_page.dart';
 import 'package:imboy/page/conversation/widget/conversation_item.dart';

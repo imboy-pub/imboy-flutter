@@ -67,10 +67,10 @@ dependencies:
   # ┌─────────────────────────────────────────────────────────────────┐
   # │ 🎨 Theme & UI Enhancement                                      │
   # └─────────────────────────────────────────────────────────────────┘
-  dynamic_color: ^2.1.0           # 2.x returns material_ui ColorScheme, incompatible with Flutter ColorScheme
-  # dynamic_color 2.x 的 toColorScheme 返回 material_ui 包的 ColorScheme 类型，
-  # lib/theme/dynamic_color_manager.dart 直接 import 该类型，故需显式声明此依赖。
-  material_ui: ^1.8.0                 # transitive dep of dynamic_color 2.x, imported directly by dynamic_color_manager.dart
+  dynamic_color: ^2.1.0           # 2.x returns the standalone material_ui ColorScheme
+  # 应用、动态配色及本地化使用同一套独立 UI 类型。
+  material_ui: ^1.11.0               # Flutter 3.50 standalone Material widgets and localizations
+  cupertino_ui: ^1.1.6               # Flutter 3.50 standalone Cupertino widgets and localizations
   cross_cache: ^1.1.1                 # Cross-platform caching strategy
   idb_shim: ^2.11.1                   # Inspect legacy browser cache ownership
   # device_info_plus 12+ 同样迁移到 win32 6.x API（LOCAL_MACHINE / Win32Result.value）。
@@ -292,17 +292,44 @@ dependency_overrides:
   flyer_chat_image_message:
     path: plugin/flutter_chat_ui/packages/flyer_chat_image_message
   flyer_chat_video_message:
-    path: plugin/flutter_chat_ui/packages/flyer_chat_video_message
+    path: plugin/flutter_ui_vendor/flyer_chat_video_message
   flyer_chat_file_message:
     path: plugin/flutter_chat_ui/packages/flyer_chat_file_message
   flyer_chat_system_message:
     path: plugin/flutter_chat_ui/packages/flyer_chat_system_message
   flyer_chat_audio_message:
-    path: plugin/flutter_chat_ui/packages/flyer_chat_audio_message
+    path: plugin/flutter_ui_vendor/flyer_chat_audio_message
   flyer_chat_location_message:
     path: plugin/flutter_chat_ui/packages/flyer_chat_location_message
   cross_cache:
     path: plugin/flutter_chat_ui/packages/cross_cache
+
+  # Locked upstream sources with only the required standalone UI migration.
+  # Provenance, licenses and removal criteria: docs/dependencies/flutter-ui-migration.md.
+  flutter_markdown_plus:
+    path: plugin/flutter_ui_vendor/flutter_markdown_plus
+  flutter_easyloading:
+    path: plugin/flutter_ui_vendor/flutter_easyloading
+  feedback:
+    path: plugin/flutter_ui_vendor/feedback
+  intl_phone_number_input:
+    path: plugin/flutter_ui_vendor/intl_phone_number_input
+  wechat_assets_picker:
+    path: plugin/flutter_ui_vendor/wechat_assets_picker
+  wechat_camera_picker:
+    path: plugin/flutter_ui_vendor/wechat_camera_picker
+  wechat_picker_library:
+    path: plugin/flutter_ui_vendor/wechat_picker_library
+  extended_image:
+    path: plugin/flutter_ui_vendor/extended_image
+  emoji_picker_flutter:
+    path: plugin/flutter_ui_vendor/emoji_picker_flutter
+  flutter_slidable:
+    path: plugin/flutter_ui_vendor/flutter_slidable
+  highlight_text:
+    path: plugin/flutter_ui_vendor/highlight_text
+  flutter_rating_bar:
+    path: plugin/flutter_ui_vendor/flutter_rating_bar
 
 
 #  characters: ^1.4.0
@@ -376,6 +403,9 @@ dev_dependencies:
   camera_platform_interface: any
   url_launcher_platform_interface: any
   provider: any
+  video_player_platform_interface: any
+  extended_image: ^10.1.0
+  wechat_picker_library: ^1.0.7
 flutter:
 
   # ┌─ Material Design ───────────────────────────────────────────────┐

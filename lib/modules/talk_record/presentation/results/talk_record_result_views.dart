@@ -9,8 +9,8 @@
 /// 本文件只做展示，不持有状态；横幅/头像/卡片底色复用 T18 基础件。
 library;
 
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
+import 'package:cupertino_ui/cupertino_ui.dart';
+import 'package:material_ui/material_ui.dart';
 
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/modules/talk_record/presentation/results/talk_record_results_providers.dart'

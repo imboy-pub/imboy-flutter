@@ -4,7 +4,7 @@
 /// 状态或请求缓存；当前页仅做非常轻的淡入与水平位移，避免桌面端“硬切”。
 library;
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:imboy/theme/default/app_duration.dart';
 
 /// Web Shell 中间面板。

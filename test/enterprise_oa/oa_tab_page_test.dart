@@ -5,7 +5,7 @@
 /// 与共享 router——ready 态渲染占位槽即证明挂载点存在。
 library;
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:imboy/i18n/strings.g.dart';

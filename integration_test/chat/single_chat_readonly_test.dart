@@ -1,7 +1,7 @@
 // 会话列表 → 已有 C2C 单聊 → 历史只读 UI 流程。
 // 不输入、不发送、不改变未读/置顶状态。
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:imboy/page/chat/chat/chat_page.dart';

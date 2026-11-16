@@ -1,8 +1,8 @@
 // 页面走 iOS 风格（CupertinoListTile.notched / CupertinoTextField /
 // CupertinoButton / CupertinoIcons），断言必须同步；此前用 Material
 // TextFormField / ListTile / TextButton / Icons.arrow_forward_ios，从未通过。
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
+import 'package:cupertino_ui/cupertino_ui.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/i18n/strings.g.dart';

@@ -25,7 +25,7 @@
 
 | 层级 | 技术 |
 |------|------|
-| 框架 | Flutter / Dart 3.13+ |
+| 框架 | Flutter 3.50.0 / Dart 3.13+；Material、Cupertino 使用独立 UI 包 |
 | 状态管理 | Riverpod（100% 迁移完成，0 GetX） |
 | 路由 | go_router |
 | 本地数据库 | SQLite (sqflite 2.4+ + SQLCipher)，当前 schema v40（v38 FTS 草稿未注册；manifest 单一真源） |
@@ -33,6 +33,11 @@
 | 实时通讯 | WebSocket + WebRTC |
 | 国际化 | slang ^4.19.2，默认语言 zh-CN |
 | 架构模式 | MVVM + Repository |
+
+应用 UI 与本地化统一使用 `package:material_ui/material_ui.dart` 和
+`package:cupertino_ui/cupertino_ui.dart`；基础 Widget、动画、foundation 仍使用 Flutter SDK。
+尚未迁移的第三方 UI 包使用固定来源的本地适配，见
+[Flutter UI 依赖迁移](docs/dependencies/flutter-ui-migration.md)。新旧同名 UI 类型不能混用。
 
 ---
 

@@ -2,6 +2,8 @@
 // Build this target with --flavor gzCustomer, install the owned APK with
 // adb install --no-streaming, then use the existing IntegrationDriver.
 // Verify device/package occupancy first. This is not business E2E acceptance.
+import 'package:flutter/foundation.dart' show debugPrintSynchronously;
+
 import 'dart:convert';
 import 'dart:io' as io;
 import 'dart:math' as math;
@@ -9,8 +11,8 @@ import 'dart:typed_data';
 import 'dart:ui' as ui;
 
 import 'package:dio/dio.dart';
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
+import 'package:cupertino_ui/cupertino_ui.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -283,17 +285,14 @@ Future<void> _capture(WidgetTester tester, String name) async {
     final bytes = await image.toByteData(format: ui.ImageByteFormat.png);
     expect(bytes, isNotNull);
     final encoded = base64Encode(bytes!.buffer.asUint8List());
-    // ignore: avoid_print
-    print('[REFINED_PNG_BEGIN:$name:${encoded.length}]');
+    debugPrintSynchronously('[REFINED_PNG_BEGIN:$name:${encoded.length}]');
     for (var offset = 0; offset < encoded.length; offset += 800) {
-      // ignore: avoid_print
-      print(
+      debugPrintSynchronously(
         '[REFINED_PNG:$name:$offset]'
         '${encoded.substring(offset, math.min(offset + 800, encoded.length))}',
       );
     }
-    // ignore: avoid_print
-    print('[REFINED_PNG_END:$name:${encoded.length}]');
+    debugPrintSynchronously('[REFINED_PNG_END:$name:${encoded.length}]');
   } finally {
     image.dispose();
   }

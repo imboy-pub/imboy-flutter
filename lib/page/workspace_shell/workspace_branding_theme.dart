@@ -14,7 +14,7 @@
 /// 测试锚点：两个不同 branding 的 workspace 切换各自生效（widget 断言）。
 library;
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 import 'package:imboy/store/model/workspace_model.dart';
 

@@ -17,7 +17,7 @@
 ///   禁止 `context.push` 任意字符串路由（伪造跳转面）。
 library;
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 import 'package:imboy/component/helper/safe_launcher.dart';
 import 'package:imboy/i18n/strings.g.dart';

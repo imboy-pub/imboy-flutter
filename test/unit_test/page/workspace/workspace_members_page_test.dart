@@ -8,7 +8,7 @@
 ///   builder 注入 AppLoading.init 的既有惯例见 e2ee_backup_export 测试）。
 library;
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';

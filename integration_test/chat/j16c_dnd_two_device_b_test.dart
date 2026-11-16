@@ -15,7 +15,7 @@
 //
 // 前置：A 端脚本已跑（A 端本机 c2c/group DND=on 已落 A 的设备存储）。
 
-import 'package:flutter/cupertino.dart';
+import 'package:cupertino_ui/cupertino_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/page/chat/chat_setting/chat_setting_page.dart';
 import 'package:imboy/page/conversation/widget/conversation_item.dart';

@@ -29,7 +29,7 @@
 //   （WS_URL_OVERRIDE 必带：合成节点直连须覆盖为真实路由 /api/v1/ws，
 //    同 J16.c 双机批次环境注记）
 
-import 'package:flutter/cupertino.dart';
+import 'package:cupertino_ui/cupertino_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/app_core/feature_flags/app_feature_registry.dart';

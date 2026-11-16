@@ -7,7 +7,7 @@ library;
 
 import 'dart:async';
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:imboy/component/ui/desktop_navigation_rail.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/service/storage.dart';

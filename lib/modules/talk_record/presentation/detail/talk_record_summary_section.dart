@@ -9,8 +9,8 @@
 /// - 共享笔记明确「随记录共享」，不叫「我的私密笔记」（§4）。
 library;
 
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
+import 'package:cupertino_ui/cupertino_ui.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:imboy/i18n/strings.g.dart';

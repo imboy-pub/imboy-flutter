@@ -1,6 +1,6 @@
 import 'dart:math';
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 /// 应用统一颜色管理类
 /// 提供亮色和暗色主题的所有颜色定义

@@ -14,7 +14,8 @@
 //
 // 运行（编排脚本启动，勿单跑）：flutter test <file> -d XWE6R19916004085 ...
 
-import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart' show debugPrintSynchronously;
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart' show TextMessage;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -247,8 +248,9 @@ void main() {
     // sendMessage 内部 rotate→key→正文背靠背，对端导入未完成即解密必败）。
     // ensureOutboundSession 幂等：随后 sendMessage 复用同一会话不再分发。
     await GroupSessionService.to.ensureOutboundSession(gid: _gid);
-    // ignore: avoid_print
-    print('[H2-C2G] A 侧 room-key 已预分发，静默 $_keySettleDelay 等 B 导入');
+    debugPrintSynchronously(
+      '[H2-C2G] A 侧 room-key 已预分发，静默 $_keySettleDelay 等 B 导入',
+    );
     await Future<void>.delayed(_keySettleDelay);
 
     // m1：首条群消息（room-key 已在握，B 侧可解密）
@@ -261,8 +263,7 @@ void main() {
       reason: 'A 侧 m1 应本地回显',
     );
     await takeScreenshot(tester, 'h2_c2g_andA_02_m1_sent');
-    // ignore: avoid_print
-    print('[H2-C2G] A 侧已发送 m1：$aMarker');
+    debugPrintSynchronously('[H2-C2G] A 侧已发送 m1：$aMarker');
 
     // 等 B 回复 m2（B 要等 A 先上线才会回，给足 8 分钟）。白盒检测：
     // orch9 教训（pump 驱动 UI 断言在气泡渲染后挂起），UI 断言仅收尾一次。
@@ -270,8 +271,7 @@ void main() {
     for (var i = 0; i < 480 && !received; i++) {
       await Future<void>.delayed(const Duration(seconds: 1));
       if (i % 15 == 14) {
-        // ignore: avoid_print
-        print('[H2-C2G] A 侧等待 B 回复 ${(i + 1)}s');
+        debugPrintSynchronously('[H2-C2G] A 侧等待 B 回复 ${(i + 1)}s');
       }
       received = _inboxContains(tester, bMarker);
     }
@@ -285,8 +285,7 @@ void main() {
       reason: 'A 侧应渲染 B 的回复',
     );
     await takeScreenshot(tester, 'h2_c2g_andA_03_reply_decrypted');
-    // ignore: avoid_print
-    print('[H2-C2G] A 侧已解密 B 的回复：$bMarker');
+    debugPrintSynchronously('[H2-C2G] A 侧已解密 B 的回复：$bMarker');
 
     // 新成员阶段：编排哨兵在「B 侧已回复」后经 API 把 spare7 拉入群（世代
     // 推进），等 B 侧实例退出后在 mac 上以 spare7 登录（发布设备密钥）。
@@ -306,8 +305,7 @@ void main() {
           spare7Online = didToUid.values.any((v) => v == _spare7Uid);
         } catch (_) {}
         if (i % 6 == 5) {
-          // ignore: avoid_print
-          print(
+          debugPrintSynchronously(
             '[H2-C2G] A 侧等待 spare7 设备上线 ${(i + 1) * 5}s online=$spare7Online',
           );
         }
@@ -324,8 +322,9 @@ void main() {
     // 静默期后再发 m3（与 m1 同法规避 orch7 竞态）。
     GroupSessionService.to.markGroupStale(_gid);
     await GroupSessionService.to.ensureOutboundSession(gid: _gid);
-    // ignore: avoid_print
-    print('[H2-C2G] A 侧 S2 room-key 已预分发（含 spare7），静默 $_keySettleDelay');
+    debugPrintSynchronously(
+      '[H2-C2G] A 侧 S2 room-key 已预分发（含 spare7），静默 $_keySettleDelay',
+    );
     await Future<void>.delayed(_keySettleDelay);
     final ok3 = await _sendGroupText(tester, _gid, selfUid, m3Marker);
     expect(ok3, isTrue, reason: 'A 侧 m3（新成员在场）发送应成功');
@@ -337,20 +336,17 @@ void main() {
     }
     expect(sawM3, isTrue, reason: 'A 侧应看到自己的 m3 回显');
     await takeScreenshot(tester, 'h2_c2g_andA_04_m3_sent');
-    // ignore: avoid_print
-    print('[H2-C2G] A 侧 m3 已发送并回显：$m3Marker');
+    debugPrintSynchronously('[H2-C2G] A 侧 m3 已发送并回显：$m3Marker');
 
     // 保持存活 ~7 分钟：spare7 的设备密钥上报早于其主 shell 就绪，m3 可能
     // 先于其进群聊页到达（offline 拉取+grant 兜底路径），保活覆盖其全程。
     for (var i = 0; i < 420; i++) {
       await tester.pump(const Duration(seconds: 1));
       if (i % 60 == 59) {
-        // ignore: avoid_print
-        print('[H2-C2G] A 侧存活保活 ${i + 1}s（等新成员观察窗完成）');
+        debugPrintSynchronously('[H2-C2G] A 侧存活保活 ${i + 1}s（等新成员观察窗完成）');
       }
     }
     drainKnownFrameworkExceptions(tester);
-    // ignore: avoid_print
-    print('[H2-C2G] A 侧 PASS');
+    debugPrintSynchronously('[H2-C2G] A 侧 PASS');
   }, timeout: const Timeout(Duration(minutes: 40)));
 }

@@ -5,7 +5,7 @@
 /// 收缩贴合、超屏滚动，不再触发 Column 底部溢出。
 library;
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 

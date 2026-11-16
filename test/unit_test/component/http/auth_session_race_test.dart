@@ -4,7 +4,7 @@ import 'dart:io';
 
 import 'package:path_provider_platform_interface/path_provider_platform_interface.dart';
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:go_router/go_router.dart';
 import 'package:imboy/config/init.dart';
 import 'package:imboy/component/upload/resumable_attachment_uploader.dart';

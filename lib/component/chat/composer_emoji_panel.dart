@@ -1,6 +1,6 @@
 import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
+import 'package:cupertino_ui/cupertino_ui.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_radius.dart';
@@ -127,7 +127,7 @@ Config buildComposerEmojiConfig(
       emojiSizeMax: 28,
       backgroundColor: backgroundColor,
       gridPadding: const EdgeInsets.symmetric(horizontal: AppSpacing.small),
-      buttonMode: ButtonMode.CUPERTINO,
+      buttonMode: ButtonMode.cupertino,
       noRecents: Text(
         t.common.noData,
         style: context.textStyle(FontSizeType.body, color: AppColors.iosGray3),
@@ -138,7 +138,7 @@ Config buildComposerEmojiConfig(
       tabBarHeight: 40,
       backgroundColor: backgroundColor,
       // 首屏落在「最近使用」时若无历史只有一句空文案，改落笑脸分类，开箱即有内容。
-      initCategory: Category.SMILEYS,
+      initCategory: Category.smileys,
       iconColor: iconColor,
       iconColorSelected: AppColors.primary,
       indicatorColor: AppColors.primary,

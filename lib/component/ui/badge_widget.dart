@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 
 /// Badge overlay widget — replaces package:badges.

@@ -356,7 +356,11 @@ void main() {
   // 而这正是耗掉三轮才发现的那个缺口。
   group('接线守护（结构级，非行为级）', () {
     test('_handleE2EEMessage 必须在 v1/v2 路径之前委托给 decryptInboundV3', () {
-      final source = File('lib/service/message.dart').readAsStringSync();
+      final host = File('lib/service/message.dart').readAsStringSync();
+      expect(host, contains("part 'message_e2ee_inbound.dart';"));
+      final source = File('lib/service/message_e2ee_inbound.dart')
+          .readAsStringSync();
+      expect(source, startsWith("part of 'message.dart';"));
 
       final handlerIdx = source.indexOf('_handleE2EEMessage({');
       expect(handlerIdx, greaterThan(-1), reason: '_handleE2EEMessage 定义不存在');

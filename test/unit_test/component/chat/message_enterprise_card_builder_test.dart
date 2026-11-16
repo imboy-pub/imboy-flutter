@@ -9,7 +9,7 @@
 ///    复用 enterprise_message_origin，不回落 humanDirect）。
 library;
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/component/chat/message_business_action_card_builder.dart';

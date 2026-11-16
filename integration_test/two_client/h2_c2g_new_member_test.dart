@@ -12,7 +12,8 @@
 //
 // 运行（编排脚本启动，勿单跑）：flutter test <file> -d macos ...
 
-import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart' show debugPrintSynchronously;
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart' show TextMessage;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -71,8 +72,9 @@ Future<bool> _switchToSpare7(WidgetTester tester) async {
   if (current == _expectedUid) return true;
   if (current.isNotEmpty) {
     // mac 持久着 B 的会话：清状态并导回欢迎页（与既有验收测试同法）
-    // ignore: avoid_print
-    print('[H2-C2G-NEW] 切号：$current → spare7($_expectedUid)，quitLogin');
+    debugPrintSynchronously(
+      '[H2-C2G-NEW] 切号：$current → spare7($_expectedUid)，quitLogin',
+    );
     await UserRepoLocal.to.quitLogin();
     final ctx = tester.element(find.byType(Navigator).first);
     GoRouter.of(ctx).go('/welcome');
@@ -203,15 +205,13 @@ void main() {
         await tester.pump(const Duration(milliseconds: 300));
       }
     }
-    // ignore: avoid_print
-    print('[H2-C2G-NEW] 入群轮询结束 joined=$joined');
+    debugPrintSynchronously('[H2-C2G-NEW] 入群轮询结束 joined=$joined');
     if (!joined) {
       fail('12 分钟内 spare7 未入群（编排 join 哨兵或 API 失败），无法验证隔离语义');
     }
     await GroupApi().detail(gid: _gid);
     final flagOn = await GroupSessionService.to.isGroupE2EE(_gid);
-    // ignore: avoid_print
-    print('[H2-C2G-NEW] spare7 旗标=$flagOn 进入群聊页');
+    debugPrintSynchronously('[H2-C2G-NEW] spare7 旗标=$flagOn 进入群聊页');
 
     // 打开群聊页：优先深链，失败回退 widget 直推
     final ctx = tester.element(find.byType(Scaffold).first);
@@ -250,8 +250,9 @@ void main() {
       }
       sawM3 = sawM3 || _inboxContains(tester, m3);
       if (i % 30 == 29) {
-        // ignore: avoid_print
-        print('[H2-C2G-NEW] 等待 m3（世代内消息）${i + 1}s sawM3=$sawM3');
+        debugPrintSynchronously(
+          '[H2-C2G-NEW] 等待 m3（世代内消息）${i + 1}s sawM3=$sawM3',
+        );
       }
       if (sawM3 && i > 20) break;
     }
@@ -262,8 +263,9 @@ void main() {
       //（policy_violation）——m3 在本拓扑下不可达，属测试环境限制非产品
       // 缺陷（前向隔离断言已全过）。标 BLOCKED 收尾，定性见
       // steps/agents/A6-c2g-security-audit.md 与 p1_c2g_orch10.log。
-      // ignore: avoid_print
-      print('[H2-C2G-NEW] BLOCKED: m3 不可达（同机双账号 did 拓扑被 attest 门拒）');
+      debugPrintSynchronously(
+        '[H2-C2G-NEW] BLOCKED: m3 不可达（同机双账号 did 拓扑被 attest 门拒）',
+      );
       await takeScreenshot(tester, 'h2_c2g_new_member_m3_blocked');
       drainKnownFrameworkExceptions(tester);
       return;
@@ -285,8 +287,7 @@ void main() {
       reason: '新成员 UI 不应渲染 m2',
     );
     await takeScreenshot(tester, 'h2_c2g_new_member_isolated');
-    // ignore: avoid_print
-    print('[H2-C2G-NEW] PASS：m1/m2 不可见，m3 可见');
+    debugPrintSynchronously('[H2-C2G-NEW] PASS：m1/m2 不可见，m3 可见');
     drainKnownFrameworkExceptions(tester);
   }, timeout: const Timeout(Duration(minutes: 30)));
 }

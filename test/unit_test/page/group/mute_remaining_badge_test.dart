@@ -5,7 +5,7 @@
 /// 可被 find.text 命中，且使用破坏性语义色（iOS red / errorColor）。
 library;
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/page/group/group_member/mute_remaining_badge.dart';
 

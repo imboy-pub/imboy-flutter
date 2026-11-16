@@ -1,0 +1,33 @@
+{
+  "package": "flutter_markdown_plus",
+  "version": "1.0.12",
+  "source": "https://pub.dev/packages/flutter_markdown_plus/versions/1.0.12",
+  "repository": "https://github.com/foresightmobile/flutter_markdown_plus",
+  "archive_sha256": "fce641d6c2106cc495de1cd603f97a4f9d615a97a64011928ded380dbdade935",
+  "license": "LICENSE",
+  "runtime_resources": [],
+  "source_file_sha256": {
+    "LICENSE": "89519eca6f7b9529b35bdddd623a58c3af06a88c458dbd6531ddb4675acf75a9",
+    "lib/flutter_markdown_plus.dart": "89c7fcababe71cebcf3941b17cb8be9bbfd6139c689d8a2e943aad3184571eb4",
+    "lib/src/_functions_io.dart": "ae8674b982278da0bf168a6a5e3f13419c42800f5de9accdd984350a7fc49fe6",
+    "lib/src/_functions_web.dart": "dc8d6e3e6f70fff945dccafe616d2491ddc826b3b2f2f7024526ebfe52bcc383",
+    "lib/src/builder.dart": "f1e276216dcc9715b80bc10a4dbcf16d2520e90dae4db477c8f1b7722b2be64d",
+    "lib/src/style_sheet.dart": "557602085e5da1a9afc7e3fc44a36f3fb4f96d0d0b6bdb7ba66005c6d730d9ce",
+    "lib/src/widget.dart": "c00bfe6d794c303d1dcc9f85d810c40e09061af3bb1babade14232ce0d6fbd80",
+    "pubspec.yaml": "6891a567abd85a384630061b07ee7328f0ec5c03e742473082585eec0aa3af5b"
+  },
+  "changed_files": [
+    "lib/src/_functions_io.dart",
+    "lib/src/_functions_web.dart",
+    "lib/src/builder.dart",
+    "lib/src/style_sheet.dart",
+    "lib/src/widget.dart",
+    "pubspec.yaml"
+  ],
+  "changes": [
+    "Use standalone public Material/Cupertino UI packages for widgets, themes, and localizations.",
+    "Declare required UI dependencies and Flutter >=3.47.0; retain upstream Dart language and platform contracts.",
+    "Keep this repository-local compatibility fork unpublished (publish_to: none).",
+    "Remove publish-only screenshots metadata; no declared runtime assets or fonts are removed."
+  ]
+}

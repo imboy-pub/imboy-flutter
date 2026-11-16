@@ -99,14 +99,8 @@ class E2EEKeyService {
   ///
   /// @example
   /// ```dart
-  /// try {
-  ///   final keyInfo = await E2EEKeyService.generateKeyPair();
-  ///   print('密钥已生成');
-  ///   print('设备 ID: ${keyInfo['device_id']}');
-  ///   print('密钥 ID: ${keyInfo['key_id']}');
-  /// } catch (e) {
-  ///   print('密钥生成失败: $e');
-  /// }
+  /// final keyInfo = await E2EEKeyService.generateKeyPair();
+  /// final deviceId = keyInfo['device_id'];
   /// ```
   static Future<Map<String, dynamic>> generateKeyPair() async {
     final storage = StorageSecureService.to;
@@ -230,12 +224,7 @@ class E2EEKeyService {
   /// @example
   /// ```dart
   /// final keyInfo = await E2EEKeyService.getKeyInfo();
-  /// if (keyInfo != null) {
-  ///   print('设备 ID: ${keyInfo['device_id']}');
-  ///   print('密钥 ID: ${keyInfo['key_id']}');
-  /// } else {
-  ///   print('未找到密钥');
-  /// }
+  /// final createdAt = keyInfo?['created_at'];
   /// ```
   static Future<Map<String, dynamic>?> getKeyInfo() async {
     final storage = StorageSecureService.to;
@@ -277,7 +266,6 @@ class E2EEKeyService {
   /// @example
   /// ```dart
   /// await E2EEKeyService.deleteKey();
-  /// print('密钥已删除');
   /// ```
   static Future<void> deleteKey() async {
     final storage = StorageSecureService.to;

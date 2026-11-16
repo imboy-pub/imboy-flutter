@@ -9,7 +9,8 @@
 // 运行（编排脚本启动，勿单跑）：
 //   flutter test <file> -d macos --dart-define=...（同 h2_c2c 系列 + H2_C2G_GID）
 
-import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart' show debugPrintSynchronously;
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart' show TextMessage;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -79,8 +80,7 @@ Future<void> _softSelectChatExperienceOnce(WidgetTester tester) async {
 Future<void> _switchToExpectedAccount(WidgetTester tester) async {
   final current = UserRepoLocal.to.currentUid;
   if (_freshLogin && current == _expectedUid && current.isNotEmpty) {
-    // ignore: avoid_print
-    print('[H2-C2G] B 侧强制换新登录（清旧设备身份信任），quitLogin');
+    debugPrintSynchronously('[H2-C2G] B 侧强制换新登录（清旧设备身份信任），quitLogin');
     await UserRepoLocal.to.quitLogin();
     final ctx = tester.element(find.byType(Navigator).first);
     GoRouter.of(ctx).go('/welcome');
@@ -88,8 +88,7 @@ Future<void> _switchToExpectedAccount(WidgetTester tester) async {
     return;
   }
   if (current == _expectedUid || current.isEmpty) return;
-  // ignore: avoid_print
-  print('[H2-C2G] B 侧切号：$current → $_expectedUid，quitLogin');
+  debugPrintSynchronously('[H2-C2G] B 侧切号：$current → $_expectedUid，quitLogin');
   await UserRepoLocal.to.quitLogin();
   final ctx = tester.element(find.byType(Navigator).first);
   GoRouter.of(ctx).go('/welcome');
@@ -199,8 +198,9 @@ void main() {
     // 旗标同步须在登录完成后进行
     await GroupApi().detail(gid: _gid);
     final flagOn = await GroupSessionService.to.isGroupE2EE(_gid);
-    // ignore: avoid_print
-    print('[H2-C2G] B 侧旗标 flagOn=$flagOn gid=$_gid 等 A marker=$aMarker');
+    debugPrintSynchronously(
+      '[H2-C2G] B 侧旗标 flagOn=$flagOn gid=$_gid 等 A marker=$aMarker',
+    );
 
     // 打开群聊页：优先深链，失败回退 widget 直推
     final ctx = tester.element(find.byType(Scaffold).first);
@@ -222,8 +222,7 @@ void main() {
     }
     expect(find.byType(ChatPage), findsOneWidget, reason: '群聊页应已打开');
     await takeScreenshot(tester, 'h2_c2g_macB_01_ready');
-    // ignore: avoid_print
-    print('[H2-C2G] B 侧就绪，等待 A 的 marker=$aMarker');
+    debugPrintSynchronously('[H2-C2G] B 侧就绪，等待 A 的 marker=$aMarker');
 
     // A 在 EMUI9 上要走完整首启登录（可达 10 分钟），等待窗口给足 15 分钟。
     // 白盒检测（见 _inboxContains 教训注释）：网络层解密入库即视为收到。
@@ -231,8 +230,7 @@ void main() {
     for (var i = 0; i < 900 && !received; i++) {
       await Future<void>.delayed(const Duration(seconds: 1));
       if (i % 15 == 14) {
-        // ignore: avoid_print
-        print('[H2-C2G] B 侧等待 A 群消息 ${(i + 1)}s');
+        debugPrintSynchronously('[H2-C2G] B 侧等待 A 群消息 ${(i + 1)}s');
       }
       received = _inboxContains(tester, aMarker);
     }
@@ -246,8 +244,7 @@ void main() {
       reason: 'B 侧应渲染 A 的群消息',
     );
     await takeScreenshot(tester, 'h2_c2g_macB_02_received');
-    // ignore: avoid_print
-    print('[H2-C2G] B 侧已解密 A 的群消息：$aMarker');
+    debugPrintSynchronously('[H2-C2G] B 侧已解密 A 的群消息：$aMarker');
 
     // 回复：白盒 C2G 发送链（groupMegolm → ensureOutboundSession → WS）
     final msgId =
@@ -284,15 +281,13 @@ void main() {
       reason: 'B 侧回复应本地回显',
     );
     await takeScreenshot(tester, 'h2_c2g_macB_03_replied');
-    // ignore: avoid_print
-    print('[H2-C2G] B 侧已回复：$bMarker msgId=$msgId');
+    debugPrintSynchronously('[H2-C2G] B 侧已回复：$bMarker msgId=$msgId');
 
     // m3 阶段本侧已让位：mac 双开共享存储会与 new_member 串身份（orch7
     // 实证），B 在 m2 使命完成后立即收尾退出，mac 槽交由 spare7 接管。
     // m3 的 S2 room-key 由 A 侧预分发（spare7 设备上线后轮转），不再依赖
     // 本侧在线。
-    // ignore: avoid_print
-    print('[H2-C2G] B 侧 PASS（sawM3=让位不适用，mac 槽已交新成员）');
+    debugPrintSynchronously('[H2-C2G] B 侧 PASS（sawM3=让位不适用，mac 槽已交新成员）');
     drainKnownFrameworkExceptions(tester);
   }, timeout: const Timeout(Duration(minutes: 25)));
 }

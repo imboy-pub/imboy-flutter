@@ -1,8 +1,8 @@
 import 'package:imboy/component/ui/resource_entry_tile.dart';
 import 'package:imboy/component/ui/resource_page_layout.dart';
 import 'package:imboy/app_core/feature_flags/feature_revision_provider.dart';
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
+import 'package:cupertino_ui/cupertino_ui.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:imboy/component/ui/app_loading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';

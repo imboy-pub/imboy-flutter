@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 // Installed WebView plugin's existing platform interface, no new dependency.
 // ignore: depend_on_referenced_packages

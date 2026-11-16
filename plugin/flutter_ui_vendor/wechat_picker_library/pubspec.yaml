@@ -1,0 +1,28 @@
+# Locally patched for standalone Flutter UI packages; see UPSTREAM.json.
+name: wechat_picker_library
+publish_to: none
+description: "A foundation library for wechat_*_picker, provides extensions, themes, and widgets."
+version: 1.0.7
+topics:
+  - picker
+  - wechat
+
+repository: https://github.com/fluttercandies/flutter_wechat_picker_library
+issue_tracker: https://github.com/fluttercandies/flutter_wechat_picker_library/issues
+
+environment:
+  sdk: ^3.4.0
+  flutter: '>=3.22.0'
+
+dependencies:
+  material_ui: ^1.11.0
+  cupertino_ui: ^1.1.6
+  flutter:
+    sdk: flutter
+
+  photo_manager: ^3.0.0
+
+dev_dependencies:
+  flutter_lints: any
+  flutter_localizations:
+    sdk: flutter

@@ -8,7 +8,7 @@
 // 运行方式 / How to run:
 //   flutter test test/unit_test/page/channel/channel_order_list_page_error_retry_test.dart
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/component/http/http_exceptions.dart';

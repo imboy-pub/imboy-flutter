@@ -4,7 +4,7 @@
 // - 点击重试触发 onRetry，重试期间按钮禁用防重复触发
 import 'dart:async';
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/page/error/init_error_page.dart';
 

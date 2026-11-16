@@ -7,7 +7,7 @@
 /// 都在测试中至少被引用一次，编译通过即代表 export 完整。
 library;
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 // 仅一个 import — 验证 barrel 完整性

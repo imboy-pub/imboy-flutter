@@ -2,7 +2,7 @@ import 'dart:ui';
 
 import 'package:imboy/theme/default/app_spacing.dart';
 
-import 'package:flutter/cupertino.dart';
+import 'package:cupertino_ui/cupertino_ui.dart';
 import 'package:flutter/services.dart' show HapticFeedback;
 import 'package:imboy/component/helper/func.dart' show avatarImageProvider;
 import 'package:imboy/component/ui/avatar.dart';

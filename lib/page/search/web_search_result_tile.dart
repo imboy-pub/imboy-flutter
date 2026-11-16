@@ -1,4 +1,4 @@
-import 'package:flutter/cupertino.dart';
+import 'package:cupertino_ui/cupertino_ui.dart';
 import 'package:highlight_text/highlight_text.dart';
 
 import 'package:imboy/component/helper/datetime.dart';

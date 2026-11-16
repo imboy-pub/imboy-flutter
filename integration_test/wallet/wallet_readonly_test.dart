@@ -4,8 +4,8 @@
 // 使用原生 Navigator 直接挂载页面，测试结束前等待并关闭 route，避免异步
 // 页面动画被 teardown 误判为 SemanticsHandle 泄漏。
 
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
+import 'package:cupertino_ui/cupertino_ui.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/page/wallet/wallet_page.dart';
 import 'package:integration_test/integration_test.dart';

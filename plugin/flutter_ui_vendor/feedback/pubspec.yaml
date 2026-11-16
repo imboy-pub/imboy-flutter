@@ -1,0 +1,28 @@
+# Locally patched for standalone Flutter UI packages; see UPSTREAM.json.
+name: feedback
+description: A Flutter package for getting better feedback. It allows the user to give interactive feedback directly in the app.
+version: 3.2.0
+publish_to: none
+homepage: https://uekoetter.dev/
+repository: https://github.com/ueman/feedback
+issue_tracker: https://github.com/ueman/feedback/issues
+
+funding:
+  - https://github.com/sponsors/ueman
+
+environment:
+  sdk: '>=3.5.0 <4.0.0'
+  flutter: ">=3.47.0"
+
+dependencies:
+  material_ui: ^1.11.0
+  cupertino_ui: ^1.1.6
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+
+dev_dependencies:
+  flutter_lints: ^5.0.0
+  flutter_test:
+    sdk: flutter

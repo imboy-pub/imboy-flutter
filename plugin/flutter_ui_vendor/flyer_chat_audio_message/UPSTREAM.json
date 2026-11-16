@@ -1,0 +1,59 @@
+{
+  "schema_version": 1,
+  "package": "flyer_chat_audio_message",
+  "upstream": {
+    "source_kind": "git",
+    "version": "0.0.13+1",
+    "repository": "https://gitee.com/imboy-tripartite-deps/flutter_chat_ui.git",
+    "commit": "62245bd40067d73ddb5bf98d340537cbbe2ae3e7",
+    "subdirectory": "packages/flyer_chat_audio_message",
+    "upstream_repository": "https://github.com/flyerhq/flutter_chat_ui",
+    "git_verification": "Files read from the immutable commit recorded by the parent repository gitlink."
+  },
+  "vendoring": {
+    "included_paths": [
+      "lib",
+      "LICENSE",
+      "pubspec.yaml"
+    ],
+    "excluded_paths": [
+      "test/",
+      "example/",
+      "examples/",
+      "benchmark/",
+      "screenshots/",
+      "screenshot/",
+      "README.md",
+      "CHANGELOG.md",
+      "analysis_options.yaml",
+      "publication-only images and binaries"
+    ],
+    "rationale": "Preserve the locked runtime implementation, licenses, native registrations and declared runtime assets. Migrate public UI-library ownership and explicitly typed contracts; record local source API/style and deprecated-API changes individually below. No private Flutter SDK imports, compatibility facade, added analyzer ignores or relaxed gates."
+  },
+  "original_files_sha256": {
+    "LICENSE": "caee0459717249540dc3371f49a1c89a4823ca78b481d552a7ef848f3e7e26e5",
+    "lib/flyer_chat_audio_message.dart": "dba68405e1befdf6fe9fa9ffe5fea00ebeb90ca3b4a429933c108380d93f72aa",
+    "lib/src/flyer_chat_audio_message.dart": "c0b8873f3d4eabae7b004578d23237b631c3bb69df55379fedc22e90017dbb64",
+    "pubspec.yaml": "7122dc28c677231ccc90159f3079e11d8d1bd617a7f1ceb3ba243c1163acbbfe"
+  },
+  "modifications": [
+    {
+      "path": "lib/src/flyer_chat_audio_message.dart",
+      "changes": [
+        "Replace the public legacy Material import with package:material_ui/material_ui.dart; preserve widget logic and public signatures.",
+        "Declare the existing fire-and-forget playback callback as void Function(String, AudioMessage, Duration); preserve callback timing and synchronous error handling.",
+        "Make the integer-or-null duration metadata contract explicit with an int? cast, retaining existing valid payload behavior without coercing malformed values."
+      ]
+    },
+    {
+      "path": "pubspec.yaml",
+      "changes": [
+        "Mark the application-owned source copy publish_to: none.",
+        "Declare the Dart >=3.13 and Flutter >=3.47 minimum required by the selected public UI packages.",
+        "Declare material_ui ^1.11.0 as a direct runtime dependency.",
+        "Remove resolution: workspace after moving this package outside the upstream workspace.",
+        "Declare existing direct imports of imboy, locked flutter_chat_core, and the same audio_waveforms Git source already selected by the root application."
+      ]
+    }
+  ]
+}

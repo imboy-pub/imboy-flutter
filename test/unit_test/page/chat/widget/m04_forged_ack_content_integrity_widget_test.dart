@@ -23,7 +23,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:event_bus_plus/event_bus_plus.dart' show AppEvent;
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart' show TextMessage;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/config/const.dart';

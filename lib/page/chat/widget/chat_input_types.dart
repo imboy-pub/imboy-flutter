@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:imboy/service/quick_reply_service.dart';
 import 'package:imboy/service/storage.dart';
 import 'package:imboy/service/account_local_task_registry.dart';

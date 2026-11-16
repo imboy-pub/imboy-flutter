@@ -17,7 +17,7 @@ import 'dart:io';
 import 'package:camera_platform_interface/camera_platform_interface.dart';
 
 import 'package:camera/camera.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart' show MissingPluginException;
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_test/flutter_test.dart';

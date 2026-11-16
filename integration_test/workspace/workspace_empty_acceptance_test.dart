@@ -1,4 +1,5 @@
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart' show debugPrintSynchronously;
+import 'package:cupertino_ui/cupertino_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
@@ -156,8 +157,7 @@ void main() {
         final t = (w as Text).data;
         if (t != null && t.isNotEmpty) texts.add(t);
       }
-      // ignore: avoid_print
-      print(
+      debugPrintSynchronously(
         'DIAG WS6: current=${shellState.current?.id} '
         'providerState=$av 页面文本(${texts.length}): '
         '${texts.take(20).join(" | ")}',
@@ -206,8 +206,7 @@ void main() {
         tester.element(find.byType(Navigator).first),
       );
       final av = container.read(workspaceMembersProvider(_fakeWsId));
-      // ignore: avoid_print
-      print('DIAG WS7: providerState=$av');
+      debugPrintSynchronously('DIAG WS7: providerState=$av');
     }
     expect(errorView, isTrue, reason: '非法 wsId 应渲染成员页错误视图');
     expect(

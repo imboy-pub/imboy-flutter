@@ -6,7 +6,7 @@
 /// 412 冲突横幅、路由与返回路径。
 library;
 
-import 'package:flutter/cupertino.dart';
+import 'package:cupertino_ui/cupertino_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:imboy/modules/talk_record/presentation/results/talk_record_results_fixture_service.dart';

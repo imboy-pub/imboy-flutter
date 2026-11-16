@@ -4,7 +4,7 @@
 /// 各自生效且不影响 Chat 区域（作用域只包 workspace_shell 子树）。
 library;
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:imboy/page/workspace_shell/workspace_branding_theme.dart';

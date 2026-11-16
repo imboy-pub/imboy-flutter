@@ -1067,7 +1067,7 @@
       ],
       "offline": true,
       "product_independent": true,
-      "reviewed_source_sha256": "4a972e332c46c901c5f8b25f8b28880643aa7d0ac2eb8412d2f0f478f21dc7bd"
+      "reviewed_source_sha256": "97d4ffa71e2dd06361f290044612cd1e2107e76c3c793adae04cc67ca8964163"
     },
     "integration_test/patrol/app_launch_test.dart": {
       "suite": "native-ui",
@@ -1750,7 +1750,7 @@
     "integration_test/two_client/mac_probe_rail_tap_test.dart": {
       "kind": "driver",
       "non_asserting_utility": true,
-      "reviewed_source_sha256": "ce16c879371d6282ac533b4a931f2f46daae54ba33511925f8c888ec2bc52fea",
+      "reviewed_source_sha256": "7c2584468ec6267d5a6400e8c058f2c5653de82f20f6dce661c1fb1e1c9fe8d8",
       "basis": [
         "Explicit source header marks a diagnostic probe; after bootstrap it only logs selectedIndex/ContactPage presence. It has no navigation business oracle, so it cannot count as a business test. Any source change requires a fresh classification review."
       ]
@@ -2015,7 +2015,7 @@
       "basis": [
         "Standalone camera_desktop/AVFoundation widget, no app bootstrap or backend. Selected regression requires camera output, not degraded no-camera return."
       ],
-      "reviewed_source_sha256": "1ec3dec1315df667929294e8b70f64ad6cb02ae452131636f0d19ae242d212f2"
+      "reviewed_source_sha256": "569b2e3efe47f65f4a7792fecb9c87d53e291b180f513e69426bd02cb3b74a8d"
     },
     "test/unit_test/page/contact/people_info_rtc_feature_gate_test.dart": {
       "products": [

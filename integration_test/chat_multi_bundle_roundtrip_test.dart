@@ -21,7 +21,7 @@
 // 依赖 Central Wiring：onForwardBundle 接线（计划 §12.2）；未接线时本用例
 // 在「合并转发」步骤 fail 并给出接线诊断。
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart' as core;
 import 'package:flutter_riverpod/flutter_riverpod.dart' show ProviderScope;
 import 'package:flutter_test/flutter_test.dart';

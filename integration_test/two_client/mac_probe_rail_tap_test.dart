@@ -7,7 +7,7 @@
 //   B selectedIndex 变了但树无 ContactPage → PageView 未跟随（hasClients 守卫吞掉 jumpToPage）
 //   C ContactPage 挂载但列表空 → ContactPage 内部数据链问题
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/page/bottom_navigation/bottom_navigation_page.dart';
 import 'package:imboy/page/contact/contact/contact_page.dart';

@@ -5,7 +5,7 @@ import 'package:imboy/store/model/talk_record/talk_record_model.dart';
 import 'package:imboy/modules/talk_record/presentation/detail/talk_record_detail_providers.dart';
 import 'package:imboy/modules/talk_record/presentation/detail/talk_record_participants_page.dart';
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/modules/talk_record/presentation/detail/talk_record_participants_provider.dart';

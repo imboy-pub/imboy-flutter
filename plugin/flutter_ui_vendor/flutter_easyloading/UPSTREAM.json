@@ -1,0 +1,36 @@
+{
+  "package": "flutter_easyloading",
+  "version": "4.0.2",
+  "source": "https://pub.dev/packages/flutter_easyloading/versions/4.0.2",
+  "repository": "https://github.com/nslogx/flutter_easyloading",
+  "archive_sha256": "764e83a3537c8bf00353750ec90cf42967949c47225d222277c218ca5f200ae8",
+  "license": "LICENSE",
+  "runtime_resources": [],
+  "source_file_sha256": {
+    "LICENSE": "ba7d5b7511e4fdfa9f63b2aa404af67c40c6902a1209a23f395939f953bb9676",
+    "lib/flutter_easyloading.dart": "70d8fbf38fd5af3a1c2e52f70076e1e9238edfb16572d3120aa719e4e645959e",
+    "lib/src/animations/animation.dart": "e24eb6e056a89543b253e146f76e59dbb725ffe5e112c889ebbc5c1cba1899ce",
+    "lib/src/easy_loading.dart": "ee0867cb64ab62b90a63f12a3fff2bbf88e0731af926392ebebfebba121872a4",
+    "lib/src/runtime.dart": "6884975cee24942f2da3f6ccb39764fb4b2507a9fd9deca7227800be44f4d7fe",
+    "lib/src/theme.dart": "6dbd07d80bdb10cbcb5c2878e78881258cb0a255181f2eda18ea18aa8de36926",
+    "lib/src/types.dart": "6aee3d31626092e9c4ea9712d2664c14397b1ba7cca71008224081822d9f51c4",
+    "lib/src/widgets/indicator.dart": "b30d59ef8ed3829cfab7901d2701ed59b3caf8187cac0896e8b1673c3ba7f76e",
+    "lib/src/widgets/loading.dart": "b3d586ec951bea96d813806f7ae8159e6fe4c19598ba25d09990bd9800f286f8",
+    "lib/src/widgets/progress.dart": "905504f36a8a12aeaf786e41d0c14a7400c0ffda53d5cb52bf9f8be5fe6098b4",
+    "pubspec.yaml": "b4367be37ef70b85f59fb26cfbd666c3274559da0b901ad30c89712e2edf0e09"
+  },
+  "changed_files": [
+    "lib/src/easy_loading.dart",
+    "lib/src/theme.dart",
+    "lib/src/types.dart",
+    "lib/src/widgets/indicator.dart",
+    "lib/src/widgets/loading.dart",
+    "lib/src/widgets/progress.dart",
+    "pubspec.yaml"
+  ],
+  "changes": [
+    "Use standalone public Material/Cupertino UI packages for widgets, themes, and localizations.",
+    "Declare required UI dependencies and Flutter >=3.47.0; retain upstream Dart language and platform contracts.",
+    "Keep this repository-local compatibility fork unpublished (publish_to: none)."
+  ]
+}

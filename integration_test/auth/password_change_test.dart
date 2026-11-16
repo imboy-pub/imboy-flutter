@@ -14,8 +14,8 @@
 //     --dart-define=TEST_ALLOW_PASSWORD_CHANGE=true \
 //     -d <real_device_id>
 
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
+import 'package:cupertino_ui/cupertino_ui.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/page/mine/account_security/account_security_page.dart';
 import 'package:imboy/page/mine/change_password/change_password_page.dart';

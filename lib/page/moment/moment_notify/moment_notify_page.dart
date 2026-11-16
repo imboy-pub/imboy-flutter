@@ -7,8 +7,8 @@
 /// - 左滑删除单条（Dismissible）
 library;
 
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart'
+import 'package:cupertino_ui/cupertino_ui.dart';
+import 'package:material_ui/material_ui.dart'
     show Scaffold, Divider, RefreshIndicator, Theme;
 import 'package:imboy/component/ui/cell_pressable.dart';
 import 'package:imboy/component/ui/nodata_view.dart';

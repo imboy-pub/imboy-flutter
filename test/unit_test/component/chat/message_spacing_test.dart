@@ -8,7 +8,7 @@
 /// 防止未来误改间距/圆角破坏视觉一致性。
 library;
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/component/chat/message_spacing.dart';
 

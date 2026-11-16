@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_vodozemac/flutter_vodozemac.dart' as fvod;
 import 'package:vodozemac/vodozemac.dart' as vod;
 

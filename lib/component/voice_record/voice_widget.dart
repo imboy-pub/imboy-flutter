@@ -7,9 +7,9 @@ import 'package:flutter/services.dart'; // 添加触觉反馈
 import 'package:imboy/component/ui/app_loading.dart';
 import 'package:logger/logger.dart';
 
-import 'package:flutter/cupertino.dart';
+import 'package:cupertino_ui/cupertino_ui.dart';
 import 'package:flutter/foundation.dart' show kDebugMode, kIsWeb;
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_sound/flutter_sound.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_radius.dart';

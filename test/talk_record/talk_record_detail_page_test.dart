@@ -6,7 +6,7 @@
 /// 验证，不是与真实 API/票据/播放器的联调验收（T13/T15/T22）。
 library;
 
-import 'package:flutter/cupertino.dart';
+import 'package:cupertino_ui/cupertino_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:imboy/config/error_code.dart';
