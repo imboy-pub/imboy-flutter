@@ -292,7 +292,7 @@ void main() {
             'v38 注册需生产决定并同步更新 kInventoryCurrentDbVersion、'
             'SqliteService._dbVersion 与本守护；半注册状态必须被本测试拦截',
       );
-      expect(kMigrationManifest.latestVersion, 39);
+      expect(kMigrationManifest.latestVersion, kInventoryCurrentDbVersion);
       final preferences = kMigrationManifest.upgradesByTo[39]!;
       expect(preferences.fromVersion, 37);
       expect(preferences.affectedObjects, ['channel_inbox_preference']);

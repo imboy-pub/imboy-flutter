@@ -96,6 +96,16 @@ void main() {
         await messages.waitForFtsReindexForTest();
         final oldRowId = (await messages.find('message-one'))!.autoId;
         expect(await matches('deletedsecret'), hasLength(1));
+        expect(
+          await messages.update({
+            'id': 'message-one',
+            'payload': {'text': 'editedsecret'},
+          }),
+          1,
+        );
+        await messages.waitForFtsReindexForTest();
+        expect(await matches('deletedsecret'), isEmpty);
+        expect(await matches('editedsecret'), hasLength(1));
         retry.addToRetryQueue('message-one', type);
         expect(retry.getRetryInfo('message-one'), isNotNull);
 
@@ -125,6 +135,7 @@ void main() {
         expect(retry.getRetryInfo('message-one'), isNull);
         expect(await messages.find('message-one'), isNull);
         expect(await matches('deletedsecret'), isEmpty);
+        expect(await matches('editedsecret'), isEmpty);
         await messages.insert(
           message('message-two', conversation.uk3, 'newsecret'),
         );
@@ -135,6 +146,7 @@ void main() {
           reason: 'SQLite reuses the deleted highest rowid',
         );
         expect(await matches('deletedsecret'), isEmpty);
+        expect(await matches('editedsecret'), isEmpty);
         expect(await matches('newsecret'), hasLength(1));
       });
     }

@@ -34,6 +34,17 @@
 -- PRAGMA user_version = 9;
 
 
+-- VERSION: 40
+-- DESC: restore v39 contentless indexes without changing messages
+
+DROP TABLE msg_c2c_fts;
+CREATE VIRTUAL TABLE msg_c2c_fts USING fts5(id, conversation_uk3, text_content, content='', tokenize='unicode61 remove_diacritics 2');
+INSERT INTO msg_c2c_fts(rowid, id, conversation_uk3, text_content) SELECT auto_id, id, conversation_uk3, text_content FROM (SELECT auto_id, id, conversation_uk3, CASE WHEN status >= 30 AND status < 40 THEN '' WHEN json_valid(payload) THEN CASE WHEN json_type(payload) = 'object' AND COALESCE(json_extract(payload, '$._e2ee_failed'), 0) != 1 THEN CASE msg_type WHEN 'text' THEN CASE WHEN json_type(payload, '$.text') = 'text' THEN trim(json_extract(payload, '$.text')) ELSE '' END WHEN 'quote' THEN CASE WHEN json_type(payload, '$.quote_text') = 'text' THEN trim(json_extract(payload, '$.quote_text')) ELSE '' END WHEN 'location' THEN trim((CASE WHEN json_type(payload, '$.title') = 'text' THEN trim(json_extract(payload, '$.title')) ELSE '' END) || ' ' || (CASE WHEN json_type(payload, '$.address') = 'text' THEN trim(json_extract(payload, '$.address')) ELSE '' END)) ELSE '' END ELSE '' END ELSE '' END AS text_content FROM msg_c2c) WHERE text_content != '';
+DROP TABLE msg_c2g_fts;
+CREATE VIRTUAL TABLE msg_c2g_fts USING fts5(id, conversation_uk3, text_content, content='', tokenize='unicode61 remove_diacritics 2');
+INSERT INTO msg_c2g_fts(rowid, id, conversation_uk3, text_content) SELECT auto_id, id, conversation_uk3, text_content FROM (SELECT auto_id, id, conversation_uk3, CASE WHEN status >= 30 AND status < 40 THEN '' WHEN json_valid(payload) THEN CASE WHEN json_type(payload) = 'object' AND COALESCE(json_extract(payload, '$._e2ee_failed'), 0) != 1 THEN CASE msg_type WHEN 'text' THEN CASE WHEN json_type(payload, '$.text') = 'text' THEN trim(json_extract(payload, '$.text')) ELSE '' END WHEN 'quote' THEN CASE WHEN json_type(payload, '$.quote_text') = 'text' THEN trim(json_extract(payload, '$.quote_text')) ELSE '' END WHEN 'location' THEN trim((CASE WHEN json_type(payload, '$.title') = 'text' THEN trim(json_extract(payload, '$.title')) ELSE '' END) || ' ' || (CASE WHEN json_type(payload, '$.address') = 'text' THEN trim(json_extract(payload, '$.address')) ELSE '' END)) ELSE '' END ELSE '' END ELSE '' END AS text_content FROM msg_c2g) WHERE text_content != '';
+PRAGMA user_version = 39;
+
 -- VERSION: 39
 -- DESC: remove local inbox preferences; return to released v37, not draft v38
 

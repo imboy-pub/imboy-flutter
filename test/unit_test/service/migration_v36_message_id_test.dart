@@ -9,6 +9,7 @@ import 'package:imboy/service/schema_contract.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 import '../../fixtures/sqlite_migration/sqlite_migration_fixtures.dart';
+import '../../fixtures/sqlite_migration/migration_inventory.dart';
 
 const _tables = ['msg_c2c', 'msg_c2g', 'msg_c2s', 'msg_s2c'];
 const _ids = [
@@ -48,7 +49,7 @@ void main() {
   });
 
   test('v36 irreversible manifest edge has no downgrade edge', () {
-    expect(kMigrationManifest.latestVersion, 39);
+    expect(kMigrationManifest.latestVersion, kInventoryCurrentDbVersion);
     expect(kMigrationManifest.edge(35, 36)!.reversible, isFalse);
     expect(kMigrationManifest.edge(36, 35), isNull);
   });

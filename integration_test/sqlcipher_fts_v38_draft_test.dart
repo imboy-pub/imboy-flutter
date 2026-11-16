@@ -1,5 +1,5 @@
-// Native database admission for the unregistered v38 draft. This does not
-// exercise a retained-data installation or activate v38 in the application.
+// Native database checks for v40 and the separately unregistered v38 draft.
+// This does not exercise a retained-data installation or activate v38.
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
@@ -7,6 +7,7 @@ import 'package:imboy/service/database_migration_orchestrator.dart';
 import 'package:imboy/service/embedded_schema_scripts.dart';
 import 'package:imboy/service/migration_service.dart';
 import 'package:imboy/service/migrations/upgrade_edges_v38_fts.dart';
+import 'package:imboy/service/migrations/upgrade_edges_v40.dart';
 import 'package:imboy/service/schema_contract.dart';
 import 'package:imboy/service/schema_fingerprint.dart';
 import 'package:imboy/service/sqflite_init.dart';
@@ -106,6 +107,161 @@ Future<void> _expectEncryptedFile(String databasePath) async {
 
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
+
+  testWidgets(
+    'SQLCipher v39 to v40 repairs indexes and downgrades without data loss',
+    (tester) async {
+      expect(isEncryptionSupported, isTrue);
+      final temporaryDirectory = await getTemporaryDirectory();
+      final directory = await temporaryDirectory.createTemp('imboy_fts_v40_');
+      final databasePath = path.join(directory.path, 'synthetic.db');
+      const password = 'synthetic-test-password';
+      var db = await openEncryptedDatabase(
+        databasePath,
+        password: password,
+        onConfigure: SqliteService.configureConnection,
+      );
+      try {
+        expect(await db.rawQuery('PRAGMA cipher_version'), isNotEmpty);
+        await _createV37Fixture(db);
+        await db.transaction((txn) async {
+          final result = await MigrationService.to.migrate(
+            db: txn,
+            fromVersion: 37,
+            toVersion: 39,
+          );
+          expect(result.success, isTrue, reason: result.error);
+          await _verifySchema(txn, 39);
+        });
+        for (final table in messageFtsTables) {
+          await db.insert(table, {
+            'id': 'synthetic-$table',
+            'conversation_uk3': 'synthetic',
+            'msg_type': 'text',
+            'payload': '{"text":"\u3000currentword\ufeff"}',
+            'status': 20,
+          });
+          for (final text in ['oldword', 'currentword']) {
+            await db.insert('${table}_fts', {
+              'rowid': 1,
+              'id': 'synthetic-$table',
+              'conversation_uk3': 'synthetic',
+              'text_content': text,
+            });
+          }
+        }
+        await db.insert('channel_inbox_preference', {
+          'endpoint': 'https://synthetic.invalid',
+          'channel_id': 'opaque-channel',
+          'scope': 'personal',
+        });
+        final before = <String, List<Map<String, Object?>>>{};
+        for (final table in [...messageFtsTables, 'channel_inbox_preference']) {
+          before[table] = await db.query(table);
+        }
+        final metaBefore = await ImboySchemaMeta.readAll(db);
+        await expectLater(
+          db.transaction((txn) async {
+            for (final sql in kUpgradeEdgesV40.single.sqlStatements) {
+              await txn.execute(sql);
+            }
+            await _verifySchema(txn, 40);
+            throw StateError('synthetic post-migration failure');
+          }),
+          throwsStateError,
+        );
+        expect(
+          (await db.rawQuery('PRAGMA user_version')).single.values.single,
+          39,
+        );
+        expect(await ImboySchemaMeta.readAll(db), metaBefore);
+        expect(await SchemaContract.verifyInvariants(db, version: 39), isEmpty);
+        await _expectRows(db, before);
+        for (final table in messageFtsTables) {
+          expect(
+            await db.rawQuery(
+              'SELECT rowid FROM ${table}_fts WHERE ${table}_fts MATCH ?',
+              ['oldword'],
+            ),
+            hasLength(1),
+          );
+        }
+        await db.transaction((txn) async {
+          final result = await MigrationService.to.migrate(
+            db: txn,
+            fromVersion: 39,
+            toVersion: 40,
+          );
+          expect(result.success, isTrue, reason: result.error);
+          await _verifySchema(txn, 40);
+        });
+        await _expectRows(db, before);
+        for (final table in messageFtsTables) {
+          expect(
+            await db.rawQuery(
+              'SELECT rowid FROM ${table}_fts WHERE ${table}_fts MATCH ?',
+              ['oldword'],
+            ),
+            isEmpty,
+          );
+          expect(
+            (await db.query('${table}_fts')).single['text_content'],
+            'currentword',
+          );
+        }
+        await expectLater(
+          db.transaction((txn) async {
+            for (final table in messageFtsTables) {
+              await txn.delete(
+                '${table}_fts',
+                where: 'rowid = ?',
+                whereArgs: [1],
+              );
+              await txn.delete(table, where: 'auto_id = ?', whereArgs: [1]);
+            }
+            throw StateError('synthetic delete failure');
+          }),
+          throwsStateError,
+        );
+        await _expectRows(db, before);
+        await db.close();
+        await _expectEncryptedFile(databasePath);
+        db = await openEncryptedDatabase(
+          databasePath,
+          password: password,
+          onConfigure: SqliteService.configureConnection,
+        );
+        await _verifySchema(db, 40);
+        await _expectRows(db, before);
+        for (final table in messageFtsTables) {
+          expect(
+            (await db.query('${table}_fts')).single['text_content'],
+            'currentword',
+          );
+        }
+        await db.transaction((txn) async {
+          final result = await MigrationService.to.migrate(
+            db: txn,
+            fromVersion: 40,
+            toVersion: 39,
+            isUpgrade: false,
+          );
+          expect(result.success, isTrue, reason: result.error);
+          await _verifySchema(txn, 39);
+        });
+        await _expectRows(db, before);
+        for (final table in messageFtsTables) {
+          expect(
+            (await db.query('${table}_fts')).single['text_content'],
+            isNull,
+          );
+        }
+      } finally {
+        if (db.isOpen) await db.close();
+        if (await directory.exists()) await directory.delete(recursive: true);
+      }
+    },
+  );
 
   testWidgets('SQLCipher v37 to v38 draft preserves data and rolls back failure', (
     tester,

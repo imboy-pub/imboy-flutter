@@ -17,9 +17,20 @@
 
 统一入口：`bash scripts/run_sqlite_migration_gate.sh --local` 或 `--ci`，详细规则见 [维护指南](./sqlite-migration-guide.md)。旧测试中的 v31 是历史场景；针对 manifest 当前版本的结论必须另核覆盖范围，不能机械替换测试版本号或删除历史回归。空库、最小数据、边界数据、大库均需实际执行，行数不减少也不能代替字段值、约束与索引验证。
 
+## v40 普通消息 FTS / Contentful message indexes
+
+`migration_v40_fts_content_test.dart` 验证正式升级链、历史旧词/孤儿修复、双向失败回滚、
+降级后的业务数据保持、结构反例与 Dart/SQL 文本提取一致性。
+`message_fts_content_test.dart` 和 `conversation_delete_fts_test.dart` 通过真实 repository
+覆盖编辑完成/待重索引时的删除、会话清理及 rowid 复用；新搜索谓词不得展示过期的索引片段。
+现有 `migration_v38_fts_web_test.dart` 与 `sqlcipher_fts_v38_draft_test.dart` 各自新增独立
+v40 case，复用原有 WASM/原生执行合同，原 v38 草稿用例保持独立。原生入口也检查加密重开
+与迁移后 meta 回滚；未运行仍是缺证据。v40 只修派生索引存储与清理，未承诺消息写入和
+延迟索引在同一事务持久化，也未激活 v38 的直接 SQL 触发器。
+
 ## 消息 FTS v38 的注册前验证 / Message FTS v38 admission
 
-当前生产版本由 manifest 决定，仍为 **37**。`upgradeV38Fts` 是显式应用于隔离测试库的草稿；
+当前生产版本由 manifest 决定，为 **40**（repository 维护的普通 FTS5 索引）。`upgradeV38Fts` 是显式应用于隔离测试库的草稿；
 结构合同支持验证 v38 不表示它已注册。两个直写 SQL 同步用例的原有 skip 继续由统一运行器
 记为 `UNEXPECTED_SKIP`，不签发完整 PR/覆盖率通过。禁止为了消除 skip 提前注册迁移。
 

@@ -19,11 +19,13 @@ import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/modules/messaging/public.dart'
     show burnExpiresAtMs, isBurnExpiredAt;
 import 'package:imboy/service/sqlite.dart';
+import 'package:imboy/service/migrations/upgrade_edges_v38_fts.dart';
+import 'package:imboy/service/migrations/upgrade_edges_v40.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:synchronized/synchronized.dart';
 
 /// Schema 38 is the explicitly declared, unregistered FTS trigger draft.
-/// Released v37 and v39 retain repository maintenance. A future trigger rollout
+/// Released v37/v39 and contentful v40 retain repository maintenance. A trigger rollout
 /// must update this capability predicate with its migration, not assume >=38.
 const String messageFtsRepositoryMaintenanceGuardSql =
     '(SELECT user_version FROM pragma_user_version) <> 38';
@@ -177,7 +179,7 @@ class MessageFtsRepo {
     }
   }
 
-  /// 从 FTS 索引中移除一条消息的索引行（v37/v39 repo 路径，v38 草稿为 no-op）。
+  /// 从 FTS 索引中移除一条消息（v37/v39/v40 repo 路径，v38 草稿为 no-op）。
   ///
   /// v37 基线的 FTS5 表是 contentless（content=''）：
   /// - 常规 FTS5 表：plain `DELETE ... WHERE rowid = ?` 直接生效；
@@ -360,8 +362,8 @@ class MessageFtsRepo {
   /// id/conversation_uk3 列值（查询结果恒为 NULL），因此生产 schema 下
   /// JOIN 消息表回填消息身份（rowid == auto_id 对齐由索引写入保证），
   /// 会话/时间过滤也走消息表列；v38（content 视图）下 rowid 仍等于
-  /// auto_id，同一 SQL 两种版本通用。消息行不可用时不得绕过其生命周期
-  /// 约束直接返回索引中的旧正文。
+  /// auto_id；v40 普通索引额外校验存储正文与当前消息一致。消息行不可用时
+  /// 不得绕过其生命周期约束直接返回索引中的旧正文。
   Future<List<FtsSearchResult>> _search({
     required String table,
     required String query,
@@ -412,6 +414,13 @@ class MessageFtsRepo {
     // 转义 FTS5 特殊字符
     final safeQuery = _escapeFts5Query(query);
     final messageTable = table == 'msg_c2c_fts' ? 'msg_c2c' : 'msg_c2g';
+    // A contentful index can lag a committed edit until its queued reindex.
+    // Never return an old snippet for the current message. The v38 draft keeps
+    // its original view expression; contentless v37/v39 columns remain NULL.
+    final currentText =
+        'CASE WHEN (SELECT user_version FROM pragma_user_version) = 38 '
+        'THEN ${ftsTextContentSql('message.')} '
+        'ELSE ${messageFtsCurrentTextSql('message.')} END';
 
     final conditions = <String>[];
     final params = <dynamic>[safeQuery];
@@ -436,7 +445,9 @@ class MessageFtsRepo {
         "snippet($table, 2, '<b>', '</b>', '...', 32) as snippet, $table.rank AS rank "
         'FROM $table '
         'JOIN $messageTable AS message ON message.auto_id = $table.rowid '
-        'WHERE $table MATCH ?${conditions.isEmpty ? '' : ' AND ${conditions.join(' AND ')}'} '
+        'WHERE $table MATCH ? '
+        'AND ($table.text_content IS NULL OR $table.text_content = ($currentText))'
+        '${conditions.isEmpty ? '' : ' AND ${conditions.join(' AND ')}'} '
         'ORDER BY $table.rank, message.conversation_uk3, message.id LIMIT ? OFFSET ?';
 
     // Apply the shared chat deadline before the public result limit. A first
