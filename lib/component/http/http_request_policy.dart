@@ -37,6 +37,13 @@ const _webHumanMethods = <String, String>{
   'user_device/delete': 'POST',
   'group/page': 'GET',
   'group/detail': 'GET',
+  // JNY-06 web 建群族：与 backend web_human_routes/1 四别名一一对应
+  // （ceedba693）。缺项时 webHumanRequestUri 本地抛出，请求不出网——
+  // web 面建群四路径全败的客户端侧根因（R3b 证据）。
+  'group/add': 'POST',
+  'group/face2face': 'GET',
+  'group/face2face_save': 'POST',
+  'group_member/join': 'POST',
   'group_member/page': 'GET',
   'group_notice/page': 'GET',
   'attachment/direct/register': 'POST',

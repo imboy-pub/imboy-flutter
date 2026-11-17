@@ -218,6 +218,7 @@ void main() {
           'group/detail',
           'group_member/page',
           'group_notice/page',
+          'group/face2face',
           'attachment/direct/status',
           'attachment/view_url',
           'workspaces/mine',
@@ -245,6 +246,9 @@ void main() {
           'friend/add',
           'friend/confirm',
           'user/setting',
+          'group/add',
+          'group/face2face_save',
+          'group_member/join',
           'attachment/direct/register',
           'attachment/direct/declare',
           'attachment/direct/grant',
@@ -260,6 +264,54 @@ void main() {
             throwsFormatException,
           );
         }
+      }
+    },
+  );
+
+  test(
+    'group creation/join family maps to private Web Human aliases (JNY-06)',
+    () {
+      // UI 建群/受理合同建群与面对面建群的四条写读路径必须出网到 web 别名。
+      final aliases = <String, String>{
+        'group/add': 'POST',
+        'group/face2face': 'GET',
+        'group/face2face_save': 'POST',
+        'group_member/join': 'POST',
+      };
+      aliases.forEach((suffix, verb) {
+        for (final value in [
+          '/api/v1/$suffix',
+          '${root.origin}/api/v1/$suffix',
+          '/api/v1/web/$suffix',
+        ]) {
+          final result = map(verb, value);
+          expect(result.path, '/api/v1/web/$suffix', reason: value);
+          expect(result.origin, root.origin);
+          expect(webHumanRequestUri(verb, result, root), result);
+        }
+        // 逐方法门：错误方法本地即拒（与 backend jwt_methods 一致）
+        final wrong = verb == 'POST' ? 'GET' : 'POST';
+        expect(
+          () => map(wrong, '/api/v1/$suffix'),
+          throwsFormatException,
+          reason: '$wrong /api/v1/$suffix',
+        );
+        expect(webHumanPublicPaths, isNot(contains('/api/v1/web/$suffix')));
+      });
+      // 建群族之外的 group 面（QR/编辑/解散/成员管理写操作）保持拒绝
+      for (final value in [
+        '/api/v1/group/qrcode',
+        '/api/v1/group/edit',
+        '/api/v1/group/dissolve',
+        '/api/v1/group/set_e2ee_mode',
+        '/api/v1/group/add/members',
+        '/api/v1/group/add/',
+        '/api/v1/group_member/leave',
+        '/api/v1/group_member/mute',
+        '/api/v1/web/group/qrcode',
+      ]) {
+        expect(() => map('POST', value), throwsFormatException, reason: value);
+        expect(() => map('GET', value), throwsFormatException, reason: value);
       }
     },
   );
