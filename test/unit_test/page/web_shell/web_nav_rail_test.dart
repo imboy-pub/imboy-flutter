@@ -16,6 +16,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/page/web_shell/web_nav_rail.dart';
 
+import '../../helper/material_tooltip_finder.dart';
+
 const _kSampleItems = [
   WebNavItem(
     icon: Icons.chat_bubble_outline,
@@ -97,7 +99,7 @@ void main() {
       );
       await tester.pumpAndSettle();
       expect(tester.getTopLeft(find.byKey(key)), position);
-      await tester.tap(find.byTooltip('Mine'));
+      await tester.tap(findMaterialTooltip('Mine'));
       expect(selected, 3);
       expect(tester.takeException(), isNull);
     });
@@ -145,8 +147,8 @@ void main() {
       );
       // 4 个 Tooltip，每个 item 一个
       expect(find.byType(Tooltip), findsNWidgets(4));
-      expect(find.byTooltip('Messages'), findsOneWidget);
-      expect(find.byTooltip('Contacts'), findsOneWidget);
+      expect(findMaterialTooltip('Messages'), findsOneWidget);
+      expect(findMaterialTooltip('Contacts'), findsOneWidget);
     });
   });
 

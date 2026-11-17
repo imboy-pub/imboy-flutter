@@ -406,13 +406,43 @@ void main() {
     );
     addTearDown(router.dispose);
     await tester.pumpWidget(MaterialApp.router(routerConfig: router));
+    await tester.pumpAndSettle();
+    expect(find.text('safe'), findsOneWidget);
+    expect(tester.binding.hasScheduledFrame, isFalse);
     await StorageService.to.setString(Keys.currentUid, '1001');
+    late Completer<void> releaseCleanup;
+    late Future<void> expiry;
     await tester.runAsync(() async {
-      await quitLoginAndNavigateToSignIn(source: 'synthetic-socket');
+      // 清理使用真实 I/O；屏障也在同一 async zone 中创建与等待。
+      final deleting = Completer<void>();
+      releaseCleanup = Completer<void>();
+      beforeDelete = (key) async {
+        if (key == 'secure_token' && !deleting.isCompleted) {
+          deleting.complete();
+          await releaseCleanup.future;
+        }
+      };
+      expiry = quitLoginAndNavigateToSignIn(source: 'synthetic-socket');
+      await deleting.future;
     });
-    await tester.pump();
-    await tester.pump(const Duration(seconds: 1));
+    try {
+      await tester.pumpAndSettle();
+      expect(repo.isClearingSession, isTrue);
+      expect(repo.currentUid, isEmpty);
+      expect(find.text('safe'), findsOneWidget);
+      expect(find.text('signin'), findsNothing);
+    } finally {
+      await tester.runAsync(() async {
+        releaseCleanup.complete();
+        await expiry;
+      });
+    }
+    await tester.pumpAndSettle();
+    expect(repo.isClearingSession, isFalse);
+    expect(repo.currentUid, isEmpty);
     expect(find.text('signin'), findsOneWidget);
+    // 导航已断言完成；排空既有防重入计时器，避免影响下一条会话用例。
+    await tester.pump(const Duration(milliseconds: 300));
     await tester.pumpWidget(const SizedBox.shrink());
   });
   testWidgets(
@@ -431,7 +461,9 @@ void main() {
       );
       addTearDown(router.dispose);
       await tester.pumpWidget(MaterialApp.router(routerConfig: router));
+      await tester.pumpAndSettle();
       navigateToSignIn(source: 'synthetic-old-session');
+      expect(tester.binding.hasScheduledFrame, isTrue);
       beforeWrite = () async =>
           throw PlatformException(code: 'synthetic-failure');
       await tester.runAsync(() async {
