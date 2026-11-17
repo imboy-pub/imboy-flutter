@@ -32,6 +32,11 @@ class AppTheme {
   /// action/navAction/actionSmall 按 `_TextThemeDefaultsBuilder` 的
   /// `copyWith(color: primaryColor)` 派生口径用 primaryDark（DSN-03
   /// 主色决策）着色，避免改色回归。
+  /// 供无主题注入的面（InitErrorPage 错误屏等）复用的 Cupertino 文本主题
+  /// （PERF-05：SDK 默认样式不带 fallback，裸 MaterialApp 渲染会拉 gstatic）。
+  static CupertinoTextThemeData get cupertinoFallbackTextTheme =>
+      _cupertinoTextTheme;
+
   static CupertinoTextThemeData get _cupertinoTextTheme {
     const chain = kAppFontFamilyFallback;
     const primaryActionColor = AppColors.primaryDark;

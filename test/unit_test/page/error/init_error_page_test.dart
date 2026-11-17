@@ -2,11 +2,15 @@
 //
 // - 失败时渲染错误标题 / 原始异常详情 / 重试按钮（替代永久白屏）
 // - 点击重试触发 onRetry，重试期间按钮禁用防重复触发
+// - PERF-05（F5 错误屏路径）：本页 ThemeData 全角色挂 app 字体回退链，
+//   裸默认样式不再触发 fonts.gstatic 动态分片拉取
 import 'dart:async';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/page/error/init_error_page.dart';
+import 'package:imboy/theme/default/font_types.dart';
 
 void main() {
   testWidgets('短窗口长错误仍可滚动到真实重试动作', (tester) async {
@@ -123,6 +127,45 @@ void main() {
     gate.complete();
     await tester.pumpAndSettle();
     expect(calls, 1);
+  });
+
+  testWidgets('错误屏 ThemeData 全角色挂 NotoSansSC 回退链（PERF-05 错误路径）', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      InitErrorPage(error: StateError('boom'), onRetry: () async {}),
+    );
+
+    final context = tester.element(find.text('应用初始化失败'));
+    final theme = Theme.of(context);
+
+    // Material 全角色文本样式（FilledButton 等）不得再裸奔：逐角色校验
+    // 回退链首位=内嵌 NotoSansSC 子集。
+    final roles = <TextStyle?>[
+      theme.textTheme.displayLarge,
+      theme.textTheme.displayMedium,
+      theme.textTheme.displaySmall,
+      theme.textTheme.headlineLarge,
+      theme.textTheme.headlineMedium,
+      theme.textTheme.headlineSmall,
+      theme.textTheme.titleLarge,
+      theme.textTheme.titleMedium,
+      theme.textTheme.titleSmall,
+      theme.textTheme.bodyLarge,
+      theme.textTheme.bodyMedium,
+      theme.textTheme.bodySmall,
+      theme.textTheme.labelLarge,
+      theme.textTheme.labelMedium,
+      theme.textTheme.labelSmall,
+    ];
+    for (final style in roles) {
+      expect(style, isNotNull);
+      expect(style!.fontFamilyFallback?.first, 'NotoSansSC', reason: '$style');
+    }
+    // Cupertino 侧（scaffold/导航默认样式）同样挂链。
+    final cupertino = CupertinoTheme.of(context).textTheme.textStyle;
+    expect(cupertino.fontFamilyFallback?.first, 'NotoSansSC');
+    expect(kAppFontFamilyFallback.first, 'NotoSansSC');
   });
 
   testWidgets('页面卸载后重试完成不更新已销毁状态', (tester) async {

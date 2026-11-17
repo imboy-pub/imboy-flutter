@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/font_types.dart';
+import 'package:imboy/theme/default/theme.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/service/web_writer_gate.dart';
 
@@ -56,6 +57,20 @@ class _InitErrorPageState extends State<InitErrorPage> {
         : null;
     return MaterialApp(
       debugShowCheckedModeBanner: false,
+      // PERF-05（F5 错误屏路径）：此前本页挂裸 MaterialApp——SDK 默认
+      // ThemeData 无 fontFamilyFallback，CanvasKit 侧 'Roboto'/'CupertinoSystemText'
+      // 皆未注册 → FilledButton 等框架默认文本样式触发 fonts.gstatic 动态
+      // 分片拉取（cors-incident-f5-errorpath.json 实锤 116/117 命中）。
+      // 挂 app 回退链（首位内嵌 NotoSansSC 子集）后框架默认样式本地命中。
+      theme: ThemeData(
+        useMaterial3: true,
+        fontFamilyFallback: kAppFontFamilyFallback,
+        cupertinoOverrideTheme: CupertinoThemeData(
+          // Cupertino 侧（scaffold/导航）同样挂链；SDK 默认样式不带 fallback。
+          brightness: Brightness.light,
+          textTheme: AppTheme.cupertinoFallbackTextTheme,
+        ),
+      ),
       home: CupertinoPageScaffold(
         child: SafeArea(
           child: Center(
