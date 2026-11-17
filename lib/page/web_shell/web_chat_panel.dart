@@ -454,15 +454,27 @@ class WebChatPanelState extends ConsumerState<WebChatPanel> {
         _historyReady && state.currentConversationId == _conversationKey
         ? state.messages
         : const <Message>[];
-    final title = pickChatTitle(
-      chatType: widget.selection.chatType,
-      peerId: widget.selection.peerId,
-      contactTitle: _resolvedContact?.title,
-      groupTitle: _resolvedGroupTitle.isEmpty
-          ? Translations.of(context).main.unnamed
-          : _resolvedGroupTitle,
-    );
     final t = Translations.of(context);
+    // DEF-LAY02-A（P3）：数字型不存在的 peer 深链（如 123 / 999999999999999999）
+    // 此前照常渲染 composer 可见面板且 header=裸 id。本地既无会话又无
+    // 联系人/群档案时视为「对端未解析」：收起 composer（不给发送面）、
+    // header 用中性占位而非裸 id。后续权威同步若发现真实会话/档案，
+    // 本派生值随状态翻回，正常 peer 不受影响。
+    final peerMissing =
+        _resolvedContact == null &&
+        _resolvedGroup == null &&
+        _conversation == null;
+    final title = peerMissing
+        ? t.main.unnamed
+        : pickChatTitle(
+            chatType: widget.selection.chatType,
+            peerId: widget.selection.peerId,
+            contactTitle: _resolvedContact?.title,
+            groupTitle: _resolvedGroupTitle.isEmpty
+                ? t.main.unnamed
+                : _resolvedGroupTitle,
+          );
+
     final fontSizeOption = ref.watch(themeProvider).fontSizeOption;
     final pendingCount = messages
         .where((m) => _newMessageIds.contains(m.id))
@@ -612,14 +624,16 @@ class WebChatPanelState extends ConsumerState<WebChatPanel> {
       onMessageDoubleTap: (message) {
         if (message is ImageMessage) _previewImage(message);
       },
-      inputArea: widget.selection.chatType == 'C2G'
-          ? WebGroupComposerGate(
-              groupId: widget.selection.peerId,
-              currentUserId: widget.currentUserId,
-              sessionReader: _sessions,
-              child: widget.inputArea,
-            )
-          : widget.inputArea,
+      inputArea: peerMissing
+          ? const SizedBox.shrink()
+          : (widget.selection.chatType == 'C2G'
+                ? WebGroupComposerGate(
+                    groupId: widget.selection.peerId,
+                    currentUserId: widget.currentUserId,
+                    sessionReader: _sessions,
+                    child: widget.inputArea,
+                  )
+                : widget.inputArea),
     );
   }
 

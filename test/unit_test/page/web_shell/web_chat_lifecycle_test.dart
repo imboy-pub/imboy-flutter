@@ -35,6 +35,7 @@ import 'package:imboy/service/events/common_events.dart'
     show ConversationAuthoritySyncEvent;
 import 'package:imboy/store/model/contact_model.dart';
 import 'package:imboy/store/model/conversation_model.dart';
+import 'package:imboy/store/model/group_model.dart';
 import 'package:imboy/store/repository/message_repo_sqlite.dart';
 import 'package:imboy/component/helper/func.dart' show cachedImageProvider;
 
@@ -1692,4 +1693,65 @@ void main() {
       await tester.pump(const Duration(seconds: 6));
     },
   );
+
+  group('DEF-LAY02-A：数字型不存在 peer 的深链面板', () {
+    WebChatPanel markerPanel(
+      String peer, {
+      Future<ConversationModel?> Function(String, String)? load,
+      Future<ContactModel?> Function(String)? contact,
+      Future<GroupModel?> Function(String)? group,
+      String chatType = 'C2C',
+    }) => WebChatPanel(
+      key: const ValueKey('chat-panel-under-test'),
+      selection: ChatSelection(peerId: peer, chatType: chatType),
+      currentUserId: '1',
+      closeTooltip: 'Close',
+      onClose: () {},
+      inputArea: const SizedBox(key: ValueKey('composer-marker')),
+      sessionReader: sessions,
+      conversationLoader: load ?? (_, _) async => null,
+      contactLoader: contact ?? (_) async => null,
+      groupLoader: group ?? (_) async => null,
+    );
+
+    testWidgets('不存在的数字 peer：composer 收起且 header 不落裸 id', (tester) async {
+      await mount(tester, markerPanel('123'));
+      await tester.pumpAndSettle();
+
+      expect(find.byType(ChatPanel), findsOneWidget);
+      // composer 不可见（发送面收起，不给深链直达的输入面）
+      expect(find.byKey(const ValueKey('composer-marker')), findsNothing);
+      final chatPanel = tester.widget<ChatPanel>(find.byType(ChatPanel));
+      expect(chatPanel.inputArea, isA<SizedBox>());
+      // header 用中性占位而非裸 id
+      expect(find.text('123'), findsNothing);
+      expect(find.text(t.main.unnamed), findsOneWidget);
+    });
+
+    testWidgets('对端可解析（联系人）时 composer 与标题恢复正常', (tester) async {
+      await mount(
+        tester,
+        markerPanel(
+          '2002',
+          contact: (_) async => ContactModel(peerId: '2002', nickname: '好友甲'),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.byKey(const ValueKey('composer-marker')), findsOneWidget);
+      expect(find.text('好友甲'), findsOneWidget);
+      expect(find.text(t.main.unnamed), findsNothing);
+    });
+
+    testWidgets('无联系人但本地会话存在时 composer 保留（既有行为不变）', (tester) async {
+      await mount(
+        tester,
+        markerPanel('3', load: (_, _) async => _Conversation('3')),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.byKey(const ValueKey('composer-marker')), findsOneWidget);
+      expect(find.byType(ChatPanel), findsOneWidget);
+    });
+  });
 }
