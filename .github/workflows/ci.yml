@@ -9,6 +9,12 @@ on:
   schedule:
     - cron: '0 18 * * *'
 
+# 同一 PR 的新 push 取消旧 run，避免僵尸 run 堆积 macOS 队列；
+# push/schedule 触发（main/dev）不受影响，永不取消。
+concurrency:
+  group: ci-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 permissions:
   contents: read
 
