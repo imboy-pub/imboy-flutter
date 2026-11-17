@@ -81,7 +81,9 @@ pre-push:
   commands:
     dart-analyze-full:
       tags: quality
-      run: bash scripts/quality/check_analyzer_ratchet.sh
+      run: |
+        [ "${IMBOY_SKIP_PRE_PUSH:-0}" = "1" ] && exit 0
+        bash scripts/quality/check_analyzer_ratchet.sh
     error-code-sync:
       tags: quality
       run: |
