@@ -33,6 +33,7 @@ const _webHumanMethods = <String, String>{
   'user/show': 'GET',
   'user/me': 'GET',
   'user/setting': 'POST',
+  'fts/recently_user': 'GET',
   'user_device/delete': 'POST',
   'group/page': 'GET',
   'group/detail': 'GET',
