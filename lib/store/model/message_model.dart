@@ -255,6 +255,18 @@ class MessageModel {
   // 10 发送中 sending;  11 已发送 send; 20 (未读 已投递) delivered;  21 已读 seen; 41 错误（发送失败） error;
   int? status;
 
+  /// 服务端权威会话内序号（v35 事实列 `conv_seq`，排序基建见
+  /// message_order.dart / MessageColumns.convSeq）。
+  ///
+  /// 来源：live 投递帧信封顶层 `conv_seq`（msg_c2c_logic.erl:480，
+  /// duplicate 分支 SERVER_ACK 同样携带）或本地行 `conv_seq` 列
+  /// （两者 wire 键与列名同串，fromJson 一并覆盖）。
+  /// NULL=服务端尚未给出（出站待 ACK / 存量旧行），**绝不本地伪造**。
+  /// 落库仅 insert 新行随行写入；权威值只增不改——backfillServerOrderFacts
+  /// 依 COALESCE 仅补 NULL，save→update 路径的 toJson 不携带本字段，
+  /// 天然不触碰该列。
+  int? convSeq;
+
   MessageModel(
     this.id, {
     required this.autoId,
@@ -271,10 +283,34 @@ class MessageModel {
     this.action,
     this.e2ee,
     this.senderDid,
+    this.convSeq,
   }) : fromId = channelDecimalId(fromId, allowZero: true) ?? '0',
        toId = type?.toUpperCase() == 'C2S'
            ? parseModelString(toId, defaultValue: '0')
            : channelDecimalId(toId, allowZero: true) ?? '0';
+
+  /// 解析 wire 帧顶层 / 本地行的 conv_seq（服务端权威会话内序号）。
+  ///
+  /// TSID/int64 语义保真（safeParseBigIntJson 族口径，与既有同字段实现
+  /// OfflineMessageWriter.parseServerOrderFacts 的 conv_seq 分支同款）：
+  /// - int 直取（native jsonDecode 64-bit 无损）；
+  /// - 非整数 double（如 1.5）拒绝截断——不静默变 1；
+  /// - 整值 double / 数字串经精确转换或 int.tryParse 解析（后端若
+  ///   字符串化大整数不丢精度）；
+  /// - 仅接受 >0；缺字段/无法解析一律返回 null（=无该事实，调用方
+  ///   不落列），绝不本地伪造序号。
+  static int? parseConvSeq(dynamic raw) {
+    if (raw is int) return raw > 0 ? raw : null;
+    if (raw is num) {
+      final asInt = raw.toInt();
+      return (raw == asInt && asInt > 0) ? asInt : null;
+    }
+    if (raw is String) {
+      final asInt = int.tryParse(raw.trim());
+      return (asInt != null && asInt > 0) ? asInt : null;
+    }
+    return null;
+  }
 
   factory MessageModel.fromJson(
     Map<String, dynamic> data, {
@@ -363,6 +399,10 @@ class MessageModel {
       senderDid:
           parseModelNullableString(data[MessageColumns.senderDid]) ??
           (fromLocalStore ? parseModelNullableString(localSenderDid) : null),
+      // DEF-SYN01-ORDER-NOCONV-1（选项B切片）：wire 键与 v35 列名同为
+      // 'conv_seq'（MessageColumns.convSeq），live 帧与本地行一体解析；
+      // 经 parseConvSeq 保真守卫，无事实时为 null（不落列）。
+      convSeq: parseConvSeq(data[MessageColumns.convSeq]),
     );
   }
 

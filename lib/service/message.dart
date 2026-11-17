@@ -1123,6 +1123,10 @@ class MessageService with EventSubscriptionManager {
         msgType: msgContentType, // WebSocket API v2.0: 从顶层读取消息内容类型
         e2ee: tempMsg.e2ee,
         senderDid: tempMsg.senderDid,
+        // DEF-SYN01-ORDER-NOCONV-1（选项B切片）：live 帧信封顶层 conv_seq
+        // 随落库行持久化（wire→模型映射伴生行）。parseConvSeq 保真守卫，
+        // 缺失/非法时为 null → 列保持 NULL（绝不本地伪造）。
+        convSeq: MessageModel.parseConvSeq(data['conv_seq']),
       );
 
       // 保存消息到 sqlite

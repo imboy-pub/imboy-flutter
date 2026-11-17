@@ -295,6 +295,15 @@ class MessageRepo implements MessageRepository {
         MessageRepo.e2ee: msg.e2ee != null ? json.encode(msg.e2ee) : '',
       };
       insert[MessageColumns.senderDid] = msg.senderDid;
+      // DEF-SYN01-ORDER-NOCONV-1（选项B切片）：live 落库随行写入 wire 下发
+      // 的 conv_seq（模型经 MessageModel.parseConvSeq 保真解析）。仅 insert
+      // （新行）触达本分支；已存在行走 save→update，不触碰该列。NULL=服务端
+      // 尚未给出（出站待 ACK / 存量旧行），绝不本地伪造；与 offline/archive
+      // 写入点（offline_message_writer parseServerOrderFacts）同口径，权威值
+      // 后续仍可由 backfillServerOrderFacts 对 NULL 行幂等补齐。
+      if (msg.convSeq != null && msg.convSeq! > 0) {
+        insert[MessageColumns.convSeq] = msg.convSeq;
+      }
       _normalizeSenderDid(insert, targetTableName);
       if (kDebugMode) {}
       if (txn != null) {
