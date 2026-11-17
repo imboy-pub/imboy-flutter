@@ -89,6 +89,36 @@ class ChatArchiveService {
     );
   }
 
+  /// 当前历史回填游标值（syncHistoryBackfill 重探判定用）。
+  static int historyCursor(String convKey) =>
+      StorageService.to.getInt('${Keys.msgHistorySeqPrefix}$convKey') ?? 0;
+
+  /// DEF-SYN03-WEB-PAGINATION-DEAD(b)：游标回拔归零并清同族 repair 残键。
+  ///
+  /// 持久化游标 seq 超前于本地已有数据（换机导入/上游删库重灌/游标写入
+  /// 成功但落库批次失败）时，服务端归档其实健康——syncHistory 每趟拉 0 条
+  /// 被误判「历史不可用」。R3b 实证（runs/syn03-jny06-web-20261116
+  /// /r3bwalk_console.jsonl「归档为空但会话有消息…标记 historyUnavailable」
+  /// 后清 msg_history_seq* 重登恢复 15/16）：清游标即可恢复。
+  ///
+  /// 清理范围=本会话前缀全族（cursor + repair_v2 watermark + gap 键，即
+  /// `<cursorKey>` 与 `<cursorKey>_` 前缀），与登出清理器（user_repo_local
+  /// quitLogin 的 msgHistorySeqPrefix 全清）同款式；overshoot watermark 一并
+  /// 清除，避免重探时 repair 逻辑仍跳过 0..watermark 区间造成二次饥饿。
+  ///
+  /// 返回回拔前的游标值（>0 即 cursorBehindEvidence：曾存在超前证据）。
+  static Future<int> resetHistoryCursor(String convKey) async {
+    final cursorKey = '${Keys.msgHistorySeqPrefix}$convKey';
+    final previous = StorageService.to.getInt(cursorKey) ?? 0;
+    if (previous <= 0) return previous;
+    for (final key in StorageService.to.getKeys().where(
+      (k) => k == cursorKey || k.startsWith('${cursorKey}_'),
+    )) {
+      await StorageService.to.remove(key);
+    }
+    return previous;
+  }
+
   static Future<void> _saveCheckpoint(
     String key,
     int sequence,

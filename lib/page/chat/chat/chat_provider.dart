@@ -100,10 +100,28 @@ class ChatNotifier extends _$ChatNotifier {
   ///
   /// lastMsgId 是 Xid 字符串（与 MessageModel.id 同契约），
   /// 旧 int 契约下 parseModelInt 把 Xid 静默归零导致本判定恒 false，已修复。
+  ///
+  /// DEF-SYN03-WEB-PAGINATION-DEAD(b)（R3b 实证 runs/syn03-jny06-web-20261116/
+  /// r3bwalk_console.jsonl「归档为空但会话有消息(lastMsgId=dbs479929…)标记
+  /// historyUnavailable」→ 仅自发 9 条渲染、7 条对方消息全缺；清
+  /// msg_history_seq*/offline_cursor* 重登才恢复）：归档「0 条」还有第三种
+  /// 成因——本机持久化游标 seq 超前于本地已有数据（换机导入/上游删库重灌/
+  /// 游标写入成功但落库批次失败），服务端归档其实是健康的（lastMsgId 即
+  /// 佐证）。此时「不可用」是**误标**：游标回拔重拉即可恢复（R3b 清游标
+  /// 实证），绝不是不可恢复态。故标记条件必须叠加「游标已归零重探仍为空」
+  /// ——cursorBehindEvidence=true 表示游标非零（可能超前），交由调用方先走
+  /// 游标重置重拉，重探后仍 0 条才允许置 unavailable。
   static bool shouldMarkHistoryUnavailable({
     required bool anyFetched,
     required String lastMsgId,
-  }) => !anyFetched && lastMsgId.isNotEmpty;
+    bool cursorBehindEvidence = false,
+    bool cursorResetReexplored = true,
+  }) =>
+      !anyFetched &&
+      lastMsgId.isNotEmpty &&
+      // 游标可能超前（seq>0）→ 不允许一次判定就永久标记；
+      // 必须先游标重置重探（cursorResetReexplored=true）仍空才成立。
+      (!cursorBehindEvidence || cursorResetReexplored);
 
   // SharedPreferences keys
   static const String _spPendingReadReceiptsKey =
@@ -1393,23 +1411,44 @@ class ChatNotifier extends _$ChatNotifier {
       );
       final anyFetched = await fetchArchiveHistory(obj, chatType);
       if (!current() || locationRequest != _locationRequest) return;
+      // DEF-SYN03-WEB-PAGINATION-DEAD(b)（R3b 实证 runs/syn03-jny06-web-
+      // 20261116/r3bwalk_console.jsonl：游标超前→归档趟趟 0 条→误标
+      // historyUnavailable，清 msg_history_seq* 重登即恢复 15/16）：归档
+      // 「0 条」时若持久化游标非零，先回拔归零重探一趟，仍 0 条才允许置
+      // 不可用——不得凭一次判定永久判死。
+      var fetched = anyFetched;
+      var cursorBehind = false;
+      if (!fetched) {
+        cursorBehind = await ChatArchiveService.resetHistoryCursor(obj.uk3) > 0;
+        if (!current() || locationRequest != _locationRequest) return;
+        if (cursorBehind) {
+          iPrint(
+            'syncHistoryBackfill: 归档 0 条但游标非零(超前证据)，'
+            '回拔归零重探',
+          );
+          fetched = await fetchArchiveHistory(obj, chatType);
+          if (!current() || locationRequest != _locationRequest) return;
+        }
+      }
       // BUG#119（批次72 真机复现）：回填「成功但 0 条」≠「会话无消息」。
       // 服务端 msg_store 归档为空（生产未开启 msg_archive_enabled）时，
       // history 接口正常返回空，此时不能展示误导性的「暂无数据」——
       // 会话行 lastMsgId 非空即服务端确认该会话存在消息，只是历史不可取。
       // 置 historyUnavailable 让空态显示「历史消息暂不可用」而非「暂无数据」。
       if (shouldMarkHistoryUnavailable(
-        anyFetched: anyFetched,
+        anyFetched: fetched,
         lastMsgId: obj.lastMsgId,
+        cursorBehindEvidence: cursorBehind,
+        cursorResetReexplored: true,
       )) {
         iPrint(
-          'syncHistoryBackfill: 归档为空但会话有消息(lastMsgId=${obj.lastMsgId})，'
-          '标记 historyUnavailable',
+          'syncHistoryBackfill: 归档为空但会话有消息(lastMsgId=${obj.lastMsgId}，'
+          'cursorBehind=$cursorBehind 已重探)，标记 historyUnavailable',
         );
         state = state.copyWith(historyUnavailable: true);
       }
       // 有回填则重置本地分页游标位，让上滑能读到新落库的更老消息
-      if (anyFetched) {
+      if (fetched) {
         state = state.copyWith(hasMoreMessage: true);
         // BUG#120：空会话没有可上滑的内容，只置 hasMoreMessage 回填消息本次
         // 完全不可见（必须退出重进）。视图为空时主动重跑一次首屏加载。
