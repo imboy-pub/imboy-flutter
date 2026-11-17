@@ -46,6 +46,10 @@ Future<void> _migrate(Database db, int from, int to, {bool fail = false}) =>
       if (!result.success) throw StateError(result.error!);
     });
 
+Future<int> _count(Database db, String table) async =>
+    (await db.rawQuery('SELECT COUNT(*) FROM $table')).first.values.first
+        as int;
+
 Future<List<Map<String, Object?>>> _matches(
   Database db,
   String table,
@@ -282,6 +286,62 @@ void main() {
       }
     },
   );
+
+  test('v40 rebuild and downgrade scale to a large message store', () async {
+    // Proves the DROP+CREATE+INSERT rebuild stays correct (and the sqflite
+    // transaction stays atomic) when the indexed store is far larger than any
+    // per-statement fixture: every row must be reindexed exactly once, the
+    // shadow tables must pass integrity-check, and the paired downgrade must
+    // restore the contentless shape with rowid alignment intact.
+    const rowCount = 30000;
+    final db = await openFixtureDatabaseAtVersion(version: 39);
+    addTearDown(db.close);
+    await db.transaction((txn) async {
+      final batch = txn.batch();
+      for (var i = 0; i < rowCount; i++) {
+        for (final table in messageFtsTables) {
+          batch.insert(table, {
+            'id': 'scale-$table-$i',
+            'msg_type': 'text',
+            'payload': '{"text":"scalaword $i hallmark$table"}',
+            'status': 20,
+            'conversation_uk3': 'scale-$table',
+          });
+        }
+      }
+      await batch.commit(noResult: true);
+    });
+    final upgrade = Stopwatch()..start();
+    await _migrate(db, 39, 40);
+    expect(upgrade.elapsed, greaterThan(Duration.zero));
+    expect(await db.getVersion(), 40);
+    expect(await SchemaContract.verifyInvariants(db, version: 40), isEmpty);
+    for (final table in messageFtsTables) {
+      expect(
+        await _count(db, '${table}_fts'),
+        rowCount,
+        reason: 'every message row must be indexed exactly once',
+      );
+      expect(await _matches(db, table, 'hallmark$table'), hasLength(rowCount));
+      await db.execute(
+        "INSERT INTO ${table}_fts(${table}_fts) VALUES('integrity-check')",
+      );
+    }
+    final downgrade = Stopwatch()..start();
+    await _migrate(db, 40, 39);
+    expect(downgrade.elapsed, greaterThan(Duration.zero));
+    expect(await db.getVersion(), 39);
+    for (final table in messageFtsTables) {
+      expect(
+        await _count(db, table),
+        rowCount,
+        reason: 'message rows are authoritative and untouched',
+      );
+      expect(await _matches(db, table, 'hallmark$table'), hasLength(rowCount));
+    }
+    await _migrate(db, 39, 40);
+    expect(await SchemaContract.verifyInvariants(db, version: 40), isEmpty);
+  });
 
   test(
     'v40 SQL matches Dart trimming without changing interior text',
