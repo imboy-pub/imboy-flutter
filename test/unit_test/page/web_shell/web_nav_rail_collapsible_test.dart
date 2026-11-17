@@ -3,6 +3,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/component/ui/desktop_navigation_rail.dart';
 import 'package:imboy/page/web_shell/web_nav_rail.dart';
 
+import '../../helper/material_tooltip_finder.dart';
+
 const _items = [
   WebNavItem(
     icon: Icons.chat_bubble_outline,
@@ -102,8 +104,8 @@ void main() {
     expect(find.text('Contacts'), findsNothing);
     expect(find.text('Channels'), findsNothing);
     expect(find.text('Me'), findsNothing);
-    expect(find.byTooltip('Messages'), findsOneWidget);
-    expect(find.byTooltip('Me'), findsOneWidget);
+    expect(findMaterialTooltip('Messages'), findsOneWidget);
+    expect(findMaterialTooltip('Me'), findsOneWidget);
 
     await tester.tap(
       find.byKey(const ValueKey('desktop-navigation-collapse-toggle')),
@@ -121,20 +123,20 @@ void main() {
       const ValueKey('desktop-navigation-primary-scroll'),
     );
     expect(
-      find.descendant(of: scroll, matching: find.byTooltip('Messages')),
+      find.descendant(of: scroll, matching: findMaterialTooltip('Messages')),
       findsOneWidget,
     );
     expect(
-      find.descendant(of: scroll, matching: find.byTooltip('Channels')),
+      find.descendant(of: scroll, matching: findMaterialTooltip('Channels')),
       findsOneWidget,
     );
     expect(
-      find.descendant(of: scroll, matching: find.byTooltip('Me')),
+      find.descendant(of: scroll, matching: findMaterialTooltip('Me')),
       findsNothing,
     );
     expect(
-      tester.getCenter(find.byTooltip('Me')).dy,
-      greaterThan(tester.getCenter(find.byTooltip('Channels')).dy),
+      tester.getCenter(findMaterialTooltip('Me')).dy,
+      greaterThan(tester.getCenter(findMaterialTooltip('Channels')).dy),
     );
     expect(tester.takeException(), isNull);
   });

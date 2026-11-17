@@ -15,6 +15,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/page/web_shell/web_shell.dart';
 
+import '../../helper/material_tooltip_finder.dart';
+
 const _kMobile = Material(
   key: ValueKey('mobile-fallback'),
   child: Center(child: Text('MOBILE')),
@@ -147,7 +149,7 @@ void main() {
         expect(entry, findsOneWidget);
         expect(container.read(webShellProvider).currentTab, index);
       }
-      expect(find.byTooltip('Me'), findsOneWidget);
+      expect(findMaterialTooltip('Me'), findsOneWidget);
       expect(tester.takeException(), isNull);
     });
 
@@ -182,10 +184,10 @@ void main() {
   group('WebShellPage — i18n label 透传', () {
     testWidgets('NavRail items 用调用方传入的 label（Tooltip 验证）', (tester) async {
       await _pumpShell(tester, size: const Size(1400, 800));
-      expect(find.byTooltip('Messages'), findsOneWidget);
-      expect(find.byTooltip('Contacts'), findsOneWidget);
-      expect(find.byTooltip('Channels'), findsOneWidget);
-      expect(find.byTooltip('Me'), findsOneWidget);
+      expect(findMaterialTooltip('Messages'), findsOneWidget);
+      expect(findMaterialTooltip('Contacts'), findsOneWidget);
+      expect(findMaterialTooltip('Channels'), findsOneWidget);
+      expect(findMaterialTooltip('Me'), findsOneWidget);
     });
 
     testWidgets('welcome title 渲染', (tester) async {

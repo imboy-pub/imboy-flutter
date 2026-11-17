@@ -106,14 +106,12 @@ void navigateToSignIn({String source = 'unknown'}) {
     AppLogger.info('navigateToSignIn skipped (app disposing), source=$source');
     return;
   }
-
   if (_isNavigatingToSignIn) {
     AppLogger.info('navigateToSignIn skipped (in-flight), source=$source');
     return;
   }
 
   _isNavigatingToSignIn = true;
-
   WidgetsBinding.instance.addPostFrameCallback((_) {
     try {
       if (_isAppDisposing ||
@@ -135,6 +133,8 @@ void navigateToSignIn({String source = 'unknown'}) {
       });
     }
   });
+  // post-frame 不会自行请求新帧；异步注销结束时界面可能已静止。
+  WidgetsBinding.instance.ensureVisualUpdate();
 }
 
 /// Connectivity监听器订阅（需要在dispose时取消）
