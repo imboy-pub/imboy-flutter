@@ -25,7 +25,8 @@ pluginManagement {
 
 plugins {
     id("dev.flutter.flutter-plugin-loader") version "1.0.0"
-    id("com.android.application") version "9.3.1" apply false
+    // Fix bundled Lint's JDK 17 List.removeLast() crash (Google issue 522845800).
+    id("com.android.application") version "9.3.2" apply false
     id("org.jetbrains.kotlin.android") version "2.4.20" apply false
 }
 

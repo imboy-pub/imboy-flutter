@@ -10,7 +10,9 @@ IMBoy 的 Flutter 客户端，支持 iOS、Android 和桌面端。一期交付�
 
 ### 1. 准备环境
 
-- Flutter 3.50.0（与 CI 的精确版本一致，附带 Dart 3.14.0；项目 Dart SDK 约束 `^3.13.3`）
+- Flutter 3.50.0 / Dart 3.14.0（与 CI 的精确版本一致；项目 Dart SDK 约束 `^3.13.3`）。应用与 UI 依赖已迁移到独立 Material/Cupertino 包，维护方式见 [UI 依赖迁移](docs/dependencies/flutter-ui-migration.md)。
+
+  CI pins Flutter 3.50.0 / Dart 3.14.0 with standalone Material/Cupertino dependencies. See the migration guide before changing SDK or UI package versions.
 - 一台已连接电脑的真机
 - 可访问的 IMBoy 后端
 

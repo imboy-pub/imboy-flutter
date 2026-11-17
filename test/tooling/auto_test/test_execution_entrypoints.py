@@ -490,6 +490,45 @@ raise SystemExit(code)
         with self.assertRaises(ValueError):
             execution_cli.upstream_statuses(['prepare'])
 
+    def test_static_analysis_rejects_new_infos_when_both_analyzers_exit_zero(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            quality = root / 'scripts/quality'
+            quality.mkdir(parents=True)
+            shutil.copyfile(ROOT / 'scripts/quality/check_analyzer_ratchet.sh',
+                            quality / 'check_analyzer_ratchet.sh')
+            baseline = quality / 'analyzer_ratchet_baseline.txt'
+            baseline.write_text('# synthetic zero baseline\n')
+            (root / '.dart_tool').mkdir()
+            (root / '.dart_tool/package_config.json').write_text('{}\n')
+            binaries = root / 'bin'
+            binaries.mkdir()
+            commands = {
+                'flutter': '#!/bin/sh\nprintf "weak-flutter-analyzer-exit-zero\\n"\nexit 0\n',
+                'dart': '#!/bin/sh\n'
+                        'if [ "$*" = "analyze --format=machine" ]; then\n'
+                        '  printf "%s\\n" "INFO|LINT|SYNTHETIC_INFO|lib/example.dart|1|1|1|new info"\n'
+                        'else\n'
+                        '  printf "weak-dart-analyzer-exit-zero\\n"\n'
+                        'fi\nexit 0\n',
+            }
+            for name, content in commands.items():
+                binary = binaries / name
+                binary.write_text(content)
+                binary.chmod(0o755)
+            env = {**os.environ, 'PATH': str(binaries) + os.pathsep + os.environ['PATH']}
+            plan = {'commit': 'abc', 'profile': 'full', 'source_fingerprint': 'source',
+                    'gates': ['static-analysis']}
+            row = execution_gates.run_gates(root, plan, root / 'gates', env)['static-analysis']
+            self.assertEqual(row['status'], 'FAIL', row)
+            self.assertEqual(row['reason_code'], 'CHECK_FAILED')
+            self.assertEqual(row['exit_code'], 1)
+            log = Path(row['log']).read_text()
+            self.assertIn('weak-flutter-analyzer-exit-zero', log)
+            self.assertIn('weak-dart-analyzer-exit-zero', log)
+            self.assertIn('RESULT: FAIL', log)
+            self.assertEqual(baseline.read_text(), '# synthetic zero baseline\n')
+
     def test_failed_gate_receipt_cannot_be_overwritten_by_later_pass(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)

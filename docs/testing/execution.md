@@ -185,6 +185,61 @@ worktree 准备真实生成物，源提交/执行合同/测试代码保持一致
 `--worker-product-profile full-selected` 不会自动构建/启用 feature。全部结果与前置检查收集后，
 用原完整计划 execution-summary，并传入 `--results "$REPORT_DIR/full-gates"` 及各分片目录；分片成功不代表完整回归通过。日志、原始/逐目标事件及进程 receipt 随结果上传，汇总重新核验文件、SHA256、退出码与解析计数，缺证据也会阻塞。
 
+### 跨仓库来源与 UIUX 离线证据 / Cross-repository sources and UIUX offline evidence
+
+普通 CI、可复用 quality/contract 工作流与 UIUX 离线工作流统一读取
+`.github/ci-source-lock.json` 的 Backend/Admin 仓库和完整提交 SHA。更新候选时只修改
+该锁文件并重新验证；不回退到浮动 main。App 的执行身份使用实际 checkout HEAD，
+PR 事件下通常为 GitHub 的 test-merge SHA，不能用 PR head SHA 替代。
+各源码消费 job 在运行前核对实际 HEAD 与干净源码状态，并保存 `source-checkout.json`；
+它只证明来源组合，不证明真实后端已运行或业务通过。
+
+UIUX 工作流先冻结同一 `full-plan.json`、`offline-plan.json` 与三仓 `candidate.json`。
+候选同时记录本次 invocation、GitHub run ID、attempt 与 event；同 SHA 的旧运行或旧
+attempt 收据不能自动并入新一轮结果。
+因此恢复 UIUX 运行须整次重跑并重新冻结计划；仅重跑失败 jobs 会因沿用旧 attempt 的
+候选而被拒绝。
+每个 shared-gates / worker 在执行前保存 `source_snapshot.json`，执行后复核源码并用
+`source_receipt.json` 绑定原 `gates.json` 或 `results.json`。收据包含产品生成物、
+生成器输入、允许的 diff 和文件 hash；下载后的汇总拒绝缺失/重复分区、旧候选、
+来源或结果篡改。`source-summary.json` 仅报告来源绑定；其失败也传入两份业务 summary，
+不能留下看似通过的 offline 结果。
+
+`phase1_delivery` 保持源码和产品生成物一致；`full-selected` 只允许已有生成器在隔离
+checkout 中修改登记的三仓产品生成物和 Backend 产品 manifest。每份生成物仍须逐字节
+匹配真实生成器输出，普通源文件、额外未跟踪源文件和隐藏的 index 改动不被允许。
+不得将合法产品生成差异扩大成任意 dirty workspace 豁免。
+共享 `static-analysis` 同时执行普通 CI 的全仓 Analyzer ratchet；只有 info 而退出 0
+的 `dart analyze` 不能单独证明该门通过，基线和阈值保持原样。
+
+`UIUX offline gates` 的 CI 绿只证明 Linux/macOS/Web 的 unit、widget、component、
+sqlite-ffi、crypto-ffi、tooling 与 route-smoke，以及三仓来源绑定、共享门禁和原有
+38% Linux 覆盖率全部通过。它保留完整计划中的 API、Golden、设备、双端和原生 UI
+义务；当前工作流不导入独立专项证据，原 `full-summary.json` 缺证据仍必须为
+`BLOCKED` / `INCOMPLETE_EXECUTION` / `complete_regression=false`，不改写为通过。
+
+独立 `offline-ci-summary.json` 只给离线 CI 判定：来源、coverage、offline 的真实
+退出码和报告必须全通过；full 的缺失实例必须恰为冻结 full/offline 计划的专项差集，
+逐行仍为 `BLOCKED/MISSING_RESULT` 且没有执行记录。full 中离线结果须与 offline
+报告一致。真实 FAIL、FLAKY、意外缺失、上游失败、身份或证据异常、无法读取的报告
+均使 CI 失败，不能以“专项尚未执行”吞掉。Job Summary 同时展示四份报告；离线 CI
+成功不能用作全量验收，full 仍待同计划、同候选的独立专项证据完成。
+合入 main 本身不触发该独立工作流；匹配 paths 的 PR 或 workflow_dispatch 才执行。
+
+English: The shared source lock pins Backend/Admin commits across ordinary CI and
+UIUX. App identity is the actual checkout commit, including GitHub's PR test merge.
+Source-only checkout receipts are not runtime-backend or business acceptance.
+UIUX freezes both plans with all three source identities, checks each worker before
+and after execution, and binds its product files and original results to that candidate.
+Only generator-verified product differences are allowed. Missing, stale, duplicate or
+tampered receipts block both summaries. A green `UIUX offline gates` check certifies
+only the declared offline instances, shared gates, source binding and unchanged 38%
+Linux coverage threshold. The original full report remains BLOCKED with
+`complete_regression=false`; only the exact specialist difference may be missing.
+Real failures, flaky results, unexpected missing instances and invalid evidence still
+fail CI. `offline-ci-summary.json` records this separate scope decision without changing
+full-regression acceptance. A merge alone is not an execution receipt.
+
 ## PR、覆盖率与门禁
 
 PR 包含逻辑、Widget、模拟集成、SQLite、加密 FFI、工具目标，含原来 `test/unit_test/`
@@ -234,9 +289,13 @@ Python、C/C++ 构建工具、pkg-config、libGLU 和 `libsqlite3-dev`。Git 必
 包状态不正确或动态库加载失败仍会阻断，既有 SQLite 真实测试继续完整执行。
 Ubuntu workers verify the installed package and load the system library; missing packages use bounded installation.
 
-Flutter 使用 `ci.yml` 的精确 `3.50.0` pin，Dart 由其附带并通过 SDK 检查；
+Flutter 使用 `ci.yml` 的精确 `3.50.0` pin，Dart 3.14.0 由其附带并通过 SDK 检查；
 `flutter pub get --enforce-lockfile` 保留 Git/path 依赖及 lockfile 校验。
-CI pins Flutter 3.50.0 with its bundled Dart SDK; existing analyzer and Golden baselines remain unchanged.
+应用与本地 UI 依赖已迁移到独立 Material/Cupertino 包；升级 SDK 时仍须验证公开类型、
+主题、本地化及原生构建。Analyzer、文件行数、覆盖率与 Golden 基线保持原样。
+CI pins Flutter 3.50.0 / Dart 3.14.0 with standalone Material/Cupertino dependencies.
+SDK upgrades must validate public types, themes/localizations and native builds together.
+Analyzer, file-size, coverage and Golden baselines remain unchanged.
 Debian 单独固定 Rust `1.98.1`，复用 `ci_build_vod.sh` 从解析后的插件源码构建，
 不使用 Ubuntu 构建产物。Cargo 依赖沿用现有脚本的解析流程，本次未增加 `--locked`；
 固定 Rust 编译器不等于冻结全部 Rust 依赖。SDK/pub 缓存的 key 与路径都有 Debian 13 前缀，原生 build
@@ -353,6 +412,12 @@ receipt, and verifies it after artifact relocation; environment claims cannot su
 ### 宿主、FFI、产品
 
 使用仓库固定 Flutter/Dart，先 `python3 scripts/check_sdk_compatibility.py` 再 `flutter pub get --enforce-lockfile`。冻结计划后只运行 `.github/scripts/ci_patch_path_deps.sh --check`，不在执行阶段改写依赖源码。
+CI 的依赖准备复用 `ci_retry_build_downloads.sh`：`flutter pub get` 返回 69 且出现明确 Git DNS 失败，
+或 Git clone 同时出现完整的 GnuTLS/OpenSSL 接收中断或 curl 18 截断证据、early EOF 与 invalid index-pack 时，最多执行三次，间隔 10/20 秒。
+参数、锁文件校验与最终失败码保持不变；认证、证书、校验和及依赖解析错误不因此重试。
+这只恢复执行前的依赖下载，不重跑测试或改变 FLAKY 判定。
+CI uses bounded retries for observed Git transport failures during package preparation, preserves
+arguments and final failure codes, and never retries test assertions through this helper.
 专用测试 checkout 可用 `.github/scripts/ci_gen_env.sh` 生成合成 loopback 配置，不复制真实配置。
 SQLite FFI 需可加载的宿主动态库；Linux 需让动态加载器找到 `libsqlite3.so`，例如安装
 `libsqlite3-dev`。加密库沿用 `.github/scripts/ci_build_vod.sh` 按锁定插件构建，

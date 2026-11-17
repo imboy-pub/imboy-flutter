@@ -59,8 +59,8 @@ import 'message_webrtc.dart';
 import 'notification.dart';
 import 'notification_provider.dart';
 
-part 'message_e2ee_inbound.dart';
 part 'message_notifications.dart';
+part 'message_e2ee.dart';
 
 // Legacy compatibility surface. External callers should now import
 // `package:imboy/modules/messaging/public.dart`; this file remains the

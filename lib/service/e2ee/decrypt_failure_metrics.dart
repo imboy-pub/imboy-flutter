@@ -1,92 +1,9 @@
-part of 'e2ee_service.dart';
+import 'dart:async';
 
-/// 设备集合异常类别（AC-15）。
-enum DeviceSetAnomalyKind {
-  /// 幽灵设备：服务端 Olm 设备列表下发了本地 fan-out / 已批准集合中
-  /// 不存在的未知设备。
-  ghostDevice,
+import 'package:imboy/component/helper/func.dart';
+import 'package:imboy/service/storage.dart';
 
-  /// 遗漏设备：本地已知（上次记录）的设备未出现在服务端下发的活跃集合中
-  /// （可能被撤销/下线，也可能是服务端数据不一致）。
-  missingDevice,
-
-  /// 新设备：对端设备集合相对上次记录出现新增设备（聚合安全码将变化，
-  /// 既有「已验证」状态失效，需要重新带外核验）。
-  newDevice,
-}
-
-/// E2EE 设备集合异常事件（AC-15）。
-///
-/// 触发策略：**刷新 + 告警，不崩溃不静默**——
-/// - 幽灵/遗漏/新增意味着服务端设备视图与本地信任视图不一致（可能被塞入、
-///   移除设备，或对端合法增删设备），消费方应清密钥缓存强制刷新并提示
-///   用户重验安全码；
-/// - 事件只承载事实（设备 ID 集合），不携带任何密钥材料。
-final class E2eeDeviceSetAnomalyEvent extends AppEvent {
-  const E2eeDeviceSetAnomalyEvent({
-    required this.peerUid,
-    required this.kind,
-    this.ghostDeviceIds = const {},
-    this.missingDeviceIds = const {},
-    this.newDeviceIds = const {},
-  });
-
-  /// 发生异常的对端用户 ID。
-  final String peerUid;
-
-  /// 异常类别。
-  final DeviceSetAnomalyKind kind;
-
-  /// 幽灵设备 ID 集合（kind == ghostDevice 时非空）。
-  final Set<String> ghostDeviceIds;
-
-  /// 遗漏设备 ID 集合（kind == missingDevice 时非空）。
-  final Set<String> missingDeviceIds;
-
-  /// 新增设备 ID 集合（kind == newDevice 时非空）。
-  final Set<String> newDeviceIds;
-
-  @override
-  List<Object?> get props => [
-    peerUid,
-    kind,
-    ghostDeviceIds,
-    missingDeviceIds,
-    newDeviceIds,
-  ];
-
-  @override
-  String toString() =>
-      'E2eeDeviceSetAnomalyEvent(peerUid: $peerUid, kind: $kind, '
-      'ghost={${ghostDeviceIds.join(',')}}, '
-      'missing={${missingDeviceIds.join(',')}}, '
-      'new={${newDeviceIds.join(',')}})';
-}
-
-/// 本地安全码信任标记失效事件（AC-15）。
-///
-/// 对端身份换钥（S2C `e2ee_key_changed`，C01 identity_version 推进）或
-/// 信任撤销（`e2ee_trust_changed` → revoked/unverified）时，本地
-/// 「已验证」标记必须同步失效——静默沿用旧验证等于放行换钥后的 MITM。
-final class SafetyNumberTrustInvalidatedEvent extends AppEvent {
-  const SafetyNumberTrustInvalidatedEvent({
-    required this.peerUid,
-    required this.reason,
-  });
-
-  /// 信任被失效的对端用户 ID。
-  final String peerUid;
-
-  /// 失效原因（peer_key_changed / trust_revoked / …），仅用于日志与 UI 提示。
-  final String reason;
-
-  @override
-  List<Object?> get props => [peerUid, reason];
-
-  @override
-  String toString() =>
-      'SafetyNumberTrustInvalidatedEvent(peerUid: $peerUid, reason: $reason)';
-}
+import 'decrypt_failure_reason.dart';
 
 /// 解密失败发生率度量 —— 「[加密消息] 占位发生率压到一辈子遇不到」的验证仪表。
 ///

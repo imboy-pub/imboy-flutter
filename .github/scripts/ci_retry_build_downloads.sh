@@ -36,14 +36,24 @@ for attempt in 1 2 3; do
       -e "failed downloading 'https://[^']+'.*badResponseStatusCode\($retryable_http\)" \
       "$log"; then
     retryable=true
-  elif [[ "$status" == 69 && "${1##*/}" == flutter && "${2:-}" == pub && "${3:-}" == get ]] &&
-      grep -Eq \
-        -e "^fatal: unable to access 'https://[^']+': Could not resolve host: [^[:space:]]+$" \
-        -e '^error: RPC failed; curl 56 GnuTLS recv error \(-110\): The TLS connection was non-properly terminated\.$' \
-        "$log"; then
-    # Pub reports unavailable (69) for these Git DNS or interrupted TLS transfers.
-    # Restrict to package downloads so transport output cannot retry a failed build.
-    retryable=true
+  elif [[ "$status" == 69 && "${1##*/}" == flutter && "${2:-}" == pub && "${3:-}" == get ]]; then
+    # Pub reports unavailable (69) for Git transport failures. Restrict these
+    # signatures to package download, never a later failed build or test.
+    if grep -Eq "^fatal: unable to access 'https://[^']+': Could not resolve host: [^[:space:]]+$" "$log"; then
+      retryable=true
+    elif grep -Eq '^Git error\. Command: `git clone --mirror (-- )?https://[^[:space:]]+ ' "$log" &&
+        grep -Fxq 'fatal: early EOF' "$log" &&
+        grep -Fxq 'fatal: fetch-pack: invalid index-pack output' "$log" &&
+        { grep -Eq \
+          -e '^error: RPC failed; curl 56 GnuTLS recv error \(-110\): The TLS connection was non-properly terminated\.$' \
+          -e '^error: RPC failed; curl 56 OpenSSL SSL_read: OpenSSL/[0-9]+\.[0-9]+\.[0-9]+: error:0A000126:SSL routines::unexpected eof while reading, errno 0$' "$log" ||
+          { grep -Fxq 'error: RPC failed; curl 18 transfer closed with outstanding read data remaining' "$log" &&
+            grep -Eq '^error: [0-9]+ bytes of body are still expected$' "$log" &&
+            grep -Fxq 'fetch-pack: unexpected disconnect while reading sideband packet' "$log"; }; }; then
+      # Observed Git clone truncation (curl 56 or 18). A generic SSL, checksum,
+      # or pack error alone is insufficient; keep the lockfile and command intact.
+      retryable=true
+    fi
   fi
   if [[ "$status" -ge 128 || "$retryable" != true ]]; then
     exit "$status"

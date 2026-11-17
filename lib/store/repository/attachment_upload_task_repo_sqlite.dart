@@ -9,11 +9,16 @@ import 'package:sqflite_sqlcipher/sqflite.dart'
 
 import 'package:imboy/service/sqlite.dart';
 import 'package:imboy/store/model/message_model.dart';
+import 'package:imboy/store/model/attachment_upload_task.dart';
 import 'package:imboy/store/repository/message_repo_sqlite.dart';
 import 'package:imboy/service/e2ee/attachment_seal_policy.dart';
 import 'package:imboy/service/e2ee/protected_frame_v3.dart';
 
-part 'attachment_upload_task_types.dart';
+export 'package:imboy/store/model/attachment_upload_task.dart';
+
+class LegacyOutboxConflict implements Exception {
+  const LegacyOutboxConflict();
+}
 
 /// 附件上传任务持久化仓库（W5-01）。
 ///

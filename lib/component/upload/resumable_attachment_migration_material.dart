@@ -1,19 +1,7 @@
 part of 'resumable_attachment_uploader.dart';
 
-Uint8List _hexDecode(String hex) => Uint8List.fromList(
-  List<int>.generate(
-    hex.length ~/ 2,
-    (i) => int.parse(hex.substring(i * 2, i * 2 + 2), radix: 16),
-  ),
-);
-
-class LostCipherMaterialError implements Exception {
-  final String taskId;
-  LostCipherMaterialError(this.taskId);
-  @override
-  String toString() => 'LostCipherMaterialError($taskId)';
-}
-
+// Deterministic encrypted staging and upload material for a legacy migration.
+// Keep derivation independent of the uploader's journal and filesystem writes.
 Uint8List _migrationKey(
   Uint8List original,
   String id,

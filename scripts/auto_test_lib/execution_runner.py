@@ -136,7 +136,7 @@ def host_worker_matrix(plan, coverage_platform='linux'):
         raise ValueError('EMPTY_PLAN: host workers require selected execution instances')
     if len(selected) != len({i['id'] for i in selected}):
         raise ValueError('DUPLICATE_EXECUTION_INSTANCE')
-    operating_systems = {'linux': 'ubuntu-24.04', 'macos': 'macos-latest',
+    operating_systems = {'linux': 'ubuntu-24.04', 'macos': 'macos-26-intel',
                          'web': 'ubuntu-24.04'}
     host_runners = {'flutter-machine', 'python-unittest', 'python-cases', 'python-recovery'}
     for item in selected:
