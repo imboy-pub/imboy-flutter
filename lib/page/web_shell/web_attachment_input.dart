@@ -1015,13 +1015,30 @@ class _WebAttachmentInputState extends State<WebAttachmentInput> {
     }
   }
 
-  Widget _selectedFiles() => ConstrainedBox(
-    constraints: const BoxConstraints(maxHeight: AppSizes.thumbnailSize * 3),
-    child: ListView(
-      shrinkWrap: true,
-      children: [for (var i = 0; i < _files.length; i++) _file(_files[i], i)],
-    ),
-  );
+  Widget _selectedFiles() {
+    // A11Y-04（<390 视口 × huge 字号档）：待选区窗口高度随视口自适应，
+    // 窗口内容靠内滚触达（每行「移出」钮不因窗口裁剪而丢语义可达性）。
+    // cacheExtent=0：滚出窗口的行不再构建/不进语义树——默认 250px 缓存
+    // 会把视口外行的 flt-semantics 节点留在 DOM（CDP 实测 390×667×huge
+    // 第 4/5 个「移出」钮 rect y=629/685>667、320×568 第 4/5 个 y=530/586
+    // >568，fixup-combo-*-semantics.json），读屏/探针据此误判不可达；
+    // 归零后语义只覆盖窗口内行，滚动即触达（改后需 8/8 矩阵重采翻绑）。
+    final mediaQuery = MediaQuery.of(context);
+    final viewportHeight =
+        mediaQuery.size.height - mediaQuery.viewInsets.bottom;
+    final cap = math.min(
+      AppSizes.thumbnailSize * 3,
+      math.max(AppSizes.touchTarget * 2, viewportHeight * 0.3),
+    );
+    return ConstrainedBox(
+      constraints: BoxConstraints(maxHeight: cap),
+      child: ListView(
+        shrinkWrap: true,
+        scrollCacheExtent: ScrollCacheExtent.pixels(0),
+        children: [for (var i = 0; i < _files.length; i++) _file(_files[i], i)],
+      ),
+    );
+  }
 
   Widget _activity() => Row(
     children: [
