@@ -59,8 +59,8 @@ import 'message_webrtc.dart';
 import 'notification.dart';
 import 'notification_provider.dart';
 
-part 'message_e2ee_inbound.dart';
 part 'message_notifications.dart';
+part 'message_e2ee.dart';
 part 'message_persistence.dart';
 part 'message_read_receipts.dart';
 

@@ -349,18 +349,30 @@ void main() {
 
   // `evidence/E2EE-v3-receive-path-not-wired.md` §7.4.1 残留项：
   // 「`_handleE2EEMessage` 确实委托给 `decryptInboundV3`」此前只靠代码审查保证。
-  // `_handleE2EEMessage` 是私有方法，且 `_receiveMessage` 耦合了 contact 仓储 /
+  // `_handleE2EEMessage` 是私有函数，且 `_receiveMessage` 耦合了 contact 仓储 /
   // 会话 provider（端到端 harness 尝试失败见同文件 §7.5），行为级断言暂不可得。
   // 这里退而求其次做**结构守护**：委托一旦被删除，测试立刻红。
   // 它不是行为证明，但能防止「接线被悄悄改回去」这一类回归——
   // 而这正是耗掉三轮才发现的那个缺口。
   group('接线守护（结构级，非行为级）', () {
     test('_handleE2EEMessage 必须在 v1/v2 路径之前委托给 decryptInboundV3', () {
-      final host = File('lib/service/message.dart').readAsStringSync();
-      expect(host, contains("part 'message_e2ee_inbound.dart';"));
-      final source = File('lib/service/message_e2ee_inbound.dart')
-          .readAsStringSync();
-      expect(source, startsWith("part of 'message.dart';"));
+      final messageSource = File('lib/service/message.dart').readAsStringSync();
+      expect(
+        messageSource,
+        contains("part 'message_e2ee.dart';"),
+        reason: '解密 part 必须接入 MessageService 所在 library',
+      );
+      expect(
+        messageSource,
+        contains('await _handleE2EEMessage('),
+        reason: '消息接收必须继续调用解密入口',
+      );
+      final source = File('lib/service/message_e2ee.dart').readAsStringSync();
+      expect(
+        source,
+        startsWith("part of 'message.dart';"),
+        reason: '解密函数必须保留在原消息服务 library',
+      );
 
       final handlerIdx = source.indexOf('_handleE2EEMessage({');
       expect(handlerIdx, greaterThan(-1), reason: '_handleE2EEMessage 定义不存在');

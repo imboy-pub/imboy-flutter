@@ -72,6 +72,8 @@ void main() {
         r"regenerating', e, s)",
         r"', e, s)",
         r': $e',
+        'error: e,',
+        r"error: '$e'",
       ],
       'lib/service/group_session_service.dart': [
         r': $e',
@@ -88,14 +90,26 @@ void main() {
       ],
     };
 
+    // Extracted files retain all privacy restrictions of their original library.
+    const extractedSourcesByFile = <String, List<String>>{
+      'lib/service/message.dart': ['lib/service/message_e2ee.dart'],
+      'lib/service/e2ee_service.dart': [
+        'lib/service/e2ee/decrypt_failure_metrics.dart',
+      ],
+      'lib/service/olm_session_service.dart': [
+        'lib/service/e2ee/olm_exceptions.dart',
+      ],
+    };
     for (final entry in forbiddenByFile.entries) {
-      final source = File(entry.key).readAsStringSync();
-      for (final fragment in entry.value) {
-        expect(
-          source,
-          isNot(contains(fragment)),
-          reason: '${entry.key} 重新引入了敏感日志: $fragment',
-        );
+      for (final path in [entry.key, ...?extractedSourcesByFile[entry.key]]) {
+        final source = File(path).readAsStringSync();
+        for (final fragment in entry.value) {
+          expect(
+            source,
+            isNot(contains(fragment)),
+            reason: '$path 重新引入了敏感日志: $fragment',
+          );
+        }
       }
     }
   });

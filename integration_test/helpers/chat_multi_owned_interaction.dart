@@ -1,6 +1,6 @@
 part of '../chat_multi_select_test.dart';
 
-const _ownedStorageTag = String.fromEnvironment('UX_STORAGE_TAG');
+// Owned-run coordination and the externally driven checkbox challenge.
 
 Future<void> _awaitOwnedRelease(WidgetTester tester, String uid) async {
   const nonce = String.fromEnvironment('CHAT_MULTI_RUN_NONCE');

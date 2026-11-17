@@ -51,9 +51,11 @@ import 'helpers/chat_multi_owned_barrier.dart';
 import 'helpers/chat_multi_fixtures.dart';
 import 'helpers/chat_multi_image_fixture.dart';
 
-part 'helpers/chat_multi_select_owned.dart';
+part 'helpers/chat_multi_owned_interaction.dart';
 
 const _markerPrefix = '[W3K-MS]';
+
+const _ownedStorageTag = String.fromEnvironment('UX_STORAGE_TAG');
 
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();

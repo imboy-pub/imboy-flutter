@@ -1,9 +1,3 @@
-part of 'attachment_upload_task_repo_sqlite.dart';
-
-class LegacyOutboxConflict implements Exception {
-  const LegacyOutboxConflict();
-}
-
 /// 附件上传任务的持久化阶段（W5-01 / AC08）。
 ///
 /// 只进不退：presigned → put_done → confirmed；任何非终态可转

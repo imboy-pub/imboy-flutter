@@ -8,8 +8,10 @@ ATF-603：quality.yml 与本地调用同一入口命令。
 from __future__ import annotations
 
 import os
+import json
 import subprocess
 import sys
+import tempfile
 import unittest
 from pathlib import Path
 
@@ -89,12 +91,33 @@ class TestGateCiParity(unittest.TestCase):
         job = text[text.index('auto-test-framework:'):text.index('sqlite-migration-gate:')]
         self.assertIn('working-directory: imboyapp', job)
         self.assertIn('path: imboyapp\n', job)
-        backend = job[job.index('- name: Checkout backend contract sources'):]
-        backend = backend[:backend.index('- name: Run unified framework gate')]
-        self.assertIn('repository: ${{ github.repository_owner }}/imboy', backend)
-        self.assertIn('path: imboy\n', backend)
-        # A manifest-only checkout cannot validate backend targets/Makefile.
-        self.assertNotIn('sparse-checkout:', backend)
+        source_steps = job[job.index('- name: Resolve pinned cross-repository sources'):]
+        source_steps = source_steps[:source_steps.index('- name: Run unified framework gate')]
+        self.assertIn('id: sources\n', source_steps)
+        self.assertIn('ci_source_lock.py outputs --app . --github-output "$GITHUB_OUTPUT"', source_steps)
+        lock = json.loads((ROOT / '.github/ci-source-lock.json').read_text())
+        with tempfile.TemporaryDirectory() as directory:
+            output = Path(directory) / 'github-output'
+            proc = subprocess.run([sys.executable, str(ROOT / '.github/scripts/ci_source_lock.py'),
+                                   'outputs', '--app', str(ROOT), '--github-output', str(output)],
+                                  capture_output=True, text=True, check=True)
+            resolved = json.loads(proc.stdout)
+            emitted = dict(line.split('=', 1) for line in output.read_text().splitlines())
+        for name, path in (('backend', 'imboy'), ('admin', 'imboyadmin')):
+            self.assertRegex(lock['repositories'][name]['sha'], r'^[0-9a-f]{40}$')
+            for field in ('repository', 'sha'):
+                self.assertEqual(resolved[name + '_' + field], lock['repositories'][name][field])
+                self.assertEqual(emitted[name + '_' + field], resolved[name + '_' + field])
+            checkout = source_steps[source_steps.index('- name: Checkout ' + name):]
+            checkout = checkout[:checkout.index('\n      - name:')]
+            self.assertIn('repository: ${{ steps.sources.outputs.' + name + '_repository }}', checkout)
+            self.assertIn('ref: ${{ steps.sources.outputs.' + name + '_sha }}', checkout)
+            self.assertIn('path: ' + path + '\n', checkout)
+            # A manifest-only checkout cannot validate backend targets/Makefile.
+            self.assertNotIn('sparse-checkout:', checkout)
+        self.assertIn('ci_source_lock.py checkout --app . --backend ../imboy --admin ../imboyadmin', source_steps)
+        self.assertIn('/auto-test-framework/source-checkout.json', source_steps)
+        self.assertNotIn('continue-on-error:', source_steps)
 
     def test_ci_retains_per_run_gate_logs_even_on_failure(self):
         text = QUALITY_YML.read_text(encoding='utf-8')

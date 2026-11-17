@@ -4,9 +4,8 @@
 #       imboy/include/error_code.hrl 逐字一致 —— 漂移当场拦截。
 #
 # 真源在后端仓（imboy-pub/imboy），生成物在本仓：双 checkout 是标准做法
-# （第二个 checkout 用 repository: 指向同 owner 的后端仓）。owner 一律取
-# ${{ github.repository_owner }}（pull_request 事件下即 base 仓 owner，
-# fork PR 也不会解析到 fork 名下），不硬编码。
+# （第二个 checkout 读取 .github/ci-source-lock.json 的仓库及完整 SHA）。
+# 普通 CI、质量门与 UIUX 离线使用同一版本锁，不浮动读取后端 main。
 #
 # 不加 paths 过滤：漂移不只来自"有人手改 error_code.dart"（那会被 paths
 # 命中），更来自"后端 hrl 已改、本仓生成物未同步"（本仓可能零文件变更，
@@ -37,13 +36,20 @@ jobs:
         with:
           path: imboyapp
 
+      - name: Resolve pinned cross-repository sources
+        id: sources
+        run: python3 .github/scripts/ci_source_lock.py outputs --app . --github-output "$GITHUB_OUTPUT"
+
       - name: Checkout imboy backend（错误码真源仓）
         uses: actions/checkout@v7
         with:
-          # 同 owner 跨仓：owner 从运行上下文剥离，不硬编码
-          repository: ${{ github.repository_owner }}/imboy
+          repository: ${{ steps.sources.outputs.backend_repository }}
+          ref: ${{ steps.sources.outputs.backend_sha }}
           path: imboy
           fetch-depth: 1
+
+      - name: Verify actual source checkouts
+        run: python3 .github/scripts/ci_source_lock.py checkout --app . --backend ../imboy --output "$RUNNER_TEMP/error-code-source-checkout.json"
 
       - name: Setup Dart
         # 生成器纯 dart:io 标准库（无 package: 依赖、无需 pub get、
@@ -58,6 +64,14 @@ jobs:
       - name: Verify generated error_code.dart matches error_code.hrl
         # 退出码 0 = 生成物与真源一致；1 = 漂移（红门禁，无 continue-on-error）
         run: dart scripts/generate_error_code.dart --check --source=../imboy/include/error_code.hrl
+
+      - name: Retain source identity
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: error-code-source-checkout
+          path: ${{ runner.temp }}/error-code-source-checkout.json
+          if-no-files-found: warn
 
   # ----------------------------------------------------------------
   # CI-01：proto regen 漂移门（imboy.proto ↔ imboyapp 生成物）
@@ -77,14 +91,22 @@ jobs:
         with:
           path: imboyapp
 
+      - name: Resolve pinned cross-repository sources
+        id: sources
+        run: python3 .github/scripts/ci_source_lock.py outputs --app . --github-output "$GITHUB_OUTPUT"
+
       - name: Checkout imboy backend（proto 真源仓）
         uses: actions/checkout@v7
         with:
-          repository: ${{ github.repository_owner }}/imboy
+          repository: ${{ steps.sources.outputs.backend_repository }}
+          ref: ${{ steps.sources.outputs.backend_sha }}
           # path=imboy：满足 regen_protobuf.sh 的并排布局假设
           # （APP_DIR/../imboy/src/imboy.proto）
           path: imboy
           fetch-depth: 1
+
+      - name: Verify actual source checkouts
+        run: python3 .github/scripts/ci_source_lock.py checkout --app . --backend ../imboy --output "$RUNNER_TEMP/proto-source-checkout.json"
 
       - name: Install protoc
         run: |
@@ -103,3 +125,11 @@ jobs:
       - name: Regen and verify no drift
         run: |
           bash scripts/regen_protobuf.sh --check
+
+      - name: Retain source identity
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: proto-source-checkout
+          path: ${{ runner.temp }}/proto-source-checkout.json
+          if-no-files-found: warn

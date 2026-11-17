@@ -28,7 +28,101 @@ import 'package:imboy/page/chat/chat/bundle_forward_dispatcher.dart';
 import 'package:imboy/store/model/conversation_model.dart';
 import 'package:imboy/store/model/message_model.dart';
 
-part 'bundle_forward_dispatcher_fixtures.dart';
+part 'bundle_forward_attachment_cases.dart';
+
+const String _uid = '1000000051';
+
+ConversationModel _target(int id, String peerId) => ConversationModel(
+  id: id,
+  peerId: peerId,
+  avatar: '',
+  title: 't$id',
+  subtitle: '',
+  type: 'C2C',
+  msgType: 'text',
+  unreadNum: 0,
+);
+
+MessageModel _sourceRow(
+  String id,
+  int createdAt, {
+  Map<String, dynamic>? payload,
+  int status = IMBoyMessageStatus.sent,
+  String msgType = 'text',
+}) => MessageModel(
+  id,
+  autoId: 0,
+  type: 'C2C',
+  status: status,
+  fromId: '1000000056',
+  toId: _uid,
+  payload: payload ?? <String, dynamic>{'text': 'hello $id'},
+  createdAt: createdAt,
+  isAuthor: 0,
+  conversationUk3: 'C2C_${_uid}_1000000056',
+  msgType: msgType,
+);
+
+core.Message _uiMessage(String id) => core.TextMessage(
+  id: id,
+  authorId: '1000000056',
+  text: 'hello $id',
+  createdAt: DateTime.fromMillisecondsSinceEpoch(1000),
+);
+
+MessageSelectionTraits _traits(
+  String? msgType, {
+  domain_msg.MessageStatus status = domain_msg.MessageStatus.sent,
+  bool e2eeFailed = false,
+  int burnReadAt = 0,
+}) => MessageSelectionTraits(
+  msgType: msgType,
+  status: status,
+  e2eeFailed: e2eeFailed,
+  burnReadAt: burnReadAt,
+);
+
+/// 记录型附件转发 fake（按脚本顺序返回 payload，缺省新 uri payload）。
+class _RecordingForwarder implements BundleAttachmentForwarder {
+  // ignore: prefer_initializing_formals
+  _RecordingForwarder({
+    List<Map<String, dynamic>> script = const [],
+    this.beforeReturn,
+  }) : _script = List<Map<String, dynamic>>.of(script);
+
+  final List<Map<String, dynamic>> _script;
+  final Future<void> Function()? beforeReturn;
+  var _calls = 0;
+  final List<BundleAttachmentForwardRequest> requests =
+      <BundleAttachmentForwardRequest>[];
+
+  @override
+  Future<Map<String, dynamic>> forwardAttachment(
+    BundleAttachmentForwardRequest request,
+  ) async {
+    requests.add(request);
+    await beforeReturn?.call();
+    final index = _calls++;
+    if (index < _script.length) return _script[index];
+    return <String, dynamic>{
+      'uri': 'obj/new-key',
+      'file_hash256': 'cafebabe',
+      'size': 3,
+    };
+  }
+}
+
+/// 抛普通 Exception 的转发 fake（附件下载/上传等基础设施失败形态）。
+class _ThrowingForwarder implements BundleAttachmentForwarder {
+  const _ThrowingForwarder();
+
+  @override
+  Future<Map<String, dynamic>> forwardAttachment(
+    BundleAttachmentForwardRequest request,
+  ) async {
+    throw Exception('attachment upload failed');
+  }
+}
 
 void main() {
   setUpAll(() async {
@@ -753,289 +847,6 @@ void main() {
       expect(ok.allSuccess, isTrue);
     });
 
-    test('附件任务绑定：新 message id / 目标 scope / 转发者 uid（W2-G 契约）', () async {
-      final rows = <String, MessageModel>{
-        'm1': _sourceRow(
-          'm1',
-          1000,
-          msgType: 'file',
-          payload: <String, dynamic>{
-            'uri': 'obj/old-key',
-            'attachment_descriptor': <String, dynamic>{'k': 'v'},
-            'file_hash256': 'deadbeef',
-          },
-        ),
-      };
-      final forwarder = _RecordingForwarder();
-      final inserted = <MessageModel>[];
-      final dispatcher = BundleForwardDispatcher(
-        wsDispatcher: (_) async => true,
-        messageFetcher: (id, chatType) async => rows[id],
-        messageInserter: (model, chatType) async => inserted.add(model),
-        forwarderUidResolver: () => _uid,
-        attachmentForwarder: forwarder,
-        targetEncryptedResolver: (chatType, peerId) async => true,
-      );
-
-      final report = await dispatcher.sendToTargets(
-        [_target(1, '1000000056')],
-        [_uiMessage('m1')],
-        sourceChatType: 'C2C',
-      );
-
-      expect(report.allSuccess, isTrue);
-      expect(forwarder.requests, hasLength(1));
-      final req = forwarder.requests.single;
-      expect(req.task.sourceMsgType, 'file');
-      expect(req.task.sourceMessageId, 'm1');
-      expect(
-        req.newMessageId,
-        inserted.single.id,
-        reason: '附件锚点与落库消息同 id（与单条转发同序）',
-      );
-      expect(req.targetScope, 'c2c');
-      expect(
-        req.targetConversationUk3,
-        startsWith('c2c:'),
-        reason: '重封装 targetConversationId 绑定与单条转发同真值（scopeRef）',
-      );
-      expect(req.forwarderUid, _uid);
-      // withEntryPayload 写回：落库 payload 的 entry 使用适配器产物
-      final entries = inserted.single.payloadMap['entries'] as List;
-      expect((entries[0] as Map)['payload']['uri'], 'obj/new-key');
-      expect((entries[0] as Map)['payload']['file_hash256'], 'cafebabe');
-    });
-
-    test(
-      'A4 CRITICAL：sealed 源 + 明文目标 → rejected_plaintext_target，零落库',
-      () async {
-        final rows = <String, MessageModel>{
-          'm1': _sourceRow(
-            'm1',
-            1000,
-            msgType: 'file',
-            payload: <String, dynamic>{
-              'uri': 'obj/old-key',
-              'attachment_descriptor': <String, dynamic>{'k': 'v'},
-            },
-          ),
-        };
-        var resolverCalls = 0;
-        final forwarder = _RecordingForwarder();
-        final inserted = <MessageModel>[];
-        final dispatcher = BundleForwardDispatcher(
-          wsDispatcher: (_) async => true,
-          messageFetcher: (id, chatType) async => rows[id],
-          messageInserter: (model, chatType) async => inserted.add(model),
-          forwarderUidResolver: () => _uid,
-          attachmentForwarder: forwarder,
-          targetEncryptedResolver: (chatType, peerId) async {
-            resolverCalls++;
-            return false;
-          },
-        );
-
-        final report = await dispatcher.sendToTargets(
-          [_target(1, '1000000056')],
-          [_uiMessage('m1')],
-          sourceChatType: 'C2C',
-        );
-
-        expect(report.successCount, 0);
-        expect(
-          report.failures.single.errorCode,
-          HistoryBundleBuildErrorCode.rejectedPlaintextTarget,
-        );
-        expect(resolverCalls, 1);
-        expect(forwarder.requests, isEmpty, reason: '重封装不得开始');
-        expect(inserted, isEmpty, reason: '无半转发状态');
-      },
-    );
-
-    test('A4 CRITICAL：plain 源 + 明文目标不受闸影响（回归锚）', () async {
-      final rows = <String, MessageModel>{
-        'm1': _sourceRow(
-          'm1',
-          1000,
-          msgType: 'file',
-          payload: <String, dynamic>{'uri': 'obj/old-key'},
-        ),
-      };
-      final forwarder = _RecordingForwarder();
-      final inserted = <MessageModel>[];
-      final dispatcher = BundleForwardDispatcher(
-        wsDispatcher: (_) async => true,
-        messageFetcher: (id, chatType) async => rows[id],
-        messageInserter: (model, chatType) async => inserted.add(model),
-        forwarderUidResolver: () => _uid,
-        attachmentForwarder: forwarder,
-        targetEncryptedResolver: (chatType, peerId) async => false,
-      );
-
-      final report = await dispatcher.sendToTargets(
-        [_target(1, '1000000056')],
-        [_uiMessage('m1')],
-        sourceChatType: 'C2C',
-      );
-
-      expect(report.allSuccess, isTrue);
-      expect(forwarder.requests, hasLength(1));
-      expect(inserted, hasLength(1));
-    });
-
-    test('A4 HIGH：写回产物经 sanitizer（junk 清理）且目标绑定 descriptor 保留', () async {
-      final rows = <String, MessageModel>{
-        'm1': _sourceRow(
-          'm1',
-          1000,
-          msgType: 'file',
-          payload: <String, dynamic>{
-            'uri': 'obj/old-key',
-            'attachment_descriptor': <String, dynamic>{'k': 'v'},
-          },
-        ),
-      };
-      final forwarder = _RecordingForwarder(
-        script: <Map<String, dynamic>>[
-          // adapter 产物：新 descriptor（目标绑定）+ 源残留 junk 键
-          <String, dynamic>{
-            'uri': 'obj/new-key',
-            'file_hash256': 'cafebabe',
-            'attachment_descriptor': <String, dynamic>{'new': 'key'},
-            'from_id': '1000000056',
-            'burn_read_at': 999,
-            'e2ee_stale': <String, dynamic>{},
-          },
-        ],
-      );
-      final inserted = <MessageModel>[];
-      final dispatcher = BundleForwardDispatcher(
-        wsDispatcher: (_) async => true,
-        messageFetcher: (id, chatType) async => rows[id],
-        messageInserter: (model, chatType) async => inserted.add(model),
-        forwarderUidResolver: () => _uid,
-        attachmentForwarder: forwarder,
-        targetEncryptedResolver: (chatType, peerId) async => true,
-      );
-
-      final report = await dispatcher.sendToTargets(
-        [_target(1, '1000000056')],
-        [_uiMessage('m1')],
-        sourceChatType: 'C2C',
-      );
-
-      expect(report.allSuccess, isTrue);
-      final entryPayload =
-          (inserted.single.payloadMap['entries'] as List).first as Map;
-      final wp = entryPayload['payload'] as Map;
-      expect(wp['uri'], 'obj/new-key');
-      expect(wp['attachment_descriptor'], <String, dynamic>{
-        'new': 'key',
-      }, reason: '目标绑定新 descriptor 是接收侧开封合法机制（§4.5 禁止源密钥）');
-      expect(wp.containsKey('from_id'), isFalse);
-      expect(wp.containsKey('burn_read_at'), isFalse);
-      expect(wp.containsKey('e2ee_stale'), isFalse);
-    });
-
-    test(
-      'A4 HIGH：imageMulti 写回逐图净化，每图 descriptor 保留',
-      _verifyMultiImageDescriptors,
-    );
-
-    test(
-      'W5 G4-5：images[] 非 Map 元素取净化后版本（不透传原引用/未净化内容）',
-      _verifySanitizedImageElements,
-    );
-
-    test(
-      'F2：C2C 源 → C2G 目标：scope/resolver/落库按目标 C2G，fetch 仍走源表',
-      _verifyGroupTargetBinding,
-    );
-
-    test(
-      'F4：非 Bundle 异常（附件上传失败）→ bundle_send_failed，不误标 payloadTooLarge',
-      () async {
-        final rows = <String, MessageModel>{
-          // 明文附件源（无 descriptor）：不触发加密判定，异常来自转发适配器
-          'm1': _sourceRow(
-            'm1',
-            1000,
-            msgType: 'file',
-            payload: <String, dynamic>{'uri': 'obj/old-key'},
-          ),
-        };
-        final inserted = <MessageModel>[];
-        final dispatcher = BundleForwardDispatcher(
-          wsDispatcher: (_) async => true,
-          messageFetcher: (id, chatType) async => rows[id],
-          messageInserter: (model, chatType) async => inserted.add(model),
-          forwarderUidResolver: () => _uid,
-          attachmentForwarder: const _ThrowingForwarder(),
-          targetEncryptedResolver: (chatType, peerId) async => true,
-        );
-
-        final report = await dispatcher.sendToTargets(
-          [_target(1, '1000000056')],
-          [_uiMessage('m1')],
-          sourceChatType: 'C2C',
-        );
-
-        expect(report.successCount, 0);
-        expect(
-          report.failures.single.errorCode,
-          HistoryBundleBuildErrorCode.sendFailed,
-          reason:
-              '基础设施失败须归一专用稳定码（含 resolver 的 '
-              'policy_not_initialized 等非 bundle 异常）',
-        );
-        expect(
-          report.failures.single.errorCode,
-          isNot(HistoryBundleBuildErrorCode.payloadTooLarge),
-          reason: '尺寸语义不得被借用为泛化失败码（F4 误标本体）',
-        );
-        expect(inserted, isEmpty, reason: '失败目标零落库（无半转发状态）');
-      },
-    );
-
-    test('F4 负向：BundleForwardException 保留原码（不被归一覆盖）', () async {
-      final rows = <String, MessageModel>{
-        'm1': _sourceRow(
-          'm1',
-          1000,
-          msgType: 'file',
-          payload: <String, dynamic>{
-            'uri': 'obj/old-key',
-            'attachment_descriptor': <String, dynamic>{'k': 'v'},
-          },
-        ),
-      };
-      final inserted = <MessageModel>[];
-      final dispatcher = BundleForwardDispatcher(
-        wsDispatcher: (_) async => true,
-        messageFetcher: (id, chatType) async => rows[id],
-        messageInserter: (model, chatType) async => inserted.add(model),
-        forwarderUidResolver: () => _uid,
-        attachmentForwarder: _RecordingForwarder(),
-        targetEncryptedResolver: (chatType, peerId) async => false,
-      );
-
-      final report = await dispatcher.sendToTargets(
-        [_target(1, '1000000056')],
-        [_uiMessage('m1')],
-        sourceChatType: 'C2C',
-      );
-
-      expect(report.successCount, 0);
-      expect(
-        report.failures.single.errorCode,
-        HistoryBundleBuildErrorCode.rejectedPlaintextTarget,
-        reason: '策略性拒绝的原码语义优先于基础设施归一码',
-      );
-      expect(
-        report.failures.single.errorCode,
-        isNot(HistoryBundleBuildErrorCode.sendFailed),
-      );
-      expect(inserted, isEmpty);
-    });
+    _registerAttachmentForwardingCases();
   });
 }

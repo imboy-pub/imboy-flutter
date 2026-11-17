@@ -35,7 +35,21 @@ import 'package:imboy/component/upload/upload_key_store.dart';
 
 export 'upload_key_store.dart' show SecureUploadKeyStore, UploadKeyStore;
 
-part 'resumable_attachment_material.dart';
+part 'resumable_attachment_migration_material.dart';
+
+Uint8List _hexDecode(String hex) => Uint8List.fromList(
+  List<int>.generate(
+    hex.length ~/ 2,
+    (i) => int.parse(hex.substring(i * 2, i * 2 + 2), radix: 16),
+  ),
+);
+
+class LostCipherMaterialError implements Exception {
+  final String taskId;
+  LostCipherMaterialError(this.taskId);
+  @override
+  String toString() => 'LostCipherMaterialError($taskId)';
+}
 
 class ResumableAttachmentUploader {
   ResumableAttachmentUploader({

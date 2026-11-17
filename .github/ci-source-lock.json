@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "app_repository": "imboy-pub/imboy-flutter",
+  "repositories": {
+    "backend": {
+      "repository": "imboy-pub/imboy",
+      "sha": "79ee792212fe34665b1939986fb4b928efec98c1"
+    },
+    "admin": {
+      "repository": "imboy-pub/imboy-admin-frontend",
+      "sha": "47076cc14d9ac9f84f3965eb368fdff4a2afd56a"
+    }
+  }
+}
