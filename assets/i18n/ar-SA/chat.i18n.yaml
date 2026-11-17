@@ -80,6 +80,7 @@ reply: رد
 resendCode: إعادة إرسال رمز التحقق
 revoke: سحب
 scanQrCodeBusinessCard: مسح بطاقة عمل رمز QR
+scanQrEntry: مسح رمز QR
 privateChat: "محادثة خاصة"
 sendFriendRequest: إرسال طلب إضافة صديق
 sendMsgRejected: تم إرسال الرسالة، ولكن تم رفضها من قبل الطرف الآخر.

@@ -1756,6 +1756,9 @@ class Translations$chat$zh_CN {
 	/// zh-CN: '扫描二维码名片'
 	String get scanQrCodeBusinessCard => '扫描二维码名片';
 
+	/// zh-CN: '扫一扫'
+	String get scanQrEntry => '扫一扫';
+
 	/// zh-CN: '私聊'
 	String get privateChat => '私聊';
 
@@ -11636,6 +11639,7 @@ extension on Translations {
 			'chat.resendCode' => '重发验证码',
 			'chat.revoke' => '撤回',
 			'chat.scanQrCodeBusinessCard' => '扫描二维码名片',
+			'chat.scanQrEntry' => '扫一扫',
 			'chat.privateChat' => '私聊',
 			'chat.sendFriendRequest' => '发送添加朋友申请',
 			'chat.sendMsgRejected' => '消息已发出，但被对方拒收了。',
@@ -12115,9 +12119,9 @@ extension on Translations {
 			'common.confirmChange' => '确认更换',
 			'common.verificationCodeSentToEmail' => '验证码将发送至该邮箱，请在有效期内完成验证',
 			'common.verificationCodeSentToMobile' => '验证码将发送至该手机，请在有效期内完成验证',
-			'common.sendFailed' => '发送失败',
 			_ => null,
 		} ?? switch (path) {
+			'common.sendFailed' => '发送失败',
 			'common.forceOffline' => '下线',
 			'common.forceDeviceOffline' => '让该设备下线',
 			'common.forceDeviceOfflineConfirm' => '将向该设备发送下线指令，确认继续？',
@@ -12629,9 +12633,9 @@ extension on Translations {
 			'common.featureDisabledName' => ({required Object name}) => '${name} 功能未启用，暂时无法访问',
 			'common.imageLoadFailed' => '加载失败',
 			'common.loadFailedWithError' => ({required Object error}) => '加载失败: ${error}',
-			'common.webAudioNotSupported' => 'Web 平台暂不支持语音消息播放',
 			_ => null,
 		} ?? switch (path) {
+			'common.webAudioNotSupported' => 'Web 平台暂不支持语音消息播放',
 			'common.e2eeKeyRecreationFailed' => ({required Object error}) => '密钥创建失败: ${error}',
 			'common.redPacket' => '红包',
 			'common.transfer' => '转账',
@@ -13143,9 +13147,9 @@ extension on Translations {
 			'groupCategory.renameCategory' => '重命名分组',
 			'groupCategory.categoryRenamed' => '分组重命名成功',
 			'groupCategory.renameFailed' => '重命名失败，请重试',
-			'groupCategory.deleteFailed' => '删除失败，请重试',
 			_ => null,
 		} ?? switch (path) {
+			'groupCategory.deleteFailed' => '删除失败，请重试',
 			'groupCategory.categoryDetailTip' => '该分组下的群聊可以在群组列表中通过「移入分组」进行管理',
 			'groupDiscovery.title' => '发现群组',
 			'groupDiscovery.searchHint' => '搜索公开群',
@@ -13657,9 +13661,9 @@ extension on Translations {
 			'organization.picker.joinConfirmWith' => ({required Object name}) => '将加入企业「${name}」',
 			'organization.picker.joinConfirmWithRole' => ({required Object role, required Object name}) => '确认以 ${role} 身份加入「${name}」？',
 			'organization.picker.joinRoleMember' => '普通成员',
-			'organization.picker.joinRoleAdmin' => '管理员',
 			_ => null,
 		} ?? switch (path) {
+			'organization.picker.joinRoleAdmin' => '管理员',
 			'organization.picker.joinConfirmSubmit' => '确认加入',
 			'organization.picker.joinBack' => '返回修改',
 			'organization.picker.joinQrHint' => '对准企业邀请二维码即可自动加入',
@@ -14171,9 +14175,9 @@ extension on Translations {
 			'talkRecord.exportDownloading' => '正在下载并准备保存…',
 			'talkRecord.exportDownloadReady' => '文件已保存；这是独立副本，撤销权限不会删除该副本。',
 			'talkRecord.exportDownloadFailed' => '下载或保存失败，可重试',
-			'talkRecord.exportExpiredTitle' => '导出已到期',
 			_ => null,
 		} ?? switch (path) {
+			'talkRecord.exportExpiredTitle' => '导出已到期',
 			'talkRecord.exportExpiredBody' => '下载链接已过期，请重新生成导出。',
 			'talkRecord.exportRegenerate' => '重新生成',
 			'talkRecord.exportFailedBody' => '生成导出失败，可重试。',

@@ -681,6 +681,7 @@ class _Translations$chat$ja_JP extends Translations$chat$zh_CN {
 	@override String get resendCode => '認証コードを再送';
 	@override String get revoke => '送信取消';
 	@override String get scanQrCodeBusinessCard => 'QRコード名刺をスキャン';
+	@override String get scanQrEntry => 'QRコードをスキャン';
 	@override String get privateChat => '個人チャット';
 	@override String get sendFriendRequest => '友達追加リクエストを送信';
 	@override String get sendMsgRejected => 'メッセージは送信されましたが、相手に拒否されました。';
@@ -4650,6 +4651,7 @@ extension on TranslationsJaJp {
 			'chat.resendCode' => '認証コードを再送',
 			'chat.revoke' => '送信取消',
 			'chat.scanQrCodeBusinessCard' => 'QRコード名刺をスキャン',
+			'chat.scanQrEntry' => 'QRコードをスキャン',
 			'chat.privateChat' => '個人チャット',
 			'chat.sendFriendRequest' => '友達追加リクエストを送信',
 			'chat.sendMsgRejected' => 'メッセージは送信されましたが、相手に拒否されました。',
@@ -5130,9 +5132,9 @@ extension on TranslationsJaJp {
 			'common.confirmForceOffline' => 'オフラインにする',
 			'common.forceOfflineCommandSent' => 'オフラインコマンドを送信しました',
 			'common.feedbackSlogan' => 'ご提案は改善の原動力です',
-			'common.newFeedback' => '新しいフィードバック',
 			_ => null,
 		} ?? switch (path) {
+			'common.newFeedback' => '新しいフィードバック',
 			'common.feedbackHistory' => 'フィードバック履歴',
 			'common.confirmDelete' => '削除確認',
 			'common.verificationCode' => '認証コード',
@@ -5644,9 +5646,9 @@ extension on TranslationsJaJp {
 			'common.amountMustPositive' => '金額は0より大きい値を入力してください',
 			'common.answer' => '応答',
 			'common.collapse' => '折りたたむ',
-			'common.declineCall' => '拒否',
 			_ => null,
 		} ?? switch (path) {
+			'common.declineCall' => '拒否',
 			'common.expandFull' => 'すべて表示',
 			'common.justNow' => 'たった今',
 			'common.me' => '自分',
@@ -6158,9 +6160,9 @@ extension on TranslationsJaJp {
 			'groupCategory.renameCategory' => 'カテゴリの名前を変更',
 			'groupCategory.categoryRenamed' => 'カテゴリの名前を変更しました',
 			'groupCategory.renameFailed' => '名前の変更に失敗しました。もう一度お試しください',
-			'groupCategory.deleteFailed' => '削除に失敗しました。もう一度お試しください',
 			_ => null,
 		} ?? switch (path) {
+			'groupCategory.deleteFailed' => '削除に失敗しました。もう一度お試しください',
 			'groupCategory.categoryDetailTip' => 'このカテゴリのグループは、グループリストの「カテゴリに移動」から管理できます',
 			'groupDiscovery.title' => 'グループを見つける',
 			'groupDiscovery.searchHint' => '公開グループを検索',
@@ -6672,9 +6674,9 @@ extension on TranslationsJaJp {
 			'organization.picker.joinConfirmWith' => ({required Object name}) => '「${name}」に参加します',
 			'organization.picker.joinConfirmWithRole' => ({required Object role, required Object name}) => '${role} として「${name}」に参加しますか？',
 			'organization.picker.joinRoleMember' => '一般メンバー',
-			'organization.picker.joinRoleAdmin' => '管理者',
 			_ => null,
 		} ?? switch (path) {
+			'organization.picker.joinRoleAdmin' => '管理者',
 			'organization.picker.joinConfirmSubmit' => '参加を確認',
 			'organization.picker.joinBack' => '戻る',
 			'organization.picker.joinQrHint' => '企業招待 QR コードにかざしてください',
@@ -7186,9 +7188,9 @@ extension on TranslationsJaJp {
 			'talkRecord.participantsInvalid' => '最大100人まで選択してください。ゲストラベルは1〜120文字で重複不可です。メンバーの資格は変更されている可能性があるため、名簿を確認してください。',
 			'talkRecord.participantsNoResults' => '一致する連絡先や同僚がいません。検索をお試しください。',
 			'talkRecord.participantsRemove' => '参加者を削除',
-			'talkRecord.participantsSaveFailed' => '保存結果を確認できませんでした。現在の選択は保持されています。再試行するか更新してください。',
 			_ => null,
 		} ?? switch (path) {
+			'talkRecord.participantsSaveFailed' => '保存結果を確認できませんでした。現在の選択は保持されています。再試行するか更新してください。',
 			'talkRecord.playbackPauseLabel' => '一時停止',
 			'talkRecord.playbackPlayLabel' => '再生',
 			'talkRecord.playbackProgressLabel' => ({required Object position, required Object duration}) => '再生位置 ${position} / ${duration}',

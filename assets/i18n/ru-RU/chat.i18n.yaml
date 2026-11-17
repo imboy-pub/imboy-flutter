@@ -80,6 +80,7 @@ reply: Ответить
 resendCode: Отправить код снова
 revoke: Отозвать
 scanQrCodeBusinessCard: Сканировать QR-код визитки
+scanQrEntry: Сканировать QR-код
 privateChat: "Личный чат"
 sendFriendRequest: Отправить запрос дружбы
 sendMsgRejected: Сообщение отклонено собеседником

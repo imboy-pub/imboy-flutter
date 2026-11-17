@@ -681,6 +681,7 @@ class _Translations$chat$ko_KR extends Translations$chat$zh_CN {
 	@override String get resendCode => '인증 코드 재전송';
 	@override String get revoke => '회수';
 	@override String get scanQrCodeBusinessCard => 'QR코드 명함 스캔';
+	@override String get scanQrEntry => 'QR코드 스캔';
 	@override String get privateChat => '1:1 채팅';
 	@override String get sendFriendRequest => '친구 추가 요청 보내기';
 	@override String get sendMsgRejected => '메시지가 전송되었으나 상대방이 거부했습니다.';
@@ -4650,6 +4651,7 @@ extension on TranslationsKoKr {
 			'chat.resendCode' => '인증 코드 재전송',
 			'chat.revoke' => '회수',
 			'chat.scanQrCodeBusinessCard' => 'QR코드 명함 스캔',
+			'chat.scanQrEntry' => 'QR코드 스캔',
 			'chat.privateChat' => '1:1 채팅',
 			'chat.sendFriendRequest' => '친구 추가 요청 보내기',
 			'chat.sendMsgRejected' => '메시지가 전송되었으나 상대방이 거부했습니다.',
@@ -5130,9 +5132,9 @@ extension on TranslationsKoKr {
 			'common.confirmForceOffline' => '강제 오프라인 확인',
 			'common.forceOfflineCommandSent' => '강제 오프라인 명령을 전송했습니다',
 			'common.feedbackSlogan' => '귀하의 제안은 우리 개선의 동력입니다',
-			'common.newFeedback' => '새 피드백',
 			_ => null,
 		} ?? switch (path) {
+			'common.newFeedback' => '새 피드백',
 			'common.feedbackHistory' => '피드백 기록',
 			'common.confirmDelete' => '삭제 확인',
 			'common.verificationCode' => '인증 코드',
@@ -5644,9 +5646,9 @@ extension on TranslationsKoKr {
 			'common.amountMustPositive' => '금액은 0보다 커야 합니다',
 			'common.answer' => '받기',
 			'common.collapse' => '접기',
-			'common.complianceKeyChangedActionConfirm' => '교체 확인',
 			_ => null,
 		} ?? switch (path) {
+			'common.complianceKeyChangedActionConfirm' => '교체 확인',
 			'common.complianceKeyChangedActionKeep' => '나중에 확인',
 			'common.complianceKeyChangedBody' => '서버가 내려준 컴플라이언스 감사 공개 키가 로컬 고정값과 일치하지 않습니다. 관리자가 의도한 키 교체라면 "교체 확인"을 누르고, 그렇지 않다면 암호화 메시지 전송을 중단한 후 관리자에게 확인해 주세요.',
 			'common.complianceKeyChangedTitle' => '컴플라이언스 감사 키가 변경되었습니다',
@@ -6158,9 +6160,9 @@ extension on TranslationsKoKr {
 			'groupCategory.renameCategory' => '폴더 이름 변경',
 			'groupCategory.categoryRenamed' => '폴더 이름이 변경되었습니다',
 			'groupCategory.renameFailed' => '이름 변경 실패, 다시 시도해주세요',
-			'groupCategory.deleteFailed' => '삭제 실패, 다시 시도해주세요',
 			_ => null,
 		} ?? switch (path) {
+			'groupCategory.deleteFailed' => '삭제 실패, 다시 시도해주세요',
 			'groupCategory.categoryDetailTip' => '이 폴더의 그룹은 그룹 목록에서 "폴더로 이동"으로 관리할 수 있습니다',
 			'groupDiscovery.title' => '그룹 탐색',
 			'groupDiscovery.searchHint' => '공개 그룹 검색',
@@ -6672,9 +6674,9 @@ extension on TranslationsKoKr {
 			'organization.picker.joinConfirmWith' => ({required Object name}) => '"${name}"에 참여합니다',
 			'organization.picker.joinConfirmWithRole' => ({required Object role, required Object name}) => '${role} 자격으로 "${name}"에 참여하시겠습니까?',
 			'organization.picker.joinRoleMember' => '일반 멤버',
-			'organization.picker.joinRoleAdmin' => '관리자',
 			_ => null,
 		} ?? switch (path) {
+			'organization.picker.joinRoleAdmin' => '관리자',
 			'organization.picker.joinConfirmSubmit' => '참여 확인',
 			'organization.picker.joinBack' => '뒤로',
 			'organization.picker.joinQrHint' => '기업 초대 QR코드를 비춰주세요',
@@ -7186,9 +7188,9 @@ extension on TranslationsKoKr {
 			'talkRecord.participantsInvalid' => '최대 100명까지 선택하세요. 게스트 태그는 1–120자이며 중복되지 않아야 합니다. 구성원 자격은 변경되었을 수 있으니 명단을 확인해 주세요.',
 			'talkRecord.participantsNoResults' => '일치하는 연락처나 동료가 없습니다. 검색해 보세요.',
 			'talkRecord.participantsRemove' => '참여자 제거',
-			'talkRecord.participantsSaveFailed' => '저장 결과를 확인하지 못했습니다. 현재 선택은 유지됩니다. 재시도하거나 새로고침해 주세요.',
 			_ => null,
 		} ?? switch (path) {
+			'talkRecord.participantsSaveFailed' => '저장 결과를 확인하지 못했습니다. 현재 선택은 유지됩니다. 재시도하거나 새로고침해 주세요.',
 			'talkRecord.playbackPauseLabel' => '일시정지',
 			'talkRecord.playbackPlayLabel' => '재생',
 			'talkRecord.playbackProgressLabel' => ({required Object position, required Object duration}) => '재생 진행 ${position} / ${duration}',

@@ -451,6 +451,19 @@ class _ConversationPageState extends ConsumerState<ConversationPage> {
           ? AppColors.darkSurface
           : AppColors.lightSurface,
       actions: [
+        // 扫一扫直达入口：web 扫码登录引导文案为「消息 > 右上角扫一扫」，
+        // 独立 icon 让该路径一击直达；写法与通讯录页 header 惯例一致
+        //（Semantics 无障碍名 + CupertinoButton + 22pt icon）。
+        // 「+」菜单（RightButton）里的「扫描二维码」保留，两处并存。
+        Semantics(
+          label: t.chat.scanQrEntry,
+          child: CupertinoButton(
+            key: const Key('conversation_scan_qr_button'),
+            padding: EdgeInsets.zero,
+            child: const Icon(CupertinoIcons.qrcode_viewfinder, size: 22),
+            onPressed: () => context.push('/scanner'),
+          ),
+        ),
         const RightButton(),
         if (widget.trailingActions != null) ...widget.trailingActions!,
       ],

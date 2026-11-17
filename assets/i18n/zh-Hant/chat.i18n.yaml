@@ -79,6 +79,7 @@ reply: 回覆
 resendCode: 重發驗證碼
 revoke: 收回
 scanQrCodeBusinessCard: 掃描二維碼卡片
+scanQrEntry: 掃一掃
 privateChat: "私訊"
 sendFriendRequest: 傳送新增好友申請
 sendMsgRejected: 訊息已發出，但被對方拒收了。

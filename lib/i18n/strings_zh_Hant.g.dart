@@ -681,6 +681,7 @@ class Translations$chat$zh_Hant extends Translations$chat$zh_CN {
 	@override String get resendCode => '重發驗證碼';
 	@override String get revoke => '收回';
 	@override String get scanQrCodeBusinessCard => '掃描二維碼卡片';
+	@override String get scanQrEntry => '掃一掃';
 	@override String get privateChat => '私訊';
 	@override String get sendFriendRequest => '傳送新增好友申請';
 	@override String get sendMsgRejected => '訊息已發出，但被對方拒收了。';
@@ -4650,6 +4651,7 @@ extension on TranslationsZhHant {
 			'chat.resendCode' => '重發驗證碼',
 			'chat.revoke' => '收回',
 			'chat.scanQrCodeBusinessCard' => '掃描二維碼卡片',
+			'chat.scanQrEntry' => '掃一掃',
 			'chat.privateChat' => '私訊',
 			'chat.sendFriendRequest' => '傳送新增好友申請',
 			'chat.sendMsgRejected' => '訊息已發出，但被對方拒收了。',
@@ -5130,9 +5132,9 @@ extension on TranslationsZhHant {
 			'common.forceDeviceOffline' => '讓該裝置下線',
 			'common.forceDeviceOfflineConfirm' => '將向該裝置傳送下線指令，確認繼續？',
 			'common.confirmForceOffline' => '確認下線',
-			'common.forceOfflineCommandSent' => '已傳送下線指令',
 			_ => null,
 		} ?? switch (path) {
+			'common.forceOfflineCommandSent' => '已傳送下線指令',
 			'common.feedbackSlogan' => '你的建議是我們改進的動力',
 			'common.newFeedback' => '新建回饋',
 			'common.feedbackHistory' => '回饋記錄',
@@ -5644,9 +5646,9 @@ extension on TranslationsZhHant {
 			'common.searchFailedRetry' => '搜尋失敗，請重試',
 			'common.searchDisabledTitle' => '訊息搜尋未啟用',
 			'common.searchDisabledByEncryption' => '已開啟端對端加密，伺服器無法讀取訊息內容，因此不提供全文搜尋',
-			'common.collectedVideoFormatIncorrectCannotFindVideoUri' => '影片格式暫不支援，無法找到對應影片',
 			_ => null,
 		} ?? switch (path) {
+			'common.collectedVideoFormatIncorrectCannotFindVideoUri' => '影片格式暫不支援，無法找到對應影片',
 			'common.amountMustPositive' => '金額必須大於 0',
 			'common.answer' => '接聽',
 			'common.collapse' => '收合',
@@ -6158,9 +6160,9 @@ extension on TranslationsZhHant {
 			'groupCategory.renameCategory' => '重新命名分組',
 			'groupCategory.categoryRenamed' => '分組重新命名成功',
 			'groupCategory.renameFailed' => '重新命名失敗，請重試',
-			'groupCategory.deleteFailed' => '刪除失敗，請重試',
 			_ => null,
 		} ?? switch (path) {
+			'groupCategory.deleteFailed' => '刪除失敗，請重試',
 			'groupCategory.categoryDetailTip' => '該分組下的群聊可以在群組列表中透過「移入分組」進行管理',
 			'groupDiscovery.title' => '發現群組',
 			'groupDiscovery.searchHint' => '搜尋公開群組',
@@ -6672,9 +6674,9 @@ extension on TranslationsZhHant {
 			'organization.picker.joinConfirmWith' => ({required Object name}) => '將加入企業「${name}」',
 			'organization.picker.joinConfirmWithRole' => ({required Object role, required Object name}) => '確認以 ${role} 身份加入「${name}」？',
 			'organization.picker.joinRoleMember' => '一般成員',
-			'organization.picker.joinRoleAdmin' => '管理員',
 			_ => null,
 		} ?? switch (path) {
+			'organization.picker.joinRoleAdmin' => '管理員',
 			'organization.picker.joinConfirmSubmit' => '確認加入',
 			'organization.picker.joinBack' => '返回修改',
 			'organization.picker.joinQrHint' => '對準企業邀請 QR 碼即可自動加入',
@@ -7186,9 +7188,9 @@ extension on TranslationsZhHant {
 			'talkRecord.participantsInvalid' => '請選擇最多100人；來賓標籤須為1–120字且不重複。人員資格可能已變更，請檢查名單。',
 			'talkRecord.participantsNoResults' => '沒有符合的聯絡人或同事，請嘗試搜尋。',
 			'talkRecord.participantsRemove' => '移除參與者',
-			'talkRecord.participantsSaveFailed' => '未能確認儲存結果，目前選擇已保留；請重試或重新整理。',
 			_ => null,
 		} ?? switch (path) {
+			'talkRecord.participantsSaveFailed' => '未能確認儲存結果，目前選擇已保留；請重試或重新整理。',
 			'talkRecord.playbackPauseLabel' => '暫停',
 			'talkRecord.playbackPlayLabel' => '播放',
 			'talkRecord.playbackProgressLabel' => ({required Object position, required Object duration}) => '播放進度 ${position} / ${duration}',

@@ -681,6 +681,7 @@ class _Translations$chat$fr_FR extends Translations$chat$zh_CN {
 	@override String get resendCode => 'Renvoyer le code';
 	@override String get revoke => 'Retirer';
 	@override String get scanQrCodeBusinessCard => 'Scanner la carte de visite QR';
+	@override String get scanQrEntry => 'Scanner le code QR';
 	@override String get privateChat => 'Conversation privée';
 	@override String get sendFriendRequest => 'Envoyer une demande d’ami';
 	@override String get sendMsgRejected => 'Message envoyé mais rejeté par votre interlocuteur.';
@@ -4653,6 +4654,7 @@ extension on TranslationsFrFr {
 			'chat.resendCode' => 'Renvoyer le code',
 			'chat.revoke' => 'Retirer',
 			'chat.scanQrCodeBusinessCard' => 'Scanner la carte de visite QR',
+			'chat.scanQrEntry' => 'Scanner le code QR',
 			'chat.privateChat' => 'Conversation privée',
 			'chat.sendFriendRequest' => 'Envoyer une demande d’ami',
 			'chat.sendMsgRejected' => 'Message envoyé mais rejeté par votre interlocuteur.',
@@ -5133,9 +5135,9 @@ extension on TranslationsFrFr {
 			'common.confirmForceOffline' => 'Confirmer la déconnexion',
 			'common.forceOfflineCommandSent' => 'Commande de déconnexion envoyée.',
 			'common.feedbackSlogan' => 'Vos suggestions sont notre motivation pour nous améliorer.',
-			'common.newFeedback' => 'Nouveau commentaire',
 			_ => null,
 		} ?? switch (path) {
+			'common.newFeedback' => 'Nouveau commentaire',
 			'common.feedbackHistory' => 'Historique des commentaires',
 			'common.confirmDelete' => 'Confirmer la suppression',
 			'common.verificationCode' => 'Code de vérification',
@@ -5647,9 +5649,9 @@ extension on TranslationsFrFr {
 			'common.amountMustPositive' => 'Le montant doit être supérieur à 0',
 			'common.answer' => 'Décrocher',
 			'common.collapse' => 'Replier',
-			'common.complianceKeyChangedActionConfirm' => 'Confirmer la rotation',
 			_ => null,
 		} ?? switch (path) {
+			'common.complianceKeyChangedActionConfirm' => 'Confirmer la rotation',
 			'common.complianceKeyChangedActionKeep' => 'Pas maintenant',
 			'common.complianceKeyChangedBody' => 'La clé publique d\'audit de conformité fournie par le serveur ne correspond pas à la valeur épinglée localement. S\'il s\'agit d\'une rotation de clés voulue par l\'administrateur, appuyez sur « Confirmer la rotation » ; sinon, n\'envoyez plus de messages chiffrés et contactez l\'administrateur pour vérification.',
 			'common.complianceKeyChangedTitle' => 'La clé d\'audit de conformité a changé',
@@ -6161,9 +6163,9 @@ extension on TranslationsFrFr {
 			'groupCategory.renameCategory' => 'Renommer la catégorie',
 			'groupCategory.categoryRenamed' => 'Catégorie renommée',
 			'groupCategory.renameFailed' => 'Échec du renommage. Réessayez.',
-			'groupCategory.deleteFailed' => 'Échec de la suppression. Réessayez.',
 			_ => null,
 		} ?? switch (path) {
+			'groupCategory.deleteFailed' => 'Échec de la suppression. Réessayez.',
 			'groupCategory.categoryDetailTip' => 'Les groupes de cette catégorie se gèrent depuis la liste des groupes via « Déplacer dans la catégorie »',
 			'groupDiscovery.title' => 'Découvrir des groupes',
 			'groupDiscovery.searchHint' => 'Rechercher des groupes publics',
@@ -6675,9 +6677,9 @@ extension on TranslationsFrFr {
 			'organization.picker.joinConfirmWith' => ({required Object name}) => 'Vous allez rejoindre « ${name} »',
 			'organization.picker.joinConfirmWithRole' => ({required Object name, required Object role}) => 'Rejoindre « ${name} » en tant que ${role} ?',
 			'organization.picker.joinRoleMember' => 'Membre standard',
-			'organization.picker.joinRoleAdmin' => 'Admin',
 			_ => null,
 		} ?? switch (path) {
+			'organization.picker.joinRoleAdmin' => 'Admin',
 			'organization.picker.joinConfirmSubmit' => 'Confirmer',
 			'organization.picker.joinBack' => 'Retour',
 			'organization.picker.joinQrHint' => 'Visez le QR code d\'invitation d\'entreprise',
@@ -7189,9 +7191,9 @@ extension on TranslationsFrFr {
 			'talkRecord.participantsInvalid' => 'Sélectionnez au plus 100 personnes ; les étiquettes d\'invité doivent compter 1 à 120 caractères et être uniques. Les éligibilités ont pu changer, vérifiez la liste.',
 			'talkRecord.participantsNoResults' => 'Aucun contact ou collègue correspondant ; essayez une recherche.',
 			'talkRecord.participantsRemove' => 'Retirer le participant',
-			'talkRecord.participantsSaveFailed' => 'Le résultat de l\'enregistrement n\'a pas pu être confirmé ; votre sélection est conservée. Réessayez ou actualisez.',
 			_ => null,
 		} ?? switch (path) {
+			'talkRecord.participantsSaveFailed' => 'Le résultat de l\'enregistrement n\'a pas pu être confirmé ; votre sélection est conservée. Réessayez ou actualisez.',
 			'talkRecord.playbackPauseLabel' => 'Pause',
 			'talkRecord.playbackPlayLabel' => 'Lecture',
 			'talkRecord.playbackProgressLabel' => ({required Object position, required Object duration}) => 'Progression ${position} / ${duration}',

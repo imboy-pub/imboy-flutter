@@ -80,6 +80,7 @@ reply: 返信
 resendCode: 認証コードを再送
 revoke: 送信取消
 scanQrCodeBusinessCard: QRコード名刺をスキャン
+scanQrEntry: QRコードをスキャン
 privateChat: "個人チャット"
 sendFriendRequest: 友達追加リクエストを送信
 sendMsgRejected: メッセージは送信されましたが、相手に拒否されました。

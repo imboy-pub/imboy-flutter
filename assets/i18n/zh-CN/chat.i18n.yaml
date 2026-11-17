@@ -80,6 +80,7 @@ reply: 回复
 resendCode: 重发验证码
 revoke: 撤回
 scanQrCodeBusinessCard: 扫描二维码名片
+scanQrEntry: 扫一扫
 privateChat: 私聊
 sendFriendRequest: 发送添加朋友申请
 sendMsgRejected: 消息已发出，但被对方拒收了。

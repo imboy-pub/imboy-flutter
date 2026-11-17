@@ -677,6 +677,7 @@ class _Translations$chat$en_US extends Translations$chat$zh_CN {
 	@override String get resendCode => 'Resend verification code';
 	@override String get revoke => 'Recall';
 	@override String get scanQrCodeBusinessCard => 'Scan QR code card';
+	@override String get scanQrEntry => 'Scan QR code';
 	@override String get privateChat => 'Private Chat';
 	@override String get sendFriendRequest => 'Send friend request';
 	@override String get sendMsgRejected => 'Message was rejected';
@@ -4649,6 +4650,7 @@ extension on TranslationsEnUs {
 			'chat.resendCode' => 'Resend verification code',
 			'chat.revoke' => 'Recall',
 			'chat.scanQrCodeBusinessCard' => 'Scan QR code card',
+			'chat.scanQrEntry' => 'Scan QR code',
 			'chat.privateChat' => 'Private Chat',
 			'chat.sendFriendRequest' => 'Send friend request',
 			'chat.sendMsgRejected' => 'Message was rejected',
@@ -5133,9 +5135,9 @@ extension on TranslationsEnUs {
 			'common.newFeedback' => 'New feedback',
 			'common.feedbackHistory' => 'Feedback history',
 			'common.confirmDelete' => 'Confirm delete',
-			'common.verificationCode' => 'Verification code',
 			_ => null,
 		} ?? switch (path) {
+			'common.verificationCode' => 'Verification code',
 			'common.feedbackContent' => 'Feedback content',
 			'common.officialReply' => 'Official reply',
 			'common.setPasswordSecurityTips' => 'Set a login password to enhance security and ensure you can always access your account.',
@@ -5647,9 +5649,9 @@ extension on TranslationsEnUs {
 			'common.fontSizeOptionMedium' => 'Medium',
 			'common.fontSizeOptionLarge' => 'Large',
 			'common.fontSizeOptionExtraLarge' => 'Extra large',
-			'common.fontSizeOptionHuge' => 'Huge',
 			_ => null,
 		} ?? switch (path) {
+			'common.fontSizeOptionHuge' => 'Huge',
 			'common.searchFailedRetry' => 'Search failed, please try again',
 			'common.searchDisabledTitle' => 'Message search unavailable',
 			'common.searchDisabledByEncryption' => 'End-to-end encryption is on, so the server cannot read your messages and full-text search is not available',
@@ -6161,9 +6163,9 @@ extension on TranslationsEnUs {
 			'groupCategory.renameCategory' => 'Rename Category',
 			'groupCategory.categoryRenamed' => 'Category renamed',
 			'groupCategory.renameFailed' => 'Rename failed, please retry',
-			'groupCategory.deleteFailed' => 'Delete failed, please retry',
 			_ => null,
 		} ?? switch (path) {
+			'groupCategory.deleteFailed' => 'Delete failed, please retry',
 			'groupCategory.categoryDetailTip' => 'Groups under this category can be managed via "Move to Category" in the group list.',
 			'groupDiscovery.title' => 'Discover Groups',
 			'groupDiscovery.searchHint' => 'Search public groups',
@@ -6675,9 +6677,9 @@ extension on TranslationsEnUs {
 			'organization.picker.joinConfirmWith' => ({required Object name}) => 'You are about to join "${name}"',
 			'organization.picker.joinConfirmWithRole' => ({required Object name, required Object role}) => 'Join "${name}" as ${role}?',
 			'organization.picker.joinRoleMember' => 'Regular member',
-			'organization.picker.joinRoleAdmin' => 'Admin',
 			_ => null,
 		} ?? switch (path) {
+			'organization.picker.joinRoleAdmin' => 'Admin',
 			'organization.picker.joinConfirmSubmit' => 'Confirm',
 			'organization.picker.joinBack' => 'Back',
 			'organization.picker.joinQrHint' => 'Aim at the enterprise invite QR code to join',
@@ -7189,9 +7191,9 @@ extension on TranslationsEnUs {
 			'talkRecord.exportDownloading' => 'Downloading and preparing to save…',
 			'talkRecord.exportDownloadReady' => 'File saved. This independent copy remains after access is revoked.',
 			'talkRecord.exportDownloadFailed' => 'Could not download or save; try again',
-			'talkRecord.exportExpiredTitle' => 'Export expired',
 			_ => null,
 		} ?? switch (path) {
+			'talkRecord.exportExpiredTitle' => 'Export expired',
 			'talkRecord.exportExpiredBody' => 'The download link has expired. Regenerate the export.',
 			'talkRecord.exportRegenerate' => 'Regenerate',
 			'talkRecord.exportFailedBody' => 'Export generation failed, retry available.',

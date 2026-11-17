@@ -75,6 +75,7 @@ reply: Reply
 resendCode: Resend verification code
 revoke: Recall
 scanQrCodeBusinessCard: Scan QR code card
+scanQrEntry: Scan QR code
 privateChat: Private Chat
 sendFriendRequest: Send friend request
 sendMsgRejected: Message was rejected

@@ -80,6 +80,7 @@ reply: Rispondi
 resendCode: Invia di nuovo codice
 revoke: Revoca
 scanQrCodeBusinessCard: Scansiona scheda codice QR
+scanQrEntry: Scansiona codice QR
 privateChat: "Chat privata"
 sendFriendRequest: Invia richiesta amicizia
 sendMsgRejected: Messaggio inviato ma rifiutato dall'altra parte.

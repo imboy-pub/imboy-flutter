@@ -80,6 +80,7 @@ reply: 답장
 resendCode: 인증 코드 재전송
 revoke: 회수
 scanQrCodeBusinessCard: QR코드 명함 스캔
+scanQrEntry: QR코드 스캔
 privateChat: "1:1 채팅"
 sendFriendRequest: 친구 추가 요청 보내기
 sendMsgRejected: 메시지가 전송되었으나 상대방이 거부했습니다.

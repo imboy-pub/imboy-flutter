@@ -681,6 +681,7 @@ class _Translations$chat$ru_RU extends Translations$chat$zh_CN {
 	@override String get resendCode => 'Отправить код снова';
 	@override String get revoke => 'Отозвать';
 	@override String get scanQrCodeBusinessCard => 'Сканировать QR-код визитки';
+	@override String get scanQrEntry => 'Сканировать QR-код';
 	@override String get privateChat => 'Личный чат';
 	@override String get sendFriendRequest => 'Отправить запрос дружбы';
 	@override String get sendMsgRejected => 'Сообщение отклонено собеседником';
@@ -4659,6 +4660,7 @@ extension on TranslationsRuRu {
 			'chat.resendCode' => 'Отправить код снова',
 			'chat.revoke' => 'Отозвать',
 			'chat.scanQrCodeBusinessCard' => 'Сканировать QR-код визитки',
+			'chat.scanQrEntry' => 'Сканировать QR-код',
 			'chat.privateChat' => 'Личный чат',
 			'chat.sendFriendRequest' => 'Отправить запрос дружбы',
 			'chat.sendMsgRejected' => 'Сообщение отклонено собеседником',
@@ -5139,9 +5141,9 @@ extension on TranslationsRuRu {
 			'common.confirmForceOffline' => 'Подтвердить выход из сети',
 			'common.forceOfflineCommandSent' => 'Команда выхода из сети отправлена',
 			'common.feedbackSlogan' => 'Ваши предложения - наш стимул к улучшению',
-			'common.newFeedback' => 'Новое предложение',
 			_ => null,
 		} ?? switch (path) {
+			'common.newFeedback' => 'Новое предложение',
 			'common.feedbackHistory' => 'История предложений',
 			'common.confirmDelete' => 'Подтвердить удаление',
 			'common.verificationCode' => 'Код подтверждения',
@@ -5653,9 +5655,9 @@ extension on TranslationsRuRu {
 			'common.amountMustPositive' => 'Сумма должна быть больше 0',
 			'common.answer' => 'Ответить',
 			'common.collapse' => 'Свернуть',
-			'common.complianceKeyChangedActionConfirm' => 'Подтвердить ротацию',
 			_ => null,
 		} ?? switch (path) {
+			'common.complianceKeyChangedActionConfirm' => 'Подтвердить ротацию',
 			'common.complianceKeyChangedActionKeep' => 'Отложить подтверждение',
 			'common.complianceKeyChangedBody' => 'Открытый ключ комплаенс-аудита, выданный сервером, не совпадает с локально зафиксированным значением. Если это намеренная ротация ключа администратором, нажмите «Подтвердить ротацию»; иначе не отправляйте зашифрованные сообщения и обратитесь к администратору для проверки.',
 			'common.complianceKeyChangedTitle' => 'Ключ комплаенс-аудита изменён',
@@ -6167,9 +6169,9 @@ extension on TranslationsRuRu {
 			'groupCategory.renameCategory' => 'Переименовать папку',
 			'groupCategory.categoryRenamed' => 'Папка переименована',
 			'groupCategory.renameFailed' => 'Не удалось переименовать, попробуйте ещё раз',
-			'groupCategory.deleteFailed' => 'Не удалось удалить, попробуйте ещё раз',
 			_ => null,
 		} ?? switch (path) {
+			'groupCategory.deleteFailed' => 'Не удалось удалить, попробуйте ещё раз',
 			'groupCategory.categoryDetailTip' => 'Группы в этой папке можно переносить через «В папку» в списке групп',
 			'groupDiscovery.title' => 'Обзор групп',
 			'groupDiscovery.searchHint' => 'Поиск публичных групп',
@@ -6681,9 +6683,9 @@ extension on TranslationsRuRu {
 			'organization.picker.joinConfirmWith' => ({required Object name}) => 'Вы собираетесь присоединиться к «${name}»',
 			'organization.picker.joinConfirmWithRole' => ({required Object name, required Object role}) => 'Вступить в «${name}» в роли ${role}?',
 			'organization.picker.joinRoleMember' => 'Обычный участник',
-			'organization.picker.joinRoleAdmin' => 'Администратор',
 			_ => null,
 		} ?? switch (path) {
+			'organization.picker.joinRoleAdmin' => 'Администратор',
 			'organization.picker.joinConfirmSubmit' => 'Присоединиться',
 			'organization.picker.joinBack' => 'Назад',
 			'organization.picker.joinQrHint' => 'Наведите на QR-код приглашения в организацию',
@@ -7195,9 +7197,9 @@ extension on TranslationsRuRu {
 			'talkRecord.participantsInvalid' => 'Выберите до 100 человек; метки гостей — 1–120 знаков без повторов. Права участников могли измениться, проверьте список.',
 			'talkRecord.participantsNoResults' => 'Подходящих контактов или коллег нет; попробуйте поиск.',
 			'talkRecord.participantsRemove' => 'Удалить участника',
-			'talkRecord.participantsSaveFailed' => 'Результат сохранения не подтверждён, выбор сохранён; повторите или обновите.',
 			_ => null,
 		} ?? switch (path) {
+			'talkRecord.participantsSaveFailed' => 'Результат сохранения не подтверждён, выбор сохранён; повторите или обновите.',
 			'talkRecord.playbackPauseLabel' => 'Пауза',
 			'talkRecord.playbackPlayLabel' => 'Воспроизведение',
 			'talkRecord.playbackProgressLabel' => ({required Object position, required Object duration}) => 'Позиция ${position} / ${duration}',

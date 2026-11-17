@@ -681,6 +681,7 @@ class _Translations$chat$ar_SA extends Translations$chat$zh_CN {
 	@override String get resendCode => 'إعادة إرسال رمز التحقق';
 	@override String get revoke => 'سحب';
 	@override String get scanQrCodeBusinessCard => 'مسح بطاقة عمل رمز QR';
+	@override String get scanQrEntry => 'مسح رمز QR';
 	@override String get privateChat => 'محادثة خاصة';
 	@override String get sendFriendRequest => 'إرسال طلب إضافة صديق';
 	@override String get sendMsgRejected => 'تم إرسال الرسالة، ولكن تم رفضها من قبل الطرف الآخر.';
@@ -4662,6 +4663,7 @@ extension on TranslationsArSa {
 			'chat.resendCode' => 'إعادة إرسال رمز التحقق',
 			'chat.revoke' => 'سحب',
 			'chat.scanQrCodeBusinessCard' => 'مسح بطاقة عمل رمز QR',
+			'chat.scanQrEntry' => 'مسح رمز QR',
 			'chat.privateChat' => 'محادثة خاصة',
 			'chat.sendFriendRequest' => 'إرسال طلب إضافة صديق',
 			'chat.sendMsgRejected' => 'تم إرسال الرسالة، ولكن تم رفضها من قبل الطرف الآخر.',
@@ -5142,9 +5144,9 @@ extension on TranslationsArSa {
 			'common.confirmForceOffline' => 'تأكيد إيقاف الاتصال',
 			'common.forceOfflineCommandSent' => 'تم إرسال أمر إيقاف الاتصال',
 			'common.feedbackSlogan' => 'اقتراحاتك هي الدافع لتحسيناتنا',
-			'common.newFeedback' => 'ملاحظة جديدة',
 			_ => null,
 		} ?? switch (path) {
+			'common.newFeedback' => 'ملاحظة جديدة',
 			'common.feedbackHistory' => 'سجل الملاحظات',
 			'common.confirmDelete' => 'تأكيد الحذف',
 			'common.verificationCode' => 'رمز التحقق',
@@ -5656,9 +5658,9 @@ extension on TranslationsArSa {
 			'common.amountMustPositive' => 'يجب أن يكون المبلغ أكبر من 0',
 			'common.enterAmount' => 'يرجى إدخال المبلغ',
 			'common.answer' => 'قبول',
-			'common.declineCall' => 'رفض',
 			_ => null,
 		} ?? switch (path) {
+			'common.declineCall' => 'رفض',
 			'common.collapse' => 'طي',
 			'common.expandFull' => 'توسيع',
 			'common.minimize' => 'تصغير',
@@ -6170,9 +6172,9 @@ extension on TranslationsArSa {
 			'groupCategory.renameCategory' => 'إعادة تسمية المجلد',
 			'groupCategory.categoryRenamed' => 'تمت إعادة تسمية المجلد',
 			'groupCategory.renameFailed' => 'تعذّرت إعادة التسمية، أعد المحاولة',
-			'groupCategory.deleteFailed' => 'تعذّر الحذف، أعد المحاولة',
 			_ => null,
 		} ?? switch (path) {
+			'groupCategory.deleteFailed' => 'تعذّر الحذف، أعد المحاولة',
 			'groupCategory.categoryDetailTip' => 'يمكن إدارة مجموعات هذا المجلد عبر «نقل إلى مجلد» في قائمة المجموعات',
 			'groupDiscovery.title' => 'اكتشاف المجموعات',
 			'groupDiscovery.searchHint' => 'البحث عن مجموعات عامة',
@@ -6684,9 +6686,9 @@ extension on TranslationsArSa {
 			'organization.picker.joinConfirmWith' => ({required Object name}) => 'أنت على وشك الانضمام إلى "${name}"',
 			'organization.picker.joinConfirmWithRole' => ({required Object name, required Object role}) => 'الانضمام إلى "${name}" بصفتك ${role}؟',
 			'organization.picker.joinRoleMember' => 'عضو عادي',
-			'organization.picker.joinRoleAdmin' => 'مسؤول',
 			_ => null,
 		} ?? switch (path) {
+			'organization.picker.joinRoleAdmin' => 'مسؤول',
 			'organization.picker.joinConfirmSubmit' => 'تأكيد',
 			'organization.picker.joinBack' => 'رجوع',
 			'organization.picker.joinQrHint' => 'وجّه الكاميرا نحو رمز QR لدعوة المؤسسة',
@@ -7198,9 +7200,9 @@ extension on TranslationsArSa {
 			'talkRecord.participantsInvalid' => 'اختر 100 شخص كحد أقصى؛ ويجب أن تكون أوسمة الضيوف من 1 إلى 120 حرفًا وغير مكررة. وقد تكون الأهلية تغيّرت، فتحقق من القائمة.',
 			'talkRecord.participantsNoResults' => 'لا جهات اتصال أو زملاء مطابقون، فجرّب البحث.',
 			'talkRecord.participantsRemove' => 'إزالة مشارك',
-			'talkRecord.participantsSaveFailed' => 'تعذّر تأكيد نتيجة الحفظ، وقد حُفظ اختيارك؛ فأعد المحاولة أو حدّث.',
 			_ => null,
 		} ?? switch (path) {
+			'talkRecord.participantsSaveFailed' => 'تعذّر تأكيد نتيجة الحفظ، وقد حُفظ اختيارك؛ فأعد المحاولة أو حدّث.',
 			'talkRecord.playbackPauseLabel' => 'إيقاف مؤقت',
 			'talkRecord.playbackPlayLabel' => 'تشغيل',
 			'talkRecord.playbackProgressLabel' => ({required Object position, required Object duration}) => 'تقدم التشغيل ${position} / ${duration}',

@@ -681,6 +681,7 @@ class _Translations$chat$de_DE extends Translations$chat$zh_CN {
 	@override String get resendCode => 'Code erneut senden';
 	@override String get revoke => 'Widerrufen';
 	@override String get scanQrCodeBusinessCard => 'QR-Code-Visitenkarte scannen';
+	@override String get scanQrEntry => 'QR-Code scannen';
 	@override String get privateChat => 'Privatchat';
 	@override String get sendFriendRequest => 'Freundschaftsanfrage senden';
 	@override String get sendMsgRejected => 'Nachricht gesendet, aber vom Gesprächspartner abgelehnt.';
@@ -4653,6 +4654,7 @@ extension on TranslationsDeDe {
 			'chat.resendCode' => 'Code erneut senden',
 			'chat.revoke' => 'Widerrufen',
 			'chat.scanQrCodeBusinessCard' => 'QR-Code-Visitenkarte scannen',
+			'chat.scanQrEntry' => 'QR-Code scannen',
 			'chat.privateChat' => 'Privatchat',
 			'chat.sendFriendRequest' => 'Freundschaftsanfrage senden',
 			'chat.sendMsgRejected' => 'Nachricht gesendet, aber vom Gesprächspartner abgelehnt.',
@@ -5133,9 +5135,9 @@ extension on TranslationsDeDe {
 			'common.confirmForceOffline' => 'Abmelden bestätigen',
 			'common.forceOfflineCommandSent' => 'Offline-Befehl gesendet',
 			'common.feedbackSlogan' => 'Ihre Vorschläge sind unser Antrieb für Verbesserungen',
-			'common.newFeedback' => 'Neues Feedback',
 			_ => null,
 		} ?? switch (path) {
+			'common.newFeedback' => 'Neues Feedback',
 			'common.feedbackHistory' => 'Feedback-Verlauf',
 			'common.confirmDelete' => 'Löschen bestätigen',
 			'common.verificationCode' => 'Bestätigungscode',
@@ -5647,9 +5649,9 @@ extension on TranslationsDeDe {
 			'common.justNow' => 'Gerade eben',
 			'common.minutesAgo' => 'Min.',
 			'common.hoursAgo' => 'Std.',
-			'common.me' => 'Ich',
 			_ => null,
 		} ?? switch (path) {
+			'common.me' => 'Ich',
 			'common.minimize' => 'Minimieren',
 			'common.collapse' => 'Einklappen',
 			'common.expandFull' => 'Ausklappen',
@@ -6161,9 +6163,9 @@ extension on TranslationsDeDe {
 			'groupCategory.renameCategory' => 'Kategorie umbenennen',
 			'groupCategory.categoryRenamed' => 'Kategorie umbenannt',
 			'groupCategory.renameFailed' => 'Umbenennen fehlgeschlagen. Bitte erneut versuchen.',
-			'groupCategory.deleteFailed' => 'Löschen fehlgeschlagen. Bitte erneut versuchen.',
 			_ => null,
 		} ?? switch (path) {
+			'groupCategory.deleteFailed' => 'Löschen fehlgeschlagen. Bitte erneut versuchen.',
 			'groupCategory.categoryDetailTip' => 'Gruppen dieser Kategorie lassen sich in der Gruppenliste über „In Kategorie verschieben" verwalten',
 			'groupDiscovery.title' => 'Gruppen entdecken',
 			'groupDiscovery.searchHint' => 'Öffentliche Gruppen suchen',
@@ -6675,9 +6677,9 @@ extension on TranslationsDeDe {
 			'organization.picker.joinConfirmWith' => ({required Object name}) => 'Sie treten "${name}" bei',
 			'organization.picker.joinConfirmWithRole' => ({required Object role, required Object name}) => 'Als ${role} "${name}" beitreten?',
 			'organization.picker.joinRoleMember' => 'Einfaches Mitglied',
-			'organization.picker.joinRoleAdmin' => 'Admin',
 			_ => null,
 		} ?? switch (path) {
+			'organization.picker.joinRoleAdmin' => 'Admin',
 			'organization.picker.joinConfirmSubmit' => 'Beitreten',
 			'organization.picker.joinBack' => 'Zurück',
 			'organization.picker.joinQrHint' => 'Auf den Unternehmens-Einladungs-QR-Code richten',
@@ -7189,9 +7191,9 @@ extension on TranslationsDeDe {
 			'talkRecord.participantsInvalid' => 'Bitte höchstens 100 Personen auswählen. Gast-Kennzeichnungen müssen 1–120 Zeichen lang und eindeutig sein. Personen-Berechtigungen können sich geändert haben. Bitte Liste prüfen.',
 			'talkRecord.participantsNoResults' => 'Keine passenden Kontakte oder Kollegen. Bitte Suche versuchen.',
 			'talkRecord.participantsRemove' => 'Teilnehmer entfernen',
-			'talkRecord.participantsSaveFailed' => 'Das Speichergebnis konnte nicht bestätigt werden. Ihre Auswahl bleibt erhalten. Bitte erneut versuchen oder aktualisieren.',
 			_ => null,
 		} ?? switch (path) {
+			'talkRecord.participantsSaveFailed' => 'Das Speichergebnis konnte nicht bestätigt werden. Ihre Auswahl bleibt erhalten. Bitte erneut versuchen oder aktualisieren.',
 			'talkRecord.playbackPauseLabel' => 'Pause',
 			'talkRecord.playbackPlayLabel' => 'Wiedergabe',
 			'talkRecord.playbackProgressLabel' => ({required Object position, required Object duration}) => 'Wiedergabefortschritt ${position} / ${duration}',
