@@ -24,6 +24,48 @@ class DetailSettingsTile extends StatelessWidget {
   final VoidCallback? onTap;
   final bool destructive;
 
+  /// 纯文本标题（A11Y-02 AN1 命名素材）；非纯文本标题返回 null。
+  Text? get _titleAsText => _plainTextOf(title);
+
+  Text? get _subtitleAsText => _plainTextOf(subtitle);
+
+  static Text? _plainTextOf(Widget? widget) {
+    if (widget is Text && widget.data != null) return widget;
+    // 注销/登出类 tile 传 Center(child: Text(...))（destructive 居中样式）。
+    if (widget is Center) {
+      final child = widget.child;
+      if (child is Text && child.data != null) return child;
+    }
+    return null;
+  }
+
+  /// 组合可访问名：标题 + 副标题 + 值。仅当标题是纯文本时才接管命名——
+  /// 此时被并入名字的可见文本用 ExcludeSemantics 排除，名字以 aria-label
+  /// 落到 button 节点（engine 对「有 label 且子树含文本节点」的情况会把
+  /// 名字渲染成 DOM textContent 而非 aria-label，即 SET-05/A11Y-02 AN1 的
+  /// has_aria_label=false 现象）。非纯文本标题/副标题（如下拉选择器）不
+  /// 并名也不排除，保持既有语义结构不冒险。
+  String? get _semanticLabel {
+    final titleText = _titleAsText?.data;
+    if (titleText == null) return null;
+    final parts = <String>[
+      titleText,
+      ?_subtitleAsText?.data,
+      ?value,
+    ].where((part) => part.isNotEmpty).toList();
+    if (parts.isEmpty) return null;
+    return parts.join('\n');
+  }
+
+  bool get _takesNaming => _semanticLabel != null;
+
+  /// 仅对被并入名字的纯文本部件做排除；其余（非文本副标题、trailing）
+  /// 原样透传，避免吞掉下拉/开关等自身语义。
+  Widget _excludeVisibleText(Widget widget, {bool? force}) {
+    final exclude = force ?? _takesNaming;
+    return exclude ? ExcludeSemantics(child: widget) : widget;
+  }
+
   @override
   Widget build(BuildContext context) => LayoutBuilder(
     builder: (context, constraints) {
@@ -32,13 +74,15 @@ class DetailSettingsTile extends StatelessWidget {
       final stacked = _stackValue(context, constraints.maxWidth, style);
       final detail = value == null
           ? null
-          : Text(
-              value!,
-              style: context.textStyle(
-                FontSizeType.normal,
-                color: AppColors.getTextColor(brightness, isSecondary: true),
+          : _excludeVisibleText(
+              Text(
+                value!,
+                style: context.textStyle(
+                  FontSizeType.normal,
+                  color: AppColors.getTextColor(brightness, isSecondary: true),
+                ),
+                textAlign: stacked ? TextAlign.start : TextAlign.end,
               ),
-              textAlign: stacked ? TextAlign.start : TextAlign.end,
             );
       final accessory =
           trailing ?? (onTap == null ? null : const CupertinoListTileChevron());
@@ -52,7 +96,13 @@ class DetailSettingsTile extends StatelessWidget {
             vertical: AppSpacing.medium,
           ),
           title: _title(context, style, stacked, detail),
-          subtitle: subtitle,
+          subtitle: subtitle == null
+              ? null
+              : _excludeVisibleText(
+                  subtitle!,
+                  // 非纯文本副标题（下拉/开关等交互件）不排除也不并名。
+                  force: _subtitleAsText != null ? null : false,
+                ),
           trailing: _accessory(
             constraints.maxWidth,
             stacked,
@@ -60,6 +110,7 @@ class DetailSettingsTile extends StatelessWidget {
             accessory,
           ),
           onTap: onTap,
+          semanticLabel: _semanticLabel,
         ),
       );
     },
@@ -82,7 +133,8 @@ class DetailSettingsTile extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          title,
+          // 非 Text 标题时 _takesNaming=false，_excludeVisibleText 原样透传。
+          _excludeVisibleText(title),
           if (stacked && detail != null) ...[AppSpacing.verticalTiny, detail],
         ],
       ),

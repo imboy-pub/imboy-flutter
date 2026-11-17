@@ -36,6 +36,7 @@ class CellPressable extends StatefulWidget {
     required this.child,
     this.onTap,
     this.onLongPress,
+    this.semanticLabel,
   });
 
   final Widget child;
@@ -44,6 +45,15 @@ class CellPressable extends StatefulWidget {
   /// 长按回调；触发时同样会展示按下高亮（与 [onTap] 共享 _pressed 状态）。
   /// 长按由 [GestureDetector] 经过 ~500ms 阈值后触发。
   final VoidCallback? onLongPress;
+
+  /// 可访问名（A11Y-02 AN1）：挂在 container 语义节点（吸收 button/tap/focus
+  /// 的同一节点）上，web 引擎渲染为 role=button 的 aria-label。
+  ///
+  /// 传入本参数时，调用方须对行内纯文本用 [ExcludeSemantics] 排除视觉文案，
+  /// 否则子文本节点并入同一节点后，引擎会把名字落回 DOM textContent 而非
+  /// aria-label（参照 space_switcher_button.dart 的 label+ExcludeSemantics 组合，
+  /// 其 AX 树名字可被 CDP 读出）。null 时保持既有结构（名字走 textContent）。
+  final String? semanticLabel;
 
   @override
   State<CellPressable> createState() => _CellPressableState();
@@ -92,6 +102,7 @@ class _CellPressableState extends State<CellPressable> {
       // Keep this control's focus, actions, and child label together when
       // another CellPressable surrounds it. Read-only cells need no boundary.
       container: enabled,
+      label: widget.semanticLabel,
       child: FocusableActionDetector(
         enabled: enabled,
         shortcuts: const {
