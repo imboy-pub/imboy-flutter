@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:imboy/component/http/http_exceptions.dart';
 import 'package:imboy/component/http/http_response.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/store/api/conversation_api.dart';
@@ -117,6 +118,28 @@ void main() {
       });
       expect(result, hasLength(1));
       expect(result.single['conversation_id'], 'peer-a');
+    });
+
+    test('listMine 网络失败（!ok）应抛出而非压成空列表（DEF-LAY04-B）', () async {
+      final api = _RecordingConversationApi()
+        ..getResponse = IMBoyHttpResponse.failure(
+          errMsg: 'laysec06 injected failure',
+          errCode: 500,
+        );
+
+      // 500 注入/断链必须以异常到达 syncAuthoritativeConversations 的 catch
+      // ——否则 loadError 哨兵永不置位、页面「加载失败+重试」分支成死代码，
+      // 且空 entries 会连带隐藏全部本地 C2C 行（lay-run4 live 实证）。
+      await expectLater(api.listMine(), throwsA(isA<HttpException>()));
+    });
+
+    test('listMine 成功但 payload 为 null 时仍按空列表处理', () async {
+      final api = _RecordingConversationApi()
+        ..getResponse = IMBoyHttpResponse.success(null);
+
+      final result = await api.listMine();
+
+      expect(result, isEmpty);
     });
   });
 }

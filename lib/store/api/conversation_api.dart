@@ -82,7 +82,17 @@ class ConversationApi extends HttpClient {
         ),
       ),
     );
-    if (!resp.ok || resp.payload == null) {
+    // DEF-LAY04-B：!ok 的网络失败此前被 `return const []` 压成「权威空列表」
+    // ——上层 syncAuthoritativeConversations 的 catch 与页面失败态分支全部
+    // 死代码（lay-run4 live 实证：500 注入/abort 后主列表恒 skeleton、
+    // 「加载失败+重试」永不出现），且空 entries 会连带
+    // _hideMissingAuthoritativeConversations 把本地 C2C 行全部隐藏。
+    // 本链路调用方（ConversationNotifier）已有 catch，按 throwIfFailed
+    // 契约把失败信号变回异常，loadError 哨兵才能置位并驱动「重试」。
+    if (!resp.ok) {
+      resp.throwIfFailed();
+    }
+    if (resp.payload == null) {
       return const [];
     }
 
