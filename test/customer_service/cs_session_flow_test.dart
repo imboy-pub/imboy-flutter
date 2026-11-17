@@ -1355,6 +1355,18 @@ void main() {
       'reason': 'created',
     };
 
+    CsSeatEventsStream streamFor(String eventId, String type) =>
+        CsSeatEventsStream(
+          orgId: kOrgId,
+          workspaceId: kWsId,
+          opener: (
+            String orgId,
+            String workspaceId, {
+            String lastEventId = '',
+            String afterId = '',
+          }) async => sse([env(eventId, type)]),
+        );
+
     test('message.appended → 增量权威拉取：访客新消息自动出现', () async {
       final adapter = _RouteAdapter([
         (
@@ -1384,26 +1396,23 @@ void main() {
         ),
       ]);
       var updates = 0;
-      final flow = newFlow(adapter: adapter, onChanged: () => updates++);
+      final refreshed = Completer<void>();
+      final flow = newFlow(
+        adapter: adapter,
+        onChanged: () {
+          updates++;
+          if (!refreshed.isCompleted) refreshed.complete();
+        },
+      );
+      addTearDown(flow.dispose);
       expect(flow.messages, isEmpty);
 
-      final stream = CsSeatEventsStream(
-        orgId: kOrgId,
-        workspaceId: kWsId,
-        opener: (
-          String orgId,
-          String workspaceId, {
-          String lastEventId = '',
-          String afterId = '',
-        }) async => sse([env('7266418340025469001', 'message.appended')]),
-      );
-      flow.bindEvents(stream);
-      // 事件经真实微任务链路触发权威拉取（无轮询）。
-      await Future<void>.delayed(const Duration(milliseconds: 50));
+      flow.bindEvents(streamFor('7266418340025469001', 'message.appended'));
+      // 等待权威刷新后的真实通知，不依赖宿主调度耗时。
+      await refreshed.future;
 
       expect(flow.messages, hasLength(1), reason: '访客新消息自动出现');
       expect(updates, 1, reason: '权威数据同步后必须通知页面重建');
-      flow.dispose();
     });
 
     test('resync.required → 清游标全量权威刷新（下一拉取不带 after_id）', () async {
@@ -1424,30 +1433,29 @@ void main() {
           ],
         ),
       ]);
-      final flow = newFlow(adapter: adapter);
+      final refreshed = Completer<void>();
+      final flow = newFlow(
+        adapter: adapter,
+        onChanged: () {
+          if (!refreshed.isCompleted) refreshed.complete();
+        },
+      );
+      addTearDown(flow.dispose);
       await flow.loadIncremental();
       expect(flow.cursor, '7266418340025468961');
+      expect(refreshed.isCompleted, isFalse);
 
-      final stream = CsSeatEventsStream(
-        orgId: kOrgId,
-        workspaceId: kWsId,
-        opener: (
-          String orgId,
-          String workspaceId, {
-          String lastEventId = '',
-          String afterId = '',
-        }) async => sse([env('7266418340025469002', 'resync.required')]),
-      );
-      flow.bindEvents(stream);
-      await Future<void>.delayed(const Duration(milliseconds: 50));
+      flow.bindEvents(streamFor('7266418340025469002', 'resync.required'));
+      await refreshed.future;
 
       // resync 先清空游标再全量重拉（拉取后游标按真源重新推进）——
       // 「全量」由最后一拉不带 after_id 证明。
-      final lastGet = adapter.requests.lastWhere(
-        (r) => r.$1 == 'GET' && r.$2.contains('/conversations/'),
-      );
+      final historyGets = adapter.requests
+          .where((r) => r.$1 == 'GET' && r.$2.contains('/conversations/'))
+          .toList();
+      expect(historyGets, hasLength(2), reason: '预加载后由 SSE 再次权威刷新');
+      final lastGet = historyGets.last;
       expect(lastGet.$4.containsKey('after_id'), isFalse, reason: '全量首拉');
-      flow.dispose();
     });
 
     test('降级后停止消费事件（不再发权威请求）', () async {
@@ -1460,25 +1468,15 @@ void main() {
         ),
       ]);
       final flow = newFlow(adapter: adapter);
+      addTearDown(flow.dispose);
       await flow.loadIncremental(poll: true);
       expect(flow.machine.shouldPoll, isFalse);
       final before = adapter.requests.length;
 
-      final stream = CsSeatEventsStream(
-        orgId: kOrgId,
-        workspaceId: kWsId,
-        opener: (
-          String orgId,
-          String workspaceId, {
-          String lastEventId = '',
-          String afterId = '',
-        }) async => sse([env('7266418340025469003', 'message.appended')]),
-      );
-      flow.bindEvents(stream);
+      flow.bindEvents(streamFor('7266418340025469003', 'message.appended'));
       await Future<void>.delayed(const Duration(milliseconds: 50));
 
       expect(adapter.requests.length, before, reason: '降级后事件不触发请求');
-      flow.dispose();
     });
   });
 }

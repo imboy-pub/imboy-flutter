@@ -71,404 +71,27 @@ import 'package:imboy/config/init.dart';
 
 import '../../../fixtures/sqlite_migration/sqlite_migration_fixtures.dart';
 
-const String _sessionId = 'kR8pQmXv2TnL7yFwZ0aBcDeGhIjKlMnOpQrStUvWxYz';
-
-/// 恒等协议：只替换密码学，不替换 wiring。
-/// metadata 形状对照真实 `OlmProtocol.encrypt`（olm_protocol.dart:65-78）。
-class _IdentityOlmProtocol implements E2eeSessionProtocol {
-  bool rejectDuplicate = false;
-  bool commitInbound = false;
-  Future<void> Function()? beforeDecrypt;
-  @override
-  ProtocolSuite get suite => ProtocolSuite.olm;
-
-  @override
-  Future<void> initialize({
-    required String userId,
-    required String deviceId,
-  }) async {}
-
-  @override
-  Future<E2eeCiphertext> encrypt({
-    required String plaintext,
-    required List<RecipientDevice> recipients,
-    required E2eeContext context,
-  }) async {
-    return E2eeCiphertext(plaintext, {
-      'protocol': suite.protocol,
-      'version': suite.version,
-      'e2ee_suite': suite.legacyWire,
-      'peer_uid': '100',
-      'peer_device_id': 'dev-sender',
-      'message_type': 1,
-      'session_id': _sessionId,
-    });
-  }
-
-  @override
-  Future<String> decrypt({
-    required String ciphertext,
-    required Map<String, dynamic> metadata,
-    E2eeContext? context,
-  }) async {
-    if (rejectDuplicate) throw DuplicateMessageException('test');
-    if (commitInbound) {
-      final store = await OlmSessionService.to.cryptoStore;
-      await store!.commitInboundResult(
-        messageId: metadata['message_id'] as String,
-        scope: metadata['inbox_scope'] as String,
-        ciphertextDigest: metadata['ciphertext_digest'] as String,
-        decryptedPayload: ciphertext,
-      );
-    }
-    await beforeDecrypt?.call();
-    return ciphertext;
-  }
-
-  @override
-  Future<void> clearAll() async {}
-}
-
-class _IdentityMegolmProtocol implements E2eeSessionProtocol {
-  final List<Map<String, dynamic>> decryptMetadata = [];
-
-  @override
-  ProtocolSuite get suite => ProtocolSuite.megolm;
-
-  @override
-  Future<void> initialize({
-    required String userId,
-    required String deviceId,
-  }) async {}
-
-  @override
-  Future<E2eeCiphertext> encrypt({
-    required String plaintext,
-    required List<RecipientDevice> recipients,
-    required E2eeContext context,
-  }) async => E2eeCiphertext(plaintext, {
-    'protocol': suite.protocol,
-    'version': suite.version,
-    'e2ee_suite': suite.legacyWire,
-    'gid': 'group-1',
-    'session_id': _sessionId,
-  });
-
-  @override
-  Future<String> decrypt({
-    required String ciphertext,
-    required Map<String, dynamic> metadata,
-    E2eeContext? context,
-  }) async {
-    decryptMetadata.add(Map<String, dynamic>.from(metadata));
-    return ciphertext;
-  }
-
-  @override
-  Future<void> clearAll() async {}
-}
+part 'v3_receive_path_fixture.dart';
+part 'v3_receive_path_recovery_cases.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  late Database db;
-  late _IdentityMegolmProtocol groupProtocol;
-  late _IdentityOlmProtocol olmProtocol;
-
+  final fixture = _ReceivePathFixture();
   setUpAll(sqfliteFfiInit);
+  setUp(fixture.setUp);
+  tearDown(fixture.tearDown);
 
-  setUp(() async {
-    SharedPreferences.setMockInitialValues({});
-    await StorageService.init();
-    databaseFactory = databaseFactoryFfi;
-    db = await openFixtureDatabaseAtVersion(version: 32);
-    SqliteService.setDbForTest(db);
-    OlmSessionService.to.resetForTest();
-    await db.insert('contact', {
-      'user_id': '200',
-      'peer_id': '100',
-      'nickname': 'Synthetic peer',
-    });
-
-    // 顺序要紧：先让 bootstrap 完成一次真实注册（把内部 _registered 置 true），
-    // 再清空 registry 换入恒等协议。否则解密时 ensureRegistered() 会再注册
-    // 真实 OlmProtocol，与恒等协议撞 'already registered: olm'。
-    E2eeBootstrap.resetForTest();
-    E2eeBootstrap.ensureRegistered();
-    E2eeProtocolRegistry.resetForTest();
-    olmProtocol = _IdentityOlmProtocol();
-    E2eeProtocolRegistry.register(olmProtocol);
-    groupProtocol = _IdentityMegolmProtocol();
-    E2eeProtocolRegistry.register(groupProtocol);
-  });
-
-  tearDown(() async {
-    MessageService.to.dispose();
-    MessageRetry.instance.dispose();
-    await MessageRetry.instance.debugWaitForIdle();
-    E2eeBootstrap.resetForTest();
-    SqliteService.setDbForTest(null);
-    await db.close();
-  });
-
-  const plainBody = 'inbound v3 body';
-
-  /// 复刻 `chat_network_service._encryptC2COlmFanOut` 的实际产出形状：
-  /// e2ee 为 fan_out/devices 结构，**外层 payload 为空串**（密文在信封内）。
-  /// 信封挂在本机 deviceId 下，与生产接收侧按 deviceId 取信封一致。
-  Future<Map<String, dynamic>> buildV3Message(
-    String msgId, {
-    String action = 'message',
-  }) async {
-    final myDid = deviceId;
-    final encrypted = await E2eeOutboundRouter.encryptV3(
-      suite: ProtocolSuite.olm,
-      plaintext: jsonEncode({'msg_type': 'text', 'body': plainBody}),
-      recipients: [
-        RecipientDevice(deviceId: myDid, keyId: 'k1', publicKey: 'pk-1'),
-      ],
-      context: E2eeContext(peerUid: '200', peerDeviceId: myDid, scope: 'c2c'),
-      messageId: msgId,
-      senderUid: '100',
-      senderDid: 'dev-sender',
-      destination: '200',
-      messageType: 'text',
-      action: action,
-      sessionRef: _sessionId,
-      createdAtMs: 1753500000000,
-    );
-
-    final envelope = Map<String, dynamic>.from(encrypted.metadata);
-    envelope.remove('meta_version');
-
-    return {
-      'id': msgId,
-      'type': 'C2C',
-      'from': '100',
-      'to': '200',
-      'msg_type': 'text',
-      'e2ee': {
-        'meta_version': 3,
-        'protocol': 'olm',
-        'version': 1,
-        'fan_out': 'per_device',
-        'devices': {myDid: envelope},
-      },
-      'payload': encrypted.ciphertext, // v3: 恒为空串
-      'created_at': 1753500000000,
-      'sender_did': 'dev-sender',
-      'sender_dtype': 'ios',
-    };
-  }
-
-  Future<void> seedExisting(
-    Map<String, dynamic> frame,
-    Object payload, {
-    int status = 20,
-  }) => db
-      .insert('msg_c2c', {
-        'id': frame['id'],
-        'type': frame['type'],
-        'from_id': frame['from'],
-        'to_id': frame['to'],
-        'msg_type': frame['msg_type'],
-        'sender_did': frame['sender_did'],
-        'created_at': frame['created_at'],
-        'e2ee': jsonEncode(frame['e2ee']),
-        'payload': payload is String ? payload : jsonEncode(payload),
-        'status': status,
-        'is_author': 0,
-        'topic_id': 0,
-        'conversation_uk3': 'C2C_200_100',
-      })
-      .then((_) {});
-
-  group('existing PFv3 恢复', () {
-    setUp(() async {
-      await StorageService.to.setString(Keys.currentUid, '200');
-      SqliteService.setDbForTest(db);
-      OlmSessionService.to.resetForTest();
-      // 恒等协议在这里复刻真实协议的原子去重及解密结果提交。
-      olmProtocol.commitInbound = true;
-      MessageService.to;
-      await MessageRetry.instance.debugWaitForIdle();
-    });
-    test('失败占位及空 sealed 正文持久化后才完成，重投幂等', () async {
-      final events = <DataWrapperEvent<dynamic>>[];
-      final sub = AppEventBus.on<DataWrapperEvent<dynamic>>().listen(
-        events.add,
-      );
-      addTearDown(sub.cancel);
-      for (final old in <Object>[
-        {'_e2ee_failed': true},
-        '',
-      ]) {
-        final id = old is String ? 'recover-empty' : 'recover-failed';
-        final frame = await buildV3Message(id);
-        await seedExisting(frame, old);
-        expect(await MessageService.to.persistInboundMessage(frame), isTrue);
-        final row = (await db.query(
-          'msg_c2c',
-          where: 'id = ?',
-          whereArgs: [id],
-        )).single;
-        expect(
-          (jsonDecode(row['payload'] as String) as Map)['body'],
-          plainBody,
-        );
-        expect(row['e2ee'], jsonEncode(frame['e2ee']));
-        expect(row['status'], 20);
-        expect(
-          await db.query(
-            'crypto_inbox_staging',
-            where: 'message_id = ?',
-            whereArgs: [id],
-          ),
-          isEmpty,
-        );
-        expect(
-          await MessageService.to.persistInboundMessage(
-            await buildV3Message(id),
-          ),
-          isTrue,
-        );
-      }
-      await Future<void>.delayed(Duration.zero);
-      expect(events.where((e) => e.dataType == 'messages').length, 2);
-      expect(await db.query('conversation'), isEmpty);
-    });
-
-    test('DB失败保留staging供重试；篡改、账号切换均拒绝物化', () async {
-      final frame = await buildV3Message('recover-rollback');
-      await seedExisting(frame, {'_e2ee_failed': true});
-      await db.execute(
-        "CREATE TRIGGER fail_recovery BEFORE UPDATE OF payload ON msg_c2c BEGIN SELECT RAISE(ABORT, 'injected'); END",
-      );
-      expect(await MessageService.to.persistInboundMessage(frame), isFalse);
-      expect(await db.query('crypto_inbox_staging'), isNotEmpty);
-      expect(
-        (await MessageRepo(tableName: 'msg_c2c').find('recover-rollback'))!
-            .payloadMap['_e2ee_failed'],
-        isTrue,
-      );
-      await db.execute('DROP TRIGGER fail_recovery');
-      final conflict = await buildV3Message('recover-rollback');
-      final envelope =
-          ((conflict['e2ee'] as Map)['devices'] as Map)[deviceId] as Map;
-      envelope['ciphertext'] = '${envelope['ciphertext']}A';
-      expect(await MessageService.to.persistInboundMessage(conflict), isFalse);
-      expect(await db.query('crypto_inbox_staging'), isNotEmpty);
-      expect(
-        await MessageService.to.persistInboundMessage(
-          await buildV3Message('recover-rollback'),
-        ),
-        isTrue,
-      );
-      final switched = await buildV3Message('recover-switched');
-      await seedExisting(switched, {'_e2ee_failed': true});
-      olmProtocol.beforeDecrypt = () async {
-        await StorageService.to.setString(Keys.currentUid, '300');
-      };
-      expect(await MessageService.to.persistInboundMessage(switched), isFalse);
-      expect(
-        (await db.query(
-          'msg_c2c',
-          where: 'id = ?',
-          whereArgs: ['recover-switched'],
-        )).single['payload'],
-        jsonEncode({'_e2ee_failed': true}),
-      );
-      expect(
-        await db.query(
-          'crypto_inbox_staging',
-          where: 'message_id = ?',
-          whereArgs: ['recover-switched'],
-        ),
-        isNotEmpty,
-      );
-      await StorageService.to.setString(Keys.currentUid, '200');
-      SqliteService.setDbForTest(db);
-    });
-
-    test('completion失败后重试补发一次UI，并保留本地焚毁计时起点', () async {
-      final frame = await buildV3Message('recover-completion');
-      final readAt = DateTime.now().millisecondsSinceEpoch;
-      await seedExisting(frame, {'_e2ee_failed': true, 'burn_read_at': readAt});
-      final events = <DataWrapperEvent<dynamic>>[];
-      final sub = AppEventBus.on<DataWrapperEvent<dynamic>>().listen(
-        events.add,
-      );
-      addTearDown(sub.cancel);
-      await db.execute(
-        "CREATE TRIGGER fail_completion BEFORE DELETE ON crypto_inbox_staging BEGIN SELECT RAISE(ABORT, 'injected'); END",
-      );
-      expect(await MessageService.to.persistInboundMessage(frame), isFalse);
-      final row = await MessageRepo(tableName: 'msg_c2c')
-          .find('recover-completion');
-      expect(row!.payloadMap['body'], plainBody);
-      expect(row.payloadMap['burn_read_at'], readAt);
-      expect(await db.query('crypto_inbox_staging'), isNotEmpty);
-      await Future<void>.delayed(Duration.zero);
-      expect(events.where((e) => e.dataType == 'messages'), isEmpty);
-      await db.execute('DROP TRIGGER fail_completion');
-      expect(
-        await MessageService.to.persistInboundMessage(
-          await buildV3Message('recover-completion'),
-        ),
-        isTrue,
-      );
-      await Future<void>.delayed(Duration.zero);
-      expect(events.where((e) => e.dataType == 'messages').length, 1);
-      expect(await db.query('crypto_inbox_staging'), isEmpty);
-      expect(
-        await MessageService.to.persistInboundMessage(
-          await buildV3Message('recover-completion'),
-        ),
-        isTrue,
-      );
-      await Future<void>.delayed(Duration.zero);
-      expect(events.where((e) => e.dataType == 'messages').length, 1);
-    });
-
-    test('撤回、编辑及过期行保持原值', () async {
-      for (final entry in [
-        (30, <String, dynamic>{'_e2ee_failed': true}),
-        (20, <String, dynamic>{'_e2ee_failed': true, 'is_edited': true}),
-        (20, <String, dynamic>{'_e2ee_failed': true, 'burn_deleted': true}),
-        (
-          20,
-          <String, dynamic>{
-            '_e2ee_failed': true,
-            'burn': true,
-            'burn_after_ms': 1000,
-            'burn_read_at': 1,
-          },
-        ),
-      ].indexed) {
-        final id = 'recover-protected-${entry.$1}';
-        final frame = await buildV3Message(id);
-        await seedExisting(frame, entry.$2.$2, status: entry.$2.$1);
-        expect(await MessageService.to.persistInboundMessage(frame), isTrue);
-        expect(
-          (await db.query(
-            'msg_c2c',
-            where: 'id = ?',
-            whereArgs: [id],
-          )).single['payload'],
-          jsonEncode(entry.$2.$2),
-        );
-      }
-    });
-  });
+  _registerExistingReceiveRecoveryCases(fixture);
 
   group('PFv3 接收侧接线', () {
     test('协议去重异常不能作为编辑已完成确认', () async {
-      final data = await buildV3Message(
+      final data = await fixture.buildV3Message(
         'edit-duplicate',
         action: 'message_edit',
       );
       data['action'] = 'message_edit';
-      olmProtocol.rejectDuplicate = true;
+      fixture.olmProtocol.rejectDuplicate = true;
       try {
         expect(await MessageService.to.persistInboundMessage(data), isFalse);
       } finally {
@@ -478,7 +101,7 @@ void main() {
     });
 
     test('编辑密文身份冲突时接收入口不得确认', () async {
-      final data = await buildV3Message(
+      final data = await fixture.buildV3Message(
         'edit-conflict',
         action: 'message_edit',
       );
@@ -499,7 +122,10 @@ void main() {
     });
 
     test('离线编辑路由提示必须与认证头一致', () async {
-      final edit = await buildV3Message('offline-edit', action: 'message_edit');
+      final edit = await fixture.buildV3Message(
+        'offline-edit',
+        action: 'message_edit',
+      );
       (edit['e2ee'] as Map)['relay_action'] = 'message_edit';
       final normalized = MessageOfflineService.normalizeForReceive(edit, 'C2C');
       expect(normalized['action'], 'message_edit');
@@ -508,7 +134,7 @@ void main() {
         isNot(true),
       );
 
-      final forged = await buildV3Message('offline-forged');
+      final forged = await fixture.buildV3Message('offline-forged');
       (forged['e2ee'] as Map)['relay_action'] = 'message_edit';
       final forgedNormalized = MessageOfflineService.normalizeForReceive(
         forged,
@@ -557,21 +183,21 @@ void main() {
         (await E2EEService.decryptInboundV3(data: data))?['_e2ee_reason'],
         'context_mismatch_gid',
       );
-      expect(groupProtocol.decryptMetadata, isEmpty);
+      expect(fixture.groupProtocol.decryptMetadata, isEmpty);
       for (final invalidGid in [null, '', 'other-group']) {
         metadata['gid'] = invalidGid;
         expect(
           (await E2EEService.decryptInboundV3(data: data))?['_e2ee_reason'],
           'context_mismatch_gid',
         );
-        expect(groupProtocol.decryptMetadata, isEmpty);
+        expect(fixture.groupProtocol.decryptMetadata, isEmpty);
       }
       metadata['gid'] = 'group-1';
       expect(
         (await E2EEService.decryptInboundV3(data: data))?['_e2ee_failed'],
         isNot(true),
       );
-      expect(groupProtocol.decryptMetadata.single['gid'], 'group-1');
+      expect(fixture.groupProtocol.decryptMetadata.single['gid'], 'group-1');
     });
 
     test('群聊恢复缓存仍需满足历史授权', () async {
@@ -622,13 +248,13 @@ void main() {
           (await E2EEService.decryptInboundV3(data: data))?['_e2ee_failed'],
           isNot(true),
         );
-        final staged = (await db.query(
+        final staged = (await fixture.db.query(
           'crypto_inbox_staging',
           where: 'message_id = ?',
           whereArgs: ['group-cached-grant'],
         )).single;
         expect(
-          await CryptoStore(db).commitInboundResult(
+          await CryptoStore(fixture.db).commitInboundResult(
             messageId: 'group-cached-grant',
             scope: staged['scope'] as String,
             ciphertextDigest: staged['ciphertext_digest'] as String,
@@ -676,7 +302,7 @@ void main() {
           (await E2EEService.decryptInboundV3(data: data))?['_e2ee_failed'],
           isNot(true),
         );
-        expect(groupProtocol.decryptMetadata.length, 1);
+        expect(fixture.groupProtocol.decryptMetadata.length, 1);
       } finally {
         GroupSessionService.to.clearMemory();
         TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
@@ -720,7 +346,7 @@ void main() {
           trustedArchiveConvSeq: source == 'missing' ? null : 480,
         );
         expect(result?['_e2ee_failed'], isNot(true));
-        final metadata = groupProtocol.decryptMetadata.last;
+        final metadata = fixture.groupProtocol.decryptMetadata.last;
         if (source == 'missing') {
           expect(metadata.containsKey('history_conv_seq'), isFalse);
         } else {
@@ -769,12 +395,12 @@ void main() {
     });
 
     test('编辑操作必须与受认证头一致', () async {
-      final forgedEdit = await buildV3Message('v3-forged-edit');
+      final forgedEdit = await fixture.buildV3Message('v3-forged-edit');
       forgedEdit['action'] = 'message_edit';
       final forgedResult = await E2EEService.decryptInboundV3(data: forgedEdit);
       expect(forgedResult?['_e2ee_reason'], 'context_mismatch_action');
 
-      final missingEdit = await buildV3Message(
+      final missingEdit = await fixture.buildV3Message(
         'v3-missing-edit',
         action: 'message_edit',
       );
@@ -789,7 +415,9 @@ void main() {
     });
 
     test('发送设备不在 fan-out 时不能解密服务端回显', () async {
-      final data = await buildV3Message('inbound-v3-no-sender-envelope');
+      final data = await fixture.buildV3Message(
+        'inbound-v3-no-sender-envelope',
+      );
       final metadata = data['e2ee'] as Map<String, dynamic>;
       final devices = metadata['devices'] as Map<String, dynamic>;
       devices['other-device'] = devices.remove(deviceId);
@@ -800,7 +428,7 @@ void main() {
     });
 
     test('v3 fan-out 消息必须被识别并解出明文', () async {
-      final data = await buildV3Message('inbound-v3-001');
+      final data = await fixture.buildV3Message('inbound-v3-001');
       final result = await E2EEService.decryptInboundV3(data: data);
 
       expect(
@@ -814,18 +442,18 @@ void main() {
         reason: '失败原因: ${result['_e2ee_reason']}',
       );
       expect(result['_e2ee_v3_verified'], isTrue);
-      expect(result['body'], equals(plainBody));
+      expect(result['body'], equals(_plainBody));
     });
 
     test('已完成同帧可幂等确认，同 ID 篡改密文必须拒绝', () async {
       const msgId = 'inbound-v3-retry-001';
-      final data = await buildV3Message(msgId);
+      final data = await fixture.buildV3Message(msgId);
       final first = await E2EEService.decryptInboundV3(data: data);
       expect(first?['_e2ee_failed'], isNot(true));
 
       // 恒等协议替代了真实 OlmProtocol，因此测试需显式复刻协议层的
       // digest + 解密结果原子提交，再进入最终消息已持久化后的 complete。
-      final staged = (await db.query(
+      final staged = (await fixture.db.query(
         'crypto_inbox_staging',
         where: 'message_id = ?',
         whereArgs: [msgId],
@@ -836,7 +464,7 @@ void main() {
       final innerFrame = utf8.decode(
         base64Url.decode(envelopeBeforeTamper['ciphertext'] as String),
       );
-      final store = CryptoStore(db);
+      final store = CryptoStore(fixture.db);
       expect(
         await store.commitInboundResult(
           messageId: msgId,
@@ -875,7 +503,7 @@ void main() {
           'e2ee_suite': 'OLM.V1',
           'session_id': _sessionId,
         },
-        'payload': jsonEncode({'msg_type': 'text', 'body': plainBody}),
+        'payload': jsonEncode({'msg_type': 'text', 'body': _plainBody}),
         'created_at': 1753500000000,
       };
 
@@ -897,7 +525,7 @@ void main() {
 
     // 接线后 v3 失败必须有明确分类，不得回到「静默丢弃」
     test('v3 信封损坏时必须返回失败分类，而不是 null 或静默丢弃', () async {
-      final data = await buildV3Message('inbound-v3-broken');
+      final data = await fixture.buildV3Message('inbound-v3-broken');
       final e2ee = Map<String, dynamic>.from(data['e2ee'] as Map);
       e2ee['devices'] = <String, dynamic>{}; // 抹掉本机信封
       data['e2ee'] = e2ee;
@@ -924,18 +552,18 @@ void main() {
             'gid': 'group-1',
             'session_id': _sessionId,
           },
-          'payload': jsonEncode({'msg_type': 'text', 'body': plainBody}),
+          'payload': jsonEncode({'msg_type': 'text', 'body': _plainBody}),
         },
       );
       expect(result['_e2ee_failed'], isNot(true));
       expect(result['_e2ee_megolm_verified'], isTrue);
-      expect(result['body'], plainBody);
+      expect(result['body'], _plainBody);
     });
   });
 
   group('PFv3 失败行自愈重试', () {
     test('含 _e2ee_raw 的 v3 失败行重试必须解出明文（修复前恒跳过）', () async {
-      final data = await buildV3Message('retry-v3-001');
+      final data = await fixture.buildV3Message('retry-v3-001');
       // 生产落库形状：_handleE2EEMessage v3 失败分支透传 _e2ee_raw，
       // 落库侧 identical() 补偿替换为 {payload, e2ee} 浅拷贝
       final failed = {
@@ -962,11 +590,11 @@ void main() {
         isNot(true),
         reason: 'v3 重试必须解出明文而不是保持失败占位',
       );
-      expect(result['body'], equals(plainBody));
+      expect(result['body'], equals(_plainBody));
     });
 
     test('密文损坏时 v3 重试必须保持失败占位（幂等失败语义）', () async {
-      final data = await buildV3Message('retry-v3-broken');
+      final data = await fixture.buildV3Message('retry-v3-broken');
       final e2ee = Map<String, dynamic>.from(data['e2ee'] as Map);
       e2ee['devices'] = <String, dynamic>{}; // 抹掉本机信封
       final failed = {

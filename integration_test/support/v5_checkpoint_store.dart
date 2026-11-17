@@ -84,7 +84,11 @@ class V5CheckpointStore {
         ? '__error'
         : '__errno_location';
     _errno = _lib.lookupFunction<_ErrnoC, _ErrnoD>(errnoSymbol);
-    _fstat = _lib.lookupFunction<_FstatC, _FstatD>('fstat');
+    // Darwin x64's unversioned fstat uses the legacy inode layout. Match
+    // the 64-bit inode layout below; arm64 already uses it by default.
+    _fstat = _lib.lookupFunction<_FstatC, _FstatD>(
+      abi == Abi.macosX64 ? r'fstat$INODE64' : 'fstat',
+    );
     _getuid = _lib.lookupFunction<_GetuidC, _GetuidD>('geteuid');
   }
 

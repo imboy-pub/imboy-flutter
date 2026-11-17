@@ -296,13 +296,14 @@ raise SystemExit(code)
             project = Path(directory)
             scripts = project / '.github/scripts'
             scripts.mkdir(parents=True)
-            shutil.copyfile(ROOT / '.github/scripts/ci_prepare_chrome.sh', scripts / 'ci_prepare_chrome.sh')
+            for name in ('ci_prepare_chrome.sh', 'ci_retry_build_downloads.sh'):
+                shutil.copyfile(ROOT / '.github/scripts' / name, scripts / name)
             for name, label in (('ci_patch_path_deps.sh', 'path-deps'),
                                 ('ci_gen_env.sh', 'env'), ('ci_build_vod.sh', 'vod')):
                 (scripts / name).write_text('#!/bin/sh\nprintf "' + label + ' %s\\n" "$*" >> "$CI_FIXTURE_CALLS"\n')
             binaries = project / 'installed browsers'
             binaries.mkdir()
-            for name in ('bash', 'mkdir', 'tee'):
+            for name in ('bash', 'mkdir', 'tee', 'mktemp', 'rm'):
                 executable = shutil.which(name)
                 self.assertIsNotNone(executable)
                 (binaries / name).symlink_to(executable)
@@ -488,6 +489,45 @@ raise SystemExit(code)
         self.assertEqual(statuses, {'prepare': 'cancelled', 'framework': 'failure'})
         with self.assertRaises(ValueError):
             execution_cli.upstream_statuses(['prepare'])
+
+    def test_static_analysis_rejects_new_infos_when_both_analyzers_exit_zero(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            quality = root / 'scripts/quality'
+            quality.mkdir(parents=True)
+            shutil.copyfile(ROOT / 'scripts/quality/check_analyzer_ratchet.sh',
+                            quality / 'check_analyzer_ratchet.sh')
+            baseline = quality / 'analyzer_ratchet_baseline.txt'
+            baseline.write_text('# synthetic zero baseline\n')
+            (root / '.dart_tool').mkdir()
+            (root / '.dart_tool/package_config.json').write_text('{}\n')
+            binaries = root / 'bin'
+            binaries.mkdir()
+            commands = {
+                'flutter': '#!/bin/sh\nprintf "weak-flutter-analyzer-exit-zero\\n"\nexit 0\n',
+                'dart': '#!/bin/sh\n'
+                        'if [ "$*" = "analyze --format=machine" ]; then\n'
+                        '  printf "%s\\n" "INFO|LINT|SYNTHETIC_INFO|lib/example.dart|1|1|1|new info"\n'
+                        'else\n'
+                        '  printf "weak-dart-analyzer-exit-zero\\n"\n'
+                        'fi\nexit 0\n',
+            }
+            for name, content in commands.items():
+                binary = binaries / name
+                binary.write_text(content)
+                binary.chmod(0o755)
+            env = {**os.environ, 'PATH': str(binaries) + os.pathsep + os.environ['PATH']}
+            plan = {'commit': 'abc', 'profile': 'full', 'source_fingerprint': 'source',
+                    'gates': ['static-analysis']}
+            row = execution_gates.run_gates(root, plan, root / 'gates', env)['static-analysis']
+            self.assertEqual(row['status'], 'FAIL', row)
+            self.assertEqual(row['reason_code'], 'CHECK_FAILED')
+            self.assertEqual(row['exit_code'], 1)
+            log = Path(row['log']).read_text()
+            self.assertIn('weak-flutter-analyzer-exit-zero', log)
+            self.assertIn('weak-dart-analyzer-exit-zero', log)
+            self.assertIn('RESULT: FAIL', log)
+            self.assertEqual(baseline.read_text(), '# synthetic zero baseline\n')
 
     def test_failed_gate_receipt_cannot_be_overwritten_by_later_pass(self):
         with tempfile.TemporaryDirectory() as directory:

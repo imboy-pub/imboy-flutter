@@ -1,7 +1,7 @@
 # 构建 / 发布（Build & Release）
 
-> **最后更新 / Last updated**: 2026-11-09
-> **真源 / Source of truth**: `scripts/build_play_aab.sh` · `scripts/check_play_release.sh` · `scripts/verify_web_shell.sh` · `scripts/build_android_apk.sh` · `android/app/build.gradle.kts`
+> **最后更新 / Last updated**: 2026-11-16
+> **真源 / Source of truth**: `scripts/build_play_aab.sh` · `scripts/check_play_release.sh` · `scripts/verify_web_shell.sh` · `scripts/build_android_apk.sh` · `android/app/build.gradle.kts` · `android/settings.gradle.kts` · `.github/workflows/ci.yml` · `.github/workflows/uiux-full-offline.yml` · `scripts/auto_test_lib/execution_runner.py`
 > 本文由脚本内容提取生成；脚本改动后须同步本页。
 
 ## Android
@@ -11,6 +11,20 @@ Tobias 5.3.4 的 consumer rules 含 AGP 9 禁止的全局选项。App 构建改�
 升级 Tobias 时须同步核对规则，不能关闭 AGP 校验或移除支付 SDK 的保留规则。
 Android builds replace Tobias 5.3.4's consumer rules with the checked-in keep-only
 file. Recheck these rules when upgrading Tobias; keep AGP validation enabled.
+
+### 构建用 JDK / Build JDK
+
+GitHub Actions 使用 Temurin JDK 17 运行 Android 的 Gradle/Lint 构建。
+AGP 固定为 9.3.2，该补丁修复 9.3.1 所带 Lint 在 JDK 17 下的
+`List.removeLast()` 崩溃（[官方问题 #522845800](https://developer.android.com/build/releases/agp-9-3-0-release-notes)）。
+本地复现 CI 构建时也使用 JDK 17：`ic_storage_space` 未显式设置
+Kotlin JVM target，切换 JDK 21 会使其与 Java target 17 不一致。
+应用 Java/Kotlin target 17、Gradle 9.5.0、Kotlin 2.4.20 与 Lint 检查保持。
+
+GitHub Actions runs Gradle and Android Lint on Temurin JDK 17 with AGP 9.3.2,
+which fixes the bundled-lint crash on JDK 17. Use JDK 17 locally as well:
+ic_storage_space inherits its Kotlin JVM target from the JDK.
+Keep application targets at 17, Gradle 9.5.0, Kotlin 2.4.20, and lint enabled.
 
 ### Maven 仓库选择
 
@@ -35,7 +49,7 @@ Gradle 分发包与 Swift Package Manager 二进制包仍使用各自的原下�
 配置回归使用真实 Gradle、生产 Kotlin DSL 与 loopback 合成 Maven 服务：
 
 ```bash
-python3 .github/scripts/ci_check_android_repositories.py --gradle /path/to/gradle-8.14/bin/gradle --artifact-dir /tmp/imboy-maven-check
+python3 .github/scripts/ci_check_android_repositories.py --gradle /path/to/gradle-9.5.0/bin/gradle --artifact-dir /tmp/imboy-maven-check
 ```
 
 也可在一次 Android 构建成功后省略 `--gradle`，复用 Wrapper 已安装的同版本 Gradle。
@@ -93,6 +107,26 @@ flutter build apk --debug --flavor standard
 | AAB 产物 | `bundle/standardRelease/app-standard-release.aab` 存在（仅 WARN，不检查签名或版本） |
 | flutter.versionCode | `android/local.properties` 已配置（仅 WARN；未配置请用 build_play_aab.sh 保证单调） |
 | 商店 URL | `$PLAY_BASE_URL/privacy-policy` 与 `/account-deletion` 可达（10s 超时） |
+
+## macOS CI 与 iOS 构建 / macOS CI and iOS builds
+
+普通 PR 与 UIUX 离线的 macOS 宿主测试、iOS 构建使用标准
+`macos-26-intel` runner。`macos-latest` 当前指向 arm64 池；已观察到容量不足使
+任务多次分配失败、在执行前取消。固定同一 macOS 大版本的 Intel 标签，
+测试选择、产品矩阵、覆盖率与来源绑定规则保持；该标签并不保证无排队。
+标签及可用软件以 [GitHub runner images](https://github.com/actions/runner-images) 为准。
+
+iOS job 记录实际宿主架构、Xcode 与 iphoneos SDK 版本，仍执行完整
+`flutter build ios --release --no-codesign`。Intel 宿主上的构建成功只证明
+该 CI 构建链路，不代表 Apple Silicon 宿主测试、真机功能验收或正式签名发布。
+
+PR and UIUX macOS host tests and the iOS build use the standard `macos-26-intel`
+runner after observed arm64 capacity failures cancelled jobs before execution.
+Keep the same macOS major version, test selection, product matrix, coverage and
+source-binding gates; the label does not guarantee immediate runner availability.
+The iOS job records the actual host architecture, Xcode and iphoneos SDK, and
+still performs the full unsigned Release build. Host CI does not replace physical
+device acceptance, Apple Silicon host testing, or release signing.
 
 ## Web Shell 验证
 

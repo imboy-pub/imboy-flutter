@@ -1,18 +1,22 @@
-name: UIUX full offline evidence
+name: UIUX offline gates
 
 on:
   pull_request:
     paths:
       - '.github/workflows/uiux-full-offline.yml'
+      - '.github/ci-source-lock.json'
+      - '.github/scripts/ci_source_lock.py'
       - '.github/scripts/uiux_full_*'
-      - 'test/tooling/auto_test/test_uiux_full_matrix.py'
+      - 'test/tooling/auto_test/test_ci_source_lock.py'
+      - 'test/tooling/auto_test/test_gate.py'
+      - 'test/tooling/auto_test/test_uiux_full_*.py'
   workflow_dispatch:
 
 permissions:
   contents: read
 
 env:
-  FLUTTER_VERSION: '3.50.0'
+  FLUTTER_VERSION: '3.47.5'
 
 jobs:
   plan:
@@ -20,12 +24,33 @@ jobs:
     runs-on: ubuntu-24.04
     outputs:
       matrix: ${{ steps.matrix.outputs.matrix }}
+    defaults:
+      run:
+        working-directory: imboyapp
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
+          path: imboyapp
           fetch-depth: 0
+      - name: Resolve pinned cross-repository sources
+        id: sources
+        run: python3 .github/scripts/ci_source_lock.py outputs --app . --github-output "$GITHUB_OUTPUT"
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          repository: ${{ steps.sources.outputs.backend_repository }}
+          ref: ${{ steps.sources.outputs.backend_sha }}
+          path: imboy
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          repository: ${{ steps.sources.outputs.admin_repository }}
+          ref: ${{ steps.sources.outputs.admin_sha }}
+          path: imboyadmin
       - name: Check partition contract
-        run: python3 test/tooling/auto_test/test_uiux_full_matrix.py
+        run: |
+          python3 test/tooling/auto_test/test_uiux_full_matrix.py
+          python3 test/tooling/auto_test/test_uiux_full_summary.py
+          python3 test/tooling/auto_test/test_ci_source_lock.py
+          python3 test/tooling/auto_test/test_gate.py TestGateCiParity.test_ci_checks_out_sibling_backend_sources_for_domain_tests
       - name: Freeze plans and derive product workers
         id: matrix
         shell: bash
@@ -40,6 +65,10 @@ jobs:
             --suite crypto-ffi --suite tooling --suite route-smoke \
             --output "$out/offline-plan.json"
           python3 .github/scripts/uiux_full_matrix.py "$out/full-plan.json" "$out/offline-plan.json" > "$out/matrix.json"
+          python3 .github/scripts/ci_source_lock.py freeze --app . \
+            --backend ../imboy --admin ../imboyadmin \
+            --full-plan "$out/full-plan.json" --offline-plan "$out/offline-plan.json" \
+            --output "$out/candidate.json"
           printf 'matrix=%s\n' "$(cat "$out/matrix.json")" >> "$GITHUB_OUTPUT"
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         if: always()
@@ -63,15 +92,18 @@ jobs:
           fetch-depth: 0
       - name: Checkout pinned submodules
         run: bash .github/scripts/ci_checkout_submodules.sh 0
+      - name: Resolve pinned cross-repository sources
+        id: sources
+        run: python3 .github/scripts/ci_source_lock.py outputs --app . --github-output "$GITHUB_OUTPUT"
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
-          repository: ${{ github.repository_owner }}/imboy
-          ref: '61c049ab2195911a92abc494cf135335a4123513'
+          repository: ${{ steps.sources.outputs.backend_repository }}
+          ref: ${{ steps.sources.outputs.backend_sha }}
           path: imboy
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
-          repository: ${{ github.repository_owner }}/imboy-admin-frontend
-          ref: 'b8d91e7f11fa096d81d7ec4ee2bccd8191999528'
+          repository: ${{ steps.sources.outputs.admin_repository }}
+          ref: ${{ steps.sources.outputs.admin_sha }}
           path: imboyadmin
       - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
         with:
@@ -87,14 +119,28 @@ jobs:
           set -euo pipefail
           bash .github/scripts/ci_ensure_system_sqlite.sh
           bash .github/scripts/ci_patch_path_deps.sh --check
-          flutter pub get --enforce-lockfile
+          bash .github/scripts/ci_retry_build_downloads.sh flutter pub get --enforce-lockfile
           bash .github/scripts/ci_gen_env.sh
           bash .github/scripts/uiux_full_prepare_product.sh phase1_delivery
           sudo apt-get update -qq
           sudo apt-get install -y -qq protobuf-compiler
           dart pub global activate protoc_plugin 25.1.0
+      - name: Bind shared gates to the frozen candidate
+        run: |
+          python3 .github/scripts/ci_source_lock.py capture --app . \
+            --backend ../imboy --admin ../imboyadmin \
+            --candidate "$RUNNER_TEMP/uiux-plan/candidate.json" \
+            --product phase1_delivery --partition gates \
+            --output "$RUNNER_TEMP/uiux-gates/source_snapshot.json"
       - name: Execute shared gates
         run: python3 scripts/auto_test.py execution-gates --plan "$RUNNER_TEMP/uiux-plan/full-plan.json" --artifact-dir "$RUNNER_TEMP/uiux-gates"
+      - name: Seal shared-gate source and evidence identity
+        if: always()
+        run: |
+          python3 .github/scripts/ci_source_lock.py seal --app . \
+            --backend ../imboy --admin ../imboyadmin \
+            --sources "$RUNNER_TEMP/uiux-gates/source_snapshot.json" \
+            --evidence-dir "$RUNNER_TEMP/uiux-gates"
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         if: always()
         with:
@@ -105,7 +151,8 @@ jobs:
   workers:
     name: Offline (${{ matrix.platform }}, ${{ matrix.suite }}, ${{ matrix.product }})
     needs: [plan, gates]
-    runs-on: ${{ matrix.platform == 'macos' && 'macos-latest' || 'ubuntu-24.04' }}
+    # Use the standard Intel pool; arm64 capacity can cancel jobs before checkout.
+    runs-on: ${{ matrix.platform == 'macos' && 'macos-26-intel' || 'ubuntu-24.04' }}
     timeout-minutes: 120
     strategy:
       fail-fast: false
@@ -126,15 +173,18 @@ jobs:
           fetch-depth: 0
       - name: Checkout pinned submodules
         run: bash .github/scripts/ci_checkout_submodules.sh 0
+      - name: Resolve pinned cross-repository sources
+        id: sources
+        run: python3 .github/scripts/ci_source_lock.py outputs --app . --github-output "$GITHUB_OUTPUT"
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
-          repository: ${{ github.repository_owner }}/imboy
-          ref: '61c049ab2195911a92abc494cf135335a4123513'
+          repository: ${{ steps.sources.outputs.backend_repository }}
+          ref: ${{ steps.sources.outputs.backend_sha }}
           path: imboy
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
-          repository: ${{ github.repository_owner }}/imboy-admin-frontend
-          ref: 'b8d91e7f11fa096d81d7ec4ee2bccd8191999528'
+          repository: ${{ steps.sources.outputs.admin_repository }}
+          ref: ${{ steps.sources.outputs.admin_sha }}
           path: imboyadmin
       - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
         with:
@@ -162,7 +212,7 @@ jobs:
             python3 -m pip install --disable-pip-version-check --require-hashes --only-binary=:all: -r scripts/requirements-tooling.txt
           fi
           bash .github/scripts/ci_patch_path_deps.sh --check
-          flutter pub get --enforce-lockfile
+          bash .github/scripts/ci_retry_build_downloads.sh flutter pub get --enforce-lockfile
           bash .github/scripts/ci_gen_env.sh
           bash .github/scripts/uiux_full_prepare_product.sh "$WORKER_PRODUCT"
           if [ "$WORKER_PLATFORM" = web ]; then
@@ -171,10 +221,24 @@ jobs:
           else
             bash .github/scripts/ci_build_vod.sh
           fi
+      - name: Bind worker to the frozen candidate and actual product
+        id: source-check
+        env:
+          WORKER_PLATFORM: ${{ matrix.platform }}
+          WORKER_SUITE: ${{ matrix.suite }}
+          WORKER_PRODUCT: ${{ matrix.product }}
+        run: |
+          python3 .github/scripts/ci_source_lock.py capture --app . \
+            --backend ../imboy --admin ../imboyadmin \
+            --candidate "$RUNNER_TEMP/uiux-plan/candidate.json" \
+            --product "$WORKER_PRODUCT" \
+            --partition "$WORKER_PLATFORM:$WORKER_SUITE:$WORKER_PRODUCT" \
+            --output "$RUNNER_TEMP/uiux-worker/source_snapshot.json"
       - name: Execute frozen worker partition
         if: always()
         env:
           PREPARE_OUTCOME: ${{ steps.prepare.outcome }}
+          SOURCES_OUTCOME: ${{ steps.source-check.outcome }}
           WORKER_PLATFORM: ${{ matrix.platform }}
           WORKER_SUITE: ${{ matrix.suite }}
           WORKER_PRODUCT: ${{ matrix.product }}
@@ -187,7 +251,15 @@ jobs:
             --worker-platform "$WORKER_PLATFORM" --worker-suite "$WORKER_SUITE" \
             --worker-product-profile "$WORKER_PRODUCT" "${coverage_args[@]}" \
             --upstream "prepare=$PREPARE_OUTCOME" \
+            --upstream "sources=$SOURCES_OUTCOME" \
             --artifact-dir "$RUNNER_TEMP/uiux-worker"
+      - name: Seal worker source and evidence identity
+        if: always()
+        run: |
+          python3 .github/scripts/ci_source_lock.py seal --app . \
+            --backend ../imboy --admin ../imboyadmin \
+            --sources "$RUNNER_TEMP/uiux-worker/source_snapshot.json" \
+            --evidence-dir "$RUNNER_TEMP/uiux-worker"
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         if: always()
         with:
@@ -196,7 +268,7 @@ jobs:
           if-no-files-found: warn
 
   reconcile:
-    name: Reconcile scoped and full obligations
+    name: Offline acceptance (full regression reported separately)
     if: always()
     needs: [plan, gates, workers]
     runs-on: ubuntu-24.04
@@ -219,26 +291,40 @@ jobs:
         with:
           pattern: uiux-worker-*
           path: ${{ runner.temp }}/uiux-results/workers
-      - name: Reconcile coverage and both plans
+      - name: Enforce offline scope and preserve full obligation report
         if: always()
         shell: bash
         run: |
           set +e
           out="$RUNNER_TEMP/uiux-summary"
           mkdir -p "$out"
+          python3 .github/scripts/ci_source_lock.py verify --app . \
+            --candidate "$RUNNER_TEMP/uiux-plan/candidate.json" \
+            --matrix "$RUNNER_TEMP/uiux-plan/matrix.json" \
+            --results "$RUNNER_TEMP/uiux-results" --output "$out/source-summary.json"
+          sources_rc=$?
+          sources_status=success
+          if [ "$sources_rc" -ne 0 ]; then sources_status=failure; fi
           python3 scripts/auto_test.py execution-coverage --plan "$RUNNER_TEMP/uiux-plan/full-plan.json" \
             --results "$RUNNER_TEMP/uiux-results" --platform linux --output "$out/lcov.info" --minimum 38
           coverage_rc=$?
           python3 scripts/auto_test.py execution-summary --plan "$RUNNER_TEMP/uiux-plan/offline-plan.json" \
-            --results "$RUNNER_TEMP/uiux-results" --output "$out/offline-summary.json"
+            --results "$RUNNER_TEMP/uiux-results" --upstream "source-binding=$sources_status" \
+            --output "$out/offline-summary.json"
           offline_rc=$?
           python3 scripts/auto_test.py execution-summary --plan "$RUNNER_TEMP/uiux-plan/full-plan.json" \
-            --results "$RUNNER_TEMP/uiux-results" --output "$out/full-summary.json"
+            --results "$RUNNER_TEMP/uiux-results" --upstream "source-binding=$sources_status" \
+            --output "$out/full-summary.json"
           full_rc=$?
-          printf 'coverage=%s offline=%s full=%s\n' "$coverage_rc" "$offline_rc" "$full_rc"
-          printf '%s\n' 'Offline scope excludes API, device and Golden obligations. This workflow does not import specialist evidence; full status must remain blocked until a compatible same-plan orchestrator is implemented.' >> "$GITHUB_STEP_SUMMARY"
-          # Missing real API, Golden and device results remain blocked.
-          if [ "$coverage_rc" -ne 0 ] || [ "$offline_rc" -ne 0 ] || [ "$full_rc" -ne 0 ]; then exit 1; fi
+          printf 'sources=%s coverage=%s offline=%s full=%s\n' "$sources_rc" "$coverage_rc" "$offline_rc" "$full_rc"
+          # Full must be BLOCKED solely by the exact declared specialist difference.
+          # A real failure, flaky result or unexpected missing evidence still fails CI.
+          python3 .github/scripts/uiux_full_summary.py \
+            --full-plan "$RUNNER_TEMP/uiux-plan/full-plan.json" \
+            --offline-plan "$RUNNER_TEMP/uiux-plan/offline-plan.json" \
+            --summary-dir "$out" --step-summary "$GITHUB_STEP_SUMMARY" \
+            --sources-rc "$sources_rc" --coverage-rc "$coverage_rc" \
+            --offline-rc "$offline_rc" --full-rc "$full_rc"
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         if: always()
         with:

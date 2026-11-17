@@ -25,7 +25,7 @@ on:
         default: false
 
 env:
-  FLUTTER_VERSION: '3.50.0'
+  FLUTTER_VERSION: '3.47.5'
 
 permissions:
   contents: read

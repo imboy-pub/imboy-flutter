@@ -22,6 +22,26 @@ GIT_DNS_ERROR = (
     "fatal: unable to access 'https://gitee.com/imboy-tripartite-deps/azlistview.git/': "
     'Could not resolve host: gitee.com'
 )
+GIT_EOF_ERROR = '\n'.join([
+    'Git error. Command: `git clone --mirror '
+    'https://gitee.com/imboy-tripartite-deps/jverify-flutter-plugin.git /tmp/pub-git-fixture`',
+    'error: RPC failed; curl 56 OpenSSL SSL_read: OpenSSL/4.1.0: '
+    'error:0A000126:SSL routines::unexpected eof while reading, errno 0',
+    'error: 3925 bytes of body are still expected',
+    'fetch-pack: unexpected disconnect while reading sideband packet',
+    'fatal: early EOF',
+    'fatal: fetch-pack: invalid index-pack output',
+])
+GIT_CURL18_EOF_ERROR = '\n'.join([
+    'Git error. Command: `git clone --mirror '
+    'https://gitee.com/imboy-tripartite-deps/audio_waveforms.git /tmp/pub-git-fixture`',
+    'error: RPC failed; curl 18 transfer closed with outstanding read data remaining',
+    'error: 12554 bytes of body are still expected',
+    'fetch-pack: unexpected disconnect while reading sideband packet',
+    'fatal: early EOF',
+    'fatal: fetch-pack: invalid index-pack output',
+])
+GIT_TRANSPORT_ERRORS = (GIT_DNS_ERROR, GIT_EOF_ERROR, GIT_CURL18_EOF_ERROR)
 
 COMMAND = r'''#!/usr/bin/env python3
 import json
@@ -102,44 +122,85 @@ class BuildDownloadRetryTest(unittest.TestCase):
                     self.assertEqual(len(calls), 1)
                     self.assertEqual(delays, [])
 
-    def test_locked_pub_get_dns_failure_recovers_with_unchanged_arguments(self):
+    def test_locked_pub_get_git_transport_failure_recovers_with_unchanged_arguments(self):
         self.command = self.command.rename(self.bin_dir / 'flutter')
-        result, calls, delays = self.run_build([
-            {'stderr': GIT_DNS_ERROR, 'exit_code': 69}, {},
-        ], args=('pub', 'get', '--enforce-lockfile'))
-        self.assertEqual(result.returncode, 0)
-        self.assertEqual(len(calls), 2)
-        self.assertEqual(delays, ['10'])
-
-    def test_locked_pub_get_dns_failure_keeps_three_attempt_limit(self):
-        self.command = self.command.rename(self.bin_dir / 'flutter')
-        result, calls, delays = self.run_build([
-            {'stderr': GIT_DNS_ERROR, 'exit_code': 69},
-        ], args=('pub', 'get', '--enforce-lockfile'))
-        self.assertEqual(result.returncode, 69)
-        self.assertEqual(len(calls), 3)
-        self.assertEqual(delays, ['10', '20'])
-
-    def test_dns_output_does_not_retry_other_commands_or_pub_errors(self):
-        self.command = self.command.rename(self.bin_dir / 'flutter')
-        for args, status in ((('build', 'apk'), 69), (('pub', 'get'), 65)):
-            with self.subTest(args=args, status=status):
+        for error in GIT_TRANSPORT_ERRORS:
+            with self.subTest(error=error):
                 result, calls, delays = self.run_build([
-                    {'stderr': GIT_DNS_ERROR, 'exit_code': status}, {},
-                ], args=args)
-                self.assertEqual(result.returncode, status)
+                    {'stderr': error, 'exit_code': 69}, {},
+                ], args=('pub', 'get', '--enforce-lockfile'))
+                self.assertEqual(result.returncode, 0)
+                self.assertEqual(len(calls), 2)
+                self.assertEqual(delays, ['10'])
+                self.assertIn(error, result.stdout)
+
+    def test_locked_pub_get_git_transport_failure_keeps_three_attempt_limit(self):
+        self.command = self.command.rename(self.bin_dir / 'flutter')
+        for error in GIT_TRANSPORT_ERRORS:
+            with self.subTest(error=error):
+                result, calls, delays = self.run_build([
+                    {'stderr': error, 'exit_code': 69},
+                ], args=('pub', 'get', '--enforce-lockfile'))
+                self.assertEqual(result.returncode, 69)
+                self.assertEqual(len(calls), 3)
+                self.assertEqual(delays, ['10', '20'])
+
+    def test_git_transport_output_does_not_retry_other_commands_or_pub_errors(self):
+        self.command = self.command.rename(self.bin_dir / 'flutter')
+        for error in GIT_TRANSPORT_ERRORS:
+            for args, status in ((('build', 'apk'), 69), (('pub', 'upgrade'), 69),
+                                 (('pub', 'get'), 65), (('pub', 'get'), 130)):
+                with self.subTest(error=error, args=args, status=status):
+                    result, calls, delays = self.run_build([
+                        {'stderr': error, 'exit_code': status}, {},
+                    ], args=args)
+                    self.assertEqual(result.returncode, status)
+                    self.assertEqual(len(calls), 1)
+                    self.assertEqual(delays, [])
+
+    def test_incomplete_or_deterministic_git_errors_do_not_retry_pub_69(self):
+        self.command = self.command.rename(self.bin_dir / 'flutter')
+        errors = [
+            GIT_EOF_ERROR.splitlines()[1],
+            'fatal: early EOF',
+            'fatal: fetch-pack: invalid index-pack output',
+            '\n'.join(GIT_EOF_ERROR.splitlines()[1:]),
+            GIT_EOF_ERROR.replace('fatal: early EOF', ''),
+            GIT_EOF_ERROR.replace('fatal: fetch-pack: invalid index-pack output', ''),
+            GIT_EOF_ERROR.replace('curl 56', 'curl 60'),
+            GIT_EOF_ERROR.replace('unexpected eof while reading', 'certificate verify failed'),
+            'checksum mismatch',
+            'fatal: Authentication failed for https://example.invalid/dependency.git',
+        ]
+        errors.extend(GIT_CURL18_EOF_ERROR.replace(line, '')
+                      for line in GIT_CURL18_EOF_ERROR.splitlines())
+        errors.extend([
+            GIT_CURL18_EOF_ERROR.replace('https://', 'http://'),
+            GIT_CURL18_EOF_ERROR.replace('curl 18', 'curl 60'),
+            GIT_CURL18_EOF_ERROR.replace(
+                'transfer closed with outstanding read data remaining',
+                'SSL certificate verification failed'),
+        ])
+        for error in errors:
+            with self.subTest(error=error):
+                result, calls, delays = self.run_build([
+                    {'stderr': error, 'exit_code': 69}, {},
+                ], args=('pub', 'get', '--enforce-lockfile'))
+                self.assertEqual(result.returncode, 69)
                 self.assertEqual(len(calls), 1)
                 self.assertEqual(delays, [])
 
-    def test_previous_dns_failure_does_not_retry_lockfile_failure(self):
+    def test_previous_git_transport_failure_does_not_retry_lockfile_failure(self):
         self.command = self.command.rename(self.bin_dir / 'flutter')
-        result, calls, delays = self.run_build([
-            {'stderr': GIT_DNS_ERROR, 'exit_code': 69},
-            {'stderr': 'Unable to satisfy pubspec.yaml using pubspec.lock.', 'exit_code': 65},
-        ], args=('pub', 'get', '--enforce-lockfile'))
-        self.assertEqual(result.returncode, 65)
-        self.assertEqual(len(calls), 2)
-        self.assertEqual(delays, ['10'])
+        for error in GIT_TRANSPORT_ERRORS:
+            with self.subTest(error=error):
+                result, calls, delays = self.run_build([
+                    {'stderr': error, 'exit_code': 69},
+                    {'stderr': 'Unable to satisfy pubspec.yaml using pubspec.lock.', 'exit_code': 65},
+                ], args=('pub', 'get', '--enforce-lockfile'))
+                self.assertEqual(result.returncode, 65)
+                self.assertEqual(len(calls), 2)
+                self.assertEqual(delays, ['10'])
 
     def test_flutter_internal_retry_does_not_mask_terminal_compile_failure(self):
         output = '\n'.join([
