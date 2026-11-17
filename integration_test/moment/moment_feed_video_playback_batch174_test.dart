@@ -29,11 +29,13 @@
 //     --dart-define=TEST_EXPECTED_UID=1000000056 \
 //     --dart-define=TEST_ALLOW_WORKSPACE_ACCEPTANCE=true
 
+import 'package:flutter/foundation.dart' show debugPrintSynchronously;
+
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
+import 'package:cupertino_ui/cupertino_ui.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
@@ -132,8 +134,7 @@ Future<(HttpServer, String, String)> _startAssetServer() async {
   await mp4File.writeAsBytes(base64Decode(kMomentB174Mp4Base64));
   await coverFile.writeAsBytes(base64Decode(kMomentB174CoverJpgBase64));
   final sub = server.listen((req) async {
-    // ignore: avoid_print
-    print(
+    debugPrintSynchronously(
       '[AT-MF1][SERVER] ${req.method} ${req.uri} '
       'range=${req.headers.value('range')}',
     );
@@ -169,8 +170,7 @@ Future<(HttpServer, String, String)> _startAssetServer() async {
       req.response.add(bytes);
       await req.response.close();
     } on Object catch (e) {
-      // ignore: avoid_print
-      print('[AT-MF1][SERVER] ERROR: $e');
+      debugPrintSynchronously('[AT-MF1][SERVER] ERROR: $e');
       req.response.statusCode = 500;
       await req.response.close();
     }

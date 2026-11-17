@@ -11,7 +11,8 @@
 //       （TEST_PHONE=smoke_alice / TEST_EXPECTED_UID=1000000051，
 //         与发送侧共用 C2G_E2EE_LOOP_MARKER）
 
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart' show debugPrintSynchronously;
+import 'package:cupertino_ui/cupertino_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:imboy/service/group_session_service.dart';
@@ -50,8 +51,9 @@ void main() {
     // 群详情同步 e2ee 旗标（幂等；mode=1 已由发送侧前置开启）
     await GroupApi().detail(gid: _gid);
     final flagOn = await GroupSessionService.to.isGroupE2EE(_gid);
-    // ignore: avoid_print
-    print('[C2G-LOOP] RX 就绪 flagOn=$flagOn gid=$_gid 等待 marker=$_marker');
+    debugPrintSynchronously(
+      '[C2G-LOOP] RX 就绪 flagOn=$flagOn gid=$_gid 等待 marker=$_marker',
+    );
 
     // 深链进入群聊页（读时解密渲染在此页发生）
     final ctx = tester.element(find.byType(Navigator).first);
@@ -65,8 +67,9 @@ void main() {
         found = true;
       }
       if (i % 20 == 19) {
-        // ignore: avoid_print
-        print('[C2G-LOOP] RX 等待中 ${(i + 1) / 2}s flagOn=$flagOn');
+        debugPrintSynchronously(
+          '[C2G-LOOP] RX 等待中 ${(i + 1) / 2}s flagOn=$flagOn',
+        );
       }
     }
     if (!found) {
@@ -75,7 +78,6 @@ void main() {
         'room-key 分发（e2ee_room_key 中继）或入站 Megolm 解密链断裂',
       );
     }
-    // ignore: avoid_print
-    print('[C2G-LOOP] RX PASS：解密明文已渲染 marker=$_marker');
+    debugPrintSynchronously('[C2G-LOOP] RX PASS：解密明文已渲染 marker=$_marker');
   }, timeout: const Timeout(Duration(minutes: 8)));
 }

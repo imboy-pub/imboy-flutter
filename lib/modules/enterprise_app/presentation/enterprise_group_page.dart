@@ -11,8 +11,9 @@
 /// 颜色/间距/字号一律走 token；文案走 `enterpriseApp` 命名空间。
 library;
 
-import 'package:flutter/cupertino.dart' show CupertinoIcons, CupertinoPageRoute;
-import 'package:flutter/material.dart';
+import 'package:cupertino_ui/cupertino_ui.dart'
+    show CupertinoIcons, CupertinoPageRoute;
+import 'package:material_ui/material_ui.dart';
 
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/modules/enterprise_app/domain/enterprise_app_error.dart';

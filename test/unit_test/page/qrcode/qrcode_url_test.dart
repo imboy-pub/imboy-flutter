@@ -30,14 +30,18 @@ void main() {
     expect(url, matches(RegExp(r'tk=[0-9a-f]{32}&s=app_qrcode$')));
   });
 
-  test('group 码含 /api/v1 段、id/exp/tk 与后缀', () {
+  test('group 码使用服务端 token 并含 /api/v1 段、id/exp/tk 与后缀', () {
     final url = buildGroupQrcodeUrl(
       groupId: 42,
       expiredAt: 1786000000000,
+      token: 'server-issued.group-bound.signature',
       baseUrl: host,
     );
     expect(url, startsWith('$host/api/v1/group/qrcode?id=42&exp='));
     expect(url.contains('exp=1786000000000&tk='), isTrue);
-    expect(url, matches(RegExp(r'tk=[0-9a-f]{32}&s=app_qrcode$')));
+    expect(
+      Uri.parse(url).queryParameters['tk'],
+      'server-issued.group-bound.signature',
+    );
   });
 }

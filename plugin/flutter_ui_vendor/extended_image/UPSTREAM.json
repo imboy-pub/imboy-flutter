@@ -1,0 +1,324 @@
+{
+  "schema_version": 1,
+  "package": "extended_image",
+  "upstream": {
+    "version": "10.1.0",
+    "repository": "https://github.com/fluttercandies/extended_image",
+    "package_url": "https://pub.dev/packages/extended_image/versions/10.1.0",
+    "archive_url": "https://pub.dev/api/archives/extended_image-10.1.0.tar.gz",
+    "archive_sha256": "e81d801cd692921f152834e01f39bba8b3d6302c48ad420d499c6062a7e24737",
+    "published": "2026-07-12T09:58:08.844204Z"
+  },
+  "vendoring": {
+    "purpose": "Use the standalone public Material/Cupertino libraries while preserving upstream runtime behavior.",
+    "included_paths": [
+      "lib/**",
+      "LICENSE",
+      "pubspec.yaml"
+    ],
+    "excluded_top_level_entries": [
+      "CHANGELOG.md",
+      "CODEOWNERS",
+      "README-ZH.md",
+      "README.md",
+      "analysis_options.yaml",
+      "example"
+    ],
+    "verification": "Downloaded archive SHA-256 matches pubspec.lock and the pub.dev release API; each copied original file matches the installed package and published archive byte-for-byte."
+  },
+  "original_files_sha256": {
+    "LICENSE": "b6c05126910f5644f7d94b9420c8820735ce0a5d55ca2e40351fad82aa6965d0",
+    "lib/extended_image.dart": "61485d3edd12320e94194da5b036a97766adb2627c7759442939b004d66cc7db",
+    "lib/src/border_painter.dart": "38433f4247da7e41a721bcae9cb34fdc1d9a0d3f31d48416e4079f27bc0c2ec6",
+    "lib/src/editor/crop_layer.dart": "2f5074182623fc07d82cbb9c7c88aeb81bfdf5ea8a9e268f3965dd69a941a87a",
+    "lib/src/editor/edit_action_details.dart": "febe8b2c2fac8f9f9146631e75640bcee700d47a738bc6612c0fde006f3e7322",
+    "lib/src/editor/editor.dart": "02e884c2e075497ee374a4de780c2f7e40be2fc9e1ef95f8e1823ef6823e0458",
+    "lib/src/editor/editor_config.dart": "19ab59ca4311a681157f68a8c80f179b0fcaee37e7788cf6358ae72743601729",
+    "lib/src/editor/editor_crop_layer_painter.dart": "cc62e2ce7e9bd10a01c49a9efb059963ed2e05092dca17ae2d172624fdcb723a",
+    "lib/src/editor/editor_utils.dart": "d289044b1d897bbdc43819ab7690834a1d21320bb076bb9bc1e00c2bfa6b17dd",
+    "lib/src/editor/image_editor_controller.dart": "eab54f1f707b7b3dc3f1ad99c762371d6394cb61b1985a5b56c58d3455009f43",
+    "lib/src/extended_image.dart": "c1f08786dfc10abf2f439f75207a23e94f55e1261e0c11b9a49d52c83d25b9af",
+    "lib/src/gesture/gesture.dart": "8ea8050baf14a6c4f76e4ab14e266c41b2d7c260638abe4149fb3c1ffa37d5ec",
+    "lib/src/gesture/page_view/gesture_page_view.dart": "be696ff5f03549d296f4e3d6586bda89e7383242deeb270aa1d10bf4eadbeb0f",
+    "lib/src/gesture/page_view/page_controller/official.dart": "9fc383f8c989b18ba3a00d3b257218ab3e4b9170515dec42d39d5c05737c7b8c",
+    "lib/src/gesture/page_view/page_controller/page_controller.dart": "6b44bfb2c6e7e408730e4e09f30e8d1833c19b10df386381bb321ee2ea99e91f",
+    "lib/src/gesture/page_view/page_controller/page_position.dart": "1752a48f0a94d21e7473da868d8e511b12552066235ee81a06b58a6bb47664b0",
+    "lib/src/gesture/page_view/rendering/sliver_fill.dart": "ca0c79d22cb2e566ba9c7bf820343f222a2e3b3f6fca888fbaa556b1fb9a210d",
+    "lib/src/gesture/page_view/widgets/page_view.dart": "0202f43f0fb3a26323177a5f12e6a1726ee522780cd7fdfb875b61475e75b144",
+    "lib/src/gesture/page_view/widgets/sliver_fill.dart": "e5baf3f04f5a40feacec12b2df22b3e211ace63c869477fb89ba67f79ed57598",
+    "lib/src/gesture/slide_page.dart": "9f07f0921f8279261fbfc8c128568176bbede3f9003345dee1ef9266f082bfb5",
+    "lib/src/gesture/slide_page_handler.dart": "73166000aebb43e794dfc3e8d30fee6b4376fb07ff98873c683e8c763f675f6d",
+    "lib/src/gesture/utils.dart": "5409c9cabfa8582d5bb260df3d45d1618dafa2785da08fe7edc09e77749dbf53",
+    "lib/src/gesture_detector/drag_gesture_recognizer.dart": "18a5f88de26471cda1f9dc6490a6f7717034c7e972dd96a11b462e3dab525d83",
+    "lib/src/gesture_detector/official.dart": "8b5b39ea41f7f700eb4e3373212dc2671810d4ce2603d5bd894b3e3d51c5c7b5",
+    "lib/src/gesture_detector/velocity_tracker.dart": "15cc6f218e964a33b3079d0c5618b286a7ecbbd961c0f1af6082a78dd754052b",
+    "lib/src/image/painting.dart": "0d14b3de7c2c1b01461958690e7781e73471959d62771773158fd59ffb6e5af1",
+    "lib/src/image/raw_image.dart": "7d5ddeba5740b3a8220041c7dac74196b100c895c2a7e0b39f67d76b85ebb1b9",
+    "lib/src/image/render_image.dart": "91f303446b2343b95cab24bf88e16c9118a8a913d401575abb5411b15484c813",
+    "lib/src/typedef.dart": "6034274488f660ac6d04f90dfc1fe28a551ca6e5b0dcb61736cd24012b96b0a2",
+    "lib/src/utils.dart": "8fe5daa1adff459e04c2fb414df04eef01f28d19293d3cf638c299672e9ccad1",
+    "pubspec.yaml": "790728b3abc0fca7d39afa58ae60e4c22f482c1e14962d76565a316e25b1d7bf"
+  },
+  "modifications": [
+    {
+      "path": "lib/src/editor/crop_layer.dart",
+      "changes": [
+        "Add a local modification notice; retain the upstream copyright header.",
+        "Use Matrix4.translateByDouble with the original x/y, zero z, and unit w; preserve crop rotation transforms."
+      ],
+      "import_replacements": [
+        {
+          "from": "package:flutter/material.dart",
+          "to": "package:material_ui/material_ui.dart",
+          "occurrences": 1
+        }
+      ]
+    },
+    {
+      "path": "lib/src/editor/edit_action_details.dart",
+      "changes": [
+        "Add a local modification notice; retain the upstream copyright header.",
+        "Use Matrix4.translateByDouble with the original x/y, zero z, and unit w; preserve edit transforms."
+      ],
+      "import_replacements": [
+        {
+          "from": "package:flutter/material.dart",
+          "to": "package:material_ui/material_ui.dart",
+          "occurrences": 1
+        }
+      ]
+    },
+    {
+      "path": "lib/src/editor/editor.dart",
+      "changes": [
+        "Add a local modification notice; retain the upstream copyright header."
+      ],
+      "import_replacements": [
+        {
+          "from": "package:flutter/material.dart",
+          "to": "package:material_ui/material_ui.dart",
+          "occurrences": 1
+        }
+      ]
+    },
+    {
+      "path": "lib/src/editor/editor_config.dart",
+      "changes": [
+        "Add a local modification notice; retain the upstream copyright header."
+      ],
+      "import_replacements": [
+        {
+          "from": "package:flutter/material.dart",
+          "to": "package:material_ui/material_ui.dart",
+          "occurrences": 1
+        }
+      ]
+    },
+    {
+      "path": "lib/src/editor/editor_crop_layer_painter.dart",
+      "changes": [
+        "Add a local modification notice; retain the upstream copyright header.",
+        "Use Matrix4.translateByDouble with the original x/y, zero z, and unit w; preserve painter transforms."
+      ],
+      "import_replacements": [
+        {
+          "from": "package:flutter/material.dart",
+          "to": "package:material_ui/material_ui.dart",
+          "occurrences": 1
+        }
+      ]
+    },
+    {
+      "path": "lib/src/editor/editor_utils.dart",
+      "changes": [
+        "Add a local modification notice; retain the upstream copyright header."
+      ],
+      "import_replacements": [
+        {
+          "from": "package:flutter/material.dart",
+          "to": "package:material_ui/material_ui.dart",
+          "occurrences": 1
+        }
+      ]
+    },
+    {
+      "path": "lib/src/extended_image.dart",
+      "changes": [
+        "Add a local modification notice; retain the upstream copyright header.",
+        "Use TickerMode.valuesOf(context).enabled for the existing enabled-only image stream policy."
+      ],
+      "import_replacements": [
+        {
+          "from": "package:flutter/material.dart",
+          "to": "package:material_ui/material_ui.dart",
+          "occurrences": 1
+        },
+        {
+          "from": "package:flutter/cupertino.dart",
+          "to": "package:cupertino_ui/cupertino_ui.dart",
+          "occurrences": 1
+        }
+      ]
+    },
+    {
+      "path": "lib/src/gesture/gesture.dart",
+      "changes": [
+        "Add a local modification notice; retain the upstream copyright header."
+      ],
+      "import_replacements": [
+        {
+          "from": "package:flutter/material.dart",
+          "to": "package:material_ui/material_ui.dart",
+          "occurrences": 1
+        }
+      ]
+    },
+    {
+      "path": "lib/src/gesture/page_view/gesture_page_view.dart",
+      "changes": [
+        "Add a local modification notice; retain the upstream copyright header."
+      ],
+      "import_replacements": [
+        {
+          "from": "package:flutter/material.dart",
+          "to": "package:material_ui/material_ui.dart",
+          "occurrences": 1
+        }
+      ]
+    },
+    {
+      "path": "lib/src/gesture/page_view/widgets/page_view.dart",
+      "changes": [
+        "Add a local modification notice; retain the upstream copyright header.",
+        "Use ScrollCacheExtent.viewport with the original cache multiplier instead of deprecated Viewport cacheExtent/cacheExtentStyle arguments."
+      ]
+    },
+    {
+      "path": "lib/src/gesture/page_view/widgets/sliver_fill.dart",
+      "changes": [
+        "Add a local modification notice; retain the upstream copyright header."
+      ],
+      "import_replacements": [
+        {
+          "from": "package:flutter/material.dart",
+          "to": "package:material_ui/material_ui.dart",
+          "occurrences": 1
+        }
+      ]
+    },
+    {
+      "path": "lib/src/gesture/slide_page.dart",
+      "changes": [
+        "Add a local modification notice; retain the upstream copyright header."
+      ],
+      "import_replacements": [
+        {
+          "from": "package:flutter/material.dart",
+          "to": "package:material_ui/material_ui.dart",
+          "occurrences": 1
+        }
+      ]
+    },
+    {
+      "path": "lib/src/gesture/slide_page_handler.dart",
+      "changes": [
+        "Add a local modification notice; retain the upstream copyright header."
+      ],
+      "import_replacements": [
+        {
+          "from": "package:flutter/material.dart",
+          "to": "package:material_ui/material_ui.dart",
+          "occurrences": 1
+        }
+      ]
+    },
+    {
+      "path": "lib/src/gesture/utils.dart",
+      "changes": [
+        "Add a local modification notice; retain the upstream copyright header.",
+        "Remove an inactive commented raw-print statement; no executable code changes."
+      ],
+      "import_replacements": [
+        {
+          "from": "package:flutter/material.dart",
+          "to": "package:material_ui/material_ui.dart",
+          "occurrences": 1
+        }
+      ]
+    },
+    {
+      "path": "lib/src/image/painting.dart",
+      "changes": [
+        "Add a local modification notice; retain the upstream copyright header."
+      ],
+      "import_replacements": [
+        {
+          "from": "package:flutter/material.dart",
+          "to": "package:material_ui/material_ui.dart",
+          "occurrences": 1
+        }
+      ]
+    },
+    {
+      "path": "lib/src/image/raw_image.dart",
+      "changes": [
+        "Add a local modification notice; retain the upstream copyright header."
+      ],
+      "import_replacements": [
+        {
+          "from": "package:flutter/material.dart",
+          "to": "package:material_ui/material_ui.dart",
+          "occurrences": 1
+        }
+      ]
+    },
+    {
+      "path": "lib/src/image/render_image.dart",
+      "changes": [
+        "Add a local modification notice; retain the upstream copyright header."
+      ],
+      "import_replacements": [
+        {
+          "from": "package:flutter/material.dart",
+          "to": "package:material_ui/material_ui.dart",
+          "occurrences": 1
+        }
+      ]
+    },
+    {
+      "path": "lib/src/typedef.dart",
+      "changes": [
+        "Add a local modification notice; retain the upstream copyright header."
+      ],
+      "import_replacements": [
+        {
+          "from": "package:flutter/material.dart",
+          "to": "package:material_ui/material_ui.dart",
+          "occurrences": 1
+        }
+      ]
+    },
+    {
+      "path": "lib/src/utils.dart",
+      "changes": [
+        "Add a local modification notice; retain the upstream copyright header."
+      ],
+      "import_replacements": [
+        {
+          "from": "package:flutter/material.dart",
+          "to": "package:material_ui/material_ui.dart",
+          "occurrences": 1
+        }
+      ]
+    },
+    {
+      "path": "pubspec.yaml",
+      "changes": [
+        "Add publish_to: none for this repository-local patched copy.",
+        "Add direct dependency material_ui ^1.11.0 for the migrated public imports.",
+        "Add direct dependency cupertino_ui ^1.1.6 for the migrated public imports.",
+        "Preserve the upstream version, SDK/Flutter constraints, non-UI dependencies, and runtime asset declarations."
+      ]
+    }
+  ]
+}

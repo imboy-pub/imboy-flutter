@@ -8,8 +8,8 @@
 /// - 进入页与下拉刷新由宿主 ContactPage 触发 [OrganizationEntryNotifier.fetch]。
 library;
 
-import 'package:flutter/cupertino.dart' show CupertinoIcons;
-import 'package:flutter/material.dart';
+import 'package:cupertino_ui/cupertino_ui.dart' show CupertinoIcons;
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 

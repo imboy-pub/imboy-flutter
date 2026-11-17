@@ -5,7 +5,7 @@
 /// 全流程、到期 410 视图与重新生成、无访问失效视图、路由可达。
 library;
 
-import 'package:flutter/cupertino.dart';
+import 'package:cupertino_ui/cupertino_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:imboy/modules/talk_record/presentation/results/talk_record_results_fixture_service.dart';

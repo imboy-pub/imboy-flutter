@@ -10,7 +10,7 @@
 /// push 可达页面必须自带骨架，透明 Scaffold 会露路由栈黑底）。
 library;
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';

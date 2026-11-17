@@ -5,7 +5,7 @@
 /// 异步 Future 不会完成；真实落盘/删除由 controller 单测覆盖。
 library;
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/modules/messaging/application/export/chat_export_controller.dart';
 import 'package:imboy/modules/messaging/application/export/chat_export_entry.dart';

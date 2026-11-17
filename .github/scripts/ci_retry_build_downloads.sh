@@ -41,10 +41,12 @@ for attempt in 1 2 3; do
     # signatures to package download, never a later failed build or test.
     if grep -Eq "^fatal: unable to access 'https://[^']+': Could not resolve host: [^[:space:]]+$" "$log"; then
       retryable=true
-    elif grep -Eq '^Git error\. Command: `git clone --mirror https://[^[:space:]]+ ' "$log" &&
+    elif grep -Eq '^Git error\. Command: `git clone --mirror (-- )?https://[^[:space:]]+ ' "$log" &&
         grep -Fxq 'fatal: early EOF' "$log" &&
         grep -Fxq 'fatal: fetch-pack: invalid index-pack output' "$log" &&
-        { grep -Eq '^error: RPC failed; curl 56 .*SSL_read: .*unexpected eof while reading' "$log" ||
+        { grep -Eq \
+          -e '^error: RPC failed; curl 56 GnuTLS recv error \(-110\): The TLS connection was non-properly terminated\.$' \
+          -e '^error: RPC failed; curl 56 OpenSSL SSL_read: OpenSSL/[0-9]+\.[0-9]+\.[0-9]+: error:0A000126:SSL routines::unexpected eof while reading, errno 0$' "$log" ||
           { grep -Fxq 'error: RPC failed; curl 18 transfer closed with outstanding read data remaining' "$log" &&
             grep -Eq '^error: [0-9]+ bytes of body are still expected$' "$log" &&
             grep -Fxq 'fetch-pack: unexpected disconnect while reading sideband packet' "$log"; }; }; then

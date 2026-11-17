@@ -5,8 +5,8 @@ import 'package:imboy/component/ui/detail_settings_tile.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
 
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
+import 'package:cupertino_ui/cupertino_ui.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:imboy/capabilities/capability_locator.dart';
@@ -14,6 +14,7 @@ import 'package:imboy/capabilities/contracts/media_picker_capability.dart';
 
 import 'package:imboy/component/helper/crop_image.dart';
 import 'package:imboy/component/helper/func.dart';
+import 'package:imboy/component/image_gallery/photo_view_loading.dart';
 import 'package:imboy/component/ui/avatar_fallback.dart';
 import 'package:imboy/component/ui/ios_settings_ui.dart';
 import 'package:imboy/theme/default/app_colors.dart';
@@ -324,6 +325,7 @@ class _AvatarPreviewPage extends StatelessWidget {
         tag: heroTag,
         child: PhotoView(
           imageProvider: cachedImageProvider(url, w: 0),
+          loadingBuilder: buildPhotoViewLoading,
           backgroundDecoration: const BoxDecoration(color: Colors.transparent),
         ),
       ),

@@ -9,7 +9,7 @@
 /// 统一叠加（本组件不做来源解释）。
 library;
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 import 'package:flutter_chat_core/flutter_chat_core.dart';
 

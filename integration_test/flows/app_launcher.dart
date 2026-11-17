@@ -3,7 +3,7 @@
 // 统一 App 启动管理，在当前 App 树可复用时避免重复启动。
 // 避免重复调用导致的全局单例（WebSocket、DB、ProviderContainer）状态污染。
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/main.dart' as app;
 

@@ -10,6 +10,8 @@
 // 「放弃上限」形同虚设，且没有任何清理路径。
 library;
 
+import 'dart:async';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/service/encryption_mode.dart';
@@ -75,6 +77,110 @@ const String _msgC2cFtsDdl = '''
   )
 ''';
 
+/// Hold a real SQLite result after its snapshot is read. A rejection can then
+/// commit before the retry consumes that stale row; every write still uses SQL.
+class _PausedRetryDatabase implements Database {
+  _PausedRetryDatabase(
+    this.inner,
+    this.messageId, {
+    this.pauseScan = false,
+    this.pauseLookup = 0,
+  });
+
+  final Database inner;
+  final String messageId;
+  final bool pauseScan;
+  final int pauseLookup;
+  final entered = Completer<void>();
+  final release = Completer<void>();
+  final casResults = <int>[];
+  List<Map<String, Object?>> snapshot = [];
+  int lookups = 0;
+
+  @override
+  bool get isOpen => inner.isOpen;
+
+  @override
+  Future<T> transaction<T>(
+    Future<T> Function(Transaction) action, {
+    bool? exclusive,
+  }) => inner.transaction(action, exclusive: exclusive);
+
+  @override
+  Future<List<Map<String, Object?>>> query(
+    String table, {
+    bool? distinct,
+    List<String>? columns,
+    String? where,
+    List<Object?>? whereArgs,
+    String? groupBy,
+    String? having,
+    String? orderBy,
+    int? limit,
+    int? offset,
+  }) async {
+    final rows = await inner.query(
+      table,
+      distinct: distinct,
+      columns: columns,
+      where: where,
+      whereArgs: whereArgs,
+      groupBy: groupBy,
+      having: having,
+      orderBy: orderBy,
+      limit: limit,
+      offset: offset,
+    );
+    if (table == MessageRepo.c2cTable && !entered.isCompleted) {
+      final isLookup = where == 'id = ?' && whereArgs?.single == messageId;
+      if (isLookup) lookups++;
+      if ((pauseScan && (where?.startsWith('status IN (') ?? false)) ||
+          (isLookup && lookups == pauseLookup)) {
+        snapshot = rows;
+        entered.complete();
+        await release.future;
+      }
+    }
+    return rows;
+  }
+
+  @override
+  Future<int> update(
+    String table,
+    Map<String, Object?> values, {
+    String? where,
+    List<Object?>? whereArgs,
+    ConflictAlgorithm? conflictAlgorithm,
+  }) async {
+    final rows = await inner.update(
+      table,
+      values,
+      where: where,
+      whereArgs: whereArgs,
+      conflictAlgorithm: conflictAlgorithm,
+    );
+    if (table == MessageRepo.c2cTable &&
+        values['status'] == IMBoyMessageStatus.sending &&
+        (where?.contains('status IN') ?? false)) {
+      casResults.add(rows);
+    }
+    return rows;
+  }
+
+  @override
+  Future<List<Map<String, Object?>>> rawQuery(
+    String sql, [
+    List<Object?>? arguments,
+  ]) => inner.rawQuery(sql, arguments);
+
+  @override
+  Future<int> rawUpdate(String sql, [List<Object?>? arguments]) =>
+      inner.rawUpdate(sql, arguments);
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+}
+
 Future<void> _insertMsg(String id, {required int status}) async {
   final repo = MessageRepo(tableName: MessageRepo.c2cTable);
   await repo.insert(
@@ -92,12 +198,37 @@ Future<void> _insertMsg(String id, {required int status}) async {
       createdAt: 1751850000000,
     ),
   );
+  await repo.waitForFtsReindexForTest();
 }
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   late MessageRetry retry;
+  late Database database;
+  late StreamSubscription<WebSocketMessageSendRequestEvent> sendSubscription;
+  final sendRequests = <WebSocketMessageSendRequestEvent>[];
+
+  Future<int?> statusOf(String id) async =>
+      (await MessageRepo(tableName: MessageRepo.c2cTable).find(id))?.status;
+
+  void makeDue(String id) {
+    final info = retry.getRetryInfo(id)!;
+    info.lastRetryTime -=
+        RetryPolicy.messageSendIntervalAt(info.retryCount) + 1000;
+  }
+
+  Future<void> enqueueAutomatic(String id) async {
+    retry.addToRetryQueue(id, 'C2C');
+    // Wait for the actual sending -> pendingRetry write before arming a
+    // later-read barrier; queue bookkeeping cannot steal that barrier.
+    await Future.doWhile(() async {
+      if (await statusOf(id) == IMBoyMessageStatus.pendingRetry) return false;
+      await Future<void>.delayed(Duration.zero);
+      return true;
+    }).timeout(const Duration(seconds: 5));
+    makeDue(id);
+  }
 
   setUpAll(() async {
     // Set the owner before injecting its FFI database and starting retry work.
@@ -112,6 +243,7 @@ void main() {
     expect(UserRepoLocal.to.isAuthTransitioning, isFalse);
     sqfliteFfiInit();
     final db = await databaseFactoryFfi.openDatabase(inMemoryDatabasePath);
+    database = db;
     await db.execute(_msgC2cDdl);
     // MessageRetry 启动扫描会按生产路径读取三类消息表；其余两张表
     // 只需具备相同列集合即可，避免测试把“缺表”误报成状态机故障。
@@ -119,6 +251,10 @@ void main() {
     await db.execute('CREATE TABLE msg_c2s AS SELECT * FROM msg_c2c WHERE 0');
     await db.execute(_contactDdl);
     await db.execute(_msgC2cFtsDdl);
+    await db.execute(
+      'CREATE TABLE attachment_upload_task ('
+      'anchor_msg_id TEXT, user_id TEXT, business_intent TEXT)',
+    );
     await db.insert('contact', {
       'user_id': '1001',
       'peer_id': 1001,
@@ -141,10 +277,13 @@ void main() {
     SqliteService.setDbForTest(db);
     retry = MessageRetry.instance;
     await retry.debugWaitForIdle().timeout(const Duration(seconds: 5));
+    sendSubscription = AppEventBus.on<WebSocketMessageSendRequestEvent>()
+        .listen(sendRequests.add);
   });
 
   setUp(() async {
     retry.clearRetryQueue();
+    sendRequests.clear();
     final db = await SqliteService.to.db;
     await db!.delete('msg_c2c');
     EncryptionModeService.debugSet(
@@ -153,9 +292,134 @@ void main() {
     );
   });
 
-  tearDownAll(() {
+  tearDownAll(() async {
     retry.dispose();
+    await sendSubscription.cancel();
     SqliteService.setDbForTest(null);
+  });
+
+  group('拒收与自动重试交错', () {
+    test('已落库的拒收不等待出队事件也不得自动发送', () async {
+      const id = 'reject-before-retry';
+      await _insertMsg(id, status: IMBoyMessageStatus.sending);
+      await enqueueAutomatic(id);
+
+      // This is the production rejection's state after its message write and
+      // before its awaited conversation update emits the removal event.
+      await database.update(
+        'msg_c2c',
+        {'status': IMBoyMessageStatus.error},
+        where: 'id = ?',
+        whereArgs: [id],
+      );
+      expect(retry.getRetryInfo(id), isNotNull);
+      await retry.retryFailedMessages();
+      await pumpEventQueue();
+
+      expect(await statusOf(id), IMBoyMessageStatus.error);
+      expect(sendRequests, isEmpty);
+      expect(retry.getRetryInfo(id), isNull);
+      await retry.debugScanFailedMessages();
+      expect(retry.getRetryInfo(id), isNull);
+    });
+
+    test('发送前快照仍是10时，CAS不得覆盖稍后落库的41', () async {
+      const id = 'reject-after-dispatch-read';
+      await _insertMsg(id, status: IMBoyMessageStatus.sending);
+      await enqueueAutomatic(id);
+      await database.update('msg_c2c', {'status': IMBoyMessageStatus.sending});
+      final paused = _PausedRetryDatabase(database, id, pauseLookup: 2);
+      SqliteService.setDbForTest(paused);
+      final pending = retry.retryFailedMessages();
+      try {
+        await paused.entered.future.timeout(const Duration(seconds: 5));
+        expect(paused.snapshot.single['status'], IMBoyMessageStatus.sending);
+        await database.update(
+          'msg_c2c',
+          {'status': IMBoyMessageStatus.error},
+          where: 'id = ?',
+          whereArgs: [id],
+        );
+        paused.release.complete();
+        await pending;
+        await pumpEventQueue();
+
+        expect(paused.casResults, [0], reason: '真实 SQL 必须拒绝旧快照的状态写入');
+        expect(await statusOf(id), IMBoyMessageStatus.error);
+        expect(sendRequests, isEmpty);
+        expect(retry.getRetryInfo(id), isNull);
+      } finally {
+        if (!paused.release.isCompleted) paused.release.complete();
+        await pending;
+        SqliteService.setDbForTest(database);
+      }
+    });
+
+    test('拒收出队后返回的旧启动扫描快照不得再次发送', () async {
+      const id = 'reject-before-scan-result';
+      await _insertMsg(id, status: IMBoyMessageStatus.sending);
+      final paused = _PausedRetryDatabase(database, id, pauseScan: true);
+      SqliteService.setDbForTest(paused);
+      final pending = retry.debugScanFailedMessages();
+      try {
+        await paused.entered.future.timeout(const Duration(seconds: 5));
+        expect(paused.snapshot.single['status'], IMBoyMessageStatus.sending);
+        await database.update(
+          'msg_c2c',
+          {'status': IMBoyMessageStatus.error},
+          where: 'id = ?',
+          whereArgs: [id],
+        );
+        final removed = AppEventBus.on<RemoveFromRetryQueueRequestedEvent>()
+            .firstWhere((event) => event.messageId == id);
+        AppEventBus.fire(
+          RemoveFromRetryQueueRequestedEvent(
+            messageId: id,
+            messageType: 'C2C',
+            reason: 'not_a_friend',
+          ),
+        );
+        await removed;
+        expect(retry.getRetryInfo(id), isNull);
+        paused.release.complete();
+        await pending;
+        expect(retry.getRetryInfo(id), isNotNull);
+        makeDue(id);
+        await retry.retryFailedMessages();
+        await pumpEventQueue();
+
+        expect(await statusOf(id), IMBoyMessageStatus.error);
+        expect(sendRequests, isEmpty);
+        expect(retry.getRetryInfo(id), isNull);
+        await retry.debugScanFailedMessages();
+        expect(retry.getRetryInfo(id), isNull);
+      } finally {
+        if (!paused.release.isCompleted) paused.release.complete();
+        await pending;
+        SqliteService.setDbForTest(database);
+      }
+    });
+
+    test('显式手动重试41后仍能进入正常自动重试', () async {
+      const id = 'manual-retry-rejected';
+      await _insertMsg(id, status: IMBoyMessageStatus.error);
+
+      expect(await retry.retryMessage(id, 'C2C'), isTrue);
+      await pumpEventQueue();
+      expect(sendRequests, hasLength(1));
+      expect(
+        await statusOf(id),
+        isIn([IMBoyMessageStatus.sending, IMBoyMessageStatus.pendingRetry]),
+      );
+      expect(retry.getRetryInfo(id)!.retryCount, 1);
+      makeDue(id);
+      await retry.retryFailedMessages();
+      await pumpEventQueue();
+
+      expect(sendRequests, hasLength(2));
+      expect(await statusOf(id), IMBoyMessageStatus.sending);
+      expect(retry.getRetryInfo(id)!.retryCount, 2);
+    });
   });
 
   group('启动扫描的状态集', () {

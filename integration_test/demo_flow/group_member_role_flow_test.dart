@@ -4,7 +4,7 @@
 // TEST_ALLOW_DUAL_ACCOUNT_GROUP_ROLE_PROD_WRITES=true；readback 只读。
 // 不增删成员、不转让群主、不解散群、不修改不可逆 E2EE 设置。
 
-import 'package:flutter/cupertino.dart';
+import 'package:cupertino_ui/cupertino_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:imboy/page/group/group_detail/group_detail_page.dart';

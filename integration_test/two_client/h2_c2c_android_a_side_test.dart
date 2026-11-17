@@ -14,7 +14,8 @@
 //     --dart-define=TEST_EXPECTED_UID=<A-uid> --dart-define=PEER_UID=<B-uid> \
 //     --dart-define=H2_RUN_TAG=<tag> --dart-define=H2_C2C_REAL_RUN=true
 
-import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart' show debugPrintSynchronously;
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart' show TextMessage;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -202,16 +203,14 @@ void main() {
       reason: 'A 侧发送应本地回显',
     );
     await takeScreenshot(tester, 'h2_c2c_andA_02_sent');
-    // ignore: avoid_print
-    print('[H2-C2C] A 侧已发送：$aToBMarker，等待 B 回复 $bToAMarker');
+    debugPrintSynchronously('[H2-C2C] A 侧已发送：$aToBMarker，等待 B 回复 $bToAMarker');
 
     // 轮询最多 5 分钟：B 的回复密文到达 → 解密渲染
     var received = false;
     for (var i = 0; i < 480 && !received; i++) {
       await tester.pump(const Duration(seconds: 1));
       if (i % 15 == 14) {
-        // ignore: avoid_print
-        print('[H2-C2C] A 侧等待 B 回复 ${(i + 1)}s');
+        debugPrintSynchronously('[H2-C2C] A 侧等待 B 回复 ${(i + 1)}s');
       }
       received = tester.any(
         find.textContaining(bToAMarker, findRichText: true),
@@ -221,12 +220,10 @@ void main() {
       fail('480 秒内 A 侧未出现 B 的解密明文回复（WS 投递 / Olm 入站解密链断裂）');
     }
     await takeScreenshot(tester, 'h2_c2c_andA_03_reply_decrypted');
-    // ignore: avoid_print
-    print('[H2-C2C] A 侧已解密渲染 B 的回复：$bToAMarker');
+    debugPrintSynchronously('[H2-C2C] A 侧已解密渲染 B 的回复：$bToAMarker');
 
     final msgs = notifier.chatService?.messages ?? const [];
-    // ignore: avoid_print
-    print(
+    debugPrintSynchronously(
       '[H2-C2C] A 侧本地消息列表(${msgs.length}) '
       '${msgs.map((m) => '${m.authorId == selfUid ? "A" : "B"}:${m.id}').join(",")}',
     );
@@ -236,7 +233,6 @@ void main() {
       reason: 'B 的回复应已进入 A 本地库（SQLCipher 持久化）',
     );
     drainKnownFrameworkExceptions(tester);
-    // ignore: avoid_print
-    print('[H2-C2C] A 侧 PASS');
+    debugPrintSynchronously('[H2-C2C] A 侧 PASS');
   }, timeout: const Timeout(Duration(minutes: 16)));
 }

@@ -3,9 +3,9 @@ import 'dart:convert';
 
 import 'package:go_router/go_router.dart';
 import 'package:imboy/app_core/routing/organization_invite_link.dart';
-import 'package:flutter/cupertino.dart' show CupertinoPageRoute;
+import 'package:cupertino_ui/cupertino_ui.dart' show CupertinoPageRoute;
 import 'package:flutter/foundation.dart' show defaultTargetPlatform;
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:imboy/component/helper/func.dart' show iPrint;
 import 'package:imboy/component/ui/async_state_view.dart';

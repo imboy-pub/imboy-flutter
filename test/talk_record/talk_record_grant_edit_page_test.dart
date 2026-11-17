@@ -5,7 +5,7 @@
 /// C-F1 角色分段选中态、C-F2 保存按钮尺寸、412 冲突如实反馈。
 library;
 
-import 'package:flutter/cupertino.dart';
+import 'package:cupertino_ui/cupertino_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:imboy/modules/talk_record/presentation/share/talk_record_share_fixture_service.dart';

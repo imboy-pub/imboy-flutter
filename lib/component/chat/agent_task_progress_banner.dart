@@ -1,4 +1,4 @@
-import 'package:flutter/cupertino.dart';
+import 'package:cupertino_ui/cupertino_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:imboy/page/chat/chat/agent_task_ephemeral_state_notifier.dart';
 import 'package:imboy/theme/default/app_colors.dart';

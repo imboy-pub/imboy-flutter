@@ -5,7 +5,7 @@
 
 library;
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 /// 占位符组件（实际不会被调用）
 class MobilePhoneInputWidget extends StatelessWidget {

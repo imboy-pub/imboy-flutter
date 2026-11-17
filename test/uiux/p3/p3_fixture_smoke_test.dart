@@ -12,7 +12,7 @@
 ///  9. 测试时钟固定（等待时长 label 稳定）
 library;
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'p3_fixtures.dart';

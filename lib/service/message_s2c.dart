@@ -3,8 +3,8 @@ import 'dart:convert';
 
 import 'package:imboy/component/http/channel_id_response_decoder.dart';
 
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart' show showDialog;
+import 'package:cupertino_ui/cupertino_ui.dart';
+import 'package:material_ui/material_ui.dart' show showDialog;
 import 'package:imboy/component/ui/app_loading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -204,9 +204,9 @@ class MessageS2CService {
 
   static Future<void> _processS2C(Map<String, dynamic> data) async {
     // 安全日志：只输出消息类型，不输出完整数据
-    final msgId = data['id'] ?? '';
-    final from = data['from'] ?? '';
-    final to = data['to'] ?? '';
+    final msgId = parseModelString(data['id']);
+    final from = parseModelString(data['from']);
+    final to = parseModelString(data['to']);
     bool autoAck = true;
     String? reservedKey;
     int? reservedAt;
@@ -282,20 +282,10 @@ class MessageS2CService {
           await _handleMessageReadSync(payloadMap);
           break;
         case 'c2c_revoke':
-          await _handleC2CRevoke(
-            data,
-            payloadMap,
-            from as String,
-            to as String,
-          );
+          await _handleC2CRevoke(data, payloadMap, from, to);
           break;
         case 'c2c_del_everyone':
-          await _handleC2CDelEveryone(
-            data,
-            payloadMap,
-            from as String,
-            to as String,
-          );
+          await _handleC2CDelEveryone(data, payloadMap, from, to);
           break;
         case 'c2g_del_everyone':
           await _handleC2GDelEveryone(data, payloadMap);
@@ -356,7 +346,7 @@ class MessageS2CService {
           break;
         case 'please_refresh_token':
           autoAck = false;
-          await _handlePleaseRefreshToken(payloadMap, msgId as String);
+          await _handlePleaseRefreshToken(payloadMap, msgId);
           break;
         case 'app_upgrade':
           await _handleAppUpgrade(payloadMap);
@@ -639,11 +629,11 @@ class MessageS2CService {
     String from,
     String to,
   ) async {
-    final oldMsgId = payload['old_msg_id'] ?? '';
+    final oldMsgId = parseModelString(payload['old_msg_id']);
 
     // 使用公共辅助类处理删除（消除代码重复）
     await MessageActions.handleC2CDeleteMessage(
-      oldMsgId: oldMsgId as String,
+      oldMsgId: oldMsgId,
       from: from,
       to: to,
     );
@@ -658,13 +648,13 @@ class MessageS2CService {
     Map<String, dynamic> data,
     Map<String, dynamic> payload,
   ) async {
-    final oldMsgId = payload['old_msg_id'] ?? '';
-    final groupId = payload['to'] ?? '';
+    final oldMsgId = parseModelString(payload['old_msg_id']);
+    final groupId = parseModelString(payload['to']);
 
     // 使用公共辅助类处理删除（消除代码重复）
     await MessageActions.handleC2GDeleteMessage(
-      oldMsgId: oldMsgId as String,
-      groupId: groupId as String,
+      oldMsgId: oldMsgId,
+      groupId: groupId,
     );
   }
 

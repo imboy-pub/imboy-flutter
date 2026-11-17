@@ -1,0 +1,189 @@
+{
+  "schema_version": 1,
+  "package": "wechat_picker_library",
+  "upstream": {
+    "version": "1.0.7",
+    "repository": "https://github.com/fluttercandies/flutter_wechat_picker_library",
+    "package_url": "https://pub.dev/packages/wechat_picker_library/versions/1.0.7",
+    "archive_url": "https://pub.dev/api/archives/wechat_picker_library-1.0.7.tar.gz",
+    "archive_sha256": "5cb61b9aa935b60da5b043f8446fbb9c5077419f20ccc4856bf444aec4f44bc1",
+    "published": "2025-08-15T03:45:52.160911Z"
+  },
+  "vendoring": {
+    "purpose": "Use the standalone public Material/Cupertino libraries while preserving upstream runtime behavior.",
+    "included_paths": [
+      "lib/**",
+      "LICENSE",
+      "pubspec.yaml"
+    ],
+    "excluded_top_level_entries": [
+      "CHANGELOG.md",
+      "CODEOWNERS",
+      "README.md",
+      "analysis_options.yaml"
+    ],
+    "verification": "Downloaded archive SHA-256 matches pubspec.lock and the pub.dev release API; each copied original file matches the installed package and published archive byte-for-byte."
+  },
+  "original_files_sha256": {
+    "LICENSE": "549bb0e53980752607cae8f4ae12e5863c916c41b5f07dc70180ec2519e493be",
+    "lib/src/extensions.dart": "3137600477ceaee67ff491aaf21cf70cabc9b99db0b1c5bdd5dafae9e214f416",
+    "lib/src/themes.dart": "abbfde3aa398b47b24acd60bbebaed3f451a673a47c8be9e707ead2eb7217c29",
+    "lib/src/widgets/gaps.dart": "fe7c008ef761e30ce515e58eaead834d4cc096aac15f7ae748e074b14902ed0d",
+    "lib/src/widgets/loading.dart": "85272e52f9d5ce6c027a39133372e9216128286e6c3a6f8c46db7d1d99c6092c",
+    "lib/src/widgets/locally_available_builder.dart": "9dccf7c2258027e951cc0b74c207f650959b8c949055d3c446abbc18ea6aee77",
+    "lib/src/widgets/picker_page_route.dart": "5bfc6728a3a3b730e3eba87da9c9f291ac2a0d27a009a44246d959f952a8af63",
+    "lib/src/widgets/platform_progress_indicator.dart": "4d0790d2212a83ef29fe4f9f6fb92b6900106be18662100d1985854fad0dc9d9",
+    "lib/src/widgets/scale_text.dart": "ae8167632916f138a5f008cf7b014bfd0ab74155035842e81f7f99729f3148c1",
+    "lib/src/widgets/tween_animation_builder_2.dart": "ebf1f14c7768e97fc7dd5b63dedfd324c24829f872796a3499ab613a81565c8d",
+    "lib/src/widgets/value_listenable_builder_2.dart": "34abf1f321c22a02853caa6257b8af48c28813c66f0dc338c606eafaddfdac03",
+    "lib/wechat_picker_library.dart": "840773712f6a102e1f5cfa71371cf3837d3bac8a4244dff63c6a7d09e9c3bcad",
+    "pubspec.yaml": "53c705026d317cb9c8a4a0bdc0b260e5f2746edb0400dc03e2ff6de124f1a1f0"
+  },
+  "modifications": [
+    {
+      "path": "lib/src/extensions.dart",
+      "changes": [
+        "Add a local modification notice; retain the upstream copyright header."
+      ],
+      "import_replacements": [
+        {
+          "from": "package:flutter/material.dart",
+          "to": "package:material_ui/material_ui.dart",
+          "occurrences": 1
+        }
+      ]
+    },
+    {
+      "path": "lib/src/themes.dart",
+      "changes": [
+        "Add a local modification notice; retain the upstream copyright header."
+      ],
+      "import_replacements": [
+        {
+          "from": "package:flutter/material.dart",
+          "to": "package:material_ui/material_ui.dart",
+          "occurrences": 1
+        }
+      ]
+    },
+    {
+      "path": "lib/src/widgets/gaps.dart",
+      "changes": [
+        "Add a local modification notice; retain the upstream copyright header."
+      ],
+      "import_replacements": [
+        {
+          "from": "package:flutter/material.dart",
+          "to": "package:material_ui/material_ui.dart",
+          "occurrences": 1
+        }
+      ]
+    },
+    {
+      "path": "lib/src/widgets/loading.dart",
+      "changes": [
+        "Add a local modification notice; retain the upstream copyright header."
+      ],
+      "import_replacements": [
+        {
+          "from": "package:flutter/material.dart",
+          "to": "package:material_ui/material_ui.dart",
+          "occurrences": 1
+        }
+      ]
+    },
+    {
+      "path": "lib/src/widgets/locally_available_builder.dart",
+      "changes": [
+        "Add a local modification notice; retain the upstream copyright header.",
+        "Declare Object and StackTrace parameters on the asset-loading catchError callback; preserve existing error reporting."
+      ],
+      "import_replacements": [
+        {
+          "from": "package:flutter/material.dart",
+          "to": "package:material_ui/material_ui.dart",
+          "occurrences": 1
+        }
+      ]
+    },
+    {
+      "path": "lib/src/widgets/picker_page_route.dart",
+      "changes": [
+        "Add a local modification notice; retain the upstream copyright header."
+      ],
+      "import_replacements": [
+        {
+          "from": "package:flutter/material.dart",
+          "to": "package:material_ui/material_ui.dart",
+          "occurrences": 1
+        }
+      ]
+    },
+    {
+      "path": "lib/src/widgets/platform_progress_indicator.dart",
+      "changes": [
+        "Add a local modification notice; retain the upstream copyright header."
+      ],
+      "import_replacements": [
+        {
+          "from": "package:flutter/material.dart",
+          "to": "package:material_ui/material_ui.dart",
+          "occurrences": 1
+        },
+        {
+          "from": "package:flutter/cupertino.dart",
+          "to": "package:cupertino_ui/cupertino_ui.dart",
+          "occurrences": 1
+        }
+      ]
+    },
+    {
+      "path": "lib/src/widgets/scale_text.dart",
+      "changes": [
+        "Add a local modification notice; retain the upstream copyright header."
+      ],
+      "import_replacements": [
+        {
+          "from": "package:flutter/material.dart",
+          "to": "package:material_ui/material_ui.dart",
+          "occurrences": 1
+        }
+      ]
+    },
+    {
+      "path": "lib/src/widgets/tween_animation_builder_2.dart",
+      "changes": [
+        "Add a local modification notice; retain the upstream copyright header."
+      ],
+      "import_replacements": [
+        {
+          "from": "package:flutter/material.dart",
+          "to": "package:material_ui/material_ui.dart",
+          "occurrences": 1
+        }
+      ]
+    },
+    {
+      "path": "lib/src/widgets/value_listenable_builder_2.dart",
+      "changes": [
+        "Add a local modification notice; retain the upstream copyright header."
+      ],
+      "import_replacements": [
+        {
+          "from": "package:flutter/material.dart",
+          "to": "package:material_ui/material_ui.dart",
+          "occurrences": 1
+        }
+      ]
+    },
+    {
+      "path": "pubspec.yaml",
+      "changes": [
+        "Add publish_to: none for this repository-local patched copy.",
+        "Add direct dependency material_ui ^1.11.0 for the migrated public imports.",
+        "Add direct dependency cupertino_ui ^1.1.6 for the migrated public imports.",
+        "Preserve the upstream version, SDK/Flutter constraints, non-UI dependencies, and runtime asset declarations."
+      ]
+    }
+  ]
+}

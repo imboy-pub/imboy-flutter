@@ -61,6 +61,8 @@ import 'notification_provider.dart';
 
 part 'message_notifications.dart';
 part 'message_e2ee.dart';
+part 'message_persistence.dart';
+part 'message_read_receipts.dart';
 
 // Legacy compatibility surface. External callers should now import
 // `package:imboy/modules/messaging/public.dart`; this file remains the
@@ -316,8 +318,9 @@ class MessageService with EventSubscriptionManager {
         session.isCurrentSession(generation) &&
         !session.isClearingSession;
     if (!isCurrent()) return null;
-    await repo.update({'id': msgId, 'status': status});
+    final updated = await repo.update({'id': msgId, 'status': status});
     if (!isCurrent()) return null;
+    if (updated != 1) return null;
     iPrint('> message_core: 更新消息状态 $msgId 为 $status');
     await _conversationNotifier.updateConversationByMsgId(msgId, {
       ConversationRepo.lastMsgStatus: status,
@@ -846,6 +849,7 @@ class MessageService with EventSubscriptionManager {
       // 后台异步处理数据存储和完整消息转换（不阻塞UI）
       // Process data storage and full message conversion asynchronously in background (non-blocking)
       final committed = await _processMessageInBackground(
+        this,
         data,
         nonNullPayload,
         tempConv,
@@ -1136,227 +1140,6 @@ class MessageService with EventSubscriptionManager {
   /// 缓存时间戳
   /// Cache timestamps
   final Map<String, int> _groupCacheTime = {};
-
-  /// 在后台异步处理消息数据存储
-  /// Process message data storage asynchronously in background
-  Future<bool> _processMessageInBackground(
-    Map<String, dynamic> data,
-    Map<String, dynamic> payload,
-    ConversationModel tempConv,
-    MessageModel tempMsg,
-    MessageRepo repo, {
-    required AuthSessionScope notificationSession,
-    required AccountLocalTaskOwner notificationOwner,
-  }) async {
-    final msgId = parseModelString(data['id']);
-    final chatType = parseModelString(data['type']); // 消息会话类型 (C2C/C2G/C2S)
-    // WebSocket API v2.0: 从顶层读取消息内容类型
-    final rawMsgType = data['msg_type']?.toString(); // voice/text/image 等
-
-    // 【重构】使用 MessageTypeNormalizer 进行类型归一化
-    // 仅做合法性校验与空白处理（不做旧命名兼容）
-    final msgContentType = MessageTypeNormalizer.normalize(
-      msgType: rawMsgType,
-      payload: payload,
-    );
-
-    try {
-      // 启动竞态治根：WS 消息可能先于 DB 初始化就绪到达（或初始化失败进入
-      // 5s 冷却）。此处有限等待，让瞬时不可用在窗口内自愈；持久故障超时后
-      // 继续走原逻辑，事务会抛出带原因的异常并走失败路径（不 ACK，服务端
-      // 重推兜底）。详见 SqliteService.waitUntilReady。
-      if (!await SqliteService.to.waitUntilReady(_dbReadyWaitTimeout)) {
-        iPrint('⏳ DB 等待超时仍未就绪，消息处理将失败: $msgId');
-      }
-
-      // 并行获取 peer 信息和检查用户状态
-      // Parallel fetch peer info and check user status
-      final results = await Future.wait([
-        _fetchPeerInfo(chatType, data),
-        _isUserCurrentlyInChat(tempConv),
-      ]);
-
-      final peerInfo = results[0] as Map<String, String>;
-      final isUserInChat = parseModelBool(results[1]);
-
-      // 更新会话信息
-      // Update conversation with complete peer info
-      // 与 _receiveMessage 中同款修复：C2G from 为 number、C2C 为 string，须归一化比较
-      final isFromCurrentUser =
-          parseModelString(data['from']) == UserRepoLocal.to.currentUid;
-      final unreadIncrement = computeConversationUnreadIncrement(
-        isFromCurrentUser: isFromCurrentUser,
-        isUserInChat: isUserInChat,
-      );
-      // C7-β: 计算 @ 未读增量（与 unread 同短路条件 + mentionIds 判定）
-      final mentionIncrement = computeMentionUnreadIncrement(
-        isFromCurrentUser: isFromCurrentUser,
-        isUserInChat: isUserInChat,
-        mentionIds: extractMentionIdsFromPayload(payload),
-        currentUid: UserRepoLocal.to.currentUid,
-      );
-
-      final conv = ConversationModel(
-        peerId: peerInfo['peerId']!,
-        avatar: peerInfo['avatar']!,
-        title: peerInfo['title']!,
-        subtitle: tempConv.subtitle,
-        type: chatType,
-        msgType: msgContentType, // 【修复】使用修正后的消息类型
-        lastMsgId: msgId,
-        lastTime: tempConv.lastTime,
-        unreadNum: unreadIncrement,
-        mentionUnread: mentionIncrement, // C7-β
-        id: 0,
-      );
-
-      // uk3 由 type+currentUid+peerId 纯派生（不依赖插入后的 id），可在事务前确定
-      final msg = MessageModel(
-        parseModelString(msgId),
-        autoId: 0,
-        type: chatType, // 消息会话类型 (C2C/C2G/C2S)
-        fromId: parseModelString(data['from']),
-        toId: parseModelString(data['to']),
-        payload: payload,
-        // W8-A1：created_at 缺失/不可解析（如无 zone 串被 parseIsoZoned
-        // 拒绝）落 0 哨兵，绝不回填 now 伪造发送时间；与离线写入侧
-        // OfflineMessageWriter.parseCreatedAt 的"无 created_at=0"语义一致。
-        createdAt: parseModelInt(data['created_at'], defaultValue: 0),
-        isAuthor: tempMsg.isAuthor,
-        topicId: parseModelInt(data['topic_id'], defaultValue: tempMsg.topicId),
-        conversationUk3: conv.uk3,
-        status: IMBoyMessageStatus.delivered,
-        msgType: msgContentType, // WebSocket API v2.0: 从顶层读取消息内容类型
-        e2ee: tempMsg.e2ee,
-        senderDid: tempMsg.senderDid,
-      );
-
-      // 保存消息到 sqlite
-      // Persist message to local DB
-      if (kDebugMode) {
-        iPrint(
-          '🔍 [DEBUG] 保存消息: msgId=$msgId, data[\'msg_type\']=${data['msg_type']}, msgContentType=$msgContentType',
-        );
-      }
-
-      // 【根治重复投递未读双计】消息插入 + 会话 upsert + 未读自增 放入同一排他事务，
-      // 且仅在消息确认是新行（count==0）时才自增未读，彻底消除并发重复投递导致的角标偏大。
-      // exclusive:true 走全局 _dbLock.synchronized，串行化所有并发 _processMessageInBackground。
-      final (
-        ConversationModel savedConv,
-        bool isNewRow,
-      ) = await _conversationRepo.runInTransaction((txn) async {
-        // 1) 先存消息，用其返回的 count 判断是否新行（0=新行，>0=已存在）
-        final existed = await repo.save(msg, txn: txn);
-        final isNew = existed == null || existed == 0;
-
-        // 2) 会话元数据 upsert（autoIncrement:false → 不在 save 内自增，交由下方条件触发）
-        final convResult = await _conversationRepo.save(
-          conv,
-          txn: txn,
-          autoIncrement: false,
-        );
-
-        // 3) 仅当消息是新行时才自增未读 / @ 未读；重复消息只刷新会话元数据
-        if (isNew && (unreadIncrement > 0 || mentionIncrement > 0)) {
-          await _conversationRepo.incrementUnread(
-            convResult.id,
-            txn: txn,
-            unreadDelta: unreadIncrement,
-            mentionDelta: mentionIncrement,
-          );
-        }
-
-        // convResult 可能因 upsert 更新了字段，重新读出最新快照供 UI 使用
-        final fresh = await _conversationRepo.findByPeerId(
-          conv.type,
-          conv.peerId.toString(),
-          txn: txn,
-        );
-        return (fresh ?? convResult, isNew);
-      });
-      if (kDebugMode) {
-        iPrint('🔍 [DEBUG] 消息保存完成: msgType=${msg.msgType}, isNewRow=$isNewRow');
-      }
-
-      // 【修复】重复消息（非新行）跳过后续 UI/通知处理
-      // 与原 existed>0 守卫语义一致，但更彻底：未读已不会自增，且连 fireData 都不发
-      if (!isNewRow) {
-        iPrint('⚠️ 消息已存在（数据库检查），跳过后续处理: $msgId');
-        return true;
-      }
-
-      // 单一来源：以会话快照统一同步会话与提醒，避免局部字段漂移
-      _conversationNotifier.applyConversationSnapshot(savedConv);
-
-      // 再次触发 UI 更新以显示完整的 peer 信息
-      // Trigger UI update again to show complete peer info
-      AppEventBus.fireData(savedConv);
-      final tMsg = await msg.toTypeMessage();
-      AppEventBus.fireData(tMsg);
-
-      // BUG#148 接线：新消息 @ 当前用户时广播 NewMentionEvent，驱动
-      // mention_list_page 自动刷新。此前唯一发射端 handleMentionMessage
-      // 无任何调用方（死代码），监听端永远收不到事件。判定口径与 C7-β
-      // mentionIncrement 一致：自己发的、或正在该会话页内不广播。
-      if (mentionIncrement > 0) {
-        unawaited(
-          MentionService.to.handleMentionMessage({
-            'id': 0,
-            'group_id': data['to'],
-            'msg_id': msgId,
-            'mentions': extractMentionIdsFromPayload(payload) ?? <String>[],
-          }),
-        );
-      }
-
-      // 触发消息通知（如果需要）
-      // 只有当用户不在当前会话且消息不是自己发送的时候才显示通知
-      // C7-α-2：用户为该会话开启了免打扰（isMuted > 0）时也抑制通知
-      // slice-8：DND 下 @ 当前用户时穿透抑制（对齐微信 / TG / Slack）
-      // Q09/G1（AC22 免打扰）：C2G 群会话合并 KV 源（group_notice_disabled:
-      // <gid>）——群详情页免打扰开关此前只落 KV，而本判定只读
-      // conversation.is_muted 列，两套存储未打通导致群 DND 失效（断点）。
-      // 合并后任一源命中即抑制；KV 读失败按未设置处理（不影响通知）。
-      // 不变量：DND 只抑制通知弹窗，消息落库/未读/已读语义在上方已完成，
-      // 不受此判定影响。
-      final bool dndSuppressed = chatType == 'C2G'
-          ? isGroupDndActive(
-              isMutedColumn: savedConv.isMuted,
-              kvNoticeDisabled: _readGroupNoticeDisabledSafe(
-                parseModelString(data['to']),
-              ),
-            )
-          : savedConv.isMuted > 0;
-      if (!isFromCurrentUser &&
-          !isUserInChat &&
-          !shouldSuppressNotification(
-            isMuted: dndSuppressed ? 1 : 0,
-            isMentioned: mentionIncrement > 0,
-          )) {
-        _showMessageNotification(
-          this,
-          session: notificationSession,
-          owner: notificationOwner,
-          msg: msg,
-          senderName: peerInfo['title'] ?? '',
-          conversationUk3: savedConv.uk3,
-          peerId: peerInfo['peerId'] ?? '',
-          chatType: chatType,
-        );
-      }
-
-      iPrint('✅ 消息后台处理完成: $msgId');
-      return true;
-    } on Object catch (e) {
-      AppLogger.error('消息后台处理失败 msgId=$msgId errType=${e.runtimeType}');
-
-      // 处理失败，从 UI 中移除该消息
-      // Failed to process, remove message from UI
-      _handleMessageProcessingFailure(msgId, chatType, tempConv, e);
-      return false;
-    }
-  }
 
   /// 处理已读回执
   Future<void> _receiveReadReceipt(Map<String, dynamic> data) async {

@@ -10,8 +10,8 @@
 /// harness 复用 ux_matrix 共享件与 detail hub 测试同款静态桩。
 library;
 
-import 'package:flutter/cupertino.dart' show CupertinoPage;
-import 'package:flutter/material.dart';
+import 'package:cupertino_ui/cupertino_ui.dart' show CupertinoPage;
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 

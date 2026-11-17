@@ -2,14 +2,16 @@ import 'dart:async';
 import 'dart:ui' show PlatformDispatcher;
 
 import 'package:flutter/foundation.dart' show kDebugMode, kIsWeb;
-import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart' show RenderFlex;
+import 'package:cupertino_ui/cupertino_ui.dart'
+    show GlobalCupertinoLocalizations;
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
 import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/modules/talk_record/presentation/talk_record_recording_host.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:flutter_localizations/flutter_localizations.dart'
+    show GlobalWidgetsLocalizations;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -25,7 +27,6 @@ import 'package:imboy/service/app_logger.dart';
 import 'package:imboy/i18n/strings.g.dart';
 
 import 'package:imboy/store/repository/user_repo_local.dart';
-import 'package:imboy/page/passport/passport_notifier.dart';
 import 'package:imboy/theme/providers/theme_provider.dart';
 import 'package:imboy/theme/theme_manager.dart';
 
@@ -38,35 +39,6 @@ import 'service/message.dart';
 /// 应用级共享 ProviderContainer
 /// MessageService 和 Widget 树共用，保证状态同步
 final appProviderContainer = ProviderContainer();
-
-/// VM 注入登录辅助（仅调试用）：通过 appProviderContainer 调用真实 loginUser
-/// 返回 null=成功，否则错误字符串
-Future<String?> debugVmLogin(
-  String accountType,
-  String account,
-  String password,
-) async {
-  debugPrint('🔍 debugVmLogin START');
-  // passportProvider 是 autoDispose，用 listen 保持存活
-  final sub = appProviderContainer.listen(passportProvider, (_, _) {});
-  try {
-    final result = await appProviderContainer
-        .read(passportProvider.notifier)
-        .loginUser(accountType, account, password);
-    debugPrint('🔍 debugVmLogin RESULT: $result');
-    debugVmLoginResult = result ?? 'SUCCESS_NULL';
-    return result;
-  } catch (e, s) {
-    debugPrint('🔍 debugVmLogin THREW: $e\n$s');
-    debugVmLoginResult = 'THREW: $e';
-    return e.toString();
-  } finally {
-    sub.close();
-  }
-}
-
-/// 调试用：存储最后一次 debugVmLogin 的结果
-String debugVmLoginResult = '';
 
 /// 应用初始化标志（防止重复初始化）
 bool _localeInitialized = false;
@@ -95,41 +67,6 @@ Future<void> bootstrapFromRun() async {
 
 Future<void> run() async {
   // === 全局错误捕获 ===
-  // TODO(overflow-probe): 临时定位 RenderFlex(137×22) 溢出组件，定位后删除
-  bool overflowProbed = false;
-  void probeOverflow() {
-    if (overflowProbed) return;
-    overflowProbed = true;
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final hits = <String>[];
-      void walk(Element el) {
-        if (el is RenderObjectElement) {
-          final ro = el.renderObject;
-          if (ro is RenderFlex &&
-              (ro.size.width - 137).abs() < 3 &&
-              (ro.size.height - 22).abs() < 3) {
-            final chain = <String>[];
-            el.visitAncestorElements((a) {
-              chain.add(a.widget.runtimeType.toString());
-              return chain.length < 10;
-            });
-            hits.add(
-              '${el.widget.runtimeType} @depth=${el.depth} '
-              '<- ${chain.join(' < ')}',
-            );
-          }
-        }
-        el.visitChildren(walk);
-      }
-
-      WidgetsBinding.instance.rootElement?.visitChildren(walk);
-      debugPrint(
-        '🐛 [overflow-probe] '
-        '${hits.isEmpty ? "未匹配（约束已变）" : hits.join(' | ')}',
-      );
-    });
-  }
-
   // 捕获 Flutter 框架内部错误（Widget build、layout、paint 等）
   FlutterError.onError = (FlutterErrorDetails details) {
     AppLogger.fatal(
@@ -139,11 +76,6 @@ Future<void> run() async {
     );
     // 保留默认行为（debug 模式打印到控制台）
     FlutterError.presentError(details);
-    // TODO(overflow-probe): 溢出时触发一次定位，定位后删除
-    final msg = details.exceptionAsString();
-    if (msg.contains('RenderFlex') && details.toString().contains('overflow')) {
-      probeOverflow();
-    }
   };
 
   // 捕获 Dart 异步未处理异常（Future 中未被 catch 的错误）
@@ -242,10 +174,8 @@ class _IMBoyAppState extends ConsumerState<IMBoyApp> {
     _incomingBackupSub = IncomingBackupHandler.watchIncomingFiles().listen(
       (path) {
         final ctx = navigatorKey.currentContext;
-        // navigatorKey 是全局 key（config/init.dart），生命周期长于任何 widget；
-        // 非 null 即可安全导航。linter 无法识别这点，故显式忽略。
-        if (ctx != null) {
-          // ignore: use_build_context_synchronously
+        // Resolve the current navigator for each event and guard its lifetime.
+        if (ctx != null && ctx.mounted) {
           ctx.go('/e2ee_backup_import', extra: {'initialFilePath': path});
         }
       },

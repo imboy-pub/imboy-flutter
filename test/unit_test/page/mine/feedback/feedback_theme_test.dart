@@ -1,6 +1,6 @@
 import 'package:feedback/feedback.dart';
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
+import 'package:cupertino_ui/cupertino_ui.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
@@ -34,6 +34,8 @@ void main() {
   testWidgets('反馈路由跟随 App 明暗主题，保留页面配色及编辑器文字对比度', (tester) async {
     tester.platformDispatcher.platformBrightnessTestValue = Brightness.light;
     addTearDown(tester.platformDispatcher.clearPlatformBrightnessTestValue);
+    tester.platformDispatcher.localeTestValue = const Locale('zh', 'CN');
+    addTearDown(tester.platformDispatcher.clearLocaleTestValue);
     final mode = ValueNotifier(ThemeMode.dark);
     addTearDown(mode.dispose);
     final router = GoRouter(initialLocation: '/feedback', routes: mineRoutes());
@@ -50,6 +52,9 @@ void main() {
               theme: light,
               darkTheme: dark,
               themeMode: selected,
+              locale: const Locale('zh', 'CN'),
+              supportedLocales: const [Locale('zh', 'CN')],
+              localizationsDelegates: GlobalMaterialLocalizations.delegates,
               routerConfig: router,
             ),
           ),
@@ -99,6 +104,36 @@ void main() {
         expected.textTheme.bodyLarge!.color,
       );
       expect(find.text('synthetic-feedback'), findsOneWidget);
+
+      // BetterFeedback creates its own Localizations below MaterialApp.
+      // Check the actual page and editor contexts, not the outer host.
+      final pageContext = tester.element(page);
+      expect(MaterialLocalizations.of(pageContext).copyButtonLabel, '复制');
+      expect(CupertinoLocalizations.of(pageContext).copyButtonLabel, '复制');
+      final controller = BetterFeedback.of(pageContext);
+      controller.show((_) {});
+      await tester.pumpAndSettle();
+      final editor = find.byKey(const Key('text_input_field'));
+      expect(editor, findsOneWidget);
+      final editorContext = tester.element(editor);
+      expect(Localizations.localeOf(editorContext), const Locale('zh', 'CN'));
+      expect(MaterialLocalizations.of(editorContext).copyButtonLabel, '复制');
+      expect(CupertinoLocalizations.of(editorContext).copyButtonLabel, '复制');
+      expect(Theme.of(editorContext).brightness, brightness);
+      expect(Theme.of(editorContext).colorScheme, expected.colorScheme);
+      expect(
+        tester.widget<TextField>(editor).style!.color,
+        expected.textTheme.bodyLarge!.color,
+      );
+      await tester.enterText(editor, 'synthetic-editor-feedback');
+      await tester.pump();
+      expect(
+        tester.widget<TextField>(editor).controller!.text,
+        'synthetic-editor-feedback',
+      );
+      controller.hide();
+      await tester.pumpAndSettle();
+      expect(editor, findsNothing);
       expect(tester.takeException(), isNull);
     }
   });

@@ -16,9 +16,9 @@ import 'dart:convert' show jsonEncode;
 import 'dart:typed_data' show Uint8List;
 
 import 'package:dio/dio.dart';
-import 'package:flutter/cupertino.dart'
+import 'package:cupertino_ui/cupertino_ui.dart'
     show CupertinoTextField, TextInputAction;
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart' show MethodChannel;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';

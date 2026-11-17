@@ -420,7 +420,7 @@ packages:
     source: hosted
     version: "2.0.0"
   cupertino_ui:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: cupertino_ui
       sha256: "369e39a1c5c030a6212589c3da1809920b1c2cfade7b02aade7695bfa4b88c3a"
@@ -550,10 +550,9 @@ packages:
   emoji_picker_flutter:
     dependency: "direct main"
     description:
-      name: emoji_picker_flutter
-      sha256: "50f4da413a3dc5d2f59f2b0835ab3b3cce76c0779eb275058213506e6709503b"
-      url: "https://pub.dev"
-    source: hosted
+      path: "plugin/flutter_ui_vendor/emoji_picker_flutter"
+      relative: true
+    source: path
     version: "4.5.4"
   envied:
     dependency: "direct main"
@@ -588,12 +587,11 @@ packages:
     source: hosted
     version: "0.7.0"
   extended_image:
-    dependency: transitive
+    dependency: "direct dev"
     description:
-      name: extended_image
-      sha256: e81d801cd692921f152834e01f39bba8b3d6302c48ad420d499c6062a7e24737
-      url: "https://pub.dev"
-    source: hosted
+      path: "plugin/flutter_ui_vendor/extended_image"
+      relative: true
+    source: path
     version: "10.1.0"
   extended_image_library:
     dependency: transitive
@@ -614,10 +612,9 @@ packages:
   feedback:
     dependency: "direct main"
     description:
-      name: feedback
-      sha256: "55edce4f8f0ec01a5ff023e29c5c57df86a7391c831d5647e3b3fdff05e4b01e"
-      url: "https://pub.dev"
-    source: hosted
+      path: "plugin/flutter_ui_vendor/feedback"
+      relative: true
+    source: path
     version: "3.2.0"
   ffi:
     dependency: transitive
@@ -774,10 +771,9 @@ packages:
   flutter_easyloading:
     dependency: "direct main"
     description:
-      name: flutter_easyloading
-      sha256: "764e83a3537c8bf00353750ec90cf42967949c47225d222277c218ca5f200ae8"
-      url: "https://pub.dev"
-    source: hosted
+      path: "plugin/flutter_ui_vendor/flutter_easyloading"
+      relative: true
+    source: path
     version: "4.0.2"
   flutter_lints:
     dependency: "direct dev"
@@ -835,10 +831,9 @@ packages:
   flutter_markdown_plus:
     dependency: "direct main"
     description:
-      name: flutter_markdown_plus
-      sha256: fce641d6c2106cc495de1cd603f97a4f9d615a97a64011928ded380dbdade935
-      url: "https://pub.dev"
-    source: hosted
+      path: "plugin/flutter_ui_vendor/flutter_markdown_plus"
+      relative: true
+    source: path
     version: "1.0.12"
   flutter_native_splash:
     dependency: "direct main"
@@ -859,10 +854,9 @@ packages:
   flutter_rating_bar:
     dependency: "direct main"
     description:
-      name: flutter_rating_bar
-      sha256: d2af03469eac832c591a1eba47c91ecc871fe5708e69967073c043b2d775ed93
-      url: "https://pub.dev"
-    source: hosted
+      path: "plugin/flutter_ui_vendor/flutter_rating_bar"
+      relative: true
+    source: path
     version: "4.0.1"
   flutter_riverpod:
     dependency: "direct main"
@@ -939,10 +933,9 @@ packages:
   flutter_slidable:
     dependency: "direct main"
     description:
-      name: flutter_slidable
-      sha256: ea369262929d3cc6ebf9d8a00c196127966f117fe433a5e5cb47fb08008ca203
-      url: "https://pub.dev"
-    source: hosted
+      path: "plugin/flutter_ui_vendor/flutter_slidable"
+      relative: true
+    source: path
     version: "4.0.3"
   flutter_sound:
     dependency: "direct main"
@@ -1021,7 +1014,7 @@ packages:
   flyer_chat_audio_message:
     dependency: "direct main"
     description:
-      path: "plugin/flutter_chat_ui/packages/flyer_chat_audio_message"
+      path: "plugin/flutter_ui_vendor/flyer_chat_audio_message"
       relative: true
     source: path
     version: "0.0.13+1"
@@ -1070,7 +1063,7 @@ packages:
   flyer_chat_video_message:
     dependency: "direct main"
     description:
-      path: "plugin/flutter_chat_ui/packages/flyer_chat_video_message"
+      path: "plugin/flutter_ui_vendor/flyer_chat_video_message"
       relative: true
     source: path
     version: "0.0.13+1"
@@ -1202,10 +1195,9 @@ packages:
   highlight_text:
     dependency: "direct main"
     description:
-      name: highlight_text
-      sha256: c5c6ae54f89183b10b1029ab33549d32e5f52841524fd0da3df92e11c4534127
-      url: "https://pub.dev"
-    source: hosted
+      path: "plugin/flutter_ui_vendor/highlight_text"
+      relative: true
+    source: path
     version: "1.8.0"
   hooks:
     dependency: transitive
@@ -1304,10 +1296,9 @@ packages:
   intl_phone_number_input:
     dependency: "direct main"
     description:
-      name: intl_phone_number_input
-      sha256: "9d4d7f174cfc3a85b238e0b465ec0e7232fc0815a779e5a58fbf118dee26dfa0"
-      url: "https://pub.dev"
-    source: hosted
+      path: "plugin/flutter_ui_vendor/intl_phone_number_input"
+      relative: true
+    source: path
     version: "0.7.5"
   io:
     dependency: transitive
@@ -1682,10 +1673,10 @@ packages:
     dependency: transitive
     description:
       name: package_config
-      sha256: f096c55ebb7deb7e384101542bfba8c52696c1b56fca2eb62827989ef2353bbc
+      sha256: ffcf4cf3d6c0b74ac43708d9f56625506e8a68aa935abe9d267a7330f320eb5d
       url: "https://pub.dev"
     source: hosted
-    version: "2.2.0"
+    version: "3.0.0"
   package_info_plus:
     dependency: "direct main"
     description:
@@ -2432,26 +2423,26 @@ packages:
     dependency: "direct dev"
     description:
       name: test
-      sha256: ca578dc12bb8b2f40b67b7d3bd2fac4f31c01a6ff7130a14e2597b919934507f
+      sha256: de5d145b0afff7921e5e788a880f52d7e5f3ae24068a202f6fd3b58e4ba26323
       url: "https://pub.dev"
     source: hosted
-    version: "1.31.1"
+    version: "1.32.0"
   test_api:
     dependency: transitive
     description:
       name: test_api
-      sha256: "2a122cbe059f8b610d3a5415f42e255b6c17b1f21eee1d960f31080237fb4f11"
+      sha256: "0a10344e901e5b2e63819567951cb6a06673ed6b84f40462188ff5a0c41f371f"
       url: "https://pub.dev"
     source: hosted
-    version: "0.7.12"
+    version: "0.7.14"
   test_core:
     dependency: transitive
     description:
       name: test_core
-      sha256: d2e98ec12998368dc59ddd47ab709f2cd55acd6b66dc7db764455a44082f4bc5
+      sha256: "80f3fb49087454e07e7e07c67578cfdd156c8c3a5227d8b3f47c7b2d019c2e93"
       url: "https://pub.dev"
     source: hosted
-    version: "0.6.18"
+    version: "0.6.20"
   thumbhash:
     dependency: transitive
     description:
@@ -2661,7 +2652,7 @@ packages:
     source: hosted
     version: "2.12.3"
   video_player_platform_interface:
-    dependency: transitive
+    dependency: "direct dev"
     description:
       name: video_player_platform_interface
       sha256: "92c0fbabe20c788e71fd10d26cea998d0d253282e65d145aed0818731cf593ce"
@@ -2807,26 +2798,23 @@ packages:
   wechat_assets_picker:
     dependency: "direct main"
     description:
-      name: wechat_assets_picker
-      sha256: ccd92f3e8c968e2cbad939bce82b454e798a7669c1e4ab74e871822ce2440b2d
-      url: "https://pub.dev"
-    source: hosted
+      path: "plugin/flutter_ui_vendor/wechat_assets_picker"
+      relative: true
+    source: path
     version: "10.1.3"
   wechat_camera_picker:
     dependency: "direct main"
     description:
-      name: wechat_camera_picker
-      sha256: "9249a48902da1cacc03e40c49fd6b658d4ef1bd3890636e97d2d733f1576a3a8"
-      url: "https://pub.dev"
-    source: hosted
+      path: "plugin/flutter_ui_vendor/wechat_camera_picker"
+      relative: true
+    source: path
     version: "4.6.0"
   wechat_picker_library:
-    dependency: transitive
+    dependency: "direct dev"
     description:
-      name: wechat_picker_library
-      sha256: "5cb61b9aa935b60da5b043f8446fbb9c5077419f20ccc4856bf444aec4f44bc1"
-      url: "https://pub.dev"
-    source: hosted
+      path: "plugin/flutter_ui_vendor/wechat_picker_library"
+      relative: true
+    source: path
     version: "1.0.7"
   win32:
     dependency: "direct overridden"

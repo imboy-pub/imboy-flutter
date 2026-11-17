@@ -1,0 +1,73 @@
+{
+  "schema_version": 1,
+  "package": "highlight_text",
+  "upstream": {
+    "source_kind": "hosted",
+    "version": "1.8.0",
+    "repository": "https://github.com/desconexo/highlight_text",
+    "archive_url": "https://pub.dev/api/archives/highlight_text-1.8.0.tar.gz",
+    "archive_sha256": "c5c6ae54f89183b10b1029ab33549d32e5f52841524fd0da3df92e11c4534127",
+    "archive_verification": "Downloaded archive SHA256 matches the checked-in baseline pubspec.lock."
+  },
+  "vendoring": {
+    "included_paths": [
+      "lib",
+      "LICENSE",
+      "pubspec.yaml"
+    ],
+    "excluded_paths": [
+      "test/",
+      "example/",
+      "examples/",
+      "benchmark/",
+      "screenshots/",
+      "screenshot/",
+      "README.md",
+      "CHANGELOG.md",
+      "analysis_options.yaml",
+      "publication-only images and binaries"
+    ],
+    "rationale": "Preserve the locked runtime implementation, licenses, native registrations and declared runtime assets. Migrate public UI-library ownership and explicitly typed contracts; record local source API/style and deprecated-API changes individually below. No private Flutter SDK imports, compatibility facade, added analyzer ignores or relaxed gates."
+  },
+  "original_files_sha256": {
+    "LICENSE": "e70728304350707db9ece2cc3f87679dfccbdbef518218c42c5858161535caef",
+    "lib/highlight_text.dart": "20defa783f6b8e30ef41ccf3b7e592ac453c06d5caa5c58699315cce44ceb068",
+    "lib/src/binding.dart": "bb3379e176837bcd630b2d812796494a29bb5d7252b0830f82b179e45bce4da9",
+    "lib/src/highlight_text.dart": "c8221182824db937083aa8ff295702bfdc503b678b079c836bc9766c8e6c28f2",
+    "lib/src/highlighted_word.dart": "69a4e15cd4390fc095801bdb35d8dfa64e232c12dfde72e8aed9b3a4833cd872",
+    "lib/src/sort.dart": "074605ceb88df7d46fe3cff770c19608024f228d2bd8e70007325b1c512e685b",
+    "lib/src/text_element.dart": "d376d3e8390ee7cedbe376bfd81e0ef6263d7c930493280b08522108c122c845",
+    "pubspec.yaml": "77907999af48f75c8fe78fa36189a154e690c9a07737e8b51d695595169b205d"
+  },
+  "modifications": [
+    {
+      "path": "lib/highlight_text.dart",
+      "changes": [
+        "Remove the unnecessary named library declaration."
+      ]
+    },
+    {
+      "path": "lib/src/highlight_text.dart",
+      "changes": [
+        "Replace the public legacy Material import with package:material_ui/material_ui.dart; preserve widget logic and public signatures.",
+        "Make the immutable TextHighlight constructor const and accept an optional standard Widget key.",
+        "Use MediaQuery.textScalerOf(context) for ambient nonlinear text scaling; preserve explicit textScaleFactor overrides with TextScaler.linear and the intentionally unscaled WidgetSpan child with TextScaler.noScaling.",
+        "Remove the unreachable default from the exhaustive HighlightBinding switch; document the existing catch fallback without changing its control flow."
+      ]
+    },
+    {
+      "path": "lib/src/highlighted_word.dart",
+      "changes": [
+        "Replace the public legacy Material import with package:material_ui/material_ui.dart; preserve widget logic and public signatures."
+      ]
+    },
+    {
+      "path": "pubspec.yaml",
+      "changes": [
+        "Mark the application-owned source copy publish_to: none.",
+        "Declare the Dart >=3.13 and Flutter >=3.47 minimum required by the selected public UI packages.",
+        "Declare material_ui ^1.11.0 as a direct runtime dependency."
+      ]
+    }
+  ]
+}

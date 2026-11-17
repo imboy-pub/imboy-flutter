@@ -1,6 +1,8 @@
 import 'dart:async';
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart'
+    show EasyLoading, EasyLoadingStyle;
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:imboy/component/ui/app_loading.dart';
@@ -26,6 +28,65 @@ import 'package:imboy/component/ui/app_loading.dart';
 /// 一律 unawaited + 显式 pump 推进动画帧。真实 app 事件循环自动流转，
 /// 无此问题。
 void main() {
+  testWidgets('真实进度与 toast 使用新主题并显示中文关闭语义', (tester) async {
+    final loading = EasyLoading.instance;
+    final previousStyle = loading.loadingStyle;
+    final previousDismissOnTap = loading.dismissOnTap;
+    loading
+      ..loadingStyle = EasyLoadingStyle.auto
+      ..dismissOnTap = true;
+    addTearDown(() {
+      loading
+        ..loadingStyle = previousStyle
+        ..dismissOnTap = previousDismissOnTap;
+    });
+
+    for (final brightness in [Brightness.dark, Brightness.light]) {
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: ThemeData(brightness: brightness),
+          locale: const Locale('zh', 'CN'),
+          supportedLocales: const [Locale('zh', 'CN')],
+          localizationsDelegates: GlobalMaterialLocalizations.delegates,
+          builder: AppLoading.init(),
+          home: const Scaffold(),
+        ),
+      );
+      unawaited(AppLoading.showProgress(0.4, status: '上传进度'));
+      await tester.pumpAndSettle();
+      final expectedColor = brightness == Brightness.dark
+          ? Colors.white
+          : Colors.black;
+      expect(
+        tester.widget<Text>(find.text('上传进度')).style!.color,
+        expectedColor,
+      );
+      final dismiss = find.byWidgetPredicate(
+        (widget) =>
+            widget is Semantics &&
+            widget.properties.button == true &&
+            widget.properties.label == '关闭',
+      );
+      expect(dismiss, findsOneWidget);
+      await tester.tapAt(tester.getTopLeft(dismiss) + const Offset(8, 8));
+      await tester.pumpAndSettle();
+      expect(find.text('上传进度'), findsNothing);
+
+      unawaited(
+        AppLoading.showToast('迁移后的提示', duration: const Duration(seconds: 1)),
+      );
+      await tester.pumpAndSettle();
+      expect(
+        tester.widget<Text>(find.text('迁移后的提示')).style!.color,
+        expectedColor,
+      );
+      await tester.pump(const Duration(seconds: 1));
+      await tester.pumpAndSettle();
+      expect(find.text('迁移后的提示'), findsNothing);
+      expect(tester.takeException(), isNull);
+    }
+  });
+
   testWidgets('旧转文字任务不能覆盖或关闭新会话提示', (tester) async {
     await tester.pumpWidget(
       MaterialApp(builder: AppLoading.init(), home: const Scaffold()),

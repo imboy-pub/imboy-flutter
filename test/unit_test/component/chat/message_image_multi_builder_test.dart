@@ -9,7 +9,7 @@
 ///   - >9 张 → 只渲染 9 格，最后一格盖 "+N" 折叠角标
 library;
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart';
 import 'package:flutter_test/flutter_test.dart';
 

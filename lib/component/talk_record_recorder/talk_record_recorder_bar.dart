@@ -10,7 +10,7 @@
 /// 注入，denied 时仅呈现引导；不自动结束（收起 ≠ 停止）。
 library;
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 import 'package:imboy/service/talk_record/talk_record_recorder_service.dart';
 import 'package:imboy/theme/default/app_colors.dart';

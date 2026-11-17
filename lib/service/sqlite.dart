@@ -57,8 +57,8 @@ class SqliteService {
   // v35: 消息四表 conv_seq/accepted_at（R07 会话权威排序；可空，NULL=服务端未给出）
   // v36: 业务消息 ID 与 conversation.last_msg_id 原值保真 TEXT；不可逆降级。
   // v37: 频道来源和工作区 ID；旧行保持未知，不推断授权。
-  // v39: 账号库内的个人频道显示偏好；跳过未注册的 v38 FTS 草稿。
-  static const _dbVersion = 39;
+  // v40: contentful FTS for exact repository deletion; v38 stays unregistered.
+  static const _dbVersion = 40;
 
   // 单例构造
   SqliteService._privateConstructor();
@@ -645,14 +645,23 @@ class SqliteService {
     );
   }
 
-  /// 插入数据（带重试机制和超时控制）
-  /// Insert data (with retry logic and timeout control)
-  ///
-  /// 参数 (Parameters):
-  /// - table: 表名
-  /// - data: 要插入的数据
-  /// - retries: 重试次数，默认 3
-  /// - timeoutMs: 超时时间（毫秒），默认 5000ms (5秒)
+  /// SQL writes cannot be cancelled by Future.timeout. Keep awaiting the
+  /// original write (and holding the lock) after the warning threshold, so
+  /// callers receive its actual outcome and never retry a still-running write.
+  Future<int> _awaitWrite(Future<int> write, String table, int timeoutMs) =>
+      write.timeout(
+        Duration(milliseconds: timeoutMs),
+        onTimeout: () {
+          AppLogger.warning(
+            'SQLite write slow: table=$table; awaiting outcome',
+          );
+          return write;
+        },
+      );
+
+  /// 插入数据；只重试已确定的锁错误。
+  /// Insert data; retry only definite lock failures.
+  /// - timeoutMs: 慢写告警阈值（毫秒），默认 5000ms，不取消已发起写入
   Future<int> insert(
     String table,
     Map<String, dynamic> data, {
@@ -664,15 +673,15 @@ class SqliteService {
         try {
           final db = await this.db;
           if (db == null) return 0;
-          return await db
-              .insert(table, data, conflictAlgorithm: ConflictAlgorithm.replace)
-              .timeout(
-                Duration(milliseconds: timeoutMs),
-                onTimeout: () {
-                  AppLogger.warning('Insert timeout: table=$table');
-                  return 0; // 超时返回 0
-                },
-              );
+          return await _awaitWrite(
+            db.insert(
+              table,
+              data,
+              conflictAlgorithm: ConflictAlgorithm.replace,
+            ),
+            table,
+            timeoutMs,
+          );
         } catch (e) {
           if (_isDatabaseLockedError(e) && attempt < retries - 1) {
             await Future<dynamic>.delayed(
@@ -695,17 +704,9 @@ class SqliteService {
     return result;
   }
 
-  /// 更新数据（带重试机制和超时控制）
-  /// Update data (with retry logic and timeout control)
-  ///
-  /// 参数 (Parameters):
-  /// - table: 表名
-  /// - values: 要更新的值
-  /// - where: WHERE 子句
-  /// - whereArgs: WHERE 参数
-  /// - conflictAlgorithm: 冲突算法
-  /// - retries: 重试次数，默认 3
-  /// - timeoutMs: 超时时间（毫秒），默认 5000ms (5秒)
+  /// 更新数据；只重试已确定的锁错误。
+  /// Update data; retry only definite lock failures.
+  /// - timeoutMs: 慢写告警阈值（毫秒），默认 5000ms，不取消已发起写入
   Future<int> update(
     String table,
     Map<String, Object?> values, {
@@ -720,23 +721,17 @@ class SqliteService {
         try {
           final db = await this.db;
           if (db == null) return 0;
-          return await db
-              .update(
-                table,
-                values,
-                where: where,
-                whereArgs: whereArgs,
-                conflictAlgorithm: conflictAlgorithm,
-              )
-              .timeout(
-                Duration(milliseconds: timeoutMs),
-                onTimeout: () {
-                  AppLogger.warning(
-                    'Update timeout: table=$table, where=$where',
-                  );
-                  return 0; // 超时返回 0
-                },
-              );
+          return await _awaitWrite(
+            db.update(
+              table,
+              values,
+              where: where,
+              whereArgs: whereArgs,
+              conflictAlgorithm: conflictAlgorithm,
+            ),
+            table,
+            timeoutMs,
+          );
         } catch (e) {
           if (_isDatabaseLockedError(e) && attempt < retries - 1) {
             await Future<dynamic>.delayed(

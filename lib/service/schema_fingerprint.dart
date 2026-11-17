@@ -9,7 +9,7 @@
 //   （index_list + index_info，含 origin）、外键（foreign_key_list）、
 //   触发器/虚表/视图的 DDL 文本（两路径同源脚本，文本一致）。
 // - 全局按 (type, name) 稳定排序，列按 cid 排序，索引列按 seqno 排序。
-// - 排除 sqlite_ 内部对象与 fts5 影子表（*_fts_data/_idx/_docsize/_config，
+// - 排除 sqlite_ 内部对象与 fts5 影子表（*_fts_content/_data/_idx/_docsize/_config，
 //   由虚表自动管理，结构固定且不属于应用契约）。
 // - 只读结构，不含任何业务数据行（数据变化不影响 hash）。
 //
@@ -77,7 +77,8 @@ class SchemaFingerprint {
   /// fts5 影子表不属于应用 schema 契约（虚表自动管理）。
   static bool _isFtsShadowTable(String type, String name) {
     if (type != 'table') return false;
-    return name.endsWith('_fts_data') ||
+    return name.endsWith('_fts_content') ||
+        name.endsWith('_fts_data') ||
         name.endsWith('_fts_idx') ||
         name.endsWith('_fts_docsize') ||
         name.endsWith('_fts_config');

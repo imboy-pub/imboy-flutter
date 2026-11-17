@@ -12,7 +12,7 @@ import 'dart:convert' show jsonDecode;
 import 'dart:io' show Directory, File, IOOverrides;
 import 'dart:typed_data' show ByteData, Uint8List;
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../support/golden_font_loader.dart';

@@ -1,8 +1,8 @@
 // 页面走 iOS/Glass 风格（GlassAppBar + CupertinoButton + CupertinoIcons），
 // 断言必须用 CupertinoIcons；此前用 Material Icons.add 导致 16 个用例
 // 从未通过过（Icons.add=U+0E047 与 CupertinoIcons.add 不是同一 codepoint）。
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
+import 'package:cupertino_ui/cupertino_ui.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/i18n/strings.g.dart';

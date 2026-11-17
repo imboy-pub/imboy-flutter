@@ -15,7 +15,7 @@
 // 「A 端按本机 DND 抑制通知」半边由 J16.a 既有收据覆盖（本机 on 抑制
 // 通知已验），本脚本不重复；A 端实时在线对照不做，收据如实注记。
 
-import 'package:flutter/cupertino.dart';
+import 'package:cupertino_ui/cupertino_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/page/chat/chat_setting/chat_setting_page.dart';
 import 'package:imboy/page/conversation/widget/conversation_item.dart';

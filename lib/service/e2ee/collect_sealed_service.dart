@@ -416,7 +416,7 @@ class CollectSealedService {
           item.info = Map<String, dynamic>.from(decrypted);
         }
       } on Exception {
-        if (kDebugMode) {}
+        // Keep the original encrypted item available when a legacy key is absent.
       }
     }
   }

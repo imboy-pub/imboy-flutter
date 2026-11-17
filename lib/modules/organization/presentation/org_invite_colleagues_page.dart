@@ -21,8 +21,8 @@ library;
 
 import 'package:fluwx/fluwx.dart';
 import 'package:imboy/app_core/routing/organization_invite_link.dart';
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
+import 'package:cupertino_ui/cupertino_ui.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
 import 'package:share_plus/share_plus.dart';
 

@@ -3,8 +3,8 @@
 // 通过群列表 API 取得现有群的展示参数后进入详情页，只读取详情/成员，
 // 不修改群名、备注、成员、公告、权限或危险操作。
 
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
+import 'package:cupertino_ui/cupertino_ui.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/page/group/group_detail/group_detail_page.dart';
 import 'package:imboy/store/api/group_api.dart';

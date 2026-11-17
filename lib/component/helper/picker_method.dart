@@ -3,7 +3,7 @@
 // [Date] 2020-05-30 20:56
 //
 import 'package:flutter/foundation.dart' show kIsWeb;
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:wechat_assets_picker/wechat_assets_picker.dart';
 
 /// Define a regular pick method.

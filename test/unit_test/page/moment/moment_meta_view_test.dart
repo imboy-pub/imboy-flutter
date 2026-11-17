@@ -6,7 +6,7 @@
 ///   - `MomentAtSummary`：1 人「提醒了 X」/ 多人「提醒了 X 等N人」/ 无则不显示
 library;
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/moment/moment_meta_view.dart';

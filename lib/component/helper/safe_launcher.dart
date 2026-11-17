@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:go_router/go_router.dart';
 import 'package:imboy/app_core/routing/organization_invite_link.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:cupertino_ui/cupertino_ui.dart';
 import 'package:imboy/component/web_view.dart';
 import 'package:url_launcher/url_launcher.dart';
 

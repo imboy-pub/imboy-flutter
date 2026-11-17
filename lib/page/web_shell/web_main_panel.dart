@@ -4,7 +4,7 @@
 /// “减少动态效果”时自动取消动画。
 library;
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:imboy/theme/default/app_duration.dart';
 
 import 'web_shell_state.dart';

@@ -8,12 +8,14 @@
 // External next stages must bind this receipt/session/cipher hashes, independently
 // observe real background transitions, kill/restart the process, and prove AAC
 // decoding plus attachment lifecycle. They are NOT_EXECUTED here, never PASS.
+import 'package:flutter/foundation.dart' show debugPrintSynchronously;
+
 import 'dart:convert';
 import 'dart:io';
 
 import 'package:crypto/crypto.dart';
 import 'package:device_info_plus/device_info_plus.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:path_provider/path_provider.dart';
@@ -185,8 +187,7 @@ Future<void> _capture(
         .writeAsString(jsonEncode(receipt), flush: true);
     // No PCM/AAC plaintext or secret key is persisted by this verifier.
     // Host must collect only this task-owned evidence after explicit device lease.
-    // ignore: avoid_print
-    print('TALK_CAPTURE_RECEIPT ${jsonEncode(receipt)}');
+    debugPrintSynchronously('TALK_CAPTURE_RECEIPT ${jsonEncode(receipt)}');
     _require(
       observed.every((s) => s['sample_rate_matches_manifest'] == true),
       'actual AAC sample rate differs from production manifest',

@@ -751,15 +751,25 @@ void main() {
 
   test('会话目录中段文件为密文（无明文残留），明文临时文件即用即删', () async {
     final svc = await started();
-    tickBoth(1200);
-    expect(
-      await waitUntil(() => svc.snapshot.segmentCount == 1),
-      isTrue,
-      reason: '第一次滚动未完成（避免与 end 竞态）',
+    addTearDown(svc.dispose);
+    int startCount() =>
+        engine.events.where((event) => event.startsWith('start:')).length;
+    // 等待已封段且下一段已启动的快照，避开 ticker 在滚动中的快照；
+    // 用完成事件同步，不把宿主的加密/磁盘 I/O 耗时当成录音业务时限。
+    final rolledOver = svc.snapshots.firstWhere(
+      (snapshot) =>
+          snapshot.phase != TalkRecordRecorderPhase.recording ||
+          (snapshot.segmentCount > 0 && startCount() >= 2),
     );
+    tickBoth(1200);
+    final afterRollover = await rolledOver;
+    expect(afterRollover.phase, TalkRecordRecorderPhase.recording);
+    expect(afterRollover.segmentCount, 1);
+    expect(startCount(), 2);
     tickBoth(500);
-    await settleIO();
-    await svc.end();
+    final result = await svc.end();
+    expect(result.savedCleanly, isTrue);
+    expect(result.segmentCount, 2);
 
     final dir = Directory('${baseDir.path}/${svc.sessionId}');
     final files = dir

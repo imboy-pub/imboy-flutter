@@ -14,6 +14,7 @@ import 'package:imboy/store/model/message_order.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 import '../../fixtures/sqlite_migration/sqlite_migration_fixtures.dart';
+import '../../fixtures/sqlite_migration/migration_inventory.dart';
 
 const _uk3 = 'synthetic-r07-conv-001';
 const _now = 1750000000000;
@@ -91,8 +92,8 @@ void main() {
   });
 
   group('v35 迁移边（manifest 声明）', () {
-    test('manifest 最新版本为 39 且 v35 边存在', () {
-      expect(kMigrationManifest.latestVersion, 39);
+    test('manifest 最新版本与 inventory 一致且 v35 边存在', () {
+      expect(kMigrationManifest.latestVersion, kInventoryCurrentDbVersion);
       final edge = kMigrationManifest.edge(34, 35);
       expect(edge, isNotNull);
       expect(edge!.reversible, isTrue);

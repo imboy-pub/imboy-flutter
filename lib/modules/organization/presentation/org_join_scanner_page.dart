@@ -13,9 +13,10 @@ import 'dart:async';
 
 import 'package:imboy/app_core/routing/organization_invite_link.dart';
 
-import 'package:flutter/cupertino.dart' show CupertinoButton, CupertinoIcons;
+import 'package:cupertino_ui/cupertino_ui.dart'
+    show CupertinoButton, CupertinoIcons;
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:permission_handler/permission_handler.dart'
     show

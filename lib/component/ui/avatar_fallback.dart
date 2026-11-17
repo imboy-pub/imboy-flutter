@@ -1,4 +1,4 @@
-import 'package:flutter/cupertino.dart';
+import 'package:cupertino_ui/cupertino_ui.dart';
 
 /// 头像缺省内容：有名称显示首字，无名称显示语义图标。
 ///

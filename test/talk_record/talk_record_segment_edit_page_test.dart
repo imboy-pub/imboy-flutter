@@ -6,7 +6,7 @@
 /// 零网络，不是与真实编辑 API 的联调验收（T15/T22）。
 library;
 
-import 'package:flutter/cupertino.dart';
+import 'package:cupertino_ui/cupertino_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 

@@ -6,7 +6,7 @@
 // flag 判定）在本机无设备环境全绿；真机版共享
 // integration_test/helpers/chat_multi_fixtures.dart fixtures。
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart'
     show Message, MessageStatus, TextMessage;
 import 'package:flutter_riverpod/flutter_riverpod.dart';

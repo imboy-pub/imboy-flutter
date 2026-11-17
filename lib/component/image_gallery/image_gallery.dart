@@ -1,7 +1,7 @@
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:equatable/equatable.dart';
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
+import 'package:cupertino_ui/cupertino_ui.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:imboy/component/ui/app_back_scope.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/theme/default/font_types.dart';
@@ -11,6 +11,7 @@ import 'package:photo_view/photo_view.dart';
 import 'package:photo_view/photo_view_gallery.dart';
 
 import 'package:imboy/component/helper/func.dart';
+import 'package:imboy/component/image_gallery/photo_view_loading.dart';
 
 part 'image_gallery.g.dart';
 
@@ -242,7 +243,10 @@ Future<void> zoomInPhotoView(BuildContext context, String thumb) async {
     context: context,
     builder: (context) => GestureDetector(
       onTap: () => Navigator.of(context).pop(),
-      child: PhotoView(imageProvider: thumbProvider),
+      child: PhotoView(
+        imageProvider: thumbProvider,
+        loadingBuilder: buildPhotoViewLoading,
+      ),
     ),
   );
 }

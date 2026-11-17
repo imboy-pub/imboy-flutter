@@ -370,7 +370,7 @@ void main() {
       final source = File('lib/service/message_e2ee.dart').readAsStringSync();
       expect(
         source,
-        contains("part of 'message.dart';"),
+        startsWith("part of 'message.dart';"),
         reason: '解密函数必须保留在原消息服务 library',
       );
 

@@ -3,8 +3,8 @@ import 'dart:convert' show jsonDecode;
 import 'package:imboy/theme/default/app_spacing.dart';
 
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:material_ui/material_ui.dart';
+import 'package:cupertino_ui/cupertino_ui.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart';
 import 'package:imboy/store/model/model_parse_utils.dart';
 import 'package:imboy/component/ui/app_loading.dart';
@@ -742,6 +742,7 @@ class UserCollectNotifier extends _$UserCollectNotifier {
       state.page += 1;
     }
     state.items = list;
+    if (!context.mounted) return;
 
     state.searchTrailing = [
       GestureDetector(
@@ -799,10 +800,8 @@ class UserCollectNotifier extends _$UserCollectNotifier {
                   Icon(
                     CupertinoIcons.xmark_circle_fill,
                     size: 16,
-                    color: Theme.of(
-                      // ignore: use_build_context_synchronously resolveWith 同步回调,paint 时 context 有效
-                      context,
-                    ).colorScheme.onPrimary.withValues(alpha: 0.75),
+                    color: Theme.of(context).colorScheme.onPrimary
+                        .withValues(alpha: 0.75),
                   ),
                 ],
               ),
@@ -827,6 +826,7 @@ class UserCollectNotifier extends _$UserCollectNotifier {
       state.page += 1;
     }
     state.items = list;
+    if (!context.mounted) return;
 
     state.searchTrailing = [
       GestureDetector(
@@ -867,10 +867,8 @@ class UserCollectNotifier extends _$UserCollectNotifier {
                       child: Icon(
                         CupertinoIcons.rectangle_3_offgrid,
                         size: 18,
-                        color: Theme.of(
-                          // ignore: use_build_context_synchronously resolveWith 同步回调,paint 时 context 有效
-                          context,
-                        ).colorScheme.onPrimary.withValues(alpha: 0.8),
+                        color: Theme.of(context).colorScheme.onPrimary
+                            .withValues(alpha: 0.8),
                       ),
                     ),
                   ),
@@ -887,10 +885,8 @@ class UserCollectNotifier extends _$UserCollectNotifier {
                   Icon(
                     CupertinoIcons.xmark_circle_fill,
                     size: 16,
-                    color: Theme.of(
-                      // ignore: use_build_context_synchronously resolveWith 同步回调,paint 时 context 有效
-                      context,
-                    ).colorScheme.onPrimary.withValues(alpha: 0.7),
+                    color: Theme.of(context).colorScheme.onPrimary
+                        .withValues(alpha: 0.7),
                   ),
                 ],
               ),

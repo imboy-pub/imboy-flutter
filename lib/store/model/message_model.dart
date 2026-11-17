@@ -4,6 +4,7 @@ import 'package:flutter_chat_core/flutter_chat_core.dart';
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/service/message_type_constants.dart';
 import 'package:imboy/service/message_type_normalizer.dart';
+import 'package:imboy/service/protocol/outbound_message.dart';
 import 'package:imboy/store/model/model_parse_utils.dart';
 import 'package:imboy/store/model/channel_decimal_id.dart';
 import 'package:imboy/store/model/message_columns.dart';
@@ -190,22 +191,10 @@ class ReEditMessage {
 }
 
 class MessageModel {
-  static const localSenderDidKey = '_local_sender_did';
+  static const localSenderDidKey = OutboundMessage.localSenderDidKey;
 
-  static String outboundJson(String message) {
-    try {
-      final decoded = jsonDecode(message);
-      if (decoded is! Map<String, dynamic> || decoded['e2ee'] is! Map) {
-        return message;
-      }
-      final metadata = Map<String, dynamic>.from(decoded['e2ee'] as Map);
-      if (!metadata.containsKey(localSenderDidKey)) return message;
-      metadata.remove(localSenderDidKey);
-      return jsonEncode({...decoded, 'e2ee': metadata});
-    } on FormatException {
-      return message; // Existing frame validation owns non-JSON control messages.
-    }
-  }
+  static String outboundJson(String message) =>
+      OutboundMessage.parse(message).wire;
 
   int autoId;
   // String 类型对齐 backend `binary()` msg_id 契约（imboy/src/ds/message_ds.erl:566

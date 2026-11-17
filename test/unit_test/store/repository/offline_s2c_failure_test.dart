@@ -28,34 +28,31 @@ void main() {
     await db.close();
   });
 
-  test(
-    'failed system handler propagates; successful retry alone returns ACK IDs',
-    () async {
-      final failure = StateError('synthetic system handler failure');
-      var calls = 0;
-      await expectLater(
-        repo.batchInsertOfflineMessages(
-          messages,
-          onS2CMessage: (_) async {
-            calls++;
-            throw failure;
-          },
-        ),
-        throwsA(same(failure)),
-      );
-      expect(calls, 1);
-      expect(
-        await repo.batchInsertOfflineMessages(
-          messages,
-          onS2CMessage: (_) async {
-            calls++;
-          },
-        ),
-        ['offline_system_probe'],
-      );
-      expect(calls, 2);
-    },
-  );
+  test('failed system handler stays unacknowledged; successful retry returns its ID', () async {
+    final failure = StateError('synthetic system handler failure');
+    var calls = 0;
+    expect(
+      await repo.batchInsertOfflineMessages(
+        messages,
+        onS2CMessage: (_) async {
+          calls++;
+          throw failure;
+        },
+      ),
+      isEmpty,
+    );
+    expect(calls, 1);
+    expect(
+      await repo.batchInsertOfflineMessages(
+        messages,
+        onS2CMessage: (_) async {
+          calls++;
+        },
+      ),
+      ['offline_system_probe'],
+    );
+    expect(calls, 2);
+  });
 
   test('system events without a handler cannot be acknowledged', () async {
     await expectLater(

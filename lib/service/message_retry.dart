@@ -506,13 +506,10 @@ class MessageRetry with EventSubscriptionManager {
         continue;
       }
 
-      if (msg.status == IMBoyMessageStatus.sent ||
-          msg.status == IMBoyMessageStatus.delivered ||
-          msg.status == IMBoyMessageStatus.seen) {
-        // 消息已成功，从队列移除
-        iPrint(
-          '✅ [RETRY] 消息已成功，从重试队列移除: ${info.messageId}, status=${msg.status}',
-        );
+      if (msg.status != IMBoyMessageStatus.sending &&
+          msg.status != IMBoyMessageStatus.pendingRetry) {
+        // 拒收/放弃和成功/撤回一样，不得被旧队列项自动复活。
+        iPrint('✅ [RETRY] 消息已结束自动重试: ${info.messageId}, status=${msg.status}');
         toRemove.add(info);
         continue;
       }
@@ -687,17 +684,19 @@ class MessageRetry with EventSubscriptionManager {
 
       // E2EE-062：明文闸门。本路径**不经过** encryptPayload 与 PolicyGate，
       // 直接把库里的 payload 原样发出。加密失败（OTK 耗尽 / 被限流）的行此时
-      // 是明文且 e2ee 为空，却仍在重试状态集里（error/sending/pendingRetry）——
+      // 是明文且 e2ee 为空，却仍在重试状态集里（sending/pendingRetry）——
       // 不拦就等于把发送侧的 fail-closed 整条旁路掉。
       //
-      // 闸门必须排在 **CAS 之前**：拦下意味着这一轮什么都不该发生，包括不该动库。
+      // 闸门必须排在 **CAS 之前**：拒绝后不得进入发送 CAS，应落终态后出队。
       // 排在 CAS 之后的话，被拦的行每个扫描周期都会被翻成 `sending`，
       // 用户永远看到「发送中」而不是「失败」，DB 写入无上限；且随后即出队，
       // retryCount 被丢弃，**永远到不了放弃上限**。
       final msg = await repo.find(info.messageId);
       if (!_isCurrentRetry(info)) return;
-      if (msg == null) {
-        iPrint('⚠️ [RETRY] 消息被删除，取消重试: ${info.messageId}');
+      if (msg == null ||
+          (msg.status != IMBoyMessageStatus.sending &&
+              msg.status != IMBoyMessageStatus.pendingRetry)) {
+        iPrint('⚠️ [RETRY] 消息已删除或结束自动重试: ${info.messageId}');
         _removeRetryIfSame(info);
         return;
       }
@@ -718,13 +717,12 @@ class MessageRetry with EventSubscriptionManager {
       }
 
       // 使用 CAS (Compare-And-Set) 防止并发状态覆盖：
-      // 仅允许 error/sending 状态进入重试发送路径。
+      // 仅中间态可自动发送；拒收在上面的 await 后落库也不能被复活。
       final updatedRows = await repo.updateWithConditions(
         {'id': info.messageId, 'status': IMBoyMessageStatus.sending},
-        where: "id = ? AND status IN (?, ?, ?)",
+        where: "id = ? AND status IN (?, ?)",
         whereArgs: [
           info.messageId,
-          IMBoyMessageStatus.error,
           IMBoyMessageStatus.sending,
           IMBoyMessageStatus.pendingRetry,
         ],

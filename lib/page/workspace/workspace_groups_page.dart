@@ -9,8 +9,8 @@
 /// 本工作区群，不伪称企业全部群（J14.a 准确空态，不越权补资源）。
 library;
 
-import 'package:flutter/material.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:material_ui/material_ui.dart';
+import 'package:cupertino_ui/cupertino_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 

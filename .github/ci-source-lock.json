@@ -4,7 +4,7 @@
   "repositories": {
     "backend": {
       "repository": "imboy-pub/imboy",
-      "sha": "b4b8ad4c82964326c1a040e036a018c4675b86c3"
+      "sha": "79ee792212fe34665b1939986fb4b928efec98c1"
     },
     "admin": {
       "repository": "imboy-pub/imboy-admin-frontend",

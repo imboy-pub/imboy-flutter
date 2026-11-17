@@ -207,7 +207,7 @@ void main() {
         initialized: true,
       );
       const id = 'gd0000000000000pt01';
-      await _insertMsg(id, status: IMBoyMessageStatus.error);
+      await _insertMsg(id, status: IMBoyMessageStatus.pendingRetry);
 
       await driveRetry(id);
 
@@ -226,7 +226,7 @@ void main() {
         initialized: true,
       );
       const id = 'gd0000000000000pt02';
-      await _insertMsg(id, status: IMBoyMessageStatus.error);
+      await _insertMsg(id, status: IMBoyMessageStatus.pendingRetry);
 
       await driveRetry(id);
 
@@ -237,6 +237,8 @@ void main() {
             'OTK 耗尽/429 导致加密失败的行就是这个形状；'
             '按库中原样重发 = 明文出网，绕开发送侧 fail-closed',
       );
+      expect(await statusOf(id), IMBoyMessageStatus.error);
+      expect(retry.getRetryInfo(id), isNull);
     });
 
     test('正向可用性：部署要求加密 + 已加密行 → 必须照常重投', () async {
@@ -247,7 +249,7 @@ void main() {
       const id = 'gd0000000000000pt03';
       await _insertMsg(
         id,
-        status: IMBoyMessageStatus.error,
+        status: IMBoyMessageStatus.pendingRetry,
         e2ee: <String, dynamic>{
           'meta_version': 3,
           'protocol': 'olm',
@@ -272,7 +274,7 @@ void main() {
     // 闸门若排在 CAS 之后，被拦下的行每个扫描周期都会被写库翻成 `sending`：
     // 用户永远看到「发送中」而不是「失败」，DB 写入无上限，且因为随后即出队，
     // retryCount 被丢弃，**永远到不了放弃上限**。
-    // 拦下 = 这一轮什么都不该发生，包括不该动库。
+    // 拦下时落终态 error；不得经过发送 CAS 再把状态翻回 sending。
 
     test('对照组：允许重投的行，状态必须被 CAS 翻成 sending', () async {
       EncryptionModeService.debugSet(
@@ -280,7 +282,7 @@ void main() {
         initialized: true,
       );
       const id = 'gd0000000000000pt05';
-      await _insertMsg(id, status: IMBoyMessageStatus.error);
+      await _insertMsg(id, status: IMBoyMessageStatus.pendingRetry);
 
       await driveRetry(id);
 
@@ -290,17 +292,17 @@ void main() {
         IMBoyMessageStatus.sending,
         reason:
             '对照组红 = CAS 根本没生效，'
-            '此时"被拦下时状态不变"的绿也说明不了任何事',
+            '此时"被拦下时没有进入发送态"的绿也说明不了任何事',
       );
     });
 
-    test('被拦下时不得改动 DB 状态（闸门必须排在 CAS 之前）', () async {
+    test('被拦下时落终态 error（不得再经发送 CAS 复活）', () async {
       EncryptionModeService.debugSet(
         mode: EncryptionMode.strictE2ee,
         initialized: true,
       );
       const id = 'gd0000000000000pt06';
-      await _insertMsg(id, status: IMBoyMessageStatus.error);
+      await _insertMsg(id, status: IMBoyMessageStatus.pendingRetry);
 
       await driveRetry(id);
 
@@ -309,9 +311,10 @@ void main() {
         await statusOf(id),
         IMBoyMessageStatus.error,
         reason:
-            '闸门排在 CAS 之后会把 error 翻成 sending：'
+            '拒绝后的终态不得被发送 CAS 翻回 sending：'
             '用户永远看到「发送中」，且永远到不了放弃上限',
       );
+      expect(retry.getRetryInfo(id), isNull);
     });
 
     test('策略未就绪（未知）+ 明文行 → 不得出网（未知即拦）', () async {
@@ -320,11 +323,13 @@ void main() {
         initialized: false,
       );
       const id = 'gd0000000000000pt04';
-      await _insertMsg(id, status: IMBoyMessageStatus.error);
+      await _insertMsg(id, status: IMBoyMessageStatus.pendingRetry);
 
       await driveRetry(id);
 
       expect(sentOf(id), isEmpty, reason: '策略取不到时不得 fail-open；发送路径对同一异常也是拒发');
+      expect(await statusOf(id), IMBoyMessageStatus.error);
+      expect(retry.getRetryInfo(id), isNull);
     });
   });
 }

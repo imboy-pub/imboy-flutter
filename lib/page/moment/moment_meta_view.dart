@@ -5,8 +5,8 @@
 /// [momentAtNames]（enrich 阶段已解析昵称，展示层同步读取）。
 library;
 
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
+import 'package:cupertino_ui/cupertino_ui.dart';
+import 'package:material_ui/material_ui.dart';
 
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/moment/moment_utils.dart';

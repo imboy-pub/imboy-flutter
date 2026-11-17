@@ -15,7 +15,7 @@
 // 第一条；打印「J17C base settled; awaiting second unread」后注入
 // 第二条（/tmp/j17_seed.erl，SEED_MSG_ID 环境变量区分）。
 
-import 'package:flutter/cupertino.dart';
+import 'package:cupertino_ui/cupertino_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/page/conversation/widget/conversation_item.dart';
 import 'package:imboy/service/sqlite.dart';

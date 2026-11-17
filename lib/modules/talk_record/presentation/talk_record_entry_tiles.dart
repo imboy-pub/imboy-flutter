@@ -33,8 +33,8 @@
 /// 返回如实降级，不在入口做能力预判。
 library;
 
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
+import 'package:cupertino_ui/cupertino_ui.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:imboy/component/ui/resource_entry_tile.dart';

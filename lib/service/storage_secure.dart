@@ -1,8 +1,14 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart' show PlatformException;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:imboy/service/e2ee/e2ee_secret_inventory.dart';
+
+class _E2eeWriteScope {
+  bool active = true;
+}
 
 /// 安全存储服务 - 基于 FlutterSecureStorage
 /// Secure storage service based on FlutterSecureStorage
@@ -47,6 +53,67 @@ class StorageSecureService {
   /// 获取单例实例（推荐使用）
   /// Get singleton instance (recommended)
   static StorageSecureService get to => _instance;
+
+  int _e2eeKeyGeneration = 0;
+  Future<void> _e2eeKeyWrites = Future<void>.value();
+  static final _e2eeWriteScopeKey = Object();
+
+  /// Capture before generating/restoring keys or uploading a backup. Deletion
+  /// revokes earlier operations without changing the logged-in account.
+  int get e2eeKeyGeneration => _e2eeKeyGeneration;
+
+  Future<T> _serializeE2eeKeys<T>(Future<T> Function() operation) {
+    // Identity batches may migrate legacy Keychain entries while reading
+    // archived keys. Their nested writes already own this queue.
+    final current = Zone.current[_e2eeWriteScopeKey] as _E2eeWriteScope?;
+    if (current?.active ?? false) return Future<T>.sync(operation);
+    final result = _e2eeKeyWrites.then((_) async {
+      final scope = _E2eeWriteScope();
+      try {
+        return await runZoned(
+          operation,
+          zoneValues: {_e2eeWriteScopeKey: scope},
+        );
+      } finally {
+        scope.active = false;
+      }
+    });
+    _e2eeKeyWrites = result.then<void>(
+      (_) {},
+      onError: (Object _, StackTrace _) {},
+    );
+    return result;
+  }
+
+  /// Batch identity/passphrase writes with the same queue used by deletion.
+  /// A delete accepted during a native write waits for that write, then purges
+  /// it. A delayed response from before the delete cannot enter the queue.
+  Future<T> writeE2eeKeys<T>(int generation, Future<T> Function() write) =>
+      _serializeE2eeKeys(() async {
+        void ensureCurrent() {
+          if (generation != _e2eeKeyGeneration) {
+            throw StateError('E2EE key operation was revoked');
+          }
+        }
+
+        ensureCurrent();
+        final result = await write();
+        ensureCurrent();
+        return result;
+      });
+
+  Future<void> discardE2eeKeys(
+    int generation,
+    Future<void> Function() discard,
+  ) => _serializeE2eeKeys(() async {
+    if (generation == _e2eeKeyGeneration) await discard();
+  });
+
+  /// Inventory hook shared by settings deletion and logout/account cleanup.
+  Future<void> purgeE2eeKeys(Future<void> Function() purge) {
+    _e2eeKeyGeneration++;
+    return _serializeE2eeKeys(purge);
+  }
 
   // ==========================================
   // 旧 accessibility 条目兼容（Apple Keychain）
@@ -167,6 +234,8 @@ class StorageSecureService {
     MacOsOptions? mOptions,
     WindowsOptions? wOptions,
   }) async {
+    final generation = key.startsWith('e2ee_') ? _e2eeKeyGeneration : null;
+    bool current() => generation == null || generation == _e2eeKeyGeneration;
     final value = await _self.read(
       key: key,
       iOptions: iOptions,
@@ -176,6 +245,7 @@ class StorageSecureService {
       mOptions: mOptions,
       wOptions: wOptions,
     );
+    if (!current()) return null;
     if (value != null || !_isApple) return value;
 
     // 读不到时回落查旧 accessibility 条目；命中就顺手搬迁到当前 accessibility。
@@ -184,14 +254,14 @@ class StorageSecureService {
       iOptions: _legacyIOptions,
       mOptions: _legacyMOptions,
     );
-    if (legacy == null) return null;
+    if (!current() || legacy == null) return null;
     if (key.startsWith('db_cipher_key_')) {
       // Avoid even the first native write: its attribute-update fallback may
       // delete the retained key before recreating it. Preserve the old item
       // until a non-destructive native migration is available.
       throw StateError('Safe migration required for legacy database key');
     }
-    await write(
+    Future<void> migrate() => write(
       key: key,
       value: legacy,
       iOptions: iOptions,
@@ -201,6 +271,11 @@ class StorageSecureService {
       mOptions: mOptions,
       wOptions: wOptions,
     );
+    if (generation == null) {
+      await migrate();
+    } else {
+      await writeE2eeKeys(generation, migrate);
+    }
     return legacy;
   }
 
@@ -352,15 +427,10 @@ class StorageSecureService {
     return await read(key: 'e2ee_key_created_at');
   }
 
-  /// 删除所有 E2EE 密钥数据
-  /// Delete all E2EE key data
-  Future<void> deleteAllE2EEKeys() async {
-    await delete(key: 'e2ee_private_key');
-    await delete(key: 'e2ee_public_key');
-    await delete(key: 'e2ee_device_id');
-    await delete(key: 'e2ee_key_id');
-    await delete(key: 'e2ee_key_created_at');
-  }
+  /// Delete all RSA identity keys, history, recovery shards and cached backup
+  /// passphrases, then verify zero residuals. Keep the active account's DB key.
+  Future<void> deleteAllE2EEKeys() =>
+      E2eeSecretInventory.identityKeys().purgeAll();
 
   /// 检查是否存在 E2EE 密钥
   /// Check if E2EE keys exist

@@ -16,7 +16,7 @@
 ///   `_e2ee_failed` 占位标记），禁止从 UI 对象搬运 payload。
 library;
 
-import 'package:flutter/cupertino.dart';
+import 'package:cupertino_ui/cupertino_ui.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart' as core;
 import 'package:xid/xid.dart';
 

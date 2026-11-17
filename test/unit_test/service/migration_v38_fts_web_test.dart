@@ -4,6 +4,8 @@ library;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/service/migrations/upgrade_edges_v38_fts.dart';
+import 'package:imboy/service/migrations/upgrade_edges_v40.dart';
+import 'package:imboy/service/migrations/downgrade_edges_v40.dart';
 import 'package:imboy/service/sqlite.dart';
 import 'package:imboy/service/storage.dart';
 import 'package:imboy/store/repository/message_fts_repo.dart';
@@ -13,6 +15,109 @@ import 'package:sqflite_common_ffi_web/sqflite_ffi_web.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
+
+  testWidgets('v40 repairs and deletes contentful FTS through Web SQLite', (
+    tester,
+  ) async {
+    const wasmUrl = String.fromEnvironment('SQLITE_WASM_URL');
+    expect(wasmUrl, isNotEmpty);
+    await tester.runAsync(() async {
+      SharedPreferences.setMockInitialValues({Keys.currentUid: '100'});
+      await StorageService.init();
+      final factory = createDatabaseFactoryFfiWeb(
+        noWebWorker: true,
+        options: SqfliteFfiWebOptions(sqlite3WasmUri: Uri.parse(wasmUrl)),
+      );
+      final db = await factory.openDatabase(':memory:');
+      SqliteService.setDbForTest(db);
+      try {
+        for (final table in messageFtsTables) {
+          await db.execute(
+            'CREATE TABLE $table (auto_id INTEGER PRIMARY KEY, id TEXT UNIQUE, '
+            'conversation_uk3 TEXT, msg_type TEXT, payload TEXT, status INTEGER, '
+            'is_author INTEGER DEFAULT 0, created_at INTEGER DEFAULT 0)',
+          );
+          await db.execute(messageFtsCreateTableSql(table, contentless: true));
+          await db.insert(table, {
+            'id': 'synthetic-$table',
+            'conversation_uk3': 'synthetic',
+            'msg_type': 'text',
+            'payload': '{"text":"\u3000currentword\ufeff"}',
+            'status': 20,
+          });
+          for (final text in ['oldword', 'currentword']) {
+            await db.insert('${table}_fts', {
+              'rowid': 1,
+              'id': 'synthetic-$table',
+              'conversation_uk3': 'synthetic',
+              'text_content': text,
+            });
+          }
+        }
+        await db.execute('PRAGMA user_version = 39');
+        await db.transaction((txn) async {
+          for (final sql in kUpgradeEdgesV40.single.sqlStatements) {
+            await txn.execute(sql);
+          }
+        });
+        for (final table in messageFtsTables) {
+          final type = table == 'msg_c2c' ? 'C2C' : 'C2G';
+          final repo = MessageFtsRepo();
+          Future<List<FtsSearchResult>> search(String word) => type == 'C2C'
+              ? repo.searchC2c(query: word, throwOnError: true)
+              : repo.searchC2g(query: word, throwOnError: true);
+          expect(await search('oldword'), isEmpty);
+          expect((await search('currentword')).single.id, 'synthetic-$table');
+          await db.update(table, {'payload': '{"text":"pendingword"}'});
+          expect(await search('currentword'), isEmpty);
+          await db.transaction((txn) async {
+            await txn.delete(
+              '${table}_fts',
+              where: 'rowid = ?',
+              whereArgs: [1],
+            );
+            await txn.delete(table, where: 'auto_id = ?', whereArgs: [1]);
+          });
+          final rowid = await db.insert(table, {
+            'id': 'replacement-$table',
+            'conversation_uk3': 'synthetic',
+            'msg_type': 'text',
+            'payload': '{"text":"replacementword"}',
+            'status': 20,
+          });
+          expect(rowid, 1);
+          await repo.indexMessage(
+            type: type,
+            id: 'replacement-$table',
+            conversationUk3: 'synthetic',
+            textContent: 'replacementword',
+            rowid: rowid,
+          );
+          expect(await search('oldword'), isEmpty);
+          expect(await search('currentword'), isEmpty);
+          expect(
+            (await search('replacementword')).single.id,
+            'replacement-$table',
+          );
+        }
+        await db.transaction((txn) async {
+          for (final sql in kDowngradeEdgesV40.single.sqlStatements) {
+            await txn.execute(sql);
+          }
+        });
+        for (final table in messageFtsTables) {
+          expect((await db.query(table)).single['id'], 'replacement-$table');
+          expect(
+            (await db.query('${table}_fts')).single['text_content'],
+            isNull,
+          );
+        }
+      } finally {
+        SqliteService.setDbForTest(null);
+        await db.close();
+      }
+    });
+  });
 
   testWidgets('v38 draft maintains FTS using the Web SQLite driver', (
     tester,

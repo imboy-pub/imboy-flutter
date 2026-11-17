@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:dio/dio.dart';
 import 'package:imboy/component/http/channel_id_response_decoder.dart';
 
@@ -40,17 +39,14 @@ class ContactApi extends HttpClient {
       queryParameters: {"id": uid},
     );
     ContactModel? ct;
-    if (kDebugMode) {}
     if (resp.ok && resp.payload.isNotEmpty == true) {
       try {
         final payload = IMBoyHttpResponse.payloadAsMap(resp.payload);
         await (ContactRepo()).save(payload);
         ct = ContactModel.fromMap(payload);
       } on Exception {
-        if (kDebugMode) {}
+        // Contact enrichment is optional; callers can keep their existing card.
       }
-    } else {
-      if (kDebugMode) {}
     }
     return ct;
   }
@@ -61,14 +57,12 @@ class ContactApi extends HttpClient {
       API.friendChangeRemark,
       data: {'uid': uid, 'remark': remark},
     );
-    if (kDebugMode) {}
     return resp.ok;
   }
 
   /// 删除联系人
   Future<bool> deleteContact(String uid) async {
     IMBoyHttpResponse resp = await post(API.deleteFriend, data: {'uid': uid});
-    if (kDebugMode) {}
     return resp.ok;
   }
 }

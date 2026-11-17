@@ -3,7 +3,7 @@ import 'package:imboy/component/helper/ntp_query.dart';
 
 import 'dart:math';
 
-import 'package:flutter/cupertino.dart';
+import 'package:cupertino_ui/cupertino_ui.dart';
 import 'package:flutter/foundation.dart' show kDebugMode, kIsWeb;
 import 'package:imboy/service/storage.dart';
 

@@ -8,7 +8,7 @@
 ///   R10-3 缺失/非法（0）不显示时间徽章，绝不出现"刚刚"。
 library;
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:intl/intl.dart';

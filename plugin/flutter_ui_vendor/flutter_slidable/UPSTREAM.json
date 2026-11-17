@@ -1,0 +1,147 @@
+{
+  "schema_version": 1,
+  "package": "flutter_slidable",
+  "upstream": {
+    "source_kind": "hosted",
+    "version": "4.0.3",
+    "repository": "https://github.com/letsar/flutter_slidable",
+    "archive_url": "https://pub.dev/api/archives/flutter_slidable-4.0.3.tar.gz",
+    "archive_sha256": "ea369262929d3cc6ebf9d8a00c196127966f117fe433a5e5cb47fb08008ca203",
+    "archive_verification": "Downloaded archive SHA256 matches the checked-in baseline pubspec.lock."
+  },
+  "vendoring": {
+    "included_paths": [
+      "lib",
+      "LICENSE",
+      "pubspec.yaml"
+    ],
+    "excluded_paths": [
+      "test/",
+      "example/",
+      "examples/",
+      "benchmark/",
+      "screenshots/",
+      "screenshot/",
+      "README.md",
+      "CHANGELOG.md",
+      "analysis_options.yaml",
+      "publication-only images and binaries"
+    ],
+    "rationale": "Preserve the locked runtime implementation, licenses, native registrations and declared runtime assets. Migrate public UI-library ownership and explicitly typed contracts; record local source API/style and deprecated-API changes individually below. No private Flutter SDK imports, compatibility facade, added analyzer ignores or relaxed gates."
+  },
+  "original_files_sha256": {
+    "LICENSE": "117e03a785bed1d7b537180bee9bb8661a5057ecdddd23abcb66d7024b229ac9",
+    "lib/flutter_slidable.dart": "b985956ab7b169682622acd7cae811b19dc82710613a90df4efc420ed8b7acf9",
+    "lib/src/action_pane.dart": "2bc85cbecdb915d3e51de7e4dae848ba45c3e6f5c07028171c320671bc7b24df",
+    "lib/src/action_pane_configuration.dart": "c966d1eca75a30a340584ed7fa276d1c8165d52da4532041528bbe820c9132de",
+    "lib/src/action_pane_motions.dart": "29d3ffee3e3ae2ecb69221c65b460c7e68cd5f9e837f3df960e7d3ab221d9b54",
+    "lib/src/actions.dart": "ab7414a9016669f95fb4f4026fcb25240012031e1776aab95070a5f6a61d5227",
+    "lib/src/auto_close_behavior.dart": "aea7c2653582dd2b1d1d4fbd0b62aa5cb88113e764f5c163810ca692d5c16076",
+    "lib/src/controller.dart": "118a706dda0f743ad457e79a6c7d1590d453fa0f83f545c4dc70ad3e7e594343",
+    "lib/src/dismissal.dart": "74be5e5b448691f25359d6754a2981699060dffaa48cd4183f08471eb883c2df",
+    "lib/src/dismissible_pane.dart": "8ae7d28393f825129c5699dc418f91331c57f7c92300e78849c28522a9b76c70",
+    "lib/src/dismissible_pane_motions.dart": "6e3a51ee3fd10e0dd6dab67c3d247ca38ed5ea2937e965edf5c37b73ae6f58c9",
+    "lib/src/flex_entrance_transition.dart": "b8506af9df4e2e92e76a6f8258f18679be2021e57b7f09f40a5ad67f71deed8a",
+    "lib/src/flex_exit_transition.dart": "a7e8b67aca3038bb7d422261ec2549ce076137b18d991cc1d9904bca16ca9923",
+    "lib/src/gesture_detector.dart": "dddf58d007962bdb7300ab52a06ee9ef4f52ba034feae1212cab5b6250d3a1e2",
+    "lib/src/notifications.dart": "d2f18d0a95c0469be487cc458cc8f19d5175e8001a2a9380753d94c505ab4caf",
+    "lib/src/notifications_old.dart": "2707c93ae68405d13610779912743d7279d730e46c328feda352ae5d2374648e",
+    "lib/src/scrolling_behavior.dart": "ca8f565f133869894566bb740bb0a061bd020d8360d9d8e83cea03a86d435706",
+    "lib/src/slidable.dart": "9dea06f3cb97a4efdce50cdcb68b1c1a375211258fa390f147d7a540d3f3e50a",
+    "pubspec.yaml": "e64ea7a4518c2fb751bb64a29630b910de03b2501832632c85c3a451c6ceb395"
+  },
+  "modifications": [
+    {
+      "path": "lib/flutter_slidable.dart",
+      "changes": [
+        "Remove the unnecessary named library declaration."
+      ]
+    },
+    {
+      "path": "lib/src/action_pane.dart",
+      "changes": [
+        "Use the public State<Widget> return type for createState while preserving the same private state implementation."
+      ]
+    },
+    {
+      "path": "lib/src/actions.dart",
+      "changes": [
+        "Replace the public legacy Material import with package:material_ui/material_ui.dart; preserve widget logic and public signatures."
+      ]
+    },
+    {
+      "path": "lib/src/auto_close_behavior.dart",
+      "changes": [
+        "Give the dispatcher its actual SlidableAutoCloseBarrierNotification type instead of a raw generic; expose the public State widget type without changing the private state implementation."
+      ]
+    },
+    {
+      "path": "lib/src/controller.dart",
+      "changes": [
+        "Use equivalent positional super parameters for gesture velocity and the generic notifier value."
+      ]
+    },
+    {
+      "path": "lib/src/dismissal.dart",
+      "changes": [
+        "Use the public State<Widget> return type for createState while preserving the same private state implementation."
+      ]
+    },
+    {
+      "path": "lib/src/dismissible_pane.dart",
+      "changes": [
+        "Use a public State<DismissiblePane> override return type; quote Future<bool> as code in documentation."
+      ]
+    },
+    {
+      "path": "lib/src/flex_entrance_transition.dart",
+      "changes": [
+        "Keep the private render implementation behind a public RenderObject parameter and an explicit checked cast; use Dart 3.12 private-field initializing formals, preserving public constructor argument names/defaults and layout calculations."
+      ]
+    },
+    {
+      "path": "lib/src/flex_exit_transition.dart",
+      "changes": [
+        "Keep the private render implementation behind a public RenderObject parameter and an explicit checked cast; use Dart 3.12 private-field initializing formals, preserving public constructor argument names/defaults and layout calculations."
+      ]
+    },
+    {
+      "path": "lib/src/gesture_detector.dart",
+      "changes": [
+        "Use the public State<Widget> return type for createState while preserving the same private state implementation."
+      ]
+    },
+    {
+      "path": "lib/src/notifications.dart",
+      "changes": [
+        "Use the public State<Widget> return type for createState while preserving the same private state implementation."
+      ]
+    },
+    {
+      "path": "lib/src/notifications_old.dart",
+      "changes": [
+        "Use an equivalent required super.tag parameter and public State<Widget> override return types; retain private state implementations."
+      ]
+    },
+    {
+      "path": "lib/src/scrolling_behavior.dart",
+      "changes": [
+        "Use the public State<Widget> return type for createState while preserving the same private state implementation."
+      ]
+    },
+    {
+      "path": "lib/src/slidable.dart",
+      "changes": [
+        "Use the public State<Widget> return type for createState while preserving the same private state implementation."
+      ]
+    },
+    {
+      "path": "pubspec.yaml",
+      "changes": [
+        "Mark the application-owned source copy publish_to: none.",
+        "Declare the Dart >=3.13 and Flutter >=3.47 minimum required by the selected public UI packages.",
+        "Declare material_ui ^1.11.0 as direct runtime dependencies."
+      ]
+    }
+  ]
+}

@@ -22,8 +22,8 @@
 // 前置：两台真机；A/B 本地合成账号互为好友；后端+LiveKit 为
 // rtc_e2e_test.sh KEEP=1 产物。任一设备不在线 → BLOCKED_DEVICE。
 
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
+import 'package:cupertino_ui/cupertino_ui.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/page/chat/p2p_call_screen/incoming_call_view.dart';

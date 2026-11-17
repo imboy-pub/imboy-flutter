@@ -6,11 +6,12 @@
 // 运行方式 / How to run:
 //   flutter test test/page/channel/channel_markdown_test.dart
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_markdown_plus/flutter_markdown_plus.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/channel/widgets/channel_markdown.dart';
+import 'package:imboy/theme/default/app_colors.dart';
 
 void main() {
   group('stripMarkdown', () {
@@ -57,6 +58,58 @@ void main() {
   });
 
   group('channelMarkdownBody', () {
+    testWidgets('可选正文与任务列表跟随新主题并提供中文选择菜单', (tester) async {
+      for (final brightness in [Brightness.dark, Brightness.light]) {
+        final theme = ThemeData(
+          brightness: brightness,
+          primaryColor: const Color(0xff906ad9),
+        );
+        await tester.pumpWidget(
+          TranslationProvider(
+            child: MaterialApp(
+              theme: theme,
+              locale: const Locale('zh', 'CN'),
+              supportedLocales: const [Locale('zh', 'CN')],
+              localizationsDelegates: GlobalMaterialLocalizations.delegates,
+              home: Scaffold(
+                body: Builder(
+                  builder: (context) => channelMarkdownBody(
+                    context,
+                    '可选择正文\n\n- [x] 已完成任务',
+                    selectable: true,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        final paragraph = find.byWidgetPredicate(
+          (widget) =>
+              widget is SelectableText &&
+              widget.textSpan?.toPlainText() == '可选择正文',
+        );
+        expect(paragraph, findsOneWidget);
+        expect(
+          tester.widget<SelectableText>(paragraph).textSpan!.style!.color,
+          AppColors.getTextColor(brightness),
+        );
+        expect(Theme.of(tester.element(paragraph)).brightness, brightness);
+        expect(
+          tester.widget<Icon>(find.byIcon(Icons.check_box)).color,
+          theme.primaryColor,
+        );
+
+        await tester.longPress(paragraph);
+        await tester.pumpAndSettle();
+        expect(find.text('复制'), findsWidgets);
+        expect(tester.takeException(), isNull);
+        await tester.pumpWidget(const SizedBox.shrink());
+        await tester.pumpAndSettle();
+      }
+    });
+
     testWidgets('渲染粗体与标题为富文本', (tester) async {
       await tester.pumpWidget(
         TranslationProvider(

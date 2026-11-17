@@ -16,9 +16,9 @@
 ///   事实不可用即拒，App 原样提示不做降级。
 library;
 
-import 'package:flutter/cupertino.dart'
+import 'package:cupertino_ui/cupertino_ui.dart'
     show CupertinoIcons, CupertinoListTile, CupertinoPageRoute;
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:imboy/component/ui/permission_gate.dart';

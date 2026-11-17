@@ -1,7 +1,7 @@
 /// 阳性对照：确认矩阵断言机制真能捕获 overflow（防止假绿）。
 library;
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../ux_matrix/ux_harness.dart';

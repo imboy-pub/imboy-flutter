@@ -44,8 +44,8 @@
 //     --dart-define=TEST_PHONE=51730 --dart-define=TEST_PASSWORD=admin888c \
 //     --dart-define=TEST_EXPECTED_UID=111174215241304064
 
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
+import 'package:cupertino_ui/cupertino_ui.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:imboy/component/helper/func.dart';

@@ -5,8 +5,8 @@
 /// （C-F1/C-F2/C-F3、44/48/67pt 触达）与页面注释一致，见页面文件头。
 library;
 
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
+import 'package:cupertino_ui/cupertino_ui.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 

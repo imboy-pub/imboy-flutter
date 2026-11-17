@@ -1,6 +1,6 @@
 // Run live and reconnect in separate owned leases/APKs/account databases.
 // Root owns real OS VIEW intents and this run's reverse removal/restoration.
-import 'package:flutter/cupertino.dart';
+import 'package:cupertino_ui/cupertino_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:imboy/i18n/strings.g.dart';

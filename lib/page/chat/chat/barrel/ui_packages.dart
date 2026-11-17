@@ -2,8 +2,8 @@
 library;
 
 // 核心 Flutter UI (hide RefreshCallback 避免冲突)
-export 'package:flutter/cupertino.dart' hide RefreshCallback;
-export 'package:flutter/material.dart';
+export 'package:cupertino_ui/cupertino_ui.dart' hide RefreshCallback;
+export 'package:material_ui/material_ui.dart';
 export 'package:flutter/foundation.dart';
 export 'package:flutter/services.dart';
 

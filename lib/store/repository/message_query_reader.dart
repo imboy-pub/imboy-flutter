@@ -288,8 +288,33 @@ class MessageQueryReader {
     return null;
   }
 
-  /// 根据状态查找消息
-  /// Find messages by status.
+  /// Read a caller-bounded ID batch while preserving exact identity columns.
+  Future<List<MessageModel>> findByIds(
+    List<String> ids, {
+    Transaction? txn,
+  }) async {
+    if (ids.isEmpty) return [];
+    final placeholders = List.filled(ids.length, '?').join(',');
+    final where = '${MessageColumns.id} IN ($placeholders)';
+    final rows = txn != null
+        ? await txn.query(
+            tableName,
+            columns: _readColumns,
+            where: where,
+            whereArgs: ids,
+          )
+        : await db.query(
+            tableName,
+            columns: _readColumns,
+            where: where,
+            whereArgs: ids,
+          );
+    return rows
+        .map((row) => MessageModel.fromJson(row, fromLocalStore: true))
+        .toList();
+  }
+
+  /// 根据状态查找消息。
   Future<List<MessageModel>> findByStatus(
     String conversationUk3,
     int status,

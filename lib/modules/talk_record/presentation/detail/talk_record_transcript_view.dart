@@ -9,8 +9,8 @@
 /// - 仅录音/无语音/转写失败真实降级（不渲染虚构正文，UI-SPEC §2/§4）。
 library;
 
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
+import 'package:cupertino_ui/cupertino_ui.dart';
+import 'package:material_ui/material_ui.dart';
 
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/modules/talk_record/presentation/talk_record_ui_helpers.dart';

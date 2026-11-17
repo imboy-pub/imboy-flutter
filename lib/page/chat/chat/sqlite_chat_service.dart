@@ -1,12 +1,10 @@
 import 'dart:async';
 
-import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/animation.dart' show Curve, Curves;
 import 'package:flutter_chat_core/flutter_chat_core.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/chat/message_scroll_provider.dart';
-import 'package:imboy/store/repository/message_repo_sqlite.dart';
 
 /// 基于SQLite的聊天服务
 /// 负责消息的本地存储和管理，与UI层通过Stream通信
@@ -94,9 +92,6 @@ class SqliteChatService
     if (_isDisposed) return;
     iPrint('removeMessageById: 开始删除消息, ID: $id, 当前消息数量: ${_messages.length}');
 
-    // 打印所有消息ID以便调试
-    if (kDebugMode) {}
-
     final index = _messages.indexWhere((m) => m.id == id);
     iPrint('removeMessageById: 消息ID: $id, 在列表中的索引: $index');
 
@@ -105,54 +100,11 @@ class SqliteChatService
       // 即使消息不在当前UI列表中，我们仍然需要通知UI层可能有变化
       // 这对于分页加载的消息特别重要
 
-      // 尝试从数据库中查找消息，确认消息是否存在
-      try {
-        // 尝试从不同的消息表中查找消息
-        final tables = [
-          'message',
-          'group_message',
-          'c2s_message',
-          's2c_message',
-        ];
-        bool messageExistsInDb = false;
-
-        for (final tableName in tables) {
-          final mRepo = MessageRepo(tableName: tableName);
-          final dbMsg = await mRepo.find(id);
-          if (dbMsg != null) {
-            messageExistsInDb = true;
-            iPrint('removeMessageById: 数据库查询结果 - 消息存在于表 $tableName: $id');
-            break;
-          }
-        }
-
-        // 如果消息存在于数据库但不在UI列表中，我们仍然触发一个刷新事件
-        if (messageExistsInDb) {
-          iPrint('removeMessageById: 消息存在于数据库但不在UI列表中，触发刷新事件');
-          // 创建一个虚拟的删除操作，通知UI层可能需要刷新
-          if (!_isDisposed) {
-            _operationsController.add(
-              ChatOperation.set(List.unmodifiable(_messages)),
-            );
-          }
-        } else {
-          iPrint('removeMessageById: 消息在数据库中也不存在，可能已被删除');
-          // 即使消息在数据库中不存在，我们也触发一个刷新事件，确保UI同步
-          if (!_isDisposed) {
-            _operationsController.add(
-              ChatOperation.set(List.unmodifiable(_messages)),
-            );
-          }
-        }
-      } catch (e) {
-        iPrint('removeMessageById: 数据库查询异常: $e');
-        // 即使查询异常，我们也触发一个刷新事件，确保UI同步
-        if (!_isDisposed) {
-          _operationsController.add(
-            ChatOperation.set(List.unmodifiable(_messages)),
-          );
-        }
-      }
+      // Persistence belongs to MessageActions/MessageRepo. A message outside
+      // the loaded window only requires a refresh of the current projection.
+      _operationsController.add(
+        ChatOperation.set(List.unmodifiable(_messages)),
+      );
 
       return;
     }

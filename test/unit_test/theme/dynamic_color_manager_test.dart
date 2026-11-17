@@ -10,7 +10,7 @@
 /// 正确性；Android 真机上的动态合并路径由真机回归覆盖，不在单测范围。
 library;
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/dynamic_color_manager.dart';

@@ -1,5 +1,3 @@
-import 'package:flutter/foundation.dart';
-
 import 'package:imboy/config/const.dart';
 import 'package:imboy/component/http/http_client.dart';
 import 'package:imboy/component/http/http_response.dart';
@@ -10,7 +8,6 @@ class AppVersionApi extends HttpClient {
       API.appVersionCheck,
       queryParameters: {'vsn': vsn},
     );
-    if (kDebugMode) {}
     return (resp.payload ?? <String, dynamic>{}) as Map<String, dynamic>;
   }
 
@@ -19,7 +16,6 @@ class AppVersionApi extends HttpClient {
       API.sqliteUpgradeDdl,
       queryParameters: {'old_vsn': oldVsn, 'new_vsn': newVsn},
     );
-    if (kDebugMode) {}
     if (!resp.ok || resp.payload is! Map) return <String>[];
     return List<String>.from(
       (resp.payload['ddl'] ?? <dynamic>[]) as List<dynamic>,
@@ -31,7 +27,6 @@ class AppVersionApi extends HttpClient {
       API.sqliteDowngradeDdl,
       queryParameters: {'old_vsn': newVsn, 'new_vsn': oldVsn},
     );
-    if (kDebugMode) {}
     if (!resp.ok || resp.payload is! Map) return <String>[];
     return List<String>.from(
       (resp.payload['ddl'] ?? <dynamic>[]) as List<dynamic>,

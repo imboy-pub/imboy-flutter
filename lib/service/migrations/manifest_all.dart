@@ -8,6 +8,7 @@ library;
 import 'package:imboy/service/migration_manifest.dart';
 import 'package:imboy/service/migrations/downgrade_edges_all.dart';
 import 'package:imboy/service/migrations/downgrade_edges_v39.dart';
+import 'package:imboy/service/migrations/downgrade_edges_v40.dart';
 import 'package:imboy/service/migrations/upgrade_edges_v09_v16.dart';
 import 'package:imboy/service/migrations/upgrade_edges_v17_v24.dart';
 import 'package:imboy/service/migrations/upgrade_edges_v25_v31.dart';
@@ -18,6 +19,7 @@ import 'package:imboy/service/migrations/upgrade_edges_v35.dart';
 import 'package:imboy/service/migrations/upgrade_edges_v36.dart';
 import 'package:imboy/service/migrations/upgrade_edges_v37.dart';
 import 'package:imboy/service/migrations/upgrade_edges_v39.dart';
+import 'package:imboy/service/migrations/upgrade_edges_v40.dart';
 
 /// 全局唯一迁移清单实例（唯一真源）。
 ///
@@ -36,6 +38,8 @@ final MigrationManifest kMigrationManifest = MigrationManifest([
   ...kUpgradeEdgesV36,
   ...kUpgradeEdgesV37,
   ...kUpgradeEdgesV39,
+  ...kUpgradeEdgesV40,
+  ...kDowngradeEdgesV40,
   ...kDowngradeEdgesV39,
   ...kDowngradeEdgesAll,
 ])..validatePairing();

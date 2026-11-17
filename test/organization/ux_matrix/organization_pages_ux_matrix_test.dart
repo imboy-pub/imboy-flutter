@@ -25,8 +25,8 @@ library;
 
 import 'dart:ui' show SemanticsAction;
 
-import 'package:flutter/cupertino.dart' show CupertinoIcons;
-import 'package:flutter/material.dart';
+import 'package:cupertino_ui/cupertino_ui.dart' show CupertinoIcons;
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/modules/organization/presentation/organization_departments_page.dart';
 import 'package:imboy/modules/organization/presentation/organization_detail_page.dart';

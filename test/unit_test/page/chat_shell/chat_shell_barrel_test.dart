@@ -4,7 +4,7 @@
 /// 避免未来重构时从 barrel 漏掉某个 export 导致调用方 import 失败。
 library;
 
-import 'package:flutter/cupertino.dart';
+import 'package:cupertino_ui/cupertino_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 

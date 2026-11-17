@@ -14,6 +14,8 @@ String buildUserQrcodeUrl(String uid, {String? baseUrl}) {
   return '$host/api/v1/user/qrcode?id=$uid&$qrcodeDataSuffix';
 }
 
+/// Legacy compatibility checksum only: it grants no channel subscription,
+/// invitation or payment rights. The server enforces those separately.
 String buildChannelQrcodeUrl({
   required String channelId,
   required int expiredAt,
@@ -25,13 +27,15 @@ String buildChannelQrcodeUrl({
       '&$qrcodeDataSuffix';
 }
 
+/// Formats a server-issued, group-bound invitation. Never signs with app keys.
 String buildGroupQrcodeUrl({
   required Object groupId,
   required int expiredAt,
+  required String token,
   String? baseUrl,
 }) {
+  if (token.isEmpty) throw ArgumentError.value(token, 'token', 'required');
   final host = baseUrl ?? Env().apiBaseUrl;
-  final tk = EncrypterService.md5('${expiredAt}_${Env().solidifiedKey}');
-  return '$host/api/v1/group/qrcode?id=$groupId&exp=$expiredAt&tk=$tk'
-      '&$qrcodeDataSuffix';
+  return '$host/api/v1/group/qrcode?id=${Uri.encodeQueryComponent('$groupId')}'
+      '&exp=$expiredAt&tk=${Uri.encodeQueryComponent(token)}&$qrcodeDataSuffix';
 }

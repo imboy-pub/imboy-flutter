@@ -3,7 +3,7 @@
 /// 用于群聊中 @提及用户的数据结构
 library;
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/group/group_role_rules.dart';
 import 'package:imboy/theme/default/app_colors.dart';

@@ -24,7 +24,7 @@
 //     --dart-define=TEST_EXPECTED_UID=... --dart-define=TEST_ALLOW_BUSINESS_WRITES=true \
 //     --dart-define=LK_RTC_RUN=true
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/component/webrtc/enum.dart';

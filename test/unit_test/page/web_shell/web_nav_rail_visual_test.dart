@@ -1,7 +1,9 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/page/web_shell/web_nav_rail.dart';
 import 'package:imboy/theme/default/app_colors.dart';
+
+import '../../helper/material_tooltip_finder.dart';
 
 const _items = [
   WebNavItem(
@@ -85,7 +87,7 @@ void main() {
 
       expect(hairlines, isEmpty);
       expect(find.byKey(const ValueKey('space-switcher')), findsOneWidget);
-      expect(find.byTooltip('Me'), findsOneWidget);
+      expect(findMaterialTooltip('Me'), findsOneWidget);
       expect(tester.takeException(), isNull);
     });
   }

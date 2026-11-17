@@ -4,7 +4,7 @@
 // 并在测试结束前通过 GoRouter 关闭详情路由，避免把页面动画/路由遗留
 // 误报为测试框架 SemanticsHandle 泄漏。
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:imboy/page/group/group_list/group_list_page.dart';

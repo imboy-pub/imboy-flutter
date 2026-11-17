@@ -13,8 +13,8 @@ import 'dart:io';
 /// Temporary compatibility implementation for the identity module shell.
 /// New module-facing callers should prefer `package:imboy/modules/identity/public.dart`.
 import 'package:flutter/foundation.dart' show kDebugMode, kIsWeb;
-import 'package:flutter/material.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:material_ui/material_ui.dart';
+import 'package:cupertino_ui/cupertino_ui.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -293,7 +293,7 @@ class PassportNotifier extends _$PassportNotifier {
               (route) => false,
             );
           }
-        } else {}
+        }
       },
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 10),
@@ -445,7 +445,6 @@ class PassportNotifier extends _$PassportNotifier {
       }
       return await encodePassportPassword(password, payload, prehash: prehash);
     } catch (e) {
-      if (kDebugMode) {}
       return <String, dynamic>{
         "error": "${t.common.passwordEncryptFailed}: $e",
         "password": null,
@@ -586,7 +585,6 @@ class PassportNotifier extends _$PassportNotifier {
       // 理论上不可达：!resp2.ok 分支均已 return 0
       return 0;
     } on PlatformException catch (e) {
-      if (kDebugMode) {}
       if (e.code.contains('34018') ||
           e.message?.contains('entitlement') == true) {
         safeUpdateState((state) => state.copyWith(error: '安全存储初始化失败，请重启应用'));
@@ -595,7 +593,6 @@ class PassportNotifier extends _$PassportNotifier {
       }
       return 0;
     } catch (e) {
-      if (kDebugMode) {}
       safeUpdateState((state) => state.copyWith(error: '登录失败，请重试'));
       return 0;
     }
@@ -665,10 +662,8 @@ class PassportNotifier extends _$PassportNotifier {
     try {
       return await RSAService.publicKey();
     } on PlatformException {
-      if (kDebugMode) {}
       return '';
     } catch (e) {
-      if (kDebugMode) {}
       return '';
     }
   }
@@ -885,10 +880,6 @@ class PassportNotifier extends _$PassportNotifier {
       jv.setDebugMode(false);
       jv.setCollectionAuth(true);
       jv.setup(appKey: Env().jiguangAppKey, channel: "devloper-default");
-
-      jv.addAuthPageEventListener((JVAuthPageEvent event) {
-        if (kDebugMode) {}
-      });
 
       // 等待 SDK 初始化回调，超时 10s
       final success = await completer.future.timeout(
@@ -1314,7 +1305,6 @@ class PassportNotifier extends _$PassportNotifier {
       );
 
       if (!result.ok) {
-        if (kDebugMode) {}
         return;
       }
 
@@ -1344,7 +1334,6 @@ class PassportNotifier extends _$PassportNotifier {
       }
     } catch (e) {
       // E2EE 公钥上报失败不应该阻止登录
-      if (kDebugMode) {}
     }
   }
 

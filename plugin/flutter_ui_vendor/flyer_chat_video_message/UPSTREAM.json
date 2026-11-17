@@ -1,0 +1,60 @@
+{
+  "schema_version": 1,
+  "package": "flyer_chat_video_message",
+  "upstream": {
+    "source_kind": "git",
+    "version": "0.0.13+1",
+    "repository": "https://gitee.com/imboy-tripartite-deps/flutter_chat_ui.git",
+    "commit": "62245bd40067d73ddb5bf98d340537cbbe2ae3e7",
+    "subdirectory": "packages/flyer_chat_video_message",
+    "upstream_repository": "https://github.com/flyerhq/flutter_chat_ui",
+    "git_verification": "Files read from the immutable commit recorded by the parent repository gitlink."
+  },
+  "vendoring": {
+    "included_paths": [
+      "lib",
+      "LICENSE",
+      "pubspec.yaml"
+    ],
+    "excluded_paths": [
+      "test/",
+      "example/",
+      "examples/",
+      "benchmark/",
+      "screenshots/",
+      "screenshot/",
+      "README.md",
+      "CHANGELOG.md",
+      "analysis_options.yaml",
+      "publication-only images and binaries"
+    ],
+    "rationale": "Preserve the locked runtime implementation, licenses, native registrations and declared runtime assets. Migrate public UI-library ownership and explicitly typed contracts; record local source API/style and deprecated-API changes individually below. No private Flutter SDK imports, compatibility facade, added analyzer ignores or relaxed gates."
+  },
+  "original_files_sha256": {
+    "LICENSE": "caee0459717249540dc3371f49a1c89a4823ca78b481d552a7ef848f3e7e26e5",
+    "lib/flyer_chat_video_message.dart": "e6527f3bd1a8b2e22af328a874a31209cbbe0116a44c5d310a73df3e1e31eb1f",
+    "lib/src/flyer_chat_video_message.dart": "7c9cc846747286a2417f7b3fd44aa73768f2e46f5e0c1b5beb8c2d0d1c596734",
+    "pubspec.yaml": "d77f1a3c3ccd5ae76123e1fa56974fca2c6c96322608af0f78ca70e4c23e775a"
+  },
+  "modifications": [
+    {
+      "path": "lib/src/flyer_chat_video_message.dart",
+      "changes": [
+        "Replace the public legacy Material import with package:material_ui/material_ui.dart; preserve widget logic and public signatures.",
+        "Remove only unused imports and the unused _isPlaying field; actual playback still uses the same controller.",
+        "Explicitly cast existing nullable thumbnail strings and integer duration metadata; preserve URI/url fallback precedence and do not coerce malformed values.",
+        "Specify MaterialPageRoute<void> for the existing no-result playback navigation."
+      ]
+    },
+    {
+      "path": "pubspec.yaml",
+      "changes": [
+        "Mark the application-owned source copy publish_to: none.",
+        "Declare the Dart >=3.13 and Flutter >=3.47 minimum required by the selected public UI packages.",
+        "Declare material_ui ^1.11.0 as a direct runtime dependency.",
+        "Remove resolution: workspace after moving this package outside the upstream workspace.",
+        "Declare existing direct imports of imboy, locked flutter_chat_core, octo_image, and video_player."
+      ]
+    }
+  ]
+}

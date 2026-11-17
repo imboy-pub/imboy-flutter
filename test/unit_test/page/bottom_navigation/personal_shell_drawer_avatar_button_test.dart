@@ -8,7 +8,7 @@ library;
 
 import 'dart:async';
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -56,17 +56,18 @@ Future<GoRouter> _pumpMenu(WidgetTester tester, {required bool inRail}) async {
       ? const Size(750, 900)
       : const Size(360, 640);
   addTearDown(tester.view.reset);
+  // 路由重建不是账号切换；复用同一覆写，避免 build 期间向根 Navigator
+  // 中尚未卸载的菜单发布一个仅对象身份不同的合成用户。
+  final scopedAccount = currentUserProvider.overrideWithValue(
+    UserModel(uid: '', account: 'synthetic', nickname: '弹层作用域用户'),
+  );
   final router = GoRouter(
     routes: [
       GoRoute(
         path: '/',
         builder: (context, state) => ProviderScope(
-          overrides: [
-            // Scope 故意位于根 Navigator 下，验证弹层仍使用入口的账号。
-            currentUserProvider.overrideWithValue(
-              UserModel(uid: '', account: 'synthetic', nickname: '弹层作用域用户'),
-            ),
-          ],
+          // Scope 故意位于根 Navigator 下，验证弹层仍使用入口的账号。
+          overrides: [scopedAccount],
           child: Theme(
             data: ThemeData.dark(),
             child: Scaffold(

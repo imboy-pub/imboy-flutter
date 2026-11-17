@@ -4,7 +4,7 @@
 /// 服务端消息原样透出，禁止静默失败）。archived 工作区服务端 980 拒绝。
 library;
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 

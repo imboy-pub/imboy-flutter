@@ -2,7 +2,7 @@
 //
 // 覆盖：角色→颜色映射、角色→文案映射、渲染分支（正常/覆盖文案/
 // 无角色零尺寸）、长文案不溢出、Semantics 标签。
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 

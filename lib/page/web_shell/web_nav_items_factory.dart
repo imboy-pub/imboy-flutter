@@ -17,7 +17,7 @@
 /// - **零业务依赖**：纯函数，可独立单元测试
 library;
 
-import 'package:flutter/cupertino.dart';
+import 'package:cupertino_ui/cupertino_ui.dart';
 
 import 'web_nav_rail.dart' show WebNavItem;
 

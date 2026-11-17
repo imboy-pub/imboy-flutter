@@ -7,7 +7,7 @@
 /// 3. 详情/审计面（[hostedMessageAuditLines]）逐条保留代发与非 E2EE 事实。
 library;
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:imboy/i18n/strings.g.dart';

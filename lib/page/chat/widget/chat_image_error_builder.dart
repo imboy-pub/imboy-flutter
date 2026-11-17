@@ -15,8 +15,8 @@
 // errorBuilder —— 破图渲染显式占位（token 与 history_bundle_detail_page
 // 同款），异常不再进入 FlutterError 管道。
 
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
+import 'package:cupertino_ui/cupertino_ui.dart';
+import 'package:material_ui/material_ui.dart';
 
 import 'package:imboy/theme/default/app_colors.dart';
 

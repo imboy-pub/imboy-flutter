@@ -352,7 +352,6 @@ class ChatPageState extends ConsumerState<ChatPage>
       // 启动内存清理定时器
       _cleanupTimer = Timer.periodic(const Duration(seconds: 30), (timer) {
         performanceMonitor.cleanupInvisibleMessages();
-        if (kDebugMode) {}
       });
     } catch (e) {
       iPrint('[chat_page] getMemoryStats error: $e');

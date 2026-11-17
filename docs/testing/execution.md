@@ -289,14 +289,13 @@ Python、C/C++ 构建工具、pkg-config、libGLU 和 `libsqlite3-dev`。Git 必
 包状态不正确或动态库加载失败仍会阻断，既有 SQLite 真实测试继续完整执行。
 Ubuntu workers verify the installed package and load the system library; missing packages use bounded installation.
 
-Flutter 使用 `ci.yml` 的精确 `3.47.5` pin，Dart 3.13.4 由其附带并通过 SDK 检查；
+Flutter 使用 `ci.yml` 的精确 `3.50.0` pin，Dart 3.14.0 由其附带并通过 SDK 检查；
 `flutter pub get --enforce-lockfile` 保留 Git/path 依赖及 lockfile 校验。
-当前 UI 与第三方依赖仍使用 SDK 内 Material/Cupertino；3.50 的独立 UI 库迁移尚未完成，
-因此恢复原有可兼容的 SDK pin，同时保留 Analyzer、文件行数与覆盖率门禁。
-SDK 升级须连同依赖公开类型、主题/本地化及原生构建验证，不能仅修改工作流版本号。
-CI pins Flutter 3.47.5 / Dart 3.13.4 while the current UI dependencies use the in-framework
-design libraries. A future SDK upgrade must validate dependency types, themes/localizations
-and native builds together. Analyzer, file-size, coverage and Golden baselines remain unchanged.
+应用与本地 UI 依赖已迁移到独立 Material/Cupertino 包；升级 SDK 时仍须验证公开类型、
+主题、本地化及原生构建。Analyzer、文件行数、覆盖率与 Golden 基线保持原样。
+CI pins Flutter 3.50.0 / Dart 3.14.0 with standalone Material/Cupertino dependencies.
+SDK upgrades must validate public types, themes/localizations and native builds together.
+Analyzer, file-size, coverage and Golden baselines remain unchanged.
 Debian 单独固定 Rust `1.98.1`，复用 `ci_build_vod.sh` 从解析后的插件源码构建，
 不使用 Ubuntu 构建产物。Cargo 依赖沿用现有脚本的解析流程，本次未增加 `--locked`；
 固定 Rust 编译器不等于冻结全部 Rust 依赖。SDK/pub 缓存的 key 与路径都有 Debian 13 前缀，原生 build
@@ -414,7 +413,7 @@ receipt, and verifies it after artifact relocation; environment claims cannot su
 
 使用仓库固定 Flutter/Dart，先 `python3 scripts/check_sdk_compatibility.py` 再 `flutter pub get --enforce-lockfile`。冻结计划后只运行 `.github/scripts/ci_patch_path_deps.sh --check`，不在执行阶段改写依赖源码。
 CI 的依赖准备复用 `ci_retry_build_downloads.sh`：`flutter pub get` 返回 69 且出现明确 Git DNS 失败，
-或同时出现 curl 56 / unexpected EOF、early EOF 与 invalid index-pack 时，最多执行三次，间隔 10/20 秒。
+或 Git clone 同时出现完整的 GnuTLS/OpenSSL 接收中断或 curl 18 截断证据、early EOF 与 invalid index-pack 时，最多执行三次，间隔 10/20 秒。
 参数、锁文件校验与最终失败码保持不变；认证、证书、校验和及依赖解析错误不因此重试。
 这只恢复执行前的依赖下载，不重跑测试或改变 FLAKY 判定。
 CI uses bounded retries for observed Git transport failures during package preparation, preserves
@@ -495,7 +494,7 @@ fonts 文件 SHA-256，及 baselines 按 target 列出的基线文件 SHA-256。
   执行器不复制、下载或提交系统字体，也不允许图标缺失后静默降级为方块。
 - 使用该 loader 的 Golden 还校验真实 `flutter --version --machine` 的 frameworkVersion
   与 `kFlutterVersionPin` 一致，并核对清单的 frameworkRevision/engineRevision。
-  当前专项登记为 Flutter 3.47.7；普通 PR 使用 3.47.5，PR 成功不能证明该像素环境就绪。
+  当前专项登记为 Flutter 3.47.7；普通 PR 使用 3.50.0，PR 成功不能证明该像素环境就绪。
   原有本机字体路径和专项准备见 [专项 fixture 说明](specialist-fixtures.md)。
 
 预检通过只证明声明的输入当前可用，像素通过仍须实际比较已批准基线并核验机器事件。

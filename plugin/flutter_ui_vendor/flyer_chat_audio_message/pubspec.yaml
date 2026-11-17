@@ -1,0 +1,29 @@
+name: flyer_chat_audio_message
+version: 0.0.13+1
+publish_to: none
+description: >
+  Audio message package for Flutter chat apps, complementing flutter_chat_ui. #chat #ui
+homepage: https://flyer.chat
+repository: https://github.com/flyerhq/flutter_chat_ui
+
+environment:
+  sdk: ">=3.13.0 <4.0.0"
+  flutter: ">=3.47.0"
+
+dependencies:
+  material_ui: ^1.11.0
+  imboy:
+    path: ../../..
+  flutter_chat_core:
+    path: ../../flutter_chat_ui/packages/flutter_chat_core
+  audio_waveforms:
+    git:
+      url: https://gitee.com/imboy-tripartite-deps/audio_waveforms.git
+      ref: leeyi
+  flutter:
+    sdk: flutter
+
+dev_dependencies:
+  flutter_lints: ^6.0.0
+  flutter_test:
+    sdk: flutter

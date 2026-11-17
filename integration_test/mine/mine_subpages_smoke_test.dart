@@ -21,7 +21,7 @@
 //     -d <device_id> --dart-define=APP_ENV=pro \
 //     --dart-define=API_BASE_URL=https://pro.imboy.pub
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:integration_test/integration_test.dart';

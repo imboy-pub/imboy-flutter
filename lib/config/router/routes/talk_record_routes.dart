@@ -26,7 +26,7 @@
 ///   存在统一「暂时无法查看」，不泄露记录信息，供 403/404 复用）
 library;
 
-import 'package:flutter/cupertino.dart';
+import 'package:cupertino_ui/cupertino_ui.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:imboy/modules/talk_record/application/ai/talk_record_ai_credentials.dart';

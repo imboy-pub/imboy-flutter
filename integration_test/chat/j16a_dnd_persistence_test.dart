@@ -15,7 +15,7 @@
 // 频道订阅向量：合成部署 channel 表 0 行（频道功能未交付），按 C-channel
 // 功能门记录。
 
-import 'package:flutter/cupertino.dart';
+import 'package:cupertino_ui/cupertino_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/page/chat/chat/chat_page.dart';
 import 'package:imboy/page/chat/chat_setting/chat_setting_page.dart';

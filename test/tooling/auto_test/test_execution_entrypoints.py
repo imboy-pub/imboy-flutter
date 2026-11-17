@@ -303,7 +303,7 @@ raise SystemExit(code)
                 (scripts / name).write_text('#!/bin/sh\nprintf "' + label + ' %s\\n" "$*" >> "$CI_FIXTURE_CALLS"\n')
             binaries = project / 'installed browsers'
             binaries.mkdir()
-            for name in ('bash', 'mkdir', 'tee', 'mktemp', 'rm'):
+            for name in ('bash', 'mkdir', 'tee', 'mktemp', 'grep', 'rm'):
                 executable = shutil.which(name)
                 self.assertIsNotNone(executable)
                 (binaries / name).symlink_to(executable)

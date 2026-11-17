@@ -5,8 +5,8 @@
 /// "服务端是否换过合规密钥"（审计 P1-1）。
 library;
 
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart' show SelectableText;
+import 'package:cupertino_ui/cupertino_ui.dart';
+import 'package:material_ui/material_ui.dart' show SelectableText;
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/ios_settings_ui.dart';
 import 'package:imboy/component/ui/resource_page_layout.dart';

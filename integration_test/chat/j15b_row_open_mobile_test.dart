@@ -26,7 +26,7 @@
 // 设备账号与队列隔离（全新安装或专用验收机）。本脚本不发消息、不改
 // 偏好，仅做列表导航断言。
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:imboy/page/chat/chat/chat_page.dart';

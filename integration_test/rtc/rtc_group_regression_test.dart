@@ -18,7 +18,7 @@
 //
 // 前置：本地合成账号已在测试群（rtc_e2e_test.sh 种子的 group）。
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/page/chat/rtc_room/rtc_room_provider.dart';

@@ -9,7 +9,7 @@
 ///   - MentionState copyWith + filteredCandidates (排除自己 + 关键词过滤)
 library;
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/component/chat/mention_model.dart';
 import 'package:imboy/theme/default/app_colors.dart';

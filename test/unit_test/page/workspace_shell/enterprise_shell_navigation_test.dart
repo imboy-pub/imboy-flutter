@@ -1,7 +1,7 @@
 /// 企业壳全局空间入口、导航迁移与矮窗口可达性回归。
 library;
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:imboy/page/web_shell/web_nav_rail.dart';
 import 'package:imboy/component/ui/desktop_navigation_rail.dart';
 import 'package:imboy/component/ui/glass_bottom_bar.dart';

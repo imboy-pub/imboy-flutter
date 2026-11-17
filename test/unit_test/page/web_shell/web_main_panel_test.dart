@@ -9,7 +9,7 @@
 /// - sealed switch 穷尽性契约（编译期保证）
 library;
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/page/web_shell/web_main_panel.dart';
 import 'package:imboy/page/web_shell/web_shell_state.dart';

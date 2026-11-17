@@ -11,7 +11,8 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart' show debugPrintSynchronously;
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/config/const.dart';
@@ -136,8 +137,7 @@ class FlowConfig {
 // ──────────────────────────────────────────────
 
 void flowLog(String message) {
-  // ignore: avoid_print
-  print('[FLOW] $message');
+  debugPrintSynchronously('[FLOW] $message');
 }
 
 /// 频道写入类 E2E 的安全闸门。

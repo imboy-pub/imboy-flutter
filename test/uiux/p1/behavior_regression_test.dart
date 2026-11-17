@@ -7,7 +7,7 @@
 ///  3. p1_pagination_params_unchanged（分页触发不新增业务参数）
 library;
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'p1_fixtures.dart';

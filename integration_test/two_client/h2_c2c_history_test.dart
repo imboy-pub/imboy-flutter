@@ -13,7 +13,8 @@
 //   --dart-define=TEST_EXPECTED_UID=<uid> --dart-define=PEER_UID=<对端uid> \
 //   --dart-define=H2_RUN_TAG=<tag> --dart-define=H2_C2C_REAL_RUN=true
 
-import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart' show debugPrintSynchronously;
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
@@ -117,7 +118,6 @@ void main() {
     expect(gotB, isTrue, reason: '重进后 B→A marker 历史应解密渲染（同设备密钥在本地）');
     await takeScreenshot(tester, 'h2_c2c_history_reloaded');
     drainKnownFrameworkExceptions(tester);
-    // ignore: avoid_print
-    print('[H2-C2C] 历史 PASS：$aToBMarker / $bToAMarker 均解密渲染');
+    debugPrintSynchronously('[H2-C2C] 历史 PASS：$aToBMarker / $bToAMarker 均解密渲染');
   }, timeout: const Timeout(Duration(minutes: 14)));
 }

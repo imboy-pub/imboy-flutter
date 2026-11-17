@@ -5,9 +5,9 @@ import 'dart:async';
 
 import 'package:imboy/theme/default/font_types.dart';
 
-import 'package:flutter/cupertino.dart';
+import 'package:cupertino_ui/cupertino_ui.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/capabilities/capability_locator.dart';
@@ -196,7 +196,6 @@ class _ScannerPageState extends ConsumerState<ScannerPage>
   }
 
   Future<void> onDetect(BarcodeCapture barcodes) async {
-    if (kDebugMode) {}
     final scannerNotifier = ref.read(scannerProvider.notifier);
     final scannerState = ref.read(scannerProvider);
 
@@ -491,7 +490,6 @@ class _ScannerPageState extends ConsumerState<ScannerPage>
                               if (!mounted) return;
                               BarcodeCapture? res = await controller
                                   .analyzeImage(media.path);
-                              if (kDebugMode) {}
                               if (!context.mounted) return;
                               if (res == null) {
                                 AppLoading.showError(t.common.noBarcodeFound);

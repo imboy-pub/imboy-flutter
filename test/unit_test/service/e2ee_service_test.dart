@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/services.dart';
@@ -395,6 +396,35 @@ void main() {
   });
 
   group('group device key force refresh', () {
+    test(
+      'clearing cache revokes delayed reads without overwriting newer keys',
+      () async {
+        final pending = Completer<List<Map<String, dynamic>>>();
+        E2EEService.debugGroupMemberKeysLoader = (_) => pending.future;
+        final oldRead = E2EEService.getGroupDevicePublicKeys('g-delayed');
+        final rejected = expectLater(oldRead, throwsStateError);
+        E2EEService.clearCache();
+        E2EEService.setGroupDeviceKeyCacheForTest('g-delayed', {
+          'new-device': 'new-key',
+        });
+        pending.complete([
+          {
+            'uid': 'old-user',
+            'devices': [
+              {
+                'device_id': 'old-device',
+                'public_key': 'old-key',
+                'key_id': 'old-kid',
+              },
+            ],
+          },
+        ]);
+        await rejected;
+        final current = await E2EEService.getGroupDevicePublicKeys('g-delayed');
+        expect(current['didToPem'], {'new-device': 'new-key'});
+      },
+    );
+
     test('empty authoritative result does not reuse cached devices', () async {
       E2EEService.setGroupDeviceKeyCacheForTest('g1', {
         'revoked-device': 'old-key',

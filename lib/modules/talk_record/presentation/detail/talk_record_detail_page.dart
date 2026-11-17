@@ -16,8 +16,8 @@ import 'dart:async';
 import 'talk_record_participants_page.dart';
 import '../ai/talk_record_ai_processing_panel.dart';
 
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
+import 'package:cupertino_ui/cupertino_ui.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 

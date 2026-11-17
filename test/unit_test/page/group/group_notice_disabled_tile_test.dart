@@ -8,8 +8,8 @@
 ///   5. onChanged=null → 整行禁用，tap 无反应
 library;
 
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
+import 'package:cupertino_ui/cupertino_ui.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/page/group/group_detail/group_notice_disabled_tile.dart';
 

@@ -1,10 +1,15 @@
 import 'dart:io';
 
+import 'package:flutter/foundation.dart' show kIsWeb;
+
 import 'package:path_provider/path_provider.dart';
 
+import 'package:imboy/service/account_local_files.dart';
+import 'package:imboy/service/account_local_task_registry.dart';
 import 'package:imboy/service/compliance_key_service.dart';
 import 'package:imboy/service/e2ee/collect_keychain.dart';
 import 'package:imboy/service/e2ee_service.dart';
+import 'package:imboy/service/encrypter.dart';
 import 'package:imboy/service/group_session_service.dart';
 import 'package:imboy/service/olm_session_service.dart';
 import 'package:imboy/service/storage_secure.dart';
@@ -92,32 +97,59 @@ class E2eeSecretInventory {
   E2eeSecretInventory({
     required this.readAll,
     required this.deleteKey,
+    this.keyPrefixes = secretKeyPrefixes,
     this.clearMemoryCaches = const [],
     this.purgeArtifacts = const [],
+    this.runPurge,
   });
 
   /// 生产接线：真实 secure storage + 各 E2EE 服务内存缓存 + 临时备份文件。
-  factory E2eeSecretInventory.production() => E2eeSecretInventory(
-    readAll: StorageSecureService.to.readAll,
-    deleteKey: (key) => StorageSecureService.to.delete(key: key),
-    clearMemoryCaches: [
-      E2EEService.clearCache,
-      ComplianceKeyService.instance.clearCache,
-      GroupSessionService.to.clearMemory,
-      CollectKeychain.to.clearCache,
-    ],
-    purgeArtifacts: [
-      // 清 Olm 内存 Account/Session（其存储键由下方前缀清理兜底复核）
-      OlmSessionService.to.clearAll,
-      _purgeLocalBackupTempFiles,
-      _purgeUploadCacheFiles,
-    ],
-  );
+  factory E2eeSecretInventory.production({AccountLocalTaskOwner? owner}) {
+    final capturedOwner = owner ?? AccountLocalTaskOwner.capture();
+    return E2eeSecretInventory(
+      readAll: StorageSecureService.to.readAll,
+      deleteKey: (key) => StorageSecureService.to.delete(key: key),
+      clearMemoryCaches: [
+        E2EEService.clearCache,
+        EncrypterService.clearKeyCache,
+        ComplianceKeyService.instance.clearCache,
+        GroupSessionService.to.clearMemory,
+        CollectKeychain.to.clearCache,
+      ],
+      purgeArtifacts: [
+        // 清 Olm 内存 Account/Session（其存储键由下方前缀清理兜底复核）
+        OlmSessionService.to.clearAll,
+        () => _purgeLocalBackupTempFiles(capturedOwner),
+        _purgeUploadCacheFiles,
+      ],
+      runPurge: StorageSecureService.to.purgeE2eeKeys,
+    );
+  }
 
+  /// Settings deletes RSA identity/recovery material while the account remains
+  /// open. It must never delete SQLCipher keys or unrelated account secrets.
+  factory E2eeSecretInventory.identityKeys() {
+    // Bind the deletion target before waiting behind an earlier native write.
+    final owner = AccountLocalTaskOwner.capture();
+    return E2eeSecretInventory(
+      readAll: StorageSecureService.to.readAll,
+      deleteKey: (key) => StorageSecureService.to.delete(key: key),
+      keyPrefixes: const ['e2ee_'],
+      clearMemoryCaches: [
+        E2EEService.clearCache,
+        EncrypterService.clearKeyCache,
+      ],
+      purgeArtifacts: [() => _purgeLocalBackupTempFiles(owner)],
+      runPurge: StorageSecureService.to.purgeE2eeKeys,
+    );
+  }
+
+  final List<String> keyPrefixes;
   final Future<Map<String, String>> Function() readAll;
   final Future<void> Function(String key) deleteKey;
   final List<void Function()> clearMemoryCaches;
   final List<Future<void> Function()> purgeArtifacts;
+  final Future<void> Function(Future<void> Function())? runPurge;
 
   /// 秘密键前缀清单（新增 E2EE 存储键必须落在这些前缀之下，
   /// 否则 logout 清理与本清单测试都覆盖不到）。
@@ -347,7 +379,9 @@ class E2eeSecretInventory {
       secretKeyPrefixes.any(key.startsWith);
 
   /// 清理全部秘密：内存缓存 → 附属产物 → 持久化键 → 复核零残留。
-  Future<void> purgeAll() async {
+  Future<void> purgeAll() => runPurge?.call(_purgeAll) ?? _purgeAll();
+
+  Future<void> _purgeAll() async {
     final failures = <String>[];
 
     for (final clear in clearMemoryCaches) {
@@ -367,7 +401,8 @@ class E2eeSecretInventory {
     }
 
     try {
-      final keys = (await readAll()).keys.where(matchesSecretKey).toList();
+      bool matches(String key) => keyPrefixes.any(key.startsWith);
+      final keys = (await readAll()).keys.where(matches).toList();
       for (final key in keys) {
         try {
           await deleteKey(key);
@@ -376,7 +411,7 @@ class E2eeSecretInventory {
         }
       }
       // 复核：删除后逐项确认不存在，平台层假成功也拦下
-      final residual = (await readAll()).keys.where(matchesSecretKey);
+      final residual = (await readAll()).keys.where(matches);
       failures.addAll(residual.map((key) => 'residual $key'));
     } on Object catch (e) {
       failures.add('storage: $e');
@@ -388,13 +423,24 @@ class E2eeSecretInventory {
   }
 
   /// 删除 E2EELocalBackupService 落在临时目录的加密备份文件。
-  static Future<void> _purgeLocalBackupTempFiles() async {
+  static Future<void> _purgeLocalBackupTempFiles(
+    AccountLocalTaskOwner owner,
+  ) async {
+    if (kIsWeb) return;
     final tempDir = await getTemporaryDirectory();
-    await for (final entry in tempDir.list()) {
-      if (entry is! File) continue;
-      final name = entry.uri.pathSegments.last;
-      if (name.startsWith('imboy_e2ee_backup_') && name.endsWith('.enc')) {
-        await entry.delete();
+    final directories = [
+      tempDir, // Legacy exports predate account-scoped temporary directories.
+      if (owner.uid.isNotEmpty)
+        Directory(AccountLocalFiles.folderFor(tempDir.path, owner)),
+    ];
+    for (final directory in directories) {
+      if (!await directory.exists()) continue;
+      await for (final entry in directory.list(followLinks: false)) {
+        if (entry is! File) continue;
+        final name = entry.uri.pathSegments.last;
+        if (name.startsWith('imboy_e2ee_backup_') && name.endsWith('.enc')) {
+          await entry.delete();
+        }
       }
     }
   }

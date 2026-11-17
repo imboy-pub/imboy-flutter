@@ -6,8 +6,8 @@
 /// 一致），resources/related_posts 为后端有界数组直出（单页展示）。
 library;
 
-import 'package:flutter/material.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:material_ui/material_ui.dart';
+import 'package:cupertino_ui/cupertino_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:imboy/i18n/strings.g.dart';

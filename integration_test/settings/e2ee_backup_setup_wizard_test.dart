@@ -22,8 +22,8 @@
 // 状态遗留策略：结束时**有意**留下「服务端有备份 + 完成标记=true」——
 // 这正是向导的目标终态，后续所有壳启动不再被向导打扰。
 
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
+import 'package:cupertino_ui/cupertino_ui.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/main.dart' as app;

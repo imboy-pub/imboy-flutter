@@ -3,8 +3,8 @@
 // message_search_page 历史两行：展示与点击回填(AT-MS1) /
 // 删除单条与清除全部(AT-MS2)。前置同 ms_core_acceptance_test.dart。
 
-import 'package:flutter/cupertino.dart' show CupertinoIcons;
-import 'package:flutter/material.dart';
+import 'package:cupertino_ui/cupertino_ui.dart' show CupertinoIcons;
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:highlight_text/highlight_text.dart';

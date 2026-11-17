@@ -23,8 +23,8 @@
 //     --dart-define=TEST_EXPECTED_UID=1000000056 \
 //     --dart-define=TEST_ALLOW_WORKSPACE_ACCEPTANCE=true
 
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
+import 'package:cupertino_ui/cupertino_ui.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:imboy/main.dart' as app;

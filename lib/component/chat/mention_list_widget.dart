@@ -3,8 +3,8 @@
 /// 在群聊输入框中显示可 @ 的成员列表。
 library;
 
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
+import 'package:cupertino_ui/cupertino_ui.dart';
+import 'package:material_ui/material_ui.dart';
 
 import 'package:imboy/component/chat/mention_model.dart';
 import 'package:imboy/component/chat/mention_search.dart';

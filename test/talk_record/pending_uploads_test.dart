@@ -11,8 +11,8 @@ import 'package:imboy/modules/talk_record/presentation/talk_record_providers.dar
 import 'package:imboy/modules/talk_record/presentation/talk_record_services.dart';
 import 'package:imboy/store/model/talk_record/talk_record_participant_model.dart';
 
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
+import 'package:cupertino_ui/cupertino_ui.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/modules/talk_record/application/talk_record_local_binding.dart';

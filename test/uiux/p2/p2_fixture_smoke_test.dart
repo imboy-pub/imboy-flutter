@@ -7,7 +7,7 @@
 ///  3. 应用点击 trace 为基线值（CS 入口点击 → push csWorkspace 路由）
 library;
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:imboy/modules/customer_service/presentation/cs_workspace_entry.dart';
