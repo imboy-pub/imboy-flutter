@@ -2056,8 +2056,8 @@ class Translations$chat$zh_CN {
 	/// zh-CN: '拖拽即可发送文件，支持各种格式'
 	String get webFeatureFileTransferDesc => '拖拽即可发送文件，支持各种格式';
 
-	/// zh-CN: '打开 ImBoy 手机版 > 设置 > 扫一扫'
-	String get webQRStatusWaiting => '打开 ImBoy 手机版 > 设置 > 扫一扫';
+	/// zh-CN: '打开 ImBoy 手机版 > 消息 > 右上角扫一扫'
+	String get webQRStatusWaiting => '打开 ImBoy 手机版 > 消息 > 右上角扫一扫';
 
 	/// zh-CN: '请在手机上点击"确认登录"'
 	String get webQRStatusScanned => '请在手机上点击"确认登录"';
@@ -11739,7 +11739,7 @@ extension on Translations {
 			'chat.webFeatureE2EEDesc' => '所有消息都经过端到端加密，确保隐私安全',
 			'chat.webFeatureFileTransfer' => '文件传输',
 			'chat.webFeatureFileTransferDesc' => '拖拽即可发送文件，支持各种格式',
-			'chat.webQRStatusWaiting' => '打开 ImBoy 手机版 > 设置 > 扫一扫',
+			'chat.webQRStatusWaiting' => '打开 ImBoy 手机版 > 消息 > 右上角扫一扫',
 			'chat.webQRStatusScanned' => '请在手机上点击"确认登录"',
 			'chat.webQRStatusVerifying' => '正在验证...',
 			'chat.webQRStatusExpired' => '请点击刷新重新扫码',

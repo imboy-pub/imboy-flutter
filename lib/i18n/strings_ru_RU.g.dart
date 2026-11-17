@@ -774,7 +774,7 @@ class _Translations$chat$ru_RU extends Translations$chat$zh_CN {
 	@override String get webFeatureE2EEDesc => 'Все сообщения зашифрованы сквозным шифрованием для защиты конфиденциальности';
 	@override String get webFeatureFileTransfer => 'Передача файлов';
 	@override String get webFeatureFileTransferDesc => 'Перетащите файл, чтобы отправить; поддерживаются разные форматы';
-	@override String get webQRStatusWaiting => 'Откройте ImBoy на телефоне > Настройки > Сканировать';
+	@override String get webQRStatusWaiting => 'Откройте ImBoy на телефоне > Сообщения > Сканировать справа вверху';
 	@override String get webQRStatusScanned => 'Нажмите «Подтвердить вход» на телефоне';
 	@override String get webQRStatusVerifying => 'Проверка...';
 	@override String get webQRStatusExpired => 'Обновите и отсканируйте снова';
@@ -4753,7 +4753,7 @@ extension on TranslationsRuRu {
 			'chat.webFeatureE2EEDesc' => 'Все сообщения зашифрованы сквозным шифрованием для защиты конфиденциальности',
 			'chat.webFeatureFileTransfer' => 'Передача файлов',
 			'chat.webFeatureFileTransferDesc' => 'Перетащите файл, чтобы отправить; поддерживаются разные форматы',
-			'chat.webQRStatusWaiting' => 'Откройте ImBoy на телефоне > Настройки > Сканировать',
+			'chat.webQRStatusWaiting' => 'Откройте ImBoy на телефоне > Сообщения > Сканировать справа вверху',
 			'chat.webQRStatusScanned' => 'Нажмите «Подтвердить вход» на телефоне',
 			'chat.webQRStatusVerifying' => 'Проверка...',
 			'chat.webQRStatusExpired' => 'Обновите и отсканируйте снова',

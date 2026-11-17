@@ -781,7 +781,7 @@ class Translations$chat$zh_Hant extends Translations$chat$zh_CN {
 	@override String get webFeatureE2EEDesc => '所有訊息都經過端對端加密，確保隱私安全';
 	@override String get webFeatureFileTransfer => '檔案傳輸';
 	@override String get webFeatureFileTransferDesc => '拖拽即可傳送檔案，支援各種格式';
-	@override String get webQRStatusWaiting => '開啟 ImBoy 手機版 > 設定 > 掃一掃';
+	@override String get webQRStatusWaiting => '開啟 ImBoy 手機版 > 訊息 > 右上角掃一掃';
 	@override String get webQRStatusScanned => '請在手機上點選"確認登入"';
 	@override String get webQRStatusVerifying => '正在驗證...';
 	@override String get webQRStatusExpired => '請點選重新整理重新掃碼';
@@ -4751,7 +4751,7 @@ extension on TranslationsZhHant {
 			'chat.webFeatureE2EEDesc' => '所有訊息都經過端對端加密，確保隱私安全',
 			'chat.webFeatureFileTransfer' => '檔案傳輸',
 			'chat.webFeatureFileTransferDesc' => '拖拽即可傳送檔案，支援各種格式',
-			'chat.webQRStatusWaiting' => '開啟 ImBoy 手機版 > 設定 > 掃一掃',
+			'chat.webQRStatusWaiting' => '開啟 ImBoy 手機版 > 訊息 > 右上角掃一掃',
 			'chat.webQRStatusScanned' => '請在手機上點選"確認登入"',
 			'chat.webQRStatusVerifying' => '正在驗證...',
 			'chat.webQRStatusExpired' => '請點選重新整理重新掃碼',

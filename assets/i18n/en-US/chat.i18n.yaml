@@ -172,7 +172,7 @@ webFeatureE2EE: End-to-End Encryption
 webFeatureE2EEDesc: "All messages are end-to-end encrypted, ensuring privacy and security"
 webFeatureFileTransfer: File Transfer
 webFeatureFileTransferDesc: "Drag and drop to send files, supports various formats"
-webQRStatusWaiting: "Open ImBoy on your phone > Settings > Scan"
+webQRStatusWaiting: "Open ImBoy on your phone > Messages > Scan at top right"
 webQRStatusScanned: Please tap "Confirm Login" on your phone
 webQRStatusVerifying: Verifying...
 webQRStatusExpired: Please click refresh to scan again

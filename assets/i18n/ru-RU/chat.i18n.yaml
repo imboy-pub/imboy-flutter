@@ -173,7 +173,7 @@ webFeatureE2EE: Сквозное шифрование
 webFeatureE2EEDesc: Все сообщения зашифрованы сквозным шифрованием для защиты конфиденциальности
 webFeatureFileTransfer: Передача файлов
 webFeatureFileTransferDesc: Перетащите файл, чтобы отправить; поддерживаются разные форматы
-webQRStatusWaiting: Откройте ImBoy на телефоне > Настройки > Сканировать
+webQRStatusWaiting: Откройте ImBoy на телефоне > Сообщения > Сканировать справа вверху
 webQRStatusScanned: Нажмите «Подтвердить вход» на телефоне
 webQRStatusVerifying: Проверка...
 webQRStatusExpired: Обновите и отсканируйте снова

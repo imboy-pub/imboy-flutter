@@ -173,7 +173,7 @@ webFeatureE2EE: エンドツーエンド暗号化
 webFeatureE2EEDesc: すべてのメッセージをエンドツーエンドで暗号化し、プライバシーを保護
 webFeatureFileTransfer: ファイル転送
 webFeatureFileTransferDesc: ドラッグ&ドロップでファイルを送信、あらゆる形式に対応
-webQRStatusWaiting: ImBoyスマートフォン版を開く ＞ 設定 ＞ スキャン
+webQRStatusWaiting: ImBoyスマートフォン版を開く ＞ メッセージ ＞ 右上のスキャン
 webQRStatusScanned: スマートフォンで「ログインを確認」をタップしてください
 webQRStatusVerifying: 確認中...
 webQRStatusExpired: 更新ボタンを押して再度スキャンしてください

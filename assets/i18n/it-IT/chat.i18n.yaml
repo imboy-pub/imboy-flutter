@@ -173,7 +173,7 @@ webFeatureE2EE: E2EE
 webFeatureE2EEDesc: Tutti i messaggi cifrati end-to-end per la privacy
 webFeatureFileTransfer: Trasferimento file
 webFeatureFileTransferDesc: Trascina i file, tutti i formati
-webQRStatusWaiting: Apri ImBoy > Impostazioni > Scansiona
+webQRStatusWaiting: Apri ImBoy > Messaggi > Scansiona in alto a destra
 webQRStatusScanned: Sul mobile, tocca « Accedi »
 webQRStatusVerifying: Verifica...
 webQRStatusExpired: Aggiorna e scansiona di nuovo

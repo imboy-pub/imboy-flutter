@@ -774,7 +774,7 @@ class _Translations$chat$de_DE extends Translations$chat$zh_CN {
 	@override String get webFeatureE2EEDesc => 'Alle Nachrichten E2EE-verschlüsselt für maximale Privatsphäre';
 	@override String get webFeatureFileTransfer => 'Dateiübertragung';
 	@override String get webFeatureFileTransferDesc => 'Dateien per Drag & Drop senden, alle Formate';
-	@override String get webQRStatusWaiting => 'ImBoy-App öffnen > Einstellungen > Scannen';
+	@override String get webQRStatusWaiting => 'ImBoy-App öffnen > Nachrichten > oben rechts scannen';
 	@override String get webQRStatusScanned => 'Am Handy „Anmelden" antippen';
 	@override String get webQRStatusVerifying => 'Wird geprüft...';
 	@override String get webQRStatusExpired => 'Aktualisieren und erneut scannen';
@@ -4747,7 +4747,7 @@ extension on TranslationsDeDe {
 			'chat.webFeatureE2EEDesc' => 'Alle Nachrichten E2EE-verschlüsselt für maximale Privatsphäre',
 			'chat.webFeatureFileTransfer' => 'Dateiübertragung',
 			'chat.webFeatureFileTransferDesc' => 'Dateien per Drag & Drop senden, alle Formate',
-			'chat.webQRStatusWaiting' => 'ImBoy-App öffnen > Einstellungen > Scannen',
+			'chat.webQRStatusWaiting' => 'ImBoy-App öffnen > Nachrichten > oben rechts scannen',
 			'chat.webQRStatusScanned' => 'Am Handy „Anmelden" antippen',
 			'chat.webQRStatusVerifying' => 'Wird geprüft...',
 			'chat.webQRStatusExpired' => 'Aktualisieren und erneut scannen',

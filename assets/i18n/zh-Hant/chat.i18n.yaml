@@ -179,7 +179,7 @@ webFeatureE2EE: 端對端加密
 webFeatureE2EEDesc: 所有訊息都經過端對端加密，確保隱私安全
 webFeatureFileTransfer: 檔案傳輸
 webFeatureFileTransferDesc: 拖拽即可傳送檔案，支援各種格式
-webQRStatusWaiting: 開啟 ImBoy 手機版 > 設定 > 掃一掃
+webQRStatusWaiting: 開啟 ImBoy 手機版 > 訊息 > 右上角掃一掃
 webQRStatusScanned: 請在手機上點選"確認登入"
 webQRStatusVerifying: 正在驗證...
 webQRStatusExpired: 請點選重新整理重新掃碼

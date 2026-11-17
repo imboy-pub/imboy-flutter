@@ -774,7 +774,7 @@ class _Translations$chat$en_US extends Translations$chat$zh_CN {
 	@override String get webFeatureE2EEDesc => 'All messages are end-to-end encrypted, ensuring privacy and security';
 	@override String get webFeatureFileTransfer => 'File Transfer';
 	@override String get webFeatureFileTransferDesc => 'Drag and drop to send files, supports various formats';
-	@override String get webQRStatusWaiting => 'Open ImBoy on your phone > Settings > Scan';
+	@override String get webQRStatusWaiting => 'Open ImBoy on your phone > Messages > Scan at top right';
 	@override String get webQRStatusScanned => 'Please tap "Confirm Login" on your phone';
 	@override String get webQRStatusVerifying => 'Verifying...';
 	@override String get webQRStatusExpired => 'Please click refresh to scan again';
@@ -4747,7 +4747,7 @@ extension on TranslationsEnUs {
 			'chat.webFeatureE2EEDesc' => 'All messages are end-to-end encrypted, ensuring privacy and security',
 			'chat.webFeatureFileTransfer' => 'File Transfer',
 			'chat.webFeatureFileTransferDesc' => 'Drag and drop to send files, supports various formats',
-			'chat.webQRStatusWaiting' => 'Open ImBoy on your phone > Settings > Scan',
+			'chat.webQRStatusWaiting' => 'Open ImBoy on your phone > Messages > Scan at top right',
 			'chat.webQRStatusScanned' => 'Please tap "Confirm Login" on your phone',
 			'chat.webQRStatusVerifying' => 'Verifying...',
 			'chat.webQRStatusExpired' => 'Please click refresh to scan again',

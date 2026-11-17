@@ -774,7 +774,7 @@ class _Translations$chat$ar_SA extends Translations$chat$zh_CN {
 	@override String get webFeatureE2EEDesc => 'جميع الرسائل مشفّرة من طرف إلى طرف لحماية خصوصيتك';
 	@override String get webFeatureFileTransfer => 'نقل الملفات';
 	@override String get webFeatureFileTransferDesc => 'اسحب الملف لإرساله، مع دعم صيغ متعددة';
-	@override String get webQRStatusWaiting => 'افتح ImBoy على الهاتف > الإعدادات > مسح';
+	@override String get webQRStatusWaiting => 'افتح ImBoy على الهاتف > الرسائل > مسح من أعلى اليمين';
 	@override String get webQRStatusScanned => 'اضغط «تأكيد الدخول» على هاتفك';
 	@override String get webQRStatusVerifying => 'جارٍ التحقق...';
 	@override String get webQRStatusExpired => 'حدّث وأعد المسح';
@@ -4756,7 +4756,7 @@ extension on TranslationsArSa {
 			'chat.webFeatureE2EEDesc' => 'جميع الرسائل مشفّرة من طرف إلى طرف لحماية خصوصيتك',
 			'chat.webFeatureFileTransfer' => 'نقل الملفات',
 			'chat.webFeatureFileTransferDesc' => 'اسحب الملف لإرساله، مع دعم صيغ متعددة',
-			'chat.webQRStatusWaiting' => 'افتح ImBoy على الهاتف > الإعدادات > مسح',
+			'chat.webQRStatusWaiting' => 'افتح ImBoy على الهاتف > الرسائل > مسح من أعلى اليمين',
 			'chat.webQRStatusScanned' => 'اضغط «تأكيد الدخول» على هاتفك',
 			'chat.webQRStatusVerifying' => 'جارٍ التحقق...',
 			'chat.webQRStatusExpired' => 'حدّث وأعد المسح',

@@ -774,7 +774,7 @@ class _Translations$chat$it_IT extends Translations$chat$zh_CN {
 	@override String get webFeatureE2EEDesc => 'Tutti i messaggi cifrati end-to-end per la privacy';
 	@override String get webFeatureFileTransfer => 'Trasferimento file';
 	@override String get webFeatureFileTransferDesc => 'Trascina i file, tutti i formati';
-	@override String get webQRStatusWaiting => 'Apri ImBoy > Impostazioni > Scansiona';
+	@override String get webQRStatusWaiting => 'Apri ImBoy > Messaggi > Scansiona in alto a destra';
 	@override String get webQRStatusScanned => 'Sul mobile, tocca « Accedi »';
 	@override String get webQRStatusVerifying => 'Verifica...';
 	@override String get webQRStatusExpired => 'Aggiorna e scansiona di nuovo';
@@ -4747,7 +4747,7 @@ extension on TranslationsItIt {
 			'chat.webFeatureE2EEDesc' => 'Tutti i messaggi cifrati end-to-end per la privacy',
 			'chat.webFeatureFileTransfer' => 'Trasferimento file',
 			'chat.webFeatureFileTransferDesc' => 'Trascina i file, tutti i formati',
-			'chat.webQRStatusWaiting' => 'Apri ImBoy > Impostazioni > Scansiona',
+			'chat.webQRStatusWaiting' => 'Apri ImBoy > Messaggi > Scansiona in alto a destra',
 			'chat.webQRStatusScanned' => 'Sul mobile, tocca « Accedi »',
 			'chat.webQRStatusVerifying' => 'Verifica...',
 			'chat.webQRStatusExpired' => 'Aggiorna e scansiona di nuovo',

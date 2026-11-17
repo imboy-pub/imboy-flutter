@@ -774,7 +774,7 @@ class _Translations$chat$ko_KR extends Translations$chat$zh_CN {
 	@override String get webFeatureE2EEDesc => '모든 메시지는 종단간 암호화되어 개인정보를 안전하게 보호합니다';
 	@override String get webFeatureFileTransfer => '파일 전송';
 	@override String get webFeatureFileTransferDesc => '드래그 앤 드롭으로 파일을 보낼 수 있으며 다양한 형식을 지원합니다';
-	@override String get webQRStatusWaiting => 'ImBoy 모바일 앱 열기 > 설정 > 스캔';
+	@override String get webQRStatusWaiting => 'ImBoy 모바일 앱 열기 > 메시지 > 오른쪽 위 스캔';
 	@override String get webQRStatusScanned => '휴대폰에서 "로그인 확인"을 눌러주세요';
 	@override String get webQRStatusVerifying => '확인 중...';
 	@override String get webQRStatusExpired => '새로고침을 눌러 다시 스캔해주세요';
@@ -4744,7 +4744,7 @@ extension on TranslationsKoKr {
 			'chat.webFeatureE2EEDesc' => '모든 메시지는 종단간 암호화되어 개인정보를 안전하게 보호합니다',
 			'chat.webFeatureFileTransfer' => '파일 전송',
 			'chat.webFeatureFileTransferDesc' => '드래그 앤 드롭으로 파일을 보낼 수 있으며 다양한 형식을 지원합니다',
-			'chat.webQRStatusWaiting' => 'ImBoy 모바일 앱 열기 > 설정 > 스캔',
+			'chat.webQRStatusWaiting' => 'ImBoy 모바일 앱 열기 > 메시지 > 오른쪽 위 스캔',
 			'chat.webQRStatusScanned' => '휴대폰에서 "로그인 확인"을 눌러주세요',
 			'chat.webQRStatusVerifying' => '확인 중...',
 			'chat.webQRStatusExpired' => '새로고침을 눌러 다시 스캔해주세요',

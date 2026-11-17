@@ -173,7 +173,7 @@ webFeatureE2EE: E2EE
 webFeatureE2EEDesc: Alle Nachrichten E2EE-verschlüsselt für maximale Privatsphäre
 webFeatureFileTransfer: Dateiübertragung
 webFeatureFileTransferDesc: Dateien per Drag & Drop senden, alle Formate
-webQRStatusWaiting: ImBoy-App öffnen > Einstellungen > Scannen
+webQRStatusWaiting: ImBoy-App öffnen > Nachrichten > oben rechts scannen
 webQRStatusScanned: Am Handy „Anmelden" antippen
 webQRStatusVerifying: Wird geprüft...
 webQRStatusExpired: Aktualisieren und erneut scannen

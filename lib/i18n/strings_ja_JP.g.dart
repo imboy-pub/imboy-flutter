@@ -774,7 +774,7 @@ class _Translations$chat$ja_JP extends Translations$chat$zh_CN {
 	@override String get webFeatureE2EEDesc => 'すべてのメッセージをエンドツーエンドで暗号化し、プライバシーを保護';
 	@override String get webFeatureFileTransfer => 'ファイル転送';
 	@override String get webFeatureFileTransferDesc => 'ドラッグ&ドロップでファイルを送信、あらゆる形式に対応';
-	@override String get webQRStatusWaiting => 'ImBoyスマートフォン版を開く ＞ 設定 ＞ スキャン';
+	@override String get webQRStatusWaiting => 'ImBoyスマートフォン版を開く ＞ メッセージ ＞ 右上のスキャン';
 	@override String get webQRStatusScanned => 'スマートフォンで「ログインを確認」をタップしてください';
 	@override String get webQRStatusVerifying => '確認中...';
 	@override String get webQRStatusExpired => '更新ボタンを押して再度スキャンしてください';
@@ -4744,7 +4744,7 @@ extension on TranslationsJaJp {
 			'chat.webFeatureE2EEDesc' => 'すべてのメッセージをエンドツーエンドで暗号化し、プライバシーを保護',
 			'chat.webFeatureFileTransfer' => 'ファイル転送',
 			'chat.webFeatureFileTransferDesc' => 'ドラッグ&ドロップでファイルを送信、あらゆる形式に対応',
-			'chat.webQRStatusWaiting' => 'ImBoyスマートフォン版を開く ＞ 設定 ＞ スキャン',
+			'chat.webQRStatusWaiting' => 'ImBoyスマートフォン版を開く ＞ メッセージ ＞ 右上のスキャン',
 			'chat.webQRStatusScanned' => 'スマートフォンで「ログインを確認」をタップしてください',
 			'chat.webQRStatusVerifying' => '確認中...',
 			'chat.webQRStatusExpired' => '更新ボタンを押して再度スキャンしてください',

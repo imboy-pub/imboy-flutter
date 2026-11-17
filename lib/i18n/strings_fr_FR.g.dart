@@ -774,7 +774,7 @@ class _Translations$chat$fr_FR extends Translations$chat$zh_CN {
 	@override String get webFeatureE2EEDesc => 'Tous les messages chiffrés de bout en bout pour votre vie privée';
 	@override String get webFeatureFileTransfer => 'Transfert de fichiers';
 	@override String get webFeatureFileTransferDesc => 'Glissez-déposez vos fichiers, tous formats';
-	@override String get webQRStatusWaiting => 'Ouvrir ImBoy > Paramètres > Scanner';
+	@override String get webQRStatusWaiting => 'Ouvrir ImBoy > Messages > Scanner en haut à droite';
 	@override String get webQRStatusScanned => 'Sur le mobile, appuyez sur « Connexion »';
 	@override String get webQRStatusVerifying => 'Vérification...';
 	@override String get webQRStatusExpired => 'Actualisez et rescannez';
@@ -4747,7 +4747,7 @@ extension on TranslationsFrFr {
 			'chat.webFeatureE2EEDesc' => 'Tous les messages chiffrés de bout en bout pour votre vie privée',
 			'chat.webFeatureFileTransfer' => 'Transfert de fichiers',
 			'chat.webFeatureFileTransferDesc' => 'Glissez-déposez vos fichiers, tous formats',
-			'chat.webQRStatusWaiting' => 'Ouvrir ImBoy > Paramètres > Scanner',
+			'chat.webQRStatusWaiting' => 'Ouvrir ImBoy > Messages > Scanner en haut à droite',
 			'chat.webQRStatusScanned' => 'Sur le mobile, appuyez sur « Connexion »',
 			'chat.webQRStatusVerifying' => 'Vérification...',
 			'chat.webQRStatusExpired' => 'Actualisez et rescannez',
