@@ -89,4 +89,67 @@ void main() {
       expect((await db.query('conversation')).single['unread_num'], 1);
     },
   );
+
+  for (final type in ['C2C', 'C2G']) {
+    test(
+      'late $type delivery preserves the head and still increments unread',
+      () async {
+        final repo = ConversationRepo();
+        final current = _incoming().copyWith(
+          type: type,
+          lastTime: 1700000002000,
+          lastMsgId: 'newer-message',
+          subtitle: 'newer preview',
+          lastMsgStatus: 21,
+          payload: {'text': 'newer text'},
+          mentionUnread: 0,
+        );
+        await repo.save(current);
+        final older = current.copyWith(
+          lastTime: 1700000001000,
+          lastMsgId: 'older-message',
+          subtitle: 'older preview',
+          lastMsgStatus: 11,
+          payload: {'text': 'older text'},
+          mentionUnread: 1,
+        );
+        final result = await repo.save(older);
+        expect(result.lastTime, current.lastTime);
+        expect(result.lastMsgId, current.lastMsgId);
+        expect(result.lastMsgStatus, current.lastMsgStatus);
+        expect(result.subtitle, current.subtitle);
+        expect(result.payload, current.payload);
+        expect(result.unreadNum, 2);
+        expect(result.mentionUnread, 1);
+        final replay = await repo.save(older, autoIncrement: false);
+        expect(replay.lastMsgId, current.lastMsgId);
+        expect(replay.unreadNum, 2);
+        expect(replay.mentionUnread, 1);
+      },
+    );
+  }
+
+  test(
+    'concurrent first deliveries keep one conversation and all unread deltas',
+    () async {
+      final repo = ConversationRepo();
+      await Future.wait(
+        List.generate(
+          8,
+          (i) => repo.save(
+            _incoming().copyWith(
+              lastTime: 1700000000000 + i,
+              lastMsgId: 'synthetic-$i',
+              mentionUnread: 0,
+            ),
+          ),
+        ),
+      );
+      final rows = await db.query('conversation');
+      expect(rows, hasLength(1));
+      expect(rows.single['unread_num'], 8);
+      expect(rows.single['last_msg_id'], 'synthetic-7');
+      expect(rows.single['last_time'], 1700000000007);
+    },
+  );
 }

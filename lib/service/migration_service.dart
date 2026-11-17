@@ -6,7 +6,6 @@ import 'package:imboy/service/migrations/manifest_all.dart';
 import 'package:imboy/service/migration_script.dart';
 import 'package:imboy/service/migration_script_planner.dart';
 import 'package:imboy/service/app_logger.dart';
-import 'package:logger/logger.dart';
 import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
 import 'package:sqflite_sqlcipher/sqflite.dart';
@@ -61,8 +60,6 @@ class MigrationResult {
 /// 3. 执行增量迁移
 /// 4. 提供备份和恢复机制
 class MigrationService {
-  static final Logger _logger = Logger();
-
   // 单例
   static final MigrationService to = MigrationService._privateConstructor();
 
@@ -103,11 +100,11 @@ class MigrationService {
   /// 均为生成物，由生成器 --check 守护一致）。
   Future<void> init() async {
     if (_upgradeScripts != null) {
-      _logger.d('MigrationService already initialized');
+      AppLogger.debug('MigrationService already initialized');
       return;
     }
 
-    _logger.i('Initializing MigrationService...');
+    AppLogger.info('Initializing MigrationService...');
 
     try {
       _upgradeScripts = {
@@ -129,10 +126,10 @@ class MigrationService {
           ),
       };
 
-      _logger.i('MigrationService initialized');
-      _logger.i('Loaded ${_upgradeScripts!.length} upgrade scripts');
-      _logger.i('Loaded ${_downgradeScripts!.length} downgrade scripts');
-      _logger.i('Target version: $targetVersion');
+      AppLogger.info('MigrationService initialized');
+      AppLogger.info('Loaded ${_upgradeScripts!.length} upgrade scripts');
+      AppLogger.info('Loaded ${_downgradeScripts!.length} downgrade scripts');
+      AppLogger.info('Target version: $targetVersion');
     } catch (e, stackTrace) {
       AppLogger.error('Failed to initialize MigrationService', e, stackTrace);
       rethrow;
@@ -148,10 +145,10 @@ class MigrationService {
     final currentVersion = await _getCurrentVersion();
     final target = targetVersion;
 
-    _logger.i('Auto migration check: v$currentVersion → v$target');
+    AppLogger.info('Auto migration check: v$currentVersion → v$target');
 
     if (currentVersion >= target) {
-      _logger.i('Database is up to date (v$currentVersion)');
+      AppLogger.info('Database is up to date (v$currentVersion)');
       return MigrationResult.success(
         fromVersion: currentVersion,
         toVersion: currentVersion,
@@ -228,19 +225,19 @@ class MigrationService {
             toVersion: toVersion,
           );
         }
-        _logger.i('No-op migration: v$fromVersion → v$toVersion');
+        AppLogger.info('No-op migration: v$fromVersion → v$toVersion');
         return MigrationResult.success(
           fromVersion: fromVersion,
           toVersion: toVersion,
         );
       }
 
-      _logger.i('Executing ${scripts.length} migration scripts...');
+      AppLogger.info('Executing ${scripts.length} migration scripts...');
 
       // 执行迁移（已在事务中，由 SqliteService 的 onUpgrade/onDowngrade 回调保证）
       for (int i = 0; i < scripts.length; i++) {
         final script = scripts[i];
-        _logger.i(
+        AppLogger.info(
           'Progress: ${i + 1}/${scripts.length} - v${script.version} → v${script.targetVersion}',
         );
 
@@ -249,14 +246,14 @@ class MigrationService {
           // （v11/v12 块对 v10 已加列的历史重复）时跳过并留痕；
           // 其余语句照常执行，错误如实抛出（WP2：不再吞 duplicate column）。
           if (await _addColumnAlreadySatisfied(db, sql)) {
-            _logger.i(
+            AppLogger.info(
               'Precondition satisfied, skip: ADD COLUMN already exists '
               '(${_preview(sql)})',
             );
             continue;
           }
           await db.execute(sql);
-          _logger.d('Executed: ${_preview(sql)}');
+          AppLogger.debug('Executed: ${_preview(sql)}');
         }
 
         // 每个脚本执行后进行完整性检查
@@ -267,7 +264,7 @@ class MigrationService {
         }
       }
 
-      _logger.i('Migration completed: v$fromVersion → v$toVersion');
+      AppLogger.info('Migration completed: v$fromVersion → v$toVersion');
 
       return MigrationResult.success(
         fromVersion: fromVersion,

@@ -196,7 +196,6 @@ class _ScannerPageState extends ConsumerState<ScannerPage>
   }
 
   Future<void> onDetect(BarcodeCapture barcodes) async {
-    if (kDebugMode) {}
     final scannerNotifier = ref.read(scannerProvider.notifier);
     final scannerState = ref.read(scannerProvider);
 
@@ -491,7 +490,6 @@ class _ScannerPageState extends ConsumerState<ScannerPage>
                               if (!mounted) return;
                               BarcodeCapture? res = await controller
                                   .analyzeImage(media.path);
-                              if (kDebugMode) {}
                               if (!context.mounted) return;
                               if (res == null) {
                                 AppLoading.showError(t.common.noBarcodeFound);

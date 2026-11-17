@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:cupertino_ui/cupertino_ui.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -17,10 +19,9 @@ import 'package:imboy/store/model/group_model.dart';
 /// Group/Channel 二维码页面渲染测试。
 ///
 /// 覆盖范围与不可测说明：
-/// - 验证页面能以 ProviderScope 无网络/无登录态渲染，QrImageView 存在，
-///   标题/占位图标正确，footer 展示"7 天后过期"的日期（页面 exp 计算逻辑
-///   通过自身渲染输出验证）。
-/// - 二维码 URL 的 tk 签名（md5("${exp}_${solidifiedKey}")）不可从渲染层
+/// - 群码注入合成的服务端邀请，验证等待/失败时不显示可分享二维码，
+///   成功时展示标题/头像与服务端有效期。频道仍使用本地卡片链接。
+/// - 二维码 URL 的 tk 内容不可从渲染层
 ///   观测：qr_flutter 4.1.0 的 QrImageView 将 data 存为私有字段 `_data`，
 ///   无公开 getter，测试无法提取二维码内容字符串。
 /// - 个人码使用合成账号初始化存储，渲染与导出覆盖见
@@ -31,7 +32,17 @@ void main() {
 
   Widget wrap(Widget page) {
     return TranslationProvider(
-      child: ProviderScope(child: MaterialApp(home: page)),
+      child: ProviderScope(
+        overrides: [
+          groupQrcodeInviteProvider.overrideWith(
+            (ref, groupId) async => (
+              token: 'synthetic.group.signature',
+              expiredAt: DateTimeHelper.millisecond() + sevenDaysMs,
+            ),
+          ),
+        ],
+        child: MaterialApp(home: page),
+      ),
     );
   }
 
@@ -190,7 +201,45 @@ void main() {
   });
 
   group('GroupQrCodePage', () {
-    testWidgets('GQ-1 无网络渲染出二维码与 7 天有效期提示', (tester) async {
+    testWidgets(
+      'pending/failed group invite has no QR or share action; retry recovers',
+      (tester) async {
+        final reply = Completer<({String token, int expiredAt})>();
+        var attempts = 0;
+        await tester.pumpWidget(
+          TranslationProvider(
+            child: ProviderScope(
+              overrides: [
+                groupQrcodeInviteProvider.overrideWith((ref, groupId) {
+                  attempts++;
+                  if (attempts == 1) return reply.future;
+                  return Future.value((
+                    token: 'synthetic.retry.signature',
+                    expiredAt: 4102444800000,
+                  ));
+                }),
+              ],
+              child: MaterialApp(home: GroupQrCodePage(group: buildGroup())),
+            ),
+          ),
+        );
+        expect(find.byType(QrImageView), findsNothing);
+        expect(find.text(t.common.share), findsNothing);
+        reply.completeError(Exception('synthetic unavailable'));
+        await tester.pump();
+        await tester.pump();
+        expect(find.byType(QrImageView), findsNothing);
+        expect(find.text(t.common.retry), findsOneWidget);
+        await tester.tap(find.text(t.common.retry));
+        await tester.pump();
+        await tester.pump();
+        expect(find.byType(QrImageView), findsOneWidget);
+        expect(find.text(t.common.share), findsOneWidget);
+        expect(attempts, 2);
+      },
+    );
+
+    testWidgets('GQ-1 服务端邀请成功后渲染二维码与 7 天有效期提示', (tester) async {
       final beforeMs = DateTimeHelper.millisecond();
 
       await tester.pumpWidget(wrap(GroupQrCodePage(group: buildGroup())));

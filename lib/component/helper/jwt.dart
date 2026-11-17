@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:jose/jose.dart';
 
@@ -19,7 +18,6 @@ bool tokenExpired(String? token) {
 
     // 边界值处理
     if (exp == null || exp <= 0) {
-      if (kDebugMode) {}
       return true;
     }
 
@@ -28,14 +26,10 @@ bool tokenExpired(String? token) {
     // 修正后的核心逻辑
     final expired = current >= (exp - buffer);
 
-    if (kDebugMode && expired) {}
-
     return expired;
   } on JoseException {
-    if (kDebugMode) {}
     return true;
   } catch (e) {
-    if (kDebugMode) {}
     return true;
   }
 }

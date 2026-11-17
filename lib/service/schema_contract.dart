@@ -16,6 +16,7 @@ import 'dart:convert';
 import 'package:sqflite_sqlcipher/sqflite.dart';
 
 import 'package:imboy/service/migrations/upgrade_edges_v38_fts.dart';
+import 'package:imboy/service/migrations/upgrade_edges_v40.dart';
 
 /// 库内 schema 元数据表（KV 形态，避免为加字段改表结构）。
 class ImboySchemaMeta {
@@ -233,7 +234,7 @@ class SchemaContract {
     DatabaseExecutor db, {
     required int version,
   }) async {
-    final required = version == 37 || version == 38 || version == 39
+    final required = {37, 38, 39, 40}.contains(version)
         ? <String, Set<String>>{
             ...requiredColumnsByVersion[36]!,
             'channel': {
@@ -241,7 +242,7 @@ class SchemaContract {
               'scope',
               'workspace_id',
             },
-            if (version == 39)
+            if (version == 39 || version == 40)
               'channel_inbox_preference': {'endpoint', 'channel_id', 'scope'},
           }
         : requiredColumnsByVersion[version] ?? const {};
@@ -262,7 +263,7 @@ class SchemaContract {
         violations.add('missing column: $table.$col (v$version)');
       }
     }
-    if (version == 36 || version == 37 || version == 38 || version == 39) {
+    if ({36, 37, 38, 39, 40}.contains(version)) {
       for (final table in [
         'msg_c2c',
         'msg_c2g',
@@ -279,7 +280,7 @@ class SchemaContract {
         }
       }
     }
-    if (version == 39) {
+    if (version == 39 || version == 40) {
       final info = await db.rawQuery(
         'PRAGMA table_info(channel_inbox_preference)',
       );
@@ -308,6 +309,36 @@ class SchemaContract {
             "CHECK (scope = 'personal')",
           )) {
         violations.add('expected personal-only preference scope (v$version)');
+      }
+    }
+    if (version == 40) {
+      for (final table in messageFtsTables) {
+        final name = '${table}_fts';
+        final rows = await db.rawQuery(
+          "SELECT sql FROM sqlite_master WHERE type = 'table' AND name = ?",
+          [name],
+        );
+        if (rows.isEmpty) {
+          violations.add('missing table: $name (v40)');
+        } else if (_schemaDdl(rows.single['sql'] as String? ?? '') !=
+            _schemaDdl(messageFtsCreateTableSql(table))) {
+          violations.add('unexpected table definition: $name (v40)');
+        }
+        final draftObjects = await db.rawQuery(
+          "SELECT name FROM sqlite_master WHERE type IN ('view', 'trigger') "
+          'AND name IN (?, ?, ?, ?, ?, ?)',
+          [
+            '${name}_content',
+            '${name}_guard_insert',
+            '${name}_guard_update',
+            '${name}_insert',
+            '${name}_after_update',
+            '${name}_delete',
+          ],
+        );
+        if (draftObjects.isNotEmpty) {
+          violations.add('unexpected draft FTS objects: $name (v40)');
+        }
       }
     }
     if (version == 38) {
@@ -361,7 +392,7 @@ class SchemaContract {
     for (final o in objects) {
       final type = o['type'] as String;
       final name = o['name'] as String;
-      if (_isFtsShadow(name)) continue;
+      if (_isFtsShadow(type, name)) continue;
       if (type == 'table') {
         final info = await db.rawQuery('PRAGMA table_info("$name")');
         final columns =
@@ -419,9 +450,11 @@ class SchemaContract {
   static Map<String, Object?> decodeGolden(String json) =>
       jsonDecode(json) as Map<String, Object?>;
 
-  static bool _isFtsShadow(String name) =>
-      name.endsWith('_fts_data') ||
-      name.endsWith('_fts_idx') ||
-      name.endsWith('_fts_docsize') ||
-      name.endsWith('_fts_config');
+  static bool _isFtsShadow(String type, String name) =>
+      type == 'table' &&
+      (name.endsWith('_fts_content') ||
+          name.endsWith('_fts_data') ||
+          name.endsWith('_fts_idx') ||
+          name.endsWith('_fts_docsize') ||
+          name.endsWith('_fts_config'));
 }

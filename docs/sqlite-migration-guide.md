@@ -1,6 +1,6 @@
 # SQLite 迁移维护指南
 
-本页记录可重复执行的维护方法，不保存某次测试成绩或发布结论。迁移版本以 `lib/service/sqlite.dart` 和 `lib/service/migrations/manifest_all.dart` 为准；当前源版本为 37。历史 v31 测试场景不能单独证明当前版本验收通过。
+本页记录可重复执行的维护方法，不保存某次测试成绩或发布结论。迁移版本以 `lib/service/sqlite.dart` 和 `lib/service/migrations/manifest_all.dart` 为准；当前源版本为 40。历史 v31 测试场景不能单独证明当前版本验收通过。
 
 ## 修改迁移
 
@@ -13,6 +13,25 @@ bash scripts/run_sqlite_migration_gate.sh --local
 ```
 
 Gate 的 `--local` 使用仓外临时目录，`--ci` 使用 ignored `build/sqlite-migration-gate`。退出码为 0 全部子项通过、1 子项失败、2 缺前提未执行、64 参数错误；缺依赖与未运行不能算通过。日志与发布证据应留在仓外，不回填为本页的固定成绩。
+
+### v40 消息索引 / Message indexes
+
+39→40 将两张消息 FTS5 索引从 contentless 改为保存索引正文的普通 FTS5 表，
+保留原列、tokenizer 与 repository 维护方式。迁移仅从现存消息一次性回填派生索引，
+清除已编辑或已删除消息留下的旧词；不修改消息、频道偏好或密钥，也不启用 v38 草稿的
+视图或触发器。40→39 配对边从消息重建原 contentless 形态；回退后也恢复旧版本的索引
+维护限制。该 SQL 边不能证明已发布的旧安装包认识 v40；缺少迁移路径的旧包仍须安全拒绝。
+
+普通索引新增正文副本，增加本地磁盘用量；升级会执行一次全文回填，并沿用迁移前快照、
+事务失败回滚及后验 schema 门。常规编辑与删除按行处理，不在每次删除时重建整表。
+编辑提交到延迟索引完成之间，搜索只返回索引正文与当前消息一致的候选，避免展示旧片段。
+v40 没有引入 `contentless_delete` 或新 SQLite 最低版本，但仍须保留实际 SQLCipher、
+Web/WASM 与宿主 SQLite 的验证证据；宿主通过不能替代原生加密或保留安装验收。
+
+English: v40 rebuilds only the derived FTS indexes, once, and retains repository maintenance.
+Content is stored so row deletion can remove the actual indexed terms. The v38 trigger draft
+remains unregistered. A paired SQL downgrade preserves messages but does not establish old
+binary compatibility. Native encryption and retained-installation evidence remain separate.
 
 ## 数据安全边界
 

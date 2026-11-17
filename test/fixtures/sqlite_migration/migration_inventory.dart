@@ -19,7 +19,7 @@ library;
 
 /// 权威数据库版本（lib/service/sqlite.dart `_dbVersion`）。
 /// 由 inventory test 通过源码扫描守护，防止 embedded 脚本与权威版本漂移。
-const int kInventoryCurrentDbVersion = 39;
+const int kInventoryCurrentDbVersion = 40;
 
 /// 新库基线版本：kBaselineSchemaSql（example10.db 模板）建库后 user_version。
 /// SqliteService._onCreate 在加密平台执行 baseline 后设置此值，再跑增量。
@@ -68,6 +68,7 @@ const Set<int> kInventoryExpectedUpgradeBlocks = {
   36,
   37,
   39,
+  40,
 };
 
 /// downgrade.sql 中实际存在的 VERSION 块（18 块，含 VERSION:9 空占位）。
@@ -78,6 +79,7 @@ const Set<int> kInventoryExpectedUpgradeBlocks = {
 /// （W8-C5：v32-v35 迁移落地后块集已扩至 18，此前 doc 边清单漏登
 ///   32→31/33→32/34→33/35→34 四条边，现与下方集合对齐。）
 const Set<int> kInventoryExpectedDowngradeBlocks = {
+  40,
   39,
   9,
   10,

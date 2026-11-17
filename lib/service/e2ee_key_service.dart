@@ -99,16 +99,12 @@ class E2EEKeyService {
   ///
   /// @example
   /// ```dart
-  /// try {
-  ///   final keyInfo = await E2EEKeyService.generateKeyPair();
-  ///   print('密钥已生成');
-  ///   print('设备 ID: ${keyInfo['device_id']}');
-  ///   print('密钥 ID: ${keyInfo['key_id']}');
-  /// } catch (e) {
-  ///   print('密钥生成失败: $e');
-  /// }
+  /// final keyInfo = await E2EEKeyService.generateKeyPair();
+  /// final deviceId = keyInfo['device_id'];
   /// ```
   static Future<Map<String, dynamic>> generateKeyPair() async {
+    final storage = StorageSecureService.to;
+    final keyGeneration = storage.e2eeKeyGeneration;
     try {
       String publicKeyPem;
       String privateKeyPem;
@@ -143,12 +139,13 @@ class E2EEKeyService {
       // `e2ee_private_key_history_${旧kid}`（C2，保证历史密文可解）。若与 `setKeyId(新kid)`
       // 并发，存在竞态：setKeyId 抢先写入后，savePrivateKey 读到的将是新 kid，旧私钥被
       // 错误归档到新 kid 下，导致历史私钥永久丢失。故必须串行，且 savePrivateKey 在 setKeyId 之前。
-      final storage = StorageSecureService.to;
-      await storage.savePrivateKey(privateKeyPem); // 先：归档旧私钥(按旧kid) + 写新私钥
-      await storage.setKeyId(keyId); // 后：写入新 kid
-      await storage.savePublicKey(publicKeyPem);
-      await storage.setDeviceId(deviceId);
-      await storage.setKeyCreatedAt(createdAt);
+      await storage.writeE2eeKeys(keyGeneration, () async {
+        await storage.savePrivateKey(privateKeyPem); // 先：归档旧私钥(按旧kid) + 写新私钥
+        await storage.setKeyId(keyId); // 后：写入新 kid
+        await storage.savePublicKey(publicKeyPem);
+        await storage.setDeviceId(deviceId);
+        await storage.setKeyCreatedAt(createdAt);
+      });
 
       // 密钥变化自动重传云端备份（发生率压降路径3）：口令已缓存时用新密钥
       // 重新打包上传；无缓存口令（首启向导未完成）静默跳过——首次上传由
@@ -177,11 +174,12 @@ class E2EEKeyService {
   /// @returns true 表示新密钥已生成且新公钥成功上报；false 表示生成或上报失败。
   static Future<bool> regenerateAndReportDeviceKey() async {
     if (!AppFeatureRegistry.isEnabled(FeatureKeys.e2ee)) return false;
+    final storage = StorageSecureService.to;
+    final keyGeneration = storage.e2eeKeyGeneration;
     // 1. 强制生成新密钥对（旧私钥按旧 kid 归档，不丢历史）
     await generateKeyPair();
 
     // 2. 读回新密钥信息
-    final storage = StorageSecureService.to;
     final keyId = await storage.getKeyId();
     final publicKey = await storage.getPublicKey();
     String deviceId = await storage.getDeviceId() ?? '';
@@ -189,10 +187,14 @@ class E2EEKeyService {
       final dinfo = await DeviceExt.to.detail;
       deviceId = dinfo?['did']?.toString() ?? '';
       if (deviceId.isNotEmpty) {
-        await storage.setDeviceId(deviceId);
+        await storage.writeE2eeKeys(
+          keyGeneration,
+          () => storage.setDeviceId(deviceId),
+        );
       }
     }
-    if (deviceId.isEmpty ||
+    if (keyGeneration != storage.e2eeKeyGeneration ||
+        deviceId.isEmpty ||
         keyId == null ||
         keyId.isEmpty ||
         publicKey == null ||
@@ -202,6 +204,7 @@ class E2EEKeyService {
 
     // 3. 上报新公钥到服务端（device_type/device_name 取法对齐 passport 注册流程）
     final dinfo = await DeviceExt.to.detail;
+    if (keyGeneration != storage.e2eeKeyGeneration) return false;
     final deviceType = (dinfo?['cos'] ?? 'unknown') as String;
     final deviceName = dinfo?['deviceName'] as String?;
     final result = await E2EEApi().reportDeviceKey(
@@ -221,12 +224,7 @@ class E2EEKeyService {
   /// @example
   /// ```dart
   /// final keyInfo = await E2EEKeyService.getKeyInfo();
-  /// if (keyInfo != null) {
-  ///   print('设备 ID: ${keyInfo['device_id']}');
-  ///   print('密钥 ID: ${keyInfo['key_id']}');
-  /// } else {
-  ///   print('未找到密钥');
-  /// }
+  /// final createdAt = keyInfo?['created_at'];
   /// ```
   static Future<Map<String, dynamic>?> getKeyInfo() async {
     final storage = StorageSecureService.to;
@@ -268,7 +266,6 @@ class E2EEKeyService {
   /// @example
   /// ```dart
   /// await E2EEKeyService.deleteKey();
-  /// print('密钥已删除');
   /// ```
   static Future<void> deleteKey() async {
     final storage = StorageSecureService.to;

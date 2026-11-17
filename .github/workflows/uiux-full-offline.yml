@@ -12,6 +12,11 @@ on:
       - 'test/tooling/auto_test/test_uiux_full_*.py'
   workflow_dispatch:
 
+# 同一 PR 的新 push 取消旧 run；workflow_dispatch 永不取消。
+concurrency:
+  group: uiux-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 permissions:
   contents: read
 

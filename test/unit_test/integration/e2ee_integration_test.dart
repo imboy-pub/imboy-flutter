@@ -37,6 +37,11 @@ void main() {
             case 'read':
               final key = call.arguments['key'] as String;
               return store[key];
+            case 'readAll':
+              return <String, String>{
+                for (final entry in store.entries)
+                  if (entry.value != null) entry.key: entry.value!,
+              };
             case 'delete':
               final key = call.arguments['key'] as String;
               store.remove(key);

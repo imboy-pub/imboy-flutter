@@ -152,7 +152,11 @@ class ChatEventSubscriptionManager {
             widgetRef
                 .read(chatProvider.notifier)
                 .chatService
-                ?.removeMessageById(obj.payload['msg']?.id as String? ?? '');
+                ?.removeMessageById(
+                  obj.payload['message_id']?.toString() ??
+                      obj.payload['msg']?.id as String? ??
+                      '',
+                );
           }
         }
       } catch (e) {
@@ -393,8 +397,8 @@ class ChatEventSubscriptionManager {
       // 检查数据类型，只处理消息列表类型的事件。
       // 'List<Message>' 是全仓 12 处 fire 点（重试确认/撤回/编辑/阅后即焚/
       // WebRTC 信令等状态刷新）实际使用的 dataType，此前不认它=这些
-      // 刷新全部空投（消息状态变更 UI 不跟随）；各 fire 点均为单元素
-      // 列表且元素经 toTypeMessage() 产出，e.first 语义与之等效。
+      // 刷新全部空投（消息状态变更 UI 不跟随）。批量已读回执可含多个
+      // toTypeMessage() 结果，必须逐一更新，不得只消费第一项。
       if (event.dataType != 'MessageList' &&
           event.dataType != 'messages' &&
           event.dataType != 'List<Message>') {
@@ -406,40 +410,15 @@ class ChatEventSubscriptionManager {
         return;
       }
 
-      final List<Message> e = (event.data as List).cast<Message>();
-      try {
-        if (e.isEmpty) return;
-        Message msg = e.first;
-        iPrint('收到消息状态更新事件: msgId=${msg.id}, type=${msg.runtimeType}');
-        final i =
-            widgetRef
-                .read(chatProvider.notifier)
-                .chatService
-                ?.messages
-                .indexWhere((e) => e.id == msg.id) ??
-            -1;
-        final messageCount =
-            widgetRef
-                .read(chatProvider.notifier)
-                .chatService
-                ?.messages
-                .length ??
-            0;
-        iPrint('在消息列表中查找消息: index=$i, 总消息数=$messageCount');
-        if (i > -1 &&
-            widgetRef.read(chatProvider.notifier).chatService != null) {
-          final old = widgetRef
-              .read(chatProvider.notifier)
-              .chatService!
-              .messages[i];
-          iPrint('更新消息UI: ${msg.id}');
-          widgetRef
-              .read(chatProvider.notifier)
-              .chatService!
-              .updateMessage(
-                widgetRef.read(chatProvider.notifier).chatService!.messages[i],
-                msg,
-              );
+      final updates = (event.data as List).cast<Message>();
+      final chat = widgetRef.read(chatProvider.notifier).chatService;
+      if (chat == null) return;
+      for (final msg in updates) {
+        try {
+          final index = chat.messages.indexWhere((item) => item.id == msg.id);
+          if (index < 0) continue;
+          final old = chat.messages[index];
+          chat.updateMessage(old, msg);
           final didBecomeSeen =
               old.status != MessageStatus.seen &&
               msg.status == MessageStatus.seen;
@@ -454,11 +433,9 @@ class ChatEventSubscriptionManager {
                   readAtMs: DateTimeHelper.millisecond(),
                 );
           }
-        } else {
-          iPrint('消息未找到或组件未挂载: msgId=${msg.id}');
+        } on Object catch (error) {
+          iPrint('message state update failed: ${error.runtimeType}');
         }
-      } catch (e) {
-        iPrint('[chat_event_subscription_manager] iPrint error: $e');
       }
     }, onError: (Object error) {});
   }

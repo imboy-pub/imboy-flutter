@@ -88,22 +88,27 @@ class E2EEBackupSetupService {
     required String passphrase,
     String? uid,
     int? generation,
+    int? keyGeneration,
   }) async {
     final actor = UserRepoLocal.to;
     final uidKey = uid ?? actor.currentUid;
+    final storage = StorageSecureService.to;
+    final keys = keyGeneration ?? storage.e2eeKeyGeneration;
     await actor.writeSessionSecret(
       uid: uidKey,
       generation: generation ?? actor.sessionGeneration,
-      write: () async {
-        await StorageSecureService.to.write(
+      write: () => storage.writeE2eeKeys(keys, () async {
+        await storage.write(
           key: kE2eeBackupPassphraseSecureKey,
           value: jsonEncode({'uid': uidKey, 'passphrase': passphrase}),
         );
         await StorageService.to.setBool(kE2eeBackupSetupDoneKey, true);
-      },
-      discard: () => E2eeSecretInventory.production().deleteKey(
-        kE2eeBackupPassphraseSecureKey,
-      ),
+      }),
+      discard: () => storage.discardE2eeKeys(keys, () async {
+        await E2eeSecretInventory.production().deleteKey(
+          kE2eeBackupPassphraseSecureKey,
+        );
+      }),
     );
   }
 

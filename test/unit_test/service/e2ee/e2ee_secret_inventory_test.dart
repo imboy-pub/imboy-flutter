@@ -37,6 +37,50 @@ void main() {
     'utk_dev:uid5:upload-uuid': 'scoped-upload-material',
   };
 
+  test(
+    'identity purge removes histories/passphrase and keeps database secrets',
+    () async {
+      final store = seedCanaries();
+      store['secure_token'] = 'keep-token';
+      final inventory = E2eeSecretInventory(
+        readAll: () async => Map.of(store),
+        deleteKey: (key) async => store.remove(key),
+        keyPrefixes: const ['e2ee_'],
+      );
+      await inventory.purgeAll();
+      expect(store.keys.where((key) => key.startsWith('e2ee_')), isEmpty);
+      expect(store['db_cipher_key_uid5'], 'sqlcipher');
+      expect(store['olm_account_pickle'], 'acct');
+      expect(store['secure_token'], 'keep-token');
+    },
+  );
+
+  test(
+    'identity purge reports retained historical keys instead of success',
+    () async {
+      final store = seedCanaries();
+      final inventory = E2eeSecretInventory(
+        readAll: () async => Map.of(store),
+        deleteKey: (key) async {
+          if (key != 'e2ee_private_key_history_kid1') store.remove(key);
+        },
+        keyPrefixes: const ['e2ee_'],
+      );
+      await expectLater(
+        inventory.purgeAll(),
+        throwsA(
+          isA<E2eeSecretPurgeException>().having(
+            (error) => error.failures.join(','),
+            'residuals',
+            contains('e2ee_private_key_history_kid1'),
+          ),
+        ),
+      );
+      expect(store['e2ee_backup_passphrase'], isNull);
+      expect(store['db_cipher_key_uid5'], 'sqlcipher');
+    },
+  );
+
   test('purgeAll 删除全部秘密类别且不动非秘密键', () async {
     final store = seedCanaries();
     store['secure_token'] = 'jwt'; // 非 E2EE 键，由 token 服务负责

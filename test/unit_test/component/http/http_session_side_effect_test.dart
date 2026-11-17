@@ -104,6 +104,102 @@ void main() {
         .setMockMethodCallHandler(_secureChannel, null);
   });
 
+  ResponseBody refreshResponse(String token) => ResponseBody.fromString(
+    jsonEncode({
+      'code': 0,
+      'payload': {'token': token},
+    }),
+    200,
+    headers: {
+      Headers.contentTypeHeader: [Headers.jsonContentType],
+    },
+  );
+
+  test(
+    'direct refresh callers share one request across expiry policies',
+    () async {
+      final entered = Completer<void>();
+      final reply = Completer<ResponseBody>();
+      final adapter = _Adapter(() {
+        entered.complete();
+        return reply.future;
+      });
+      UserApi.refreshAdapterForTest = adapter;
+      final first = UserApi.to.refreshAccessTokenApi(
+        'refresh-b',
+        checkNewToken: false,
+      );
+      await entered.future;
+      final second = UserApi.to.refreshAccessTokenApi('refresh-b');
+      final third = UserApi.to.refreshAccessTokenApi('refresh-b');
+      expect(identical(first, second), isTrue);
+      reply.complete(refreshResponse('fresh-shared-token'));
+      expect(await Future.wait([first, second, third]), [
+        'fresh-shared-token',
+        'fresh-shared-token',
+        'fresh-shared-token',
+      ]);
+      expect(adapter.requests, hasLength(1));
+      expect(secure['secure_token'], 'fresh-shared-token');
+    },
+  );
+
+  test(
+    'failed refresh releases shared flight and the next call retries',
+    () async {
+      final entered = Completer<void>();
+      final reply = Completer<ResponseBody>();
+      final adapter = _Adapter(() {
+        entered.complete();
+        return reply.future;
+      });
+      UserApi.refreshAdapterForTest = adapter;
+      final first = UserApi.to.refreshAccessTokenApi('refresh-b');
+      final firstError = expectLater(first, throwsA(isA<DioException>()));
+      await entered.future;
+      final second = UserApi.to.refreshAccessTokenApi('refresh-b');
+      final secondError = expectLater(second, throwsA(isA<DioException>()));
+      reply.completeError(
+        DioException(requestOptions: adapter.requests.single),
+      );
+      await Future.wait([firstError, secondError]);
+      expect(adapter.requests, hasLength(1));
+      final retryAdapter = _Adapter(() async => refreshResponse('retry-token'));
+      UserApi.refreshAdapterForTest = retryAdapter;
+      expect(
+        await UserApi.to.refreshAccessTokenApi('refresh-b'),
+        'retry-token',
+      );
+      expect(retryAdapter.requests, hasLength(1));
+    },
+  );
+
+  test('new account never joins or receives an older refresh result', () async {
+    final entered = Completer<void>();
+    final reply = Completer<ResponseBody>();
+    final oldAdapter = _Adapter(() {
+      entered.complete();
+      return reply.future;
+    });
+    UserApi.refreshAdapterForTest = oldAdapter;
+    final old = UserApi.to.refreshAccessTokenApi('shared-refresh');
+    await entered.future;
+    await StorageService.to.setString(Keys.currentUid, '1002');
+    final nextAdapter = _Adapter(
+      () async => refreshResponse('account-b-token'),
+    );
+    UserApi.refreshAdapterForTest = nextAdapter;
+    expect(
+      await UserApi.to.refreshAccessTokenApi('shared-refresh'),
+      'account-b-token',
+    );
+    reply.complete(refreshResponse('stale-account-a-token'));
+    expect(await old, '');
+    expect(nextAdapter.requests, hasLength(1));
+    expect(secure['secure_token'], 'account-b-token');
+    expect(repo.currentUid, '1002');
+  });
+
   test('stale empty token cannot log out B or send A request', () async {
     final entered = Completer<void>();
     final reply = Completer<String?>();

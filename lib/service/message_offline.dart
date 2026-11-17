@@ -22,6 +22,8 @@ import 'package:imboy/service/storage.dart';
 import 'message_s2c.dart';
 import 'message.dart';
 
+part 'message_offline_processing.dart';
+
 /// 离线消息处理服务
 class MessageOfflineService {
   /// 单例实例
@@ -335,6 +337,9 @@ class MessageOfflineService {
       int localC2gLastMsgAt = _c2gLastMsgAt;
       var localC2gCursor = _c2gCursor;
       int localS2cLastMsgAt = _s2cLastMsgAt;
+      var c2cComplete = true;
+      var c2gComplete = true;
+      var s2cComplete = true;
 
       while (hasMore && pullCount < _maxPullCount) {
         requireCurrent();
@@ -409,13 +414,15 @@ class MessageOfflineService {
         int currentBatchFetched = 0;
 
         // 处理 C2C 离线消息
-        currentBatchFetched += await _processTypeBatch(
+        final c2cBatch = await _processTypeBatch(
           payload: payload,
           typeKey: 'c2c',
           chatType: 'C2C',
           requireCurrent: requireCurrent,
           client: client,
         );
+        currentBatchFetched += c2cBatch.fetched;
+        c2cComplete = c2cComplete && c2cBatch.complete;
         if (_hasMore(payload['c2c'])) {
           overallHasMore = true;
         }
@@ -426,13 +433,15 @@ class MessageOfflineService {
         }
 
         // 处理 C2G 离线消息
-        currentBatchFetched += await _processTypeBatch(
+        final c2gBatch = await _processTypeBatch(
           payload: payload,
           typeKey: 'c2g',
           chatType: 'C2G',
           requireCurrent: requireCurrent,
           client: client,
         );
+        currentBatchFetched += c2gBatch.fetched;
+        c2gComplete = c2gComplete && c2gBatch.complete;
         if (_hasMore(payload['c2g'])) {
           overallHasMore = true;
         }
@@ -449,13 +458,15 @@ class MessageOfflineService {
         }
 
         // 处理 S2C 离线消息
-        currentBatchFetched += await _processTypeBatch(
+        final s2cBatch = await _processTypeBatch(
           payload: payload,
           typeKey: 's2c',
           chatType: 'S2C',
           requireCurrent: requireCurrent,
           client: client,
         );
+        currentBatchFetched += s2cBatch.fetched;
+        s2cComplete = s2cComplete && s2cBatch.complete;
         if (_hasMore(payload['s2c'])) {
           overallHasMore = true;
         }
@@ -497,7 +508,7 @@ class MessageOfflineService {
         throw StateError('offline cursor account changed during pull');
       }
       requireCurrent();
-      if (localC2gCursor != _c2gCursor) {
+      if (c2gComplete && localC2gCursor != _c2gCursor) {
         await StorageService.to.persistPreference(
           () => StorageService.to.setString(_c2gCursorKey, localC2gCursor),
         );
@@ -505,28 +516,40 @@ class MessageOfflineService {
         _c2gCursor = localC2gCursor;
       }
 
-      // 拉取成功后持久化游标（D4 修复）：只向前推进，不回退
-      if (localC2cLastMsgAt > _c2cLastMsgAt) {
+      // Local pagination can move past a deferred frame so later messages
+      // still run. Only complete types may advance durable cursors: the
+      // backend filters by both created_at and device delivery state, so
+      // persisting beyond a failed frame would permanently exclude it.
+      if (c2cComplete && localC2cLastMsgAt > _c2cLastMsgAt) {
         _c2cLastMsgAt = localC2cLastMsgAt;
       }
-      if (localC2gLastMsgAt > _c2gLastMsgAt) {
+      if (c2gComplete && localC2gLastMsgAt > _c2gLastMsgAt) {
         _c2gLastMsgAt = localC2gLastMsgAt;
       }
-      if (localS2cLastMsgAt > _s2cLastMsgAt) {
+      if (s2cComplete && localS2cLastMsgAt > _s2cLastMsgAt) {
         _s2cLastMsgAt = localS2cLastMsgAt;
       }
       persistCursors();
 
-      _succeededTotal++;
+      final complete = c2cComplete && c2gComplete && s2cComplete;
+      if (complete) {
+        _succeededTotal++;
+      } else {
+        _failedTotal++;
+      }
       _fetchedMessagesTotal += totalFetched;
-      _lastResult = 'success';
+      _lastResult = complete ? 'success' : 'partial';
       _lastPullFinishedAt = DateTime.now();
       _lastPullHttpRequests = currentPullHttpRequests;
       _lastPullFetchedMessages = totalFetched;
-      _markPullSuccess(totalFetched: totalFetched);
+      if (complete) {
+        _markPullSuccess(totalFetched: totalFetched);
+      } else {
+        _markPullFailure();
+      }
       iPrint('离线消息拉取完成 total_pull=$pullCount total_fetched=$totalFetched');
       _logPullMetrics(
-        'success',
+        _lastResult,
         extra: {
           'current_pull_http_requests': currentPullHttpRequests,
           'current_pull_fetched_messages': totalFetched,
@@ -534,7 +557,7 @@ class MessageOfflineService {
       );
       // 触发 E2EE 密钥变更通知拉取并同步
       unawaited(E2EEHealthCheckService.to.pullKeyNotifications());
-      return true;
+      return complete;
     } on Object catch (e) {
       _failedTotal++;
       _lastResult = 'failed_exception';
@@ -548,7 +571,7 @@ class MessageOfflineService {
     }
   }
 
-  Future<int> _processTypeBatch({
+  Future<({int fetched, bool complete})> _processTypeBatch({
     required Map<String, dynamic> payload,
     required String typeKey,
     required String chatType,
@@ -558,17 +581,23 @@ class MessageOfflineService {
     requireCurrent();
     final section = payload[typeKey];
     if (section is! Map) {
-      return 0;
+      return (fetched: 0, complete: true);
     }
 
     final rawList = section['list'];
     if (rawList is! List || rawList.isEmpty) {
-      return 0;
+      return (fetched: 0, complete: true);
     }
 
-    await _processOfflineMessages(rawList, chatType, requireCurrent, client);
+    final complete = await _writeOfflineBatch(
+      this,
+      rawList,
+      chatType,
+      requireCurrent,
+      client,
+    );
     requireCurrent();
-    return rawList.length;
+    return (fetched: rawList.length, complete: complete);
   }
 
   bool _hasMore(dynamic section) {
@@ -663,102 +692,6 @@ class MessageOfflineService {
     final snapshot = getPullStats();
     final merged = extra == null ? snapshot : {...snapshot, ...extra};
     iPrint('[OFFLINE_PULL_METRICS][$tag] $merged');
-  }
-
-  /// 处理离线消息
-  Future<void> _processOfflineMessages(
-    List<dynamic> messages,
-    String type,
-    void Function() requireCurrent,
-    HttpClient client,
-  ) async {
-    if (messages.isEmpty) {
-      return;
-    }
-
-    iPrint('开始处理 $type 离线消息，共 ${messages.length} 条');
-
-    try {
-      // 转换消息数据格式，避免修改原始数据
-      final processedMessages = <Map<String, dynamic>>[];
-      for (final msg in messages) {
-        if (msg is Map<String, dynamic>) {
-          processedMessages.add(normalizeForReceive(msg, type));
-        }
-      }
-
-      final encryptedAckIds = <String>[];
-      final ordinaryMessages = <Map<String, dynamic>>[];
-      for (final msg in processedMessages) {
-        requireCurrent();
-        if (!requiresSecureReceivePath(msg)) {
-          ordinaryMessages.add(msg);
-          continue;
-        }
-
-        // 毒丸隔离：单条加密消息入库失败只跳过本条（不入 ACK，服务端
-        // 保留 pending 下次重拉重试），不再让整批消息（含已入库的普通
-        // 消息）都卡住不 ACK，避免同批消息每次上线被反复重拉
-        final msgId = (msg['msg_id'] ?? msg['id'])?.toString() ?? '';
-        try {
-          final committed = await MessageService.to.persistInboundMessage(msg);
-          requireCurrent();
-          if (!committed) {
-            throw StateError('encrypted offline message not committed');
-          }
-          if (msgId.isNotEmpty) encryptedAckIds.add(msgId);
-        } on Object catch (e) {
-          requireCurrent();
-          iPrint('加密离线消息入库失败已隔离 msgId=$msgId err=${e.runtimeType}');
-        }
-      }
-
-      final ordinaryAckIds = <String>[];
-      Object? ordinaryFailure;
-      StackTrace? ordinaryFailureStack;
-      if (ordinaryMessages.isNotEmpty) {
-        requireCurrent();
-        try {
-          final ids =
-              await MessageRepo(tableName: MessageRepo.getTableName(type))
-                  .batchInsertOfflineMessages(
-                    ordinaryMessages,
-                    onS2CMessage: (msgData) async {
-                      // 处理 S2C 消息
-                      await MessageS2CService.switchS2C(
-                        msgData,
-                        propagateErrors: true,
-                      );
-                    },
-                  );
-          requireCurrent();
-          ordinaryAckIds.addAll(ids ?? <String>[]);
-        } on Object catch (e, stack) {
-          requireCurrent();
-          // 批量入库失败：普通消息不入 ACK（服务端保留 pending 下次重拉，
-          // msg_id 幂等兜底重复插入），已入库的加密消息仍正常 ACK
-          iPrint('普通离线消息批量入库失败本批不ACK err=${e.runtimeType}');
-          ordinaryFailure = e;
-          ordinaryFailureStack = stack;
-        }
-      }
-      final msgIds = {...encryptedAckIds, ...ordinaryAckIds}.toList();
-
-      if (msgIds.isNotEmpty) {
-        requireCurrent();
-        // 发送确认消息
-        await _sendOfflineAck(type, msgIds, client, requireCurrent);
-        requireCurrent();
-      }
-      // 已提交的安全消息仍可 ACK，但失败批次不能推进游标或计为成功。
-      if (ordinaryFailure != null) {
-        Error.throwWithStackTrace(ordinaryFailure, ordinaryFailureStack!);
-      }
-      iPrint('$type 离线消息处理完成');
-    } on Object catch (e) {
-      iPrint('处理 $type 离线消息失败: ${e.runtimeType}');
-      rethrow;
-    }
   }
 
   /// 发送离线消息确认

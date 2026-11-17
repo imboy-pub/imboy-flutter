@@ -86,6 +86,77 @@ void main() {
 
   DatabaseSnapshotService svc() => DatabaseSnapshotService.to;
 
+  test(
+    'snapshot order follows creation time across upgrades and downgrades',
+    () async {
+      final dir = Directory(
+        svc().snapshotDir(base: tmp.path, env: 'e', uid: 'u'),
+      );
+      await dir.create(recursive: true);
+      for (final name in [
+        'snapshot_v9_10.db',
+        'snapshot_v39_20.db',
+        'snapshot_v9_30.db',
+      ]) {
+        await File('${dir.path}/$name').writeAsString(name);
+      }
+      final ordered = await svc().listSnapshots(
+        base: tmp.path,
+        env: 'e',
+        uid: 'u',
+      );
+      expect(ordered.map((file) => file.uri.pathSegments.last), [
+        'snapshot_v9_30.db',
+        'snapshot_v39_20.db',
+        'snapshot_v9_10.db',
+      ]);
+      await svc().cleanup(base: tmp.path, env: 'e', uid: 'u', keepCount: 2);
+      expect(await File('${dir.path}/snapshot_v9_10.db').exists(), isFalse);
+      expect(await File('${dir.path}/snapshot_v9_30.db').exists(), isTrue);
+    },
+  );
+
+  test('repeated migration snapshots are bounded before copying without success cleanup', () async {
+    final path = '${tmp.path}/main.db';
+    await _seedProofDb(path, 'synthetic migration retry');
+    for (var attempt = 0; attempt < 7; attempt++) {
+      final snap = await svc().createSnapshot(
+        sourcePath: path,
+        base: tmp.path,
+        env: 'e',
+        uid: 'u',
+        expectedVersion: 7,
+        opener: (path, password) async {
+          final retained = await svc().listSnapshots(
+            base: tmp.path,
+            env: 'e',
+            uid: 'u',
+          );
+          expect(
+            retained.length,
+            lessThan(DatabaseSnapshotService.defaultKeepCount),
+          );
+          return ffiOpen(path, password);
+        },
+      );
+      expect(snap.success, isTrue, reason: snap.error);
+      final retained = await svc().listSnapshots(
+        base: tmp.path,
+        env: 'e',
+        uid: 'u',
+      );
+      expect(
+        retained.length,
+        lessThanOrEqualTo(DatabaseSnapshotService.defaultKeepCount),
+      );
+      expect(retained.first.path, snap.path);
+    }
+    expect(
+      (await svc().listSnapshots(base: tmp.path, env: 'e', uid: 'u')).length,
+      3,
+    );
+  });
+
   test('源库打开失败返回失败并保留原件和最近有效快照', () async {
     final dbPath = '${tmp.path}/main.db';
     final db = await openFileDb(dbPath);

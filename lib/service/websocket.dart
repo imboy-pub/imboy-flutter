@@ -17,9 +17,9 @@ import 'package:imboy/service/event_subscription_manager.dart';
 import 'package:imboy/service/events/events.dart';
 import 'package:imboy/service/ack_manager.dart';
 import 'package:imboy/service/message_retry.dart';
-import 'package:imboy/store/model/message_model.dart';
 import 'package:imboy/service/protocol/imboy_frame.dart';
 import 'package:imboy/service/protocol/imboy_pb_codec.dart';
+import 'package:imboy/service/protocol/outbound_message.dart';
 import 'package:web_socket_channel/io.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
@@ -130,7 +130,7 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
   /// 【测试】暴露 v2 业务帧编码
   @visibleForTesting
   Uint8List encodeV2BusinessFrameForTest(String message) =>
-      _encodeV2BusinessFrame(message);
+      _encodeV2BusinessFrame(OutboundMessage.parse(message));
 
   /// 【测试】暴露 v2 二进制帧处理
   @visibleForTesting
@@ -565,11 +565,10 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
     'S2C': FrameType.msgS2C,
   };
 
-  dynamic _outboundPayload(String message) {
-    final sanitized = MessageModel.outboundJson(message);
+  dynamic _outboundPayload(OutboundMessage message) {
     return _framing == FramingMode.v2
-        ? _encodeV2BusinessFrame(sanitized)
-        : sanitized;
+        ? _encodeV2BusinessFrame(message)
+        : message.wire;
   }
 
   /// 将待发送的字符串消息编码为 v2 frame bytes（仅在 framing=v2 时使用）
@@ -577,19 +576,9 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
   /// 对于业务消息（JSON 字符串），从 payload 中提取 type 字段决定 FrameType：
   ///   C2C → msgC2C, C2G → msgC2G, C2S → msgC2S, 其它 → msgC2S
   /// 对于 CLIENT_ACK 纯文本 ACK，使用 msgC2S。
-  Uint8List _encodeV2BusinessFrame(String message) {
-    message = MessageModel.outboundJson(message);
-    final payload = Uint8List.fromList(utf8.encode(message));
-    int type = FrameType.msgC2S;
-    if (message.startsWith('{')) {
-      try {
-        final decoded = jsonDecode(message);
-        if (decoded is Map) {
-          final t = (decoded['type']?.toString() ?? '').toUpperCase();
-          type = _msgTypeMap[t] ?? FrameType.msgC2S;
-        }
-      } catch (_) {}
-    }
+  Uint8List _encodeV2BusinessFrame(OutboundMessage message) {
+    final payload = Uint8List.fromList(utf8.encode(message.wire));
+    final type = _msgTypeMap[message.type] ?? FrameType.msgC2S;
     return ImboyFrame.encode(type: type, flags: 0, payload: payload);
   }
 
@@ -1094,15 +1083,9 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
         var sinkInvoked = false;
         try {
           try {
-            dynamic decoded;
-            try {
-              decoded = jsonDecode(queued.data);
-            } on FormatException {
-              decoded = null;
-            }
-            final queuedId = decoded is Map && !_isControlAck(queued.data)
-                ? decoded['id']?.toString()
-                : null;
+            final outbound = OutboundMessage.parse(queued.data);
+            final decoded = outbound.data;
+            final queuedId = outbound.isControlAck ? null : outbound.id;
             if (queuedId != null && queuedId.isNotEmpty) {
               final uploads = AttachmentUploadTaskRepo();
               await uploads.claimOutboxDispatch(
@@ -1123,12 +1106,8 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
               if (permitted) await afterOutboxBeginForTest?.call();
               if (!current()) break;
               if (!permitted) {
-                final chatType = decoded is Map
-                    ? decoded['type']?.toString().toLowerCase()
-                    : null;
-                final peerId = decoded is Map
-                    ? decoded['to']?.toString()
-                    : null;
+                final chatType = decoded?['type']?.toString().toLowerCase();
+                final peerId = decoded?['to']?.toString();
                 var committed = false;
                 if ((chatType == 'c2c' || chatType == 'c2g') &&
                     peerId != null &&
@@ -1187,7 +1166,7 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
               }
               break;
             }
-            final payload = _outboundPayload(queued.data);
+            final payload = _outboundPayload(outbound);
             final sink = selectedChannel.sink;
             sinkInvoked = true;
             sink.add(payload);
@@ -1360,27 +1339,6 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
     }
   }
 
-  bool _isControlAck(String message) {
-    if (message.startsWith('CLIENT_ACK,')) return true;
-    try {
-      final data = jsonDecode(message);
-      return data is Map &&
-          (data['action'] == 'message_revoke_ack' ||
-              data['action'] == 'message_edit_ack');
-    } on FormatException {
-      return false;
-    }
-  }
-
-  String? _wireMessageId(String message) {
-    try {
-      final data = jsonDecode(message);
-      return data is Map ? data['id']?.toString() : null;
-    } on FormatException {
-      return null;
-    }
-  }
-
   /// 发送消息核心方法（优化版：简化确认机制）
   Future<bool> sendMessage(
     String message,
@@ -1396,14 +1354,15 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
         actor.currentUid == ownerUid &&
         actor.isCurrentSession(generation) &&
         !actor.isClearingSession;
-    final wireId = _wireMessageId(message);
+    final outbound = OutboundMessage.parse(message);
+    final wireId = outbound.id;
     if (dispatchClaimed && wireId != null && wireId != messageId) {
       iPrint('> ws: 消息丢弃（dispatchClaimed 与 wireId 不符）: $messageId');
       return false;
     }
     final gateId = wireId ?? messageId;
     if (!dispatchClaimed &&
-        !_isControlAck(message) &&
+        !outbound.isControlAck &&
         gateId != null &&
         gateId.isNotEmpty) {
       try {
@@ -1429,7 +1388,7 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
       final selectedChannel = _channel;
       if (selectedChannel == null) return false;
       final hasGate =
-          !_isControlAck(message) && gateId != null && gateId.isNotEmpty;
+          !outbound.isControlAck && gateId != null && gateId.isNotEmpty;
       final token = _outboxAttemptToken();
       final uploads = AttachmentUploadTaskRepo();
       var began = false;
@@ -1465,11 +1424,11 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
           }
           return false;
         }
-        final payload = _outboundPayload(message);
+        final payload = _outboundPayload(outbound);
         final sink = selectedChannel.sink;
         sinkInvoked = true;
         sink.add(payload);
-        _logMessageSent(message, messageId);
+        _logMessageSent(outbound, messageId);
         // 出站确认/重发由 MessageRetry 状态机负责（调用方 addToRetryQueue），
         // 此处不再做本地待确认簿记。
         return true;
@@ -1522,7 +1481,7 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
       try {
         dynamic payload;
         if (message is String) {
-          payload = _outboundPayload(message);
+          payload = _outboundPayload(OutboundMessage.parse(message));
         } else {
           // 二进制数据直接发送
           payload = message;
@@ -1564,33 +1523,12 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
   }
 
   /// 安全记录消息发送日志（不泄露敏感信息）。
-  void _logMessageSent(String message, String? messageId) {
+  void _logMessageSent(OutboundMessage message, String? messageId) {
     final id = messageId ?? 'unknown';
-    final msgType = _getMessageTypeInfo(message);
-    iPrint('> ws: 消息已发送 ($id) [$msgType] [${message.length} bytes]');
-  }
-
-  /// 提取消息类型信息（不包含敏感内容）
-  ///
-  /// 返回格式：消息类型/消息子类型/加密状态
-  /// 例如：C2C/text/E2EE 或 C2G/image/PLAIN
-  String _getMessageTypeInfo(String message) {
-    try {
-      final data = jsonDecode(message);
-      final type = data['type'] ?? 'UNKNOWN';
-      final msgType = data['msg_type'] ?? 'unknown';
-      // e2ee 字段可能是 ''/{}（明文占位，如 buildReadReceiptItem）——
-      // 曾按 != null 误标 E2EE，导致排障时把明文回执误判为密文
-      final e2eeField = data['e2ee'];
-      final bool hasE2ee =
-          e2eeField != null &&
-          e2eeField != '' &&
-          !(e2eeField is Map && e2eeField.isEmpty);
-      final encStatus = hasE2ee ? 'E2EE' : 'PLAIN';
-      return '$type/$msgType/$encStatus';
-    } catch (_) {
-      return 'UNKNOWN';
-    }
+    iPrint(
+      '> ws: 消息已发送 ($id) [${message.typeDescription}] '
+      '[${message.wire.length} bytes]',
+    );
   }
 
   /// 消息发送前检查

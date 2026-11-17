@@ -117,7 +117,6 @@ class UserDeviceNotifier extends _$UserDeviceNotifier {
               deviceVsn = jsonDecode(vsnStr) as Map<dynamic, dynamic>;
             }
           } on Exception {
-            if (kDebugMode) {}
             deviceVsn = {};
           }
         }
@@ -252,7 +251,6 @@ class UserDeviceNotifier extends _$UserDeviceNotifier {
       state = state.copyWith(isLoadingSessions: false);
       return false;
     } on Exception {
-      if (kDebugMode) {}
       state = state.copyWith(isLoadingSessions: false);
       return false;
     }
@@ -272,7 +270,6 @@ class UserDeviceNotifier extends _$UserDeviceNotifier {
         deviceType: deviceType,
       );
     } on Exception {
-      if (kDebugMode) {}
       return null;
     }
   }
@@ -304,7 +301,6 @@ class UserDeviceNotifier extends _$UserDeviceNotifier {
 
       return result;
     } on Exception {
-      if (kDebugMode) {}
       return null;
     }
   }
@@ -337,7 +333,6 @@ class UserDeviceNotifier extends _$UserDeviceNotifier {
 
       return result;
     } on Exception {
-      if (kDebugMode) {}
       return null;
     }
   }

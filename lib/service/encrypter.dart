@@ -1,9 +1,9 @@
 import 'dart:convert';
 import 'dart:math';
+import 'dart:typed_data';
 
 import 'package:convert/convert.dart';
 import 'package:pointycastle/export.dart';
-import 'package:flutter/foundation.dart';
 
 // ignore: depend_on_referenced_packages
 import 'package:crypto/crypto.dart' as crypto;
@@ -46,46 +46,27 @@ class EncrypterService {
 
   /// AES-CBC + PKCS7 解密（与 encrypt 库完全一致）
   static String aesDecrypt(String encryptedBase64, String key, String ivStr) {
+    final keyBytes = _getOrCreateCachedKey(key);
+    final ivBytes = _getOrCreateCachedKey(ivStr);
+    final encryptedBytes = base64.decode(encryptedBase64);
+
+    final cipher = CBCBlockCipher(AESEngine());
+    final params = ParametersWithIV<KeyParameter>(
+      KeyParameter(keyBytes),
+      ivBytes,
+    );
+
+    cipher.init(false, params); // false = decrypt
+
+    final decryptedPadded = _processBlocks(cipher, encryptedBytes);
+
+    final decrypted = _pkcs7UnPad(decryptedPadded);
+
     try {
-      final keyBytes = _getOrCreateCachedKey(key);
-      final ivBytes = _getOrCreateCachedKey(ivStr);
-      final encryptedBytes = base64.decode(encryptedBase64);
-
-      // 调试日志：仅在开发环境下输出
-      if (kDebugMode) {}
-
-      final cipher = CBCBlockCipher(AESEngine());
-      final params = ParametersWithIV<KeyParameter>(
-        KeyParameter(keyBytes),
-        ivBytes,
-      );
-
-      cipher.init(false, params); // false = decrypt
-
-      final decryptedPadded = _processBlocks(cipher, encryptedBytes);
-
-      final decrypted = _pkcs7UnPad(decryptedPadded);
-
-      // 尝试解码为 UTF-8，失败则尝试其他编码
-      try {
-        return utf8.decode(decrypted);
-      } on FormatException {
-        if (kDebugMode) {}
-
-        // 尝试 Latin-1 编码（不会失败，但可能显示乱码）
-        final latin1Result = String.fromCharCodes(decrypted);
-
-        // 重新抛出异常（不在异常消息中包含解密字节）
-        throw FormatException(
-          'AES 解密后的数据无法解码为 UTF-8。请检查密钥和 IV 是否与服务端匹配。\n'
-          'Key MD5: ${md5(key)}\n'
-          'IV MD5: ${md5(ivStr)}\n'
-          'Latin-1 length: ${latin1Result.length}',
-        );
-      }
-    } catch (e) {
-      if (kDebugMode) {}
-      rethrow;
+      return utf8.decode(decrypted);
+    } on FormatException {
+      // Do not expose plaintext, key/IV values or their fingerprints.
+      throw const FormatException('AES 解密后的数据无法解码为 UTF-8。请检查密钥和 IV 是否与服务端匹配。');
     }
   }
 

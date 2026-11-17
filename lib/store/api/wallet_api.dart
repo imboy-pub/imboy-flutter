@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:imboy/component/ui/app_loading.dart';
 
 import 'package:imboy/config/const.dart';
@@ -69,7 +68,6 @@ class WalletApi extends HttpClient {
   /// 查询余额
   Future<WalletBalance?> getBalance() async {
     IMBoyHttpResponse resp = await get(API.walletBalance);
-    if (kDebugMode) {}
     if (!resp.ok) {
       return null;
     }
@@ -85,7 +83,6 @@ class WalletApi extends HttpClient {
       API.walletTransactions,
       queryParameters: {'page': page, 'size': size},
     );
-    if (kDebugMode) {}
     if (!resp.ok) {
       return null;
     }
@@ -103,7 +100,6 @@ class WalletApi extends HttpClient {
       API.walletTopup,
       data: {'amount': amountFen},
     );
-    if (kDebugMode) {}
     if (!resp.ok) {
       AppLoading.showError(resp.msg);
     }

@@ -10,13 +10,30 @@ import 'package:imboy/theme/default/app_colors.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:intl/intl.dart';
-import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/page/qrcode/qrcode_url.dart';
 import 'package:imboy/store/model/group_model.dart';
+import 'package:imboy/store/api/group_api.dart';
+import 'package:imboy/service/auth_session_scope.dart';
 import 'package:imboy/component/helper/repaint_boundary.dart';
 import 'package:imboy/component/ui/ios_settings_ui.dart';
 import 'package:imboy/store/repository/group_member_repo_sqlite.dart';
 import 'package:imboy/i18n/strings.g.dart';
+
+final groupQrcodeInviteProvider = FutureProvider.autoDispose
+    .family<GroupQrcodeInvite, String>((ref, groupId) async {
+      final session = authSessionReader.current;
+      void changed() => ref.invalidateSelf();
+      authSessionReader.addListener(changed);
+      ref.onDispose(() => authSessionReader.removeListener(changed));
+      if (!authSessionReader.isCurrent(session)) {
+        throw StateError('Group invitation session changed');
+      }
+      final invite = await GroupApi().qrcodeInvite(groupId);
+      if (!ref.mounted || !authSessionReader.isCurrent(session)) {
+        throw StateError('Group invitation session changed');
+      }
+      return invite;
+    }, retry: (retryCount, error) => null);
 
 class GroupQrCodePage extends ConsumerStatefulWidget {
   final GroupModel group;
@@ -42,11 +59,18 @@ class _GroupQrCodePageState extends ConsumerState<GroupQrCodePage> {
   Widget build(BuildContext context) {
     final brightness = Theme.of(context).brightness;
     final isDark = brightness == Brightness.dark;
-    int expiredAt = DateTimeHelper.millisecond() + dayNum * 86400 * 1000;
-    String qrcodeData = buildGroupQrcodeUrl(
-      groupId: widget.group.groupId,
-      expiredAt: expiredAt,
+    final invitation = ref.watch(
+      groupQrcodeInviteProvider(widget.group.groupId),
     );
+    final invite = invitation.isLoading ? null : invitation.asData?.value;
+    final expiredAt = invite?.expiredAt;
+    final qrcodeData = invite == null
+        ? null
+        : buildGroupQrcodeUrl(
+            groupId: widget.group.groupId,
+            expiredAt: invite.expiredAt,
+            token: invite.token,
+          );
 
     return IosPageTemplate(
       title: t.account.groupQrcode,
@@ -54,51 +78,69 @@ class _GroupQrCodePageState extends ConsumerState<GroupQrCodePage> {
       actions: [
         CupertinoButton(
           padding: EdgeInsets.zero,
+          onPressed: invite == null
+              ? null
+              : () => _showGroupBottomSheet(context),
           child: Icon(
             CupertinoIcons.ellipsis_circle,
             size: 22,
             semanticLabel: t.common.buttonMore,
           ),
-          onPressed: () => _showGroupBottomSheet(context),
         ),
       ],
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
         child: Column(
           children: [
-            RepaintBoundary(
-              key: globalKey,
-              child: _buildQrCard(
-                context,
-                isDark,
-                // 群头像（自定义图或成员合成图）统一嵌在二维码中心，
-                // 顶部只留群名，避免同一头像上下重复出现。
-                header: Text(
-                  "${t.chat.groupChat}: ${widget.group.displayTitle}",
-                  textAlign: TextAlign.center,
-                  style: context.textStyle(
-                    FontSizeType.large,
-                    fontWeight: FontWeight.bold,
-                    // 意图：分享卡白底黑字固定外观，刻意不随主题切换
-                    color: AppColors.lightTextPrimary,
+            if (qrcodeData == null)
+              invitation.isLoading
+                  ? const CupertinoActivityIndicator()
+                  : Column(
+                      children: [
+                        Text(t.common.loadError),
+                        CupertinoButton(
+                          onPressed: () => ref.invalidate(
+                            groupQrcodeInviteProvider(widget.group.groupId),
+                          ),
+                          child: Text(t.common.retry),
+                        ),
+                      ],
+                    )
+            else
+              RepaintBoundary(
+                key: globalKey,
+                child: _buildQrCard(
+                  context,
+                  isDark,
+                  // 群头像（自定义图或成员合成图）统一嵌在二维码中心，
+                  // 顶部只留群名，避免同一头像上下重复出现。
+                  header: Text(
+                    "${t.chat.groupChat}: ${widget.group.displayTitle}",
+                    textAlign: TextAlign.center,
+                    style: context.textStyle(
+                      FontSizeType.large,
+                      fontWeight: FontWeight.bold,
+                      // 意图：分享卡白底黑字固定外观，刻意不随主题切换
+                      color: AppColors.lightTextPrimary,
+                    ),
+                  ),
+                  centerAvatar: SmartGroupAvatar(
+                    avatar: widget.group.avatar,
+                    groupId: widget.group.groupId.toString(),
+                    avatarLoader: _loadGroupMemberAvatars,
+                    size: 40,
+                  ),
+                  qrcodeData: qrcodeData,
+                  footerText: t.common.groupQrcodeTips(
+                    days: dayNum.toString(),
+                    date: DateFormat(
+                      'y-MM-dd',
+                    ).format(DateTime.fromMillisecondsSinceEpoch(expiredAt!)),
                   ),
                 ),
-                centerAvatar: SmartGroupAvatar(
-                  avatar: widget.group.avatar,
-                  groupId: widget.group.groupId.toString(),
-                  avatarLoader: _loadGroupMemberAvatars,
-                  size: 40,
-                ),
-                qrcodeData: qrcodeData,
-                footerText: t.common.groupQrcodeTips(
-                  days: dayNum.toString(),
-                  date: DateFormat('y-MM-dd')
-                      .format(DateTime.fromMillisecondsSinceEpoch(expiredAt)),
-                ),
               ),
-            ),
             AppSpacing.verticalXXXLarge,
-            _buildActionButtons(context),
+            if (invite != null) _buildActionButtons(context),
           ],
         ),
       ),

@@ -26,6 +26,7 @@ class _ObservedPreflightDatabase implements Database {
   final Database inner;
   final String? failedQuery;
   int closeCalls = 0;
+  final queries = <String>[];
 
   @override
   bool get isOpen => inner.isOpen;
@@ -35,6 +36,7 @@ class _ObservedPreflightDatabase implements Database {
     String sql, [
     List<Object?>? arguments,
   ]) async {
+    queries.add(sql);
     if (sql == failedQuery) {
       throw StateError('synthetic preflight read failure');
     }
@@ -96,17 +98,46 @@ void main() {
       final path = '${tmp.path}/main.db';
       final db = await openFixtureDatabaseAtVersion(version: 31, path: path);
       await db.close();
+      late _ObservedPreflightDatabase observed;
       final decision = await DatabaseMigrationOrchestrator.to.prepareForOpen(
         dbPath: path,
         baseDir: tmp.path,
         env: 'prod',
         uid: '990001',
         targetVersion: 31,
-        opener: ffiOpen,
+        opener: (path, password) async => observed = _ObservedPreflightDatabase(
+          await ffiOpen(path, password),
+        ),
       );
       expect(decision.proceed, isTrue);
       expect(decision.migrationNeeded, isFalse);
       expect(decision.snapshotPath, isNull);
+      expect(observed.queries, isNot(contains('PRAGMA quick_check')));
+      expect(observed.queries, isNot(contains('PRAGMA foreign_key_check')));
+      expect(observed.closeCalls, 1);
+    });
+
+    test('同版本仍拒绝缺关键表的结构，不靠版本号跳过安全门', () async {
+      final path = '${tmp.path}/main.db';
+      final db = await openFixtureDatabaseAtVersion(version: 31, path: path);
+      await db.execute('DROP TABLE msg_c2c');
+      await db.close();
+      late _ObservedPreflightDatabase observed;
+      final decision = await DatabaseMigrationOrchestrator.to.prepareForOpen(
+        dbPath: path,
+        baseDir: tmp.path,
+        env: 'prod',
+        uid: '990001',
+        targetVersion: 31,
+        opener: (path, password) async => observed = _ObservedPreflightDatabase(
+          await ffiOpen(path, password),
+        ),
+      );
+      expect(decision.proceed, isFalse);
+      expect(decision.snapshotPath, isNull);
+      expect(observed.queries, isNot(contains('PRAGMA quick_check')));
+      expect(observed.queries, isNot(contains('PRAGMA foreign_key_check')));
+      expect(observed.closeCalls, 1);
     });
 
     test('损坏库（垃圾字节）→ fail-closed 不迁移', () async {
@@ -175,11 +206,7 @@ void main() {
               return db;
             },
           );
-          if (query == 'PRAGMA user_version') {
-            await expectLater(pending, throwsStateError);
-          } else {
-            expect((await pending).proceed, isFalse);
-          }
+          expect((await pending).proceed, isFalse);
           expect(opened, hasLength(attempt + 1));
           expect(
             opened.every((db) => !db.isOpen && db.closeCalls == 1),

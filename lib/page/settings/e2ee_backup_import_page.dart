@@ -16,6 +16,7 @@ import 'package:imboy/service/e2ee_local_backup_service.dart';
 import 'package:imboy/service/e2ee_backup_restore_state.dart';
 import 'package:imboy/service/e2ee_backup_device_key_sync.dart';
 import 'package:imboy/service/auth_session_scope.dart';
+import 'package:imboy/service/storage_secure.dart';
 import 'package:imboy/service/account_local_task_registry.dart';
 import 'package:imboy/service/e2ee/megolm_backup_section.dart';
 import 'package:imboy/service/e2ee/crypto_audit_log.dart';
@@ -31,7 +32,6 @@ import 'package:imboy/component/dialog/e2ee_recovery_guide_dialog.dart';
 import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/service/event_bus.dart';
 import 'package:imboy/service/events/message_events.dart';
-import 'package:imboy/service/storage.dart';
 import 'package:imboy/service/sqlite.dart';
 import 'package:imboy/service/group_session_service.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
@@ -691,6 +691,7 @@ class _E2EEBackupImportPageState extends State<E2EEBackupImportPage> {
     }
     final password = _passwordController.text;
     final session = authSessionReader.current;
+    final keyGeneration = StorageSecureService.to.e2eeKeyGeneration;
 
     try {
       setState(() => _isImporting = true);
@@ -708,7 +709,7 @@ class _E2EEBackupImportPageState extends State<E2EEBackupImportPage> {
               ));
 
       if (!mounted || !authSessionReader.isCurrent(session)) return;
-      await _applyRestoredKeys(result, session);
+      await _applyRestoredKeys(result, session, keyGeneration);
     } on StateError catch (e) {
       iPrint('[E2EEBackupImport] 导入被拒绝: ${e.message}');
       if (mounted) _showError(_stateErrorMessage(e));
@@ -833,6 +834,7 @@ class _E2EEBackupImportPageState extends State<E2EEBackupImportPage> {
   Future<void> _handleCloudRestore(String password) async {
     if (!mounted || _isImporting || _isCloudRestoring) return;
     final session = authSessionReader.current;
+    final keyGeneration = StorageSecureService.to.e2eeKeyGeneration;
     try {
       setState(() => _isCloudRestoring = true);
 
@@ -847,7 +849,7 @@ class _E2EEBackupImportPageState extends State<E2EEBackupImportPage> {
               ));
 
       if (!mounted || !authSessionReader.isCurrent(session)) return;
-      await _applyRestoredKeys(result, session);
+      await _applyRestoredKeys(result, session, keyGeneration);
     } on StateError catch (e) {
       if (!mounted) return;
       if (e.message == '无云端备份') {
@@ -870,19 +872,25 @@ class _E2EEBackupImportPageState extends State<E2EEBackupImportPage> {
   Future<void> _applyRestoredKeys(
     Map<String, dynamic> result,
     AuthSessionScope session,
+    int keyGeneration,
   ) async {
     final owner = AccountLocalTaskOwner.capture(uid: session.uid);
     bool current() =>
         mounted &&
+        StorageSecureService.to.e2eeKeyGeneration == keyGeneration &&
         authSessionReader.isCurrent(session) &&
         AccountLocalTaskOwner.capture() == owner;
     // 抗回滚：比本机最近一次成功恢复更旧且换钥的备份（旧密钥重放）
     // 在写任何存储前拒绝（stale_backup_rejected 由调用方映射文案）。
-    await _ensureNotStaleRestore(result);
+    E2eeBackupRestoreState.ensureNotStaleRestore(result);
     if (!current()) return;
 
     // E2EE-016/013：只恢复身份和群历史密钥；保留当前设备 DID/Olm ratchet。
-    await E2eeBackupRestoreState.saveIdentity(result, session);
+    await E2eeBackupRestoreState.saveIdentity(
+      result,
+      session,
+      keyGeneration: keyGeneration,
+    );
     if (!current()) return;
 
     final section = E2EELocalBackupService.megolmBackupSection(result);
@@ -916,7 +924,13 @@ class _E2EEBackupImportPageState extends State<E2EEBackupImportPage> {
 
     // 恢复私钥后回写服务端设备公钥，避免仍用登录时生成的另一套密钥。
     // 此同步覆盖 legacy v1/v2 和设备密钥变更通知；Olm v3 身份键独立处理。
-    final synced = await _syncRestoredPublicKeyToServer(result, session, owner);
+    final synced = await E2eeBackupDeviceKeySync.synchronize(
+      restored: result,
+      session: session,
+      owner: owner,
+      isActive: current,
+      reporter: widget.deviceKeyReporter,
+    );
     if (!current()) return;
     if (synced) {
       // 密钥恢复且设备身份同步后，撤下会话页「恢复待办」横幅。
@@ -967,37 +981,6 @@ class _E2EEBackupImportPageState extends State<E2EEBackupImportPage> {
           section.omittedSessionCount +
           (restored == 0 ? section.sessions.length : 0),
     );
-  }
-
-  /// 抗回滚前置校验：读取本机恢复水位并调用纯校验函数。
-  /// 水位读取失败（平台通道异常等）按「无水位」放行——水位只是回滚防线，
-  /// 不能因元数据通道故障阻断合法恢复。
-  Future<void> _ensureNotStaleRestore(Map<String, dynamic> result) async {
-    final raw = _readRestoreMarkerRaw();
-    Map<dynamic, dynamic>? marker;
-    try {
-      final decoded = raw.isEmpty ? null : jsonDecode(raw);
-      if (decoded is Map) marker = decoded;
-    } on FormatException {
-      marker = null;
-    }
-    E2EELocalBackupService.ensureNotStaleRestore(
-      backupCreatedAt: result['created_at']?.toString(),
-      backupKeyId: result['key_id']?.toString(),
-      markerCreatedAt: marker?['created_at']?.toString(),
-      markerKeyId: marker?['key_id']?.toString(),
-    );
-  }
-
-  String _readRestoreMarkerRaw() {
-    try {
-      return StorageService.to.getString(
-        E2EELocalBackupService.kLastRestoreMarkerKey,
-      );
-    } on Object catch (e) {
-      iPrint('[RESTORE] 水位标记读取失败(按无水位放行): ${e.runtimeType}');
-      return '';
-    }
   }
 
   Future<void> _writeRestoreMarker(
@@ -1066,26 +1049,6 @@ class _E2EEBackupImportPageState extends State<E2EEBackupImportPage> {
       );
     }
   }
-
-  /// 用恢复得到的公钥回写服务端该设备的登记公钥。
-  ///
-  /// device_id 取值顺序镜像 passport_notifier._reportE2EEPublicKey：
-  /// 先读 secure storage，空了才取当前设备 DID 并回存——后端按
-  /// (uid, device_id) upsert，两处取值不一致会把公钥写到另一行，
-  /// 真实设备的行仍残留登录时误报的新公钥。
-  /// 不用备份内的 device_id：那是归档元数据，用它上报会让本机冒充
-  /// 备份来源设备（E2EE-013 / E2EE-016 req3）。
-  Future<bool> _syncRestoredPublicKeyToServer(
-    Map<String, dynamic> result,
-    AuthSessionScope session,
-    AccountLocalTaskOwner owner,
-  ) => E2eeBackupDeviceKeySync.synchronize(
-    restored: result,
-    session: session,
-    owner: owner,
-    isActive: () => mounted,
-    reporter: widget.deviceKeyReporter,
-  );
 
   /// 部分完成弹窗（durable progress 精确文案）：
   /// 密钥本体已恢复；群密钥写入 X/Y 条中断，重试同一备份即可幂等补完。

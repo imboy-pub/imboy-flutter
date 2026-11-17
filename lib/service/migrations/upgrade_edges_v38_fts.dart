@@ -7,8 +7,19 @@ import 'package:imboy/service/migration_manifest.dart';
 /// [prefix] 为列名前缀（触发器里用 'OLD.'/'NEW.'，直接读表传 ''）。
 /// 语义与 [MessageFtsRepo.extractTextContent] 保持一致：
 /// 撤回状态区间 (30..39) 与 E2EE 失败标记的消息不产出可索引文本。
-String ftsTextContentSql(String prefix) =>
-    '''CASE WHEN ${prefix}status >= 30 AND ${prefix}status < 40 THEN '' WHEN json_valid(${prefix}payload) THEN CASE WHEN json_type(${prefix}payload) = 'object' AND COALESCE(json_extract(${prefix}payload, '\$._e2ee_failed'), 0) != 1 THEN CASE ${prefix}msg_type WHEN 'text' THEN CASE WHEN json_type(${prefix}payload, '\$.text') = 'text' THEN trim(json_extract(${prefix}payload, '\$.text')) ELSE '' END WHEN 'quote' THEN CASE WHEN json_type(${prefix}payload, '\$.quote_text') = 'text' THEN trim(json_extract(${prefix}payload, '\$.quote_text')) ELSE '' END WHEN 'location' THEN trim((CASE WHEN json_type(${prefix}payload, '\$.title') = 'text' THEN trim(json_extract(${prefix}payload, '\$.title')) ELSE '' END) || ' ' || (CASE WHEN json_type(${prefix}payload, '\$.address') = 'text' THEN trim(json_extract(${prefix}payload, '\$.address')) ELSE '' END)) ELSE '' END ELSE '' END ELSE '' END''';
+String ftsTextContentSql(
+  String prefix, {
+  String? trimCharactersSql,
+  bool strictFailureMarker = false,
+}) {
+  // Keep the default SQL byte-for-byte stable for the unregistered v38 draft.
+  // v40 supplies Dart's trim characters for every field, including locations.
+  final trimArgs = trimCharactersSql == null ? '' : ', $trimCharactersSql';
+  final failureGuard = strictFailureMarker
+      ? "json_type(${prefix}payload, '\$._e2ee_failed') IS NOT 'true'"
+      : "COALESCE(json_extract(${prefix}payload, '\$._e2ee_failed'), 0) != 1";
+  return '''CASE WHEN ${prefix}status >= 30 AND ${prefix}status < 40 THEN '' WHEN json_valid(${prefix}payload) THEN CASE WHEN json_type(${prefix}payload) = 'object' AND $failureGuard THEN CASE ${prefix}msg_type WHEN 'text' THEN CASE WHEN json_type(${prefix}payload, '\$.text') = 'text' THEN trim(json_extract(${prefix}payload, '\$.text')$trimArgs) ELSE '' END WHEN 'quote' THEN CASE WHEN json_type(${prefix}payload, '\$.quote_text') = 'text' THEN trim(json_extract(${prefix}payload, '\$.quote_text')$trimArgs) ELSE '' END WHEN 'location' THEN trim((CASE WHEN json_type(${prefix}payload, '\$.title') = 'text' THEN trim(json_extract(${prefix}payload, '\$.title')$trimArgs) ELSE '' END) || ' ' || (CASE WHEN json_type(${prefix}payload, '\$.address') = 'text' THEN trim(json_extract(${prefix}payload, '\$.address')$trimArgs) ELSE '' END)$trimArgs) ELSE '' END ELSE '' END ELSE '' END''';
+}
 
 String _ftsTextContent(String prefix) => ftsTextContentSql(prefix);
 

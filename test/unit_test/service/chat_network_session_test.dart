@@ -23,6 +23,7 @@ import 'package:imboy/service/websocket_message_queue.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/store/model/message_model.dart';
 import 'package:imboy/store/model/contact_model.dart';
+import 'package:imboy/store/model/conversation_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite_sqlcipher/sqflite.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
@@ -119,6 +120,8 @@ class _EmptyDatabase implements Database {
 
 class _StatusDatabase extends _EmptyDatabase {
   int rowStatus = IMBoyMessageStatus.error;
+  String senderUid = '200';
+  Map<String, Object?>? conversation;
   final entered = Completer<void>();
   final release = Completer<int>();
   int queries = 0;
@@ -156,6 +159,9 @@ class _StatusDatabase extends _EmptyDatabase {
     if (table == 'contact') {
       return [ContactModel(peerId: 200, nickname: 'Synthetic').toJson()];
     }
+    if (table == 'conversation') {
+      return [if (conversation != null) Map.of(conversation!)];
+    }
     if (!table.startsWith('msg_')) return [];
     return [
       MessageModel(
@@ -163,7 +169,7 @@ class _StatusDatabase extends _EmptyDatabase {
         autoId: 1,
         type: 'C2C',
         status: rowStatus,
-        fromId: 200,
+        fromId: senderUid,
         toId: 200,
         payload: {'text': 'synthetic'},
         isAuthor: 1,
@@ -174,10 +180,46 @@ class _StatusDatabase extends _EmptyDatabase {
   }
 }
 
-class _ReadActionDatabase extends _StatusDatabase {
+/// The transaction view shares rows and the write barrier with its database.
+/// A stale-session exception restores both rows instead of committing them.
+class _ReadActionDatabase extends _StatusDatabase implements Transaction {
   _ReadActionDatabase() {
-    rowStatus = IMBoyMessageStatus.seen;
+    rowStatus = IMBoyMessageStatus.delivered;
+    senderUid = '100';
+    conversation = {
+      'id': 1,
+      'user_id': '100',
+      'peer_id': '200',
+      'type': 'C2C',
+      'msg_type': 'text',
+      'last_msg_id': 'synthetic-status',
+      'last_msg_status': IMBoyMessageStatus.delivered,
+    };
   }
+  bool committed = false;
+  bool rolledBack = false;
+  bool inTransaction = false;
+  @override
+  Future<T> transaction<T>(
+    Future<T> Function(Transaction txn) action, {
+    bool? exclusive,
+  }) async {
+    final before = (rowStatus, conversation!['last_msg_status']);
+    inTransaction = true;
+    try {
+      final result = await action(this);
+      committed = true;
+      return result;
+    } on Object {
+      rowStatus = before.$1;
+      conversation!['last_msg_status'] = before.$2;
+      rolledBack = true;
+      rethrow;
+    } finally {
+      inTransaction = false;
+    }
+  }
+
   @override
   Future<int> update(
     String table,
@@ -186,25 +228,32 @@ class _ReadActionDatabase extends _StatusDatabase {
     List<Object?>? whereArgs,
     ConflictAlgorithm? conflictAlgorithm,
   }) async {
+    expect(inTransaction, isTrue);
     updates++;
-    if (updates == 1) {
+    if (table == 'msg_c2c') {
+      expect(whereArgs, ['synthetic-status']);
+      rowStatus = values['status'] as int;
       entered.complete();
-      return release.future;
+      await release.future;
+    } else {
+      expect(table, 'conversation');
+      expect(where, contains('user_id = ?'));
+      expect(whereArgs, ['100', 'synthetic-status']);
+      conversation!['last_msg_status'] = values['last_msg_status'];
     }
     return 1;
   }
 }
 
 class _ReceiptConversationNotifier extends ConversationNotifier {
-  final updatedIds = <String>[];
+  final snapshots = <ConversationModel>[];
+  void Function()? onSnapshot;
   @override
   ConversationState build() => ConversationState(isLoading: false);
   @override
-  Future<void> updateConversationByMsgId(
-    String id,
-    Map<String, dynamic> data,
-  ) async {
-    updatedIds.add(id);
+  void applyConversationSnapshot(ConversationModel conversation) {
+    onSnapshot?.call();
+    snapshots.add(conversation);
   }
 }
 
@@ -294,10 +343,12 @@ void main() {
       test('read action=$action database session changed=$stale', () async {
         SharedPreferences.setMockInitialValues({Keys.currentUid: '100'});
         await StorageService.init();
+        await StorageService.setMap(Keys.currentUser, {'uid': '100'});
         final database = _ReadActionDatabase();
         SqliteService.setDbForTest(database);
         final notifier = receiptNotifier;
-        notifier.updatedIds.clear();
+        notifier.snapshots.clear();
+        notifier.onSnapshot = () => expect(database.committed, isTrue);
         MessageService.setProviderContainer(receiptContainer);
         final service = MessageService.instance;
         await pumpEventQueue();
@@ -314,8 +365,9 @@ void main() {
         final subscription = AppEventBus.on<DataWrapperEvent<dynamic>>().listen(
           events.add,
         );
+        Future<bool>? pending;
         try {
-          final pending = MessageActions.instance.handleActionMessage(action, {
+          pending = MessageActions.instance.handleActionMessage(action, {
             'id': 'synthetic-read-action',
             'type': 'C2C',
             'from': action == C2SAction.messageRead ? '200' : '100',
@@ -324,8 +376,15 @@ void main() {
               'msg_ids': ['synthetic-status'],
             },
           });
-          await database.entered.future;
+          await Future.any([
+            database.entered.future,
+            pending.then((_) => expect(database.entered.isCompleted, isTrue)),
+          ]);
+          expect(database.committed, isFalse);
+          expect(notifier.snapshots, isEmpty);
+          expect(events, isEmpty);
           if (stale) {
+            final generation = UserRepoLocal.to.sessionGeneration;
             await expectLater(
               UserRepoLocal.to.loginAfter('synthetic-session', {
                 'uid': '101',
@@ -334,24 +393,40 @@ void main() {
               }),
               throwsA(isA<PlatformException>()),
             );
+            expect(UserRepoLocal.to.sessionGeneration, generation + 1);
           }
           database.release.complete(1);
           expect(await pending, !stale);
           await pumpEventQueue();
-          expect(database.updates, 1);
-          expect(notifier.updatedIds.length, stale ? 0 : 1);
-          // 3 = 既有 2 次 + 状态更新后的 FTS 重索引 find（1ae246215 起
-          // 更新路径快照+调度重索引，reindex 在锁内 find 计一次 query）。
-          expect(database.queries, stale ? 0 : 3);
-          expect(events.length, stale ? 0 : 1);
+          expect(database.committed, !stale);
+          expect(database.rolledBack, stale);
+          final status = stale
+              ? IMBoyMessageStatus.delivered
+              : IMBoyMessageStatus.seen;
+          expect(database.rowStatus, status);
+          expect(database.conversation!['last_msg_status'], status);
+          expect(database.updates, stale ? 1 : 2);
+          expect(notifier.snapshots.length, stale ? 0 : 1);
+          final messages = events.where((e) => e.dataType == 'List<Message>');
+          expect(events.length, stale ? 0 : 2);
           if (!stale) {
-            expect((events.single.data as List).single.id, 'synthetic-status');
+            expect((messages.single.data as List).single.authorId, '100');
             expect(
-              (events.single.data as List).single.metadata['status'],
+              notifier.snapshots.single.lastMsgStatus,
+              IMBoyMessageStatus.seen,
+            );
+            expect(
+              (messages.single.data as List).single.id,
+              'synthetic-status',
+            );
+            expect(
+              (messages.single.data as List).single.metadata['status'],
               IMBoyMessageStatus.seen,
             );
           }
         } finally {
+          if (!database.release.isCompleted) database.release.complete(1);
+          await pending;
           await subscription.cancel();
           SqliteService.setDbForTest(null);
           TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger

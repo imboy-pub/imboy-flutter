@@ -7,7 +7,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart';
 import 'package:imboy/store/model/model_parse_utils.dart';
 import 'package:imboy/component/ui/app_loading.dart';
-import 'package:logger/logger.dart';
 import 'package:imboy/component/helper/func.dart' show iPrint;
 import 'package:imboy/service/app_logger.dart';
 import 'package:imboy/service/message_type_constants.dart';
@@ -21,9 +20,6 @@ import 'package:xid/xid.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/modules/messaging/infrastructure/message_model_mapper.dart';
 import 'package:cupertino_ui/cupertino_ui.dart';
-
-// 日志记录器
-final _msgLogger = Logger(printer: PrettyPrinter(methodCount: 0));
 
 /// 消息处理服务
 ///
@@ -116,7 +112,7 @@ class MessageHandlingService {
     required Future<bool> Function(String messageId, String chatType) retryFn,
   }) async {
     try {
-      _msgLogger.d('开始重试消息: $messageId');
+      AppLogger.debug('开始重试消息: $messageId');
 
       // 显示加载状态
       AppLoading.show(status: t.common.retryingSend);
@@ -390,14 +386,14 @@ class MessageHandlingService {
 
   /// 收藏消息
   Future<void> collectMessage(String chatType, Message msg) async {
-    _msgLogger.d("collectMessage: 开始收藏消息 ${msg.id}, 类型: ${msg.runtimeType}");
+    AppLogger.debug("collectMessage: 开始收藏消息 ${msg.id}, 类型: ${msg.runtimeType}");
 
     String tb = MessageRepo.getTableName(chatType);
-    _msgLogger.d("collectMessage: 获取表名: $tb");
+    AppLogger.debug("collectMessage: 获取表名: $tb");
 
     bool res = await UserCollectHelper.add(tb: tb, msg: msg);
 
-    _msgLogger.d("collectMessage: 收藏结果: $res");
+    AppLogger.debug("collectMessage: 收藏结果: $res");
 
     // B1#16：失败时错误文案由 UserCollectApi.add 的
     // AppLoading.showError(resp.msg) 透出后端中文消息，页面层不再叠加

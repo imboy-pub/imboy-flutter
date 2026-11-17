@@ -175,7 +175,7 @@ void main() {
           'payload': '',
           'created_at': 1000,
           'is_author': 1,
-          'status': 41,
+          'status': stage.startsWith('auto') ? 12 : 41,
           'conversation_uk3': 'C2C_100_200',
           'topic_id': 0,
           'msg_type': 'text',

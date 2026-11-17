@@ -16,6 +16,23 @@ import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/config/init.dart' show currentEnv, navigateToSignIn;
 
+typedef _RefreshSession = ({
+  String uid,
+  int generation,
+  bool loggedIn,
+  String environment,
+  String endpoint,
+  String refreshToken,
+});
+
+class _TokenRefreshFlight {
+  _TokenRefreshFlight(this.session, this.checkNewToken);
+
+  final _RefreshSession session;
+  bool checkNewToken;
+  late final Future<String> result;
+}
+
 /// 用户 API 提供者的 Riverpod Provider
 /// 提供对 UserApi 单例的访问
 final userApiProvider = Provider<UserApi>((ref) {
@@ -38,21 +55,50 @@ class UserApi extends HttpClient {
   @visibleForTesting
   static HttpClientAdapter? refreshAdapterForTest;
 
+  static _TokenRefreshFlight? _refreshFlight;
+
+  /// HTTP, WebSocket and resume share one refresh for the same auth session.
+  /// A new login/environment never joins an older account's in-flight request.
   Future<String> refreshAccessTokenApi(
     String refreshToken, {
     bool checkNewToken = true,
-  }) async {
+  }) {
     final repo = UserRepoLocal.to;
-    final uid = repo.currentUid;
-    final generation = repo.sessionGeneration;
-    final loggedIn = repo.isLoggedIn;
-    final environment = currentEnv;
-    final endpoint = Env().apiBaseUrl;
+    if (repo.isAuthTransitioning) return Future.value('');
+    final session = (
+      uid: repo.currentUid,
+      generation: repo.sessionGeneration,
+      loggedIn: repo.isLoggedIn,
+      environment: currentEnv,
+      endpoint: Env().apiBaseUrl,
+      refreshToken: refreshToken,
+    );
+    final active = _refreshFlight;
+    if (active != null && active.session == session) {
+      // Preserve the strictest caller's existing expiry handling.
+      active.checkNewToken = active.checkNewToken || checkNewToken;
+      return active.result;
+    }
+    final flight = _TokenRefreshFlight(session, checkNewToken);
+    _refreshFlight = flight;
+    flight.result = _refreshAccessToken(flight).whenComplete(() {
+      if (identical(_refreshFlight, flight)) _refreshFlight = null;
+    });
+    return flight.result;
+  }
+
+  Future<String> _refreshAccessToken(_TokenRefreshFlight flight) async {
+    final repo = UserRepoLocal.to;
+    final session = flight.session;
+    final generation = session.generation;
+    final environment = session.environment;
+    final endpoint = session.endpoint;
+    final refreshToken = session.refreshToken;
     bool current() =>
         !repo.isAuthTransitioning &&
-        repo.currentUid == uid &&
+        repo.currentUid == session.uid &&
         repo.isCurrentSession(generation) &&
-        repo.isLoggedIn == loggedIn &&
+        repo.isLoggedIn == session.loggedIn &&
         currentEnv == environment &&
         Env().apiBaseUrl == endpoint;
 
@@ -80,9 +126,9 @@ class UserApi extends HttpClient {
       );
       if (!current()) return '';
       final resp = handleResponse(response, uri: API.refreshToken);
-      if (ErrorCode.shouldReLogin(resp.code)) checkNewToken = true;
+      if (ErrorCode.shouldReLogin(resp.code)) flight.checkNewToken = true;
       final newToken = resp.payload?['token'] as String? ?? '';
-      if (checkNewToken && strEmpty(newToken)) {
+      if (flight.checkNewToken && strEmpty(newToken)) {
         if (!current()) return '';
         await repo.quitLogin(expectedGeneration: generation);
         if (repo.isLoggedOutAfter(generation) &&
