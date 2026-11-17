@@ -40,6 +40,7 @@ for attempt in 1 2 3; do
       grep -Eq \
         -e "^fatal: unable to access 'https://[^']+': Could not resolve host: [^[:space:]]+$" \
         -e '^error: RPC failed; curl 56 GnuTLS recv error \(-110\): The TLS connection was non-properly terminated\.$' \
+        -e '^error: RPC failed; curl 56 OpenSSL SSL_read: OpenSSL/[0-9]+\.[0-9]+\.[0-9]+: error:0A000126:SSL routines::unexpected eof while reading, errno 0$' \
         "$log"; then
     # Pub reports unavailable (69) for these Git DNS or interrupted TLS transfers.
     # Restrict to package downloads so transport output cannot retry a failed build.
