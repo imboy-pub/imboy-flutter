@@ -21,6 +21,7 @@ library;
 
 import 'dart:io';
 
+import 'package:flutter/foundation.dart' show debugPrint;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:imboy/service/database_migration_orchestrator.dart';
@@ -106,8 +107,7 @@ Future<void> applyBaseline(DatabaseExecutor db) async {
 
 void _evidence(String step, Map<String, Object?> kv) {
   final pairs = kv.entries.map((e) => '${e.key}=${e.value}').join(' ');
-  // ignore: avoid_print
-  print('[WP7-EVIDENCE] step=$step $pairs');
+  debugPrint('[WP7-EVIDENCE] step=$step $pairs');
 }
 
 /// baseline(16) → v31（经 manifest 单段迁移，事务内，等价生产升级语义）。
@@ -449,6 +449,187 @@ void main() {
     final uv = (await back.rawQuery('PRAGMA user_version')).first.values.first;
     expect(uv, equals(30));
     _evidence('step6', {'restoredVersion': uv, 'dataPreserved': true});
+    await back.close();
+  });
+
+  test('STEP7 v40 FTS 重建与配对降级（真机引擎）', () async {
+    final root = await _sandboxRoot();
+    final dbPath = '$root/v40.db';
+
+    // 1) 真实 v39 库：baseline(16) → 39 + 可搜索样本（含脏 FTS 行）。
+    var db = await openIso(dbPath, password: _password);
+    await db.transaction((txn) => applyBaseline(txn));
+    await db.execute('PRAGMA user_version = 16');
+    await migrateInTransaction(db, from: 16, to: 39, isUpgrade: true);
+    final rowid = await db.insert('msg_c2c', {
+      'id': 'device-v40-sample',
+      'msg_type': 'text',
+      'payload': '{"text":"currentword"}',
+      'status': 20,
+      'conversation_uk3': 'device-v40',
+    });
+    for (final text in ['oldword', 'currentword']) {
+      await db.insert('msg_c2c_fts', {
+        'rowid': rowid,
+        'id': 'device-v40-sample',
+        'conversation_uk3': 'device-v40',
+        'text_content': text,
+      });
+    }
+    await db.close();
+
+    // 2) 生产式预检：迁移前一致性快照（v39）。
+    final decision = await DatabaseMigrationOrchestrator.to.prepareForOpen(
+      dbPath: dbPath,
+      baseDir: root,
+      env: _env,
+      uid: _uid,
+      targetVersion: 40,
+      password: _password,
+    );
+    expect(decision.proceed, isTrue, reason: decision.abortReason);
+    expect(decision.snapshotPath, isNotNull);
+    expect(decision.currentVersion, equals(39));
+    _evidence('step7_preflight', {
+      'snapshot': File(decision.snapshotPath!).uri.pathSegments.last,
+      'fromVersion': decision.currentVersion,
+    });
+
+    // 3) 生产接线升级：sqflite 版本回调内 39→40（真机 SQLCipher + FTS5）。
+    db = await openIso(
+      dbPath,
+      password: _password,
+      version: 40,
+      onUpgrade: (d, o, n) =>
+          migrateInTransaction(d, from: o, to: n, isUpgrade: true),
+    );
+    final verify = await DatabaseMigrationOrchestrator.to.verifyAfterMigration(
+      db,
+      toVersion: 40,
+      migrationId: 'device_step7_v40',
+    );
+    expect(verify.ok, isTrue, reason: verify.violations.join('; '));
+    expect(
+      (await db.query(
+        'msg_c2c',
+        where: 'id = ?',
+        whereArgs: ['device-v40-sample'],
+      )).single['payload'],
+      '{"text":"currentword"}',
+      reason: '消息行必须原样保留',
+    );
+    expect(
+      await db.rawQuery(
+        "SELECT rowid FROM msg_c2c_fts WHERE msg_c2c_fts MATCH 'oldword'",
+      ),
+      isEmpty,
+      reason: '重建后旧词必须消失',
+    );
+    final rebuilt = await db.rawQuery(
+      "SELECT rowid, text_content FROM msg_c2c_fts "
+      "WHERE msg_c2c_fts MATCH 'currentword'",
+    );
+    expect(rebuilt, hasLength(1));
+    expect(rebuilt.single['rowid'], equals(rowid));
+    expect(rebuilt.single['text_content'], equals('currentword'));
+    await db.execute(
+      "INSERT INTO msg_c2c_fts(msg_c2c_fts) VALUES('integrity-check')",
+    );
+
+    // 4) rowid 复用：删最大 auto_id 行后新消息复用该 rowid，旧词不得回潮。
+    await db.delete(
+      'msg_c2c',
+      where: 'id = ?',
+      whereArgs: ['device-v40-sample'],
+    );
+    await db.execute('DELETE FROM msg_c2c_fts WHERE rowid = ?', [rowid]);
+    final reused = await db.insert('msg_c2c', {
+      'id': 'device-v40-replacement',
+      'msg_type': 'text',
+      'payload': '{"text":"replacementword"}',
+      'status': 20,
+      'conversation_uk3': 'device-v40',
+    });
+    expect(reused, equals(rowid), reason: 'INTEGER PRIMARY KEY 复用已删最大 rowid');
+    await db.insert('msg_c2c_fts', {
+      'rowid': reused,
+      'id': 'device-v40-replacement',
+      'conversation_uk3': 'device-v40',
+      'text_content': 'replacementword',
+    });
+    expect(
+      await db.rawQuery(
+        "SELECT rowid FROM msg_c2c_fts WHERE msg_c2c_fts MATCH 'currentword'",
+      ),
+      isEmpty,
+      reason: '复用 rowid 后旧正文不得残留命中',
+    );
+    expect(
+      await db.rawQuery(
+        "SELECT rowid FROM msg_c2c_fts WHERE msg_c2c_fts MATCH 'replacementword'",
+      ),
+      hasLength(1),
+    );
+    await db.close();
+
+    // 5) 生产接线降级：40→39 重建 contentless，搜索仍可用。
+    db = await openIso(
+      dbPath,
+      password: _password,
+      version: 39,
+      onDowngrade: (d, o, n) =>
+          migrateInTransaction(d, from: o, to: n, isUpgrade: false),
+    );
+    expect(
+      (await db.rawQuery('PRAGMA user_version')).first.values.first,
+      equals(39),
+    );
+    final contentless = await db.rawQuery(
+      "SELECT rowid, text_content FROM msg_c2c_fts "
+      "WHERE msg_c2c_fts MATCH 'replacementword'",
+    );
+    expect(contentless, hasLength(1));
+    expect(
+      contentless.single['text_content'],
+      isNull,
+      reason: 'v39 contentless 索引列读回必须为 NULL（旧版兼容形态）',
+    );
+    expect(
+      (await db.query(
+        'msg_c2c',
+        where: 'id = ?',
+        whereArgs: ['device-v40-replacement'],
+      )).single['payload'],
+      '{"text":"replacementword"}',
+    );
+    await db.close();
+
+    // 6) 快照回用：恢复迁移前 v39 快照，旧版可打开形态成立。
+    final restore = await DatabaseSnapshotService.to.restoreFromSnapshot(
+      snapshotPath: decision.snapshotPath!,
+      targetPath: dbPath,
+      password: _password,
+      closeAllConnections: () async {},
+      expectedVersion: 39,
+    );
+    expect(restore.success, isTrue, reason: restore.error);
+    final back = await openIso(dbPath, password: _password);
+    expect(
+      (await back.query(
+        'msg_c2c',
+        where: 'id = ?',
+        whereArgs: ['device-v40-sample'],
+      )).single['payload'],
+      '{"text":"currentword"}',
+      reason: '快照必须保住升级前业务数据',
+    );
+    _evidence('step7', {
+      'upgrade': '39->40',
+      'downgrade': '40->39',
+      'rowidReused': true,
+      'snapshotRestored': true,
+      'fingerprint': verify.fingerprint,
+    });
     await back.close();
   });
 }
