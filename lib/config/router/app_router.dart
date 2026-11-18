@@ -207,9 +207,11 @@ GoRouter createAppRouter({
         path: AppRoutes.signIn,
         name: 'sign_in',
         pageBuilder: (context, state) {
-          // 大屏桌面/Web 环境使用 WebLoginPage（阈值与 AppBreakpoints.wide 对齐）
-          final useSplitView =
-              kIsWeb || AppBreakpoints.isWide(MediaQuery.sizeOf(context).width);
+          // WebLoginPage 使用 Web 专用 QR/凭据/profile/退出合同。
+          // Native 宽屏仍使用 Native 登录，避免仅因窗口宽度将 Native DID
+          // 注册为 Web 设备并领取 Native HTTP/WS 不接受的 Web token。
+          // 在 Native 宽屏端到端登录合同验证完成前，不按宽度切换认证面。
+          final useSplitView = kIsWeb;
           return CupertinoPage(
             key: state.pageKey,
             child: useSplitView ? const WebLoginPage() : const LoginPage(),
