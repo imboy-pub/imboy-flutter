@@ -232,3 +232,9 @@ test/*/*.png
 /debugInfo/play/
 google-services.json.*bak
 .DS_Store
+
+# golden 渲染 PNG 一律不入库（含已被误跟踪的历史基线，2026-11-18 出库；磁盘文件保留）
+test/uiux/**/*.png
+
+# Xcode 个人 IDE 状态不入库（2026-11-18 出库）
+**/xcuserdata/
