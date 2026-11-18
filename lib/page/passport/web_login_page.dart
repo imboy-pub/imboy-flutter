@@ -167,6 +167,20 @@ class _WebLoginPageState extends ConsumerState<WebLoginPage> {
             if (mounted) _goWebShellAfterAuth();
         }
       });
+    } else {
+      // Native wide layouts use the same split UI but must start their QR
+      // session explicitly: the Web-only bootstrap above does not run here.
+      // Keep the auth listener so a committed Native QR login can navigate
+      // without depending on the profile hydration reserved for Web.
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        _listenToAuth();
+        _startQrWhenAnonymous();
+        if (!_sessions.current.transitioning &&
+            _sessions.current.uid.isNotEmpty) {
+          _goWebShellAfterAuth();
+        }
+      });
     }
   }
 
