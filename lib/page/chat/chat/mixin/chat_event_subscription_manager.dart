@@ -88,6 +88,38 @@ class ChatEventSubscriptionManager {
   final bool Function()? isCurrent;
   final bool newestFirst;
 
+  /// WS 交付消息在既有在场列表中的时间序插入位（OBS-SYN03-SETTLEDROP）。
+  ///
+  /// - newest-first（web_shell）：插到首条比 [message] 更旧的行前；全场都比
+  ///   它新（= 它最旧）则落 tail。真新消息时间戳最新 → 落 index 0，与原行为
+  ///   一致；补投的旧消息按时间序落中间/最旧端，不再被误置最新端。
+  /// - oldest-first（mobile）：插到首条不比 [message] 旧的行前；全场都比它
+  ///   旧（= 它最新）则落 tail。
+  /// 同时间戳保持稳定：newest-first 落同时间戳组之后，oldest-first 落组之前。
+  /// 交付行或在场行缺时间戳（本地合成消息）时无法建立时间序，保持原落位
+  /// 语义（一律视为最新）。
+  @visibleForTesting
+  static int deliveryInsertionIndex(
+    List<Message> messages,
+    Message message, {
+    required bool newestFirst,
+  }) {
+    final created = message.createdAt;
+    final orderable =
+        created != null && messages.every((m) => m.createdAt != null);
+    if (!orderable) {
+      return newestFirst ? 0 : messages.length;
+    }
+    for (var i = 0; i < messages.length; i++) {
+      final existing = messages[i].createdAt!;
+      final anchorHere = newestFirst
+          ? existing.isBefore(created)
+          : !existing.isBefore(created);
+      if (anchorHere) return i;
+    }
+    return messages.length;
+  }
+
   /// 挂载期状态治愈两遍之间的延迟（测试可注入缩短）。
   @visibleForTesting
   static Duration transientHealPassDelay = const Duration(seconds: 8);
@@ -544,28 +576,23 @@ class ChatEventSubscriptionManager {
           return;
         }
         msgIds.add(msg.id);
-        final i =
-            widgetRef
-                .read(chatProvider.notifier)
-                .chatService
-                ?.messages
-                .indexWhere((e) => e.id == msg.id) ??
-            -1;
+        final chatService = widgetRef.read(chatProvider.notifier).chatService;
+        final i = chatService?.messages.indexWhere((e) => e.id == msg.id) ?? -1;
         if (i == -1) {
-          widgetRef
-              .read(chatProvider.notifier)
-              .chatService
-              ?.insertMessage(
-                msg,
-                index: newestFirst
-                    ? 0
-                    : (widgetRef
-                              .read(chatProvider.notifier)
-                              .chatService
-                              ?.messages
-                              .length ??
-                          0),
-              );
+          // OBS-SYN03-SETTLEDROP：WS 补投的旧消息（未读积压重投/离线队列回放）
+          // 必须按时间序落位，不得一律插到「最新端」——newest-first 列表里落在
+          // head 的旧消息会被阅读防跳窗口（ChatMessageList._deferredIds）在
+          // 用户远离底部时整块隐藏，settle 后渲染列表缺一整块真实历史（模型
+          // 计数完好）。真正的新消息时间戳最新，落位结果与原 index 0/length
+          // 一致，防跳行为不变。
+          chatService?.insertMessage(
+            msg,
+            index: deliveryInsertionIndex(
+              chatService.messages,
+              msg,
+              newestFirst: newestFirst,
+            ),
+          );
           if (msg is ImageMessage) {
             // 图片画廊已迁移至 Riverpod，由 ChatProvider 处理
           }

@@ -296,8 +296,19 @@ class _ChatMessageListState extends State<ChatMessageList> {
     final nearBottom =
         controller.position.pixels - controller.position.minScrollExtent <= 100;
     final oldIds = oldWidget.messages.map((m) => m.id).toSet();
+    // OBS-SYN03-SETTLEDROP：防跳窗口只吞「不早于既有最新行的头部新增」
+    // （真正的新消息）。被误置到最新端的更旧消息（如 WS 补投的未读积压
+    // 旧消息）不得进 _deferredIds——否则用户在历史深处阅读时整块隐藏，
+    // settle 后渲染列表缺一整块真实历史（模型计数完好）。
+    final previousNewestAt = oldWidget.messages.first.createdAt;
     final added = widget.messages
         .takeWhile((m) => !oldIds.contains(m.id))
+        .where((m) {
+          final created = m.createdAt;
+          return previousNewestAt == null ||
+              created == null ||
+              !created.isBefore(previousNewestAt);
+        })
         .toList();
     final releasing = _deferredIds.isNotEmpty && nearBottom;
     final ownMessage = added.any((m) => m.authorId == widget.currentUserId);
