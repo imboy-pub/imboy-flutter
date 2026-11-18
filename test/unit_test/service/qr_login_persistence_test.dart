@@ -191,6 +191,10 @@ class _SyntheticSseClient implements SseClient {
 }
 
 class _ReadyQrLogin extends QRLogin {
+  // Existing persistence tests model browser hydration using a VM runner.
+  @override
+  bool get shouldHydrateWebProfile => true;
+
   @override
   QRLoginState build() => const QRLoginState(sessionToken: 'synthetic-session');
 }
