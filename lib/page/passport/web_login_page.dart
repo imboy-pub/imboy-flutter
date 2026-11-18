@@ -12,7 +12,8 @@ import 'package:imboy/service/auth_session_scope.dart';
 
 import 'dart:async';
 
-import 'package:flutter/foundation.dart' show kIsWeb, kDebugMode, debugPrint;
+import 'package:flutter/foundation.dart'
+    show kIsWeb, kDebugMode, debugPrint, visibleForTesting;
 import 'package:cupertino_ui/cupertino_ui.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -24,6 +25,7 @@ import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/config/routes.dart';
 import 'package:imboy/config/env.dart';
 import 'package:imboy/config/init.dart' show deviceId, currentEnv;
+import 'package:imboy/component/helper/func.dart' show getOperatingSystem;
 import 'package:imboy/component/http/http_request_policy.dart'
     show webHumanRequestUri;
 import 'package:imboy/theme/default/app_colors.dart';
@@ -163,7 +165,21 @@ class _WebLoginPageState extends ConsumerState<WebLoginPage> {
           case BypassEnabled(:final token, :final uid):
             // 合成登录仍通过与 QR 相同的会话和所有者提交边界。
             await UserRepoLocal.to.loginAfterQr(uid: uid, token: token);
-            if (mounted) context.go('/web_shell');
+            if (mounted) _goWebShellAfterAuth();
+        }
+      });
+    } else {
+      // Native wide layouts use the same split UI but must start their QR
+      // session explicitly: the Web-only bootstrap above does not run here.
+      // Keep the auth listener so a committed Native QR login can navigate
+      // without depending on the profile hydration reserved for Web.
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        _listenToAuth();
+        _startQrWhenAnonymous();
+        if (!_sessions.current.transitioning &&
+            _sessions.current.uid.isNotEmpty) {
+          _goWebShellAfterAuth();
         }
       });
     }
@@ -228,7 +244,7 @@ class _WebLoginPageState extends ConsumerState<WebLoginPage> {
   /// auth 已落地后的统一出口；重复调用幂等（go 到同一路由）。
   void _goWebShellAfterAuth() {
     if (!mounted) return;
-    context.go('/web_shell');
+    context.go(kIsWeb ? '/web_shell' : '/bottom_navigation');
   }
 
   void _startQrWhenAnonymous({bool explicit = false}) {
@@ -313,7 +329,7 @@ class _WebLoginPageState extends ConsumerState<WebLoginPage> {
         // Phase 1.1.i: WebLoginPage 仅在 kIsWeb 时被调用（参见 app_router.dart:113），
         // 登录成功统一跳到 Web Shell 三栏壳；窄屏由 WebShellBootstrap 内部回退到
         // BottomNavigationPage（响应式断点 1.1.a resolveShellLayout 处理）
-        context.go('/web_shell');
+        _goWebShellAfterAuth();
       }
     });
 
@@ -762,7 +778,7 @@ class _WebLoginPageState extends ConsumerState<WebLoginPage> {
                   // Phase 1.1.i: WebLoginPage 仅在 kIsWeb 时被调用（参见 app_router.dart:113），
                   // 登录成功统一跳到 Web Shell 三栏壳；窄屏由 WebShellBootstrap 内部回退到
                   // BottomNavigationPage（响应式断点 1.1.a resolveShellLayout 处理）
-                  context.go('/web_shell');
+                  _goWebShellAfterAuth();
                 }
               } else {
                 passportNotifier.snackBar(error);
