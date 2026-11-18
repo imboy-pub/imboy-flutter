@@ -9,6 +9,10 @@ class QRLogin extends _$QRLogin {
   ({AuthSessionScope auth, String environment, String endpoint})?
   _pendingProfile;
 
+  // Override only in isolated tests that exercise Web hydration on a VM.
+  @visibleForTesting
+  bool get shouldHydrateWebProfile => kIsWeb;
+
   bool get hasPendingProfile => _pendingProfile != null;
 
   bool get canRetryProfile {
@@ -260,7 +264,7 @@ class QRLogin extends _$QRLogin {
             environment: environment,
             endpoint: endpoint,
           );
-          if (kIsWeb) {
+          if (shouldHydrateWebProfile) {
             await _hydrateProfile(generation);
           } else {
             // Native uses Native credentials and bootstrap/profile flow;
