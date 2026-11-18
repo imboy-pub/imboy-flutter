@@ -20,3 +20,21 @@ cancelSchedule: 撤銷日程
 scheduleIdMissing: 日程ID缺失，無法檢視詳情
 untitledSchedule: "無標題日程"
 cardViewAndAttend: "查看詳情並確認參加"
+
+# ---- DSN-06 gap fill (machine-candidate 2026-11-16) ----
+allParticipants: "全部參與人（$count）" # machine-candidate 2026-11-16
+attendSummary: "$attending/$total 人參加" # machine-candidate 2026-11-16
+cardViewDetail: "檢視詳情" # machine-candidate 2026-11-16
+collapseParticipants: "收起" # machine-candidate 2026-11-16
+duration: "預計 $minutes 分鐘" # machine-candidate 2026-11-16
+hintToday: "今天" # machine-candidate 2026-11-16
+hintTomorrow: "明天" # machine-candidate 2026-11-16
+organizer: "發起人" # machine-candidate 2026-11-16
+participantAttending: "已參加" # machine-candidate 2026-11-16
+participantDeclined: "已拒絕" # machine-candidate 2026-11-16
+participantPending: "待回應" # machine-candidate 2026-11-16
+remindBefore: "開始前 $minutes 分鐘提醒" # machine-candidate 2026-11-16
+sectionLater: "更晚" # machine-candidate 2026-11-16
+sectionThisWeek: "本週" # machine-candidate 2026-11-16
+sectionToday: "今天" # machine-candidate 2026-11-16
+startsHint: "$hint $time 開始" # machine-candidate 2026-11-16

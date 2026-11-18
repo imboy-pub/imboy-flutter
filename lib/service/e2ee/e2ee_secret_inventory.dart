@@ -104,7 +104,10 @@ class E2eeSecretInventory {
   });
 
   /// 生产接线：真实 secure storage + 各 E2EE 服务内存缓存 + 临时备份文件。
-  factory E2eeSecretInventory.production({AccountLocalTaskOwner? owner}) {
+  factory E2eeSecretInventory.production({
+    AccountLocalTaskOwner? owner,
+    bool web = kIsWeb,
+  }) {
     final capturedOwner = owner ?? AccountLocalTaskOwner.capture();
     return E2eeSecretInventory(
       readAll: StorageSecureService.to.readAll,
@@ -119,8 +122,9 @@ class E2eeSecretInventory {
       purgeArtifacts: [
         // 清 Olm 内存 Account/Session（其存储键由下方前缀清理兜底复核）
         OlmSessionService.to.clearAll,
-        () => _purgeLocalBackupTempFiles(capturedOwner),
-        _purgeUploadCacheFiles,
+        // 车道侧 web 语义：web 不做 Native 文件系统清理
+        if (!web) () => _purgeLocalBackupTempFiles(capturedOwner),
+        if (!web) _purgeUploadCacheFiles,
       ],
       runPurge: StorageSecureService.to.purgeE2eeKeys,
     );

@@ -86,6 +86,7 @@ reply: 回覆
 resendCode: 重發驗證碼
 revoke: 收回
 scanQrCodeBusinessCard: 掃描二維碼卡片
+scanQrEntry: 掃一掃
 privateChat: "私訊"
 sendFriendRequest: 傳送新增好友申請
 sendMsgRejected: 訊息已發出，但被對方拒收了。
@@ -185,7 +186,7 @@ webFeatureE2EE: 端對端加密
 webFeatureE2EEDesc: 所有訊息都經過端對端加密，確保隱私安全
 webFeatureFileTransfer: 檔案傳輸
 webFeatureFileTransferDesc: 拖拽即可傳送檔案，支援各種格式
-webQRStatusWaiting: 開啟 ImBoy 手機版 > 設定 > 掃一掃
+webQRStatusWaiting: 開啟 ImBoy 手機版 > 訊息 > 右上角掃一掃
 webQRStatusScanned: 請在手機上點選"確認登入"
 webQRStatusVerifying: 正在驗證...
 webQRStatusExpired: 請點選重新整理重新掃碼
@@ -276,3 +277,8 @@ fileWithNameSize(name,size): "$name（$size）"
 voiceDurationSeconds(seconds): "$seconds″"
 bundleInvalidOrEmpty: 聊天記錄無效或為空
 bundleForwardedBy(name): "由 $name 轉發"
+chatStatusOutcomeUnknown: 本次遭拒，傳送結果待確認
+
+# ---- DSN-06 gap fill (machine-candidate 2026-11-16) ----
+e2eeMsgBeforeDevice: "此訊息傳送於本裝置加入之前，無法在本裝置顯示" # machine-candidate 2026-11-16
+e2eeMsgBeforeDeviceTapHint: "該訊息加密時未包含本裝置（如換裝置前的歷史訊息），無法在此解密；不影響本裝置收發的新訊息" # machine-candidate 2026-11-16

@@ -87,6 +87,7 @@ reply: 回复
 resendCode: 重发验证码
 revoke: 撤回
 scanQrCodeBusinessCard: 扫描二维码名片
+scanQrEntry: 扫一扫
 privateChat: 私聊
 sendFriendRequest: 发送添加朋友申请
 sendMsgRejected: 消息已发出，但被对方拒收了。
@@ -186,7 +187,7 @@ webFeatureE2EE: 端到端加密
 webFeatureE2EEDesc: 所有消息都经过端到端加密，确保隐私安全
 webFeatureFileTransfer: 文件传输
 webFeatureFileTransferDesc: 拖拽即可发送文件，支持各种格式
-webQRStatusWaiting: "打开 ImBoy 手机版 > 设置 > 扫一扫"
+webQRStatusWaiting: "打开 ImBoy 手机版 > 消息 > 右上角扫一扫"
 webQRStatusScanned: 请在手机上点击"确认登录"
 webQRStatusVerifying: 正在验证...
 webQRStatusExpired: 请点击刷新重新扫码
@@ -275,3 +276,4 @@ fileWithNameSize(name,size): "$name（$size）"
 voiceDurationSeconds(seconds): "$seconds″"
 bundleInvalidOrEmpty: 聊天记录无效或为空
 bundleForwardedBy(name): "由 $name 转发"
+chatStatusOutcomeUnknown: 本次被拒，发送结果待确认

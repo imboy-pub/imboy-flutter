@@ -8,6 +8,18 @@ library;
 import 'package:cupertino_ui/cupertino_ui.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart';
 import 'package:imboy/i18n/strings.g.dart';
+import 'package:imboy/store/model/message_model.dart';
+
+bool isMessageOutcomeUnknown(Message message) =>
+    message.status == MessageStatus.error &&
+    message.metadata?[IMBoyMessageStatus.localStatusMetadataKey] ==
+        IMBoyMessageStatus.outcomeUnknown;
+
+bool canOfferMessageRetry(Message message, String ownerUid) =>
+    ownerUid.isNotEmpty &&
+    message.authorId == ownerUid &&
+    message.status == MessageStatus.error &&
+    !isMessageOutcomeUnknown(message);
 
 /// 消息状态图标描述符。
 ///
@@ -39,7 +51,17 @@ class MessageStatusIconSpec {
 /// - 'primary'       → `getThemeColor`
 /// - 'sendMessageBg' → `getChatColor`（聊天专用颜色）
 /// - 'error'         → `getThemeColor`
-MessageStatusIconSpec resolveMessageStatusIcon(MessageStatus? status) {
+MessageStatusIconSpec resolveMessageStatusIcon(
+  MessageStatus? status, {
+  bool outcomeUnknown = false,
+}) {
+  if (outcomeUnknown) {
+    return MessageStatusIconSpec(
+      iconData: CupertinoIcons.exclamationmark_circle,
+      colorKey: 'error',
+      semanticLabel: t.chat.chatStatusOutcomeUnknown,
+    );
+  }
   return switch (status) {
     MessageStatus.sending => MessageStatusIconSpec(
       iconData: CupertinoIcons.clock,

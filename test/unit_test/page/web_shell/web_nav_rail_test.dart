@@ -15,6 +15,7 @@ import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/page/web_shell/web_nav_rail.dart';
+import 'package:imboy/i18n/strings.g.dart';
 
 import '../../helper/material_tooltip_finder.dart';
 
@@ -231,6 +232,101 @@ void main() {
         semantics.dispose();
       }
     });
+  });
+
+  testWidgets('导航项将名称、角色、焦点及完整未读数合在同一操作节点', (tester) async {
+    final handle = tester.ensureSemantics();
+    try {
+      var calls = 0;
+      List<WebNavItem> items(int count) => [
+        WebNavItem(
+          icon: Icons.chat_bubble_outline,
+          activeIcon: Icons.chat_bubble,
+          label: 'Messages',
+          badgeCount: count,
+        ),
+        _kSampleItems[1],
+      ];
+      await _pumpRail(
+        tester,
+        items: items(125),
+        currentIndex: 0,
+        onTap: (_) => calls++,
+      );
+      await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+      await tester.pump();
+      final target = find.bySemanticsLabel('Messages');
+      expect(target, findsOneWidget);
+      var data = tester.getSemantics(target).getSemanticsData();
+      expect(data.label, 'Messages');
+      expect(data.value, t.common.unreadCount(count: 125));
+      expect(data.flagsCollection.isButton, isTrue);
+      expect(data.flagsCollection.isSelected.toBoolOrNull(), isTrue);
+      expect(data.flagsCollection.isFocused.toBoolOrNull(), isTrue);
+      expect(find.bySemanticsLabel(RegExp(r'^99\+$')), findsNothing);
+      expect(find.text('99+'), findsOneWidget);
+      await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+      expect(calls, 1);
+
+      await _pumpRail(
+        tester,
+        items: items(0),
+        currentIndex: 0,
+        onTap: (_) => calls++,
+      );
+      await tester.pump();
+      data = tester.getSemantics(target).getSemanticsData();
+      expect(data.value, isEmpty);
+      expect(data.flagsCollection.isFocused.toBoolOrNull(), isTrue);
+      await tester.sendKeyEvent(LogicalKeyboardKey.space);
+      expect(calls, 2);
+      await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+      await tester.pump();
+      expect(
+        tester
+            .getSemantics(target)
+            .getSemanticsData()
+            .flagsCollection
+            .isFocused
+            .toBoolOrNull(),
+        isFalse,
+      );
+    } finally {
+      handle.dispose();
+    }
+  });
+
+  testWidgets('导航收起后保留完整未读语义且不重复读数字', (tester) async {
+    final handle = tester.ensureSemantics();
+    try {
+      await _pumpRail(
+        tester,
+        items: [
+          const WebNavItem(
+            icon: Icons.chat_bubble_outline,
+            activeIcon: Icons.chat_bubble,
+            label: 'Messages',
+            badgeCount: 5,
+          ),
+          _kSampleItems[1],
+        ],
+        currentIndex: 0,
+        onTap: (_) {},
+      );
+      await tester.tap(
+        find.byKey(const ValueKey('desktop-navigation-collapse-toggle')),
+      );
+      await tester.pumpAndSettle();
+      final data = tester
+          .getSemantics(find.bySemanticsLabel('Messages'))
+          .getSemanticsData();
+      expect(data.label, 'Messages');
+      expect(data.value, t.common.unreadCount(count: 5));
+      expect(data.flagsCollection.isButton, isTrue);
+      expect(find.bySemanticsLabel(RegExp(r'^5$')), findsNothing);
+    } finally {
+      handle.dispose();
+    }
   });
 
   group('WebNavRail — 选中态切换', () {

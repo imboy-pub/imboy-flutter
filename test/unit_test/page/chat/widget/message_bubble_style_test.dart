@@ -98,8 +98,11 @@ void main() {
           isSentByMe: true,
         );
       });
+      // 发送方文本（浅色）：气泡主色之上的正文取 onPrimary（实现与
+      // 暗色 sentMessageText 分支并存，见 message_bubble_style.dart）。
       expect(style.color, AppColors.onPrimary);
-      expect(style.fontSize, 16);
+      // DSN-04 O1（属主裁决 2026-11-16）：聊天正文 17pt 合同。
+      expect(style.fontSize, 17);
     });
     testWidgets('暗色发送方文本保留柔白，接收方跟随暗色文本', (tester) async {
       late TextStyle sent;

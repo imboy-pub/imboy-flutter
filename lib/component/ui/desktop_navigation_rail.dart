@@ -3,6 +3,7 @@ import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
 
 import 'package:imboy/component/ui/cell_pressable.dart';
+import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_duration.dart';
 import 'package:imboy/theme/default/app_radius.dart';
@@ -365,15 +366,16 @@ class _DesktopNavigationTileState extends State<_DesktopNavigationTile> {
           onExit: (_) => setState(() => _hovered = false),
           child: ClipRRect(
             borderRadius: AppRadius.borderRadiusMedium,
-            child: Semantics(
-              key: widget.item.controlKey,
-              label: widget.item.label,
-              button: true,
-              selected: widget.selected,
+            child: CellPressable(
               onTap: widget.onTap,
-              child: ExcludeSemantics(
-                child: CellPressable(
-                  onTap: widget.onTap,
+              child: Semantics(
+                key: widget.item.controlKey,
+                label: widget.item.label,
+                value: widget.item.badgeCount > 0
+                    ? t.common.unreadCount(count: widget.item.badgeCount)
+                    : null,
+                selected: widget.selected,
+                child: ExcludeSemantics(
                   child: LayoutBuilder(
                     builder: (context, constraints) {
                       // expanded 在动画首帧会先于 rail 宽度变大；若立即渲染

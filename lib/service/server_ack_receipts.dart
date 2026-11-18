@@ -8,6 +8,7 @@ import 'package:sqflite_sqlcipher/sqflite.dart'
 import 'package:imboy/store/repository/message_repo_sqlite.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/service/sqlite.dart';
+import 'package:imboy/service/c2g_rejection_hold.dart';
 import 'package:imboy/service/events/events.dart';
 import 'package:imboy/store/model/message_model.dart';
 
@@ -150,11 +151,13 @@ class ServerAckReceipts {
           row['from_id'].toString() != ownerUid ||
           row['is_author'] != 1 ||
           (row['conversation_uk3']?.toString().isEmpty ?? true) ||
-          !{
-            IMBoyMessageStatus.sending,
-            IMBoyMessageStatus.pendingRetry,
-            IMBoyMessageStatus.error,
-          }.contains(status)) {
+          (!{
+                IMBoyMessageStatus.sending,
+                IMBoyMessageStatus.pendingRetry,
+                IMBoyMessageStatus.error,
+              }.contains(status) &&
+              !(chatType == 'C2G' &&
+                  status == C2gRejectionHold.outcomeUnknown))) {
         return false;
       }
       if (requireAttempt) {

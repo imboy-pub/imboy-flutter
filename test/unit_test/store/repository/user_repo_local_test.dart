@@ -10,6 +10,8 @@ import 'package:imboy/config/env.dart';
 import 'package:imboy/config/init.dart' show serviceContainer;
 import 'package:imboy/service/sqlite.dart';
 import 'package:imboy/service/storage.dart';
+import 'package:imboy/service/e2ee/e2ee_secret_inventory.dart';
+import 'package:imboy/app_core/feature_flags/runtime_feature_recovery.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:path_provider_platform_interface/path_provider_platform_interface.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -17,6 +19,23 @@ import 'package:shared_preferences/shared_preferences.dart';
 /// 用户仓库测试
 /// 测试 Token 管理和登录流程的关键场景
 void main() {
+  late Directory suitePaths;
+  late PathProviderPlatform suitePathProvider;
+  setUpAll(() async {
+    suitePaths = await Directory.systemTemp.createTemp('imboy-repo-suite-');
+    suitePathProvider = PathProviderPlatform.instance;
+    PathProviderPlatform.instance = _OwnedCachePaths(suitePaths.path);
+    SqliteService.setDbUnavailableForTest();
+    HttpClient.adapterForTest = _GenericOkAdapter();
+    serviceContainer.put(
+      HttpClient(options: BaseOptions(baseUrl: Env().apiBaseUrl)),
+    );
+  });
+  tearDownAll(() async {
+    PathProviderPlatform.instance = suitePathProvider;
+    HttpClient.adapterForTest = null;
+    await suitePaths.delete(recursive: true);
+  });
   group('tokenExpired - Token 验证测试', () {
     test('应该拒绝 null token', () {
       // Arrange
@@ -251,6 +270,7 @@ void main() {
       'plugins.it_nomads.com/flutter_secure_storage',
     );
     PathProviderPlatform? previousPathProvider;
+    late Directory ownedPaths;
 
     setUp(() async {
       // 先钉好平台桩，再初始化存储，最后清理跨用例残留标记——顺序敏感：
@@ -258,7 +278,10 @@ void main() {
       // 本组 loginAfter 一进来就会走补救 purge（失败即抛 E2eeSecretPurgeException）
       secure.clear();
       previousPathProvider = PathProviderPlatform.instance;
-      PathProviderPlatform.instance = _OwnedCachePaths();
+      ownedPaths = await Directory.systemTemp.createTemp(
+        'imboy-repo-purge-test-',
+      );
+      PathProviderPlatform.instance = _OwnedCachePaths(ownedPaths.path);
       TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
           .setMockMethodCallHandler(secureChannel, (call) async {
             final args = Map<String, dynamic>.from(call.arguments as Map);
@@ -295,12 +318,41 @@ void main() {
     });
 
     tearDown(() async {
+      RuntimeFeatureRecovery.dispose();
+      // Drain the session queue while all storage/HTTP/path fakes still exist.
+      await UserRepoLocal.to.quitLogin();
       HttpClient.adapterForTest = null;
       TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
           .setMockMethodCallHandler(secureChannel, null);
       if (previousPathProvider != null) {
         PathProviderPlatform.instance = previousPathProvider!;
       }
+      await ownedPaths.delete(recursive: true);
+    });
+
+    test('pending secret deletion failure rejects local relogin before credentials publish', () async {
+      secure['e2ee_private_key'] = 'synthetic-secret';
+      await StorageService.to.setBool(Keys.e2eePurgePending, true);
+      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+          .setMockMethodCallHandler(secureChannel, (call) async {
+            if (call.method == 'readAll') return Map<String, String>.of(secure);
+            if (call.method == 'delete') {
+              throw PlatformException(code: 'synthetic-delete-failed');
+            }
+            return null;
+          });
+      await expectLater(
+        UserRepoLocal.to.loginAfter('synthetic', {
+          'uid': 'synthetic-owner',
+          'token': 'synthetic-token',
+          'refreshtoken': 'synthetic-refresh',
+        }),
+        throwsA(isA<E2eeSecretPurgeException>()),
+      );
+      expect(UserRepoLocal.to.currentUid, isEmpty);
+      expect(secure.containsKey('secure_token'), isFalse);
+      expect(secure['e2ee_private_key'], 'synthetic-secret');
+      expect(StorageService.to.getBool(Keys.e2eePurgePending), isTrue);
     });
 
     test(
@@ -413,7 +465,8 @@ class _GenericOkAdapter implements HttpClientAdapter {
 /// unit_test 全局 config 的 fake 未实现该方法，purge 会抛
 /// E2eeSecretPurgeException 并留下 e2eePurgePending 标记）
 class _OwnedCachePaths extends PathProviderPlatform {
-  String get _tmp => Directory.systemTemp.path;
+  _OwnedCachePaths(this._tmp);
+  final String _tmp;
 
   @override
   Future<String?> getApplicationCachePath() async => _tmp;

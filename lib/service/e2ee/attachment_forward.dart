@@ -37,6 +37,8 @@
 /// trace」：跨对象/跨会话绝不复用 key/nonce）。
 library;
 
+import 'package:imboy/component/http/web_writer_http_adapter.dart';
+
 import 'dart:typed_data';
 
 import 'package:dio/dio.dart';
@@ -576,10 +578,9 @@ class AttachmentForward {
   /// 命中时返回缓存明文，行为不定。此处直连 resolver 拿确定性密文。
   static Future<Uint8List> defaultFetchCiphertext(String objectKey) async {
     final String url = await AssetUrlResolver.instance.resolve(objectKey);
-    final response = await Dio().get<List<int>>(
-      url,
-      options: Options(responseType: ResponseType.bytes),
-    );
+    final response = await guardWebWriterDio(
+      Dio(),
+    ).get<List<int>>(url, options: Options(responseType: ResponseType.bytes));
     final data = response.data;
     if (data == null || data.isEmpty) {
       throw const AttachmentForwardException('attachment_forward_fetch_failed');

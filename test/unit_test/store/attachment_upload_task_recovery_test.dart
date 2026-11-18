@@ -9,17 +9,30 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:material_ui/material_ui.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:imboy/i18n/strings.g.dart';
+import 'package:imboy/page/web_shell/web_attachment_input.dart';
+import 'package:imboy/page/web_shell/web_shell_state.dart';
+import 'package:imboy/page/chat/chat/chat_provider.dart';
+import 'package:imboy/page/chat/chat/mixin/chat_event_subscription_manager.dart';
+import 'package:imboy/page/chat/widget/chat_input.dart';
+import 'package:imboy/service/events/events.dart';
+import 'package:imboy/store/repository/conversation_repo_sqlite.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:imboy/service/storage.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/service/encryption_mode.dart';
 import 'package:imboy/service/message_retry.dart';
+import 'package:imboy/service/c2g_send_gate.dart';
+import 'package:imboy/service/server_ack_receipts.dart';
 import 'package:imboy/service/account_local_task_registry.dart';
 import 'package:imboy/store/model/message_model.dart';
 import 'package:imboy/store/repository/message_repo_sqlite.dart';
 
 import 'package:flutter_chat_core/flutter_chat_core.dart';
 import 'package:imboy/page/chat/chat/attachment_handler.dart';
+import 'package:imboy/store/repository/user_repo_local.dart';
 
 import 'dart:typed_data';
 import 'dart:io';
@@ -33,6 +46,7 @@ import 'package:imboy/service/e2ee/attachment_descriptor.dart';
 import 'package:imboy/service/sqlite.dart';
 import 'package:imboy/service/migrations/downgrade_edges_all.dart';
 import 'package:imboy/store/api/attachment_api.dart';
+import 'package:imboy/store/api/attachment_direct_api.dart';
 import 'package:imboy/store/api/msg_api.dart';
 import 'package:dio/dio.dart';
 import 'package:imboy/store/repository/attachment_upload_task_repo_sqlite.dart';
@@ -40,6 +54,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 part 'attachment_upload_cleanup_test_cases.dart';
+part 'attachment_browser_material_test_cases.dart';
 
 late Directory _uploadCache;
 
@@ -103,9 +118,10 @@ class _Fakes {
 }
 
 class _ResultApi extends MsgApi {
-  _ResultApi(this.payload, {this.ok = true});
+  _ResultApi(this.payload, {this.ok = true, this.called});
   final Map<String, dynamic> payload;
   final bool ok;
+  final Completer<void>? called;
   final queries = <Map<String, dynamic>>[];
   @override
   Future<IMBoyHttpResponse> get(
@@ -118,6 +134,7 @@ class _ResultApi extends MsgApi {
   }) async {
     expect(uri, '/api/v1/msg/result');
     queries.add(queryParameters!);
+    if (called != null && !called!.isCompleted) called!.complete();
     return ok
         ? IMBoyHttpResponse.success(payload)
         : IMBoyHttpResponse.failure(errMsg: 'unavailable');
@@ -200,6 +217,84 @@ Future<String> _runUpload(
   checkpoint: checkpoint,
 );
 
+class _WebPresentationChat extends ChatNotifier {
+  @override
+  ChatState build() => const ChatState();
+}
+
+// Hold one completed task SELECT: ACK can commit while the old snapshot waits.
+class _HeldTrayQuery extends Fake implements Database {
+  _HeldTrayQuery(this.delegate);
+  final Database delegate;
+  final entered = Completer<void>();
+  final release = Completer<void>();
+  bool held = false;
+  @override
+  bool get isOpen => delegate.isOpen;
+  @override
+  Future<List<Map<String, Object?>>> query(
+    String table, {
+    bool? distinct,
+    List<String>? columns,
+    String? where,
+    List<Object?>? whereArgs,
+    String? groupBy,
+    String? having,
+    String? orderBy,
+    int? limit,
+    int? offset,
+  }) async {
+    final rows = await delegate.query(
+      table,
+      distinct: distinct,
+      columns: columns,
+      where: where,
+      whereArgs: whereArgs,
+      groupBy: groupBy,
+      having: having,
+      orderBy: orderBy,
+      limit: limit,
+      offset: offset,
+    );
+    if (!held &&
+        table == 'attachment_upload_task' &&
+        where == 'anchor_msg_id = ? AND user_id = ?') {
+      held = true;
+      entered.complete();
+      await release.future;
+    }
+    return rows;
+  }
+
+  @override
+  Future<T> transaction<T>(
+    Future<T> Function(Transaction) action, {
+    bool? exclusive,
+  }) => delegate.transaction(action, exclusive: exclusive);
+  @override
+  Future<int> update(
+    String table,
+    Map<String, Object?> values, {
+    String? where,
+    List<Object?>? whereArgs,
+    ConflictAlgorithm? conflictAlgorithm,
+  }) => delegate.update(
+    table,
+    values,
+    where: where,
+    whereArgs: whereArgs,
+    conflictAlgorithm: conflictAlgorithm,
+  );
+  @override
+  Future<int> rawUpdate(String sql, [List<Object?>? args]) =>
+      delegate.rawUpdate(sql, args);
+  @override
+  Future<List<Map<String, Object?>>> rawQuery(
+    String sql, [
+    List<Object?>? args,
+  ]) => delegate.rawQuery(sql, args);
+}
+
 void main() {
   late Database db;
   late AttachmentUploadTaskRepo repo;
@@ -223,7 +318,697 @@ void main() {
     await _uploadCache.delete(recursive: true);
   });
 
+  for (final scenario in [
+    'busy-ack-tail',
+    'display-name',
+    'already-committed',
+    'ack-clears',
+    'uncommitted-keeps',
+    'partial-keeps',
+    'wrong-anchor-keeps',
+    'ack-during-read',
+    'lease-change-during-read',
+    'wrong-conversation-keeps',
+    'missing-canonical-keeps',
+    'unconfirmed-keeps',
+  ]) {
+    testWidgets('web restored tray $scenario', (tester) async {
+      final anchor = 'tray-$scenario';
+      final initial = scenario == 'already-committed'
+          ? 'committed'
+          : (scenario == 'ack-during-read' ||
+                scenario == 'lease-change-during-read')
+          ? 'dispatch_intent'
+          : 'outbox_ready';
+      final expected = scenario == 'partial-keeps' ? 2 : 1;
+      late AttachmentUploadTask task;
+      await tester.runAsync(() async {
+        await _createMessageOutboxTables(db);
+        if (scenario == 'busy-ack-tail') {
+          await StorageService.to.setString(
+            Keys.currentUser,
+            jsonEncode({'uid': _uidA, 'nickname': 'synthetic'}),
+          );
+          await db.execute(
+            'CREATE TABLE msg_c2g AS SELECT * FROM msg_c2c WHERE 0',
+          );
+          await db.execute(
+            'CREATE TABLE msg_c2s AS SELECT * FROM msg_c2c WHERE 0',
+          );
+          await db.execute(
+            'CREATE TABLE conversation (id INTEGER PRIMARY KEY, user_id TEXT, peer_id TEXT, avatar TEXT, title TEXT, subtitle TEXT, region TEXT, sign TEXT, last_time INTEGER, last_msg_id TEXT, last_msg_status INTEGER, unread_num INTEGER, mention_unread INTEGER, is_muted INTEGER, payload TEXT, type TEXT, msg_type TEXT, is_show INTEGER)',
+          );
+          await db.insert('conversation', {
+            'id': 1,
+            'user_id': _uidA,
+            'peer_id': _uidB,
+            'type': 'C2C',
+            'last_msg_id': 'old',
+            'last_time': 1700000001000,
+          });
+        }
+        if (scenario != 'missing-canonical-keeps') {
+          await db.insert('msg_c2c', {
+            'id': anchor,
+            'type': 'C2C',
+            'from_id': 101,
+            'to_id': 202,
+            'payload': jsonEncode({
+              'name': 'original-owned.txt',
+              'uri': 'owned/object.txt',
+              'size': 42,
+            }),
+            'created_at': 1700000002000,
+            'is_author': 1,
+            'status': 10,
+            'conversation_uk3': 'C2C_101_202',
+            'msg_type': 'file',
+          });
+        }
+        final owner = AccountLocalTaskOwner.capture();
+        for (var i = 0; i < expected; i++) {
+          final id = 'tray-task-$i';
+          await db.insert('attachment_upload_task', {
+            'id': id,
+            'user_id': _uidA,
+            'scope': 'chat',
+            'file_name': 'anonymous-transport.txt',
+            'mime': 'text/plain',
+            'plain_size': 42,
+            'plain_sha256': _binding,
+            'anchor_msg_id': anchor,
+            'stage': scenario == 'unconfirmed-keeps'
+                ? AttachmentUploadStage.presigned.value
+                : AttachmentUploadStage.confirmed.value,
+            'upload_path': BrowserUploadMaterial.pending(
+              owner.storageDigest,
+              id,
+            ),
+            'business_intent': jsonEncode({
+              'state': initial,
+              'author_id': _uidA,
+              'peer_id': _uidB,
+              'chat_type': 'c2c',
+              'expected_objects': expected,
+              'message_template': {'name': 'original-owned.txt'},
+            }),
+            'created_at': i,
+            'updated_at': i,
+          });
+        }
+        task = (await repo.find('tray-task-0'))!;
+      });
+      var current = true;
+      final focus = FocusNode();
+      final key = GlobalKey();
+      final region = GlobalKey();
+      await tester.pumpWidget(
+        TranslationProvider(
+          child: MaterialApp(
+            home: Scaffold(
+              body: WebAttachmentInput(
+                key: key,
+                selection: const ChatSelection(peerId: _uidB, chatType: 'C2C'),
+                currentUserId: _uidA,
+                isCurrent: () => current,
+                inputFocus: focus,
+                regionKey: region,
+              ),
+            ),
+          ),
+        ),
+      );
+      final dynamic state = key.currentState;
+      final restored = state.restoreUploadForTest(
+        task,
+        nextFileName: scenario == 'busy-ack-tail' ? 'next-owned.txt' : null,
+      ) as bool;
+      await tester.pump();
+      _HeldTrayQuery? held;
+      try {
+        if (scenario == 'already-committed') {
+          expect(restored, false);
+          expect(find.textContaining('anonymous-transport.txt'), findsNothing);
+          return;
+        }
+        expect(restored, true);
+        if (scenario == 'display-name') {
+          expect(find.textContaining('original-owned.txt'), findsOneWidget);
+          expect(find.textContaining('anonymous-transport.txt'), findsNothing);
+          return;
+        }
+        if (scenario == 'ack-during-read' ||
+            scenario == 'lease-change-during-read' ||
+            scenario == 'busy-ack-tail') {
+          held = _HeldTrayQuery(db);
+          SqliteService.setDbForTest(held);
+          await tester.tap(
+            find.text(
+              scenario == 'busy-ack-tail'
+                  ? t.common.retry
+                  : t.common.legacyUploadCheckLocal,
+            ),
+          );
+          await tester.pump();
+          for (var i = 0; i < 30 && !held.entered.isCompleted; i++) {
+            await tester.runAsync(
+              () => Future<void>.delayed(const Duration(milliseconds: 10)),
+            );
+            await tester.pump();
+          }
+          expect(held.entered.isCompleted, true);
+        }
+        await tester.runAsync(() async {
+          if (scenario == 'uncommitted-keeps') {
+            AppEventBus.fire(
+              MessageSentEvent(
+                messageId: anchor,
+                messageType: 'C2C',
+                conversationUk3: 'C2C_101_202',
+                serverTimestamp: 0,
+                sendDuration: 0,
+              ),
+            );
+            return;
+          }
+          if (scenario == 'missing-canonical-keeps' ||
+              scenario == 'unconfirmed-keeps') {
+            final intent = jsonDecode(task.businessIntent!) as Map;
+            await db.update('attachment_upload_task', {
+              'business_intent': jsonEncode({...intent, 'state': 'committed'}),
+            });
+            AppEventBus.fire(
+              MessageSentEvent(
+                messageId: anchor,
+                messageType: 'C2C',
+                conversationUk3: 'C2C_101_202',
+                serverTimestamp: 0,
+                sendDuration: 0,
+              ),
+            );
+            return;
+          }
+          if (scenario == 'partial-keeps') {
+            final intent = jsonDecode(task.businessIntent!) as Map;
+            await db.update(
+              'attachment_upload_task',
+              {
+                'business_intent': jsonEncode({
+                  ...intent,
+                  'state': 'committed',
+                }),
+              },
+              where: 'id = ?',
+              whereArgs: ['tray-task-0'],
+            );
+            AppEventBus.fire(
+              MessageSentEvent(
+                messageId: anchor,
+                messageType: 'C2C',
+                conversationUk3: 'C2C_101_202',
+                serverTimestamp: 0,
+                sendDuration: 0,
+              ),
+            );
+            return;
+          }
+          final intent = jsonDecode(task.businessIntent!) as Map;
+          await db.update('attachment_upload_task', {
+            'business_intent': jsonEncode({
+              ...intent,
+              'state': 'dispatch_intent',
+            }),
+          });
+          final autoId = (await db.query('msg_c2c')).single['auto_id'] as int;
+          expect(
+            await ServerAckReceipts.persist(
+              db: db,
+              ackId: anchor,
+              ackType: 'C2C_SERVER_ACK',
+              ownerUid: _uidA,
+              expectedAutoId: autoId,
+              expectedPeerId: _uidB,
+              requireAttempt: false,
+              isCurrent: () => true,
+            ),
+            true,
+          );
+          final canonical = (await MessageRepo(tableName: 'msg_c2c')
+              .find(anchor, txn: null))!;
+          if (scenario == 'wrong-conversation-keeps') {
+            AppEventBus.fire(
+              MessageSentEvent(
+                messageId: anchor,
+                messageType: 'C2C',
+                conversationUk3: 'C2C_101_303',
+                serverTimestamp: 0,
+                sendDuration: 0,
+              ),
+            );
+          } else if (scenario == 'wrong-anchor-keeps') {
+            AppEventBus.fire(
+              const MessageSentEvent(
+                messageId: 'other-anchor',
+                messageType: 'C2C',
+                conversationUk3: 'C2C_101_202',
+                serverTimestamp: 0,
+                sendDuration: 0,
+              ),
+            );
+          } else {
+            ServerAckReceipts.announceVerified(
+              message: canonical,
+              ownerUid: _uidA,
+              generation: UserRepoLocal.to.sessionGeneration,
+              isCurrent: () => true,
+            );
+          }
+        });
+        await tester.pump();
+        if (scenario == 'lease-change-during-read') current = false;
+        if (scenario == 'busy-ack-tail') {
+          for (var i = 0; i < 20; i++) {
+            await tester.runAsync(
+              () => Future<void>.delayed(const Duration(milliseconds: 10)),
+            );
+            await tester.pump();
+          }
+        }
+        if (held != null && !held.release.isCompleted) {
+          held.release.complete();
+        }
+        for (var i = 0; i < 40; i++) {
+          await tester.runAsync(
+            () => Future<void>.delayed(const Duration(milliseconds: 10)),
+          );
+          await tester.pump();
+        }
+        final clears =
+            scenario == 'ack-clears' ||
+            scenario == 'ack-during-read' ||
+            scenario == 'busy-ack-tail';
+        expect(
+          find.textContaining('42.00 B'),
+          clears ? findsNothing : findsWidgets,
+        );
+        if (clears) {
+          expect(find.text(t.customerService.attachUnknown), findsNothing);
+        }
+        if (scenario == 'busy-ack-tail') {
+          expect(find.textContaining('next-owned.txt'), findsOneWidget);
+        }
+        await tester.runAsync(() async {
+          expect(await db.rawQuery('SELECT COUNT(*) AS n FROM msg_c2c'), [
+            {'n': scenario == 'missing-canonical-keeps' ? 0 : 1},
+          ]);
+          expect(
+            await db.rawQuery(
+              'SELECT COUNT(*) AS n FROM attachment_upload_task',
+            ),
+            [
+              {'n': expected},
+            ],
+          );
+        });
+      } finally {
+        if (held != null && !held.release.isCompleted) {
+          held.release.complete();
+        }
+        SqliteService.setDbForTest(db);
+        await tester.pumpWidget(const SizedBox.shrink());
+        await tester.runAsync(() async {
+          if (scenario == 'busy-ack-tail') MessageRetry.instance.dispose();
+          await db.close();
+        });
+        focus.dispose();
+      }
+    });
+  }
+
+  for (final retry in [false, true]) {
+    for (final kind in ['file', 'image']) {
+      testWidgets('web confirmed sender presentation $kind retry=$retry', (
+        tester,
+      ) async {
+        final id = 'web-canonical-$kind';
+        final conversation = (await tester.runAsync(() async {
+          await StorageService.to.setString(
+            Keys.currentUser,
+            jsonEncode({'uid': _uidA, 'nickname': 'synthetic'}),
+          );
+          await _createMessageOutboxTables(db);
+          await db.execute(
+            'CREATE TABLE msg_c2g AS SELECT * FROM msg_c2c WHERE 0',
+          );
+          await db.execute(
+            'CREATE TABLE msg_c2s AS SELECT * FROM msg_c2c WHERE 0',
+          );
+          await db.execute(
+            'CREATE TABLE conversation (id INTEGER PRIMARY KEY, user_id TEXT, peer_id TEXT, avatar TEXT, title TEXT, subtitle TEXT, region TEXT, sign TEXT, last_time INTEGER, last_msg_id TEXT, last_msg_status INTEGER, unread_num INTEGER, mention_unread INTEGER, is_muted INTEGER, payload TEXT, type TEXT, msg_type TEXT, is_show INTEGER)',
+          );
+          await db.insert('conversation', {
+            'id': 1,
+            'user_id': _uidA,
+            'peer_id': _uidB,
+            'type': 'C2C',
+            'subtitle': 'old',
+            'last_msg_id': 'old',
+            'last_time': 1700000001000,
+            'last_msg_status': 10,
+          });
+          await db.insert('msg_c2c', {
+            'id': id,
+            'type': 'C2C',
+            'from_id': 101,
+            'to_id': 202,
+            'payload': jsonEncode({
+              'name': 'canonical.txt',
+              'uri': 'owned/object.$kind',
+              'size': 40,
+              'width': 2,
+              'height': 2,
+            }),
+            'created_at': 1700000002000,
+            'is_author': 1,
+            'status': 21,
+            'conversation_uk3': 'C2C_101_202',
+            'msg_type': kind,
+          });
+          await db.insert('attachment_upload_task', {
+            'id': 'web-owned-task',
+            'user_id': _uidA,
+            'scope': 'chat',
+            'file_name': 'canonical.txt',
+            'mime': 'application/octet-stream',
+            'plain_size': 40,
+            'plain_sha256': _binding,
+            'anchor_msg_id': id,
+            'stage': AttachmentUploadStage.confirmed.value,
+            'business_intent': jsonEncode({
+              'state': 'outbox_ready',
+              'author_id': _uidA,
+              'chat_type': 'c2c',
+              'peer_id': _uidB,
+              'conversation_uk3': 'C2C_101_202',
+            }),
+            'created_at': 1,
+            'updated_at': 1,
+          });
+          return (await ConversationRepo().findByPeerId('C2C', _uidB))!;
+        }))!;
+        final focus = FocusNode();
+        final region = GlobalKey();
+        final inputKey = GlobalKey();
+        final notifier = _WebPresentationChat();
+        ChatEventSubscriptionManager? events;
+        late WidgetRef capturedRef;
+        StreamSubscription<dynamic>? operations;
+        var sends = 0;
+        var current = true;
+        StreamSubscription<dynamic>? sendEvents;
+        await tester.pumpWidget(
+          ProviderScope(
+            overrides: [chatProvider.overrideWith(() => notifier)],
+            child: TranslationProvider(
+              child: MaterialApp(
+                home: Scaffold(
+                  body: Consumer(
+                    builder: (context, ref, _) {
+                      final messages = ref.watch(chatProvider).messages;
+                      capturedRef = ref;
+                      return Column(
+                        children: [
+                          for (final message in messages)
+                            Text(
+                              message.id,
+                              key: ValueKey('shown-${message.id}'),
+                            ),
+                          WebAttachmentInput(
+                            key: inputKey,
+                            selection: const ChatSelection(
+                              peerId: _uidB,
+                              chatType: 'C2C',
+                            ),
+                            currentUserId: _uidA,
+                            isCurrent: () => current,
+                            inputFocus: focus,
+                            regionKey: region,
+                          ),
+                        ],
+                      );
+                    },
+                  ),
+                ),
+              ),
+            ),
+          ),
+        );
+        await tester.pump();
+        await tester.runAsync(() async {
+          notifier.initChatService('C2C');
+          events = ChatEventSubscriptionManager(
+            widgetRef: capturedRef,
+            peerId: _uidB,
+            peerTitle: 'synthetic',
+            chatType: 'C2C',
+            conversationUk3: 'C2C_101_202',
+            msgIds: <String>{},
+            editingMessageIdSetter: (_) {},
+            chatInputKey: GlobalKey<ChatInputState>(),
+            isBurnMessageChecker: (_) => false,
+            conversationGetter: () => conversation,
+            newGroupNameSetter: (_) {},
+            isCurrent: () => current,
+            newestFirst: true,
+          )..setupCoreMessageListeners();
+          operations = notifier.chatService!.operationsStream.listen(
+            (_) => notifier.syncMessagesToState(),
+          );
+          sendEvents = AppEventBus.on<WebSocketMessageSendRequestEvent>()
+              .listen((_) => sends++);
+          await notifier.chatService!.insertMessage(
+            TextMessage(
+              id: 'existing-history',
+              authorId: _uidA,
+              text: 'owned history',
+              status: MessageStatus.seen,
+            ),
+          );
+        });
+        final dynamic state = inputKey.currentState;
+        final template = FileMessage(
+          id: id,
+          authorId: _uidA,
+          name: 'stale.txt',
+          source: 'old/key',
+          status: MessageStatus.sending,
+        );
+        try {
+          for (var attempt = 0; attempt < 2; attempt++) {
+            expect(
+              await tester.runAsync(
+                () async => await state.completeConfirmedUploadForTest(
+                  template,
+                  retry: retry,
+                ) as bool,
+              ),
+              true,
+            );
+            await tester.pump();
+          }
+          expect(find.byKey(ValueKey('shown-$id')), findsOneWidget);
+          expect(notifier.chatService!.messages, hasLength(2));
+          expect(notifier.chatService!.messages.first.id, id);
+          expect(notifier.chatService!.messages.last.id, 'existing-history');
+          expect(
+            notifier.chatService!.messages.first.status,
+            MessageStatus.seen,
+          );
+          expect(
+            notifier.chatService!.messages.first,
+            kind == 'file' ? isA<FileMessage>() : isA<ImageMessage>(),
+          );
+          await tester.runAsync(() async {
+            final refreshed = (await db.query('conversation')).single;
+            expect(refreshed['last_msg_id'], id);
+            expect(refreshed['last_time'], 1700000002000);
+            expect(refreshed['last_msg_status'], 21);
+            expect(refreshed['msg_type'], kind);
+            expect(refreshed['subtitle'], isNot('old'));
+            expect((await db.query('msg_c2c')), hasLength(1));
+            expect((await db.query('msg_c2c')).single['status'], 21);
+          });
+          expect(sends, 0);
+          current = false;
+          Object? cancelled;
+          await tester.runAsync(() async {
+            try {
+              await state.completeConfirmedUploadForTest(
+                template,
+                retry: retry,
+              );
+            } catch (error) {
+              cancelled = error;
+            }
+          });
+          expect(cancelled, isA<AccountLocalTaskCancelledException>());
+          expect(notifier.chatService!.messages, hasLength(2));
+          expect(sends, 0);
+        } finally {
+          await tester.runAsync(() async {
+            events?.dispose();
+            await operations?.cancel();
+            await sendEvents?.cancel();
+            if (retry) MessageRetry.instance.dispose();
+            notifier.chatService?.dispose();
+            await db.close();
+          });
+          await tester.pumpWidget(const SizedBox.shrink());
+          focus.dispose();
+        }
+      });
+    }
+  }
+
+  for (final scenario in [
+    'ready',
+    'missing',
+    'unconfirmed',
+    'other-peer',
+    'stale-owner',
+    'newer-conversation',
+    'same-id-newer-time',
+  ]) {
+    test('persisted attachment presentation $scenario', () async {
+      await StorageService.to.setString(
+        Keys.currentUser,
+        jsonEncode({'uid': _uidA, 'nickname': 'synthetic'}),
+      );
+      await _createMessageOutboxTables(db);
+      await db.execute(
+        'CREATE TABLE conversation (id INTEGER PRIMARY KEY, user_id TEXT, peer_id TEXT, avatar TEXT, title TEXT, subtitle TEXT, region TEXT, sign TEXT, last_time INTEGER, last_msg_id TEXT, last_msg_status INTEGER, unread_num INTEGER, mention_unread INTEGER, is_muted INTEGER, payload TEXT, type TEXT, msg_type TEXT, is_show INTEGER)',
+      );
+      await db.insert('conversation', {
+        'id': 1,
+        'user_id': _uidA,
+        'peer_id': _uidB,
+        'type': 'C2C',
+        'subtitle': 'old',
+        'last_msg_id': scenario == 'same-id-newer-time'
+            ? 'persisted-native-file'
+            : 'old',
+        'last_time':
+            (scenario == 'newer-conversation' ||
+                scenario == 'same-id-newer-time')
+            ? 1700000003000
+            : 1700000001000,
+        'last_msg_status': 21,
+      });
+      const id = 'persisted-native-file';
+      final name = 'owned-attachment.txt';
+      if (scenario != 'missing') {
+        await db.insert('msg_c2c', {
+          'id': id,
+          'type': 'C2C',
+          'from_id': 101,
+          'to_id': scenario == 'other-peer' ? 303 : 202,
+          'payload': jsonEncode({
+            'name': name,
+            'uri': 'owned/object.txt',
+            'size': 45,
+          }),
+          'created_at': 1700000002000,
+          'is_author': 1,
+          'status': 21,
+          'conversation_uk3': 'C2C_101_202',
+          'msg_type': 'file',
+        });
+      }
+      await db.insert('attachment_upload_task', {
+        'id': 'owned-task',
+        'user_id': _uidA,
+        'scope': 'chat',
+        'file_name': name,
+        'mime': 'text/plain',
+        'plain_size': 45,
+        'plain_sha256': _binding,
+        'anchor_msg_id': id,
+        'stage': scenario == 'unconfirmed'
+            ? 'presigned'
+            : AttachmentUploadStage.confirmed.value,
+        'business_intent': jsonEncode({'state': 'outbox_ready'}),
+        'created_at': 1,
+        'updated_at': 1,
+      });
+      final bubbles = <String, Message>{};
+      var duplicateSendCalls = 0;
+      final handler = ChatAttachmentHandler(
+        peerId: _uidB,
+        conversationUk3: 'C2C_101_202',
+        type: 'C2C',
+        ownerGeneration:
+            UserRepoLocal.to.sessionGeneration +
+            (scenario == 'stale-owner' ? 1 : 0),
+        onMessageCreated: (_) async {
+          duplicateSendCalls++;
+          return false;
+        },
+        onMessagePersisted: (message) async {
+          bubbles[message.id] = message;
+          return true;
+        },
+      );
+      Future<bool> show() => handler.completeUploadedMessageForTest(
+        FileMessage(
+          id: id,
+          authorId: _uidA,
+          name: 'stale-template-name.txt',
+          source: 'old/key',
+          status: MessageStatus.sending,
+        ),
+      );
+      final valid =
+          scenario == 'ready' ||
+          scenario == 'newer-conversation' ||
+          scenario == 'same-id-newer-time';
+      expect(await show(), valid);
+      expect(await show(), valid);
+      expect(bubbles.length, valid ? 1 : 0);
+      expect(duplicateSendCalls, 0);
+      if (valid) {
+        expect(bubbles[id], isA<FileMessage>());
+        expect((bubbles[id] as FileMessage).name, name);
+        expect(bubbles[id]!.status, MessageStatus.seen);
+      }
+      final conversation = (await db.query('conversation')).single;
+      expect(
+        conversation['last_msg_id'],
+        (scenario == 'ready' || scenario == 'same-id-newer-time') ? id : 'old',
+      );
+      expect(
+        conversation['last_time'],
+        scenario == 'ready'
+            ? 1700000002000
+            : ((scenario == 'newer-conversation' ||
+                      scenario == 'same-id-newer-time')
+                  ? 1700000003000
+                  : 1700000001000),
+      );
+      if (scenario != 'missing') {
+        expect((await db.query('msg_c2c')).single['status'], 21);
+      }
+      expect(await db.rawQuery('SELECT COUNT(*) AS n FROM msg_c2c'), [
+        {'n': scenario == 'missing' ? 0 : 1},
+      ]);
+      expect(
+        jsonDecode((await repo.find('owned-task'))!.businessIntent!)['state'],
+        'outbox_ready',
+      );
+    });
+  }
+
   _registerAccountUploadCleanupTest(() => repo, () => keys, () => f);
+  _registerBrowserMaterialTests(() => db, () => repo, () => keys);
 
   test('并发任务插入和无任务发送栅栏只能有一方成功', () async {
     final base = await _seedRow(
@@ -602,6 +1387,92 @@ void main() {
     }
   });
 
+  test('群消息待确认不被未知结果覆盖，正证可完成调和', () async {
+    await db.execute(
+      'CREATE TABLE msg_c2g (id TEXT, type TEXT, from_id TEXT, to_id TEXT, '
+      'is_author INTEGER, status INTEGER, conversation_uk3 TEXT)',
+    );
+    await db.execute(
+      'CREATE TABLE conversation (user_id TEXT, peer_id TEXT, '
+      'type TEXT, last_msg_id TEXT, last_msg_status INTEGER)',
+    );
+    await db.insert('conversation', {
+      'user_id': _uidA,
+      'peer_id': '202',
+      'type': 'C2G',
+      'last_msg_id': 'held-anchor',
+      'last_msg_status': IMBoyMessageStatus.outcomeUnknown,
+    });
+    await db.insert('conversation', {
+      'user_id': _uidA,
+      'peer_id': 'other',
+      'type': 'C2G',
+      'last_msg_id': 'held-anchor',
+      'last_msg_status': IMBoyMessageStatus.outcomeUnknown,
+    });
+    await db.insert('msg_c2g', {
+      'id': 'held-anchor',
+      'type': 'C2G',
+      'from_id': _uidA,
+      'to_id': '202',
+      'is_author': 1,
+      'status': IMBoyMessageStatus.outcomeUnknown,
+      'conversation_uk3': 'c2g-101-202',
+    });
+    final base = await _seedRow(
+      'held-attachment',
+      uid: _uidA,
+      stage: AttachmentUploadStage.confirmed,
+      objectKey: 'object',
+    );
+    final task = AttachmentUploadTask.fromMap({
+      ...base.toMap(),
+      'anchor_msg_id': 'held-anchor',
+      'business_intent': jsonEncode({
+        'state': 'commit_unknown',
+        'author_id': _uidA,
+        'chat_type': 'c2g',
+      }),
+    });
+    await repo.insert(task);
+
+    expect(
+      await repo.markOutboxUnknown(
+        'held-anchor',
+        _uidA,
+        'c2g',
+        isCurrent: () => true,
+      ),
+      isTrue,
+    );
+    expect(
+      (await db.query('msg_c2g')).single['status'],
+      IMBoyMessageStatus.outcomeUnknown,
+    );
+    expect(
+      await repo.reconcileOutboxCommitted(
+        'held-anchor',
+        _uidA,
+        isCurrent: () => true,
+      ),
+      isTrue,
+    );
+    expect(
+      (await db.query('msg_c2g')).single['status'],
+      IMBoyMessageStatus.sent,
+    );
+    final conversations = await db.query('conversation', orderBy: 'peer_id');
+    expect(conversations.first['last_msg_status'], IMBoyMessageStatus.sent);
+    expect(
+      conversations.last['last_msg_status'],
+      IMBoyMessageStatus.outcomeUnknown,
+    );
+    expect(
+      jsonDecode((await repo.find(task.id))!.businessIntent!)['state'],
+      'committed',
+    );
+  });
+
   test('模板业务意图的未知提交可由服务器正证调和', () async {
     await _createMessageOutboxTables(db);
     await db.insert('msg_c2c', {
@@ -642,6 +1513,160 @@ void main() {
       jsonDecode((await repo.find(task.id))!.businessIntent!)['state'],
       'committed',
     );
+  });
+
+  for (final viaRetry in [false, true]) {
+    test('群附件正向恢复与拒绝处理共用发送门 retry=$viaRetry', () async {
+      await StorageService.setMap(Keys.currentUser, {
+        'uid': _uidA,
+        'nickname': 'Synthetic',
+      });
+      await _createMessageOutboxTables(db);
+      await db.execute('CREATE TABLE msg_c2g AS SELECT * FROM msg_c2c WHERE 0');
+      await db.insert('msg_c2g', {
+        'id': 'gate-anchor',
+        'type': 'C2G',
+        'from_id': 101,
+        'to_id': 202,
+        'is_author': 1,
+        'conversation_uk3': 'c2g-101-202',
+        'status': IMBoyMessageStatus.outcomeUnknown,
+        'payload': '{}',
+        'msg_type': 'image',
+      });
+      final base = await _seedRow(
+        'gate-attachment',
+        uid: _uidA,
+        stage: AttachmentUploadStage.confirmed,
+        objectKey: 'object',
+      );
+      await repo.insert(
+        AttachmentUploadTask.fromMap({
+          ...base.toMap(),
+          'anchor_msg_id': 'gate-anchor',
+          'business_intent': jsonEncode({
+            'author_id': _uidA,
+            'peer_id': _uidB,
+            'chat_type': 'c2g',
+            'state': 'commit_unknown',
+            'message_template': <String, dynamic>{},
+          }),
+        }),
+      );
+      final entered = Completer<void>(), release = Completer<void>();
+      final held = C2gSendGate.run(_uidA, 'gate-anchor', () async {
+        entered.complete();
+        await release.future;
+      });
+      await entered.future;
+      final called = Completer<void>();
+      final api = _ResultApi({
+        'message_id': 'gate-anchor',
+        'chat_type': 'c2g',
+        'peer_id': _uidB,
+        'state': 'committed',
+      }, called: called);
+      final message = (await MessageRepo(tableName: MessageRepo.c2gTable)
+          .find('gate-anchor'))!;
+      final recovery = viaRetry
+          ? MessageRetry.instance.debugAttachmentRetryBlocked(message, api)
+          : _uploader(repo, keys).reconcileMessages(_uidA, api: api);
+      await called.future.timeout(const Duration(seconds: 3));
+      await Future<void>.delayed(const Duration(milliseconds: 100));
+      final before = (await db.query('msg_c2g')).single['status'];
+      release.complete();
+      await Future.wait([held, recovery]);
+      expect(before, IMBoyMessageStatus.outcomeUnknown);
+      expect(
+        (await db.query('msg_c2g')).single['status'],
+        IMBoyMessageStatus.sent,
+      );
+      if (viaRetry) {
+        MessageRetry.instance.clearRetryQueue();
+        await MessageRetry.instance.debugWaitForIdle();
+        MessageRetry.instance.dispose();
+      }
+    });
+  }
+
+  test('群附件队列缺失时可从持久任务恢复成功结果', () async {
+    final path = '${_uploadCache.path}/c2g-recovery.sqlite';
+    var disk = await _openDb(path);
+    try {
+      SqliteService.setDbForTest(disk);
+      await _createMessageOutboxTables(disk);
+      await disk.execute(
+        'CREATE TABLE msg_c2g AS SELECT * FROM msg_c2c WHERE 0',
+      );
+      await disk.execute(
+        'CREATE TABLE conversation (user_id TEXT, peer_id TEXT, '
+        'type TEXT, last_msg_id TEXT, last_msg_status INTEGER)',
+      );
+      await disk.insert('msg_c2g', {
+        'id': 'disk-gate-anchor',
+        'type': 'C2G',
+        'from_id': 101,
+        'to_id': 202,
+        'is_author': 1,
+        'conversation_uk3': 'c2g-101-202',
+        'status': IMBoyMessageStatus.outcomeUnknown,
+      });
+      await disk.insert('conversation', {
+        'user_id': _uidA,
+        'peer_id': _uidB,
+        'type': 'C2G',
+        'last_msg_id': 'disk-gate-anchor',
+        'last_msg_status': IMBoyMessageStatus.outcomeUnknown,
+      });
+      final base = await _seedRow(
+        'disk-gate-attachment',
+        uid: _uidA,
+        stage: AttachmentUploadStage.confirmed,
+        objectKey: 'object',
+      );
+      await AttachmentUploadTaskRepo().insert(
+        AttachmentUploadTask.fromMap({
+          ...base.toMap(),
+          'anchor_msg_id': 'disk-gate-anchor',
+          'business_intent': jsonEncode({
+            'author_id': _uidA,
+            'peer_id': _uidB,
+            'chat_type': 'c2g',
+            'state': 'commit_unknown',
+            'message_template': <String, dynamic>{},
+          }),
+        }),
+      );
+      await disk.close();
+      disk = await _openDb(path);
+      SqliteService.setDbForTest(disk);
+      final restarted = AttachmentUploadTaskRepo();
+      final api = _ResultApi({
+        'message_id': 'disk-gate-anchor',
+        'chat_type': 'c2g',
+        'peer_id': _uidB,
+        'state': 'committed',
+      });
+      await _uploader(restarted, keys).reconcileMessages(_uidA, api: api);
+      expect(api.queries, hasLength(1));
+      expect(
+        (await disk.query('msg_c2g')).single['status'],
+        IMBoyMessageStatus.sent,
+      );
+      expect(
+        (await disk.query('conversation')).single['last_msg_status'],
+        IMBoyMessageStatus.sent,
+      );
+      expect(
+        jsonDecode(
+          (await restarted.find('disk-gate-attachment'))!.businessIntent!,
+        )['state'],
+        'committed',
+      );
+    } finally {
+      SqliteService.setDbForTest(db);
+      await disk.close();
+    }
   });
 
   test('暂停写入的旧版本不能覆盖已发布材料指针', () async {

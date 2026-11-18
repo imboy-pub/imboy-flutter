@@ -1,10 +1,11 @@
 /// Phase 1.1.c — Web Shell Riverpod 状态管理
 ///
-/// 持有 [WebShellState]，提供 4 个动作：
+/// 持有 [WebShellState]，提供 5 个动作：
 /// - [WebShellNotifier.switchTab]：切 Tab，自动清空 selectedItem（避免跨 Tab 选中状态串扰）
 /// - [WebShellNotifier.selectItem]：设置选中项（不动 currentTab，由 UI 调用方负责同步）
+/// - [WebShellNotifier.openChat]：原子切换消息 Tab 并选择会话
 /// - [WebShellNotifier.clearSelection]：清空选中项（回欢迎屏）
-/// - [WebShellNotifier.replaceState]：测试/调试用，整体替换 state（生产代码慎用）
+/// - [WebShellNotifier.replaceState]：路由恢复或测试，整体替换 state
 ///
 /// 设计要点：
 /// - 手写 [Notifier] + [NotifierProvider]（Riverpod 3 公开 API），避免 codegen 副作用
@@ -12,7 +13,6 @@
 /// - 守卫非法 tab（< 0 或 > 3）：静默 no-op，不抛异常（UI 层守住边界更合适）
 library;
 
-import 'package:flutter/foundation.dart' show visibleForTesting;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:imboy/store/repository/user_repo_provider.dart';
 
@@ -53,16 +53,22 @@ class WebShellNotifier extends Notifier<WebShellState> {
     state = state.copyWith(selectedItem: sel);
   }
 
+  /// 从联系人等入口开始聊天，一次更新 Tab 和选择，避免路由桥回写中间态。
+  void openChat(ChatSelection selection) {
+    final next = WebShellState(currentTab: 0, selectedItem: selection);
+    if (state == next) return;
+    state = next;
+  }
+
   /// 清空选中项（不动 currentTab）。已经为 null 时 no-op。
   void clearSelection() {
     if (state.selectedItem == null) return;
     state = state.copyWith(clearSelection: true);
   }
 
-  /// 整体替换 state（用于测试 / 深链恢复）。
+  /// 整体替换 state（用于深链恢复和测试）。
   ///
-  /// 生产代码优先使用 [switchTab] / [selectItem] / [clearSelection] 三个细粒度方法。
-  @visibleForTesting
+  /// 生产代码优先使用 [switchTab] / [openChat] / [selectItem] / [clearSelection]。
   void replaceState(WebShellState newState) {
     state = newState;
   }

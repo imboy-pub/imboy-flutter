@@ -1,6 +1,7 @@
 import 'dart:convert' as json;
 
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:imboy/service/web_writer_gate.dart';
 
 /// 本地存储服务 - 基于 SharedPreferences
 /// Local storage service based on SharedPreferences
@@ -68,6 +69,7 @@ class StorageService {
     if (_prefs == null) {
       throw Exception('StorageService not initialized. Call init() first.');
     }
+    requireWebWriter();
     return await _prefs!.setString(key, value);
   }
 
@@ -88,6 +90,7 @@ class StorageService {
     if (_prefs == null) {
       throw Exception('StorageService not initialized. Call init() first.');
     }
+    requireWebWriter();
     return await _prefs!.setString(key, json.jsonEncode(value));
   }
 
@@ -114,6 +117,7 @@ class StorageService {
     if (_prefs == null) {
       throw Exception('StorageService not initialized. Call init() first.');
     }
+    requireWebWriter();
     return await _prefs!.setInt(key, value);
   }
 
@@ -132,6 +136,7 @@ class StorageService {
     if (_prefs == null) {
       throw Exception('StorageService not initialized. Call init() first.');
     }
+    requireWebWriter();
     return await _prefs!.setBool(key, value);
   }
 
@@ -141,6 +146,7 @@ class StorageService {
     if (_prefs == null) {
       throw Exception('StorageService not initialized. Call init() first.');
     }
+    requireWebWriter();
     return await _prefs!.setStringList(key, value);
   }
 
@@ -186,6 +192,7 @@ class StorageService {
     if (_prefs == null) {
       throw Exception('StorageService not initialized. Call init() first.');
     }
+    requireWebWriter();
     return await _prefs!.remove(key);
   }
 
@@ -195,6 +202,7 @@ class StorageService {
     if (_prefs == null) {
       throw Exception('StorageService not initialized. Call init() first.');
     }
+    requireWebWriter();
     return await _prefs!.clear();
   }
 

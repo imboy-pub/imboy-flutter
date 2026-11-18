@@ -372,6 +372,9 @@ hub:
   adminManage: Управление организацией
   adminManageDesc: Рабочие пространства · группы · каналы
 
+  # ---- DSN-06 gap fill (machine-candidate 2026-11-16) ----
+  adminCsGovernance: "Управление поддержкой" # machine-candidate 2026-11-16
+  adminCsGovernanceDesc: "Квота мест · включение/приостановка операторов" # machine-candidate 2026-11-16
 wsMembers:
   title: "Участники пространства · ${ws}"
   invite: Пригласить участников
@@ -432,3 +435,17 @@ experienceUi:
   accountCheck: "Проверки перед удалением аккаунта"
   workspaceContext: "Рабочее пространство: ${name}"
   noIntro: "Описание отсутствует"
+  # ---- DSN-06 gap fill (machine-candidate 2026-11-16) ----
+  cleanupRecordLabel: "Записи" # machine-candidate 2026-11-16
+  cleanupResourcesTruncated: "Показаны первые 20; после обработки обновите страницу и проверьте остальное." # machine-candidate 2026-11-16
+  openPersonalTalkRecords: "Открыть личные записи встреч" # machine-candidate 2026-11-16
+  talkRecordCleanupPendingBody: "Запись удалена, но очистка файлов не завершена. Доступен фактический прогресс; правила хранения и защиты обработки пропустить вручную нельзя." # machine-candidate 2026-11-16
+  talkRecordCleanupPendingTitle: "Идёт очистка аудиофайлов" # machine-candidate 2026-11-16
+  talkRecordOrganizationOwnerPendingBody: "Сначала передайте ответственность за записи встреч организации. Передача не снимает исторические ссылки на удостоверение автоматически." # machine-candidate 2026-11-16
+  talkRecordOrganizationOwnerPendingTitle: "Записи встреч организации не переданы" # machine-candidate 2026-11-16
+  talkRecordPersonalPendingBody: "Сначала разберите личные записи встреч, затем повторно проверьте условия удаления аккаунта." # machine-candidate 2026-11-16
+  talkRecordPersonalPendingTitle: "Требуется разбор личных записей" # machine-candidate 2026-11-16
+  talkRecordRetainedIdentityPendingBody: "Исторические записи всё ещё ссылаются на это удостоверение — удаление аккаунта пока не завершить. Передача записей не гарантирует снятие этих ссылок." # machine-candidate 2026-11-16
+  talkRecordRetainedIdentityPendingTitle: "Требуется проверка исторических ссылок" # machine-candidate 2026-11-16
+  unknownBlockerTitle: "Есть ещё незавершённые пункты" # machine-candidate 2026-11-16
+  viewTalkRecordCleanup: "Посмотреть прогресс очистки" # machine-candidate 2026-11-16

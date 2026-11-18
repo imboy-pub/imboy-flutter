@@ -12,10 +12,15 @@ library;
 
 import 'dart:async';
 
+import 'package:flutter/services.dart';
+
 import 'package:flutter_test/flutter_test.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_chat_core/flutter_chat_core.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/service/encryption_mode.dart';
 import 'package:imboy/service/events/events.dart';
+import 'package:imboy/service/message.dart';
 import 'package:imboy/service/message_retry.dart';
 import 'package:imboy/service/retry_policy.dart';
 import 'package:imboy/service/sqlite.dart';
@@ -208,6 +213,7 @@ void main() {
   late Database database;
   late StreamSubscription<WebSocketMessageSendRequestEvent> sendSubscription;
   final sendRequests = <WebSocketMessageSendRequestEvent>[];
+  late ProviderContainer container;
 
   Future<int?> statusOf(String id) async =>
       (await MessageRepo(tableName: MessageRepo.c2cTable).find(id))?.status;
@@ -247,13 +253,20 @@ void main() {
     await db.execute(_msgC2cDdl);
     // MessageRetry 启动扫描会按生产路径读取三类消息表；其余两张表
     // 只需具备相同列集合即可，避免测试把“缺表”误报成状态机故障。
-    await db.execute('CREATE TABLE msg_c2g AS SELECT * FROM msg_c2c WHERE 0');
+    await db.execute(_msgC2cDdl.replaceFirst('msg_c2c', 'msg_c2g'));
     await db.execute('CREATE TABLE msg_c2s AS SELECT * FROM msg_c2c WHERE 0');
     await db.execute(_contactDdl);
     await db.execute(_msgC2cFtsDdl);
+    await db.execute(_msgC2cFtsDdl.replaceFirst('msg_c2c_fts', 'msg_c2g_fts'));
     await db.execute(
-      'CREATE TABLE attachment_upload_task ('
-      'anchor_msg_id TEXT, user_id TEXT, business_intent TEXT)',
+      'CREATE TABLE attachment_upload_task (id TEXT, anchor_msg_id TEXT, user_id TEXT, business_intent TEXT)',
+    );
+    await db.execute(
+      'CREATE TABLE message_send_attempt (user_id TEXT, anchor TEXT, token TEXT)',
+    );
+    await db.execute(
+      'CREATE TABLE conversation (user_id TEXT, peer_id TEXT, type TEXT, '
+      'last_msg_id TEXT, last_msg_status INTEGER)',
     );
     await db.insert('contact', {
       'user_id': '1001',
@@ -275,6 +288,8 @@ void main() {
       'updated_at': 1751850000000,
     });
     SqliteService.setDbForTest(db);
+    container = ProviderContainer();
+    MessageService.setProviderContainer(container);
     retry = MessageRetry.instance;
     await retry.debugWaitForIdle().timeout(const Duration(seconds: 5));
     sendSubscription = AppEventBus.on<WebSocketMessageSendRequestEvent>()
@@ -295,6 +310,7 @@ void main() {
   tearDownAll(() async {
     retry.dispose();
     await sendSubscription.cancel();
+    container.dispose();
     SqliteService.setDbForTest(null);
   });
 
@@ -423,6 +439,527 @@ void main() {
   });
 
   group('启动扫描的状态集', () {
+    test('同账号新登录代次不接收旧 ACK 界面事件', () async {
+      const id = 'c2g-ack-same-user-new-generation';
+      final repo = MessageRepo(tableName: MessageRepo.c2gTable);
+      await repo.insert(
+        MessageModel(
+          id,
+          autoId: 0,
+          type: 'C2G',
+          status: IMBoyMessageStatus.sending,
+          fromId: 1001,
+          toId: 2002,
+          payload: {'text': 'preserve'},
+          isAuthor: 1,
+          conversationUk3: 'C2G_1001_2002',
+          msgType: 'text',
+          createdAt: 1751850000000,
+        ),
+      );
+      final db = (await SqliteService.to.db)!;
+      await db.insert('message_send_attempt', {
+        'user_id': '1001',
+        'anchor': id,
+        'token': 'attempt',
+      });
+      const secureChannel = MethodChannel(
+        'plugins.it_nomads.com/flutter_secure_storage',
+      );
+      final messenger =
+          TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
+      messenger.setMockMethodCallHandler(secureChannel, (call) async {
+        if (call.method == 'write') {
+          throw PlatformException(code: 'synthetic_failure');
+        }
+        return null;
+      });
+      final entered = Completer<void>(), release = Completer<void>();
+      MessageService.to.beforeAckUiPublishForTest = () async {
+        entered.complete();
+        await release.future;
+      };
+      final observed = <MessageStatus?>[];
+      final subscription = AppEventBus.on<DataWrapperEvent<dynamic>>().listen((
+        event,
+      ) {
+        if (event.data is List) {
+          for (final item in event.data as List) {
+            if (item is Message && item.id == id) observed.add(item.status);
+          }
+        }
+      });
+      try {
+        final ack = MessageService.to.processMessage('C2G_SERVER_ACK', {
+          'id': id,
+          'type': 'C2G_SERVER_ACK',
+        });
+        await entered.future.timeout(const Duration(seconds: 3));
+        final priorGeneration = UserRepoLocal.to.sessionGeneration;
+        await expectLater(
+          UserRepoLocal.to.loginAfterQr(
+            uid: '1001',
+            token: 'synthetic-token-with-required-length',
+          ),
+          throwsA(anything),
+        );
+        expect(UserRepoLocal.to.currentUid, '1001');
+        expect(
+          UserRepoLocal.to.sessionGeneration,
+          greaterThan(priorGeneration),
+        );
+        UserRepoLocal.to.clearAuthTransitionFailureForTest();
+        expect(UserRepoLocal.to.isAuthTransitioning, isFalse);
+        release.complete();
+        await ack;
+        await pumpEventQueue();
+        expect(observed, isEmpty);
+      } finally {
+        if (!release.isCompleted) release.complete();
+        MessageService.to.beforeAckUiPublishForTest = null;
+        UserRepoLocal.to.clearAuthTransitionFailureForTest();
+        messenger.setMockMethodCallHandler(secureChannel, null);
+        await subscription.cancel();
+        await db.delete('msg_c2g', where: 'id = ?', whereArgs: [id]);
+        await db.delete(
+          'message_send_attempt',
+          where: 'anchor = ?',
+          whereArgs: [id],
+        );
+      }
+    });
+    for (final ack in [false, true]) {
+      test('自动重试界面发布与${ack ? 'ACK' : '拒绝'}串行', () async {
+        final id = 'c2g-auto-ui-race-$ack';
+        final repo = MessageRepo(tableName: MessageRepo.c2gTable);
+        await repo.insert(
+          MessageModel(
+            id,
+            autoId: 0,
+            type: 'C2G',
+            status: IMBoyMessageStatus.pendingRetry,
+            fromId: 1001,
+            toId: 2002,
+            payload: {'text': 'preserve'},
+            e2ee: {'protocol': 'megolm'},
+            isAuthor: 1,
+            conversationUk3: 'C2G_1001_2002',
+            msgType: 'text',
+            createdAt: 1751850000000,
+          ),
+        );
+        final db = (await SqliteService.to.db)!;
+        await db.insert('message_send_attempt', {
+          'user_id': '1001',
+          'anchor': id,
+          'token': 'attempt',
+        });
+        retry.addToRetryQueue(id, 'C2G');
+        retry.getRetryInfo(id)!.lastRetryTime = -100000;
+        final entered = Completer<void>(), release = Completer<void>();
+        retry.beforeRetryUiPublishForTest = () async {
+          entered.complete();
+          await release.future;
+        };
+        final observed = <MessageStatus?>[];
+        final subscription = AppEventBus.on<DataWrapperEvent<dynamic>>().listen(
+          (event) {
+            if (event.data is List) {
+              for (final item in event.data as List) {
+                if (item is Message && item.id == id) observed.add(item.status);
+              }
+            }
+          },
+        );
+        try {
+          final sending = retry.retryFailedMessages();
+          await entered.future.timeout(const Duration(seconds: 3));
+          final eventType = ack ? 'C2G_SERVER_ACK' : 'C2G_ERROR';
+          final server = MessageService.to.processMessage(eventType, {
+            'id': id,
+            'type': eventType,
+            if (!ack) 'code': 403,
+          });
+          await pumpEventQueue();
+          release.complete();
+          await sending;
+          await server;
+          await pumpEventQueue();
+          expect(
+            (await repo.find(id))?.status,
+            ack ? IMBoyMessageStatus.sent : IMBoyMessageStatus.outcomeUnknown,
+          );
+          expect(observed, isNotEmpty);
+          expect(observed.last, ack ? MessageStatus.sent : MessageStatus.error);
+        } finally {
+          if (!release.isCompleted) release.complete();
+          retry.beforeRetryUiPublishForTest = null;
+          await subscription.cancel();
+          await db.delete('msg_c2g', where: 'id = ?', whereArgs: [id]);
+          await db.delete(
+            'message_send_attempt',
+            where: 'anchor = ?',
+            whereArgs: [id],
+          );
+          retry.clearRetryQueue();
+        }
+      });
+    }
+    test('ACK 转换后切换账号不向新会话发布或更新摘要', () async {
+      const id = 'c2g-ack-owner-switch-race';
+      final repo = MessageRepo(tableName: MessageRepo.c2gTable);
+      await repo.insert(
+        MessageModel(
+          id,
+          autoId: 0,
+          type: 'C2G',
+          status: IMBoyMessageStatus.sending,
+          fromId: 1001,
+          toId: 2002,
+          payload: {'text': 'preserve'},
+          isAuthor: 1,
+          conversationUk3: 'C2G_1001_2002',
+          msgType: 'text',
+          createdAt: 1751850000000,
+        ),
+      );
+      final db = (await SqliteService.to.db)!;
+      await db.insert('message_send_attempt', {
+        'user_id': '1001',
+        'anchor': id,
+        'token': 'attempt',
+      });
+      await db.insert('conversation', {
+        'user_id': '9999',
+        'peer_id': '2002',
+        'type': 'C2G',
+        'last_msg_id': id,
+        'last_msg_status': IMBoyMessageStatus.outcomeUnknown,
+      });
+      final entered = Completer<void>(), release = Completer<void>();
+      MessageService.to.beforeAckUiPublishForTest = () async {
+        entered.complete();
+        await release.future;
+      };
+      final observed = <MessageStatus?>[];
+      final subscription = AppEventBus.on<DataWrapperEvent<dynamic>>().listen((
+        event,
+      ) {
+        if (event.data is List) {
+          for (final item in event.data as List) {
+            if (item is Message && item.id == id) observed.add(item.status);
+          }
+        }
+      });
+      try {
+        final ack = MessageService.to.processMessage('C2G_SERVER_ACK', {
+          'id': id,
+          'type': 'C2G_SERVER_ACK',
+        });
+        await entered.future.timeout(const Duration(seconds: 3));
+        await StorageService.to.setString(Keys.currentUid, '9999');
+        release.complete();
+        await ack;
+        await pumpEventQueue();
+        expect(observed, isEmpty);
+        expect(
+          (await db.query(
+            'conversation',
+            where: 'user_id = ?',
+            whereArgs: ['9999'],
+          )).single['last_msg_status'],
+          IMBoyMessageStatus.outcomeUnknown,
+        );
+      } finally {
+        if (!release.isCompleted) release.complete();
+        MessageService.to.beforeAckUiPublishForTest = null;
+        await StorageService.to.setString(Keys.currentUid, '1001');
+        await subscription.cancel();
+        await db.delete(
+          'conversation',
+          where: 'user_id = ?',
+          whereArgs: ['9999'],
+        );
+        await db.delete('msg_c2g', where: 'id = ?', whereArgs: [id]);
+        await db.delete(
+          'message_send_attempt',
+          where: 'anchor = ?',
+          whereArgs: [id],
+        );
+      }
+    });
+
+    test('手动重试界面发布与拒绝通知串行，不回退发送中', () async {
+      const id = 'c2g-retry-ui-rejection-race';
+      final repo = MessageRepo(tableName: MessageRepo.c2gTable);
+      await repo.insert(
+        MessageModel(
+          id,
+          autoId: 0,
+          type: 'C2G',
+          status: IMBoyMessageStatus.error,
+          fromId: 1001,
+          toId: 2002,
+          payload: {'text': 'preserve'},
+          e2ee: {'protocol': 'megolm'},
+          isAuthor: 1,
+          conversationUk3: 'C2G_1001_2002',
+          msgType: 'text',
+          createdAt: 1751850000000,
+        ),
+      );
+      final db = (await SqliteService.to.db)!;
+      await db.insert('message_send_attempt', {
+        'user_id': '1001',
+        'anchor': id,
+        'token': 'attempt',
+      });
+      final entered = Completer<void>(), release = Completer<void>();
+      retry.beforeRetryUiPublishForTest = () async {
+        entered.complete();
+        await release.future;
+      };
+      final observed = <MessageStatus?>[];
+      final subscription = AppEventBus.on<DataWrapperEvent<dynamic>>().listen((
+        event,
+      ) {
+        final data = event.data;
+        if (data is List) {
+          for (final item in data) {
+            if (item is Message && item.id == id) observed.add(item.status);
+          }
+        }
+      });
+      try {
+        final sending = retry.retryMessage(id, 'C2G');
+        await entered.future.timeout(const Duration(seconds: 3));
+        final rejection = MessageService.to.processMessage('C2G_ERROR', {
+          'id': id,
+          'type': 'C2G_ERROR',
+          'code': 403,
+        });
+        await pumpEventQueue();
+        release.complete();
+        await sending;
+        await rejection;
+        await pumpEventQueue();
+        expect(
+          (await repo.find(id))?.status,
+          IMBoyMessageStatus.outcomeUnknown,
+        );
+        expect(observed, isNotEmpty);
+        expect(observed.last, MessageStatus.error);
+      } finally {
+        if (!release.isCompleted) release.complete();
+        retry.beforeRetryUiPublishForTest = null;
+        await subscription.cancel();
+        await db.delete('msg_c2g', where: 'id = ?', whereArgs: [id]);
+        await db.delete(
+          'message_send_attempt',
+          where: 'anchor = ?',
+          whereArgs: [id],
+        );
+      }
+    });
+    test('拒绝和迟到确认并发时界面不得倒退', () async {
+      const id = 'c2g-rejection-ack-race';
+      final repo = MessageRepo(tableName: MessageRepo.c2gTable);
+      await repo.insert(
+        MessageModel(
+          id,
+          autoId: 0,
+          type: 'C2G',
+          status: IMBoyMessageStatus.sending,
+          fromId: 1001,
+          toId: 2002,
+          payload: {'text': 'preserve'},
+          isAuthor: 1,
+          conversationUk3: 'C2G_1001_2002',
+          msgType: 'text',
+          createdAt: 1751850000000,
+        ),
+      );
+      final db = (await SqliteService.to.db)!;
+      await db.insert('message_send_attempt', {
+        'user_id': '1001',
+        'anchor': id,
+        'token': 'attempt',
+      });
+      addTearDown(() async {
+        await db.delete('msg_c2g', where: 'id = ?', whereArgs: [id]);
+        await db.delete(
+          'message_send_attempt',
+          where: 'anchor = ?',
+          whereArgs: [id],
+        );
+      });
+      final observed = <MessageStatus?>[];
+      final subscription = AppEventBus.on<DataWrapperEvent<dynamic>>().listen((
+        event,
+      ) {
+        final data = event.data;
+        if (data is List) {
+          for (final item in data) {
+            if (item is Message && item.id == id) observed.add(item.status);
+          }
+        }
+      });
+      addTearDown(subscription.cancel);
+
+      await Future.wait([
+        MessageService.to.processMessage('C2G_ERROR', {
+          'id': id,
+          'type': 'C2G_ERROR',
+          'code': 403,
+        }),
+        MessageService.to.processMessage('C2G_SERVER_ACK', {
+          'id': id,
+          'type': 'C2G_SERVER_ACK',
+        }),
+      ]);
+      await pumpEventQueue();
+
+      expect((await repo.find(id))?.status, IMBoyMessageStatus.sent);
+      expect(observed, isNotEmpty);
+      expect(observed.last, MessageStatus.sent);
+    });
+
+    test('拒绝帧分发将当前群消息置为待确认并停止重试', () async {
+      const id = 'c2g-server-rejection';
+      final repo = MessageRepo(tableName: MessageRepo.c2gTable);
+      await repo.insert(
+        MessageModel(
+          id,
+          autoId: 0,
+          type: 'C2G',
+          status: IMBoyMessageStatus.sending,
+          fromId: 1001,
+          toId: 2002,
+          payload: {'text': 'keep original'},
+          isAuthor: 1,
+          conversationUk3: 'C2G_1001_2002',
+          msgType: 'text',
+          createdAt: 1751850000000,
+        ),
+      );
+      final db = (await SqliteService.to.db)!;
+      await db.insert('message_send_attempt', {
+        'user_id': '1001',
+        'anchor': id,
+        'token': 'attempt',
+      });
+      addTearDown(() async {
+        await db.delete('msg_c2g', where: 'id = ?', whereArgs: [id]);
+        await db.delete(
+          'message_send_attempt',
+          where: 'anchor = ?',
+          whereArgs: [id],
+        );
+      });
+      retry.addToRetryQueue(id, 'C2G');
+      await pumpEventQueue();
+
+      final before = (await repo.find(id))!.status;
+      await MessageService.to.processMessage('C2G_ERROR', {
+        'id': id,
+        'type': 'C2G_ERROR',
+        'code': 429,
+      });
+      await MessageService.to.processMessage('C2G_ERROR', {
+        'id': id,
+        'type': 'C2G_ERROR',
+        'code': 403,
+      }, ownerUid: 'another-account');
+      expect((await repo.find(id))?.status, before);
+      expect(retry.getRetryInfo(id), isNotNull);
+
+      await MessageService.to.processMessage('C2G_ERROR', {
+        'id': id,
+        'type': 'C2G_ERROR',
+        'code': 403,
+        'error': 'Not a group member',
+      });
+      await pumpEventQueue();
+
+      expect((await repo.find(id))?.status, IMBoyMessageStatus.outcomeUnknown);
+      expect(retry.getRetryInfo(id), isNull);
+    });
+
+    test('历史空状态群消息仍可手动重试', () async {
+      const id = 'c2g-null-status-retry';
+      final repo = MessageRepo(tableName: MessageRepo.c2gTable);
+      await repo.insert(
+        MessageModel(
+          id,
+          autoId: 0,
+          type: 'C2G',
+          status: IMBoyMessageStatus.error,
+          fromId: 1001,
+          toId: 2002,
+          payload: {'text': 'preserve'},
+          e2ee: {'protocol': 'megolm'},
+          isAuthor: 1,
+          conversationUk3: 'C2G_1001_2002',
+          msgType: 'text',
+          createdAt: 1751850000000,
+        ),
+      );
+      final db = (await SqliteService.to.db)!;
+      await db.update(
+        'msg_c2g',
+        {'status': null},
+        where: 'id = ?',
+        whereArgs: [id],
+      );
+      addTearDown(() => db.delete('msg_c2g', where: 'id = ?', whereArgs: [id]));
+      var sends = 0;
+      final subscription = AppEventBus.on<WebSocketMessageSendRequestEvent>()
+          .listen((event) {
+            if (event.messageId == id) sends++;
+          });
+      addTearDown(subscription.cancel);
+
+      expect(await retry.retryMessage(id, 'C2G'), isTrue);
+      await pumpEventQueue();
+      expect(sends, 1);
+      expect((await repo.find(id))?.status, IMBoyMessageStatus.pendingRetry);
+    });
+
+    test('群消息结果待确认时不得自动或手动重发', () async {
+      const id = 'c2g-unknown-retry';
+      final repo = MessageRepo(tableName: MessageRepo.c2gTable);
+      await repo.insert(
+        MessageModel(
+          id,
+          autoId: 0,
+          type: 'C2G',
+          status: 42,
+          fromId: 1001,
+          toId: 2002,
+          payload: {'text': 'preserve'},
+          e2ee: {'protocol': 'megolm'},
+          isAuthor: 1,
+          conversationUk3: 'C2G_1001_2002',
+          msgType: 'text',
+          createdAt: 1751850000000,
+        ),
+      );
+      addTearDown(() async {
+        final db = (await SqliteService.to.db)!;
+        await db.delete('msg_c2g', where: 'id = ?', whereArgs: [id]);
+      });
+      var sends = 0;
+      final subscription = AppEventBus.on<WebSocketMessageSendRequestEvent>()
+          .listen((_) => sends++);
+      addTearDown(subscription.cancel);
+
+      await retry.debugScanFailedMessages();
+      expect(retry.getRetryInfo(id), isNull);
+      expect(await retry.retryMessage(id, 'C2G'), isFalse);
+      expect((await repo.find(id))?.status, 42);
+      expect(sends, 0);
+    });
+
     test('对照组：pendingRetry 的中间态行必须被捞回队列', () async {
       const id = 'ts0000000000000pr01';
       await _insertMsg(id, status: IMBoyMessageStatus.pendingRetry);
@@ -551,6 +1088,37 @@ void main() {
   });
 
   group('达到重试上限后落终态', () {
+    test('群消息待确认不能被旧的重试上限任务覆盖', () async {
+      const id = 'c2g-unknown-exhaustion';
+      final repo = MessageRepo(tableName: MessageRepo.c2gTable);
+      await repo.insert(
+        MessageModel(
+          id,
+          autoId: 0,
+          type: 'C2G',
+          status: IMBoyMessageStatus.outcomeUnknown,
+          fromId: 1001,
+          toId: 2002,
+          payload: {'text': 'preserve'},
+          isAuthor: 1,
+          conversationUk3: 'C2G_1001_2002',
+          msgType: 'text',
+          createdAt: 1751850000000,
+        ),
+      );
+      addTearDown(() async {
+        final db = (await SqliteService.to.db)!;
+        await db.delete('msg_c2g', where: 'id = ?', whereArgs: [id]);
+      });
+      retry.addToRetryQueue(id, 'C2G');
+      retry.getRetryInfo(id)!.retryCount = RetryPolicy.maxRetryAttempts;
+
+      await retry.retryFailedMessages();
+
+      expect((await repo.find(id))?.status, IMBoyMessageStatus.outcomeUnknown);
+      expect(retry.getRetryInfo(id), isNull);
+    });
+
     test('retryCount 到上限 → 行被置为 error 且出队', () async {
       const id = 'ts0000000000000mx01';
       await _insertMsg(id, status: IMBoyMessageStatus.pendingRetry);

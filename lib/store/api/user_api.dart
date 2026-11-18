@@ -1,7 +1,11 @@
+import 'package:imboy/component/http/web_control_fetch_adapter.dart';
+import 'package:imboy/component/http/http_request_policy.dart';
+import 'package:imboy/component/http/web_writer_http_adapter.dart';
+import 'package:imboy/service/web_writer_gate.dart';
 import 'package:dio/dio.dart';
 import 'package:imboy/component/ui/app_loading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter/foundation.dart' show visibleForTesting;
+import 'package:flutter/foundation.dart' show kIsWeb, visibleForTesting;
 
 import 'package:imboy/config/const.dart';
 import 'package:imboy/config/error_code.dart';
@@ -95,6 +99,7 @@ class UserApi extends HttpClient {
     final endpoint = session.endpoint;
     final refreshToken = session.refreshToken;
     bool current() =>
+        isWebWriterReady &&
         !repo.isAuthTransitioning &&
         repo.currentUid == session.uid &&
         repo.isCurrentSession(generation) &&
@@ -113,16 +118,45 @@ class UserApi extends HttpClient {
       return '';
     }
     try {
+      if (kIsWeb) {
+        final activeRefreshToken = await repo.refreshToken;
+        if (!current() || activeRefreshToken != refreshToken) return '';
+      }
       final headers = await defaultHeaders();
       if (!current()) return '';
       headers[Keys.refreshTokenKey] = refreshToken;
-      final dio = Dio(BaseOptions(baseUrl: endpoint));
+      final dio = Dio(
+        BaseOptions(
+          baseUrl: endpoint,
+          connectTimeout: kIsWeb ? this.dio.options.connectTimeout : null,
+          sendTimeout: kIsWeb ? this.dio.options.sendTimeout : null,
+          receiveTimeout: kIsWeb ? this.dio.options.receiveTimeout : null,
+        ),
+      );
       if (refreshAdapterForTest != null) {
         dio.httpClientAdapter = refreshAdapterForTest!;
       }
+      guardWebWriterDio(dio);
+      guardWebControlDio(dio, apiOrigin: Uri.parse(endpoint));
+      final refreshUri = kIsWeb
+          ? webHumanRequestUri(
+              'POST',
+              Uri.parse(API.refreshToken),
+              Uri.parse(endpoint),
+            ).toString()
+          : API.refreshToken;
       final response = await dio.post<dynamic>(
-        API.refreshToken,
-        options: Options(headers: headers),
+        refreshUri,
+        options: Options(
+          headers: headers,
+          extra: kIsWeb
+              ? {
+                  httpRequestGuard: () {
+                    if (!current()) throw StateError('Refresh owner changed');
+                  },
+                }
+              : null,
+        ),
       );
       if (!current()) return '';
       final resp = handleResponse(response, uri: API.refreshToken);

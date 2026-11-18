@@ -82,6 +82,7 @@ reply: Reply
 resendCode: Resend verification code
 revoke: Recall
 scanQrCodeBusinessCard: Scan QR code card
+scanQrEntry: Scan QR code
 privateChat: Private Chat
 sendFriendRequest: Send friend request
 sendMsgRejected: Message was rejected
@@ -178,7 +179,7 @@ webFeatureE2EE: End-to-End Encryption
 webFeatureE2EEDesc: "All messages are end-to-end encrypted, ensuring privacy and security"
 webFeatureFileTransfer: File Transfer
 webFeatureFileTransferDesc: "Drag and drop to send files, supports various formats"
-webQRStatusWaiting: "Open ImBoy on your phone > Settings > Scan"
+webQRStatusWaiting: "Open ImBoy on your phone > Messages > Scan at top right"
 webQRStatusScanned: Please tap "Confirm Login" on your phone
 webQRStatusVerifying: Verifying...
 webQRStatusExpired: Please click refresh to scan again
@@ -273,3 +274,8 @@ fileWithNameSize(name,size): "$name ($size)"
 voiceDurationSeconds(seconds): "$seconds s"
 bundleInvalidOrEmpty: Invalid or empty chat history
 bundleForwardedBy(name): "Forwarded by $name"
+chatStatusOutcomeUnknown: This attempt was rejected; delivery is unconfirmed
+
+# ==================== E2EE message states (DSN-06 gap fill) ====================
+e2eeMsgBeforeDevice: "This message was sent before this device joined and cannot be shown here" # machine-candidate 2026-11-16
+e2eeMsgBeforeDeviceTapHint: "This message was encrypted without this device (e.g. history from before a device switch) and cannot be decrypted here; new messages sent to and from this device are unaffected" # machine-candidate 2026-11-16

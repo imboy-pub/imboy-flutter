@@ -54,3 +54,382 @@ aiProviderResubmitNotice: "Erstellt eine neue Transkription; doppelte Gebühren 
 aiProviderCancelled: "Transkription gestoppt. Vorhandenes Audio bleibt erhalten."
 aiProviderResumePreparation: "Transkription weiter vorbereiten"
 aiProviderResumeNotice: "Der ursprüngliche Auftrag wurde noch nicht übermittelt. Audioquelle mit aktuellen Rechten und Einwilligung erneut vorbereiten."
+
+# ---- DSN-06 gap fill (machine-candidate 2026-11-16) ----
+actionDelete: "Notiz löschen" # machine-candidate 2026-11-16
+actionExport: "Text exportieren" # machine-candidate 2026-11-16
+actionPendingIntegration: "Diese Aktion wird in einer späteren Version angebunden (Teilen/Export/Löschen wird nach Abstimmung der jeweiligen Module freigeschaltet). Dieser Build bietet nur den Einstiegspunkt." # machine-candidate 2026-11-16
+actionShare: "Freigaben verwalten" # machine-candidate 2026-11-16
+aiAsrOptionalNotice: "Die KI-Transkription ist eine optionale Funktion. Derzeit kann MiniMax verwendet werden. Für reine Aufnahmen ist kein KI-Schlüssel nötig." # machine-candidate 2026-11-16
+aiAsrProvider: "Transkriptionsdienst" # machine-candidate 2026-11-16
+aiProcessSummarize: "Zusammenfassung auf diesem Gerät / fortsetzen" # machine-candidate 2026-11-16
+aiProcessTranscribe: "Transkription auf diesem Gerät / fortsetzen" # machine-candidate 2026-11-16
+aiProcessingBalance: "Unzureichendes Guthaben beim Anbieter. Der Fortschritt wurde gesichert und gestoppt; keine automatische Wiederholung." # machine-candidate 2026-11-16
+aiProcessingComplete: "Das Ergebnis wurde übermittelt. Bitte Originaltext und Zusammenfassungsentwurf prüfen." # machine-candidate 2026-11-16
+aiProcessingConsent: "Die App übermittelt und fragt nur im Vordergrund ab. Nach Annahme durch den Anbieter können Verarbeitung und Abrechnung außerhalb der App weiterlaufen. Bei jedem Schritt werden Berechtigungen und die aktuelle Zustimmung erneut geprüft. Mit vorhandener Anbieter-Aufgaben-ID wird nur abgefragt; ohne ID bei unbekanntem Ergebnis wird gestoppt und nicht automatisch erneut übermittelt. Hinweise auf diesem Gerät garantieren keine Obergrenze der Kontokosten." # machine-candidate 2026-11-16
+aiProcessingKeyInvalid: "Der Anbieter hat den Schlüssel abgelehnt. Bitte Konfiguration dieses Geräts unter Einstellungen → KI-Dienste prüfen. Gestoppt, keine automatische Wiederholung." # machine-candidate 2026-11-16
+aiProcessingRunning: "Die Verarbeitung läuft auf diesem Gerät. Bitte diese Seite geöffnet lassen." # machine-candidate 2026-11-16
+aiProcessingStopped: "Die Verarbeitung wurde gestoppt; die Aufnahme bleibt erhalten. Bitte Schlüssel, Berechtigungen, Konfiguration und Eingaben auf diesem Gerät prüfen. Wurde bereits gesendet, das Ergebnis aber nicht bestätigt, wird nicht automatisch erneut aufgerufen." # machine-candidate 2026-11-16
+aiProcessingUnknown: "Ergebnis beim Anbieter unbekannt, möglicherweise bereits abgerechnet. Weitere Übermittlung wurde gestoppt. Kosten und ursprüngliche Ausführung müssen manuell geprüft werden; keine direkte Wiederholung." # machine-candidate 2026-11-16
+aiUnknownRecoveryConfirm: "Geprüft. Mögliche Doppeltberechnung akzeptieren" # machine-candidate 2026-11-16
+aiUnknownRecoveryIntents: "Blocknummer / unbekannte Anforderungsnummer" # machine-candidate 2026-11-16
+aiUnknownRecoveryNotice: "Ergebnis und Kosten der folgenden alten Anforderungen lassen sich nicht verifizieren; sie wurden möglicherweise bereits abgerechnet. Nach der Bestätigung wird für dieselbe Aufgabe eine neue Ausführung erstellt und nur unbestätigte Blöcke erneut angefordert; eine Doppeltberechnung ist möglich. Die alten Unbekannt-Fakten und Ergebnisse bleiben erhalten. Abbrechen sendet keine Wiederherstellungsanfrage." # machine-candidate 2026-11-16
+aiUnknownRecoveryRun: "Ursprüngliche Ausführung" # machine-candidate 2026-11-16
+aiUnknownRecoveryTitle: "Unbekannte Ausführung prüfen und erneut anfordern" # machine-candidate 2026-11-16
+barControlsUnavailable: "Die Aufnahmesteuerung stellt das Aufnahmemodul bereit. Dieser Build zeigt nur einen Platzhalter" # machine-candidate 2026-11-16
+barExpandHint: "Aufnahmestatus anzeigen" # machine-candidate 2026-11-16
+barInterrupted: "Aufnahme unterbrochen · manuelles Fortsetzen erforderlich" # machine-candidate 2026-11-16
+barOriginOrgFallback: "Unternehmensbereich" # machine-candidate 2026-11-16
+barOriginPersonal: "Persönlicher Bereich" # machine-candidate 2026-11-16
+barOriginPrefix: "aus" # machine-candidate 2026-11-16
+barPaused: "Pausiert. Zählt nicht zur Aufnahmedauer" # machine-candidate 2026-11-16
+barRecording: "Aufnahme läuft · segmentweise lokal gespeichert" # machine-candidate 2026-11-16
+changeConfirmAction: "Änderung bestätigen" # machine-candidate 2026-11-16
+changeConfirmClearParticipants: "Teilnehmerauswahlen, die am neuen Ort nicht zulässig sind, werden geleert" # machine-candidate 2026-11-16
+changeConfirmKeepTitle: "Ausgefüllte Titel und Notizen bleiben erhalten" # machine-candidate 2026-11-16
+changeConfirmRecheck: "Die Verarbeitungsart wird anhand der Fähigkeiten des neuen Orts neu geprüft" # machine-candidate 2026-11-16
+changeConfirmTarget: "Speichern in: $name" # machine-candidate 2026-11-16
+changeConfirmTitle: "Speicherort ändern" # machine-candidate 2026-11-16
+cleanupBlockedHoldBody: "Die Notiz wurde gelöscht; der Anhang ist durch einen Legal Hold geschützt. Nach Aufhebung des Hold wird die Bereinigung fortgesetzt." # machine-candidate 2026-11-16
+cleanupBlockedHoldTitle: "Durch Legal Hold geschützt" # machine-candidate 2026-11-16
+cleanupBlockedRetentionBody: "Die Notiz wurde gelöscht; der Anhang ist durch Aufbewahrungsregeln geschützt. Nach Ablauf der Aufbewahrungsfrist wird die Bereinigung fortgesetzt." # machine-candidate 2026-11-16
+cleanupBlockedRetentionTitle: "Aufbewahrungsfrist noch nicht abgelaufen" # machine-candidate 2026-11-16
+cleanupCompleteBody: "Notiz und Anhänge wurden vollständig bereinigt." # machine-candidate 2026-11-16
+cleanupCompleteTitle: "Bereinigung abgeschlossen" # machine-candidate 2026-11-16
+cleanupFailedBody: "Die Bereinigung der Anhänge ist unvollständig. Bitte Status aktualisieren; bei erfüllten Bedingungen kann die Bereinigung wiederholt werden." # machine-candidate 2026-11-16
+cleanupFailedTitle: "Bereinigung fehlgeschlagen" # machine-candidate 2026-11-16
+cleanupNoneBody: "Die Notiz ist noch nicht in den Bereinigungsprozess eingetreten." # machine-candidate 2026-11-16
+cleanupNoneTitle: "Keine Bereinigung eingereicht" # machine-candidate 2026-11-16
+cleanupPendingBody: "In die Bereinigungswarteschlange eingereicht. Das Einreihen bedeutet nicht, dass die Anhang-Bytes bereits gelöscht sind." # machine-candidate 2026-11-16
+cleanupPendingTitle: "Bereinigung läuft" # machine-candidate 2026-11-16
+cleanupProcessorUnconfirmed: "Die Verarbeitungsaufgabe ist noch beim Stoppen oder in Prüfung. Es ist nicht bestätigt, dass temporäre Audiokopien bereinigt sind. Bitte Fortschritt aktualisieren." # machine-candidate 2026-11-16
+cleanupRetainedBody: "Einige Anhänge werden noch durch andere legitime Geschäftsvorgänge referenziert und werden vorerst nicht physisch gelöscht." # machine-candidate 2026-11-16
+cleanupRetainedTitle: "Anhänge noch durch andere Vorgänge referenziert" # machine-candidate 2026-11-16
+cleanupRetryAccepted: "Wiederholung eingereicht. Der aktuelle Bereinigungsstatus wird gelesen; das Einreihen bedeutet nicht, dass der Anhang gelöscht ist." # machine-candidate 2026-11-16
+cleanupRetryAction: "Bereinigung wiederholen" # machine-candidate 2026-11-16
+cleanupRetryFailedBody: "Wiederholung der Bereinigung fehlgeschlagen. Bitte später erneut versuchen." # machine-candidate 2026-11-16
+cleanupRetryPartial: "Es werden nur Anhänge mit erschöpften Wiederholungen und erlaubter Bereinigung erneut versucht; weiterhin geschützte Anhänge bleiben erhalten." # machine-candidate 2026-11-16
+cleanupRetryProtected: "Der Anhang ist noch durch Hold, Aufbewahrung oder andere gültige Referenzen geschützt und kann nicht zwangsweise bereinigt werden." # machine-candidate 2026-11-16
+cleanupRetryReconcile: "Dieselbe Wiederholungsanforderung abgleichen" # machine-candidate 2026-11-16
+cleanupRetryRefreshFailed: "Der aktuelle Status konnte nicht gelesen werden. Bitte aktualisieren und abgleichen." # machine-candidate 2026-11-16
+cleanupRetryUnavailable: "Die Berechtigungen für eine Bereinigungs-Wiederholung können derzeit nicht bestätigt werden. Bitte Status aktualisieren." # machine-candidate 2026-11-16
+cleanupRetryUnknown: "Das Ergebnis des Einreichens ist noch unbestätigt. Bitte zuerst aktualisieren und abgleichen; ein erneutes Einreichen verwendet dieselbe Anforderung." # machine-candidate 2026-11-16
+cleanupRetryWaiting: "Die Bedingungen für eine Wiederholung sind noch nicht erfüllt. Bitte Status aktualisieren, nachdem Upload-Fähigkeiten oder andere Referenzen abgelaufen sind." # machine-candidate 2026-11-16
+cleanupRetrying: "Wird wiederholt…" # machine-candidate 2026-11-16
+cleanupUnknownBody: "Der Bereinigungsstatus konnte nicht ermittelt werden. Bitte aktualisieren und erneut versuchen." # machine-candidate 2026-11-16
+cleanupUnknownTitle: "Bereinigungsstatus unbekannt" # machine-candidate 2026-11-16
+cleanupWriteOutcomeUnknown: "Das Schreibergebnis der Anhänge ist noch unbestätigt; die Bereinigung ist noch nicht abgeschlossen. Der Schutzstatus bleibt erhalten und wird vom Betrieb geprüft. Fortschritt per Aktualisierung einsehbar." # machine-candidate 2026-11-16
+collabParticipantsCount: "$count Personen ausgewählt" # machine-candidate 2026-11-16
+collabParticipantsEmpty: "Keine Teilnehmer ausgewählt" # machine-candidate 2026-11-16
+collabParticipantsLabel: "Teilnehmer" # machine-candidate 2026-11-16
+collabParticipantsUnavailable: "Das Teilnehmerverzeichnis ist noch nicht angebunden. Sie können die Notiz erstellen und später Freigaben erteilen." # machine-candidate 2026-11-16
+collabSectionSubtitle: "Optional. Gilt nur für Unternehmensnotizen" # machine-candidate 2026-11-16
+collabSectionTitle: "Zusammenarbeit" # machine-candidate 2026-11-16
+confirmProcessingUpload: "Verarbeitung zustimmen und hochladen" # machine-candidate 2026-11-16
+contextOrgFallback: "Aktuelles Unternehmen" # machine-candidate 2026-11-16
+contextPersonal: "Persönlicher Bereich" # machine-candidate 2026-11-16
+contextSectionTitle: "Aktueller Bereich" # machine-candidate 2026-11-16
+createRecord: "Neue Notiz" # machine-candidate 2026-11-16
+deleteBackToList: "Zurück zur Liste" # machine-candidate 2026-11-16
+deleteCleanupSectionTitle: "Anhang-Bereinigungsstatus" # machine-candidate 2026-11-16
+deleteConfirmAction: "Löschen" # machine-candidate 2026-11-16
+deleteConfirmBodyPoint1: "Nach dem Löschen werden Inhalt und Zusammenfassung der Notiz nicht mehr angezeigt." # machine-candidate 2026-11-16
+deleteConfirmBodyPoint2: "Das Löschen widerruft zuerst den Zugriff aller Beteiligten. Bereits exportierte oder gespeicherte Kopien lassen sich nicht zurückholen." # machine-candidate 2026-11-16
+deleteConfirmBodyPoint3: "Anhänge werden gemäß Aufbewahrungsregeln und Referenzen bereinigt. Das Einreichen der Bereinigung bedeutet nicht, dass Bytes sofort gelöscht sind." # machine-candidate 2026-11-16
+deleteConfirmDialogContent: "Nach dem Löschen wird der Inhalt nicht mehr angezeigt. Bereits exportierte oder gespeicherte Kopien lassen sich nicht zurückholen." # machine-candidate 2026-11-16
+deleteConfirmTitle: "Diese Notiz wirklich löschen?" # machine-candidate 2026-11-16
+deleteConflictHint: "Die Notiz wurde von anderen aktualisiert. Bitte aktualisieren und erneut versuchen." # machine-candidate 2026-11-16
+deleteDeleting: "Wird gelöscht…" # machine-candidate 2026-11-16
+deleteFailedBody: "Löschen fehlgeschlagen. Bitte später erneut versuchen." # machine-candidate 2026-11-16
+deleteOnlyOwner: "Nur der Ersteller kann die Notiz löschen." # machine-candidate 2026-11-16
+deleteRefreshStatus: "Bereinigungsstatus aktualisieren" # machine-candidate 2026-11-16
+deleteStatusFixtureHint: "Komponentenphase: Der Bereinigungsstatus stammt aus Fixture-Beispielen. Der echte Bereinigungsfortschritt folgt nach Abstimmung." # machine-candidate 2026-11-16
+deleteStatusNoContentHint: "Der Inhalt der Notiz wird nicht mehr angezeigt." # machine-candidate 2026-11-16
+deleteStatusTitle: "Notiz gelöscht" # machine-candidate 2026-11-16
+deleteTitle: "Notiz löschen" # machine-candidate 2026-11-16
+detailNoSpeechBody: "Die Aufnahme bleibt erhalten. Diese Aufnahme enthält keine transkribierbare Sprache." # machine-candidate 2026-11-16
+detailNoSpeechTitle: "Keine transkribierbare Sprache erkannt" # machine-candidate 2026-11-16
+detailRecordOnlyBody: "Keine Transkription angefordert; Originaltext und Zusammenfassung fehlen derzeit. Die Aufnahme kann abgespielt werden; ein Upgrade zur Transkription ist nach dem Termin möglich." # machine-candidate 2026-11-16
+detailRecordOnlyTitle: "Diese Notiz enthält nur die Aufnahme" # machine-candidate 2026-11-16
+detailTranscribeFailedBodyEditor: "Transkription fehlgeschlagen; die Aufnahme bleibt abspielbar. Sie können die Transkription wiederholen." # machine-candidate 2026-11-16
+detailTranscribeFailedBodyViewer: "Transkription fehlgeschlagen; die Aufnahme bleibt abspielbar. Bitte den Ersteller um einen erneuten Versuch." # machine-candidate 2026-11-16
+detailTranscribeFailedTitle: "Transkription fehlgeschlagen" # machine-candidate 2026-11-16
+detailTranscribeRetry: "Transkription wiederholen" # machine-candidate 2026-11-16
+detailTranscribingBody: "Der Originaltext erscheint hier nach Erstellung. Während der Verarbeitung wird keine voraussichtliche Fertigstellungszeit angezeigt." # machine-candidate 2026-11-16
+detailTranscribingTitle: "Transkription läuft" # machine-candidate 2026-11-16
+durationLabel: "Dauer" # machine-candidate 2026-11-16
+emptyNeverCreatedSubtitle: "Speichern Sie nach Face-to-face-Gesprächen hier Aufnahme und Transkription" # machine-candidate 2026-11-16
+emptyNeverCreatedTitle: "Noch keine Face-to-face-Notizen" # machine-candidate 2026-11-16
+emptyNoMatchSubtitle: "Keine Ergebnisse unter den aktuellen Filtern oder Suchbegriffen. Bitte anpassen und erneut versuchen" # machine-candidate 2026-11-16
+emptyNoMatchTitle: "Keine passenden Notizen" # machine-candidate 2026-11-16
+entrySubtitleOrg: "Team-Aufzeichnungen von Besprechungen und Gesprächen" # machine-candidate 2026-11-16
+entrySubtitlePersonal: "Aufnahmen und Transkriptionen von Face-to-face-Gesprächen" # machine-candidate 2026-11-16
+entryTitle: "Face-to-face-Notizen" # machine-candidate 2026-11-16
+exportBlockedInstancePolicy: "Die Export-Funktion ist auf dieser Instanz nicht aktiviert. Export derzeit nicht möglich." # machine-candidate 2026-11-16
+exportBlockedNoGrant: "Ihre aktuelle Rolle hat keine Export-Berechtigung. Der Export erfordert eine Freigabe des Erstellers oder eine erlaubende Richtlinie." # machine-candidate 2026-11-16
+exportBlockedOrgPolicy: "Der Export wurde durch Unternehmensrichtlinien deaktiviert. Export derzeit nicht möglich." # machine-candidate 2026-11-16
+exportBlockedUnknown: "Die aktuelle Export-Richtlinie konnte nicht bestätigt werden. Export derzeit nicht möglich." # machine-candidate 2026-11-16
+exportCapabilitySectionTitle: "Export-Funktionen" # machine-candidate 2026-11-16
+exportConflictHint: "Die Notiz wurde von anderen aktualisiert. Bitte aktualisieren und erneut versuchen." # machine-candidate 2026-11-16
+exportDownload: "Exportdatei speichern" # machine-candidate 2026-11-16
+exportDownloadCancelled: "Speichern abgebrochen. Erneutes Speichern ist möglich." # machine-candidate 2026-11-16
+exportDownloadFailed: "Herunterladen oder Speichern fehlgeschlagen. Erneut versuchen" # machine-candidate 2026-11-16
+exportDownloadReady: "Datei gespeichert. Dies ist eine eigenständige Kopie; das Widerrufen von Berechtigungen löscht diese Kopie nicht." # machine-candidate 2026-11-16
+exportDownloading: "Wird heruntergeladen und zum Speichern vorbereitet…" # machine-candidate 2026-11-16
+exportExpiredBody: "Der Download-Link ist abgelaufen. Bitte den Export neu generieren." # machine-candidate 2026-11-16
+exportExpiredTitle: "Export abgelaufen" # machine-candidate 2026-11-16
+exportExpiresAt: "Gültig bis $date" # machine-candidate 2026-11-16
+exportFailedBody: "Generieren des Exports fehlgeschlagen. Erneut versuchen." # machine-candidate 2026-11-16
+exportFixtureHint: "Komponentenphase: Der Download-Link ist ein Fixture-Beispiel und erzeugt keine echte Datei." # machine-candidate 2026-11-16
+exportFormatHint: "Der Export enthält nur Text; keine Audiodaten und keine nicht freigegebenen Teilnehmerinformationen." # machine-candidate 2026-11-16
+exportFormatMd: "Markdown .md" # machine-candidate 2026-11-16
+exportFormatSectionTitle: "Exportformat" # machine-candidate 2026-11-16
+exportFormatTxt: "Klartext .txt" # machine-candidate 2026-11-16
+exportGenerate: "Export generieren" # machine-candidate 2026-11-16
+exportGenerating: "Wird generiert…" # machine-candidate 2026-11-16
+exportIndependentCopyAck: "Ich habe verstanden, dass die exportierte eigenständige Kopie nicht zurückholbar ist" # machine-candidate 2026-11-16
+exportIndependentCopyBody: "Der Export erzeugt eine eigenständige Kopie. Nach der Generierung lässt sie sich durch Löschen der Notiz oder Widerrufen von Berechtigungen nicht zurückholen." # machine-candidate 2026-11-16
+exportIndependentCopyTitle: "Hinweis zur eigenständigen Kopie" # machine-candidate 2026-11-16
+exportQueuedBody: "Die Generierung wurde eingereicht. Das Einreihen bedeutet nicht, dass der Export fertig ist. Status später aktualisieren." # machine-candidate 2026-11-16
+exportQueuedTitle: "Export in der Warteschlange" # machine-candidate 2026-11-16
+exportReadyBody: "Die Exportdatei kann heruntergeladen werden. Der Download-Link ist kurz gültig und muss danach neu generiert werden." # machine-candidate 2026-11-16
+exportReadyTitle: "Export bereit" # machine-candidate 2026-11-16
+exportRefreshState: "Status aktualisieren" # machine-candidate 2026-11-16
+exportRegenerate: "Neu generieren" # machine-candidate 2026-11-16
+exportRemaining: "Noch etwa $minutes Minuten" # machine-candidate 2026-11-16
+exportTitle: "Text exportieren" # machine-candidate 2026-11-16
+fieldTitleLabel: "Titel" # machine-candidate 2026-11-16
+fieldTitlePlaceholder: "Optional. Erleichtert das spätere Auffinden" # machine-candidate 2026-11-16
+filterAll: "Alle" # machine-candidate 2026-11-16
+filterOwned: "Von mir erstellt" # machine-candidate 2026-11-16
+filterShared: "Mit mir geteilt" # machine-candidate 2026-11-16
+grantEditCandidateEmpty: "Keine berechtigten Kandidaten" # machine-candidate 2026-11-16
+grantEditCandidateSearchHint: "Name oder Konto suchen" # machine-candidate 2026-11-16
+grantEditCandidateSection: "Zu berechtigende Person auswählen" # machine-candidate 2026-11-16
+grantEditCandidatesUnavailable: "Das Kandidatenverzeichnis ist derzeit nicht verfügbar. Bitte später erneut versuchen." # machine-candidate 2026-11-16
+grantEditConflict: "Die Berechtigungen wurden von anderen aktualisiert. Bitte zurückgehen, die Liste aktualisieren und erneut versuchen. Ihre Einstellungen bleiben erhalten." # machine-candidate 2026-11-16
+grantEditExpiresHint: "Optional. Nach Ablauf verliert die Person automatisch den Zugriff." # machine-candidate 2026-11-16
+grantEditExpiresOn: "Läuft ab am $date" # machine-candidate 2026-11-16
+grantEditExpiresSectionTitle: "Ablaufdatum" # machine-candidate 2026-11-16
+grantEditExportBlockedOrg: "Der Export wurde durch Unternehmensrichtlinien deaktiviert und kann in der Berechtigung nicht aktiviert werden." # machine-candidate 2026-11-16
+grantEditExportBlockedUnknown: "Die aktuelle Export-Richtlinie konnte nicht bestätigt werden. Export derzeit nicht aktivierbar." # machine-candidate 2026-11-16
+grantEditExportSectionTitle: "Export erlauben" # machine-candidate 2026-11-16
+grantEditGranteeLabel: "Berechtigte Person" # machine-candidate 2026-11-16
+grantEditRoleEditorHint: "Darf Originaltext und Sprecher korrigieren und gemeinsame Notizen bearbeiten. Darf Freigaben weder verwalten noch löschen." # machine-candidate 2026-11-16
+grantEditRoleSectionTitle: "Rolle" # machine-candidate 2026-11-16
+grantEditRoleViewerHint: "Darf die Notiz ansehen und die Aufnahme abspielen, den Inhalt aber nicht ändern." # machine-candidate 2026-11-16
+grantEditSave: "Berechtigung speichern" # machine-candidate 2026-11-16
+grantEditSaveFailed: "Speichern fehlgeschlagen. Bitte später erneut versuchen. Ihre Einstellungen bleiben erhalten." # machine-candidate 2026-11-16
+grantEditSaving: "Wird verarbeitet…" # machine-candidate 2026-11-16
+grantEditTitle: "Berechtigung bearbeiten" # machine-candidate 2026-11-16
+grantEditTitleNew: "Berechtigung hinzufügen" # machine-candidate 2026-11-16
+invalidBack: "Zurück" # machine-candidate 2026-11-16
+invalidBody: "Dieser Inhalt kann derzeit nicht angezeigt werden. Er existiert möglicherweise nicht oder Sie haben keine Sichtberechtigung." # machine-candidate 2026-11-16
+invalidTitle: "Zurzeit nicht anzeigbar" # machine-candidate 2026-11-16
+keepRecordingLocal: "Vorerst nicht verarbeiten und lokal behalten" # machine-candidate 2026-11-16
+listTitle: "Face-to-face-Notizen" # machine-candidate 2026-11-16
+loadFailedAction: "Erneut versuchen" # machine-candidate 2026-11-16
+loadFailedTitle: "Laden der Notiz fehlgeschlagen" # machine-candidate 2026-11-16
+localDraftBadge: "Lokaler Entwurf" # machine-candidate 2026-11-16
+markDefaultText: "Manueller Schwerpunkt" # machine-candidate 2026-11-16
+markPillPrefix: "Schwerpunkt" # machine-candidate 2026-11-16
+maxDurationHint: "Maximal $minutes Minuten pro Aufnahme" # machine-candidate 2026-11-16
+micDeniedMessage: "Face-to-face-Notizen benötigen das Mikrofon, um vor Ort aufzunehmen. Die Berechtigung ist derzeit verweigert. Erneut versuchen oder in den Systemeinstellungen aktivieren." # machine-candidate 2026-11-16
+micDeniedTitle: "Mikrofonberechtigung erforderlich" # machine-candidate 2026-11-16
+micOpenSettings: "Zu den Einstellungen" # machine-candidate 2026-11-16
+micRetry: "Erneut versuchen" # machine-candidate 2026-11-16
+microphoneStopUnconfirmed: "Das Stoppen der Aufnahme ist noch unbestätigt. Bitte Stoppen erneut versuchen. Bleibt es fehlerhaft, App schließen und die Mikrofon-Anzeige des Systems prüfen." # machine-candidate 2026-11-16
+moreActionsCancel: "Abbrechen" # machine-candidate 2026-11-16
+moreActionsTitle: "Weitere Aktionen" # machine-candidate 2026-11-16
+notesCancel: "Abbrechen" # machine-candidate 2026-11-16
+notesConflictHint: "Die Notiz wurde von anderen aktualisiert. Bitte aktualisieren und erneut versuchen. Ihre Eingabe bleibt erhalten." # machine-candidate 2026-11-16
+notesEditAction: "Bearbeiten" # machine-candidate 2026-11-16
+notesEmpty: "Noch keine ergänzenden Notizen" # machine-candidate 2026-11-16
+notesFailedHint: "Speichern fehlgeschlagen. Bitte später erneut versuchen. Ihre Eingabe bleibt erhalten." # machine-candidate 2026-11-16
+notesPlaceholder: "Beschlüsse, Hintergründe und Ähnliches ergänzen" # machine-candidate 2026-11-16
+notesReadonlyHint: "Wird mit der Notiz geteilt. Derzeit schreibgeschützt." # machine-candidate 2026-11-16
+notesSave: "Notiz speichern" # machine-candidate 2026-11-16
+notesSavedHint: "Notiz gespeichert" # machine-candidate 2026-11-16
+notesSharedHint: "Wird mit der Notiz geteilt und ist für alle sichtbar, die diese Notiz sehen dürfen." # machine-candidate 2026-11-16
+notesTitle: "Geteilte ergänzende Notizen" # machine-candidate 2026-11-16
+noticeCheckbox: "Ich habe die Anwesenden über diese Aufnahme und deren Verarbeitung informiert" # machine-candidate 2026-11-16
+noticeHint: "Vor Aufnahmebeginn muss bestätigt werden, dass informiert wurde" # machine-candidate 2026-11-16
+notificationRequiredMessage: "Damit die Hintergrund-Aufnahme sichtbar bleibt, erlauben Sie bitte App-Benachrichtigungen und aktivieren Sie den Aufnahme-Benachrichtigungskanal in den Systemeinstellungen. Danach zu dieser Seite zurückkehren und erneut versuchen. Diese Aufnahme wurde noch nicht gestartet." # machine-candidate 2026-11-16
+notificationRequiredTitle: "Aufnahme-Benachrichtigungen aktivieren" # machine-candidate 2026-11-16
+openNotificationSettings: "Zu den Benachrichtigungseinstellungen" # machine-candidate 2026-11-16
+participantsAddGuest: "Gast hinzufügen" # machine-candidate 2026-11-16
+participantsConflict: "Die Liste wurde aktualisiert und auf den neuesten Stand gebracht. Bitte prüfen und erneut bearbeiten." # machine-candidate 2026-11-16
+participantsGuestLabel: "Gastname oder -kennzeichnung" # machine-candidate 2026-11-16
+participantsInfoHint: "Teilnehmer dienen nur der Dokumentation der tatsächlich Anwesenden. Sie teilen die Notiz nicht automatisch und bedeuten keine verifizierten Sprecher." # machine-candidate 2026-11-16
+participantsInvalid: "Bitte höchstens 100 Personen auswählen. Gast-Kennzeichnungen müssen 1–120 Zeichen lang und eindeutig sein. Personen-Berechtigungen können sich geändert haben. Bitte Liste prüfen." # machine-candidate 2026-11-16
+participantsNoResults: "Keine passenden Kontakte oder Kollegen. Bitte Suche versuchen." # machine-candidate 2026-11-16
+participantsRemove: "Teilnehmer entfernen" # machine-candidate 2026-11-16
+participantsSaveFailed: "Das Speichergebnis konnte nicht bestätigt werden. Ihre Auswahl bleibt erhalten. Bitte erneut versuchen oder aktualisieren." # machine-candidate 2026-11-16
+playbackPauseLabel: "Pause" # machine-candidate 2026-11-16
+playbackPlayLabel: "Wiedergabe" # machine-candidate 2026-11-16
+playbackProgressLabel: "Wiedergabefortschritt $position / $duration" # machine-candidate 2026-11-16
+playbackTicketFailed: "Die Wiedergabesitzung ist nicht verfügbar. Erneut versuchen" # machine-candidate 2026-11-16
+playbackUnavailable: "Keine Wiedergabeberechtigung" # machine-candidate 2026-11-16
+prepareTitle: "Neue Face-to-face-Notiz" # machine-candidate 2026-11-16
+processingReasonLoadFailed: "Die Verarbeitungsfähigkeiten konnten nicht geladen werden. Diese Aufnahme wird nur als Aufnahme behandelt." # machine-candidate 2026-11-16
+processingReasonQuota: "Das Transkriptionskontingent ist derzeit nicht verfügbar. Es wird nur die Aufnahme gespeichert. Die Aufnahme bleibt unbeeinflusst." # machine-candidate 2026-11-16
+processingReasonUnavailable: "Auf dieser Instanz ist kein Transkriptionsdienst konfiguriert. Es wird nur die Aufnahme gespeichert." # machine-candidate 2026-11-16
+processingRecordOnly: "Nur Aufnahme" # machine-candidate 2026-11-16
+processingRecordOnlyHint: "Speichert nur die Aufnahme, jederzeit abspielbar. Nach dem Termin ist in den Details ein Upgrade zur Transkription möglich." # machine-candidate 2026-11-16
+processingRecoveryHint: "Der Verarbeitungshinweis oder die Prozessor-Konfiguration wurde aktualisiert. Nach Bestätigung wird mit der aktuellen Version unten hochgeladen und die ursprünglich gewählte Verarbeitungsart ausgeführt. Die historische Information zum Aufnahmebeginn wird nicht geändert." # machine-candidate 2026-11-16
+processingRecoveryTitle: "Aufnahme-Verarbeitung bestätigen" # machine-candidate 2026-11-16
+processingRecoveryUnavailable: "Der Prozessor ist derzeit nicht verfügbar. Die Aufnahme bleibt auf diesem Gerät und kann nach Wiederherstellung erneut hochgeladen werden." # machine-candidate 2026-11-16
+processingSectionTitle: "Verarbeitungsart" # machine-candidate 2026-11-16
+processingSummarize: "Transkribieren und zusammenfassen" # machine-candidate 2026-11-16
+processingTranscribe: "In Text transkribieren" # machine-candidate 2026-11-16
+recordingUnavailableMessage: "Bitte prüfen, ob eine Aufnahme noch läuft, sowie Mikrofonberechtigung und lokalen Speicherplatz. Entwürfe und vorhandene Segmente bleiben erhalten." # machine-candidate 2026-11-16
+recordingUnavailableTitle: "Aufnahme kann derzeit nicht gestartet werden" # machine-candidate 2026-11-16
+resultBack: "Zurück" # machine-candidate 2026-11-16
+retentionPolicyLabel: "Aufbewahrungsdauer" # machine-candidate 2026-11-16
+retryRecordingUpload: "Upload wiederholen" # machine-candidate 2026-11-16
+returnToPlayback: "Zur Wiedergabeposition zurückkehren" # machine-candidate 2026-11-16
+roleEditor: "Bearbeiter" # machine-candidate 2026-11-16
+roleEditorHint: "Sie dürfen Originaltext und Sprecher korrigieren und gemeinsame Notizen bearbeiten. Teilen und Löschen verwaltet der Ersteller." # machine-candidate 2026-11-16
+roleOwner: "Ersteller" # machine-candidate 2026-11-16
+roleViewer: "Leser" # machine-candidate 2026-11-16
+saveLocationEmpty: "Keine auswählbaren Speicherorte" # machine-candidate 2026-11-16
+saveLocationOrgSection: "Berechtigte Unternehmen" # machine-candidate 2026-11-16
+saveLocationPersonalSection: "Persönlich" # machine-candidate 2026-11-16
+saveLocationTitle: "Speicherort" # machine-candidate 2026-11-16
+saveLocationWorkspaceOptional: "Ohne Arbeitsbereich" # machine-candidate 2026-11-16
+saveToChangeAction: "Ändern" # machine-candidate 2026-11-16
+saveToSectionTitle: "Speichern in" # machine-candidate 2026-11-16
+searchHint: "Face-to-face-Notizen durchsuchen" # machine-candidate 2026-11-16
+segmentAdoptServer: "Serverfassung übernehmen" # machine-candidate 2026-11-16
+segmentConflictBody: "Ihre Eingabe bleibt erhalten. Bitte mit der aktuellen Serverfassung vergleichen und erneut einreichen. Beim Speichern hat Ihre Eingabe Vorrang." # machine-candidate 2026-11-16
+segmentConflictTitle: "Versionskonflikt: Originaltext wurde von anderen geändert" # machine-candidate 2026-11-16
+segmentEditLabel: "Text korrigieren" # machine-candidate 2026-11-16
+segmentEditPlaceholder: "Transkriptionstext ändern" # machine-candidate 2026-11-16
+segmentEditTitle: "Abschnitt korrigieren" # machine-candidate 2026-11-16
+segmentHumanEditedPill: "Manuell überarbeitet" # machine-candidate 2026-11-16
+segmentListenLabel: "Anhören $time" # machine-candidate 2026-11-16
+segmentOriginalLabel: "Original" # machine-candidate 2026-11-16
+segmentResubmit: "Erneut einreichen" # machine-candidate 2026-11-16
+segmentRowSemanticLabel: "Beitrag von $speaker um $time" # machine-candidate 2026-11-16
+segmentSave: "Korrektur speichern" # machine-candidate 2026-11-16
+segmentSaveFailed: "Speichern fehlgeschlagen. Bitte später erneut versuchen. Eingabe bleibt erhalten." # machine-candidate 2026-11-16
+segmentTimeLabel: "Zeitpunkt $time" # machine-candidate 2026-11-16
+shareAddEntryOrg: "Kollegen hinzufügen" # machine-candidate 2026-11-16
+shareAddEntryPersonal: "Kontakt hinzufügen" # machine-candidate 2026-11-16
+shareAddHintOrg: "Berechtigt werden können Kollegen des aktuellen Unternehmens mit passenden Arbeitsbereich-Berechtigungen" # machine-candidate 2026-11-16
+shareAddHintPersonal: "Berechtigt werden können vorhandene Kontakte" # machine-candidate 2026-11-16
+shareAllowExportPill: "Exportierbar" # machine-candidate 2026-11-16
+shareCardSendCancelled: "Senden abgebrochen. Keine neue Karte gesendet." # machine-candidate 2026-11-16
+shareCardSendFailed: "Senden fehlgeschlagen. Erneut versuchen" # machine-candidate 2026-11-16
+shareCardSendPending: "In die Sende-Warteschlange eingereiht, noch keine Serverbestätigung. Bitte in der Konversation prüfen. Ein Wiederholen erstellt die Nachricht nicht doppelt." # machine-candidate 2026-11-16
+shareCardSenderUnavailable: "Die Konversationsauswahl kann derzeit nicht geöffnet werden. Bitte zurückgehen und erneut versuchen." # machine-candidate 2026-11-16
+shareCardSending: "Wird verarbeitet…" # machine-candidate 2026-11-16
+shareCardSent: "Karte gesendet (Beispiel)" # machine-candidate 2026-11-16
+shareConflictHint: "Die Berechtigungen wurden von anderen aktualisiert. Bitte aktualisieren und erneut versuchen." # machine-candidate 2026-11-16
+shareEditorCannotManageAcl: "Bearbeiter dürfen Freigaben nicht verwalten oder die Notiz löschen. Für Änderungen bitte den Ersteller kontaktieren." # machine-candidate 2026-11-16
+shareEmptyBody: "Diese Notiz ist standardmäßig nur für Sie sichtbar. Erst nach ausdrücklicher Freigabe können andere sie ansehen und anhören." # machine-candidate 2026-11-16
+shareEmptyTitle: "Noch niemandem freigegeben" # machine-candidate 2026-11-16
+shareExpiresPill: "Gültig bis $date" # machine-candidate 2026-11-16
+shareGrantEditAction: "Bearbeiten" # machine-candidate 2026-11-16
+shareGrantRevokeAction: "Widerrufen" # machine-candidate 2026-11-16
+shareGrantRoleEditor: "Kann korrigieren und bearbeiten" # machine-candidate 2026-11-16
+shareGrantRoleViewer: "Kann ansehen und anhören" # machine-candidate 2026-11-16
+shareManageTitle: "Freigaben verwalten" # machine-candidate 2026-11-16
+shareMyPermissionNone: "Sie haben derzeit keine Berechtigungsinformation zu dieser Notiz. Freigaben verwaltet der Ersteller." # machine-candidate 2026-11-16
+shareMyPermissionReadonly: "Sie dürfen diese Notiz ansehen und anhören. Freigaben verwaltet der Ersteller." # machine-candidate 2026-11-16
+shareMyPermissionTitle: "Meine Berechtigung" # machine-candidate 2026-11-16
+shareOwnerRowHint: "Der Ersteller kann Freigaben jederzeit ansehen und verwalten" # machine-candidate 2026-11-16
+shareOwnerRowLabel: "Ich · Ersteller" # machine-candidate 2026-11-16
+shareRevokeConfirmAction: "Widerrufen" # machine-candidate 2026-11-16
+shareRevokeConfirmBody: "Der Zugriff auf die Original-Notiz endet. Bereits exportierte oder gespeicherte Kopien lassen sich nicht zurückholen." # machine-candidate 2026-11-16
+shareRevokeConfirmTitle: "Zugriff von $name widerrufen?" # machine-candidate 2026-11-16
+shareRevokeFailedBody: "Widerrufen fehlgeschlagen. Bitte später erneut versuchen." # machine-candidate 2026-11-16
+shareRevokeFailedTitle: "Widerrufen nicht möglich" # machine-candidate 2026-11-16
+shareRosterSectionTitle: "Wer kann ansehen" # machine-candidate 2026-11-16
+shareSaveFeedback: "Berechtigungen gespeichert" # machine-candidate 2026-11-16
+shareSendCard: "Karte senden" # machine-candidate 2026-11-16
+shareSendCardHint: "Erzeugt eine Karte der Face-to-face-Notiz für Kollegen. Beim Öffnen gilt deren Berechtigung." # machine-candidate 2026-11-16
+shareSendNeedsGrant: "Erst eine Freigabe hinzufügen, dann kann die Karte gesendet werden." # machine-candidate 2026-11-16
+shareVisibilityOfRecord: "Aktuelle Sichtbarkeit der Notiz: $visibility" # machine-candidate 2026-11-16
+shareVisibilityOwnerOnly: "Nur für mich sichtbar" # machine-candidate 2026-11-16
+shareVisibilitySectionTitle: "Aktuelle Sichtbarkeit" # machine-candidate 2026-11-16
+shareVisibilityShared: "Für $count Personen freigegeben" # machine-candidate 2026-11-16
+speakerAnonymousPill: "Anonym" # machine-candidate 2026-11-16
+speakerAudition: "Ausschnitt anhören" # machine-candidate 2026-11-16
+speakerClaimConflict: "Dieser Sprecher wurde von jemand anderem beansprucht. Bitte den Ersteller um manuelle Korrektur." # machine-candidate 2026-11-16
+speakerClaimSelf: "Das bin ich" # machine-candidate 2026-11-16
+speakerDirectoryUnavailable: "Das Teilnehmerverzeichnis ist noch nicht angebunden. Kollegen können derzeit nicht gewählt werden. Es kann zunächst ein Anzeigename gesetzt werden." # machine-candidate 2026-11-16
+speakerManualPill: "Manuell markiert" # machine-candidate 2026-11-16
+speakerMarkColleague: "Kollegen markieren" # machine-candidate 2026-11-16
+speakerSelfClaimPill: "Von mir beansprucht" # machine-candidate 2026-11-16
+speakerSetName: "Anzeigename setzen" # machine-candidate 2026-11-16
+speakerSetNameConfirm: "Speichern" # machine-candidate 2026-11-16
+speakerSetNameTitle: "Anzeigename setzen" # machine-candidate 2026-11-16
+speakerSourceHint: "Diese Namensnennung ist manuell markiert oder vom Sprecher selbst beansprucht und stellt keine Identitätsbestätigung dar." # machine-candidate 2026-11-16
+speakerUnknown: "Unbekannter Sprecher" # machine-candidate 2026-11-16
+speakersEntry: "Sprecher korrigieren" # machine-candidate 2026-11-16
+speakersScopeHint: "Sprecher-Einstellungen gelten nur für diese Notiz. Manuelle Markierungen sind keine Identitätsbestätigung und erzeugen keine Stimmprofile." # machine-candidate 2026-11-16
+speakersTitle: "Sprecher korrigieren" # machine-candidate 2026-11-16
+startRecording: "Aufnahme starten" # machine-candidate 2026-11-16
+statusAssembling: "Audio wird zusammengesetzt" # machine-candidate 2026-11-16
+statusNoSpeech: "Keine transkribierbare Sprache erkannt" # machine-candidate 2026-11-16
+statusRecordOnly: "Nur Aufnahme" # machine-candidate 2026-11-16
+statusRecording: "Aufnahme läuft" # machine-candidate 2026-11-16
+statusTranscribeFailed: "Transkription fehlgeschlagen. Aufnahme bleibt abspielbar" # machine-candidate 2026-11-16
+statusTranscribeQueued: "Transkription in der Warteschlange" # machine-candidate 2026-11-16
+statusTranscribeReady: "Transkribiert" # machine-candidate 2026-11-16
+statusTranscribeRunning: "Wird transkribiert" # machine-candidate 2026-11-16
+statusUploadFailed: "Upload fehlgeschlagen. Erneut versuchen" # machine-candidate 2026-11-16
+statusUploading: "Wird hochgeladen" # machine-candidate 2026-11-16
+statusVerifying: "Upload wird geprüft" # machine-candidate 2026-11-16
+summaryActionsTitle: "Aufgaben-Entwurf" # machine-candidate 2026-11-16
+summaryAssigneeUnset: "Noch kein Verantwortlicher" # machine-candidate 2026-11-16
+summaryDecisionsTitle: "Besprochene Schwerpunkte" # machine-candidate 2026-11-16
+summaryDraftBadge: "KI-Entwurf · Vor Verwendung prüfen" # machine-candidate 2026-11-16
+summaryFailed: "Zusammenfassung fehlgeschlagen. Bitte später erneut versuchen." # machine-candidate 2026-11-16
+summaryJumpToSource: "Zur Textstelle im Original" # machine-candidate 2026-11-16
+summaryNoSource: "Noch kein Originaltext. Zusammenfassung derzeit nicht möglich." # machine-candidate 2026-11-16
+summaryNotGenerated: "Originaltext wurde erstellt. Zusammenfassung wurde noch nicht angefordert." # machine-candidate 2026-11-16
+summaryQueued: "Zusammenfassung in der Warteschlange. Wird nach Erstellung angezeigt." # machine-candidate 2026-11-16
+summaryRunning: "Zusammenfassung läuft. Wird nach Erstellung angezeigt." # machine-candidate 2026-11-16
+summarySectionTitle: "Zusammenfassung" # machine-candidate 2026-11-16
+summaryStaleBanner: "Originaltext oder Namensnennungen wurden aktualisiert. Zusammenfassung kann veraltet sein" # machine-candidate 2026-11-16
+summaryUnavailable: "Auf dieser Instanz ist kein Zusammenfassungsdienst konfiguriert." # machine-candidate 2026-11-16
+tabSummary: "Zusammenfassung" # machine-candidate 2026-11-16
+tabTranscript: "Originaltext" # machine-candidate 2026-11-16
+transcriptEmpty: "Noch keine Originaltext-Abschnitte" # machine-candidate 2026-11-16
+transcriptHitCount: "$count Treffer. Zeitpunkt antippen, um dorthin zu springen" # machine-candidate 2026-11-16
+transcriptNoHit: "Keine Treffer" # machine-candidate 2026-11-16
+transcriptSearchHint: "Originaltext durchsuchen" # machine-candidate 2026-11-16
+transferBackToDetail: "Zurück zu den Details" # machine-candidate 2026-11-16
+transferCandidateEmpty: "Keine passenden Kollegen" # machine-candidate 2026-11-16
+transferCandidateHint: "Kandidaten sind Kollegen des aktuellen Unternehmens mit passenden Arbeitsbereich-Berechtigungen. Die endgültige Berechtigung entscheidet der Server." # machine-candidate 2026-11-16
+transferCandidateSectionTitle: "Neuen Verantwortlichen auswählen" # machine-candidate 2026-11-16
+transferConfirmAction: "Übertragung bestätigen" # machine-candidate 2026-11-16
+transferConfirmKeepOff: "Nach der Übertragung behalten Sie weder Sichtrechte noch können Sie diese Notiz weiter verwalten." # machine-candidate 2026-11-16
+transferConfirmKeepOn: "Nach der Übertragung behalten Sie Sichtrechte; die Verwaltung liegt beim neuen Verantwortlichen." # machine-candidate 2026-11-16
+transferConfirmTarget: "Die Verantwortung wird übertragen an: $name" # machine-candidate 2026-11-16
+transferConfirmTitle: "Übertragung der Verantwortung bestätigen?" # machine-candidate 2026-11-16
+transferConflictHint: "Die Notiz wurde von anderen aktualisiert. Bitte aktualisieren und erneut versuchen." # machine-candidate 2026-11-16
+transferCreatedByHint: "Die Notiz des Erstellers bleibt unverändert. Diese Aktion ist von Freigabeberechtigungen unabhängig." # machine-candidate 2026-11-16
+transferFailedBody: "Übertragung fehlgeschlagen. Bitte später erneut versuchen." # machine-candidate 2026-11-16
+transferKeepDefaultHint: "Standardmäßig nicht behalten: Nach der Übertragung können Sie auf diese Notiz nicht mehr zugreifen." # machine-candidate 2026-11-16
+transferKeepOnHint: "Wenn behalten, können Sie weiter ansehen und anhören. Freigaben und Löschen verwaltet der neue Verantwortliche." # machine-candidate 2026-11-16
+transferKeepSectionTitle: "Zugriff des bisherigen Verantwortlichen" # machine-candidate 2026-11-16
+transferKeepViewer: "Meine Sichtrechte nach der Übertragung behalten" # machine-candidate 2026-11-16
+transferOnlyOwner: "Nur der aktuelle Verantwortliche kann die Verantwortung übertragen." # machine-candidate 2026-11-16
+transferPersonalUnsupported: "Für persönliche Notizen wird die Übertragung der Verantwortung derzeit nicht unterstützt." # machine-candidate 2026-11-16
+transferScopeHint: "Die Übertragung ändert nur den Verantwortlichen. Die Zugehörigkeit (Unternehmen und Arbeitsbereich) bleibt unverändert." # machine-candidate 2026-11-16
+transferSubmit: "Verantwortung übertragen" # machine-candidate 2026-11-16
+transferSubmitting: "Wird übertragen…" # machine-candidate 2026-11-16
+transferSuccessKeptAccess: "Sie behalten Sichtrechte. Freigaben verwaltet der neue Verantwortliche." # machine-candidate 2026-11-16
+transferSuccessOwner: "Neuer Verantwortlicher: $name" # machine-candidate 2026-11-16
+transferSuccessScopeUnchanged: "Die Zugehörigkeit bleibt unverändert (Unternehmen und Arbeitsbereich)." # machine-candidate 2026-11-16
+transferSuccessTitle: "Verantwortung übertragen" # machine-candidate 2026-11-16
+transferTitle: "Verantwortung übertragen" # machine-candidate 2026-11-16
+untitledRecord: "Notiz ohne Titel" # machine-candidate 2026-11-16
+uploadNoticeHint: "Bitte die aktuelle Aufnahme-Information bestätigen. Diese Bestätigung gilt für das jetzige Hochladen. Sie überschreibt weder die historische Bestätigung zum Aufnahmebeginn noch ändert sie den Speicherbereich." # machine-candidate 2026-11-16
+uploadNoticeTitle: "Vor dem Upload bestätigen" # machine-candidate 2026-11-16
+uploadRecording: "Aufnahme hochladen" # machine-candidate 2026-11-16
+visibilityOwnerOnly: "Nur für mich sichtbar" # machine-candidate 2026-11-16
+visibilityShared: "Geteilt" # machine-candidate 2026-11-16

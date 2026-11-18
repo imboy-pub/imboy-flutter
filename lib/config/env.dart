@@ -5,22 +5,14 @@ import 'package:imboy/service/storage_secure.dart';
 import 'package:imboy/config/init.dart';
 
 import 'const.dart';
-import 'env_pro.dart';
-import 'env_dev.dart';
+import 'env_factory_native.dart'
+    if (dart.library.js_interop) 'env_factory_web.dart'
+    as envFactory;
 import 'env_field.dart';
-import 'env_local.dart';
-import 'env_local_home.dart';
-import 'env_local_office.dart';
 
 /// 环境映射配置
 /// 可用环境: pro, dev, local, local_home, local_office
-final envMap = {
-  'pro': EnvPro(),
-  'dev': EnvDev(),
-  'local': EnvLocal(),
-  'local_home': EnvLocalHome(),
-  'local_office': EnvLocalOffice(),
-};
+final Map<String, Env> envMap = envFactory.createEnvMap();
 
 abstract interface class Env implements EnvField {
   factory Env() => _to;
@@ -52,15 +44,16 @@ abstract interface class Env implements EnvField {
     if (env != null) {
       return env;
     }
-    // 如果 currentEnv 不在 envMap 中，默认使用生产环境
-    if (kDebugMode) debugPrint('⚠️ [Env] 当前环境无效，使用默认生产环境配置');
-    return EnvPro();
+    return envFactory.fallbackEnv();
   }
 
   /// 获取签名密钥
   /// 始终返回 solidifiedKey，与服务端保持一致
   /// 注意：不使用 buildSignature，因为 Android 的签名会随构建变化
   static Future<String> signKey() async {
+    if (kIsWeb) {
+      throw StateError('Web Human requests do not use a signing key.');
+    }
     // 始终使用配置的 solidifiedKey，与服务端保持一致
     return _to.solidifiedKey;
   }
@@ -83,6 +76,9 @@ abstract interface class Env implements EnvField {
   /// WebSocket URL - 优先从环境配置读取，如果没有则从本地存储读取
   /// Environment-specific WebSocket URL, falls back to cached value
   static String? get effectiveWsUrl {
+    if (kIsWeb) {
+      return AppInitializer.currentWebBootstrap?['ws_url'] as String?;
+    }
     // 集成测试可显式注入地址，避免首次安装的真机依赖历史缓存。
     // 仅在调用方传入 WS_URL_OVERRIDE 时生效，不改变正常环境配置优先级。
     const override = String.fromEnvironment(
@@ -113,8 +109,9 @@ abstract interface class Env implements EnvField {
   }
 
   static String? _apiPublicKeyOverride;
-  static String? get apiPublicKey =>
-      _apiPublicKeyOverride ?? StorageService.to.getString(Keys.apiPublicKey);
+  static String? get apiPublicKey => kIsWeb
+      ? (AppInitializer.currentWebBootstrap?['login_rsa_pub_key'] as String?)
+      : _apiPublicKeyOverride ?? StorageService.to.getString(Keys.apiPublicKey);
 
   @visibleForTesting
   static set apiPublicKey(String? value) => _apiPublicKeyOverride = value;
@@ -142,6 +139,11 @@ abstract interface class Env implements EnvField {
   /// 回退到内置默认，确保首次启动（init 完成前）头像即可渲染。末尾不带斜杠，
   /// 供 `AssetsService.publicUrl` 直拼 object_key（零 DB 查询、不签名、可 CDN）。
   static String get publicBaseUrl {
+    if (kIsWeb) {
+      return AppInitializer.currentWebBootstrap?['public_base_url']
+              as String? ??
+          '';
+    }
     final String cached = StorageService.to.getString(Keys.publicBaseUrl);
     final String base = cached.isNotEmpty ? cached : _publicBaseUrlDefault;
     return base.endsWith('/') ? base.substring(0, base.length - 1) : base;

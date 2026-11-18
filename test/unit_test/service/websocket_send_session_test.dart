@@ -10,6 +10,8 @@ import 'package:web_socket_channel/web_socket_channel.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/service/storage.dart';
 import 'package:imboy/service/ack_manager.dart';
+import 'package:imboy/service/c2g_rejection_hold.dart';
+import 'package:imboy/service/c2g_send_gate.dart';
 import 'package:imboy/service/message_actions.dart';
 import 'package:imboy/service/encryption_mode.dart';
 import 'package:imboy/service/message_retry.dart';
@@ -152,6 +154,34 @@ class _FencedTransaction extends _EmptyRetryTransaction {
     }
     return [];
   }
+}
+
+class _FailC2gLookupDatabase extends _EmptyRetryDatabase {
+  @override
+  Future<T> transaction<T>(
+    Future<T> Function(Transaction txn) action, {
+    bool? exclusive,
+  }) => action(_FailC2gLookupTransaction());
+
+  @override
+  Future<List<Map<String, Object?>>> rawQuery(
+    String sql, [
+    List<Object?>? arguments,
+  ]) async {
+    if (sql.contains('FROM msg_c2g')) {
+      throw StateError('synthetic database failure');
+    }
+    return [];
+  }
+}
+
+class _FailC2gLookupTransaction extends _EmptyRetryTransaction {
+  @override
+  Future<int> delete(
+    String table, {
+    String? where,
+    List<Object?>? whereArgs,
+  }) async => 0;
 }
 
 void main() {
@@ -351,6 +381,393 @@ void main() {
       },
     );
   }
+  test('C2G held after outbox begin cannot reach the socket', () async {
+    ffi.sqfliteFfiInit();
+    final db = await ffi.databaseFactoryFfi.openDatabase(
+      ffi.inMemoryDatabasePath,
+    );
+    await db.execute(
+      'CREATE TABLE msg_c2g (auto_id INTEGER PRIMARY KEY, id TEXT, type TEXT, from_id TEXT, to_id TEXT, is_author INTEGER, status INTEGER, conversation_uk3 TEXT)',
+    );
+    await db.execute(
+      'CREATE TABLE attachment_upload_task (id TEXT PRIMARY KEY, user_id TEXT, anchor_msg_id TEXT, stage TEXT, last_error TEXT, business_intent TEXT)',
+    );
+    await db.execute(
+      'CREATE TABLE message_send_attempt (user_id TEXT, anchor TEXT, token TEXT, PRIMARY KEY (user_id, anchor, token))',
+    );
+    await db.insert('msg_c2g', {
+      'auto_id': 1,
+      'id': 'held-id',
+      'type': 'C2G',
+      'from_id': '100',
+      'to_id': '202',
+      'is_author': 1,
+      'status': 10,
+      'conversation_uk3': 'C2G_100_202',
+    });
+    await db.insert('message_send_attempt', {
+      'user_id': '100',
+      'anchor': 'held-id',
+      'token': 'earlier-attempt',
+    });
+    await db.insert('attachment_upload_task', {
+      'id': 'upload',
+      'user_id': '100',
+      'anchor_msg_id': 'held-id',
+      'stage': 'confirmed',
+      'business_intent': jsonEncode({
+        'state': 'dispatch_reserved_v2',
+        'marker': 'preserve',
+      }),
+    });
+    SqliteService.setDbForTest(db);
+    final svc = WebSocketService.to;
+    final fake = _FakeChannel();
+    svc.channelForTest = fake;
+    svc.statusForTest = SocketStatus.connected;
+    svc.afterOutboxBeginForTest = () async {
+      expect(
+        await C2gSendGate.run(
+          '100',
+          'held-id',
+          () => C2gRejectionHold.persist(
+            db: db,
+            messageId: 'held-id',
+            ownerUid: '100',
+            expectedAutoId: 1,
+            expectedPeerId: '202',
+            isCurrent: () => true,
+          ),
+        ),
+        isTrue,
+      );
+    };
+    try {
+      expect(
+        await svc.sendMessage(
+          jsonEncode({'id': 'held-id', 'type': 'C2G', 'to': '202'}),
+          'held-id',
+          dispatchClaimed: true,
+        ),
+        isFalse,
+      );
+      expect(fake._sink.sent, isEmpty);
+      expect((await db.query('msg_c2g')).single['status'], 42);
+      expect(await db.query('message_send_attempt'), hasLength(1));
+      final intent = jsonDecode(
+        (await db.query('attachment_upload_task')).single['business_intent']
+            as String,
+      );
+      expect(intent['state'], 'dispatch_reserved_v2');
+      expect(intent['marker'], 'preserve');
+    } finally {
+      svc.afterOutboxBeginForTest = null;
+      SqliteService.setDbForTest(_EmptyRetryDatabase());
+      await db.close();
+    }
+  });
+
+  test('offline queue cannot send a held C2G message', () async {
+    ffi.sqfliteFfiInit();
+    final db = await ffi.databaseFactoryFfi.openDatabase(
+      ffi.inMemoryDatabasePath,
+    );
+    await db.execute(
+      'CREATE TABLE msg_c2g (id TEXT, type TEXT, from_id TEXT, to_id TEXT, is_author INTEGER, status INTEGER)',
+    );
+    await db.execute(
+      'CREATE TABLE attachment_upload_task (id TEXT PRIMARY KEY, user_id TEXT, anchor_msg_id TEXT, stage TEXT, last_error TEXT, business_intent TEXT)',
+    );
+    await db.insert('msg_c2g', {
+      'id': 'held-queue',
+      'type': 'C2G',
+      'from_id': '100',
+      'to_id': '202',
+      'is_author': 1,
+      'status': 42,
+    });
+    SqliteService.setDbForTest(db);
+    final svc = WebSocketService.to;
+    final fake = _FakeChannel();
+    svc.channelForTest = fake;
+    svc.statusForTest = SocketStatus.connected;
+    final queue = PersistentMessageQueue.to;
+    queue.enqueue(
+      'held-queue',
+      jsonEncode({'id': 'held-queue', 'type': 'C2G', 'to': '202'}),
+      ownerUid: '100',
+      sessionGeneration: UserRepoLocal.to.sessionGeneration,
+    );
+    try {
+      await svc.flushMessageQueueForTest();
+      expect(fake._sink.sent, isEmpty);
+      expect(queue.messages, hasLength(1));
+      expect((await db.query('msg_c2g')).single['status'], 42);
+    } finally {
+      SqliteService.setDbForTest(_EmptyRetryDatabase());
+      await db.close();
+    }
+  });
+
+  test('queue identity conflict preserves the unsent entry', () async {
+    ffi.sqfliteFfiInit();
+    final db = await ffi.databaseFactoryFfi.openDatabase(
+      ffi.inMemoryDatabasePath,
+    );
+    await db.execute(
+      'CREATE TABLE msg_c2g (id TEXT, type TEXT, from_id TEXT, to_id TEXT, is_author INTEGER, status INTEGER)',
+    );
+    await db.execute(
+      'CREATE TABLE attachment_upload_task (id TEXT PRIMARY KEY, user_id TEXT, anchor_msg_id TEXT, stage TEXT, last_error TEXT, business_intent TEXT)',
+    );
+    await db.insert('msg_c2g', {
+      'id': 'conflict-id',
+      'type': 'C2G',
+      'from_id': '100',
+      'to_id': '202',
+      'is_author': 1,
+      'status': 42,
+    });
+    SqliteService.setDbForTest(db);
+    final svc = WebSocketService.to;
+    final fake = _FakeChannel();
+    svc.channelForTest = fake;
+    svc.statusForTest = SocketStatus.connected;
+    final queue = PersistentMessageQueue.to;
+    queue.enqueue(
+      'conflict-id',
+      jsonEncode({'id': 'conflict-id', 'type': 'C2G', 'to': '999'}),
+      ownerUid: '100',
+      sessionGeneration: UserRepoLocal.to.sessionGeneration,
+    );
+    try {
+      await svc.flushMessageQueueForTest();
+      expect(fake._sink.sent, isEmpty);
+      expect(queue.messages, hasLength(1));
+      expect((await db.query('msg_c2g')).single['status'], 42);
+    } finally {
+      SqliteService.setDbForTest(_EmptyRetryDatabase());
+      await db.close();
+    }
+  });
+
+  test('C2G status lookup failure cannot reach the socket', () async {
+    SqliteService.setDbForTest(_FailC2gLookupDatabase());
+    final svc = WebSocketService.to;
+    final fake = _FakeChannel();
+    svc.channelForTest = fake;
+    svc.statusForTest = SocketStatus.connected;
+    expect(
+      await svc.sendMessage(
+        jsonEncode({'id': 'lookup-failure', 'type': 'C2G', 'to': '202'}),
+        'lookup-failure',
+        dispatchClaimed: true,
+      ),
+      isFalse,
+    );
+    expect(fake._sink.sent, isEmpty);
+    await MessageRetry.instance.debugWaitForIdle();
+  });
+
+  test('C2G gate compares large peer IDs exactly', () async {
+    ffi.sqfliteFfiInit();
+    final db = await ffi.databaseFactoryFfi.openDatabase(
+      ffi.inMemoryDatabasePath,
+    );
+    await db.execute(
+      'CREATE TABLE msg_c2g (id TEXT, type TEXT, from_id INTEGER, to_id INTEGER, is_author INTEGER, status INTEGER)',
+    );
+    await db.execute(
+      'CREATE TABLE attachment_upload_task (id TEXT PRIMARY KEY, user_id TEXT, anchor_msg_id TEXT, stage TEXT, last_error TEXT, business_intent TEXT)',
+    );
+    await db.insert('msg_c2g', {
+      'id': 'large-peer',
+      'type': 'C2G',
+      'from_id': '100',
+      'to_id': '9007199254740993',
+      'is_author': 1,
+      'status': 10,
+    });
+    SqliteService.setDbForTest(db);
+    final svc = WebSocketService.to;
+    final fake = _FakeChannel();
+    svc.channelForTest = fake;
+    svc.statusForTest = SocketStatus.connected;
+    try {
+      for (final peer in ['9007199254740992', '9007199254740993']) {
+        expect(
+          await svc.sendMessage(
+            jsonEncode({'id': 'large-peer', 'type': 'C2G', 'to': peer}),
+            'large-peer',
+            dispatchClaimed: true,
+          ),
+          peer == '9007199254740993',
+        );
+      }
+      expect(fake._sink.sent, hasLength(1));
+    } finally {
+      SqliteService.setDbForTest(_EmptyRetryDatabase());
+      await db.close();
+    }
+  });
+
+  test('held unknown attachment retains queue and recovery data after inconclusive lookup', () async {
+    ffi.sqfliteFfiInit();
+    final db = await ffi.databaseFactoryFfi.openDatabase(
+      ffi.inMemoryDatabasePath,
+    );
+    await db.execute(
+      'CREATE TABLE msg_c2g (id TEXT, type TEXT, from_id TEXT, to_id TEXT, is_author INTEGER, status INTEGER)',
+    );
+    await db.execute(
+      'CREATE TABLE attachment_upload_task (id TEXT PRIMARY KEY, user_id TEXT, anchor_msg_id TEXT, stage TEXT, last_error TEXT, business_intent TEXT)',
+    );
+    await db.execute(
+      'CREATE TABLE message_send_attempt (user_id TEXT, anchor TEXT, token TEXT, PRIMARY KEY (user_id, anchor, token))',
+    );
+    await db.insert('msg_c2g', {
+      'id': 'unknown-attachment',
+      'type': 'C2G',
+      'from_id': '100',
+      'to_id': '202',
+      'is_author': 1,
+      'status': 42,
+    });
+    final intent = jsonEncode({'state': 'commit_unknown', 'marker': 'keep'});
+    await db.insert('attachment_upload_task', {
+      'id': 'upload',
+      'user_id': '100',
+      'anchor_msg_id': 'unknown-attachment',
+      'stage': 'confirmed',
+      'business_intent': intent,
+    });
+    await db.insert('message_send_attempt', {
+      'user_id': '100',
+      'anchor': 'unknown-attachment',
+      'token': 'earlier-attempt',
+    });
+    SqliteService.setDbForTest(db);
+    final svc = WebSocketService.to;
+    final fake = _FakeChannel();
+    svc.channelForTest = fake;
+    svc.statusForTest = SocketStatus.connected;
+    var lookups = 0;
+    svc.outboxCommittedForTest = (type, peer, id) async {
+      lookups++;
+      return false;
+    };
+    final queue = PersistentMessageQueue.to;
+    queue.enqueue(
+      'unknown-attachment',
+      jsonEncode({'id': 'unknown-attachment', 'type': 'C2G', 'to': '202'}),
+      ownerUid: '100',
+      sessionGeneration: UserRepoLocal.to.sessionGeneration,
+    );
+    try {
+      await svc.flushMessageQueueForTest();
+      expect(fake._sink.sent, isEmpty);
+      expect(queue.messages, hasLength(1));
+      expect(lookups, 1);
+      expect(
+        (await db.query('attachment_upload_task')).single['business_intent'],
+        intent,
+      );
+      expect(
+        (await db.query('message_send_attempt')).single['token'],
+        'earlier-attempt',
+      );
+      expect((await db.query('msg_c2g')).single['status'], 42);
+    } finally {
+      svc.outboxCommittedForTest = null;
+      SqliteService.setDbForTest(_EmptyRetryDatabase());
+      await db.close();
+    }
+  });
+
+  test(
+    'a rejection waits for an already gated send and blocks later sends',
+    () async {
+      ffi.sqfliteFfiInit();
+      final db = await ffi.databaseFactoryFfi.openDatabase(
+        ffi.inMemoryDatabasePath,
+      );
+      await db.execute(
+        'CREATE TABLE msg_c2g (auto_id INTEGER PRIMARY KEY, id TEXT, type TEXT, from_id TEXT, to_id TEXT, is_author INTEGER, status INTEGER, conversation_uk3 TEXT)',
+      );
+      await db.execute(
+        'CREATE TABLE attachment_upload_task (id TEXT PRIMARY KEY, user_id TEXT, anchor_msg_id TEXT, stage TEXT, last_error TEXT, business_intent TEXT)',
+      );
+      await db.insert('msg_c2g', {
+        'auto_id': 1,
+        'id': 'gate-first',
+        'type': 'C2G',
+        'from_id': '100',
+        'to_id': '202',
+        'is_author': 1,
+        'status': 10,
+        'conversation_uk3': 'C2G_100_202',
+      });
+      SqliteService.setDbForTest(db);
+      final svc = WebSocketService.to;
+      final fake = _FakeChannel();
+      svc.channelForTest = fake;
+      svc.statusForTest = SocketStatus.connected;
+      final entered = Completer<void>();
+      final release = Completer<void>();
+      svc.beforeC2gGateCheckForTest = () async {
+        entered.complete();
+        await release.future;
+      };
+      final raw = jsonEncode({'id': 'gate-first', 'type': 'C2G', 'to': '202'});
+      try {
+        final sending = svc.sendMessage(
+          raw,
+          'gate-first',
+          dispatchClaimed: true,
+        );
+        await entered.future.timeout(const Duration(seconds: 3));
+        var holdFinished = false;
+        final hold = C2gSendGate.run('100', 'gate-first', () async {
+          final result = await C2gRejectionHold.persist(
+            db: db,
+            messageId: 'gate-first',
+            ownerUid: '100',
+            expectedAutoId: 1,
+            expectedPeerId: '202',
+            isCurrent: () => true,
+          );
+          holdFinished = true;
+          return result;
+        });
+        await pumpEventQueue();
+        expect(holdFinished, isFalse);
+        release.complete();
+        expect(await sending, isTrue);
+        expect(await hold, isTrue);
+        expect(fake._sink.sent, hasLength(1));
+        svc.beforeC2gGateCheckForTest = null;
+        // A late valid ACK may promote the held row before a queued retry runs.
+        await db.update(
+          'msg_c2g',
+          {'status': 11},
+          where: 'id = ?',
+          whereArgs: ['gate-first'],
+        );
+        expect(
+          await svc.sendMessage(raw, 'gate-first', dispatchClaimed: true),
+          isFalse,
+        );
+        expect(fake._sink.sent, hasLength(1));
+        expect((await db.query('msg_c2g')).single['status'], 11);
+      } finally {
+        if (!release.isCompleted) release.complete();
+        svc.beforeC2gGateCheckForTest = null;
+        SqliteService.setDbForTest(_EmptyRetryDatabase());
+        await db.close();
+      }
+    },
+  );
+
   for (final framing in [FramingMode.none, FramingMode.v2]) {
     for (final stale in [false, true]) {
       test('pending ACK retry framing=$framing stale=$stale', () async {
@@ -916,7 +1333,8 @@ void main() {
           },
         });
         expect(await svc.sendMessage(raw, 'owned-wire-id'), isTrue);
-        expect(svc.sendDirect(raw), isTrue);
+        // Synchronous direct sending cannot consult the durable C2G hold.
+        expect(svc.sendDirect(raw), isFalse);
         PersistentMessageQueue.to.enqueue(
           'owned-queue-id',
           raw,
@@ -924,7 +1342,7 @@ void main() {
           sessionGeneration: UserRepoLocal.to.sessionGeneration,
         );
         await svc.flushMessageQueueForTest();
-        expect(channel._sink.sent, hasLength(3));
+        expect(channel._sink.sent, hasLength(2));
         for (final bytes in channel._sink.sent) {
           final wire = bytes is String
               ? bytes
@@ -937,4 +1355,38 @@ void main() {
       },
     );
   }
+  test('direct send permits only explicit complete control frames', () {
+    final svc = WebSocketService.to;
+    final channel = _FakeChannel();
+    svc.channelForTest = channel;
+    svc.statusForTest = SocketStatus.connected;
+    expect(svc.sendDirect('CLIENT_ACK,C2G,synthetic-id,device'), isTrue);
+    expect(svc.sendDirect(ImboyFrame.heartbeatPing(1)), isTrue);
+    expect(svc.sendDirect(ImboyFrame.ack(9)), isTrue);
+    expect(
+      svc.sendDirect(
+        jsonEncode({
+          'id': 'ack-id',
+          'type': 'C2G',
+          'action': 'message_edit_ack',
+          'payload': {'original_msg_id': 'original-id'},
+        }),
+      ),
+      isTrue,
+    );
+    final business = ImboyFrame.encode(
+      type: FrameType.msgC2G,
+      flags: 0,
+      payload: Uint8List.fromList(utf8.encode('{"type":"C2G"}')),
+    );
+    expect(svc.sendDirect(business), isFalse);
+    expect(svc.sendDirect(Uint8List.fromList([1, 2, 3])), isFalse);
+    expect(svc.sendDirect('{"type":"C2G"}'), isFalse);
+    expect(svc.sendDirect('CLIENT_ACK,C2G,id'), isFalse);
+    expect(
+      svc.sendDirect(Uint8List.fromList([...ImboyFrame.ack(9), ...business])),
+      isFalse,
+    );
+    expect(channel._sink.sent, hasLength(4));
+  });
 }

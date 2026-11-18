@@ -47,6 +47,32 @@ void main() {
   setUp(() => mockSqfliteSqlcipher());
 
   group('TDD: MessageModel.toTypeMessage() - S2C msg_type 验证', () {
+    test('本地状态覆盖不可信载荷并覆盖非法正文的提前返回', () async {
+      for (final text in <Object>['正常', 123]) {
+        final model = MessageModel(
+          'local-status-test',
+          autoId: 1,
+          type: 'C2G',
+          status: IMBoyMessageStatus.outcomeUnknown,
+          fromId: 8001,
+          toId: 8002,
+          msgType: 'text',
+          payload: {
+            'text': text,
+            IMBoyMessageStatus.localStatusMetadataKey: 11,
+          },
+          isAuthor: 1,
+          conversationUk3: 'C2G_8001_8002',
+          createdAt: 1642579200000,
+        );
+        final message = await model.toTypeMessage();
+        expect(
+          message.metadata?[IMBoyMessageStatus.localStatusMetadataKey],
+          42,
+        );
+      }
+    });
+
     group('S2C 消息 - action 有效时 msg_type 可以为空', () {
       test('应该接受 S2C 消息的空 msg_type 当 action 为 pull_offline_msg 时', () async {
         // GIVEN: 一个 S2C 消息，action 有效，msg_type 为空

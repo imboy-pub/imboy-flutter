@@ -1,6 +1,11 @@
+import 'package:imboy/component/http/web_control_fetch_adapter.dart';
+import 'package:imboy/component/http/web_writer_http_adapter.dart';
+
 import 'dart:async';
 import 'dart:io';
 import 'dart:io' as io show HttpClient;
+
+import 'channel_id_response_decoder.dart';
 
 import 'package:dio/dio.dart';
 import 'package:dio/io.dart';
@@ -15,6 +20,7 @@ import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/helper/jwt.dart';
 import 'package:imboy/component/http/http_exceptions.dart';
 import 'package:imboy/service/network_monitor.dart';
+import 'package:imboy/service/web_writer_gate.dart';
 
 import 'package:imboy/service/encrypter.dart';
 import 'package:imboy/store/api/user_api.dart';
@@ -81,6 +87,15 @@ String _extractCN(String subject) {
 }
 
 Future<Map<String, dynamic>> defaultHeaders() async {
+  if (kIsWeb) {
+    return {
+      'did': deviceId,
+      'dname': 'Web Browser',
+      'vsn': appVsn,
+      'pkg': packageName,
+      'tz_offset': DateTime.now().timeZoneOffset.inMilliseconds,
+    };
+  }
   String key = await Env.signKey();
   String cos = getOperatingSystem();
   return {
@@ -169,7 +184,7 @@ class HttpClient {
       _dio.interceptors.addAll(conf!.interceptors!);
     }
 
-    // Web 平台使用浏览器默认的 Fetch API，无需自定义适配器。
+    // Web 控制 Fetch 路由在下方显式安装；只读 bytes/stream 保留原运输。
     //
     // 这里曾用 Http2Adapter：它自管 socket，App 长时间运行后连接会进入
     // 半死状态（对端已断、客户端不知），后续请求写进死连接后挂满 15s 才抛
@@ -188,7 +203,17 @@ class HttpClient {
       _dio.httpClientAdapter = adapterForTest!;
     }
 
+    if (kIsWeb) {
+      _dio.interceptors.add(InterceptorsWrapper(onRequest: _prepareWebRequest));
+    }
     _dio.interceptors.add(HttpRequestGuardInterceptor());
+    guardWebWriterDio(_dio);
+    if (kIsWeb) {
+      final endpoint = _dio.options.baseUrl.isEmpty
+          ? Env().apiBaseUrl
+          : _dio.options.baseUrl;
+      guardWebControlDio(_dio, apiOrigin: Uri.parse(endpoint));
+    }
 
     if (conf?.proxy?.isNotEmpty ?? false) {
       setProxy(conf!.proxy!);
@@ -229,7 +254,9 @@ class HttpClient {
     final parsed = Uri.tryParse(uri);
     final path = parsed?.path;
     final normalized = (path != null && path.isNotEmpty) ? path : uri;
-    return _publicEndpoints.contains(normalized);
+    return kIsWeb
+        ? webHumanPublicPaths.contains(normalized)
+        : _publicEndpoints.contains(normalized);
   }
 
   _RequestSession _captureSession() {
@@ -260,6 +287,7 @@ class HttpClient {
   }
 
   void _requireSession(_RequestSession session, String uri) {
+    requireWebWriter();
     if (!_sessionMatches(session) ||
         (session.transitioning &&
             !session.clearing &&
@@ -268,14 +296,19 @@ class HttpClient {
     }
   }
 
-  Future<void> _setDefaultConfig(String uri, _RequestSession session) async {
+  Future<void> _setDefaultConfig(
+    String uri,
+    _RequestSession session, {
+    Map<String, dynamic>? requestHeaders,
+  }) async {
+    final target = requestHeaders ?? _dio.options.headers;
     _requireSession(session, uri);
     if (_shouldSkipAuthForUri(uri)) {
       final headers = await defaultHeaders();
       _requireSession(session, uri);
-      _dio.options.headers.remove(Keys.tokenKey);
-      _dio.options.headers.remove(Keys.refreshTokenKey);
-      _dio.options.headers.addAll(headers);
+      target.remove(Keys.tokenKey);
+      target.remove(Keys.refreshTokenKey);
+      target.addAll(headers);
       return;
     }
 
@@ -285,10 +318,10 @@ class HttpClient {
       _requireSession(session, uri);
       final headers = await defaultHeaders();
       _requireSession(session, uri);
-      _dio.options.headers.remove(Keys.tokenKey);
-      _dio.options.headers.remove(Keys.refreshTokenKey);
-      _dio.options.headers.addAll(headers);
-      if (token.isNotEmpty) _dio.options.headers[Keys.tokenKey] = token;
+      target.remove(Keys.tokenKey);
+      target.remove(Keys.refreshTokenKey);
+      target.addAll(headers);
+      if (token.isNotEmpty) target[Keys.tokenKey] = token;
       return;
     }
 
@@ -311,10 +344,80 @@ class HttpClient {
     }
     final headers = await defaultHeaders();
     _requireSession(session, uri);
-    final notRTK = !_dio.options.headers.containsKey(Keys.refreshTokenKey);
-    _dio.options.headers.remove(Keys.tokenKey);
-    if (strNoEmpty(tk) && notRTK) _dio.options.headers[Keys.tokenKey] = tk;
-    _dio.options.headers.addAll(headers);
+    final notRTK = !target.containsKey(Keys.refreshTokenKey);
+    target.remove(Keys.tokenKey);
+    if (strNoEmpty(tk) && notRTK) target[Keys.tokenKey] = tk;
+    target.addAll(headers);
+  }
+
+  Future<void> _prepareWebRequest(
+    RequestOptions options,
+    RequestInterceptorHandler handler,
+  ) async {
+    try {
+      final initialGuard = options.extra[httpRequestGuard];
+      if (initialGuard != null) (initialGuard as void Function())();
+      final session = _captureSession();
+      final root = Uri.parse(session.environmentEndpoint);
+      final rawPath = options.path.split(RegExp(r'[?#]')).first;
+      if (rawPath.contains(RegExp(r'[%\\]')) ||
+          rawPath.contains(RegExp(r'(^|/)\.{1,2}(/|$)'))) {
+        throw const FormatException('Unsupported Web Human path');
+      }
+      webHumanRequestUri(options.method, Uri.parse(options.path), root);
+      final uri = webHumanRequestUri(options.method, options.uri, root);
+      if (uri.path == '/api/v1/web/passport/login' &&
+          options.responseDecoder == null) {
+        options.responseDecoder = channelIdResponseDecoder(
+          ChannelResponseShape.login,
+        );
+      }
+      if (uri.path == '/api/v1/web/refreshtoken') {
+        throw StateError('Use the scoped refresh transport');
+      }
+      final headers = <String, dynamic>{
+        for (final entry in options.headers.entries)
+          if (webHumanMetadataHeaders.contains(entry.key.toLowerCase()))
+            entry.key: entry.value,
+      };
+      _dio.options.headers.removeWhere(
+        (key, _) => !webHumanMetadataHeaders.contains(key.toLowerCase()),
+      );
+      final guarded = _guardedOptions(
+        Options(extra: options.extra),
+        session,
+        '$uri',
+      );
+      await _setDefaultConfig('$uri', session, requestHeaders: headers);
+      _requireSession(session, '$uri');
+      options.path = '$uri';
+      // uri already contains both inline and queryParameters values exactly once.
+      options.queryParameters = {};
+      options.headers = headers;
+      final method = options.method;
+      final ownerGuard = guarded.extra![httpRequestGuard] as void Function();
+      options.extra = {
+        ...guarded.extra!,
+        httpRequestGuard: () {
+          ownerGuard();
+          if (options.uri != uri || options.method != method) {
+            throw StateError('Web control intent changed');
+          }
+        },
+      };
+      handler.next(options);
+    } on DioException catch (error) {
+      handler.reject(error);
+    } catch (_) {
+      options.extra[httpNoAutoRetry] = true;
+      handler.reject(
+        DioException(
+          requestOptions: options,
+          type: DioExceptionType.cancel,
+          message: 'Web Human request rejected',
+        ),
+      );
+    }
   }
 
   /// UserApi owns the shared refresh, including non-HTTP callers.
@@ -464,7 +567,7 @@ class HttpClient {
     }
     final session = _captureSession();
     try {
-      await _setDefaultConfig(uri, session);
+      if (!kIsWeb) await _setDefaultConfig(uri, session);
       _requireSession(session, uri);
       final response = await requestFn(_guardedOptions(options, session, uri));
       _requireSession(session, uri);

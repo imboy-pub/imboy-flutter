@@ -87,6 +87,7 @@ reply: Ответить
 resendCode: Отправить код снова
 revoke: Отозвать
 scanQrCodeBusinessCard: Сканировать QR-код визитки
+scanQrEntry: Сканировать QR-код
 privateChat: "Личный чат"
 sendFriendRequest: Отправить запрос дружбы
 sendMsgRejected: Сообщение отклонено собеседником
@@ -179,7 +180,7 @@ webFeatureE2EE: Сквозное шифрование
 webFeatureE2EEDesc: Все сообщения зашифрованы сквозным шифрованием для защиты конфиденциальности
 webFeatureFileTransfer: Передача файлов
 webFeatureFileTransferDesc: Перетащите файл, чтобы отправить; поддерживаются разные форматы
-webQRStatusWaiting: Откройте ImBoy на телефоне > Настройки > Сканировать
+webQRStatusWaiting: Откройте ImBoy на телефоне > Сообщения > Сканировать справа вверху
 webQRStatusScanned: Нажмите «Подтвердить вход» на телефоне
 webQRStatusVerifying: Проверка...
 webQRStatusExpired: Обновите и отсканируйте снова
@@ -277,3 +278,8 @@ fileWithNameSize(name,size): "$name ($size)"
 voiceDurationSeconds(seconds): "$seconds с"
 bundleInvalidOrEmpty: Неверная или пустая история чата
 bundleForwardedBy(name): "Переслано: $name"
+chatStatusOutcomeUnknown: Попытка отклонена; результат доставки не подтверждён
+
+# ---- DSN-06 gap fill (machine-candidate 2026-11-16) ----
+e2eeMsgBeforeDevice: "Сообщение отправлено до подключения этого устройства и не может быть показано на нём" # machine-candidate 2026-11-16
+e2eeMsgBeforeDeviceTapHint: "Сообщение зашифровано без этого устройства (например, история до смены устройства) и не может быть расшифровано здесь; на новые сообщения этого устройства это не влияет" # machine-candidate 2026-11-16

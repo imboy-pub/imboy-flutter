@@ -1,0 +1,145 @@
+# customerService namespace — ru-RU
+# DSN-06 gap fill 2026-11-16: machine-candidate translations (owner decision owner-batch-20261116).
+actionDraftWarning: "Есть неотправленный черновик; подтверждение действия не отправит его." # machine-candidate 2026-11-16
+actionSendingWarning: "Сообщение отправляется; дождитесь завершения, проверьте и подтвердите." # machine-candidate 2026-11-16
+actionUnconfirmedWarning: "Остались неподтверждённые сообщения; сначала проверьте результат — сейчас подать действие по обращению нельзя." # machine-candidate 2026-11-16
+actionUploadingWarning: "Вложение загружается; дождитесь завершения, проверьте и подтвердите." # machine-candidate 2026-11-16
+activeEmptyHint: "Примите обращение из очереди — оно появится здесь" # machine-candidate 2026-11-16
+activeEmptyTitle: "Обращений в работе нет" # machine-candidate 2026-11-16
+attachAction: "Вложение" # machine-candidate 2026-11-16
+attachBinaryNoPreview: "Бинарное содержимое, предпросмотр недоступен" # machine-candidate 2026-11-16
+attachCancel: "Остановить дальнейшие шаги загрузки" # machine-candidate 2026-11-16
+attachCancelled: "Вложение отменено до начала загрузки" # machine-candidate 2026-11-16
+attachConfirming: "Подтверждение загруженного файла" # machine-candidate 2026-11-16
+attachPreparing: "Подготовка вложения" # machine-candidate 2026-11-16
+attachPresigning: "Запрос права на загрузку" # machine-candidate 2026-11-16
+attachPreviewTitle: "Предпросмотр вложения (защищённый канал организации)" # machine-candidate 2026-11-16
+attachPreviewTruncated: "Показана часть текста; в сохранённом файле — полное содержимое." # machine-candidate 2026-11-16
+attachRetry: "Повторить загрузку вложения" # machine-candidate 2026-11-16
+attachSave: "Сохранить файл" # machine-candidate 2026-11-16
+attachSaveFailed: "Не удалось сохранить, можно повторить." # machine-candidate 2026-11-16
+attachSaved: "Файл сохранён" # machine-candidate 2026-11-16
+attachStatusUnavailable: "Временно недоступно · $size" # machine-candidate 2026-11-16
+attachTooLarge: "Вложение должно быть непустым и не больше 25 МиБ." # machine-candidate 2026-11-16
+attachUnknown: "Результат загрузки полностью не подтверждён; автоповтора и отправки сообщения не было." # machine-candidate 2026-11-16
+attachUnnamedFile: "Вложение" # machine-candidate 2026-11-16
+attachUnsupportedType: "Тип файла не поддерживается, выберите другой" # machine-candidate 2026-11-16
+attachUploadFailed: "Не удалось загрузить вложение, повторите" # machine-candidate 2026-11-16
+attachUploadStopped: "Загрузка не завершена, дальнейшие шаги остановлены. Проверьте права и состояние обращения и выберите файл заново." # machine-candidate 2026-11-16
+attachUploaded: "Вложение загружено" # machine-candidate 2026-11-16
+attachUploadedNotSent: "Вложение загружено, но доставка сообщения не подтверждена. Проверьте результат отправки, не загружайте заново." # machine-candidate 2026-11-16
+attachUploading: "Загрузка байтов: $sent / $total" # machine-candidate 2026-11-16
+channelUnavailable: "Канал сообщений временно недоступен, ожидаем привязку обращения сервером" # machine-candidate 2026-11-16
+claimAction: "Принять" # machine-candidate 2026-11-16
+claimConflict: "Обращение принял другой оператор или состояние изменилось — очередь обновлена" # machine-candidate 2026-11-16
+claimFailed: "Не удалось принять, попробуйте позже" # machine-candidate 2026-11-16
+claimForbidden: "Оператор приостановлен, приём недоступен" # machine-candidate 2026-11-16
+claimOffboardingRequired: "Идёт передача дел при увольнении, приём временно недоступен" # machine-candidate 2026-11-16
+claimSuccess: "Принято" # machine-candidate 2026-11-16
+closeAction: "Закрыть обращение" # machine-candidate 2026-11-16
+closeBody: "После закрытия клиенту предложат оценку, обращение станет доступным только для чтения." # machine-candidate 2026-11-16
+closeConflict: "Состояние обращения изменилось. Обновите, проверьте и подтвердите заново." # machine-candidate 2026-11-16
+closeFailed: "Не удалось закрыть, попробуйте позже" # machine-candidate 2026-11-16
+closeReasonLabel: "Причина (необязательно)" # machine-candidate 2026-11-16
+closeReasonTooLong: "Причина — не более $max символов" # machine-candidate 2026-11-16
+closeSuccess: "Обращение закрыто" # machine-candidate 2026-11-16
+closeTitle: "Подтвердить закрытие" # machine-candidate 2026-11-16
+closedEmptyHint: "Закрытые обращения отображаются здесь в архиве" # machine-candidate 2026-11-16
+closedEmptyTitle: "Закрытых обращений нет" # machine-candidate 2026-11-16
+closedReadonly: "Обращение закрыто, содержимое только для просмотра" # machine-candidate 2026-11-16
+countUnavailable: "--" # machine-candidate 2026-11-16
+entrySubtitle: "Принимайте и обрабатывайте обращения клиентов из очереди" # machine-candidate 2026-11-16
+entryTitle: "Рабочее место поддержки" # machine-candidate 2026-11-16
+inputHint: "Введите ответ…" # machine-candidate 2026-11-16
+loadFailedTitle: "Не удалось загрузить" # machine-candidate 2026-11-16
+loadMoreFailed: "Не удалось загрузить ещё, потяните вверх для повтора" # machine-candidate 2026-11-16
+loadingMore: "Загрузка ещё…" # machine-candidate 2026-11-16
+newMessagesJump: "Новые сообщения · к последним" # machine-candidate 2026-11-16
+noMore: "Больше ничего нет" # machine-candidate 2026-11-16
+noSeatHint: "У вас нет активного места оператора поддержки — обратитесь к администратору организации" # machine-candidate 2026-11-16
+noSeatTitle: "Нет доступных мест оператора" # machine-candidate 2026-11-16
+offboardingRequired: "Идёт передача дел при увольнении, ведение обращения передано — оно доступно только для чтения" # machine-candidate 2026-11-16
+offlineHint: "Нет сети, проверьте подключение и повторите" # machine-candidate 2026-11-16
+orgSelectorLabel: "Организация" # machine-candidate 2026-11-16
+presenceAwayAction: "Установить «Отошёл»" # machine-candidate 2026-11-16
+presenceCapacityLabel: "$active/$max обращений" # machine-candidate 2026-11-16
+presenceMenuLabel: "Статус оператора" # machine-candidate 2026-11-16
+presenceResumeAction: "Вернуть «Авто»" # machine-candidate 2026-11-16
+presenceStatusAway: "Отошёл" # machine-candidate 2026-11-16
+presenceStatusBusy: "Занят" # machine-candidate 2026-11-16
+presenceStatusOffline: "Офлайн" # machine-candidate 2026-11-16
+presenceStatusOnline: "Онлайн" # machine-candidate 2026-11-16
+presenceUnavailable: "Статус недоступен" # machine-candidate 2026-11-16
+queuedEmptyHint: "Потяните вниз для обновления — новые обращения появятся здесь" # machine-candidate 2026-11-16
+queuedEmptyTitle: "Очередь пуста" # machine-candidate 2026-11-16
+ratedReadonly: "Обращение завершено оценкой, содержимое только для просмотра" # machine-candidate 2026-11-16
+ratedTitle: "Клиент оценил обращение" # machine-candidate 2026-11-16
+ratingScoreLabel: "Оценка клиента: $score звёзд" # machine-candidate 2026-11-16
+ratingTimeLabel: "Время оценки: $time" # machine-candidate 2026-11-16
+ratingUnknownTitle: "Статус оценки неизвестен" # machine-candidate 2026-11-16
+readOnlySuspended: "Оператор приостановлен (suspend), канал сообщений переведён в режим чтения, фоновая отправка и приём остановлены" # machine-candidate 2026-11-16
+seatAtCapacity: "Достигнут предел одновременных обращений; закройте обращения в работе или попросите администратора изменить вместимость" # machine-candidate 2026-11-16
+seatDisabledNotice: "Место оператора отключено" # machine-candidate 2026-11-16
+seatLabel: "Оператор" # machine-candidate 2026-11-16
+seatSuspendedNotice: "Оператор приостановлен, очередь доступна только для просмотра" # machine-candidate 2026-11-16
+sendConflict: "Состояние обращения изменилось, статус обновлён" # machine-candidate 2026-11-16
+sendFailed: "Не удалось отправить, попробуйте позже" # machine-candidate 2026-11-16
+sessionTitle: "Обращение поддержки" # machine-candidate 2026-11-16
+sourceLabel: "Источник" # machine-candidate 2026-11-16
+sourceWidget: "Веб" # machine-candidate 2026-11-16
+tabActive: "В работе" # machine-candidate 2026-11-16
+tabClosed: "Закрытые" # machine-candidate 2026-11-16
+tabQueued: "Очередь" # machine-candidate 2026-11-16
+targetAvailable: "Можно передать" # machine-candidate 2026-11-16
+targetBusy: "Занят" # machine-candidate 2026-11-16
+title: "Рабочее место поддержки" # machine-candidate 2026-11-16
+transferAction: "Передать" # machine-candidate 2026-11-16
+transferConfirmBody: "Передать обращение $name? После передачи вы больше не ведёте его." # machine-candidate 2026-11-16
+transferConfirmTitle: "Подтвердить передачу" # machine-candidate 2026-11-16
+transferConflict: "Состояние обращения изменилось. Обновите, проверьте и подтвердите заново." # machine-candidate 2026-11-16
+transferEmpty: "Нет операторов поддержки вашей организации для передачи" # machine-candidate 2026-11-16
+transferFailed: "Не удалось передать, попробуйте позже" # machine-candidate 2026-11-16
+transferSuccess: "Передано" # machine-candidate 2026-11-16
+transferTitle: "Передать оператору организации" # machine-candidate 2026-11-16
+transferredAway: "Обращение передано другому оператору и доступно вам только для чтения" # machine-candidate 2026-11-16
+unreadBadgeLabel: "Непрочитанных: $n" # machine-candidate 2026-11-16
+visitorLabel: "Клиент" # machine-candidate 2026-11-16
+waitingDaysHours: "$d д $h ч" # machine-candidate 2026-11-16
+waitingHoursMinutes: "$h ч $m мин" # machine-candidate 2026-11-16
+waitingJustNow: "только что" # machine-candidate 2026-11-16
+waitingMinutes: "$n мин" # machine-candidate 2026-11-16
+waitingRatingTitle: "Обращение закрыто, ждём оценку клиента" # machine-candidate 2026-11-16
+
+# ---- DSN-06 gap fill (machine-candidate 2026-11-16) ----
+governance:
+  actionDone: "Действие применено" # machine-candidate 2026-11-16
+  actionFailed: "Действие не выполнено, попробуйте позже" # machine-candidate 2026-11-16
+  errorForbidden: "Нет прав управления: управление поддержкой доступно только owner/admin организации" # machine-candidate 2026-11-16
+  errorLoadFailed: "Не удалось загрузить" # machine-candidate 2026-11-16
+  errorNoDefaultWorkspace: "В организации не задано рабочее пространство по умолчанию, область управления не определена" # machine-candidate 2026-11-16
+  errorWithCode: "${msg} (код ${code})" # machine-candidate 2026-11-16
+  limitAdjustAction: "Изменить квоту" # machine-candidate 2026-11-16
+  limitAdjustTitle: "Квота мест операторов" # machine-candidate 2026-11-16
+  limitAtCapacity: "Достигнут предел" # machine-candidate 2026-11-16
+  limitCardTitle: "Квота мест операторов" # machine-candidate 2026-11-16
+  limitClearAction: "Снять ограничение (без лимита)" # machine-candidate 2026-11-16
+  limitInputLabel: "Лимит мест (целое число; пусто = без лимита)" # machine-candidate 2026-11-16
+  limitInvalidInput: "Введите целое положительное число" # machine-candidate 2026-11-16
+  limitSaved: "Квота обновлена" # machine-candidate 2026-11-16
+  limitUnlimited: "Без лимита" # machine-candidate 2026-11-16
+  limitValueLabel: "${used}/${limit} мест" # machine-candidate 2026-11-16
+  resumeAction: "Включить оператора" # machine-candidate 2026-11-16
+  retry: "Повторить" # machine-candidate 2026-11-16
+  scopeNote: "Это раздел управления организации (owner/admin); 403 от сервера — окончательное решение по правам." # machine-candidate 2026-11-16
+  seatCapacityLabel: "${active}/${max} обращений" # machine-candidate 2026-11-16
+  seatEnabledBadge: "Активен" # machine-candidate 2026-11-16
+  seatIdentityLabel: "Оператор ${identity}" # machine-candidate 2026-11-16
+  seatLimitExceededHint: "Квота мест исчерпана: ${used}/${limit}, добавить оператора нельзя (seat_limit_exceeded)" # machine-candidate 2026-11-16
+  seatLoadMore: "Показать ещё" # machine-candidate 2026-11-16
+  seatSuspendedBadge: "Приостановлен" # machine-candidate 2026-11-16
+  seatsEmpty: "Мест операторов пока нет" # machine-candidate 2026-11-16
+  seatsSectionTitle: "Места операторов" # machine-candidate 2026-11-16
+  suspendAction: "Приостановить оператора" # machine-candidate 2026-11-16
+  suspendConfirmBody: "Приостановленный оператор не принимает новые обращения; текущие не затрагиваются, включить можно в любой момент." # machine-candidate 2026-11-16
+  suspendConfirmTitle: "Приостановить этого оператора?" # machine-candidate 2026-11-16
+  title: "Управление поддержкой" # machine-candidate 2026-11-16

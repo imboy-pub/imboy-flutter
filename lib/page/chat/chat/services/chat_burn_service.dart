@@ -216,23 +216,25 @@ class ChatBurnService {
   }
 
   /// 标记阅后即焚消息为已读，并调度定时器
-  Future<void> markBurnReadAt({
+  Future<bool> markBurnReadAt({
     required Map<String, Timer> burnDeleteTimers,
     required ConversationModel conversation,
     required String messageId,
     required int readAtMs,
     required Future<void> Function(ConversationModel, String) onDelete,
+    bool Function()? isCurrent,
   }) async {
+    if (isCurrent?.call() == false) return false;
     try {
       final String tb = MessageRepo.getTableName(conversation.type);
       final MessageRepo repo = MessageRepo(tableName: tb);
       final MessageModel? m = await repo.find(messageId);
-      if (m == null) return;
+      if (isCurrent?.call() == false || m == null) return false;
       final payload = Map<String, dynamic>.from(m.payloadMap);
-      if (!isBurnPayload(payload)) return;
+      if (!isBurnPayload(payload)) return true;
 
       final int burnAfter = burnAfterMsFromPayload(payload);
-      if (burnAfter <= 0) return;
+      if (burnAfter <= 0) return true;
 
       if (m.isAuthor == 1) {
         // BUG#139：发送方自己的消息倒计时固定从发送时间起算，
@@ -248,7 +250,7 @@ class ChatBurnService {
             onDelete: onDelete,
           );
         }
-        return;
+        return isCurrent?.call() != false;
       }
 
       final int existingReadAt = burnReadAtMsFromPayload(payload);
@@ -259,6 +261,7 @@ class ChatBurnService {
           MessageRepo.id: messageId,
           MessageRepo.payload: payload,
         });
+        if (isCurrent?.call() == false) return false;
       }
 
       await scheduleBurnDeletion(
@@ -270,15 +273,21 @@ class ChatBurnService {
         onDelete: onDelete,
       );
 
+      if (isCurrent?.call() == false) return false;
       final MessageModel? updated = await repo.find(messageId);
+      if (isCurrent?.call() == false) return false;
       if (updated != null) {
-        AppEventBus.fireData([await updated.toTypeMessage()], 'List<Message>');
+        final message = await updated.toTypeMessage();
+        if (isCurrent?.call() == false) return false;
+        AppEventBus.fireData([message], 'List<Message>');
       }
+      return true;
     } catch (e) {
       // 不向上抛：调用链直连 UI 点击（chat_page），抛出会崩页面。
       // 但要记录 —— 这里失败意味着 burn_read_at 未落库或定时器未排，
       // 该消息将永远不会被销毁。
       iPrint('阅后即焚标记已读/排期失败，该消息可能永不销毁 $messageId: $e');
+      return false;
     }
   }
 

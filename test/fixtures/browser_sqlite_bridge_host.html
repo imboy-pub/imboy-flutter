@@ -1,0 +1,142 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Browser SQLite bridge counterexamples</title>
+<pre id="report">RUNNING</pre>
+<script type="module">
+const parameters = new URLSearchParams(location.search);
+const sri = parameters.get('sri'), preparation = parameters.get('preparation');
+const report = {status:'RUNNING', browser:navigator.userAgent, origin:location.origin,
+  probe_sri:sri, preparation_sha256:preparation, cases:[]};
+window.__bridgeReport = report;
+const frames = new Map(), pending = new Map(), ready = new Map();
+let serial = 0;
+function publish() { document.querySelector('#report').textContent = JSON.stringify(report,null,2); }
+function assert(value, message) { if (!value) throw Error(message); }
+window.addEventListener('message', event => {
+  if (event.origin !== location.origin) return;
+  const m = event.data;
+  if (!m || !frames.has(m.frame) || event.source !== frames.get(m.frame).contentWindow) return;
+  if (m.kind === 'bridge-ready') ready.get(m.frame)?.resolve();
+  if (m.kind === 'bridge-bootstrap-error') ready.get(m.frame)?.reject(Error(m.error));
+  if (m.kind === 'bridge-result') {
+    const resolver = pending.get(m.id);
+    if (resolver) { pending.delete(m.id); resolver(m); }
+  }
+});
+async function spawn(name) {
+  const frame = document.createElement('iframe');
+  frame.name = name;
+  frames.set(name,frame);
+  const initialized = new Promise((resolve,reject) => ready.set(name, {resolve,reject}));
+  frame.src = 'browser_sqlite_bridge_probe.htm?' + new URLSearchParams({sri,preparation});
+  document.body.append(frame);
+  await Promise.race([initialized,new Promise((_,reject)=>setTimeout(()=>reject(Error('client bootstrap timeout')),15000))]);
+}
+function remove(name) { frames.get(name)?.remove(); frames.delete(name); ready.delete(name); }
+async function rpc(frame,op,args={}) {
+  const id = ++serial;
+  const result = new Promise(resolve => pending.set(id,resolve));
+  frames.get(frame).contentWindow.postMessage({kind:'bridge-call',id,op,...args},location.origin);
+  const message = await Promise.race([result,new Promise((_,reject)=>setTimeout(()=>reject(Error(op+' timed out')),10000))]);
+  report.trace ??= [];
+  report.trace.push(message);
+  return message;
+}
+async function ok(frame,op,args) {
+  const message = await rpc(frame,op,args);
+  if (message.error) throw Error(message.error);
+  return message.result;
+}
+async function check(name, body) {
+  try { await body(); report.cases.push({name,status:'PASS'}); }
+  catch(error) { report.cases.push({name,status:'FAIL',error:String(error)}); throw error; }
+  publish();
+}
+try {
+  assert(/^sha256-[A-Za-z0-9+/]{43}=$/.test(sri ?? ''),'Missing pinned JS integrity');
+  assert(/^[0-9a-f]{64}$/.test(preparation ?? ''),'Missing preparation receipt identity');
+  await spawn('owner');
+  await check('commit_ack_follows_idb_and_fresh_vfs_reads_both_rows', async()=>{
+    const opened = await rpc('owner','open',{uid:'A'});
+    assert(!opened.error,opened.error);
+    const completedBeforeWrite = opened.idb_events.filter(e=>e.event==='complete').length;
+    const write = await rpc('owner','write',{value:'durable-before-abort'});
+    assert(!write.error,write.error);
+    assert(write.idb_events.filter(e=>e.event==='complete').length > completedBeforeWrite,'No write-batch IDB completion before acknowledgment');
+    const fresh=await ok('owner','fresh-read',{uid:'A'});
+    assert(fresh.rows?.[0]?.value==='durable-before-abort','Task not durable');
+    assert(String.fromCharCode(...fresh.rows[0].bytes)==='durable-before-abort','Material not atomic');
+  });
+  await check('second_context_rejected_before_opening_a_vfs', async()=>{
+    await spawn('contender');
+    const result=await rpc('contender','open',{uid:'B'});
+    assert(result.error?.includes('another tab owns'),'Second context did not reject the writer lease');
+    assert(result.idb_events.length===0,'Rejected context wrote IndexedDB');
+    remove('contender');
+  });
+  await check('barrier_inside_transaction_is_explicit_busy_and_does_not_deadlock', async()=>{
+    assert((await ok('owner','barrier-inside-transaction')).busy,'Missing busy result');
+    await ok('owner','barrier');
+  });
+  await check('managed_throw_rolls_back_both_tables_and_next_transaction_succeeds', async()=>{
+    const before=await ok('owner','fresh-read',{uid:'A'});
+    assert(before.rows?.length===1,'Missing rollback baseline');
+    const rolledBack=await ok('owner','rollback-write',{value:'must-roll-back'});
+    assert(rolledBack.rolled_back===true,'Callback error was not preserved');
+    const after=await ok('owner','fresh-read',{uid:'A'});
+    assert(JSON.stringify(after.rows)===JSON.stringify(before.rows),'Task/material rollback was not durable');
+    await ok('owner','write',{value:'success-after-managed-rollback'});
+    const next=await ok('owner','fresh-read',{uid:'A'});
+    assert(next.rows?.[0]?.value==='success-after-managed-rollback','Later transaction failed');
+    assert(String.fromCharCode(...next.rows[0].bytes)==='success-after-managed-rollback','Later material transaction failed');
+  });
+  await check('precise_delete_is_durable_and_preserves_another_account', async()=>{
+    await ok('owner','open',{uid:'B'});
+    await ok('owner','write',{value:'B-sentinel'});
+    await ok('owner','open',{uid:'A'});
+    await ok('owner','delete');
+    assert((await ok('owner','fresh-read',{uid:'A'})).absent,'Deleted account remains persistent');
+    assert((await ok('owner','fresh-read',{uid:'B'})).rows[0].value==='B-sentinel','Other account was changed');
+    await ok('owner','open',{uid:'A'});
+    await ok('owner','write',{value:'durable-before-abort'});
+  });
+  await check('real_idb_abort_is_visible_and_poison_blocks_later_operations', async()=>{
+    const armed=await rpc('owner','abort-next-write');
+    assert(!armed.error,armed.error);
+    const abortsBefore=armed.idb_events.filter(event=>event.event==='abort').length;
+    const failed=await rpc('owner','write',{value:'must-not-persist'});
+    assert(failed.error,'Actual IDB abort incorrectly acknowledged');
+    let observed=failed;
+    for(let attempt=0;attempt<20 && observed.idb_events.filter(event=>event.event==='abort').length<=abortsBefore;attempt++) {
+      await new Promise(resolve=>setTimeout(resolve,25));
+      observed=await rpc('owner','events');
+    }
+    assert(observed.idb_events.filter(event=>event.event==='abort').length > abortsBefore,'No new actual IDB abort was observed for this write');
+    const poisoned=await rpc('owner','read');
+    assert(poisoned.error?.includes('reload is required'),'Poisoned context continued serving memory');
+  });
+  await check('destroyed_owner_releases_lease_and_successor_fresh_opens', async()=>{
+    remove('owner');
+    let successor;
+    for(let i=0;i<10;i++) {
+      const name='successor'+i;
+      await spawn(name);
+      const attempt=await rpc(name,'open',{uid:'A'});
+      if(!attempt.error) { successor=name; break; }
+      remove(name);
+      await new Promise(resolve=>setTimeout(resolve,100));
+    }
+    assert(successor,'Lease did not transfer after owner destruction');
+    const recovered=await ok(successor,'read');
+    assert(recovered[0]?.value==='durable-before-abort','Failed batch leaked or previous durable batch was lost');
+    assert((await ok(successor,'fresh-read',{uid:'B'})).rows[0].value==='B-sentinel','Unrelated account lost');
+    remove(successor);
+  });
+  report.status='PASS';
+} catch(error) {
+  report.status='FAIL'; report.error=String(error);
+} finally {
+  for (const name of [...frames.keys()]) remove(name);
+  publish();
+}
+</script>

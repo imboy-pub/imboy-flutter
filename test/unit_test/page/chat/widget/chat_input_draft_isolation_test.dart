@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:cupertino_ui/cupertino_ui.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -6,6 +8,7 @@ import 'package:imboy/config/const.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/service/account_draft_store.dart';
 import 'package:imboy/page/chat/widget/chat_input.dart';
+import 'package:imboy/page/chat/widget/chat_input_types.dart';
 import 'package:imboy/service/account_local_task_registry.dart';
 import 'package:imboy/service/storage.dart';
 import 'package:imboy/store/model/conversation_model.dart';
@@ -16,6 +19,8 @@ void main() {
     WidgetTester tester,
     String uid, {
     GlobalKey<ChatInputState>? inputKey,
+    Future<ComposerSendReceipt> Function(String)? onSend,
+    SendButtonVisibilityMode mode = SendButtonVisibilityMode.editing,
   }) async {
     await tester.pumpWidget(const SizedBox.shrink());
     await StorageService.to.setString(Keys.currentUid, uid);
@@ -29,9 +34,13 @@ void main() {
               body: ChatInput(
                 key: inputKey,
                 type: 'C2G',
+                sendButtonVisibilityMode: mode,
                 peerId: '995301',
                 composerHeight: height,
-                onSendPressed: (_) async => true,
+                onSendPressed: (submission) =>
+                    (onSend ?? (_) async => const ComposerSendReceipt(true))(
+                      submission.text,
+                    ),
               ),
             ),
           ),
@@ -247,6 +256,93 @@ void main() {
     expect(StorageService.to.getKeys(), isNot(contains(a.text)));
     expect(StorageService.to.getKeys(), isNot(contains(a.cursor)));
     expect(StorageService.to.getString(b.text), 'B draft');
+    await tester.pumpWidget(const SizedBox.shrink());
+  });
+
+  testWidgets('native composer preserves text retyped to the same value', (
+    tester,
+  ) async {
+    final gate = Completer<bool>();
+    await mount(
+      tester,
+      '1001',
+      onSend: (_) async => ComposerSendReceipt(await gate.future),
+    );
+    await save(tester, 'A', 1);
+    await tester.tap(find.byKey(const ValueKey('send_button')));
+    await tester.pump();
+    await tester.enterText(find.byKey(const Key('chat_message_input')), 'B');
+    await tester.enterText(find.byKey(const Key('chat_message_input')), 'A');
+    gate.complete(true);
+    await tester.pumpAndSettle();
+    expect(field(tester).controller!.text, 'A');
+    await tester.pumpWidget(const SizedBox.shrink());
+  });
+
+  testWidgets('native composer allows only one in flight submission', (
+    tester,
+  ) async {
+    final gate = Completer<bool>();
+    var calls = 0;
+    await mount(
+      tester,
+      '1001',
+      onSend: (_) {
+        calls++;
+        return gate.future.then((accepted) => ComposerSendReceipt(accepted));
+      },
+    );
+    await save(tester, 'one intent', 3);
+    await tester.tap(find.byKey(const ValueKey('send_button')));
+    await tester.pump();
+    await tester.tap(find.byKey(const ValueKey('send_button')));
+    gate.complete(false);
+    await tester.pumpAndSettle();
+    expect(calls, 1);
+    expect(field(tester).controller!.text, 'one intent');
+    await tester.pumpWidget(const SizedBox.shrink());
+  });
+
+  for (final nextText in ['B', 'A']) {
+    testWidgets('always composer protects programmatic revision $nextText', (
+      tester,
+    ) async {
+      final gate = Completer<bool>();
+      await mount(
+        tester,
+        '1001',
+        mode: SendButtonVisibilityMode.always,
+        onSend: (_) async => ComposerSendReceipt(await gate.future),
+      );
+      await save(tester, 'A', 1);
+      await tester.tap(find.byKey(const ValueKey('send_button')));
+      await tester.pump();
+      final state = tester.state<ChatInputState>(find.byType(ChatInput));
+      state.setText('B');
+      state.setText(nextText);
+      gate.complete(true);
+      await tester.pumpAndSettle();
+      expect(field(tester).controller!.text, nextText);
+      await tester.pumpWidget(const SizedBox.shrink());
+    });
+  }
+
+  testWidgets('native disposal flushes a draft before its debounce', (
+    tester,
+  ) async {
+    await mount(tester, '1001');
+    await tester.enterText(
+      find.byKey(const Key('chat_message_input')),
+      'last input',
+    );
+    field(tester).controller!.selection = const TextSelection.collapsed(
+      offset: 2,
+    );
+    await tester.pumpWidget(const SizedBox.shrink());
+    await tester.pump();
+    await mount(tester, '1001');
+    expect(field(tester).controller!.text, 'last input');
+    expect(field(tester).controller!.selection.baseOffset, 2);
     await tester.pumpWidget(const SizedBox.shrink());
   });
 

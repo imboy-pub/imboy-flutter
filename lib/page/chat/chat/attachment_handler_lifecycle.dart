@@ -15,6 +15,7 @@ extension _ChatAttachmentLifecycle on ChatAttachmentHandler {
         operation: (task) async {
           void check() {
             task.throwIfCancelled();
+            requireCurrent?.call();
             if (!actor.isCurrentSession(generation) ||
                 (currentUserOverride == null &&
                     (actor.isAuthTransitioning || actor.currentUid != uid)) ||
@@ -37,6 +38,14 @@ extension _ChatAttachmentLifecycle on ChatAttachmentHandler {
 
   /// 安全拦截：如果用户被禁言，直接拦截消息创建与发送，并弹出 EasyLoading 提示 (C13)
   Future<bool> _sendMessage(Message message) async {
+    final ready = await _sendCurrentMessage(message);
+    requireCurrent?.call();
+    onUploadResult?.call(ready, null);
+    return ready;
+  }
+
+  Future<bool> _sendCurrentMessage(Message message) async {
+    requireCurrent?.call();
     if (isMutedCheck != null && isMutedCheck!()) {
       AppLoading.showError(t.chat.youAreMuted);
       return false;
@@ -69,7 +78,7 @@ extension _ChatAttachmentLifecycle on ChatAttachmentHandler {
                 (jsonDecode(row.businessIntent!) as Map)['state'] ==
                 'outbox_ready',
           );
-      if (ready) return true;
+      if (ready) return _presentPersisted(message, uid, generation);
       if (existing != null || uncertain) {
         final committed = await MsgApi().isCommitted(
           chatType: type.toLowerCase(),
@@ -81,26 +90,48 @@ extension _ChatAttachmentLifecycle on ChatAttachmentHandler {
             !committed) {
           return false;
         }
-        if (existing != null) {
-          await repo.update({
-            'id': message.id,
-            'status': IMBoyMessageStatus.sent,
-          });
-        }
-        return true;
+        return _presentPersisted(message, uid, generation);
       }
       if (tasks.isNotEmpty) {
-        final uploader = ResumableAttachmentUploader();
-        await uploader.recoverBusinessOutbox(uid);
+        final uploader = _uploader();
+        await uploader.recoverBusinessOutbox(uid, anchorMsgId: message.id);
         final refreshed = await uploader.repo.findByAnchor(message.id, uid);
-        return actor.isCurrentSession(generation) &&
+        final ready =
+            actor.isCurrentSession(generation) &&
+            refreshed.isNotEmpty &&
             refreshed.every(
               (r) =>
                   (jsonDecode(r.businessIntent!) as Map)['state'] ==
                   'outbox_ready',
             );
+        return ready && await _presentPersisted(message, uid, generation);
       }
     }
     return await onMessageCreated(message);
+  }
+
+  Future<bool> _presentPersisted(
+    Message message,
+    String uid,
+    int generation,
+  ) async {
+    final present = onMessagePersisted;
+    if (present == null) return true;
+    return const ChatNetworkService().presentAttachmentOutbox(
+      type: type,
+      peerId: peerId,
+      conversationUk3: conversationUk3,
+      messageId: message.id,
+      isCurrent: () {
+        requireCurrent?.call();
+        return UserRepoLocal.to.currentUid == uid &&
+            UserRepoLocal.to.isCurrentSession(generation) &&
+            (ownerGeneration == null || ownerGeneration == generation);
+      },
+      present: (canonical) async {
+        requireCurrent?.call();
+        return present(canonical);
+      },
+    );
   }
 }

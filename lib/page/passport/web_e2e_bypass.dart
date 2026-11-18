@@ -1,30 +1,29 @@
-/// Step 2 — Web E2E 测试旁路配置（纯函数 + sealed 决策）
+/// Web E2E debug 测试旁路配置（无副作用的 sealed 决策）。
 ///
-/// 目的：让 Chrome 自动化测试（chromedriver / Playwright）跳过 QR 扫码登录，
-/// 直接注入登录态。生产构建因 `String.fromEnvironment` 默认值为 ''，自动走
-/// BypassDisabled 分支，**生产代码零运行时开销 + 零安全风险**。
+/// 仅 debug 构建允许用合成 token/uid 注入测试会话。profile/release 编译时
+/// 强制禁用，即使误传 WEB_E2E_TOKEN / WEB_E2E_UID 也不能启动旁路。
+/// 默认空值只是未配置，不是交付安全证明；正式产物仍须核查无旁路凭据，
+/// 普通 Human 扫码授权须独立验收。
 ///
-/// 启用方式（仅测试 / CI）：
+/// 仅用于隔离 debug 测试：
 /// ```bash
-/// flutter run -d chrome \
-///   --dart-define=WEB_E2E_TOKEN=<jwt-or-bearer-token> \
-///   --dart-define=WEB_E2E_UID=<user-id>
+/// flutter run -d chrome --debug \
+///   --dart-define=WEB_E2E_TOKEN=<synthetic-token> \
+///   --dart-define=WEB_E2E_UID=<synthetic-user-id>
 /// ```
 ///
-/// 安全约束：
-/// - token 或 uid 任一为空（含空白字符）→ 旁路禁用
-/// - 不在本模块做任何副作用（saveToken / setCurrentUid / 路由跳转）
-///   —— 副作用由 web_login_page.dart 的 initState 在 switch BypassEnabled 时
-///   显式执行，便于审计和 grep
-/// - 无网络调用、无持久化 → 纯函数，零外部依赖
+/// 本模块不发请求、不持久化、不导航；副作用仍由 WebLoginPage 复用现有
+/// loginAfterQr 会话提交边界。不得把 debug 旁路结果当普通登录验收。
 library;
+
+import 'package:flutter/foundation.dart' show kDebugMode;
 
 /// 旁路配置的密封变体（穷尽两个分支）
 sealed class WebE2eBypassConfig {
   const WebE2eBypassConfig();
 }
 
-/// 默认（生产）路径：走 QR 扫码登录
+/// 交付构建或未配置旁路时，走普通 QR 扫码登录。
 final class BypassDisabled extends WebE2eBypassConfig {
   const BypassDisabled();
 
@@ -58,7 +57,7 @@ final class BypassEnabled extends WebE2eBypassConfig {
   int get hashCode => Object.hash(token, uid);
 
   @override
-  String toString() => 'BypassEnabled(uid: $uid, token: <$token-len>)';
+  String toString() => 'BypassEnabled(token: <redacted>)';
 }
 
 /// 解析旁路配置。
@@ -66,13 +65,17 @@ final class BypassEnabled extends WebE2eBypassConfig {
 /// [token] / [uid] 通常来自 `String.fromEnvironment('WEB_E2E_TOKEN')` /
 /// `String.fromEnvironment('WEB_E2E_UID')`。
 ///
-/// 任一参数为空（trim 后）即返回 [BypassDisabled]，避免误开旁路（例如 dart-define
-/// 拼写错误传入 `=` 后空字符串）。
+/// 实际编译模式不是 debug 或任一凭据为空时，返回 [BypassDisabled]。
+/// [debugBuild] 允许测试进一步收紧为禁用，不能覆盖实际构建模式开启旁路。
 WebE2eBypassConfig parseE2eBypassConfig({
   required String token,
   required String uid,
+  bool debugBuild = kDebugMode,
 }) {
-  if (token.trim().isEmpty || uid.trim().isEmpty) {
+  if (!kDebugMode ||
+      !debugBuild ||
+      token.trim().isEmpty ||
+      uid.trim().isEmpty) {
     return const BypassDisabled();
   }
   return BypassEnabled(token: token, uid: uid);

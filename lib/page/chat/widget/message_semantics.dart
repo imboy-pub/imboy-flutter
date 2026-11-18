@@ -44,9 +44,26 @@ Widget semanticMessage({
   required String kind,
   required Widget child,
   bool isButton = true,
+  String? detail,
 }) {
   final who = isSentByMe ? t.main.sentByMe : t.chat.myReceivedTab;
-  return Semantics(button: isButton, label: '$who$kind', child: child);
+  final summary = _collapseSemanticsDetail(detail);
+  final label = summary.isEmpty ? '$who$kind' : '$who$kind $summary';
+  return Semantics(button: isButton, label: label, child: child);
+}
+
+/// 文本消息可读名的内容摘要上限（字符）。
+///
+/// 全文进 label 会让长消息把读屏 name 撑爆；前缀摘要已满足 SC 4.1.2
+/// "name 反映内容"，全文仍由气泡内文本节点兜底。
+const int kMessageSemanticDetailMaxChars = 120;
+
+/// 折叠空白并截断到 [kMessageSemanticDetailMaxChars]，供语义 label 使用。
+String _collapseSemanticsDetail(String? raw) {
+  if (raw == null) return '';
+  final collapsed = raw.replaceAll(RegExp(r'\s+'), ' ').trim();
+  if (collapsed.length <= kMessageSemanticDetailMaxChars) return collapsed;
+  return '${collapsed.substring(0, kMessageSemanticDetailMaxChars)}…';
 }
 
 /// 该消息类型的气泡是否可点。

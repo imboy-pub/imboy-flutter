@@ -23,6 +23,9 @@ class FlatListTile extends StatelessWidget {
   final Color? iconColor;
   final double leadingGap;
 
+  /// 可访问名透传给 [CellPressable]（A11Y-02 AN1，见其文档注释）。
+  final String? semanticLabel;
+
   const FlatListTile({
     super.key,
     this.leading,
@@ -35,6 +38,7 @@ class FlatListTile extends StatelessWidget {
     this.padding,
     this.iconColor,
     this.leadingGap = AppSpacing.regular,
+    this.semanticLabel,
   });
 
   @override
@@ -45,6 +49,7 @@ class FlatListTile extends StatelessWidget {
     return CellPressable(
       onTap: onTap,
       onLongPress: onLongPress,
+      semanticLabel: semanticLabel,
       child: Container(
         constraints: BoxConstraints(minHeight: height ?? AppSizes.touchTarget),
         padding:

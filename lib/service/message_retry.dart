@@ -1,9 +1,13 @@
+import 'package:imboy/service/web_writer_gate.dart';
 import 'package:imboy/service/server_ack_receipts.dart';
+import 'package:imboy/service/c2g_send_gate.dart';
 import 'package:imboy/service/sqlite.dart';
 import 'package:imboy/service/account_local_task_registry.dart';
 
 import 'dart:async';
 import 'dart:convert';
+
+import 'package:flutter/foundation.dart' show visibleForTesting;
 
 import 'package:imboy/component/helper/app_clock.dart';
 import 'package:imboy/component/helper/func.dart';
@@ -33,6 +37,9 @@ part 'message_retry_tasks.dart';
 /// Message retry mechanism for handling failed message retries
 
 class MessageRetry with EventSubscriptionManager {
+  @visibleForTesting
+  Future<void> Function()? beforeRetryUiPublishForTest;
+
   /// R20-A：进程级单调基准（重试间隔与墙钟解耦，墙钟回拨/前跳
   /// 不改变重试节奏、不产生忙循环）。
   final AppClockMark _monotonicEpoch = appClock.mark();
@@ -85,6 +92,7 @@ class MessageRetry with EventSubscriptionManager {
 
   /// 内部初始化方法
   void _init() {
+    if (!isWebWriterReady) return;
     // 启动消息重试机制
     startRetryTimer();
 
@@ -142,7 +150,8 @@ class MessageRetry with EventSubscriptionManager {
 
   bool _isRemovalSessionCurrent(RemoveFromRetryQueueRequestedEvent event) {
     final session = UserRepoLocal.to;
-    return !session.isClearingSession &&
+    return isWebWriterReady &&
+        !session.isClearingSession &&
         session.currentUid == event.ownerUid &&
         session.isCurrentSession(event.sessionGeneration);
   }
@@ -172,12 +181,22 @@ class MessageRetry with EventSubscriptionManager {
     }
   }
 
+  /// Stop timers/subscriptions while retaining every retry entry for reload.
+  static void suspendForStorageFailure() {
+    final current = _instance;
+    if (current == null) return;
+    current._queueEpoch++;
+    current._retryTimer?.cancel();
+    current._retryTimer = null;
+    current.cancelAllSubscriptions();
+  }
+
   /// 释放资源
   void dispose() {
     _queueEpoch++;
     _retryTimer?.cancel();
     _retryTimer = null;
-    _retryQueue.clear();
+    if (isWebWriterReady) _retryQueue.clear();
     // 【新增】使用 EventSubscriptionManager 统一取消所有事件订阅
     // Cancel all event subscriptions using EventSubscriptionManager
     cancelAllSubscriptions();
@@ -187,11 +206,12 @@ class MessageRetry with EventSubscriptionManager {
   /// 清空重试队列（不影响订阅和定时器）
   void clearRetryQueue() {
     _queueEpoch++;
-    _retryQueue.clear();
+    if (isWebWriterReady) _retryQueue.clear();
   }
 
   /// Called after the account's complete workflows have drained.
   static void removeAccount(String uid) {
+    requireWebWriter();
     _instance?._retryQueue.removeWhere((_, info) => info.ownerUid == uid);
     if (_instance?._retryQueue.isEmpty ?? false) {
       _instance?._retryTimer?.cancel();
@@ -207,6 +227,7 @@ class MessageRetry with EventSubscriptionManager {
   /// 启动重试定时器（自适应：队列为空时自动停止以节省 CPU）
   /// Start retry timer (adaptive: auto-stops when queue is empty).
   void startRetryTimer() {
+    if (!isWebWriterReady) return;
     _retryTimer?.cancel();
     _retryTimer = Timer.periodic(_scanTick, (_) {
       if (_retryQueue.isEmpty) {
@@ -242,6 +263,7 @@ class MessageRetry with EventSubscriptionManager {
     final generation = session.sessionGeneration;
     final epoch = _queueEpoch;
     bool scanCurrent() =>
+        isWebWriterReady &&
         session.isCurrentSession(generation) &&
         !session.isClearingSession &&
         epoch == _queueEpoch;
@@ -363,6 +385,7 @@ class MessageRetry with EventSubscriptionManager {
   /// 将消息添加到重试队列
   /// Add message to retry queue.
   void addToRetryQueue(String messageId, String type) {
+    if (!isWebWriterReady) return;
     if (UserRepoLocal.to.currentUid.isEmpty ||
         UserRepoLocal.to.isAuthTransitioning) {
       return;
@@ -429,6 +452,7 @@ class MessageRetry with EventSubscriptionManager {
   /// 从重试队列中移除消息
   /// Remove message from retry queue.
   void removeFromRetryQueue(String messageId) {
+    if (!isWebWriterReady) return;
     if (_retryQueue.remove(messageId) != null) {
       iPrint('消息从重试队列移除: $messageId');
     }
@@ -437,6 +461,7 @@ class MessageRetry with EventSubscriptionManager {
   /// 重试失败的消息
   /// Retry failed messages.
   Future<void> retryFailedMessages() async {
+    if (!isWebWriterReady) return;
     if (!isOnline || _retryQueue.isEmpty) return;
     // 重入互斥：见 _isScanning 声明处注释
     if (_isScanning) return;
@@ -452,18 +477,21 @@ class MessageRetry with EventSubscriptionManager {
   }
 
   bool _isCurrentRetry(MessageRetryInfo info) =>
+      isWebWriterReady &&
       identical(_retryQueue[info.messageId], info) &&
       UserRepoLocal.to.currentUid == info.ownerUid &&
       UserRepoLocal.to.isCurrentSession(info.sessionGeneration) &&
       !UserRepoLocal.to.isAuthTransitioning;
 
   void _removeRetryIfSame(MessageRetryInfo info) {
+    if (!isWebWriterReady) return;
     if (identical(_retryQueue[info.messageId], info)) {
       _retryQueue.remove(info.messageId);
     }
   }
 
   Future<void> _retryFailedMessagesLocked() async {
+    if (!isWebWriterReady) return;
     final now = _nowElapsedMs();
 
     // 重试间隔：单一真值源 RetryPolicy（与 SDK sendWithAck 对齐）
@@ -474,6 +502,7 @@ class MessageRetry with EventSubscriptionManager {
     final retryList = <MessageRetryInfo>[];
 
     for (final info in _retryQueue.values.toList(growable: false)) {
+      if (!isWebWriterReady) return;
       if (!_isCurrentRetry(info)) {
         toRemove.add(info);
         continue;
@@ -500,6 +529,7 @@ class MessageRetry with EventSubscriptionManager {
         continue;
       }
 
+      if (!isWebWriterReady) return;
       if (msg == null) {
         // 消息不存在，从队列移除
         toRemove.add(info);
@@ -641,40 +671,43 @@ class MessageRetry with EventSubscriptionManager {
     );
     if (!sessionValid() || actor.currentUid != uid) return true;
     final chatType = _normalizeMessageType(message.type ?? '').toLowerCase();
-    final changed = committed
-        ? await uploads.reconcileOutboxCommitted(
-            message.id,
-            uid,
-            isCurrent: sessionValid,
-          )
-        : await uploads.markOutboxUnknown(
-            message.id,
-            uid,
-            chatType,
+    Future<bool> reconcile() async {
+      if (!sessionValid() || actor.currentUid != uid) return true;
+      final changed = committed
+          ? await uploads.reconcileOutboxCommitted(
+              message.id,
+              uid,
+              isCurrent: sessionValid,
+            )
+          : await uploads.markOutboxUnknown(
+              message.id,
+              uid,
+              chatType,
+              isCurrent: sessionValid,
+            );
+      if (!changed || !sessionValid()) return true;
+      final messages = getMessageRepo(message.type ?? '');
+      if (!sessionValid()) return true;
+      final updated = await messages.find(message.id);
+      if (updated != null && sessionValid()) {
+        if (committed) {
+          ServerAckReceipts.announceVerified(
+            message: updated,
+            ownerUid: uid,
+            generation: actor.sessionGeneration,
             isCurrent: sessionValid,
           );
-    if (!changed || !sessionValid()) return true;
-    final messages = getMessageRepo(message.type ?? '');
-    if (committed) {
-      await messages.update({
-        'id': message.id,
-        'status': IMBoyMessageStatus.sent,
-      });
-    }
-    if (!sessionValid()) return true;
-    final updated = await messages.find(message.id);
-    if (updated != null && sessionValid()) {
-      if (committed) {
-        ServerAckReceipts.announceVerified(
-          message: updated,
-          ownerUid: uid,
-          generation: actor.sessionGeneration,
-          isCurrent: sessionValid,
-        );
+        }
+        final display = await updated.toTypeMessage();
+        if (!sessionValid()) return true;
+        AppEventBus.fireData([display], 'List<Message>');
       }
-      AppEventBus.fireData([await updated.toTypeMessage()], 'List<Message>');
+      return true;
     }
-    return true;
+
+    return chatType == 'c2g'
+        ? C2gSendGate.run(uid, message.id, reconcile)
+        : reconcile();
   }
 
   Future<void> _retryMessage(MessageRetryInfo info) async {
@@ -786,11 +819,13 @@ class MessageRetry with EventSubscriptionManager {
       // 更新UI状态（隔离异常：发送已提交并计数，UI 刷新失败不得落入
       // 外层 catch 再 count++ 一次，否则每次尝试烧双倍重试预算）
       try {
-        final updatedMsg = await repo.find(info.messageId);
-        if (updatedMsg != null) {
-          final updatedMessage = await updatedMsg.toTypeMessage();
-          AppEventBus.fireData([updatedMessage], 'List<Message>');
-        }
+        await _publishRetryMessage(
+          repo,
+          info.type,
+          info.ownerUid,
+          info.messageId,
+          () => _isCurrentRetry(info),
+        );
       } on Object catch (e) {
         iPrint('⚠️ [RETRY] UI 刷新失败（不影响重试计数）: ${info.messageId}, $e');
       }
@@ -819,7 +854,9 @@ class MessageRetry with EventSubscriptionManager {
     final session = UserRepoLocal.to;
     final generation = session.sessionGeneration;
     bool sessionValid() =>
-        session.isCurrentSession(generation) && !session.isClearingSession;
+        isWebWriterReady &&
+        session.isCurrentSession(generation) &&
+        !session.isClearingSession;
     if (!sessionValid()) return false;
     try {
       final normalizedType = _normalizeMessageType(type);
@@ -831,6 +868,11 @@ class MessageRetry with EventSubscriptionManager {
         return false;
       }
 
+      if (normalizedType == 'C2G' &&
+          msg.status == IMBoyMessageStatus.outcomeUnknown) {
+        return false;
+      }
+
       // 【关键修复】检查消息是否已经成功
       if (msg.status == IMBoyMessageStatus.sent ||
           msg.status == IMBoyMessageStatus.delivered ||
@@ -839,7 +881,7 @@ class MessageRetry with EventSubscriptionManager {
           '⚠️ [MANUAL_RETRY] 消息已成功(msgId=$messageId, status=${msg.status})，无需重试',
         );
         // 从重试队列中移除（如果存在）
-        _retryQueue.remove(messageId);
+        if (isWebWriterReady) _retryQueue.remove(messageId);
         return false; // 返回 false 表示无需重试
       }
 
@@ -848,7 +890,7 @@ class MessageRetry with EventSubscriptionManager {
       // 的 encryptPayload；群级 E2EE 开启且本地行没有 e2ee 元数据时，
       // 必须拒发，否则用户点击“重试”即可把明文重新送出。
       if (await _attachmentRetryBlocked(msg, sessionValid)) {
-        _retryQueue.remove(messageId);
+        if (isWebWriterReady) _retryQueue.remove(messageId);
         return false;
       }
       final blocked = await _isPlaintextRetryBlocked(msg);
@@ -870,10 +912,33 @@ class MessageRetry with EventSubscriptionManager {
       }
 
       // 更新状态为发送中
-      await repo.update({
-        'id': messageId,
-        'status': IMBoyMessageStatus.sending,
-      });
+      if (normalizedType == 'C2G') {
+        if (msg.isAuthor != 1 || msg.fromId.toString() != session.currentUid) {
+          return false;
+        }
+        final changed = await repo.updateWithConditions(
+          {'id': messageId, 'status': IMBoyMessageStatus.sending},
+          where:
+              'id = ? AND auto_id = ? AND type = ? AND from_id = ? '
+              'AND to_id = ? AND is_author = 1 '
+              'AND (status = ? OR (status IS NULL AND ? = 0))',
+          whereArgs: [
+            messageId,
+            msg.autoId,
+            'C2G',
+            session.currentUid,
+            msg.toId,
+            msg.status,
+            msg.status,
+          ],
+        );
+        if (changed != 1) return false;
+      } else {
+        await repo.update({
+          'id': messageId,
+          'status': IMBoyMessageStatus.sending,
+        });
+      }
       if (!sessionValid()) return false;
 
       // 构造消息数据
@@ -893,7 +958,7 @@ class MessageRetry with EventSubscriptionManager {
 
       if (!await _claimAttachmentDispatch(msg, sessionValid) ||
           !sessionValid()) {
-        _retryQueue.remove(messageId);
+        if (isWebWriterReady) _retryQueue.remove(messageId);
         return false;
       }
       // 【解耦】通过事件总线发送消息重试请求，而不是直接调用 WebSocketService
@@ -917,11 +982,13 @@ class MessageRetry with EventSubscriptionManager {
 
       // 更新UI状态（隔离异常：发送已提交，UI 刷新失败不应让本次重试判为失败）
       try {
-        final updatedMsg = await repo.find(messageId);
-        if (updatedMsg != null) {
-          final updatedMessage = await updatedMsg.toTypeMessage();
-          AppEventBus.fireData([updatedMessage], 'List<Message>');
-        }
+        await _publishRetryMessage(
+          repo,
+          normalizedType,
+          session.currentUid,
+          messageId,
+          sessionValid,
+        );
       } on Object catch (e) {
         iPrint('⚠️ [MANUAL_RETRY] UI 刷新失败（重试已提交）: $messageId, $e');
       }
@@ -930,6 +997,30 @@ class MessageRetry with EventSubscriptionManager {
     } on Object catch (e) {
       iPrint('手动重试消息错误: $messageId, $e');
       return false;
+    }
+  }
+
+  Future<void> _publishRetryMessage(
+    MessageRepo repo,
+    String type,
+    String uid,
+    String messageId,
+    bool Function() current,
+  ) async {
+    Future<void> publish() async {
+      if (!current()) return;
+      final message = await repo.find(messageId);
+      if (!current() || message == null) return;
+      await beforeRetryUiPublishForTest?.call();
+      if (!current()) return;
+      final display = await message.toTypeMessage();
+      if (current()) AppEventBus.fireData([display], 'List<Message>');
+    }
+
+    if (_normalizeMessageType(type) == 'C2G') {
+      await C2gSendGate.run(uid, messageId, publish);
+    } else {
+      await publish();
     }
   }
 
@@ -954,6 +1045,18 @@ class MessageRetry with EventSubscriptionManager {
   }
 
   Future<void> _markMessageAsError(MessageRetryInfo info) async {
+    if (_normalizeMessageType(info.type) == 'C2G') {
+      await C2gSendGate.run(
+        info.ownerUid,
+        info.messageId,
+        () => _markMessageAsErrorLocked(info),
+      );
+      return;
+    }
+    await _markMessageAsErrorLocked(info);
+  }
+
+  Future<void> _markMessageAsErrorLocked(MessageRetryInfo info) async {
     if (!_isCurrentRetry(info)) return;
     try {
       final repo = getMessageRepo(info.type);
@@ -966,15 +1069,34 @@ class MessageRetry with EventSubscriptionManager {
         return;
       }
 
-      await repo.update({
-        'id': info.messageId,
-        'status': IMBoyMessageStatus.error,
-      });
+      if (_normalizeMessageType(info.type) == 'C2G') {
+        final changed = await repo.updateWithConditions(
+          {'id': info.messageId, 'status': IMBoyMessageStatus.error},
+          where:
+              'id = ? AND auto_id = ? AND from_id = ? AND is_author = 1 '
+              'AND status IN (?, ?)',
+          whereArgs: [
+            info.messageId,
+            msg.autoId,
+            info.ownerUid,
+            IMBoyMessageStatus.sending,
+            IMBoyMessageStatus.pendingRetry,
+          ],
+        );
+        if (changed != 1 || !_isCurrentRetry(info)) return;
+      } else {
+        await repo.update({
+          'id': info.messageId,
+          'status': IMBoyMessageStatus.error,
+        });
+      }
 
       final updated = await repo.find(info.messageId);
-      if (updated != null) {
+      if (updated != null && _isCurrentRetry(info)) {
         final updatedMessage = await updated.toTypeMessage();
-        AppEventBus.fireData([updatedMessage], 'List<Message>');
+        if (_isCurrentRetry(info)) {
+          AppEventBus.fireData([updatedMessage], 'List<Message>');
+        }
       }
       iPrint('❌ [RETRY] 达到最大重试次数，标记消息失败: ${info.messageId}');
     } on Object catch (e) {

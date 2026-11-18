@@ -1,0 +1,57 @@
+# attachmentManager namespace — ar-SA
+# DSN-06 gap fill 2026-11-16: machine-candidate translations (owner decision owner-batch-20261116).
+allChannels: "جميع القنوات" # machine-candidate 2026-11-16
+allGroups: "جميع المجموعات" # machine-candidate 2026-11-16
+allPeople: "جميع الرافعين" # machine-candidate 2026-11-16
+cacheAction: "مسح الذاكرة المؤقتة" # machine-candidate 2026-11-16
+cacheConfirmBody: "سيتم مسح التخزين المؤقت للتنزيلات والمعاينات. لن تُحذف سجلّات المحادثات أو مفاتيح التشفير أو مرفقات المؤسسة في السحابة. ستحتاج بعض المحتويات إلى التنزيل مرة أخرى عند عرضها لاحقًا." # machine-candidate 2026-11-16
+cacheConfirmTitle: "مسح الذاكرة المؤقتة؟" # machine-candidate 2026-11-16
+cacheFailed: "فشل مسح الذاكرة المؤقتة. حاول مجددًا لاحقًا" # machine-candidate 2026-11-16
+centerHint: "يبحث في مرفقات المجموعات والقنوات وسجلّات اللقاءات المباشرة في مساحة العمل الحالية التي يُسمح لك بعرضها." # machine-candidate 2026-11-16
+clearFilters: "مسح عوامل التصفية" # machine-candidate 2026-11-16
+clearFiltersAction: "مسح عوامل التصفية" # machine-candidate 2026-11-16
+dateRange: "النطاق الزمني" # machine-candidate 2026-11-16
+emptyHint: "جرّب تغيير الكلمات المفتاحية أو شروط التصفية" # machine-candidate 2026-11-16
+emptyLocal: "لا توجد مرفقات يمكن عرضها على هذا الجهاز" # machine-candidate 2026-11-16
+emptySearch: "لم يتم العثور على مرفقات مطابقة" # machine-candidate 2026-11-16
+enterpriseBoundary: "المرفقات الموسومة بـ«استبقاء المؤسسة» تحتفظ بها سحابة المؤسسة ولا تُحذف عند مسح ذاكرة الجهاز أو سجل المحادثات؛ وتظل صلاحية العرض وفق صلاحيات المجموعة أو القناة أو سجل اللقاء المباشر المصدر." # machine-candidate 2026-11-16
+enterpriseHint: "اختر مجموعة في مساحة العمل الحالية لعرض ملفات السحابة." # machine-candidate 2026-11-16
+enterpriseRetained: "استبقاء المؤسسة" # machine-candidate 2026-11-16
+enterpriseTitle: "مرفقات المؤسسة" # machine-candidate 2026-11-16
+enterpriseUnmanaged: "غير مشمول بالاستبقاء" # machine-candidate 2026-11-16
+governanceAction: "حوكمة المرفقات" # machine-candidate 2026-11-16
+governanceExtendAction: "تمديد الاستبقاء" # machine-candidate 2026-11-16
+governanceExtendUntil: "تمديد الاستبقاء حتى" # machine-candidate 2026-11-16
+governanceHoldAction: "تعيين حجز قانوني" # machine-candidate 2026-11-16
+governanceHoldReason: "سبب الحجز (200 حرفًا كحد أقصى)" # machine-candidate 2026-11-16
+governancePhysicalPending: "اعتماد التنظيف لا يعني أن الملف حُذف فعلًا؛ والتقدم الفعلي تُظهره حالة التنظيف." # machine-candidate 2026-11-16
+governancePurgeAction: "اعتماد التنظيف" # machine-candidate 2026-11-16
+governancePurgeApproved: "تم اعتماد التنظيف" # machine-candidate 2026-11-16
+governancePurgeConfirm: "اعتماد تنظيف هذا المرفق؟ لا يمكن التراجع عن حالة الحوكمة بعد الاعتماد؛ ولن يبدأ التنظيف إلا بعد استيفاء جميع شروط حماية المراجع والرفع والمعالجة." # machine-candidate 2026-11-16
+governanceRefreshConflict: "تغيّر إصدار السجل. حدّث وتحقق ثم أعد الإرسال." # machine-candidate 2026-11-16
+governanceReleaseHoldAction: "رفع الحجز القانوني" # machine-candidate 2026-11-16
+groupSource: "مرفقات المجموعات" # machine-candidate 2026-11-16
+loadFailed: "فشل تحميل المرفقات. أعد المحاولة" # machine-candidate 2026-11-16
+loadMore: "تحميل المزيد" # machine-candidate 2026-11-16
+localOnly: "فهرس الرسائل على الجهاز" # machine-candidate 2026-11-16
+moreFailed: "تعذّر تحميل المزيد. حاول مجددًا لاحقًا." # machine-candidate 2026-11-16
+openSource: "عرض الرسالة المصدر" # machine-candidate 2026-11-16
+organizationCenterHint: "يبحث في مرفقات المؤسسة التي يُسمح لك بعرضها، بما فيها سجلّات اللقاءات المباشرة غير المصنّفة في مساحة عمل." # machine-candidate 2026-11-16
+personSearch: "اسم الرافع أو حسابه أو رقمه" # machine-candidate 2026-11-16
+personalBoundary: "الظهور على هذا الجهاز لا يعني وجود نسخة سحابية. مسح الذاكرة المؤقتة يحتفظ بفهرس الرسائل؛ وبعد حذف سجل المحادثات لا يُستعاد شيء تلقائيًا. المحتوى المشفّر يظل يتطلب مفاتيح متاحة." # machine-candidate 2026-11-16
+personalHint: "يبحث في المرفقات وفق سجل المحادثات على الجهاز. انقر على ملف للعودة إلى الرسالة المصدر." # machine-candidate 2026-11-16
+personalTitle: "مرفقات الجهاز" # machine-candidate 2026-11-16
+resultCount: "إجمالي المرفقات ${count}" # machine-candidate 2026-11-16
+retryAction: "إعادة المحاولة" # machine-candidate 2026-11-16
+searchGroupsHint: "البحث عن مجموعات" # machine-candidate 2026-11-16
+searchHint: "البحث باسم المرفق" # machine-candidate 2026-11-16
+selectChannelTitle: "اختيار قناة" # machine-candidate 2026-11-16
+selectGroupTitle: "اختيار مجموعة" # machine-candidate 2026-11-16
+sourceAll: "جميع المصادر" # machine-candidate 2026-11-16
+sourceChannels: "القنوات" # machine-candidate 2026-11-16
+sourceGroups: "المجموعات" # machine-candidate 2026-11-16
+sourceTalkRecords: "سجلّات اللقاءات المباشرة" # machine-candidate 2026-11-16
+storageHint: "تُدار هنا مساحة الجهاز؛ وللبحث عن المرفقات وعرضها استخدم مرفقات الجهاز." # machine-candidate 2026-11-16
+talkRecordSourceHint: "اعرض سجلّات اللقاءات المباشرة؛ ويظل التشغيل والتصدير وفق صلاحيات السجل." # machine-candidate 2026-11-16
+title: "المرفقات" # machine-candidate 2026-11-16
+unavailableSource: "لم تعد المحادثة المصدر موجودة، فلا يمكن فتح المرفق بأمان" # machine-candidate 2026-11-16

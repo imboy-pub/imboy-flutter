@@ -8,11 +8,13 @@ enum ChannelResponseShape {
   subscribed,
   workspace,
   socket,
+  s2cSocket,
   unread,
   groupDetail,
   groupList,
   groupCreate,
   groupMember,
+  groupNotice,
   groupWorkspace,
   groupSocket,
   trustSocket,
@@ -23,6 +25,8 @@ enum ChannelResponseShape {
   people,
   fts,
   messageResult,
+  conversation,
+  login,
 }
 
 /// Opt-in Dio response decoder. Set it on a JSON request for the matching
@@ -41,7 +45,8 @@ ResponseDecoder channelIdResponseDecoder(ChannelResponseShape shape) =>
     };
 
 /// Preserve raw decimal ID tokens before Dio's JSON parser can round them.
-/// Only channel and creator IDs in detail and subscribed list payloads are in scope. Other values retain standard JSON decoding semantics.
+/// Each response shape selects only its declared identity paths. Counts,
+/// timestamps, content and other values retain standard JSON semantics.
 String rewriteChannelIds(String source, ChannelResponseShape shape) {
   final decoded = jsonDecode(source); // Validate before scanning.
   return _Scanner(source, shape, decoded).rewrite();
@@ -178,7 +183,30 @@ class _Scanner {
           offlineAction == 'apply_friend_confirm';
       final offlineTrust = offlineAction == 'e2ee_trust_changed';
       final offlineDeviceKey = offlineAction == 'e2ee_device_key_changed';
-      final selected = shape == ChannelResponseShape.messageResult
+      // DEF-SYN04-READSYNC-WEB-1：离线拉取的 message_read_sync 行与在线
+      // WS 同帧同契约（from/to 为 64-bit uid JSON integer），必须同样
+      // 在解码前保真，否则读侧 _requireReadOwner 因 V8 舍入 mismatch
+      // 丢弃同步帧（未读不收敛）。
+      final offlineReadSync = offlineAction == 'message_read_sync';
+      final selected = shape == ChannelResponseShape.conversation
+          ? _matches(path, const ['payload', '*', 'conversation_id']) ||
+                ['list', 'items', 'rows'].any(
+                  (list) =>
+                      _matches(path, ['payload', list, '*', 'conversation_id']),
+                )
+          : shape == ChannelResponseShape.login
+          ? ['uid', 'user_id'].any((key) => _matches(path, ['payload', key]))
+          : shape == ChannelResponseShape.groupNotice
+          ? ['list', 'items'].any(
+              (list) => [
+                'id',
+                'notice_id',
+                'group_id',
+                'publisher_id',
+                'user_id',
+              ].any((key) => _matches(path, ['payload', list, '*', key])),
+            )
+          : shape == ChannelResponseShape.messageResult
           ? _matches(path, const ['payload', 'peer_id'])
           : shape == ChannelResponseShape.fts
           ? ['list', 'items'].any(
@@ -208,7 +236,8 @@ class _Scanner {
                         offlineChannel ||
                         offlineFriend ||
                         offlineTrust ||
-                        offlineDeviceKey) &&
+                        offlineDeviceKey ||
+                        offlineReadSync) &&
                     (['from', 'to', 'msg_id', 'id'].any(
                           (key) => _matches(path, [
                             'payload',
@@ -289,6 +318,16 @@ class _Scanner {
                 ].any((key) => _matches(path, ['payload', key])) ||
                 _matches(path, const ['from']) ||
                 _matches(path, const ['to'])
+          // DEF-SYN04-READSYNC-WEB-1（safeParseBigIntJson 语义）：S2C 帧的
+          // 顶层 from/to 是 64-bit uid JSON integer（服务器裸数字下发），
+          // 普通解码在 web 上经 V8 最短往返舍入丢精度（…856→…860），
+          // 读侧 _requireReadOwner 与 owner.uid 不等 → StateError 被吞 →
+          // markAsRead 永不执行（未读不收敛）。解码前保真 top-level
+          // from/to（c2c_revoke/c2c_del_everyone 的 `from as String` 消费
+          // 亦按 TSID 契约期待字符串）；payload 内字段由各 action 自行
+          // 解释，本形状不触碰（只动这条 S2C 解码路径）。
+          : shape == ChannelResponseShape.s2cSocket
+          ? _matches(path, const ['from']) || _matches(path, const ['to'])
           : shape == ChannelResponseShape.groupSocket
           ? [
                   'gid',

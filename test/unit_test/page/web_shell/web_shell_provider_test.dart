@@ -27,6 +27,24 @@ class _Account extends Notifier<UserModel?> {
 final _account = NotifierProvider<_Account, UserModel?>(_Account.new);
 
 void main() {
+  test('从联系人开始聊天只发出一次消息标签和会话选择的原子状态', () {
+    final container = ProviderContainer();
+    addTearDown(container.dispose);
+    final notifier = container.read(webShellProvider.notifier);
+    notifier.switchTab(1);
+    notifier.selectItem(const ContactSelection(uid: 'peer'));
+    final changes = <WebShellState>[];
+    final subscription = container.listen(
+      webShellProvider,
+      (_, next) => changes.add(next),
+    );
+    addTearDown(subscription.close);
+    const chat = ChatSelection(peerId: 'peer', chatType: 'C2C');
+    notifier.openChat(chat);
+    notifier.openChat(chat);
+    expect(changes, [const WebShellState(currentTab: 0, selectedItem: chat)]);
+  });
+
   test('桌面标签和选择在返回时保留，换账号或退出时清空', () async {
     final container = ProviderContainer(
       overrides: [

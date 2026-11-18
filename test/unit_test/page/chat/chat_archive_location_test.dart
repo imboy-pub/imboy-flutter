@@ -27,6 +27,8 @@ class _Environment extends Mock implements Env {}
 
 class _Sessions extends ChangeNotifier implements AuthSessionReader {
   @override
+  bool get transitionFailed => false;
+  @override
   AuthSessionScope current = (uid: '1001', generation: 1, transitioning: false);
   @override
   bool isCurrent(AuthSessionScope captured) =>

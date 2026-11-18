@@ -92,7 +92,7 @@ class ExecutionCatalogTest(unittest.TestCase):
         if tracked:
             self.git('add', '--', path)
 
-    def fail(self, code):
+    def expect_contract_error(self, code):
         with self.assertRaisesRegex(ContractError, code):
             validate_catalog(self.root, self.cfg)
 
@@ -101,7 +101,7 @@ class ExecutionCatalogTest(unittest.TestCase):
 
     def test_new_unknown_directory_is_rejected(self):
         self.put('test/new_business/forgotten_test.dart', UNIT)
-        self.fail('UNASSIGNED_TEST_SOURCE')
+        self.expect_contract_error('UNASSIGNED_TEST_SOURCE')
 
     def test_ci_dependency_check_preserves_current_frozen_inputs(self):
         for path in ('pubspec.yaml', 'pubspec.lock'):
@@ -133,13 +133,13 @@ class ExecutionCatalogTest(unittest.TestCase):
         self.put('test/unowned/not_added_test.dart', UNIT, tracked=False)
         self.assertFalse(build_catalog(self.root, self.cfg)['errors'])
         self.git('add', '-N', '--', 'test/unowned/not_added_test.dart')
-        self.fail('UNASSIGNED_TEST_SOURCE')
+        self.expect_contract_error('UNASSIGNED_TEST_SOURCE')
 
     def test_two_primary_rule_owners_are_rejected(self):
         self.cfg['rules'].append({'id': 'conflicting-widget',
                                   'prefixes': ['test/unit_test/'],
                                   'classifier': 'host-dart', 'suite': 'widget'})
-        self.fail('MULTIPLE_PRIMARY_OWNERS')
+        self.expect_contract_error('MULTIPLE_PRIMARY_OWNERS')
 
     def test_reviewed_target_override_replaces_one_directory_owner(self):
         self.cfg['rules'][0]['suite'] = 'unit'
@@ -190,17 +190,17 @@ class ExecutionCatalogTest(unittest.TestCase):
         _, source = self.add_registered_font_contract()
         self.put(source, (self.root / source).read_text().replace(
             'kGoldenFontAssets = [', 'kGoldenFontAssets = buildFontRegistry(['))
-        self.fail('REGISTERED_GOLDEN_FONT_REGISTRY_INVALID')
+        self.expect_contract_error('REGISTERED_GOLDEN_FONT_REGISTRY_INVALID')
 
     def test_untracked_font_registry_cannot_supply_an_execution_dependency(self):
         _, source = self.add_registered_font_contract()
         self.cfg['rules'].pop()  # Isolate the dependency check from dangling rule checks.
         self.git('rm', '--cached', '--', source)
-        self.fail('REGISTERED_GOLDEN_FONT_REGISTRY_UNTRACKED')
+        self.expect_contract_error('REGISTERED_GOLDEN_FONT_REGISTRY_UNTRACKED')
 
     def test_dangling_target_reference_is_rejected(self):
         self.cfg['profiles']['pr']['targets'] = ['test/unit_test/missing_test.dart']
-        self.fail('UNKNOWN_PROFILE_TARGET')
+        self.expect_contract_error('UNKNOWN_PROFILE_TARGET')
 
     def test_profile_prefix_must_be_a_relative_directory_with_executable_targets(self):
         for prefix, error in [('test/unit_test/missing/', 'UNKNOWN_PROFILE_PREFIX'),
@@ -209,13 +209,17 @@ class ExecutionCatalogTest(unittest.TestCase):
                               ('test/../unit_test/', 'INVALID_PROFILE_PREFIX')]:
             with self.subTest(prefix=prefix):
                 self.cfg['profiles']['pr']['prefixes'] = [prefix]
-                self.fail(error)
+                self.expect_contract_error(error)
         self.put('test/unit_test/support/helper.dart', 'const fixtureValue = 1;\n')
         self.cfg['profiles']['pr']['prefixes'] = ['test/unit_test/support/']
-        self.fail('UNKNOWN_PROFILE_PREFIX')
+        self.expect_contract_error('UNKNOWN_PROFILE_PREFIX')
 
     def test_web_shell_prefix_automatically_selects_new_owned_tests_on_their_platforms(self):
-        self.cfg['profiles']['web-shell'] = load_contract(ROOT)['profiles']['web-shell']
+        # Prefix auto-selection semantics: the repository web-shell profile also pins
+        # explicit targets that only exist in the real repository; this synthetic repo
+        # exercises the prefix mechanism alone, so the pinned targets are dropped.
+        self.cfg['profiles']['web-shell'] = {
+            **load_contract(ROOT)['profiles']['web-shell'], 'targets': []}
         host = 'test/unit_test/page/web_shell/new_view_test.dart'
         browser = 'test/unit_test/page/web_shell/new_browser_test.dart'
         self.put(host, WIDGET)
@@ -270,35 +274,35 @@ class ExecutionCatalogTest(unittest.TestCase):
     def test_kill_replay_cannot_fall_back_to_ordinary_single_device_invocation(self):
         target = self.add_kill_replay_contract()
         del self.cfg['overrides'][target]
-        self.fail('KILL_REPLAY_ORCHESTRATION_REQUIRED')
+        self.expect_contract_error('KILL_REPLAY_ORCHESTRATION_REQUIRED')
 
     def test_kill_replay_cannot_claim_an_unimplemented_platform(self):
         target = self.add_kill_replay_contract()
         self.cfg['overrides'][target]['platforms'].append('macos')
-        self.fail('KILL_REPLAY_ORCHESTRATION_REQUIRED')
+        self.expect_contract_error('KILL_REPLAY_ORCHESTRATION_REQUIRED')
 
     def test_kill_replay_requires_both_a_real_controller_and_evidence_verifier(self):
         target = self.add_kill_replay_contract()
         self.put('scripts/auto_test_lib/execution_adapters.py', 'def run_kill_replay(): pass\n')
-        self.fail('ORCHESTRATION_CALLABLE_MISSING')
+        self.expect_contract_error('ORCHESTRATION_CALLABLE_MISSING')
         self.cfg['overrides'][target]['orchestration_entrypoint']['entrypoint'] = 'scripts/missing.py'
-        self.fail('ORCHESTRATION_ENTRYPOINT_MISSING')
+        self.expect_contract_error('ORCHESTRATION_ENTRYPOINT_MISSING')
 
     def test_dangling_explicit_override_is_rejected(self):
         self.cfg['overrides']['test/missing_test.dart'] = {'suite': 'unit', 'basis': ['reviewed']}
-        self.fail('DANGLING_OVERRIDE')
+        self.expect_contract_error('DANGLING_OVERRIDE')
 
     def test_suite_without_runner_is_rejected(self):
         del self.cfg['suites']['unit']['runner']
-        self.fail('SUITE_RUNNER_MISSING')
+        self.expect_contract_error('SUITE_RUNNER_MISSING')
 
     def test_runner_without_real_entrypoint_is_rejected(self):
         self.cfg['runners']['flutter-machine']['entrypoint'] = 'scripts/no_runner.py'
-        self.fail('RUNNER_ENTRYPOINT_MISSING')
+        self.expect_contract_error('RUNNER_ENTRYPOINT_MISSING')
 
     def test_existing_file_without_runner_callable_is_rejected(self):
         self.put('scripts/auto_test_lib/execution_runner.py', '# documentation only\n')
-        self.fail('RUNNER_CALLABLE_MISSING')
+        self.expect_contract_error('RUNNER_CALLABLE_MISSING')
 
     def test_duplicate_json_ownership_keys_are_rejected(self):
         self.put('test/auto_test/execution_contract.json', '{"overrides": {}, "overrides": {}}')
@@ -307,11 +311,11 @@ class ExecutionCatalogTest(unittest.TestCase):
 
     def test_unknown_runner_adapter_is_rejected(self):
         self.cfg['runners']['flutter-machine']['adapter'] = 'exit-zero-only'
-        self.fail('RUNNER_ADAPTER_MISMATCH')
+        self.expect_contract_error('RUNNER_ADAPTER_MISMATCH')
 
     def test_tracked_target_removed_from_worktree_is_dangling(self):
         (self.root / 'test/unit_test/base_test.dart').unlink()
-        self.fail('TRACKED_TARGET_MISSING')
+        self.expect_contract_error('TRACKED_TARGET_MISSING')
 
     def test_sqlite_classification_follows_test_helper_imports(self):
         self.put('test/unit_test/helper.dart', "import 'package:sqflite_common_ffi/sqflite_ffi.dart';\nvoid prepare() {}\n")
@@ -364,18 +368,18 @@ class ExecutionCatalogTest(unittest.TestCase):
     def test_new_two_client_family_cannot_default_to_single_device(self):
         self.cfg['rules'][1]['review_prefixes'] = ['integration_test/two_client/']
         self.put('integration_test/two_client/new_peer_test.dart', DEVICE)
-        self.fail('SPECIALIST_TOPOLOGY_REQUIRES_REVIEW')
+        self.expect_contract_error('SPECIALIST_TOPOLOGY_REQUIRES_REVIEW')
 
     def test_pair_needs_real_orchestration_and_complete_roles(self):
         target = 'integration_test/pair_test.dart'
         self.put(target, DEVICE)
         self.cfg['overrides'][target] = {'suite': 'device-pair',
             'pair_group': 'synthetic-pair', 'basis': ['Two native peer roles']}
-        self.fail('PAIR_ORCHESTRATION_MISSING')
+        self.expect_contract_error('PAIR_ORCHESTRATION_MISSING')
         self.cfg['overrides'][target].update(orchestration='dual-concurrent')
-        self.fail('PAIR_ROLES_MISSING')
+        self.expect_contract_error('PAIR_ROLES_MISSING')
         self.cfg['overrides'][target]['roles'] = [{'role': 'sender', 'platforms': ['android']}]
-        self.fail('PAIR_TOPOLOGY_INVALID')
+        self.expect_contract_error('PAIR_TOPOLOGY_INVALID')
 
     def test_pair_platform_selector_includes_the_required_companion(self):
         target = 'integration_test/pair_test.dart'
@@ -425,19 +429,33 @@ class ExecutionCatalogTest(unittest.TestCase):
         self.assertEqual(len({r['id'] for r in selected}), 8)
         self.assertEqual({r['product_profile'] for r in selected}, {'phase1_delivery', 'full-selected'})
 
+    def test_web_flutter_instances_require_chrome_without_host_dependency(self):
+        target = 'test/unit_test/base_test.dart'
+        self.cfg['overrides'][target] = {
+            'platforms': ['linux', 'macos', 'web'],
+            'basis': ['Synthetic host and browser matrix'],
+        }
+        rows = [row for row in self.plan(profile='full')['instances']
+                if row['target'] == target and row['selected']]
+        self.assertEqual({'linux', 'macos', 'web'}, {row['platform'] for row in rows})
+        for row in rows:
+            with self.subTest(platform=row['platform']):
+                self.assertEqual(row['platform'] == 'web',
+                                 'chrome' in row['dependencies'])
+
     def test_empty_roles_or_variants_cannot_silently_remove_target(self):
         target = 'test/unit_test/base_test.dart'
         for field, code in [('roles', 'INVALID_TARGET_ROLES'),
                             ('variants', 'INVALID_TARGET_VARIANTS')]:
             with self.subTest(field=field):
                 self.cfg['overrides'][target] = {field: [], 'basis': ['Malformed matrix']}
-                self.fail(code)
+                self.expect_contract_error(code)
 
     def test_role_platforms_cannot_hide_undeclared_topology(self):
         self.cfg['overrides']['test/unit_test/base_test.dart'] = {
             'roles': [{'role': 'unexpected-device', 'platforms': ['android']}],
             'basis': ['Invalid role matrix']}
-        self.fail('INVALID_ROLE_PLATFORMS')
+        self.expect_contract_error('INVALID_ROLE_PLATFORMS')
 
     def route_contract(self, routes):
         target = 'test/unit_test/smoke/route_smoke_test.dart'
@@ -468,14 +486,14 @@ class ExecutionCatalogTest(unittest.TestCase):
 
     def test_dynamic_or_duplicate_route_names_require_review(self):
         _, registry = self.route_contract(['first', 'first'])
-        self.fail('ROUTE_REGISTRY_REQUIRES_REVIEW')
+        self.expect_contract_error('ROUTE_REGISTRY_REQUIRES_REVIEW')
         self.put(registry, "final smokeRoutes = [SmokeRoute(name: dynamicName)];\n")
-        self.fail('ROUTE_REGISTRY_REQUIRES_REVIEW')
+        self.expect_contract_error('ROUTE_REGISTRY_REQUIRES_REVIEW')
 
     def test_route_group_change_cannot_silently_omit_contracts(self):
         target, _ = self.route_contract(['first'])
         self.put(target, UNIT)
-        self.fail('ROUTE_TEST_GROUP_CHANGED')
+        self.expect_contract_error('ROUTE_TEST_GROUP_CHANGED')
 
     def test_explicit_variant_filter_is_scoped_and_preserves_other_obligations(self):
         target, _ = self.route_contract(['first', 'second'])
@@ -503,12 +521,12 @@ class ExecutionCatalogTest(unittest.TestCase):
     def test_disabled_is_not_an_execution_owner(self):
         self.cfg['overrides']['test/unit_test/base_test.dart'] = {
             'enabled': False, 'basis': ['Not actually a runner']}
-        self.fail('DISABLED_OWNERSHIP_NOT_ALLOWED')
+        self.expect_contract_error('DISABLED_OWNERSHIP_NOT_ALLOWED')
 
     def test_business_test_cannot_be_hidden_as_helper(self):
         self.cfg['overrides']['test/unit_test/base_test.dart'] = {
             'kind': 'helper', 'basis': ['Incorrect classification']}
-        self.fail('EXECUTABLE_MISCLASSIFIED_AS_SUPPORT')
+        self.expect_contract_error('EXECUTABLE_MISCLASSIFIED_AS_SUPPORT')
 
     def test_browser_annotation_never_goes_to_host_vm(self):
         self.put('test/unit_test/browser_test.dart', "@TestOn('chrome')\nlibrary;\n" + UNIT)
@@ -603,10 +621,10 @@ class ExecutionCatalogTest(unittest.TestCase):
     def test_wasm_fixture_must_be_tracked_and_resolve_to_a_present_asset(self):
         _, fixture, source = self.add_wasm_web_fixtures()
         self.git('rm', '--cached', '--', fixture)
-        self.fail('DANGLING_OVERRIDE')
+        self.expect_contract_error('DANGLING_OVERRIDE')
         self.git('add', '--', fixture)
         (self.root / source).unlink()
-        self.fail('DANGLING_OVERRIDE')
+        self.expect_contract_error('DANGLING_OVERRIDE')
 
     def test_wasm_source_change_invalidates_the_frozen_browser_plan(self):
         from auto_test_lib import execution_catalog, execution_cli
@@ -656,7 +674,7 @@ class ExecutionCatalogTest(unittest.TestCase):
     def test_product_artifacts_cannot_hide_arbitrary_runtime_changes(self):
         from auto_test_lib.execution_adapters import PRODUCT_ARTIFACTS
         self.cfg['product_artifacts'] = list(PRODUCT_ARTIFACTS) + ['lib/arbitrary.dart']
-        self.fail('PRODUCT_ARTIFACT_SET_INVALID')
+        self.expect_contract_error('PRODUCT_ARTIFACT_SET_INVALID')
 
     def test_python_tooling_is_independent_of_application_product_artifacts(self):
         self.put('test/tooling/test_contract.py',
@@ -669,7 +687,7 @@ class ExecutionCatalogTest(unittest.TestCase):
 
     def test_application_tests_cannot_bypass_product_verification(self):
         self.cfg['suites']['unit']['product_independent'] = True
-        self.fail('PRODUCT_INDEPENDENCE_REQUIRES_REVIEWED_OFFLINE_NATIVE_OR_TOOLING')
+        self.expect_contract_error('PRODUCT_INDEPENDENCE_REQUIRES_REVIEWED_OFFLINE_NATIVE_OR_TOOLING')
 
     def test_rtc_widget_contract_retains_both_real_product_obligations(self):
         target = 'test/unit_test/page/contact/people_info_rtc_feature_gate_test.dart'
@@ -697,9 +715,9 @@ class ExecutionCatalogTest(unittest.TestCase):
         self.assertTrue(all(r['product_contract']['manifest_profile'] == 'any' for r in native))
         changed = "import 'package:imboy/main.dart' as app;\n" + DEVICE
         self.put(target, changed)
-        self.fail('PRODUCT_INDEPENDENCE_REQUIRES_REVIEWED_OFFLINE_NATIVE_OR_TOOLING')
+        self.expect_contract_error('PRODUCT_INDEPENDENCE_REQUIRES_REVIEWED_OFFLINE_NATIVE_OR_TOOLING')
         self.cfg['overrides'][target]['reviewed_source_sha256'] = hashlib.sha256(changed.encode()).hexdigest()
-        self.fail('PRODUCT_INDEPENDENCE_REQUIRES_REVIEWED_OFFLINE_NATIVE_OR_TOOLING')
+        self.expect_contract_error('PRODUCT_INDEPENDENCE_REQUIRES_REVIEWED_OFFLINE_NATIVE_OR_TOOLING')
 
     def test_diagnostic_driver_cannot_hide_new_business_assertions(self):
         target = 'integration_test/diagnostic_test.dart'
@@ -711,7 +729,7 @@ class ExecutionCatalogTest(unittest.TestCase):
         changed = DEVICE.replace('async {}', 'async { expect(1, 1); }')
         self.put(target, changed)
         self.cfg['overrides'][target]['reviewed_source_sha256'] = hashlib.sha256(changed.encode()).hexdigest()
-        self.fail('EXECUTABLE_MISCLASSIFIED_AS_SUPPORT')
+        self.expect_contract_error('EXECUTABLE_MISCLASSIFIED_AS_SUPPORT')
 
     def test_product_matrix_accepts_separate_generated_artifacts_but_pins_other_source(self):
         from auto_test_lib.execution_adapters import PRODUCT_ARTIFACTS

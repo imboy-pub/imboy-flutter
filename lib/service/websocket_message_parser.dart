@@ -17,6 +17,17 @@ Map<String, dynamic> parseWebSocketMessage(dynamic message) {
         ),
       ) as Map<String, dynamic>;
     }
+    // DEF-SYN04-READSYNC-WEB-1（TSID 契约 / safeParseBigIntJson 语义）：
+    // S2C 帧顶层 from/to 为 64-bit uid JSON integer，普通解码在 web 上
+    // 经 V8 最短往返舍入丢精度（…856→…860），message_read_sync 的
+    // _requireReadOwner 与 owner.uid 不等 → StateError 被 switchS2C 吞
+    // → markAsRead 永不执行。与 trust/deviceKey/group socket 同款：解码
+    // 前对原始文本保真 top-level from/to（只动这条 S2C 解码路径）。
+    if (decoded['type']?.toString().toUpperCase() == 'S2C') {
+      return jsonDecode(
+        rewriteChannelIds(message, ChannelResponseShape.s2cSocket),
+      ) as Map<String, dynamic>;
+    }
     if ((decoded['action']?.toString().toLowerCase() ?? '').startsWith(
           'group_',
         ) ||

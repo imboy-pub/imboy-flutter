@@ -136,7 +136,8 @@ void main() {
                             key: chatInputKey,
                             type: 'C2C',
                             peerId: '200',
-                            onSendPressed: (text) async => true,
+                            onSendPressed: (text) async =>
+                                const ComposerSendReceipt(true),
                             composerHeight: composerHeight,
                           ),
                         ),

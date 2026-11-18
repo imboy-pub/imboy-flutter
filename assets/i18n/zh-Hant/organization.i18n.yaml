@@ -371,6 +371,9 @@ hub:
   adminManage: 企業管理
   adminManageDesc: 工作區 · 群 · 頻道治理
 
+  # ---- DSN-06 gap fill (machine-candidate 2026-11-16) ----
+  adminCsGovernance: "客服治理" # machine-candidate 2026-11-16
+  adminCsGovernanceDesc: "席位額度 · 坐席啟停" # machine-candidate 2026-11-16
 wsMembers:
   title: "工作區成員 · ${ws}"
   invite: 邀請成員
@@ -431,3 +434,17 @@ experienceUi:
   accountCheck: "注销前检查"
   workspaceContext: "工作区：${name}"
   noIntro: "暫無簡介"
+  # ---- DSN-06 gap fill (machine-candidate 2026-11-16) ----
+  cleanupRecordLabel: "記錄" # machine-candidate 2026-11-16
+  cleanupResourcesTruncated: "僅顯示前 20 條，處理後請重新整理檢查剩餘項。" # machine-candidate 2026-11-16
+  openPersonalTalkRecords: "檢視個人面聊記錄" # machine-candidate 2026-11-16
+  talkRecordCleanupPendingBody: "記錄已刪除，檔案清理尚未完成。可檢視真實進度；保留規則或處理保護不能被手動跳過。" # machine-candidate 2026-11-16
+  talkRecordCleanupPendingTitle: "錄音檔案仍在清理" # machine-candidate 2026-11-16
+  talkRecordOrganizationOwnerPendingBody: "請先移交企業面聊記錄的管理責任。移交不會自動解除歷史身分引用。" # machine-candidate 2026-11-16
+  talkRecordOrganizationOwnerPendingTitle: "企業面聊記錄尚未移交" # machine-candidate 2026-11-16
+  talkRecordPersonalPendingBody: "請先處理個人面聊記錄，再重新檢查註銷條件。" # machine-candidate 2026-11-16
+  talkRecordPersonalPendingTitle: "個人面聊記錄待處理" # machine-candidate 2026-11-16
+  talkRecordRetainedIdentityPendingBody: "歷史記錄仍引用此身分，目前無法完成註銷。移交記錄不保證解除這些引用。" # machine-candidate 2026-11-16
+  talkRecordRetainedIdentityPendingTitle: "歷史身分引用待核查" # machine-candidate 2026-11-16
+  unknownBlockerTitle: "還有待處理事項" # machine-candidate 2026-11-16
+  viewTalkRecordCleanup: "檢視清理進度" # machine-candidate 2026-11-16

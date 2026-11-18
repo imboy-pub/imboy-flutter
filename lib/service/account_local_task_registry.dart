@@ -1,3 +1,5 @@
+import 'package:imboy/service/web_writer_gate.dart';
+
 import 'dart:async';
 import 'dart:convert';
 
@@ -55,11 +57,23 @@ class AccountLocalTaskRegistry {
 
   final Map<AccountLocalTaskOwner, Set<AccountLocalTask>> _tasks = {};
   final Set<AccountLocalTaskOwner> _cleaning = {};
+  bool _storageSuspended = false;
+
+  /// Terminal hold: do not execute onCancel/finally cleanup or delete originals.
+  void suspendForStorageFailure() => _storageSuspended = true;
+
+  void _requireAvailable() {
+    requireWebWriter();
+    if (_storageSuspended) {
+      throw const WebWriterGateFailure(WebWriterFailureKind.poisoned);
+    }
+  }
 
   AccountLocalTask register(
     AccountLocalTaskOwner owner, {
     FutureOr<void> Function()? onCancel,
   }) {
+    _requireAvailable();
     if (owner.uid.isEmpty ||
         owner.environment.isEmpty ||
         owner.endpoint.isEmpty) {
@@ -85,6 +99,7 @@ class AccountLocalTaskRegistry {
   /// Call before entering a session-write queue: a stopped upload may itself
   /// need that queue to finish discarding a partial secret or cache write.
   AccountLocalTaskCleanup beginCleanup(AccountLocalTaskOwner owner) {
+    _requireAvailable();
     if (!_cleaning.add(owner)) {
       throw StateError('Account cleanup is already in progress');
     }
@@ -113,13 +128,16 @@ class AccountLocalTask {
   Future<void>? _cancellation;
   bool _cancelled = false;
 
-  bool get isCancelled => _cancelled;
+  bool get isCancelled =>
+      _cancelled || !isWebWriterReady || _registry._storageSuspended;
 
   void throwIfCancelled() {
+    _registry._requireAvailable();
     if (_cancelled) throw const AccountLocalTaskCancelledException();
   }
 
   Future<void> _cancel() {
+    _registry._requireAvailable();
     _cancelled = true;
     return _cancellation ??= Future<void>.sync(() => _onCancel?.call())
         .catchError((Object error, StackTrace stack) {

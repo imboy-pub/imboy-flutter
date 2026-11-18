@@ -42,6 +42,7 @@ import 'package:imboy/app_core/feature_flags/runtime_feature_recovery.dart';
 import 'package:imboy/service/app_upgrade_service.dart';
 import 'package:imboy/service/message_actions.dart';
 import 'package:imboy/service/message_read_sync_plan.dart';
+import 'package:imboy/service/account_preferences.dart';
 import 'package:imboy/service/e2ee_service.dart';
 import 'package:imboy/service/safety_number_service.dart';
 import 'package:imboy/service/e2ee/trust_event_client.dart';
@@ -181,14 +182,23 @@ class MessageS2CService {
     Map<String, dynamic> data, {
     bool propagateErrors = false,
   }) async {
-    final key = buildS2CDedupKey(
-      data,
-      (data['action'] ?? '').toString().toLowerCase(),
-      (data['from'] ?? '').toString(),
-      (data['to'] ?? '').toString(),
+    // Capture before the first await: an old frame must never acquire a new
+    // account, login generation or endpoint while resolving its local plan.
+    final action = (data['action'] ?? '').toString().toLowerCase();
+    final readOwner = action == 'message_read_sync'
+        ? AccountPreferences.capture()
+        : null;
+    final key = _readFrameKey(
+      readOwner,
+      buildS2CDedupKey(
+        data,
+        (data['action'] ?? '').toString().toLowerCase(),
+        (data['from'] ?? '').toString(),
+        (data['to'] ?? '').toString(),
+      ),
     );
     final pending = _pendingS2CFrames[key];
-    final processing = pending ?? _processS2C(data);
+    final processing = pending ?? _processS2C(data, readOwner);
     if (pending == null) _pendingS2CFrames[key] = processing;
     try {
       // 正在处理的副本共享结果；成功去重与 ACK 只能发生在处理完成后。
@@ -202,7 +212,24 @@ class MessageS2CService {
     }
   }
 
-  static Future<void> _processS2C(Map<String, dynamic> data) async {
+  static String _readFrameKey(AccountPreferences? owner, String frameKey) =>
+      owner == null
+      ? frameKey
+      : '${owner.owner.storageDigest}:${owner.session.generation}:$frameKey';
+
+  static void _requireReadOwner(AccountPreferences owner, Object? recipient) {
+    if (!owner.isCurrent ||
+        (recipient != null &&
+            recipient.toString().isNotEmpty &&
+            recipient.toString() != owner.owner.uid)) {
+      throw StateError('Read sync frame session changed');
+    }
+  }
+
+  static Future<void> _processS2C(
+    Map<String, dynamic> data,
+    AccountPreferences? readOwner,
+  ) async {
     // 安全日志：只输出消息类型，不输出完整数据
     final msgId = parseModelString(data['id']);
     final from = parseModelString(data['from']);
@@ -212,6 +239,7 @@ class MessageS2CService {
     int? reservedAt;
 
     try {
+      if (readOwner != null) _requireReadOwner(readOwner, data['to']);
       // v2.0: 从顶层读取 action 字段（不再兼容旧格式）
       final rawPayload = data['payload'];
       final action = data['action']?.toString() ?? '';
@@ -252,11 +280,9 @@ class MessageS2CService {
 
       // 【S2C 去重层】在 switch 之前用帧 id 做单点去重，杜绝重复投递导致的重复执行。
       final actionLower = action.toLowerCase();
-      final dedupKey = buildS2CDedupKey(
-        data,
-        actionLower,
-        from.toString(),
-        to.toString(),
+      final dedupKey = _readFrameKey(
+        readOwner,
+        buildS2CDedupKey(data, actionLower, from.toString(), to.toString()),
       );
       final isPullOffline = actionLower == 'pull_offline_msg';
       final ttl = isPullOffline ? s2cPullOfflineTtlMs : s2cDedupTtlMs;
@@ -279,7 +305,7 @@ class MessageS2CService {
           await _handlePullOfflineMsg(data, payloadMap);
           break;
         case 'message_read_sync':
-          await _handleMessageReadSync(payloadMap);
+          await _handleMessageReadSync(payloadMap, readOwner!);
           break;
         case 'c2c_revoke':
           await _handleC2CRevoke(data, payloadMap, from, to);
@@ -465,6 +491,8 @@ class MessageS2CService {
           break;
       }
 
+      // A completed old-generation frame must not ACK on a new session.
+      if (readOwner != null) _requireReadOwner(readOwner, data['to']);
       // 确认消息
       _sendS2CAck(msgId.toString(), autoAck);
     } on Object catch (e, s) {
@@ -488,6 +516,9 @@ class MessageS2CService {
       'e2ee_session_generation_mismatch',
     };
     final reason = payload['reason']?.toString() ?? '';
+    if (reason == 'message_text_too_large') {
+      AppLoading.showBackendError(t.common.textTooLarge);
+    }
     final gid = payload['gid']?.toString() ?? '';
     if (gid.isNotEmpty && rotateReasons.contains(reason)) {
       GroupSessionService.to.markGroupStale(gid);
@@ -525,39 +556,49 @@ class MessageS2CService {
   /// 消息已是 seen，事件幂等无副作用。
   static Future<void> _handleMessageReadSync(
     Map<String, dynamic> payload,
+    AccountPreferences owner,
   ) async {
     final plan = await MessageReadSyncPlan.build(
       payload,
       lookupConversationType: _lookupReadSyncConversationType,
     );
-    if (plan == null) {
-      return;
-    }
-    iPrint(
-      'message_read_sync 同步其他设备已读 '
-      'type=${plan.conversationType} peer=${plan.peer} '
-      'count=${plan.msgIds.length}',
-    );
-    // 复用 chatProvider.markAsRead 而非只发 MessageStatusUpdateRequestedEvent：
-    // 后者只更新消息行状态，不递减会话未读数（unreadNum），会导致本设备
-    // 消息已读但未读徽章残留。syncToServer=false 避免再次上报已读回执，
-    // 否则会与服务端 message_read_sync 推送形成 ACK/回执循环。
-    final container = _container;
-    // A background event has no page listener to retain autoDispose providers.
-    final chat = container.listen(chatProvider, (_, _) {});
-    final conversations = container.listen(conversationProvider, (_, _) {});
+    _requireReadOwner(owner, null);
+    if (plan == null) return;
+    final parent = _container;
+    final parentChat = parent.listen(chatProvider, (_, _) {});
+    final conversations = parent.listen(conversationProvider, (_, _) {});
+    ProviderContainer? fresh;
     try {
-      await container
-          .read(chatProvider.notifier)
-          .markAsRead(
-            plan.conversationType,
-            plan.peer,
-            plan.msgIds,
-            syncToServer: false,
-          );
+      // A retained parent notifier may belong to an earlier login. Never rebind
+      // its immutable owner: create a short-lived notifier for this frame only.
+      final old = parent.read(chatProvider.notifier);
+      if (!old.ownsCurrentSession) {
+        fresh = ProviderContainer(
+          parent: parent,
+          overrides: [chatProvider.overrideWith(ChatNotifier.new)],
+        );
+      }
+      final container = fresh ?? parent;
+      final listener = container.listen(chatProvider, (_, _) {});
+      try {
+        _requireReadOwner(owner, null);
+        final applied = await container
+            .read(chatProvider.notifier)
+            .markAsRead(
+              plan.conversationType,
+              plan.peer,
+              plan.msgIds,
+              syncToServer: false,
+            );
+        _requireReadOwner(owner, null);
+        if (!applied) throw StateError('Read sync was not applied');
+      } finally {
+        listener.close();
+      }
     } finally {
+      fresh?.dispose();
       conversations.close();
-      chat.close();
+      parentChat.close();
     }
   }
 

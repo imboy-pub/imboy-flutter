@@ -21,3 +21,21 @@ cancelSchedule: Отменить событие
 scheduleIdMissing: ID события отсутствует, нельзя открыть детали
 untitledSchedule: "Событие без названия"
 cardViewAndAttend: "Подробности и подтверждение"
+
+# ---- DSN-06 gap fill (machine-candidate 2026-11-16) ----
+allParticipants: "Все участники ($count)" # machine-candidate 2026-11-16
+attendSummary: "Участвуют $attending/$total" # machine-candidate 2026-11-16
+cardViewDetail: "Подробнее" # machine-candidate 2026-11-16
+collapseParticipants: "Свернуть" # machine-candidate 2026-11-16
+duration: "Около $minutes мин" # machine-candidate 2026-11-16
+hintToday: "сегодня" # machine-candidate 2026-11-16
+hintTomorrow: "завтра" # machine-candidate 2026-11-16
+organizer: "Организатор" # machine-candidate 2026-11-16
+participantAttending: "Участвует" # machine-candidate 2026-11-16
+participantDeclined: "Отклонил" # machine-candidate 2026-11-16
+participantPending: "Ожидает ответа" # machine-candidate 2026-11-16
+remindBefore: "Напомнить за $minutes мин" # machine-candidate 2026-11-16
+sectionLater: "Позже" # machine-candidate 2026-11-16
+sectionThisWeek: "На этой неделе" # machine-candidate 2026-11-16
+sectionToday: "Сегодня" # machine-candidate 2026-11-16
+startsHint: "Начало $hint в $time" # machine-candidate 2026-11-16

@@ -1,5 +1,7 @@
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:cupertino_ui/cupertino_ui.dart';
 import 'package:material_ui/material_ui.dart';
+import 'package:imboy/theme/default/app_breakpoints.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:imboy/app_core/feature_flags/app_feature_registry.dart';
@@ -59,8 +61,10 @@ class MinePage extends ConsumerWidget {
         child: Align(
           alignment: Alignment.topCenter,
           child: ConstrainedBox(
-            constraints: const BoxConstraints(
-              maxWidth: ResourcePageLayout.maxWidth,
+            constraints: BoxConstraints(
+              maxWidth: kIsWeb && !enterprise
+                  ? double.infinity
+                  : ResourcePageLayout.maxWidth,
             ),
             child: _content(
               context,
@@ -157,20 +161,39 @@ class _MineManagement extends StatelessWidget {
       title: enterprise
           ? t.main.mineSettingsSupport
           : t.main.mineManagementSupport,
-      child: Column(
-        children: [
-          for (final (index, item) in items.indexed)
-            MineMenuTile(
-              title: item.$1,
-              icon: item.$2,
-              detail: item.$3 == '/storage_space'
-                  ? t.main.mineStorageUsage
-                  : null,
-              showDivider: index < items.length - 1,
-              onTap: () => context.push(item.$3),
-            ),
-        ],
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          if (!kIsWeb ||
+              enterprise ||
+              constraints.maxWidth < AppBreakpoints.wide) {
+            return _column(context, items);
+          }
+          return Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(child: _column(context, items.take(2).toList())),
+              AppSpacing.horizontalLarge,
+              Expanded(child: _column(context, items.skip(2).toList())),
+            ],
+          );
+        },
       ),
     );
   }
+
+  Widget _column(
+    BuildContext context,
+    List<(String, IconData, String)> items,
+  ) => Column(
+    children: [
+      for (final (index, item) in items.indexed)
+        MineMenuTile(
+          title: item.$1,
+          icon: item.$2,
+          detail: item.$3 == '/storage_space' ? t.main.mineStorageUsage : null,
+          showDivider: index < items.length - 1,
+          onTap: () => context.push(item.$3),
+        ),
+    ],
+  );
 }

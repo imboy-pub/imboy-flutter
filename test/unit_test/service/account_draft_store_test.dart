@@ -13,6 +13,8 @@ import 'package:shared_preferences_platform_interface/shared_preferences_platfor
 
 class _Sessions extends ChangeNotifier implements AuthSessionReader {
   @override
+  bool get transitionFailed => false;
+  @override
   AuthSessionScope current = (uid: 'A', generation: 1, transitioning: false);
 
   @override
@@ -114,6 +116,31 @@ void main() {
       }
     });
   }
+
+  test(
+    'pending send identity is owner scoped and cleared by exact value',
+    () async {
+      final a = AccountDraftStore.capture('C2C', 'peer:1');
+      await a.savePendingSend('first identity');
+      expect(a.readPendingSend(), 'first identity');
+      final restored = AccountDraftStore.capture('C2C', 'peer:1');
+      expect(restored.readPendingSend(), 'first identity');
+      await restored.savePendingSend('new identity');
+      await a.clearPendingSend('first identity');
+      expect(restored.readPendingSend(), 'new identity');
+      await StorageService.to.setString(Keys.currentUid, 'B');
+      final b = AccountDraftStore.capture('C2C', 'peer:1');
+      await b.savePendingSend('B identity');
+      await a.clearPendingSend('new identity');
+      await a.savePendingSend('late A identity');
+      expect(a.readPendingSend(), isEmpty);
+      expect(b.readPendingSend(), 'B identity');
+      await StorageService.to.setString(Keys.currentUid, 'A');
+      expect(restored.readPendingSend(), 'new identity');
+      await restored.clearPendingSend('new identity');
+      expect(restored.readPendingSend(), isEmpty);
+    },
+  );
 
   test(
     'reset waits behind an older native save and removes text and cursor',

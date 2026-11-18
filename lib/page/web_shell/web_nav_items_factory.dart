@@ -30,12 +30,17 @@ const int kWebNavTabContact = 1;
 const int kWebNavTabChannel = 2;
 const int kWebNavTabMine = 3;
 
-/// 构造 Web Shell 4 个导航项的列表
+/// 构造 Web Shell 导航项列表（4 项，或 channel-off 时 3 项）
 ///
 /// 由调用方传入已 i18n 解析的 label 与 badge 计数。
 ///
 /// 顺序固定：messages → contacts → channels → mine（与 BottomNavigationPage
 /// `_buildPageList` 的 4 Tab 顺序对齐）。
+///
+/// [channelAvailable] 为 false（feature 关闭或频道页未编译）时不生成频道项，
+/// 对齐原生 bottom_navigation 的条件渲染——rail 不得暴露死入口（LAY-06）。
+/// 语义 tab 索引常量（kWebNavTab*）不变；items 长度可为 3，调用方负责
+/// rail 位 ↔ tab 语义索引重排（见 web_shell_page.dart 的重排纯函数）。
 ///
 /// 图标选用与 BottomNavigationPage 保持一致：
 /// - 消息：chat_bubble_outline / chat_bubble
@@ -50,6 +55,7 @@ List<WebNavItem> buildWebNavItems({
   int messageBadgeCount = 0,
   int contactBadgeCount = 0,
   int channelBadgeCount = 0,
+  bool channelAvailable = true,
 }) {
   return [
     WebNavItem(
@@ -64,12 +70,13 @@ List<WebNavItem> buildWebNavItems({
       label: contactLabel,
       badgeCount: contactBadgeCount,
     ),
-    WebNavItem(
-      icon: CupertinoIcons.antenna_radiowaves_left_right,
-      activeIcon: CupertinoIcons.antenna_radiowaves_left_right,
-      label: channelLabel,
-      badgeCount: channelBadgeCount,
-    ),
+    if (channelAvailable)
+      WebNavItem(
+        icon: CupertinoIcons.antenna_radiowaves_left_right,
+        activeIcon: CupertinoIcons.antenna_radiowaves_left_right,
+        label: channelLabel,
+        badgeCount: channelBadgeCount,
+      ),
     WebNavItem(
       icon: CupertinoIcons.person_circle,
       activeIcon: CupertinoIcons.person_circle_fill,

@@ -1,7 +1,14 @@
 import 'dart:io';
+import 'dart:typed_data';
 
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:cupertino_ui/cupertino_ui.dart';
 import 'package:material_ui/material_ui.dart';
+import 'package:imboy/component/http/browser_received_attachment.dart';
+import 'package:imboy/component/ui/app_loading.dart';
+import 'package:imboy/service/account_local_task_registry.dart';
+import 'package:imboy/service/auth_session_scope.dart';
+import 'package:imboy/service/web_writer_gate.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart'
     hide VideoMessageBuilder, AudioMessageBuilder;
 import 'package:octo_image/octo_image.dart';
@@ -324,13 +331,25 @@ void showTextMessage(String text) {
 }
 
 /// 确认是否打开文件
+///
+/// 并集实现：
+/// - 默认路径（web MVP 车道）：AccountLocalTaskOwner / session / generation 全程
+///   校验；web 走 getBytes + 浏览器下载保存，原生走 getSingleFile + OpenFile。
+/// - 注入路径（main 侧 history_bundle_detail 与单测使用）：调用方提供
+///   cacheManager / openFile / canOpen 任一注入时，走确定性下载+打开流程，
+///   失败以 operationFailedAgainLater 对话框反馈（不采集任务所有权）。
 Future<void> confirmOpenFile(
   BuildContext context,
   String uri, {
+  String? fileName,
   IMBoyCacheManager? cacheManager,
   Future<OpenResult> Function(String)? openFile,
   bool Function()? canOpen,
 }) async {
+  final injected = cacheManager != null || openFile != null || canOpen != null;
+  final owner = injected ? null : AccountLocalTaskOwner.capture();
+  final session = injected ? null : authSessionReader.current;
+  final generation = injected ? 0 : IMBoyCacheManager().generationFor(owner!);
   final confirmed = await showDialog<bool>(
     context: context,
     builder: (context) => CupertinoAlertDialog(
@@ -349,6 +368,33 @@ Future<void> confirmOpenFile(
     barrierDismissible: true,
   );
   if (confirmed != true || !context.mounted) return;
+  if (injected) {
+    await _openInjectedFile(
+      context,
+      uri,
+      cacheManager: cacheManager,
+      openFile: openFile,
+      canOpen: canOpen,
+    );
+    return;
+  }
+  await _openReceivedFile(
+    uri,
+    fileName ?? t.chat.unknownFile,
+    owner!,
+    session!,
+    generation,
+  );
+}
+
+/// 注入路径：main 侧确定性下载+打开（单测与 history_bundle_detail 使用）。
+Future<void> _openInjectedFile(
+  BuildContext context,
+  String uri, {
+  IMBoyCacheManager? cacheManager,
+  Future<OpenResult> Function(String)? openFile,
+  bool Function()? canOpen,
+}) async {
   try {
     if (canOpen != null && !canOpen()) {
       throw StateError('Attachment unavailable');
@@ -379,4 +425,71 @@ Future<void> confirmOpenFile(
       ],
     ),
   );
+}
+
+/// 默认路径：车道 web MVP 实现（任务所有权 + 会话作用域校验）。
+Future<void> _openReceivedFile(
+  String uri,
+  String name,
+  AccountLocalTaskOwner owner,
+  AuthSessionScope session,
+  int generation,
+) async {
+  final cache = IMBoyCacheManager();
+  void check() {
+    requireWebWriter();
+    if (!authSessionReader.isCurrent(session) ||
+        owner != AccountLocalTaskOwner.capture() ||
+        cache.generationFor(owner) != generation) {
+      throw const MediaCacheCleanupException();
+    }
+  }
+
+  try {
+    check();
+    if (kIsWeb) {
+      final bytes = await cache.getBytes(
+        uri,
+        validateImageData: false,
+        revalidate: true,
+        owner: owner,
+      );
+      check();
+      _saveOwnedBytes(bytes, name, owner, check);
+    } else {
+      final tmpF = await cache.getSingleFile(
+        uri,
+        validateImageData: false,
+        owner: owner,
+      );
+      check();
+      await OpenFile.open(tmpF.path);
+    }
+  } on Object {
+    if (authSessionReader.isCurrent(session)) {
+      AppLoading.showError(t.common.groupFileOpenFailed);
+    }
+  }
+}
+
+void _saveOwnedBytes(
+  Uint8List bytes,
+  String name,
+  AccountLocalTaskOwner owner,
+  void Function() check,
+) {
+  final saving = AccountLocalTaskRegistry.instance.register(owner);
+  try {
+    saveBrowserResourceBytes(
+      bytes,
+      name,
+      requireCurrent: () {
+        saving.throwIfCancelled();
+        check();
+        saving.throwIfCancelled();
+      },
+    );
+  } finally {
+    saving.finish();
+  }
 }

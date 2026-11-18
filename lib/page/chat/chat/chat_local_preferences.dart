@@ -1,15 +1,16 @@
 part of 'chat_provider.dart';
 
-Future<bool> _runChatAccountTask(
+Future<bool> runChatAccountTask(
   ChatNotifier notifier,
   Future<void> Function(bool Function() isCurrent) operation,
 ) async {
-  if (!notifier._preferences.isCurrent) return false;
+  final preferences = notifier._preferences;
+  if (!preferences.isCurrent) return false;
   try {
     return await AccountLocalTaskRegistry.instance.run(
-      notifier._preferences.owner,
+      preferences.owner,
       operation: (task) async {
-        bool current() => notifier._preferences.isCurrent && !task.isCancelled;
+        bool current() => preferences.isCurrent && !task.isCancelled;
         if (!current()) return false;
         await operation(current);
         return current();
@@ -33,7 +34,7 @@ Future<void> _flushChatPending(ChatNotifier notifier, String key) async {
   var retry = false;
   var active = false;
   try {
-    active = await _runChatAccountTask(notifier, (isCurrent) async {
+    active = await runChatAccountTask(notifier, (isCurrent) async {
       final items = await PendingChatActions.instance.snapshot(key);
       for (final item in items.whereType<Map<String, dynamic>>()) {
         if (!isCurrent()) break;

@@ -1,3 +1,5 @@
+import 'package:imboy/service/web_writer_gate.dart';
+
 import 'dart:async';
 
 import 'package:flutter/foundation.dart' show visibleForTesting;
@@ -105,6 +107,7 @@ class AckManager {
   StreamSubscription<dynamic>? _wsStatusSubscription;
 
   void _init() {
+    if (!isWebWriterReady) return;
     if (_isInitialized) return;
 
     // 订阅 WebSocket 状态变化事件（解耦：不再直接依赖 WebSocketService）
@@ -124,6 +127,15 @@ class AckManager {
     iPrint('✅ [ACK_MANAGER] AckManager initialized');
   }
 
+  /// Preserve pending acknowledgements; never call clear/dispose on poison.
+  static void suspendForStorageFailure() {
+    final current = _instance;
+    if (current == null) return;
+    current._cancelAllTimers();
+    current._timerCleanupTimer?.cancel();
+    current._timerCleanupTimer = null;
+  }
+
   void dispose() {
     // 取消 WebSocket 状态订阅
     _wsStatusSubscription?.cancel();
@@ -133,7 +145,7 @@ class AckManager {
     _timerCleanupTimer?.cancel();
     _timerCleanupTimer = null;
     // 清理待确认 ACK
-    _pendingAcks.clear();
+    if (isWebWriterReady) _pendingAcks.clear();
     _resetRuntimeStats();
     _isInitialized = false;
     _instance = null;
@@ -267,6 +279,7 @@ class AckManager {
   /// [msgId] 消息ID
   /// [overrideDeviceId] 可选：覆盖 deviceId（用于测试）
   void sendAck(String type, String msgId, {String? overrideDeviceId}) {
+    if (!isWebWriterReady) return;
     if (UserRepoLocal.to.isClearingSession) return;
     // 【修复 C1】检查deviceId，支持测试环境 Mock
     final effectiveDeviceId = overrideDeviceId ?? deviceId;
@@ -345,6 +358,7 @@ class AckManager {
   ///
   /// [overrideDeviceId] 可选：覆盖 deviceId（用于测试）
   void sendAckDirect(String type, String msgId, {String? overrideDeviceId}) {
+    if (!isWebWriterReady) return;
     try {
       // 【修复 C1】支持测试环境 Mock deviceId
       final effectiveDeviceId = overrideDeviceId ?? deviceId;
@@ -387,6 +401,7 @@ class AckManager {
 
   /// 内部发送ACK方法
   void _sendAckInternal(String msgId) {
+    if (!isWebWriterReady) return;
     final ack = _pendingAcks[msgId];
     if (ack == null) {
       iPrint('⚠️ [ACK_MANAGER] ACK不存在（可能已确认）: msgId=$msgId');
@@ -421,6 +436,7 @@ class AckManager {
       !UserRepoLocal.to.isClearingSession;
 
   void _discardStaleAck(String msgId, _PendingAck ack) {
+    if (!isWebWriterReady) return;
     if (!identical(_pendingAcks[msgId], ack)) return;
     _cancelTimer(msgId);
     _pendingAcks.remove(msgId);
@@ -428,6 +444,7 @@ class AckManager {
 
   /// 安排重试
   void _scheduleRetry(String msgId) {
+    if (!isWebWriterReady) return;
     // 【修复】取消之前的 Timer（如果存在）
     _cancelTimer(msgId);
 
@@ -445,6 +462,7 @@ class AckManager {
     late final Timer timer;
     timer = Timer(Duration(milliseconds: interval), () {
       try {
+        if (!isWebWriterReady) return;
         if (!identical(_activeTimers[msgId], timer)) return;
         // 从跟踪表中移除
         _activeTimers.remove(msgId);
@@ -500,6 +518,7 @@ class AckManager {
   /// 目前服务端没有返回ACK确认，这个方法预留
   /// 未来可以通过服务端返回的ACK确认来调用
   void ackConfirmed(String msgId) {
+    if (!isWebWriterReady) return;
     // 【修复】取消对应的 Timer
     _cancelTimer(msgId);
     final ack = _pendingAcks.remove(msgId);
@@ -514,6 +533,7 @@ class AckManager {
   /// 与 [ackConfirmed] 区分：停止重试该收据（无效收据重发也不会成功），
   /// 但**不记为成功确认**（不写 RTT 成功指标），并以告警语义记录。
   void ackRejected(String msgId, {String? reason}) {
+    if (!isWebWriterReady) return;
     _cancelTimer(msgId);
     final removed = _pendingAcks.remove(msgId) != null;
     iPrint(
@@ -530,16 +550,18 @@ class AckManager {
 
   /// 清理所有待确认ACK
   void clear() {
+    if (!isWebWriterReady) return;
     // 【修复】取消所有 Timer
     _cancelAllTimers();
     final count = _pendingAcks.length;
-    _pendingAcks.clear();
+    if (isWebWriterReady) _pendingAcks.clear();
     _resetRuntimeStats();
     iPrint('🗑️ [ACK_MANAGER] 已清理 $count 个待确认ACK');
   }
 
   /// 清理过期的待确认ACK（超过30秒）
   void cleanupExpired() {
+    if (!isWebWriterReady) return;
     final now = DateTimeHelper.millisecond();
     final expiredKeys = <String>[];
 

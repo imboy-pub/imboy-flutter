@@ -10,18 +10,22 @@ import 'dart:typed_data';
 
 import 'package:flutter/foundation.dart' show kIsWeb, visibleForTesting;
 import 'package:material_ui/material_ui.dart';
+import 'package:dio/dio.dart' show CancelToken;
 import 'package:flutter/services.dart' show PlatformException;
 import 'package:wechat_assets_picker/wechat_assets_picker.dart'
     show AssetEntity, AssetType;
 import 'package:file_picker/file_picker.dart';
 import 'package:imboy/component/ui/app_loading.dart';
+import 'package:imboy/component/helper/image_dimensions.dart';
 import 'package:imboy/page/chat/chat/legacy_upload_recovery.dart';
+import 'package:imboy/page/chat/chat/services/chat_network_service.dart';
 import 'package:image/image.dart' as img;
 import 'package:xid/xid.dart';
 import 'package:mime/mime.dart';
 import 'package:video_compress/video_compress.dart';
 
 import 'package:imboy/capabilities/capability_locator.dart';
+import 'package:imboy/capabilities/adapters/picked_attachment_bytes.dart';
 import 'package:imboy/capabilities/contracts/media_picker_capability.dart';
 import 'package:imboy/service/e2ee/attachment_binding.dart';
 import 'package:imboy/service/e2ee/attachment_conversation_ref.dart';
@@ -85,6 +89,7 @@ class ChatAttachmentHandler {
     required this.peerId,
     required this.conversationUk3,
     required this.onMessageCreated,
+    this.onMessagePersisted,
     this.type = '',
     this.burnEnabled = false,
     this.burnAfterMs = 0,
@@ -92,6 +97,13 @@ class ChatAttachmentHandler {
     this.ownerGeneration,
     this.isMutedCheck,
     this.sealRollout = kAttachmentSealRolloutEnabled,
+    this.browserMaterialStore,
+    this.cancelToken,
+    this.requireCurrent,
+    this.onUploadCheckpoint,
+    this.onUploadResult,
+    this.onUploadAnchor,
+    this.showProgress = true,
   });
 
   /// 对方 ID
@@ -106,6 +118,9 @@ class ChatAttachmentHandler {
 
   /// 消息创建回调
   final AttachmentUploadedCallback onMessageCreated;
+
+  /// Canonical durable row presentation only; must never persist or send again.
+  final AttachmentUploadedCallback? onMessagePersisted;
 
   /// 禁言检查回调 (C13)
   final bool Function()? isMutedCheck;
@@ -125,6 +140,47 @@ class ChatAttachmentHandler {
   /// 是否已进入 E2EE-061 附件封装的推出阶段，默认 [kAttachmentSealRolloutEnabled]。
   /// 关闭时上传路径逐字节维持今天的明文行为。
   final bool sealRollout;
+  final BrowserAttachmentMaterialStore? browserMaterialStore;
+  final CancelToken? cancelToken;
+  final void Function()? requireCurrent;
+  final Future<void> Function(UploadCheckpoint)? onUploadCheckpoint;
+  final void Function(bool ready, Object? failure)? onUploadResult;
+  final void Function(String)? onUploadAnchor;
+  final bool showProgress;
+
+  ResumableAttachmentUploader _uploader() => ResumableAttachmentUploader(
+    repo: browserMaterialStore?.repo,
+    browserMaterialStore: browserMaterialStore,
+    cancelToken: cancelToken,
+    requireCurrent: requireCurrent,
+  );
+
+  /// Reconcile the original upload identity; retry never creates a new UUID.
+  Future<bool> recoverUpload(String anchor) async {
+    requireCurrent?.call();
+    final uid = UserRepoLocal.to.currentUid;
+    final uploader = _uploader();
+    await uploader.resumeAll(uid, anchorMsgId: anchor);
+    requireCurrent?.call();
+    await uploader.recoverBusinessOutbox(uid, anchorMsgId: anchor);
+    requireCurrent?.call();
+    final rows = await uploader.repo.findByAnchor(anchor, uid);
+    requireCurrent?.call();
+    return rows.isNotEmpty &&
+        rows.every(
+          (row) =>
+              row.stage == AttachmentUploadStage.confirmed &&
+              {
+                'committed',
+                'outbox_ready',
+                'dispatch_reserved_v2',
+              }.contains((jsonDecode(row.businessIntent!) as Map)['state']),
+        );
+  }
+
+  @visibleForTesting
+  Future<bool> completeUploadedMessageForTest(Message message) =>
+      _sendMessage(message);
 
   Map<String, dynamic> _safeMessageJson(Message message) {
     final result = message.toJson();
@@ -525,7 +581,7 @@ class ChatAttachmentHandler {
       );
       return;
     }
-    if (files.isEmpty || files.single.path == null) {
+    if (files.isEmpty) {
       return;
     }
     if (!context.mounted) return;
@@ -547,13 +603,39 @@ class ChatAttachmentHandler {
     AttachmentUploadTask? legacyTask,
     bool Function()? legacySessionCurrent,
   }) => _runOwned((check) async {
-    final String? path = file.path;
-    if (path == null) {
-      return;
-    }
     try {
-      final Uint8List bytes = await File(path).readAsBytes();
+      final bytes = await readPickedAttachmentBytes(
+        file,
+        maxBytes: AttachmentApi.maxUploadBytes,
+        requireCurrent: check,
+      );
       check();
+      if (!context.mounted) {
+        throw const AccountLocalTaskCancelledException();
+      }
+      await uploadFileBytes(
+        context,
+        bytes,
+        file.name,
+        legacyTask: legacyTask,
+        legacySessionCurrent: legacySessionCurrent,
+      );
+    } on LegacyOutboxConflict {
+      rethrow;
+    } on Object catch (error) {
+      onUploadResult?.call(false, error);
+      AppLoading.showError(_attachmentFailurePresentation(error).toast);
+    }
+  });
+
+  Future<void> uploadFileBytes(
+    BuildContext context,
+    Uint8List bytes,
+    String fileName, {
+    AttachmentUploadTask? legacyTask,
+    bool Function()? legacySessionCurrent,
+  }) => _runOwned((check) async {
+    try {
       if (legacyTask != null) {
         if (!matchesLegacyUpload(legacyTask, bytes)) {
           AppLoading.showError(t.common.legacyUploadRecoveryMismatch);
@@ -567,20 +649,22 @@ class ChatAttachmentHandler {
           throw const LegacyOutboxConflict();
         }
       }
-      final String mime = lookupMimeType(path) ?? 'application/octet-stream';
-      // file_picker 4.x platform_interface: length() 可返回 null，本地路径兜底取实际大小
-      final int fileSize = (await file.length()) ?? File(path).lengthSync();
+      final String mime =
+          lookupMimeType(fileName, headerBytes: bytes) ??
+          'application/octet-stream';
+      final int fileSize = bytes.length;
       check();
       final s = _uploadScope;
       // message_id 必须在上传**之前**生成：它是绑定值（方案甲）的输入。
       final String messageId = Xid().toString();
+      onUploadAnchor?.call(messageId);
       final seal = await _sealFor(messageId, 'file');
       check();
       // 上传对象名匿名化（对齐图片路径 '${Xid()}.$ext'）：macOS 等桌面端原始
       // 文件名常含空格/中文/emoji，直接进 presign→object_key→PUT 签名链路会
       // 因编码不一致被 Garage 拒收（重试 3 次后抛 Exception）。展示名仍用
-      // file.name，落在 FileMessage.name 上，与上传对象名解耦。
-      final String rawName = file.name;
+      // fileName，落在 FileMessage.name 上，与上传对象名解耦。
+      final String rawName = fileName;
       final String ext =
           rawName.contains('.') &&
               rawName.substring(rawName.lastIndexOf('.') + 1).isNotEmpty
@@ -592,6 +676,11 @@ class ChatAttachmentHandler {
         '${Xid()}.$ext',
         // 普通文件按二进制直传；消息仍保留原始名称、扩展名及 MIME。
         'application/octet-stream',
+        process: showProgress,
+        cancelToken: cancelToken,
+        browserMaterialStore: browserMaterialStore,
+        requireSession: requireCurrent,
+        onUploadCheckpoint: onUploadCheckpoint,
         scope: s.scope,
         scopeRef: s.scopeRef,
         // 群附件消息锚点：messageId 即最终消息 id（服务端按 scope 消费）
@@ -599,7 +688,7 @@ class ChatAttachmentHandler {
         messageIntent: pendingMessageIntent(
           messageId,
           'file',
-          name: file.name,
+          name: fileName,
           size: fileSize,
           extra: {'mime_type': mime},
         ),
@@ -613,7 +702,7 @@ class ChatAttachmentHandler {
           isUtc: true,
         ),
         mimeType: mime,
-        name: file.name,
+        name: fileName,
         size: fileSize,
         source: meta['object_key'] as String,
         status: MessageStatus.sending,
@@ -636,6 +725,7 @@ class ChatAttachmentHandler {
       // presign/confirm/PUT 各步的真实错误消息才能收敛。
       debugPrint('[attachment_handler] uploadFile FAIL err=$e');
       // 静默 catch 会让用户以为"点了发送什么都没发生"，必须给可见反馈
+      onUploadResult?.call(false, e);
       AppLoading.showError(p.toast);
     }
   });
@@ -1024,11 +1114,18 @@ class ChatAttachmentHandler {
         }
       });
 
+  /// File selection, drag and paste adapters can reuse the same image pipeline.
+  Future<void> uploadImageFile(PlatformFile file) =>
+      _uploadImagePlatformFile(file);
+
   /// 上传 FilePicker 选中的图片文件
   Future<void> _uploadImagePlatformFile(PlatformFile file) =>
       _runOwned((check) async {
-        // file_picker 12 移除同步 bytes，统一走异步读取
-        final Uint8List bytes = await file.readAsBytes();
+        final Uint8List bytes = await readPickedAttachmentBytes(
+          file,
+          maxBytes: AttachmentApi.maxUploadBytes,
+          requireCurrent: check,
+        );
         check();
         if (bytes.isEmpty) {
           debugPrint('[attachment_handler] image bytes is null: ${file.name}');
@@ -1041,25 +1138,42 @@ class ChatAttachmentHandler {
 
   /// 图片字节上传公共管道（file_picker 选中文件与桌面拍摄产物共用）：
   /// 尺寸解码 → seal → presign 直传 → ImageMessage。
+  Future<void> uploadImageBytes(
+    Uint8List bytes,
+    String name, {
+    ({int width, int height})? dimensions,
+  }) => _uploadImageBytes(bytes, fileName: name, dimensions: dimensions);
+
   Future<void> _uploadImageBytes(
     Uint8List bytes, {
     required String fileName,
     String? anchorId,
+    ({int width, int height})? dimensions,
   }) => _runOwned((check) async {
     try {
       // 解析图片尺寸
       int width = 0;
       int height = 0;
-      try {
-        final decoded = img.decodeImage(bytes);
-        if (decoded != null) {
-          width = decoded.width;
-          height = decoded.height;
+      if (kIsWeb) {
+        final size = dimensions ?? readImageDimensions(bytes);
+        if (size.width <= 0 || size.height <= 0) {
+          throw const FormatException('image dimensions');
         }
-      } on Object catch (e) {
-        debugPrint(
-          '[attachment_handler] decodeImage error, errType=${e.runtimeType}',
-        );
+        width = size.width;
+        height = size.height;
+        check();
+      } else {
+        try {
+          final decoded = img.decodeImage(bytes);
+          if (decoded != null) {
+            width = decoded.width;
+            height = decoded.height;
+          }
+        } on Object catch (e) {
+          debugPrint(
+            '[attachment_handler] decodeImage error, errType=${e.runtimeType}',
+          );
+        }
       }
 
       final name = fileName.isNotEmpty ? fileName : '${Xid()}.jpg';
@@ -1070,12 +1184,18 @@ class ChatAttachmentHandler {
 
       final s = _uploadScope;
       final String messageId = anchorId ?? Xid().toString();
+      onUploadAnchor?.call(messageId);
       final seal = await _sealFor(messageId, 'image');
       check();
       final meta = await AttachmentApi.uploadBytesViaPresignMeta(
         bytes,
         '${Xid()}.$ext',
         mime,
+        process: showProgress,
+        cancelToken: cancelToken,
+        browserMaterialStore: browserMaterialStore,
+        requireSession: requireCurrent,
+        onUploadCheckpoint: onUploadCheckpoint,
         scope: s.scope,
         scopeRef: s.scopeRef,
         anchorMsgId: messageId,
@@ -1115,6 +1235,7 @@ class ChatAttachmentHandler {
       final p = _attachmentFailurePresentation(e);
       debugPrint('[attachment_handler] _uploadImageBytes failed, ${p.log}');
       // 静默 catch 会让用户以为"点了发送什么都没发生"，必须给可见反馈
+      onUploadResult?.call(false, e);
       AppLoading.showError(p.toast);
     }
   });

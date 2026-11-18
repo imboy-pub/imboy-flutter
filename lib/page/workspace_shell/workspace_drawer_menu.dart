@@ -8,6 +8,10 @@
 /// 退出登录）。个人壳与企业壳共用（organizationId 为空 = 个人上下文）。
 library;
 
+import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:imboy/service/explicit_web_logout.dart';
+import 'package:imboy/config/routes.dart';
+
 import 'dart:async' show unawaited;
 
 import 'dart:math' as math;
@@ -74,6 +78,7 @@ class _WorkspaceDrawerMenuState extends ConsumerState<WorkspaceDrawerMenu> {
 
   /// 企业列表：打开时缓存播种即时渲染 + mine() 刷新真源（指针非真源）。
   List<Organization> _orgs = const [];
+  final _webLogout = ExplicitWebLogoutAction();
   bool _loading = false;
   bool _loadFailed = false;
 
@@ -202,6 +207,23 @@ class _WorkspaceDrawerMenuState extends ConsumerState<WorkspaceDrawerMenu> {
   }
 
   Future<void> _logout(BuildContext context) async {
+    if (!kIsWeb) return _logoutNative(context);
+    final router = GoRouter.of(context);
+    final navigator = Navigator.of(context);
+    final originalRoute = ModalRoute.of(context);
+    if (await _webLogout.run(
+      isMounted: () => mounted,
+      confirm: () => confirmExplicitWebLogout(context),
+      onFailure: () => AppLoading.showToast(t.common.logoutFailed),
+    )) {
+      if (originalRoute is PopupRoute && originalRoute.isActive) {
+        navigator.removeRoute(originalRoute);
+      }
+      router.go(AppRoutes.signIn);
+    }
+  }
+
+  Future<void> _logoutNative(BuildContext context) async {
     final t = context.t;
     final confirmed = await showCupertinoDialog<bool>(
       context: context,

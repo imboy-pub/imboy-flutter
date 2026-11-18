@@ -48,6 +48,39 @@ void main() {
       );
     });
 
+    test('部署前缀保留对象键分流并拒绝URL和路径穿越', () {
+      expect(
+        AssetsService.isObjectKey(
+          'web-mvp-native/u123/c2c/20261113/file_123_ABCD/a.txt',
+        ),
+        isTrue,
+      );
+      expect(
+        AssetsService.isObjectKey('tenant/media/file_123_ABCD/a.txt'),
+        isTrue,
+      );
+      for (final value in [
+        'https://host/u123/a.txt',
+        '//host/u123/a.txt',
+        'tenant/../u123/a.txt',
+        'tenant/%2e%2e/u123/a.txt',
+        'tenant/u123/a.txt?token=x',
+        'tenant/u123/a.txt#fragment',
+        'tenant/avatar/default.png',
+        'tenant/u123/',
+        'u123/a/../b.txt',
+        'tenant/u123/a/%2e%2e/b.txt',
+        'u123/a/./b.txt',
+        'u123/a/%2f/b.txt',
+        'u123/a/%5c/b.txt',
+        'u123/a//b.txt',
+        'u123/a/%00.txt',
+        'u123/a/%ZZ.txt',
+      ]) {
+        expect(AssetsService.isObjectKey(value), isFalse, reason: value);
+      }
+    });
+
     test('边界用例返回 false', () {
       expect(AssetsService.isObjectKey(''), isFalse);
       // 不以 u<digits>/ 或 file_<ts>_<hex>/ 开头

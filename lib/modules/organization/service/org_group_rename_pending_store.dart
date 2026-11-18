@@ -5,6 +5,8 @@
 /// 隔离存储于本机 SharedPreferences；换账号/换来源不会读到别人的待改名。
 library;
 
+import 'package:imboy/service/web_writer_gate.dart';
+
 import 'dart:convert';
 
 import 'package:shared_preferences/shared_preferences.dart';
@@ -23,6 +25,7 @@ Future<void> saveOrgGroupRenamePending({
   required String title,
 }) async {
   final prefs = await SharedPreferences.getInstance();
+  requireWebWriter();
   await prefs.setString(
     orgGroupRenamePendingKey(account, workspaceId),
     jsonEncode({'gid': gid, 'title': title}),
@@ -57,5 +60,6 @@ Future<void> clearOrgGroupRenamePending({
   required String workspaceId,
 }) async {
   final prefs = await SharedPreferences.getInstance();
+  requireWebWriter();
   await prefs.remove(orgGroupRenamePendingKey(account, workspaceId));
 }

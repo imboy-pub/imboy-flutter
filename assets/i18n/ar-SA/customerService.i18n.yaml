@@ -1,0 +1,143 @@
+# customerService namespace — ar-SA
+# DSN-06 gap fill 2026-11-16: machine-candidate translations (owner decision owner-batch-20261116).
+entryTitle: "مساحة عمل الدعم" # machine-candidate 2026-11-16
+entrySubtitle: "استلم المحادثات المنتظرة وعالجها" # machine-candidate 2026-11-16
+title: "مساحة عمل الدعم" # machine-candidate 2026-11-16
+tabQueued: "منتظرة" # machine-candidate 2026-11-16
+tabActive: "قيد المعالجة" # machine-candidate 2026-11-16
+tabClosed: "مغلقة" # machine-candidate 2026-11-16
+countUnavailable: "--" # machine-candidate 2026-11-16
+orgSelectorLabel: "المؤسسة" # machine-candidate 2026-11-16
+noSeatTitle: "لا يوجد مقعد متاح" # machine-candidate 2026-11-16
+noSeatHint: "ليس لديك مقعد دعم مُفعّل. تواصل مع مسؤول مؤسستك لتفعيله" # machine-candidate 2026-11-16
+waitingJustNow: "الآن" # machine-candidate 2026-11-16
+waitingMinutes: "$n د" # machine-candidate 2026-11-16
+waitingHoursMinutes: "$h س $m د" # machine-candidate 2026-11-16
+waitingDaysHours: "$d ي $h س" # machine-candidate 2026-11-16
+sourceWidget: "الويب" # machine-candidate 2026-11-16
+sourceLabel: "المصدر" # machine-candidate 2026-11-16
+queuedEmptyTitle: "لا توجد محادثات منتظرة" # machine-candidate 2026-11-16
+queuedEmptyHint: "اسحب للتحديث، وستظهر المحادثات الجديدة هنا" # machine-candidate 2026-11-16
+loadingMore: "جارٍ تحميل المزيد…" # machine-candidate 2026-11-16
+loadMoreFailed: "فشل تحميل المزيد. اسحب لأعلى لإعادة المحاولة" # machine-candidate 2026-11-16
+noMore: "لا مزيد من المحادثات" # machine-candidate 2026-11-16
+claimAction: "استلام" # machine-candidate 2026-11-16
+claimSuccess: "تم الاستلام" # machine-candidate 2026-11-16
+claimConflict: "قام مقعد آخر باستلام هذه المحادثة أو تغيّرت حالتها. تم تحديث قائمة الانتظار" # machine-candidate 2026-11-16
+claimOffboardingRequired: "جارٍ تسليم المهام عند المغادرة؛ لا يمكن الاستلام حاليًا" # machine-candidate 2026-11-16
+claimForbidden: "المقعد موقوف؛ لا يمكن الاستلام حاليًا" # machine-candidate 2026-11-16
+claimFailed: "فشل الاستلام. حاول مجددًا لاحقًا" # machine-candidate 2026-11-16
+seatAtCapacity: "بلغ المقعد حده الأقصى (وصل عدد المحادثات النشطة إلى الحد). أغلق محادثة نشطة أو اطلب من المسؤول رفع السعة" # machine-candidate 2026-11-16
+activeEmptyTitle: "لا توجد محادثات قيد المعالجة" # machine-candidate 2026-11-16
+activeEmptyHint: "استلم محادثة من قائمة الانتظار وستظهر هنا" # machine-candidate 2026-11-16
+closedEmptyTitle: "لا توجد محادثات مغلقة" # machine-candidate 2026-11-16
+closedEmptyHint: "تُؤرشف المحادثات المغلقة هنا" # machine-candidate 2026-11-16
+loadFailedTitle: "فشل التحميل" # machine-candidate 2026-11-16
+offlineHint: "الشبكة غير متاحة. تحقق من الاتصال ثم أعد المحاولة" # machine-candidate 2026-11-16
+seatSuspendedNotice: "المقعد موقوف؛ قائمة الانتظار للعرض فقط" # machine-candidate 2026-11-16
+sessionTitle: "محادثة الدعم" # machine-candidate 2026-11-16
+channelUnavailable: "قناة الرسائل غير متاحة مؤقتًا، بانتظار اكتمال ربط الجلسة من الخادم" # machine-candidate 2026-11-16
+visitorLabel: "العميل" # machine-candidate 2026-11-16
+seatLabel: "المندوب" # machine-candidate 2026-11-16
+inputHint: "اكتب الرد…" # machine-candidate 2026-11-16
+attachAction: "مرفق" # machine-candidate 2026-11-16
+attachUploaded: "تم رفع المرفق" # machine-candidate 2026-11-16
+attachPreviewTitle: "معاينة المرفق (قناة المؤسسة الآمنة)" # machine-candidate 2026-11-16
+attachUnnamedFile: "مرفق" # machine-candidate 2026-11-16
+attachStatusUnavailable: "غير متاح · $size" # machine-candidate 2026-11-16
+attachUnsupportedType: "نوع الملف غير مدعوم. اختر ملفًا آخر" # machine-candidate 2026-11-16
+attachBinaryNoPreview: "محتوى ثنائي، المعاينة غير متاحة" # machine-candidate 2026-11-16
+transferAction: "تحويل" # machine-candidate 2026-11-16
+transferTitle: "تحويل إلى مندوب في نفس المؤسسة" # machine-candidate 2026-11-16
+transferEmpty: "لا توجد مقاعد دعم قابلة للتحويل في المؤسسة" # machine-candidate 2026-11-16
+targetAvailable: "متاح" # machine-candidate 2026-11-16
+targetBusy: "مشغول" # machine-candidate 2026-11-16
+transferConfirmTitle: "تأكيد التحويل" # machine-candidate 2026-11-16
+transferConfirmBody: "تحويل المحادثة الحالية إلى $name؟ لن تتولاها بعد التحويل." # machine-candidate 2026-11-16
+transferSuccess: "تم التحويل" # machine-candidate 2026-11-16
+transferConflict: "تغيّرت حالة المحادثة. حدّث وتحقق ثم أكّد من جديد." # machine-candidate 2026-11-16
+transferFailed: "فشل التحويل. حاول مجددًا لاحقًا" # machine-candidate 2026-11-16
+closeAction: "إغلاق المحادثة" # machine-candidate 2026-11-16
+closeTitle: "تأكيد الإغلاق" # machine-candidate 2026-11-16
+closeBody: "بعد الإغلاق سيُدعى العميل إلى التقييم وتصبح المحادثة للقراءة فقط." # machine-candidate 2026-11-16
+closeReasonLabel: "السبب (اختياري)" # machine-candidate 2026-11-16
+closeReasonTooLong: "لا يمكن أن يتجاوز السبب $max حرفًا" # machine-candidate 2026-11-16
+closeSuccess: "أُغلقت المحادثة" # machine-candidate 2026-11-16
+closeConflict: "تغيّرت حالة المحادثة. حدّث وتحقق ثم أكّد من جديد." # machine-candidate 2026-11-16
+closeFailed: "فشل الإغلاق. حاول مجددًا لاحقًا" # machine-candidate 2026-11-16
+waitingRatingTitle: "مغلقة — بانتظار تقييم العميل" # machine-candidate 2026-11-16
+ratedTitle: "أكمل العميل تقييم هذه المحادثة" # machine-candidate 2026-11-16
+ratingScoreLabel: "تقييم العميل: $score نجوم" # machine-candidate 2026-11-16
+ratingUnknownTitle: "حالة التقييم غير معروفة" # machine-candidate 2026-11-16
+ratingTimeLabel: "وقت التقييم: $time" # machine-candidate 2026-11-16
+readOnlySuspended: "المقعد موقوف؛ قناة الرسائل للقراءة فقط وتوقّف الاستلام والإرسال في الخلفية" # machine-candidate 2026-11-16
+offboardingRequired: "جارٍ تسليم المهام عند المغادرة؛ حُوّلت المعالجة وهذه المحادثة للقراءة فقط" # machine-candidate 2026-11-16
+closedReadonly: "المحادثة مغلقة، والمحتوى للعرض فقط" # machine-candidate 2026-11-16
+ratedReadonly: "المحادثة مكتملة بالتقييم، والمحتوى للعرض فقط" # machine-candidate 2026-11-16
+sendFailed: "فشل الإرسال. حاول مجددًا لاحقًا" # machine-candidate 2026-11-16
+sendConflict: "تغيّرت حالة الجلسة؛ حُدّثت أحدث حالة لك" # machine-candidate 2026-11-16
+attachUploadFailed: "فشل رفع المرفق. أعد المحاولة" # machine-candidate 2026-11-16
+transferredAway: "حُوّلت هذه المحادثة إلى مندوب آخر وهي للقراءة فقط لديك" # machine-candidate 2026-11-16
+presenceMenuLabel: "حالة المندوب" # machine-candidate 2026-11-16
+presenceUnavailable: "الحالة غير متاحة" # machine-candidate 2026-11-16
+seatDisabledNotice: "المقعد متوقف" # machine-candidate 2026-11-16
+presenceStatusOnline: "متصل" # machine-candidate 2026-11-16
+presenceStatusAway: "بعيد" # machine-candidate 2026-11-16
+presenceStatusBusy: "مشغول" # machine-candidate 2026-11-16
+presenceStatusOffline: "غير متصل" # machine-candidate 2026-11-16
+presenceAwayAction: "تعيين كبعيد" # machine-candidate 2026-11-16
+presenceResumeAction: "استئناف الوضع التلقائي" # machine-candidate 2026-11-16
+presenceCapacityLabel: "$active/$max محادثة" # machine-candidate 2026-11-16
+unreadBadgeLabel: "$n غير مقروءة" # machine-candidate 2026-11-16
+actionDraftWarning: "توجد مسودة غير مُرسلة؛ تأكيد هذا الإجراء لا يرسلها." # machine-candidate 2026-11-16
+actionSendingWarning: "رسالة قيد الإرسال؛ انتظر الحالة النهائية وتحقق قبل التأكيد." # machine-candidate 2026-11-16
+actionUploadingWarning: "مرفق قيد الرفع؛ انتظر الحالة النهائية وتحقق قبل التأكيد." # machine-candidate 2026-11-16
+actionUnconfirmedWarning: "لا تزال هناك رسائل غير مؤكدة؛ تحقق من نتائجها أولًا، فلا يمكن تنفيذ إجراءات الجلسة حاليًا." # machine-candidate 2026-11-16
+attachSave: "حفظ الملف" # machine-candidate 2026-11-16
+attachSaved: "تم حفظ الملف" # machine-candidate 2026-11-16
+attachSaveFailed: "فشل الحفظ. يمكنك إعادة المحاولة." # machine-candidate 2026-11-16
+attachPreparing: "جارٍ تحضير المرفق" # machine-candidate 2026-11-16
+attachPresigning: "جارٍ طلب إذن الرفع" # machine-candidate 2026-11-16
+attachUploading: "جارٍ رفع البايتات: $sent / $total" # machine-candidate 2026-11-16
+attachConfirming: "جارٍ تأكيد الملف المرفوع" # machine-candidate 2026-11-16
+attachCancelled: "أُلغي المرفق قبل بدء الرفع" # machine-candidate 2026-11-16
+attachUnknown: "نتيجة الرفع لم تُؤكد بالكامل. لم تُجرَ إعادة محاولة تلقائية ولم تُرسل أي رسالة." # machine-candidate 2026-11-16
+attachRetry: "إعادة محاولة رفع المرفق" # machine-candidate 2026-11-16
+attachCancel: "إيقاف خطوات الرفع التالية" # machine-candidate 2026-11-16
+attachTooLarge: "يجب ألا يكون المرفق فارغًا وألا يتجاوز 25 ميبيبايت." # machine-candidate 2026-11-16
+attachPreviewTruncated: "يُعرض جزء من النص فقط؛ ويحتفظ الملف المحفوظ بالمحتوى الكامل." # machine-candidate 2026-11-16
+attachUploadedNotSent: "رُفع المرفق لكن نتيجة إرسال الرسالة لم تُؤكد بعد. تحقق من نتيجة الإرسال ولا تُعد الرفع." # machine-candidate 2026-11-16
+attachUploadStopped: "لم يكتمل رفع المرفق وأُوقفت الخطوات التالية. تحقق من الأذونات وحالة الجلسة ثم اختر الملف من جديد." # machine-candidate 2026-11-16
+newMessagesJump: "رسائل جديدة · الانتقال إلى الأحدث" # machine-candidate 2026-11-16
+governance:
+  title: "حوكمة الدعم" # machine-candidate 2026-11-16
+  scopeNote: "هذه واجهة حوكمة المؤسسة (owner/admin)؛ وقرار 403 من الخادم هو الفصل النهائي في الصلاحيات." # machine-candidate 2026-11-16
+  limitCardTitle: "حصة المقاعد" # machine-candidate 2026-11-16
+  limitUnlimited: "غير محدود" # machine-candidate 2026-11-16
+  limitValueLabel: "${used}/${limit} مقعدًا" # machine-candidate 2026-11-16
+  limitAtCapacity: "بلغت الحد" # machine-candidate 2026-11-16
+  limitAdjustAction: "تعديل الحصة" # machine-candidate 2026-11-16
+  limitAdjustTitle: "تعديل حصة المقاعد" # machine-candidate 2026-11-16
+  limitInputLabel: "حد المقاعد (عدد صحيح موجب، فارغ = بلا حد)" # machine-candidate 2026-11-16
+  limitClearAction: "إزالة الحد (بلا حد)" # machine-candidate 2026-11-16
+  limitInvalidInput: "أدخل عددًا صحيحًا موجبًا" # machine-candidate 2026-11-16
+  limitSaved: "حُدّثت الحصة" # machine-candidate 2026-11-16
+  seatsSectionTitle: "المقاعد" # machine-candidate 2026-11-16
+  seatsEmpty: "لا توجد مقاعد بعد" # machine-candidate 2026-11-16
+  seatEnabledBadge: "مُفعّل" # machine-candidate 2026-11-16
+  seatSuspendedBadge: "موقوف" # machine-candidate 2026-11-16
+  seatIdentityLabel: "مقعد ${identity}" # machine-candidate 2026-11-16
+  seatCapacityLabel: "${active}/${max} محادثة" # machine-candidate 2026-11-16
+  seatLoadMore: "تحميل المزيد" # machine-candidate 2026-11-16
+  suspendAction: "إيقاف المقعد" # machine-candidate 2026-11-16
+  resumeAction: "تفعيل المقعد" # machine-candidate 2026-11-16
+  suspendConfirmTitle: "إيقاف هذا المقعد؟" # machine-candidate 2026-11-16
+  suspendConfirmBody: "لا يمكن للمقاعد الموقوفة استلام محادثات جديدة؛ والمحادثات الجارية لا تتأثر ويمكن التفعيل في أي وقت." # machine-candidate 2026-11-16
+  actionDone: "نُفّذ الإجراء" # machine-candidate 2026-11-16
+  actionFailed: "فشل الإجراء. حاول مجددًا لاحقًا" # machine-candidate 2026-11-16
+  errorForbidden: "لا توجد صلاحية حوكمة: حوكمة الدعم متاحة لمالك المؤسسة ومسؤوليها فقط" # machine-candidate 2026-11-16
+  errorNoDefaultWorkspace: "لم تُعيَّن مساحة عمل افتراضية للمؤسسة؛ فلا يمكن تحديد نطاق حوكمة الدعم" # machine-candidate 2026-11-16
+  errorLoadFailed: "فشل التحميل" # machine-candidate 2026-11-16
+  errorWithCode: "${msg} (الرمز ${code})" # machine-candidate 2026-11-16
+  seatLimitExceededHint: "امتلأت حصة المقاعد: المستخدم ${used}/${limit}، ولا يمكن إضافة مقاعد (seat_limit_exceeded)" # machine-candidate 2026-11-16
+  retry: "إعادة المحاولة" # machine-candidate 2026-11-16

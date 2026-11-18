@@ -118,6 +118,7 @@ feedbackContentRequired: 回饋內容不能為空
 feedbackDetails: 回饋建議明細
 feedbackSuccessMsg: 你的回饋問題我們已經收到了，會盡快處理！
 followSystemTips: 開啟後，將跟隨系統開啟或關閉深色模式
+themeBrowserLocalOnly: "主題設定僅儲存在目前瀏覽器，不會同步至其他裝置。"
 genderUpdateFailed: 性別設定失敗，請重試
 groupAnnouncement: 群組公告
 groupFileUploadSuccess: 檔案上傳成功
@@ -949,3 +950,28 @@ myLocation: "我的位置"
 searchConversations: "對話"
 
 webpageLoadProblem: "網頁內容載入遇到問題，請重試。"
+webReadOnlySettingsHint: "Web 端僅供檢視，請在 App 中修改。"
+
+legacyUploadCheckLocal: "檢查本機傳送狀態"
+
+textTooLarge: "文字超過64 KiB，請修改後重試"
+
+# ---- DSN-06 gap fill (machine-candidate 2026-11-16) ----
+e2eeBackupDeviceKeySyncPending: "提示：裝置身分同步暫未完成，本裝置可能暫時無法解密新訊息；重新登入後將自動完成同步" # machine-candidate 2026-11-16
+e2eeBackupSetupBlockedToast: "請先完成金鑰備份設定" # machine-candidate 2026-11-16
+e2eeBackupSetupBody: "設定復原密語並上傳雲端備份後，換機或重灌才能找回加密聊天歷史；沒有備份，歷史訊息在新裝置上將無法解密。" # machine-candidate 2026-11-16
+e2eeBackupSetupBusyHint: "正在本機加密並上傳到雲端，請稍候；網路不佳時可以點下方「稍後再說」先跳過" # machine-candidate 2026-11-16
+e2eeBackupSetupLater: "稍後再說（下次啟動仍會提醒）" # machine-candidate 2026-11-16
+e2eeBackupSetupLaterConfirmBody: "暫不設定的話，換裝置或重灌後這些加密聊天記錄將無法解密，也無法找回。下次啟動仍會提醒你。" # machine-candidate 2026-11-16
+e2eeBackupSetupLaterConfirmLeave: "暫不設定" # machine-candidate 2026-11-16
+e2eeBackupSetupLaterConfirmStay: "繼續設定" # machine-candidate 2026-11-16
+e2eeBackupSetupLaterConfirmTitle: "暫不設定備份？" # machine-candidate 2026-11-16
+e2eeBackupSetupPostponedToast: "已稍後，下次啟動會再次提醒" # machine-candidate 2026-11-16
+e2eeBackupSetupPwdHint: "自選復原密語，或點選下方產生隨機復原金鑰" # machine-candidate 2026-11-16
+e2eeBackupSetupPwdTooShort: "密語至少 8 位" # machine-candidate 2026-11-16
+e2eeBackupSetupSavedNote: "復原密語已存入本機安全儲存；今後金鑰變化時會自動用它重新上傳備份，無需再次輸入。" # machine-candidate 2026-11-16
+e2eeBackupSetupSubmit: "完成並上傳雲端備份" # machine-candidate 2026-11-16
+e2eeBackupSetupTimeoutToast: "上傳逾時，請檢查網路後重試，或稍後再設定" # machine-candidate 2026-11-16
+e2eeBackupSetupTitle: "保護你的加密歷史" # machine-candidate 2026-11-16
+e2eeBackupSetupUploading: "正在上傳…" # machine-candidate 2026-11-16
+e2eeBackupSetupWeakHint: "密語偏短，建議 12 位以上，或點選下方「產生復原金鑰」改用隨機金鑰" # machine-candidate 2026-11-16

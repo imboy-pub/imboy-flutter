@@ -1,8 +1,23 @@
+import 'dart:async';
+
 import 'package:cupertino_ui/cupertino_ui.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/component/image_gallery/image_gallery.dart';
+// ignore: depend_on_referenced_packages
+import 'package:connectivity_plus_platform_interface/connectivity_plus_platform_interface.dart';
+import 'package:photo_view/photo_view.dart';
+
+class _DelayedConnectivity extends ConnectivityPlatform {
+  final release = Completer<List<ConnectivityResult>>();
+  var checks = 0;
+  @override
+  Future<List<ConnectivityResult>> checkConnectivity() {
+    checks++;
+    return release.future;
+  }
+}
 
 Future<(GlobalKey<NavigatorState>, PageController)> _mountGallery(
   WidgetTester tester,
@@ -44,6 +59,38 @@ Future<(GlobalKey<NavigatorState>, PageController)> _mountGallery(
 }
 
 void main() {
+  testWidgets(
+    'single-image preview cannot open after owner expires during connectivity',
+    (tester) async {
+      final previous = ConnectivityPlatform.instance;
+      final connectivity = _DelayedConnectivity();
+      ConnectivityPlatform.instance = connectivity;
+      addTearDown(() => ConnectivityPlatform.instance = previous);
+      late BuildContext target;
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Builder(
+            builder: (context) {
+              target = context;
+              return const SizedBox();
+            },
+          ),
+        ),
+      );
+      var current = false;
+      await zoomInPhotoView(target, '', isCurrent: () => current);
+      expect(connectivity.checks, 0);
+      current = true;
+      final opening = zoomInPhotoView(target, '', isCurrent: () => current);
+      await tester.pump();
+      expect(connectivity.checks, 1);
+      current = false;
+      connectivity.release.complete([ConnectivityResult.wifi]);
+      await opening;
+      await tester.pump();
+      expect(find.byType(PhotoView), findsNothing);
+    },
+  );
   for (final useEdge in [false, true]) {
     testWidgets(
       'gallery ${useEdge ? 'left edge' : 'system back'} invokes local close without exiting',

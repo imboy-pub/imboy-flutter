@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:imboy/service/c2g_rejection_hold.dart';
 import 'package:imboy/service/server_ack_receipts.dart';
 import 'package:imboy/store/model/message_model.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
@@ -98,6 +99,77 @@ void main() {
       'dispatch_reserved_v2',
       'pending',
     ]);
+  });
+
+  test('群消息结果待确认时，迟到的有效 ACK 可以确认消息', () async {
+    await db.delete('attachment_upload_task');
+    await db.insert('msg_c2g', {
+      'id': 'm1',
+      'type': 'C2G',
+      'from_id': '101',
+      'to_id': '202',
+      'is_author': 1,
+      'status': 42,
+      'conversation_uk3': 'c2g-101-202',
+    });
+
+    expect(await ack(type: 'C2G_SERVER_ACK'), isTrue);
+    expect(
+      (await db.query('msg_c2g')).single['status'],
+      IMBoyMessageStatus.sent,
+    );
+    expect((await db.query('crypto_outbox')).single['status'], 'sent');
+  });
+
+  test('结果待确认状态不放宽类型、账号或发送记录检查', () async {
+    await db.update('msg_c2c', {'status': 42});
+    expect(await ack(), isFalse);
+    await db.delete('attachment_upload_task');
+    await db.insert('msg_c2g', {
+      'id': 'm1',
+      'type': 'C2G',
+      'from_id': '101',
+      'to_id': '202',
+      'is_author': 1,
+      'status': 42,
+      'conversation_uk3': 'c2g-101-202',
+    });
+    expect(await ack(type: 'C2G_SERVER_ACK', owner: '202'), isFalse);
+    await db.delete('message_send_attempt');
+    expect(await ack(type: 'C2G_SERVER_ACK'), isFalse);
+    expect((await db.query('msg_c2g')).single['status'], 42);
+    expect((await db.query('crypto_outbox')).single['status'], 'pending');
+  });
+
+  test('群消息拒绝与有效 ACK 并发时不得覆盖成功确认', () async {
+    await db.delete('attachment_upload_task');
+    await db.insert('msg_c2g', {
+      'id': 'm1',
+      'type': 'C2G',
+      'from_id': '101',
+      'to_id': '202',
+      'is_author': 1,
+      'status': IMBoyMessageStatus.sending,
+      'conversation_uk3': 'c2g-101-202',
+    });
+
+    final results = await Future.wait([
+      C2gRejectionHold.persist(
+        db: db,
+        messageId: 'm1',
+        ownerUid: '101',
+        expectedAutoId: 1,
+        expectedPeerId: '202',
+        isCurrent: () => true,
+      ),
+      ack(type: 'C2G_SERVER_ACK'),
+    ]);
+    expect(results.last, isTrue);
+    expect(
+      (await db.query('msg_c2g')).single['status'],
+      IMBoyMessageStatus.sent,
+    );
+    expect((await db.query('crypto_outbox')).single['status'], 'sent');
   });
 
   test('查询期间消息实例被替换时拒绝迟到 ACK', () async {

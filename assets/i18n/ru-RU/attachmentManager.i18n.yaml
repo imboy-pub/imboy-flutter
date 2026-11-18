@@ -1,0 +1,57 @@
+# attachmentManager namespace — ru-RU
+# DSN-06 gap fill 2026-11-16: machine-candidate translations (owner decision owner-batch-20261116).
+allChannels: "Все каналы" # machine-candidate 2026-11-16
+allGroups: "Все группы" # machine-candidate 2026-11-16
+allPeople: "Все загрузившие" # machine-candidate 2026-11-16
+cacheAction: "Очистить временный кэш" # machine-candidate 2026-11-16
+cacheConfirmBody: "Будут очищены временные загрузки и предпросмотры; история чатов, ключи шифрования и корпоративные облачные вложения не удаляются. Часть содержимого при повторном просмотре загрузится заново." # machine-candidate 2026-11-16
+cacheConfirmTitle: "Очистить временный кэш?" # machine-candidate 2026-11-16
+cacheFailed: "Не удалось очистить кэш, попробуйте позже" # machine-candidate 2026-11-16
+centerHint: "Поиск вложений групп, каналов и очных разговоров, доступных вам в этом пространстве." # machine-candidate 2026-11-16
+clearFilters: "Сбросить фильтры" # machine-candidate 2026-11-16
+clearFiltersAction: "Сбросить фильтры" # machine-candidate 2026-11-16
+dateRange: "Период" # machine-candidate 2026-11-16
+emptyHint: "Попробуйте изменить запрос или фильтры" # machine-candidate 2026-11-16
+emptyLocal: "Нет вложений, доступных на устройстве" # machine-candidate 2026-11-16
+emptySearch: "Подходящих вложений не найдено" # machine-candidate 2026-11-16
+enterpriseBoundary: "Вложения с отметкой «Корпоративное хранение» остаются в облаке организации и не удаляются при очистке кэша или истории чатов; доступ по-прежнему определяется правами исходной группы, канала или записи встречи." # machine-candidate 2026-11-16
+enterpriseHint: "Выберите группу текущего пространства, чтобы просмотреть её облачные файлы." # machine-candidate 2026-11-16
+enterpriseRetained: "Корпоративное хранение" # machine-candidate 2026-11-16
+enterpriseTitle: "Вложения организации" # machine-candidate 2026-11-16
+enterpriseUnmanaged: "Хранение не оформлено" # machine-candidate 2026-11-16
+governanceAction: "Управление вложениями" # machine-candidate 2026-11-16
+governanceExtendAction: "Продлить хранение" # machine-candidate 2026-11-16
+governanceExtendUntil: "Продлить хранение до" # machine-candidate 2026-11-16
+governanceHoldAction: "Установить удержание" # machine-candidate 2026-11-16
+governanceHoldReason: "Причина удержания (до 200 символов)" # machine-candidate 2026-11-16
+governancePhysicalPending: "Согласие на очистку не означает удаления файла; фактический прогресс смотрите в статусе очистки." # machine-candidate 2026-11-16
+governancePurgeAction: "Согласовать очистку" # machine-candidate 2026-11-16
+governancePurgeApproved: "Очистка согласована" # machine-candidate 2026-11-16
+governancePurgeConfirm: "Согласовать очистку вложения? Решение необратимо; для запуска очистки должны пройти все защиты по ссылкам, загрузке и обработке." # machine-candidate 2026-11-16
+governanceRefreshConflict: "Версия записи изменилась. Обновите, сверьте и отправьте снова." # machine-candidate 2026-11-16
+governanceReleaseHoldAction: "Снять удержание" # machine-candidate 2026-11-16
+groupSource: "Вложения группы" # machine-candidate 2026-11-16
+loadFailed: "Не удалось загрузить вложения, повторите" # machine-candidate 2026-11-16
+loadMore: "Показать ещё" # machine-candidate 2026-11-16
+localOnly: "Локальный индекс сообщений" # machine-candidate 2026-11-16
+moreFailed: "Не удалось загрузить ещё, повторите позже." # machine-candidate 2026-11-16
+openSource: "Открыть исходное сообщение" # machine-candidate 2026-11-16
+organizationCenterHint: "Поиск доступных вам вложений организации, включая записи встреч вне рабочих пространств." # machine-candidate 2026-11-16
+personSearch: "Имя, аккаунт или номер загрузившего" # machine-candidate 2026-11-16
+personalBoundary: "Видимость на устройстве — не облачная резервная копия. Очистка кэша сохраняет индекс сообщений; после удаления истории чата автоматического восстановления нет. Для зашифрованного содержимого нужен доступный ключ." # machine-candidate 2026-11-16
+personalHint: "Поиск вложений по локальной истории чатов; нажмите файл, чтобы вернуться к исходному сообщению." # machine-candidate 2026-11-16
+personalTitle: "Вложения на устройстве" # machine-candidate 2026-11-16
+resultCount: "Всего вложений: ${count}" # machine-candidate 2026-11-16
+retryAction: "Повторить" # machine-candidate 2026-11-16
+searchGroupsHint: "Поиск групп" # machine-candidate 2026-11-16
+searchHint: "Поиск по имени вложения" # machine-candidate 2026-11-16
+selectChannelTitle: "Выбор канала" # machine-candidate 2026-11-16
+selectGroupTitle: "Выбор группы" # machine-candidate 2026-11-16
+sourceAll: "Все источники" # machine-candidate 2026-11-16
+sourceChannels: "Каналы" # machine-candidate 2026-11-16
+sourceGroups: "Группы" # machine-candidate 2026-11-16
+sourceTalkRecords: "Записи встреч" # machine-candidate 2026-11-16
+storageHint: "Здесь управление занятым местом; для поиска и просмотра вложений используйте раздел на устройстве." # machine-candidate 2026-11-16
+talkRecordSourceHint: "Просмотр записей встреч; воспроизведение и экспорт по правам записи." # machine-candidate 2026-11-16
+title: "Вложения" # machine-candidate 2026-11-16
+unavailableSource: "Исходный чат больше не существует, безопасно открыть вложение нельзя" # machine-candidate 2026-11-16

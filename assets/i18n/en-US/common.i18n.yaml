@@ -115,6 +115,7 @@ feedbackContentRequired: Feedback content cannot be empty
 feedbackDetails: Feedback details
 feedbackSuccessMsg: "We have received your feedback and will process it as soon as possible!"
 followSystemTips: "When enabled, dark mode will follow system settings"
+themeBrowserLocalOnly: "Theme preferences are saved only in this browser and do not sync to other devices."
 genderUpdateFailed: "Gender setting failed, please try again"
 groupAnnouncement: Group announcement
 groupFileUploadSuccess: File uploaded successfully
@@ -952,3 +953,28 @@ myLocation: "My location"
 searchConversations: "Conversations"
 
 webpageLoadProblem: "There was a problem loading page content. Please retry."
+webReadOnlySettingsHint: "Read only on the web. Make changes in the app."
+
+legacyUploadCheckLocal: "Check local send status"
+
+textTooLarge: "Text exceeds 64 KiB. Edit it and try again."
+
+# ==================== E2EE backup setup (DSN-06 gap fill) ====================
+e2eeBackupDeviceKeySyncPending: "Note: device identity sync is not finished yet, so this device may temporarily be unable to decrypt new messages; signing in again completes the sync automatically" # machine-candidate 2026-11-16
+e2eeBackupSetupBlockedToast: "Complete key backup setup first" # machine-candidate 2026-11-16
+e2eeBackupSetupBody: "Set a recovery passphrase and upload a cloud backup so encrypted chat history can be restored on a new device or after reinstalling; without a backup, past messages cannot be decrypted on a new device." # machine-candidate 2026-11-16
+e2eeBackupSetupBusyHint: "Encrypting on this device and uploading to the cloud; on a weak network you can tap “Later” below to skip for now" # machine-candidate 2026-11-16
+e2eeBackupSetupLater: "Later (you will be reminded again at next launch)" # machine-candidate 2026-11-16
+e2eeBackupSetupLaterConfirmBody: "If you skip setup, these encrypted chats cannot be decrypted or recovered after switching devices or reinstalling. You will be reminded again at next launch." # machine-candidate 2026-11-16
+e2eeBackupSetupLaterConfirmLeave: "Skip for now" # machine-candidate 2026-11-16
+e2eeBackupSetupLaterConfirmStay: "Continue setup" # machine-candidate 2026-11-16
+e2eeBackupSetupLaterConfirmTitle: "Skip backup setup?" # machine-candidate 2026-11-16
+e2eeBackupSetupPostponedToast: "Postponed; you will be reminded again at next launch" # machine-candidate 2026-11-16
+e2eeBackupSetupPwdHint: "Choose your own recovery passphrase, or tap below to generate a random recovery key" # machine-candidate 2026-11-16
+e2eeBackupSetupPwdTooShort: "Passphrase must be at least 8 characters" # machine-candidate 2026-11-16
+e2eeBackupSetupSavedNote: "The recovery passphrase is stored in this device's secure storage; it will be reused automatically to re-upload the backup whenever keys change, without asking again." # machine-candidate 2026-11-16
+e2eeBackupSetupSubmit: "Finish and upload cloud backup" # machine-candidate 2026-11-16
+e2eeBackupSetupTimeoutToast: "Upload timed out. Check the network and try again, or set up later" # machine-candidate 2026-11-16
+e2eeBackupSetupTitle: "Protect your encrypted history" # machine-candidate 2026-11-16
+e2eeBackupSetupUploading: "Uploading…" # machine-candidate 2026-11-16
+e2eeBackupSetupWeakHint: "This passphrase is short; 12 characters or more is recommended, or use a random key via “Generate recovery key” below" # machine-candidate 2026-11-16

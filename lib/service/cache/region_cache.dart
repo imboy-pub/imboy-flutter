@@ -1,3 +1,5 @@
+import 'package:imboy/service/web_writer_gate.dart';
+
 import 'dart:convert';
 
 import 'package:shared_preferences/shared_preferences.dart';
@@ -44,6 +46,7 @@ class RegionCache {
   /// 异常：SharedPreferences 操作异常
   static Future<void> saveSelectedRegion(String value) async {
     final prefs = await SharedPreferences.getInstance();
+    requireWebWriter();
     await prefs.setString(_keySelectedRegion, value);
   }
 
@@ -62,6 +65,7 @@ class RegionCache {
   /// 异常：SharedPreferences 操作异常
   static Future<void> saveRegionPath(List<String> path) async {
     final prefs = await SharedPreferences.getInstance();
+    requireWebWriter();
     await prefs.setString(_keyRegionPath, path.join(' '));
   }
 
@@ -83,9 +87,11 @@ class RegionCache {
   static Future<void> saveRegionList(List<dynamic> list) async {
     final prefs = await SharedPreferences.getInstance();
     final json = jsonEncode(list);
+    requireWebWriter();
     await prefs.setString(_keyRegionList, json);
 
     // 同时更新最后更新时间
+    requireWebWriter();
     await prefs.setInt(_keyLastUpdateTime, DateTimeHelper.millisecond());
   }
 
@@ -113,6 +119,7 @@ class RegionCache {
   /// 注意：版本号格式需要与后端 API 对齐，当前实现为通用字符串存储
   static Future<void> saveDataVersion(String version) async {
     final prefs = await SharedPreferences.getInstance();
+    requireWebWriter();
     await prefs.setString(_keyDataVersion, version);
   }
 
@@ -145,6 +152,7 @@ class RegionCache {
   /// 异常：SharedPreferences 操作异常
   static Future<void> clearAll() async {
     final prefs = await SharedPreferences.getInstance();
+    requireWebWriter();
     await Future.wait([
       prefs.remove(_keySelectedRegion),
       prefs.remove(_keyRegionPath),

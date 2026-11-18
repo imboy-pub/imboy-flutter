@@ -2,7 +2,7 @@ import 'dart:math' as math;
 
 import 'package:imboy/theme/default/font_types.dart';
 
-import 'package:flutter/foundation.dart' show debugPrint, kDebugMode;
+import 'package:flutter/foundation.dart' show debugPrint, kDebugMode, kIsWeb;
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -12,6 +12,7 @@ import 'package:imboy/config/const.dart';
 import 'package:imboy/config/routes.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/web_shell/web_shell_breakpoint.dart';
+import 'package:imboy/page/chat_shell/experience_provider.dart';
 import 'package:imboy/service/incoming_backup_handler.dart';
 import 'package:imboy/service/storage.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
@@ -176,6 +177,13 @@ class _SplashPageState extends ConsumerState<SplashPage>
           '/e2ee_backup_import',
           extra: {'initialFilePath': incomingPath},
         );
+        return;
+      }
+      // Browser personal routes retain Web auth/query ownership at every width.
+      // WebShellPage keeps its existing responsive mobile fallback.
+      if (kIsWeb &&
+          ref.read(productExperienceProvider) == ProductExperience.personal) {
+        context.go('/web_shell');
         return;
       }
       // 宽屏/桌面/Web 走三栏壳（内部按 resolveShellLayout 再降级到 mobile），

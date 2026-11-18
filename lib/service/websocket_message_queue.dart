@@ -6,6 +6,7 @@ import 'package:imboy/store/repository/user_repo_local.dart';
 
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:imboy/component/helper/func.dart' show iPrint;
+import 'package:imboy/service/web_writer_gate.dart';
 
 /// 带优先级的队列消息
 class QueuedMessage {
@@ -85,7 +86,7 @@ class PersistentMessageQueue {
   static PersistentMessageQueue get to =>
       _instance ??= PersistentMessageQueue._internal();
   PersistentMessageQueue._internal() {
-    _startPeriodicCleanup();
+    if (isWebWriterReady) _startPeriodicCleanup();
   }
 
   static const String _storageKey = 'ws_message_queue';
@@ -124,6 +125,7 @@ class PersistentMessageQueue {
     final result = Completer<bool>();
     _pendingPersistence = _pendingPersistence.then((_) async {
       try {
+        requireWebWriter();
         final saved =
             await (writer?.call(prefs, snapshot) ??
                 prefs.setStringList(_storageKey, snapshot));
@@ -152,6 +154,7 @@ class PersistentMessageQueue {
 
   /// 初始化：从 SharedPreferences 加载历史队列
   Future<PersistentMessageQueue> init() async {
+    requireWebWriter();
     _recoveryBlocked = true;
     await _pendingPersistence;
     _prefs = await SharedPreferences.getInstance();
@@ -178,6 +181,7 @@ class PersistentMessageQueue {
       messages.map((entry) => jsonEncode(entry.toJson())).toList(),
     );
     if (saved == false) throw StateError('Queue recovery persistence failed');
+    requireWebWriter();
     _recoveryBlocked = false;
     return this;
   }
@@ -275,7 +279,7 @@ class PersistentMessageQueue {
     String ownerUid = '',
     int? sessionGeneration,
   }) {
-    if (_recoveryBlocked) return false;
+    if (!isWebWriterReady || _recoveryBlocked) return false;
     final msg = QueuedMessage(
       id: id,
       data: data,
@@ -311,7 +315,7 @@ class PersistentMessageQueue {
 
   /// 保留消息，发送接口接受后再删除，失败时无需重新占用容量。
   QueuedMessage? peekByPriority({bool Function(QueuedMessage)? eligible}) {
-    if (_recoveryBlocked) return null;
+    if (!isWebWriterReady || _recoveryBlocked) return null;
     for (int p = 2; p >= 0; p--) {
       for (final entry in _priorityQueues[p]!) {
         if (!_inFlight.contains(entry) &&
@@ -333,7 +337,7 @@ class PersistentMessageQueue {
 
   /// 只删除实际接受的对象，避免同 ID 的新会话消息被误删。
   bool removeAccepted(QueuedMessage message) {
-    if (_recoveryBlocked) return false;
+    if (!isWebWriterReady || _recoveryBlocked) return false;
     final queue = _priorityQueues[message.priority];
     if (queue == null || !queue.remove(message)) return false;
     if (!messages.any(
@@ -354,7 +358,7 @@ class PersistentMessageQueue {
     String? ownerUid,
     int? sessionGeneration,
   }) {
-    if (_recoveryBlocked) return;
+    if (!isWebWriterReady || _recoveryBlocked) return;
     final matches = messages
         .where(
           (entry) =>
@@ -399,6 +403,7 @@ class PersistentMessageQueue {
   /// Remove one account's durable backlog, including its in-memory copy.
   /// Waiting for old writes prevents a queued snapshot from restoring deleted data.
   static Future<void> removeAccount(String uid) async {
+    requireWebWriter();
     if (uid.isEmpty) throw ArgumentError.value(uid, 'uid');
     final queue = _instance;
     if (queue?._recoveryBlocked ?? false) {
@@ -406,6 +411,7 @@ class PersistentMessageQueue {
     }
     await queue?._pendingPersistence;
     final prefs = queue?._prefs ?? await SharedPreferences.getInstance();
+    requireWebWriter();
     final persisted = prefs.getStringList(_storageKey) ?? const <String>[];
     final remaining = persisted.where((raw) {
       try {
@@ -430,14 +436,18 @@ class PersistentMessageQueue {
       if (!await queue._writeSnapshot(prefs, snapshot)) {
         throw StateError('Could not remove account message queue');
       }
-    } else if (!await prefs.setStringList(_storageKey, remaining)) {
-      await prefs.reload();
-      throw StateError('Could not remove account message queue');
+    } else {
+      requireWebWriter();
+      if (!await prefs.setStringList(_storageKey, remaining)) {
+        await prefs.reload();
+        throw StateError('Could not remove account message queue');
+      }
     }
   }
 
   /// 清空消息队列（不影响定期清理 Timer 的生命周期）
   void clear() {
+    requireWebWriter();
     for (final queue in _priorityQueues.values) {
       queue.clear();
     }
@@ -445,6 +455,15 @@ class PersistentMessageQueue {
     _inFlight.clear();
     _save();
     iPrint('🧹 [QUEUE] 清空队列');
+  }
+
+  /// Stop dispatch/expiry work without changing the durable snapshot or messages.
+  /// Do not construct a queue merely to stop one; document reload is recovery.
+  static void suspendForStorageFailure() {
+    final queue = _instance;
+    if (queue == null) return;
+    queue._recoveryBlocked = true;
+    queue._stopPeriodicCleanup();
   }
 
   /// 释放资源（先停 Timer 再清数据，避免 dispose 后 Timer 重启）
@@ -476,7 +495,7 @@ class PersistentMessageQueue {
 
   /// 【新增 M1】清理过期消息
   void _cleanupExpiredMessages() {
-    if (_recoveryBlocked) return;
+    if (!isWebWriterReady || _recoveryBlocked) return;
     final now = DateTime.now();
     int totalCleaned = 0;
 
@@ -554,7 +573,7 @@ class PersistentMessageQueue {
 
   /// 内部持久化
   void _save() {
-    if (_recoveryBlocked) return;
+    if (!isWebWriterReady || _recoveryBlocked) return;
     final allMessages = <String>[];
     for (final queue in _priorityQueues.values) {
       for (final msg in queue) {

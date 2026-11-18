@@ -11,7 +11,7 @@ uploadProgressParts(confirmed, total): "Подтверждено частей: $
 aiServicesTitle: "Сервисы ИИ"
 aiServicesSubtitle: "Используются ваши API-аккаунты. Поставщики взимают плату за использование."
 aiMinimaxTitle: "MiniMax"
-aiZhipuTitle: "Zhipu GLM-5.3-Flash"
+aiZhipuTitle: "Модель Zhipu GLM-5.3-Flash"
 aiMinimaxPurpose: "Расшифровка аудио и временные метки говорящих"
 aiZhipuPurpose: "Черновики сводок, решений и действий"
 aiConfigured: "Настроено на этом устройстве"
@@ -41,7 +41,7 @@ aiDeleteTitle: "Удалить ключ устройства?"
 aiDeleteNotice: "Новые запросы к сервису будут остановлены. Записи и результаты сохранятся. Уже отправленные поставщику запросы нельзя отозвать."
 aiCancel: "Отмена"
 
-aiDoubaoTitle: "Doubao Speech 2.0"
+aiDoubaoTitle: "Сервис Doubao Speech 2.0"
 aiDoubaoPurpose: "Транскрипция аудио и временные метки говорящих"
 aiDoubaoExternalNotice: "Для транскрипции аудио отправляется в Volcengine Doubao Speech; возможна плата поставщику. Настройте API-ключ на устройстве. Ключи MiniMax не переносятся."
 aiDoubaoPendingNotice: "Транскрипция Doubao пока не подключена. Можно только сохранить настройки устройства. Сохранение не проверяет подключение и не включает транскрипцию."
@@ -54,3 +54,382 @@ aiProviderResubmitNotice: "Создаёт новую транскрипцию; �
 aiProviderCancelled: "Транскрипция остановлена. Аудио сохранено."
 aiProviderResumePreparation: "Продолжить подготовку"
 aiProviderResumeNotice: "Исходная задача ещё не отправлена поставщику. Повторно подготовьте источник аудио с текущими правами и согласием."
+
+# ---- DSN-06 gap fill (machine-candidate 2026-11-16) ----
+actionDelete: "Удалить запись" # machine-candidate 2026-11-16
+actionExport: "Экспорт текста" # machine-candidate 2026-11-16
+actionPendingIntegration: "Действие появится в следующих версиях (шаринг/экспорт/удаление откроются после интеграции модулей); в текущей сборке это только входная точка." # machine-candidate 2026-11-16
+actionShare: "Управление доступом" # machine-candidate 2026-11-16
+aiAsrOptionalNotice: "AI-транскрипция — опциональная функция. Сейчас доступен настроенный MiniMax. Для записи звука AI-ключ не нужен." # machine-candidate 2026-11-16
+aiAsrProvider: "Сервис транскрипции" # machine-candidate 2026-11-16
+aiProcessSummarize: "Сводка на этом устройстве / продолжить" # machine-candidate 2026-11-16
+aiProcessTranscribe: "Транскрипция на этом устройстве / продолжить" # machine-candidate 2026-11-16
+aiProcessingBalance: "Недостаточно средств у поставщика. Прогресс сохранён, обработка остановлена. Автоповтор не выполняется." # machine-candidate 2026-11-16
+aiProcessingComplete: "Результат обработки отправлен. Проверьте исходный текст и черновик сводки." # machine-candidate 2026-11-16
+aiProcessingConsent: "Приложение отправляет запросы и проверяет статус только на переднем плане. После приёмки поставщиком обработка и тарификация могут продолжаться после выхода из приложения. На каждом шаге заново проверяются права и текущее согласие. Если есть ID задачи поставщика — только запрос статуса; без ID и при неизвестном результате обработка останавливается без автоповтора. Локальные подсказки не гарантируют лимит расходов аккаунта." # machine-candidate 2026-11-16
+aiProcessingKeyInvalid: "Поставщик отклонил ключ. Проверьте настройки устройства в разделе Настройки → AI-сервисы; остановлено, автоповтора не будет." # machine-candidate 2026-11-16
+aiProcessingRunning: "Обработка на этом устройстве. Не закрывайте эту страницу." # machine-candidate 2026-11-16
+aiProcessingStopped: "Обработка остановлена, аудиозапись сохранена. Проверьте ключ, права, настройки и входные данные устройства; если данные уже отправлены, но результат не подтверждён, повторных вызовов не будет." # machine-candidate 2026-11-16
+aiProcessingUnknown: "Результат поставщика неизвестен, списание могло произойти. Отправка остановлена; требуется ручная проверка расходов и исходного запуска, автоматический повтор невозможен." # machine-candidate 2026-11-16
+aiUnknownRecoveryConfirm: "Проверено, допускаю возможное повторное списание" # machine-candidate 2026-11-16
+aiUnknownRecoveryIntents: "Номер блока / номер неизвестного запроса" # machine-candidate 2026-11-16
+aiUnknownRecoveryNotice: "Результаты и расходы по старым запросам ниже проверить нельзя, списание могло произойти. После подтверждения для той же задачи будет создан новый запуск и повторно запрошены только неподтверждённые блоки — возможно повторное списание. Прежние неизвестные факты и результаты сохраняются. Отмена не отправляет запрос восстановления." # machine-candidate 2026-11-16
+aiUnknownRecoveryRun: "Исходный запуск" # machine-candidate 2026-11-16
+aiUnknownRecoveryTitle: "Проверить неизвестные запуски и повторить запрос" # machine-candidate 2026-11-16
+barControlsUnavailable: "Управление записью предоставляет модуль записи; в текущей сборке это заглушка" # machine-candidate 2026-11-16
+barExpandHint: "Посмотреть статус записи" # machine-candidate 2026-11-16
+barInterrupted: "Запись прервана · возобновление вручную" # machine-candidate 2026-11-16
+barOriginOrgFallback: "Пространство организации" # machine-candidate 2026-11-16
+barOriginPersonal: "Личное пространство" # machine-candidate 2026-11-16
+barOriginPrefix: "Из" # machine-candidate 2026-11-16
+barPaused: "Пауза, время записи не идёт" # machine-candidate 2026-11-16
+barRecording: "Идёт запись · сегменты сохраняются локально" # machine-candidate 2026-11-16
+changeConfirmAction: "Подтвердить изменение" # machine-candidate 2026-11-16
+changeConfirmClearParticipants: "Выбор участников, неприменимый в новом месте, будет очищен" # machine-candidate 2026-11-16
+changeConfirmKeepTitle: "Заполненные заголовок и заметки сохранятся" # machine-candidate 2026-11-16
+changeConfirmRecheck: "Способ обработки будет перепроверен по возможностям нового места" # machine-candidate 2026-11-16
+changeConfirmTarget: "Будет сохранено в: $name" # machine-candidate 2026-11-16
+changeConfirmTitle: "Изменить место хранения" # machine-candidate 2026-11-16
+cleanupBlockedHoldBody: "Запись удалена, вложения защищены юридическим удержанием (Hold); очистка продолжится после снятия Hold." # machine-candidate 2026-11-16
+cleanupBlockedHoldTitle: "Защищено Hold" # machine-candidate 2026-11-16
+cleanupBlockedRetentionBody: "Запись удалена, вложения защищены правилами хранения; очистка продолжится после окончания срока хранения." # machine-candidate 2026-11-16
+cleanupBlockedRetentionTitle: "Срок хранения не истёк" # machine-candidate 2026-11-16
+cleanupCompleteBody: "Запись и вложения полностью очищены." # machine-candidate 2026-11-16
+cleanupCompleteTitle: "Очистка завершена" # machine-candidate 2026-11-16
+cleanupFailedBody: "Очистка вложений не завершена. Обновите страницу и проверьте статус; при выполнении условий можно повторить очистку." # machine-candidate 2026-11-16
+cleanupFailedTitle: "Ошибка очистки" # machine-candidate 2026-11-16
+cleanupNoneBody: "Запись ещё не попала в процесс очистки." # machine-candidate 2026-11-16
+cleanupNoneTitle: "Очистка не запущена" # machine-candidate 2026-11-16
+cleanupPendingBody: "Отправлено в очередь очистки; попадание в очередь не означает удаления байтов вложений." # machine-candidate 2026-11-16
+cleanupPendingTitle: "Идёт очистка" # machine-candidate 2026-11-16
+cleanupProcessorUnconfirmed: "Задача обработки ещё останавливается или проверяется; очистка временных аудиокопий не подтверждена. Обновите страницу для статуса." # machine-candidate 2026-11-16
+cleanupRetainedBody: "Часть вложений всё ещё используется другими законными бизнес-ссылками и физически не удаляется." # machine-candidate 2026-11-16
+cleanupRetainedTitle: "Вложения используются другими функциями" # machine-candidate 2026-11-16
+cleanupRetryAccepted: "Повтор отправлен, читаем свежий статус очистки; попадание в очередь не означает удаления." # machine-candidate 2026-11-16
+cleanupRetryAction: "Повторить очистку" # machine-candidate 2026-11-16
+cleanupRetryFailedBody: "Не удалось повторить очистку. Попробуйте позже ещё раз." # machine-candidate 2026-11-16
+cleanupRetryPartial: "Повтор выполняется только для вложений с исчерпанными попытками и разрешённых к очистке; защищённые вложения сохраняются." # machine-candidate 2026-11-16
+cleanupRetryProtected: "Вложения защищены удержанием, хранением или другими действующими ссылками — принудительная очистка невозможна." # machine-candidate 2026-11-16
+cleanupRetryReconcile: "Сверить тот же запрос повтора" # machine-candidate 2026-11-16
+cleanupRetryRefreshFailed: "Не удалось получить свежий статус. Обновите и сверьте." # machine-candidate 2026-11-16
+cleanupRetryUnavailable: "Пока нельзя подтвердить права на повтор очистки. Обновите статус." # machine-candidate 2026-11-16
+cleanupRetryUnknown: "Результат отправки не подтверждён. Сначала обновите и сверьте; повторная отправка переиспользует тот же запрос." # machine-candidate 2026-11-16
+cleanupRetryWaiting: "Условия повтора пока не достигнуты. После истечения возможности загрузки или других ссылок обновите статус." # machine-candidate 2026-11-16
+cleanupRetrying: "Повтор…" # machine-candidate 2026-11-16
+cleanupUnknownBody: "Не удалось получить статус очистки. Можно обновить и повторить." # machine-candidate 2026-11-16
+cleanupUnknownTitle: "Статус очистки неизвестен" # machine-candidate 2026-11-16
+cleanupWriteOutcomeUnknown: "Результат записи вложений не подтверждён, очистка не завершена. Состояние защиты сохраняется, проверку выполняет эксплуатация; прогресс можно увидеть после обновления." # machine-candidate 2026-11-16
+collabParticipantsCount: "Выбрано: $count" # machine-candidate 2026-11-16
+collabParticipantsEmpty: "Участники не выбраны" # machine-candidate 2026-11-16
+collabParticipantsLabel: "Участники" # machine-candidate 2026-11-16
+collabParticipantsUnavailable: "Каталог участников ещё не подключён; можно создать запись и потом выдать доступ." # machine-candidate 2026-11-16
+collabSectionSubtitle: "Необязательно, действует только для записей организации" # machine-candidate 2026-11-16
+collabSectionTitle: "Совместная работа" # machine-candidate 2026-11-16
+confirmProcessingUpload: "Согласиться и загрузить" # machine-candidate 2026-11-16
+contextOrgFallback: "Текущая организация" # machine-candidate 2026-11-16
+contextPersonal: "Личное пространство" # machine-candidate 2026-11-16
+contextSectionTitle: "Текущее пространство" # machine-candidate 2026-11-16
+createRecord: "Создать запись" # machine-candidate 2026-11-16
+deleteBackToList: "К списку" # machine-candidate 2026-11-16
+deleteCleanupSectionTitle: "Статус очистки вложений" # machine-candidate 2026-11-16
+deleteConfirmAction: "Удалить" # machine-candidate 2026-11-16
+deleteConfirmBodyPoint1: "После удаления текст и сводка записи больше не показываются." # machine-candidate 2026-11-16
+deleteConfirmBodyPoint2: "Удаление сначала отзывает доступ у всех; экспортированные или сохранённые копии вернуть нельзя." # machine-candidate 2026-11-16
+deleteConfirmBodyPoint3: "Вложения очищаются по правилам хранения и ссылкам; отправка в очистку не означает немедленного удаления байтов." # machine-candidate 2026-11-16
+deleteConfirmDialogContent: "После удаления текст больше не показывается; экспортированные или сохранённые копии вернуть нельзя." # machine-candidate 2026-11-16
+deleteConfirmTitle: "Удалить эту запись?" # machine-candidate 2026-11-16
+deleteConflictHint: "Запись обновлена другим пользователем. Обновите и повторите." # machine-candidate 2026-11-16
+deleteDeleting: "Удаление…" # machine-candidate 2026-11-16
+deleteFailedBody: "Не удалось удалить. Попробуйте позже." # machine-candidate 2026-11-16
+deleteOnlyOwner: "Удалить запись может только её создатель." # machine-candidate 2026-11-16
+deleteRefreshStatus: "Обновить статус очистки" # machine-candidate 2026-11-16
+deleteStatusFixtureHint: "Стадия компонента: статус очистки — пример fixture, реальный прогресс появится после интеграции." # machine-candidate 2026-11-16
+deleteStatusNoContentHint: "Содержимое записи больше не показывается." # machine-candidate 2026-11-16
+deleteStatusTitle: "Запись удалена" # machine-candidate 2026-11-16
+deleteTitle: "Удалить запись" # machine-candidate 2026-11-16
+detailNoSpeechBody: "Аудиозапись сохранена. В этой записи не оказалось речи, пригодной для транскрипции." # machine-candidate 2026-11-16
+detailNoSpeechTitle: "Речь для транскрипции не обнаружена" # machine-candidate 2026-11-16
+detailRecordOnlyBody: "Транскрипция не запрашивалась, исходного текста и сводки пока нет; аудиозапись можно прослушать, после встречи можно заказать транскрипцию." # machine-candidate 2026-11-16
+detailRecordOnlyTitle: "В этой записи сохранено только аудио" # machine-candidate 2026-11-16
+detailTranscribeFailedBodyEditor: "Транскрипция не удалась, аудиозапись доступна для прослушивания. Можно повторить транскрипцию." # machine-candidate 2026-11-16
+detailTranscribeFailedBodyViewer: "Транскрипция не удалась, аудиозапись доступна для прослушивания. Попросите создателя повторить." # machine-candidate 2026-11-16
+detailTranscribeFailedTitle: "Ошибка транскрипции" # machine-candidate 2026-11-16
+detailTranscribeRetry: "Повторить транскрипцию" # machine-candidate 2026-11-16
+detailTranscribingBody: "Исходный текст появится здесь после генерации; во время обработки время завершения не показывается." # machine-candidate 2026-11-16
+detailTranscribingTitle: "Идёт транскрипция" # machine-candidate 2026-11-16
+durationLabel: "Длительность" # machine-candidate 2026-11-16
+emptyNeverCreatedSubtitle: "После живого разговора сохраняйте аудио и транскрипцию здесь" # machine-candidate 2026-11-16
+emptyNeverCreatedTitle: "Записей встреч пока нет" # machine-candidate 2026-11-16
+emptyNoMatchSubtitle: "При текущем фильтре или запросе результатов нет; попробуйте изменить условия" # machine-candidate 2026-11-16
+emptyNoMatchTitle: "Нет подходящих записей" # machine-candidate 2026-11-16
+entrySubtitleOrg: "Командные записи встреч и очных переговоров" # machine-candidate 2026-11-16
+entrySubtitlePersonal: "Аудио и транскрипция очных разговоров" # machine-candidate 2026-11-16
+entryTitle: "Записи встреч" # machine-candidate 2026-11-16
+exportBlockedInstancePolicy: "В текущем инстансе экспорт выключен — экспортировать нельзя." # machine-candidate 2026-11-16
+exportBlockedNoGrant: "Вашей роли не выдано право экспорта; нужна выдача создателем или разрешение политики." # machine-candidate 2026-11-16
+exportBlockedOrgPolicy: "Экспорт отключён политикой организации — экспортировать нельзя." # machine-candidate 2026-11-16
+exportBlockedUnknown: "Не удалось подтвердить текущую политику экспорта — экспортировать нельзя." # machine-candidate 2026-11-16
+exportCapabilitySectionTitle: "Возможности экспорта" # machine-candidate 2026-11-16
+exportConflictHint: "Запись обновлена другим пользователем. Обновите и повторите." # machine-candidate 2026-11-16
+exportDownload: "Сохранить файл экспорта" # machine-candidate 2026-11-16
+exportDownloadCancelled: "Сохранение отменено, можно повторить." # machine-candidate 2026-11-16
+exportDownloadFailed: "Не удалось скачать или сохранить, можно повторить" # machine-candidate 2026-11-16
+exportDownloadReady: "Файл сохранён; это независимая копия — отзыв права её не удалит." # machine-candidate 2026-11-16
+exportDownloading: "Скачивание и подготовка сохранения…" # machine-candidate 2026-11-16
+exportExpiredBody: "Ссылка на скачивание истекла, сгенерируйте экспорт заново." # machine-candidate 2026-11-16
+exportExpiredTitle: "Экспорт истёк" # machine-candidate 2026-11-16
+exportExpiresAt: "Действует до $date" # machine-candidate 2026-11-16
+exportFailedBody: "Не удалось сгенерировать экспорт, можно повторить." # machine-candidate 2026-11-16
+exportFixtureHint: "Стадия компонента: ссылка на скачивание — пример fixture, реальный файл не создаётся." # machine-candidate 2026-11-16
+exportFormatHint: "Экспорт содержит только текст; аудио и сведения о неавторизованных участниках не входят." # machine-candidate 2026-11-16
+exportFormatMd: "Markdown .md" # machine-candidate 2026-11-16
+exportFormatSectionTitle: "Формат экспорта" # machine-candidate 2026-11-16
+exportFormatTxt: "Текст .txt" # machine-candidate 2026-11-16
+exportGenerate: "Сгенерировать экспорт" # machine-candidate 2026-11-16
+exportGenerating: "Генерация…" # machine-candidate 2026-11-16
+exportIndependentCopyAck: "Я понимаю: независимую копию экспорта вернуть нельзя" # machine-candidate 2026-11-16
+exportIndependentCopyBody: "Экспорт создаёт независимую копию; после генерации вернуть её удалением записи или отзывом прав нельзя." # machine-candidate 2026-11-16
+exportIndependentCopyTitle: "Об независимой копии" # machine-candidate 2026-11-16
+exportQueuedBody: "Запрос на генерацию отправлен; попадание в очередь не означает готовности, позже обновите статус." # machine-candidate 2026-11-16
+exportQueuedTitle: "Экспорт в очереди" # machine-candidate 2026-11-16
+exportReadyBody: "Файл экспорта доступен для скачивания; ссылка действует недолго, после истечения нужна регенерация." # machine-candidate 2026-11-16
+exportReadyTitle: "Экспорт готов" # machine-candidate 2026-11-16
+exportRefreshState: "Обновить статус" # machine-candidate 2026-11-16
+exportRegenerate: "Сгенерировать заново" # machine-candidate 2026-11-16
+exportRemaining: "Осталось около $minutes мин" # machine-candidate 2026-11-16
+exportTitle: "Экспорт текста" # machine-candidate 2026-11-16
+fieldTitleLabel: "Заголовок" # machine-candidate 2026-11-16
+fieldTitlePlaceholder: "Необязательно, поможет найти позже" # machine-candidate 2026-11-16
+filterAll: "Все" # machine-candidate 2026-11-16
+filterOwned: "Мои" # machine-candidate 2026-11-16
+filterShared: "Доступные мне" # machine-candidate 2026-11-16
+grantEditCandidateEmpty: "Нет кандидатов для выдачи доступа" # machine-candidate 2026-11-16
+grantEditCandidateSearchHint: "Поиск по имени или аккаунту" # machine-candidate 2026-11-16
+grantEditCandidateSection: "Выберите, кому выдать доступ" # machine-candidate 2026-11-16
+grantEditCandidatesUnavailable: "Каталог кандидатов временно недоступен, попробуйте позже." # machine-candidate 2026-11-16
+grantEditConflict: "Доступ обновлён другим пользователем; вернитесь, обновите список и повторите — ваши настройки сохранены." # machine-candidate 2026-11-16
+grantEditExpiresHint: "Необязательно; после срока доступ у получателя отзовётся автоматически." # machine-candidate 2026-11-16
+grantEditExpiresOn: "Истекает $date" # machine-candidate 2026-11-16
+grantEditExpiresSectionTitle: "Срок действия" # machine-candidate 2026-11-16
+grantEditExportBlockedOrg: "Экспорт отключён политикой организации, включить его в доступе нельзя." # machine-candidate 2026-11-16
+grantEditExportBlockedUnknown: "Не удалось подтвердить политику экспорта, включить экспорт нельзя." # machine-candidate 2026-11-16
+grantEditExportSectionTitle: "Разрешить экспорт" # machine-candidate 2026-11-16
+grantEditGranteeLabel: "Получатель доступа" # machine-candidate 2026-11-16
+grantEditRoleEditorHint: "Может вычитывать текст и спикеров, редактировать общие заметки; управлять доступом или удалять — нет." # machine-candidate 2026-11-16
+grantEditRoleSectionTitle: "Роль" # machine-candidate 2026-11-16
+grantEditRoleViewerHint: "Может смотреть запись и слушать аудио, изменять содержимое — нет." # machine-candidate 2026-11-16
+grantEditSave: "Сохранить права" # machine-candidate 2026-11-16
+grantEditSaveFailed: "Не удалось сохранить, попробуйте позже; ваши настройки сохранены." # machine-candidate 2026-11-16
+grantEditSaving: "Обработка…" # machine-candidate 2026-11-16
+grantEditTitle: "Права доступа" # machine-candidate 2026-11-16
+grantEditTitleNew: "Выдать доступ" # machine-candidate 2026-11-16
+invalidBack: "Назад" # machine-candidate 2026-11-16
+invalidBody: "Содержимое сейчас недоступно для просмотра: его не существует либо у вас нет права." # machine-candidate 2026-11-16
+invalidTitle: "Временно недоступно" # machine-candidate 2026-11-16
+keepRecordingLocal: "Пока не обрабатывать, оставить на устройстве" # machine-candidate 2026-11-16
+listTitle: "Записи встреч" # machine-candidate 2026-11-16
+loadFailedAction: "Повторить" # machine-candidate 2026-11-16
+loadFailedTitle: "Не удалось загрузить запись" # machine-candidate 2026-11-16
+localDraftBadge: "Локальный черновик" # machine-candidate 2026-11-16
+markDefaultText: "Важное вручную" # machine-candidate 2026-11-16
+markPillPrefix: "Важно" # machine-candidate 2026-11-16
+maxDurationHint: "Максимум $minutes мин на одну запись" # machine-candidate 2026-11-16
+micDeniedMessage: "Для записи очных разговоров нужен микрофон. Сейчас разрешение отклонено — повторите попытку или включите его в системных настройках." # machine-candidate 2026-11-16
+micDeniedTitle: "Нужно разрешение на микрофон" # machine-candidate 2026-11-16
+micOpenSettings: "Открыть настройки" # machine-candidate 2026-11-16
+micRetry: "Повторить" # machine-candidate 2026-11-16
+microphoneStopUnconfirmed: "Остановка записи не подтверждена — повторите остановку; если снова не выйдет, закройте приложение и проверьте системный индикатор микрофона." # machine-candidate 2026-11-16
+moreActionsCancel: "Отмена" # machine-candidate 2026-11-16
+moreActionsTitle: "Ещё действия" # machine-candidate 2026-11-16
+notesCancel: "Отмена" # machine-candidate 2026-11-16
+notesConflictHint: "Заметки обновлены другим пользователем. Обновите и повторите; ваш ввод сохранён." # machine-candidate 2026-11-16
+notesEditAction: "Редактировать" # machine-candidate 2026-11-16
+notesEmpty: "Дополнительных заметок пока нет" # machine-candidate 2026-11-16
+notesFailedHint: "Не удалось сохранить, попробуйте позже; ваш ввод сохранён." # machine-candidate 2026-11-16
+notesPlaceholder: "Итоги встречи, контекст и другое" # machine-candidate 2026-11-16
+notesReadonlyHint: "Общие с записью, сейчас только чтение." # machine-candidate 2026-11-16
+notesSave: "Сохранить заметки" # machine-candidate 2026-11-16
+notesSavedHint: "Заметки сохранены" # machine-candidate 2026-11-16
+notesSharedHint: "Общие с записью; видны всем, кто может смотреть запись." # machine-candidate 2026-11-16
+notesTitle: "Общие заметки" # machine-candidate 2026-11-16
+noticeCheckbox: "Я уведомил участников о записи и порядке её обработки" # machine-candidate 2026-11-16
+noticeHint: "Перед началом записи подтвердите, что участников уведомили" # machine-candidate 2026-11-16
+notificationRequiredMessage: "Чтобы фоновая запись оставалась заметной, разрешите уведомления приложения и включите канал уведомлений записи в системных настройках. Затем вернитесь и повторите; запись ещё не начата." # machine-candidate 2026-11-16
+notificationRequiredTitle: "Включить уведомления записи" # machine-candidate 2026-11-16
+openNotificationSettings: "Открыть настройки уведомлений" # machine-candidate 2026-11-16
+participantsAddGuest: "Добавить гостя" # machine-candidate 2026-11-16
+participantsConflict: "Список обновлён и перезагружен. Проверьте и отредактируйте заново." # machine-candidate 2026-11-16
+participantsGuestLabel: "Имя или метка гостя" # machine-candidate 2026-11-16
+participantsInfoHint: "Участники фиксируют фактическое присутствие: запись автоматически не публикуется, а спикеры не считаются подтверждёнными." # machine-candidate 2026-11-16
+participantsInvalid: "Выберите до 100 человек; метки гостей — 1–120 знаков без повторов. Права участников могли измениться, проверьте список." # machine-candidate 2026-11-16
+participantsNoResults: "Подходящих контактов или коллег нет; попробуйте поиск." # machine-candidate 2026-11-16
+participantsRemove: "Удалить участника" # machine-candidate 2026-11-16
+participantsSaveFailed: "Результат сохранения не подтверждён, выбор сохранён; повторите или обновите." # machine-candidate 2026-11-16
+playbackPauseLabel: "Пауза" # machine-candidate 2026-11-16
+playbackPlayLabel: "Воспроизведение" # machine-candidate 2026-11-16
+playbackProgressLabel: "Позиция $position / $duration" # machine-candidate 2026-11-16
+playbackTicketFailed: "Сессия воспроизведения недоступна, можно повторить" # machine-candidate 2026-11-16
+playbackUnavailable: "Нет права воспроизведения" # machine-candidate 2026-11-16
+prepareTitle: "Новая запись встречи" # machine-candidate 2026-11-16
+processingReasonLoadFailed: "Не удалось получить возможности обработки — на этот раз только аудиозапись." # machine-candidate 2026-11-16
+processingReasonQuota: "Квота транскрипции временно недоступна — сохранено только аудио; на запись это не влияет." # machine-candidate 2026-11-16
+processingReasonUnavailable: "В текущем инстансе сервис транскрипции не настроен — сохранено только аудио." # machine-candidate 2026-11-16
+processingRecordOnly: "Только аудио" # machine-candidate 2026-11-16
+processingRecordOnlyHint: "Сохраняется только аудио, прослушивание доступно всегда; после встречи можно заказать транскрипцию." # machine-candidate 2026-11-16
+processingRecoveryHint: "Уведомление об обработке или настройки обработчика обновлены. После подтверждения загрузка и выбранный способ обработки выполнятся по текущей версии ниже; прежнее согласие на момент записи не меняется." # machine-candidate 2026-11-16
+processingRecoveryTitle: "Подтвердить обработку записи" # machine-candidate 2026-11-16
+processingRecoveryUnavailable: "Обработчик недоступен. Аудиозапись останется на устройстве, после восстановления можно загрузить снова." # machine-candidate 2026-11-16
+processingSectionTitle: "Способ обработки" # machine-candidate 2026-11-16
+processingSummarize: "Транскрипция и сводка" # machine-candidate 2026-11-16
+processingTranscribe: "Транскрипция текста" # machine-candidate 2026-11-16
+recordingUnavailableMessage: "Проверьте незавершённые записи, разрешение на микрофон и место в хранилище. Черновики и сегменты сохранены." # machine-candidate 2026-11-16
+recordingUnavailableTitle: "Пока не удаётся начать запись" # machine-candidate 2026-11-16
+resultBack: "Назад" # machine-candidate 2026-11-16
+retentionPolicyLabel: "Срок хранения" # machine-candidate 2026-11-16
+retryRecordingUpload: "Повторить загрузку" # machine-candidate 2026-11-16
+returnToPlayback: "Вернуться к позиции воспроизведения" # machine-candidate 2026-11-16
+roleEditor: "Редактор" # machine-candidate 2026-11-16
+roleEditorHint: "Вы можете вычитывать текст и спикеров, редактировать общие заметки; доступом и удалением управляет создатель." # machine-candidate 2026-11-16
+roleOwner: "Создатель" # machine-candidate 2026-11-16
+roleViewer: "Читатель" # machine-candidate 2026-11-16
+saveLocationEmpty: "Нет доступных мест хранения" # machine-candidate 2026-11-16
+saveLocationOrgSection: "Доступные организации" # machine-candidate 2026-11-16
+saveLocationPersonalSection: "Личное" # machine-candidate 2026-11-16
+saveLocationTitle: "Место хранения" # machine-candidate 2026-11-16
+saveLocationWorkspaceOptional: "Без рабочего пространства" # machine-candidate 2026-11-16
+saveToChangeAction: "Изменить" # machine-candidate 2026-11-16
+saveToSectionTitle: "Сохранить в" # machine-candidate 2026-11-16
+searchHint: "Поиск по записям встреч" # machine-candidate 2026-11-16
+segmentAdoptServer: "Взять серверную версию" # machine-candidate 2026-11-16
+segmentConflictBody: "Ваш ввод сохранён; сравните с серверной версией и отправьте заново — при сохранении приоритет у вашего ввода." # machine-candidate 2026-11-16
+segmentConflictTitle: "Конфликт версий: текст изменён другим пользователем" # machine-candidate 2026-11-16
+segmentEditLabel: "Вычитка текста" # machine-candidate 2026-11-16
+segmentEditPlaceholder: "Правка текста транскрипции" # machine-candidate 2026-11-16
+segmentEditTitle: "Вычитка фрагмента" # machine-candidate 2026-11-16
+segmentHumanEditedPill: "Правка вручную" # machine-candidate 2026-11-16
+segmentListenLabel: "Прослушать $time" # machine-candidate 2026-11-16
+segmentOriginalLabel: "Оригинал" # machine-candidate 2026-11-16
+segmentResubmit: "Отправить заново" # machine-candidate 2026-11-16
+segmentRowSemanticLabel: "Высказывание $speaker в $time" # machine-candidate 2026-11-16
+segmentSave: "Сохранить вычитку" # machine-candidate 2026-11-16
+segmentSaveFailed: "Не удалось сохранить, попробуйте позже; ввод сохранён." # machine-candidate 2026-11-16
+segmentTimeLabel: "Отметка $time" # machine-candidate 2026-11-16
+shareAddEntryOrg: "Добавить коллегу" # machine-candidate 2026-11-16
+shareAddEntryPersonal: "Добавить контакт" # machine-candidate 2026-11-16
+shareAddHintOrg: "Можно дать доступ коллегам организации с подходящими правами пространства" # machine-candidate 2026-11-16
+shareAddHintPersonal: "Можно дать доступ существующим контактам" # machine-candidate 2026-11-16
+shareAllowExportPill: "Экспорт разрешён" # machine-candidate 2026-11-16
+shareCardSendCancelled: "Отправка отменена, новая карточка не создана." # machine-candidate 2026-11-16
+shareCardSendFailed: "Не удалось отправить, можно повторить" # machine-candidate 2026-11-16
+shareCardSendPending: "Карточка в очереди отправки, подтверждения сервера пока нет; проверьте в чате — повтор не создаст дубликат сообщения." # machine-candidate 2026-11-16
+shareCardSenderUnavailable: "Не удаётся открыть выбор чата; вернитесь и повторите." # machine-candidate 2026-11-16
+shareCardSending: "Обработка…" # machine-candidate 2026-11-16
+shareCardSent: "Карточка отправлена (пример)" # machine-candidate 2026-11-16
+shareConflictHint: "Доступ обновлён другим пользователем. Обновите и повторите." # machine-candidate 2026-11-16
+shareEditorCannotManageAcl: "Редактор не управляет доступом и не удаляет запись; для изменений обратитесь к создателю." # machine-candidate 2026-11-16
+shareEmptyBody: "По умолчанию запись видна только вам; после явной выдачи доступа получатель сможет смотреть и слушать." # machine-candidate 2026-11-16
+shareEmptyTitle: "Доступ ещё никому не выдан" # machine-candidate 2026-11-16
+shareExpiresPill: "Действует до $date" # machine-candidate 2026-11-16
+shareGrantEditAction: "Редактировать" # machine-candidate 2026-11-16
+shareGrantRevokeAction: "Отозвать" # machine-candidate 2026-11-16
+shareGrantRoleEditor: "Вычитка и правка" # machine-candidate 2026-11-16
+shareGrantRoleViewer: "Просмотр и прослушивание" # machine-candidate 2026-11-16
+shareManageTitle: "Управление доступом" # machine-candidate 2026-11-16
+shareMyPermissionNone: "У вас нет данных о доступе к этой записи; им управляет создатель." # machine-candidate 2026-11-16
+shareMyPermissionReadonly: "Вы можете смотреть и слушать запись; доступом управляет создатель." # machine-candidate 2026-11-16
+shareMyPermissionTitle: "Мои права" # machine-candidate 2026-11-16
+shareOwnerRowHint: "Создатель всегда может просматривать запись и управлять доступом" # machine-candidate 2026-11-16
+shareOwnerRowLabel: "Я · создатель" # machine-candidate 2026-11-16
+shareRevokeConfirmAction: "Отозвать" # machine-candidate 2026-11-16
+shareRevokeConfirmBody: "Доступ к исходной записи пропадёт. Экспортированные или сохранённые копии вернуть нельзя." # machine-candidate 2026-11-16
+shareRevokeConfirmTitle: "Отозвать доступ у $name?" # machine-candidate 2026-11-16
+shareRevokeFailedBody: "Не удалось отозвать, попробуйте позже." # machine-candidate 2026-11-16
+shareRevokeFailedTitle: "Отзыв не выполнен" # machine-candidate 2026-11-16
+shareRosterSectionTitle: "Кто может смотреть" # machine-candidate 2026-11-16
+shareSaveFeedback: "Права сохранены" # machine-candidate 2026-11-16
+shareSendCard: "Отправить карточку" # machine-candidate 2026-11-16
+shareSendCardHint: "Создаёт карточку записи встречи для коллеги; открывший увидит её по своим правам." # machine-candidate 2026-11-16
+shareSendNeedsGrant: "Сначала выдайте доступ, затем отправляйте карточку." # machine-candidate 2026-11-16
+shareVisibilityOfRecord: "Текущая видимость записи: $visibility" # machine-candidate 2026-11-16
+shareVisibilityOwnerOnly: "Только я" # machine-candidate 2026-11-16
+shareVisibilitySectionTitle: "Текущая видимость" # machine-candidate 2026-11-16
+shareVisibilityShared: "Доступ выдан $count чел." # machine-candidate 2026-11-16
+speakerAnonymousPill: "Аноним" # machine-candidate 2026-11-16
+speakerAudition: "Прослушать фрагмент" # machine-candidate 2026-11-16
+speakerClaimConflict: "Спикер уже закреплён за другим пользователем; создателю нужно исправить вручную." # machine-candidate 2026-11-16
+speakerClaimSelf: "Это я" # machine-candidate 2026-11-16
+speakerDirectoryUnavailable: "Каталог участников не подключён, коллегу пока выбрать нельзя; задайте отображаемое имя." # machine-candidate 2026-11-16
+speakerManualPill: "Метка вручную" # machine-candidate 2026-11-16
+speakerMarkColleague: "Отметить коллегу" # machine-candidate 2026-11-16
+speakerSelfClaimPill: "Закреплено за собой" # machine-candidate 2026-11-16
+speakerSetName: "Задать имя" # machine-candidate 2026-11-16
+speakerSetNameConfirm: "Сохранить" # machine-candidate 2026-11-16
+speakerSetNameTitle: "Задать отображаемое имя" # machine-candidate 2026-11-16
+speakerSourceHint: "Эта подпись — ручная метка или само-закрепление, а не удостоверение личности." # machine-candidate 2026-11-16
+speakerUnknown: "Неизвестный спикер" # machine-candidate 2026-11-16
+speakersEntry: "Вычитка спикеров" # machine-candidate 2026-11-16
+speakersScopeHint: "Настройки спикеров действуют только для этой записи; ручная метка не равна удостоверению личности и голосовой профиль не создаёт." # machine-candidate 2026-11-16
+speakersTitle: "Вычитка спикеров" # machine-candidate 2026-11-16
+startRecording: "Начать запись" # machine-candidate 2026-11-16
+statusAssembling: "Сборка аудио" # machine-candidate 2026-11-16
+statusNoSpeech: "Речь для транскрипции не обнаружена" # machine-candidate 2026-11-16
+statusRecordOnly: "Только аудио" # machine-candidate 2026-11-16
+statusRecording: "Идёт запись" # machine-candidate 2026-11-16
+statusTranscribeFailed: "Ошибка транскрипции, аудио доступно" # machine-candidate 2026-11-16
+statusTranscribeQueued: "Транскрипция в очереди" # machine-candidate 2026-11-16
+statusTranscribeReady: "Транскрибировано" # machine-candidate 2026-11-16
+statusTranscribeRunning: "Идёт транскрипция" # machine-candidate 2026-11-16
+statusUploadFailed: "Ошибка загрузки, можно повторить" # machine-candidate 2026-11-16
+statusUploading: "Загрузка" # machine-candidate 2026-11-16
+statusVerifying: "Проверка загрузки" # machine-candidate 2026-11-16
+summaryActionsTitle: "Черновик задач" # machine-candidate 2026-11-16
+summaryAssigneeUnset: "Ответственный не назначен" # machine-candidate 2026-11-16
+summaryDecisionsTitle: "Ключевые решения" # machine-candidate 2026-11-16
+summaryDraftBadge: "AI-сводка (черновик) · проверьте перед использованием" # machine-candidate 2026-11-16
+summaryFailed: "Не удалось сгенерировать сводку, попробуйте позже." # machine-candidate 2026-11-16
+summaryJumpToSource: "Перейти к источнику" # machine-candidate 2026-11-16
+summaryNoSource: "Исходного текста ещё нет, сводку создать нельзя." # machine-candidate 2026-11-16
+summaryNotGenerated: "Текст сгенерирован, сводка ещё не запрошена." # machine-candidate 2026-11-16
+summaryQueued: "Сводка в очереди, появится после генерации." # machine-candidate 2026-11-16
+summaryRunning: "Сводка составляется, появится после готовности." # machine-candidate 2026-11-16
+summarySectionTitle: "Сводка" # machine-candidate 2026-11-16
+summaryStaleBanner: "Текст или подписи обновлены — сводка может устареть" # machine-candidate 2026-11-16
+summaryUnavailable: "В текущем инстансе сервис сводок не настроен." # machine-candidate 2026-11-16
+tabSummary: "Сводка" # machine-candidate 2026-11-16
+tabTranscript: "Текст" # machine-candidate 2026-11-16
+transcriptEmpty: "Фрагментов текста пока нет" # machine-candidate 2026-11-16
+transcriptHitCount: "Совпадений: $count; нажмите отметку, чтобы перейти к аудио" # machine-candidate 2026-11-16
+transcriptNoHit: "Совпадений нет" # machine-candidate 2026-11-16
+transcriptSearchHint: "Поиск по тексту" # machine-candidate 2026-11-16
+transferBackToDetail: "Вернуться к детали" # machine-candidate 2026-11-16
+transferCandidateEmpty: "Подходящих коллег-кандидатов нет" # machine-candidate 2026-11-16
+transferCandidateHint: "Кандидаты — коллеги организации с подходящими правами пространства; итоговое решение за сервером." # machine-candidate 2026-11-16
+transferCandidateSectionTitle: "Выбрать нового ответственного" # machine-candidate 2026-11-16
+transferConfirmAction: "Передать" # machine-candidate 2026-11-16
+transferConfirmKeepOff: "После передачи право просмотра не сохранится и управлять записью вы не сможете." # machine-candidate 2026-11-16
+transferConfirmKeepOn: "После передачи право просмотра сохранится, но управлять будет новый ответственный." # machine-candidate 2026-11-16
+transferConfirmTarget: "Ответственность будет передана: $name" # machine-candidate 2026-11-16
+transferConfirmTitle: "Передать ответственность?" # machine-candidate 2026-11-16
+transferConflictHint: "Запись обновлена другим пользователем. Обновите и повторите." # machine-candidate 2026-11-16
+transferCreatedByHint: "Запись создателя не меняется; действие не зависит от прав доступа." # machine-candidate 2026-11-16
+transferFailedBody: "Не удалось передать, попробуйте позже." # machine-candidate 2026-11-16
+transferKeepDefaultHint: "По умолчанию доступ не сохраняется: после передачи запись будет недоступна." # machine-candidate 2026-11-16
+transferKeepOnHint: "С сохранением вы сможете смотреть и слушать, но доступом и удалением управляет новый ответственный." # machine-candidate 2026-11-16
+transferKeepSectionTitle: "Доступ прежнего ответственного" # machine-candidate 2026-11-16
+transferKeepViewer: "Сохранить моё право просмотра" # machine-candidate 2026-11-16
+transferOnlyOwner: "Передать ответственность может только текущий ответственный." # machine-candidate 2026-11-16
+transferPersonalUnsupported: "Для личных записей передача ответственности пока не поддерживается." # machine-candidate 2026-11-16
+transferScopeHint: "Передача меняет только ответственного; принадлежность записи (организация и пространство) не меняется." # machine-candidate 2026-11-16
+transferSubmit: "Передать ответственность" # machine-candidate 2026-11-16
+transferSubmitting: "Передача…" # machine-candidate 2026-11-16
+transferSuccessKeptAccess: "Право просмотра сохранено; доступом управляет новый ответственный." # machine-candidate 2026-11-16
+transferSuccessOwner: "Новый ответственный: $name" # machine-candidate 2026-11-16
+transferSuccessScopeUnchanged: "Принадлежность записи не изменилась (организация и пространство прежние)." # machine-candidate 2026-11-16
+transferSuccessTitle: "Ответственность передана" # machine-candidate 2026-11-16
+transferTitle: "Передача ответственности" # machine-candidate 2026-11-16
+untitledRecord: "Запись без названия" # machine-candidate 2026-11-16
+uploadNoticeHint: "Подтвердите текущее уведомление о записи. Подтверждение действует на эту загрузку; прежнее согласие на момент старта записи не переписывается, место хранения не меняется." # machine-candidate 2026-11-16
+uploadNoticeTitle: "Подтверждение перед загрузкой" # machine-candidate 2026-11-16
+uploadRecording: "Загрузить аудиозапись" # machine-candidate 2026-11-16
+visibilityOwnerOnly: "Только я" # machine-candidate 2026-11-16
+visibilityShared: "Доступ выдан" # machine-candidate 2026-11-16

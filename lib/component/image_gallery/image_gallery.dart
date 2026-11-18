@@ -218,7 +218,12 @@ class ImageGalleryNotifier extends _$ImageGalleryNotifier {
 }
 
 /// 单击图片的时候放大显示图片的效果
-Future<void> zoomInPhotoView(BuildContext context, String thumb) async {
+Future<void> zoomInPhotoView(
+  BuildContext context,
+  String thumb, {
+  bool Function()? isCurrent,
+}) async {
+  if (!context.mounted || isCurrent?.call() == false) return;
   final size = MediaQuery.of(context).size;
   ImageProvider thumbProvider = cachedImageProvider(
     thumb,
@@ -226,6 +231,7 @@ Future<void> zoomInPhotoView(BuildContext context, String thumb) async {
   );
   // 检查网络状态
   var connectivityResult = await Connectivity().checkConnectivity();
+  if (!context.mounted || isCurrent?.call() == false) return;
   String width = Uri.parse(thumb).queryParameters['width'] ?? "";
   // 如果有网络、并且图片有设置width，就从网络读取2倍清晰图片
   if (!connectivityResult.contains(ConnectivityResult.none) &&

@@ -87,6 +87,7 @@ reply: رد
 resendCode: إعادة إرسال رمز التحقق
 revoke: سحب
 scanQrCodeBusinessCard: مسح بطاقة عمل رمز QR
+scanQrEntry: مسح رمز QR
 privateChat: "محادثة خاصة"
 sendFriendRequest: إرسال طلب إضافة صديق
 sendMsgRejected: تم إرسال الرسالة، ولكن تم رفضها من قبل الطرف الآخر.
@@ -179,7 +180,7 @@ webFeatureE2EE: تشفير من طرف إلى طرف
 webFeatureE2EEDesc: جميع الرسائل مشفّرة من طرف إلى طرف لحماية خصوصيتك
 webFeatureFileTransfer: نقل الملفات
 webFeatureFileTransferDesc: اسحب الملف لإرساله، مع دعم صيغ متعددة
-webQRStatusWaiting: افتح ImBoy على الهاتف > الإعدادات > مسح
+webQRStatusWaiting: افتح ImBoy على الهاتف > الرسائل > مسح من أعلى اليمين
 webQRStatusScanned: اضغط «تأكيد الدخول» على هاتفك
 webQRStatusVerifying: جارٍ التحقق...
 webQRStatusExpired: حدّث وأعد المسح
@@ -277,3 +278,8 @@ fileWithNameSize(name,size): "$name ($size)"
 voiceDurationSeconds(seconds): "$seconds ث"
 bundleInvalidOrEmpty: سجل محادثة غير صالح أو فارغ
 bundleForwardedBy(name): "أُعيد توجيهه بواسطة $name"
+chatStatusOutcomeUnknown: رُفضت هذه المحاولة؛ نتيجة التسليم غير مؤكدة
+
+# ---- DSN-06 gap fill (machine-candidate 2026-11-16) ----
+e2eeMsgBeforeDevice: "أُرسلت هذه الرسالة قبل انضمام هذا الجهاز، فلا يمكن عرضها عليه" # machine-candidate 2026-11-16
+e2eeMsgBeforeDeviceTapHint: "شُفّرت هذه الرسالة دون تضمين هذا الجهاز (مثل سجلٍ قبل تغيير الجهاز) فلا يمكن فك تشفيرها هنا؛ ولا يؤثر ذلك على الرسائل الجديدة المُرسلة والمستقبَلة على هذا الجهاز" # machine-candidate 2026-11-16

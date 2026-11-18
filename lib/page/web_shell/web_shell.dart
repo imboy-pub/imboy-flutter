@@ -57,3 +57,5 @@ export 'web_shell_page.dart';
 
 // ⭐ i18n + 业务接线层（路由调用方一行实例化）（1.1.h.1）
 export 'web_shell_bootstrap.dart';
+
+export 'web_shell_route.dart';

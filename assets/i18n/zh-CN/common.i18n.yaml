@@ -123,6 +123,7 @@ feedbackContentRequired: 反馈内容不能为空
 feedbackDetails: 反馈建议明细
 feedbackSuccessMsg: 你的反馈问题我们已经收到了，会尽快处理！
 followSystemTips: "开启后，将跟随系统打开或关闭深色模式"
+themeBrowserLocalOnly: "主题设置仅保存在当前浏览器，不会同步到其他设备。"
 genderUpdateFailed: 性别设置失败，请重试
 groupAnnouncement: 群公告
 groupFileUploadSuccess: 文件上传成功
@@ -968,3 +969,8 @@ myLocation: "我的位置"
 searchConversations: "会话"
 
 webpageLoadProblem: "网页内容加载遇到问题，请重试。"
+webReadOnlySettingsHint: "Web 端仅供查看，请在 App 中修改。"
+
+legacyUploadCheckLocal: "检查本地发送状态"
+
+textTooLarge: "文本超过64 KiB，请修改后重试"

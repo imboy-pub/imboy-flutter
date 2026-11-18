@@ -9,7 +9,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
   <meta name="apple-mobile-web-app-title" content="ImBoy">
   <link rel="apple-touch-icon" href="icons/Icon-192.png">
-  <link rel="icon" type="image/png" href="favicon.png">
+  <link rel="icon" type="image/png" href="favicon.png?v=imboy-20261114">
   <title>ImBoy</title>
   <link rel="manifest" href="manifest.json">
   <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport">
@@ -31,6 +31,21 @@
       left: 50%;
       -ms-transform: translate(-50%, -50%);
       transform: translate(-50%, -50%);
+    }
+    /* DEF-A11YNEW-05（修复窗二批）：forced-colors=active 下保留启动品牌图
+       原始配色（浏览器对作者色一律强制 CanvasColors，图片内容默认保留，
+       但显式声明 forced-color-adjust 防 edge 实现差异裁剪/降饱和）；
+       背景交还系统 Canvas 色，避免品牌图与强制底色冲突。主画布由
+       Flutter CanvasKit 绘制，不受 forced-colors 重绘，应用侧经
+       MediaQuery.highContrastOf 适配（web_chat_input.dart）。 */
+    @media (forced-colors: active) {
+      body {
+        background-color: Canvas;
+        background-image: none;
+      }
+      #splash {
+        forced-color-adjust: none;
+      }
     }
   </style>
   <script id="splash-screen-script">

@@ -350,6 +350,9 @@ contactEntry:
   loadFailed: Échec du chargement des informations de l'organisation
 # ==================== ENT-APP-01 Hub organisation (/organization/:orgId) ====================
 hub:
+  # ---- DSN-06 gap fill (machine-candidate 2026-11-16) ----
+  adminCsGovernance: "Gouvernance du support" # machine-candidate 2026-11-16
+  adminCsGovernanceDesc: "Quota de postes · Activation/suspension des postes" # machine-candidate 2026-11-16
   sectionResources: Ressources de l'organisation
   sectionAdmin: Espace admin
   zoneMembers: Membres
@@ -416,6 +419,20 @@ chart:
 
 # Space and resource navigation / 空间与资源导航
 experienceUi:
+  # ---- DSN-06 gap fill (machine-candidate 2026-11-16) ----
+  cleanupRecordLabel: "Notes" # machine-candidate 2026-11-16
+  cleanupResourcesTruncated: "Seuls les 20 premiers éléments sont affichés ; après traitement, actualisez pour vérifier le reste." # machine-candidate 2026-11-16
+  openPersonalTalkRecords: "Voir les notes personnelles en face à face" # machine-candidate 2026-11-16
+  talkRecordCleanupPendingBody: "Les notes sont supprimées, le nettoyage des fichiers n'est pas terminé. L'avancement réel est consultable ; les règles de conservation ou protections de traitement ne peuvent pas être ignorées manuellement." # machine-candidate 2026-11-16
+  talkRecordCleanupPendingTitle: "Les fichiers audio sont encore en cours de nettoyage" # machine-candidate 2026-11-16
+  talkRecordOrganizationOwnerPendingBody: "Transférez d'abord la responsabilité des notes en face à face d'entreprise. Le transfert ne lève pas automatiquement les références d'identité historiques." # machine-candidate 2026-11-16
+  talkRecordOrganizationOwnerPendingTitle: "Notes en face à face d'entreprise non transférées" # machine-candidate 2026-11-16
+  talkRecordPersonalPendingBody: "Traitez d'abord vos notes personnelles en face à face, puis revérifiez les conditions de suppression du compte." # machine-candidate 2026-11-16
+  talkRecordPersonalPendingTitle: "Notes personnelles en face à face à traiter" # machine-candidate 2026-11-16
+  talkRecordRetainedIdentityPendingBody: "Des éléments historiques référencent encore cette identité ; la suppression du compte ne peut pas aboutir. Le transfert des notes ne garantit pas la levée de ces références." # machine-candidate 2026-11-16
+  talkRecordRetainedIdentityPendingTitle: "Références d'identité historiques à vérifier" # machine-candidate 2026-11-16
+  unknownBlockerTitle: "Des points restent à traiter" # machine-candidate 2026-11-16
+  viewTalkRecordCleanup: "Voir l'avancement du nettoyage" # machine-candidate 2026-11-16
   switchSpace: "Changer d'espace"
   personalSpace: "Espace personnel"
   enterpriseSpaces: "Espaces d'entreprise"

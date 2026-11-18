@@ -74,7 +74,7 @@ class MessageFileBuilder extends StatelessWidget {
     return GestureDetector(
       onTap: () {
         if (uri.isNotEmpty) {
-          confirmOpenFile(context, uri);
+          confirmOpenFile(context, uri, fileName: filename);
         }
       },
       child: Container(

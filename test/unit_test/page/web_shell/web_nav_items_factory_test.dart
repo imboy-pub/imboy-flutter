@@ -244,4 +244,64 @@ void main() {
       expect(a[0], equals(b[0]));
     });
   });
+
+  // LAY-06：channel-off profile（feature 关闭或频道页未编译）下，
+  // Web rail 不得生成频道导航项 —— 对齐原生 bottom_navigation 的条件渲染。
+  group('buildWebNavItems — channelAvailable=false（LAY-06 死入口）', () {
+    test('channel 不可用 → 不返回频道 item（3 项，消息/联系人/我的）', () {
+      final items = buildWebNavItems(
+        messageLabel: 'M',
+        contactLabel: 'C',
+        channelLabel: 'H',
+        mineLabel: 'I',
+        channelAvailable: false,
+      );
+      expect(items, hasLength(3));
+      expect(items.map((i) => i.label), ['M', 'C', 'I']);
+      expect(
+        items.any((i) => i.label == 'H'),
+        isFalse,
+        reason: 'channel-off profile 下 rail 不得出现频道入口',
+      );
+    });
+
+    test('channel 不可用 → 剩余项图标契约不变（消息/联系人/我的）', () {
+      final items = buildWebNavItems(
+        messageLabel: 'M',
+        contactLabel: 'C',
+        channelLabel: 'H',
+        mineLabel: 'I',
+        channelAvailable: false,
+      );
+      expect(items[0].icon, CupertinoIcons.chat_bubble);
+      expect(items[1].icon, CupertinoIcons.person_2);
+      expect(items[2].icon, CupertinoIcons.person_circle);
+    });
+
+    test('channelBadgeCount 在不可用时被丢弃（入口不存在，角标无宿主）', () {
+      final items = buildWebNavItems(
+        messageLabel: 'M',
+        contactLabel: 'C',
+        channelLabel: 'H',
+        mineLabel: 'I',
+        channelBadgeCount: 99,
+        channelAvailable: false,
+      );
+      expect(items, hasLength(3));
+      for (final item in items) {
+        expect(item.badgeCount, 0, reason: '不可用频道不得借其他项漏角标');
+      }
+    });
+
+    test('默认 channelAvailable=true → 维持 4 项（向后兼容）', () {
+      final items = buildWebNavItems(
+        messageLabel: 'M',
+        contactLabel: 'C',
+        channelLabel: 'H',
+        mineLabel: 'I',
+      );
+      expect(items, hasLength(4));
+      expect(items[kWebNavTabChannel].label, 'H');
+    });
+  });
 }

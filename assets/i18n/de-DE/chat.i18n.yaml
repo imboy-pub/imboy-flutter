@@ -87,6 +87,7 @@ reply: Antworten
 resendCode: Code erneut senden
 revoke: Widerrufen
 scanQrCodeBusinessCard: QR-Code-Visitenkarte scannen
+scanQrEntry: QR-Code scannen
 privateChat: "Privatchat"
 sendFriendRequest: Freundschaftsanfrage senden
 sendMsgRejected: Nachricht gesendet, aber vom Gesprächspartner abgelehnt.
@@ -179,7 +180,7 @@ webFeatureE2EE: E2EE
 webFeatureE2EEDesc: Alle Nachrichten E2EE-verschlüsselt für maximale Privatsphäre
 webFeatureFileTransfer: Dateiübertragung
 webFeatureFileTransferDesc: Dateien per Drag & Drop senden, alle Formate
-webQRStatusWaiting: ImBoy-App öffnen > Einstellungen > Scannen
+webQRStatusWaiting: ImBoy-App öffnen > Nachrichten > oben rechts scannen
 webQRStatusScanned: Am Handy „Anmelden" antippen
 webQRStatusVerifying: Wird geprüft...
 webQRStatusExpired: Aktualisieren und erneut scannen
@@ -275,3 +276,8 @@ fileWithNameSize(name,size): "$name ($size)"
 voiceDurationSeconds(seconds): "$seconds s"
 bundleInvalidOrEmpty: Ungültiger oder leerer Chatverlauf
 bundleForwardedBy(name): "Weitergeleitet von $name"
+chatStatusOutcomeUnknown: Dieser Versuch wurde abgelehnt; Zustellung unbestätigt
+
+# ---- DSN-06 gap fill (machine-candidate 2026-11-16) ----
+e2eeMsgBeforeDevice: "Diese Nachricht wurde vor dem Beitreten dieses Geräts gesendet und kann auf diesem Gerät nicht angezeigt werden" # machine-candidate 2026-11-16
+e2eeMsgBeforeDeviceTapHint: "Diese Nachricht wurde ohne dieses Gerät verschlüsselt (z. B. Verläufe vor dem Gerätewechsel) und kann hier nicht entschlüsselt werden. Neue Nachrichten auf diesem Gerät sind nicht betroffen" # machine-candidate 2026-11-16

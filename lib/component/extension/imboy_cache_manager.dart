@@ -1,3 +1,7 @@
+import 'package:imboy/component/http/web_writer_http_adapter.dart';
+import 'package:imboy/component/http/browser_received_attachment.dart';
+import 'package:imboy/service/web_writer_gate.dart';
+
 import 'dart:async';
 import 'dart:io';
 
@@ -61,11 +65,13 @@ class IMBoyCacheManager {
           sendTimeout: const Duration(seconds: 30),
         ),
       )..interceptors.add(IMBoyInterceptor()) {
+    guardWebWriterDio(_dio);
     _crossCache = CrossCache(dio: _dio);
   }
 
   @visibleForTesting
   IMBoyCacheManager.forTest(Dio dio) : _dio = dio {
+    guardWebWriterDio(_dio);
     _crossCache = CrossCache(dio: dio);
   }
 
@@ -171,6 +177,53 @@ class IMBoyCacheManager {
     bool publicDirect = false,
     AccountLocalTaskOwner? owner,
   }) {
+    return _owned<File>(
+      owner,
+      publicDirect,
+      (account, cancel, check) => _getSingleFile(
+        url,
+        headers: headers,
+        maxRetries: maxRetries,
+        validateImageData: validateImageData,
+        publicDirect: publicDirect,
+        owner: account,
+        cancelToken: cancel,
+        requireCurrent: check,
+      ),
+    );
+  }
+
+  /// Uses the same authorization, account task and cache as Native files.
+  Future<Uint8List> getBytes(
+    String url, {
+    Map<String, String>? headers,
+    int maxRetries = 3,
+    bool validateImageData = true,
+    bool publicDirect = false,
+    bool revalidate = false,
+    AccountLocalTaskOwner? owner,
+  }) => _owned<Uint8List>(owner, publicDirect, (account, cancel, check) async {
+    final resource = await _readResource(
+      url,
+      headers: headers,
+      maxRetries: maxRetries,
+      validateImageData: validateImageData,
+      publicDirect: publicDirect,
+      revalidate: revalidate,
+      owner: account,
+      cancelToken: cancel,
+      requireCurrent: check,
+    );
+    check();
+    return Uint8List.fromList(resource.bytes);
+  });
+
+  Future<T> _owned<T>(
+    AccountLocalTaskOwner? owner,
+    bool publicDirect,
+    Future<T> Function(AccountLocalTaskOwner, CancelToken, void Function())
+    load,
+  ) {
     try {
       final account = owner ?? AccountLocalTaskOwner.capture();
       final session = authSessionReader.current;
@@ -181,31 +234,23 @@ class IMBoyCacheManager {
       }
       final generation = generationFor(account);
       final cancel = CancelToken();
-      Future<File> load(AccountLocalTask? task) => _getSingleFile(
-        url,
-        headers: headers,
-        maxRetries: maxRetries,
-        validateImageData: validateImageData,
-        publicDirect: publicDirect,
-        owner: account,
-        cancelToken: cancel,
-        requireCurrent: () {
-          task?.throwIfCancelled();
-          if (generationFor(account) != generation ||
-              (account.uid.isNotEmpty &&
-                  (!authSessionReader.isCurrent(session) ||
-                      session.uid != account.uid ||
-                      account != AccountLocalTaskOwner.capture()))) {
-            throw const MediaCacheCleanupException();
-          }
-        },
-      );
+      Future<T> run(AccountLocalTask? task) => load(account, cancel, () {
+        requireWebWriter();
+        task?.throwIfCancelled();
+        if (generationFor(account) != generation ||
+            (account.uid.isNotEmpty &&
+                (!authSessionReader.isCurrent(session) ||
+                    session.uid != account.uid ||
+                    account != AccountLocalTaskOwner.capture()))) {
+          throw const MediaCacheCleanupException();
+        }
+      });
       final result = account.uid.isEmpty
-          ? load(null)
-          : AccountLocalTaskRegistry.instance.run<File>(
+          ? run(null)
+          : AccountLocalTaskRegistry.instance.run<T>(
               account,
               onCancel: () => cancel.cancel(),
-              operation: load,
+              operation: run,
             );
       // Include authorization, downloading, decryption and all file writes.
       final pending = result.then<void>(
@@ -223,7 +268,7 @@ class IMBoyCacheManager {
       );
       return result;
     } on Object catch (error, stack) {
-      return Future<File>.error(error, stack);
+      return Future<T>.error(error, stack);
     }
   }
 
@@ -237,13 +282,115 @@ class IMBoyCacheManager {
     required CancelToken cancelToken,
     required void Function() requireCurrent,
   }) async {
+    final resource = await _readResource(
+      url,
+      headers: headers,
+      maxRetries: maxRetries,
+      validateImageData: validateImageData,
+      publicDirect: publicDirect,
+      owner: owner,
+      cancelToken: cancelToken,
+      requireCurrent: requireCurrent,
+    );
+    final bytes = resource.bytes;
+    final cacheKey = resource.cacheKey;
+    final extSource = resource.extSource;
+    // 使用文件锁防止并发写入冲突
+    return await _fileLock.synchronized(() async {
+      requireCurrent();
+      final directory = await _ownership.materializedDirectory(owner);
+      requireCurrent();
+      if (!await directory.exists()) {
+        await directory.create(recursive: true);
+      }
+      requireCurrent();
+      // Preserve the existing stale-plaintext hygiene within this owner only.
+      if (_sweptStaleScopes.add(AccountMediaCacheStore.scopeId(owner))) {
+        await AttachmentTempHygiene.sweep(directory);
+        requireCurrent();
+      }
+      final candidateExt = _getFileExtension(extSource) ?? 'cache';
+      final ext = RegExp(r'^[A-Za-z0-9]{1,12}$').hasMatch(candidateExt)
+          ? candidateExt
+          : 'cache';
+      final fileName = '${AccountMediaCacheStore.digest(cacheKey)}.$ext';
+      final file = File('${directory.path}/$fileName');
+
+      // 检查文件是否已存在且有效
+      if (await file.exists()) {
+        try {
+          final existingBytes = await file.readAsBytes();
+          requireCurrent();
+          if (existingBytes.isNotEmpty &&
+              (validateImageData ? _isValidImageData(existingBytes) : true)) {
+            // debugPrint('使用现有缓存文件: ${file.path}');
+            return file;
+          }
+        } catch (e) {
+          requireCurrent();
+          _log('[CacheManager] cache operation failed: ${e.runtimeType}');
+          // 文件损坏，删除后重新写入
+          await file.delete();
+        }
+      }
+
+      // 使用临时文件确保原子性写入
+      final tempFile = File('${directory.path}/$fileName.tmp');
+      try {
+        requireCurrent();
+        // 写入临时文件
+        await tempFile.writeAsBytes(bytes, flush: true);
+        requireCurrent();
+
+        // 验证临时文件是否写入成功
+        if (!await tempFile.exists()) {
+          throw Exception('Failed to write temp file: ${tempFile.path}');
+        }
+
+        // 原子性重命名
+        await tempFile.rename(file.path);
+        requireCurrent();
+
+        // 最终验证文件是否成功创建
+        if (!await file.exists()) {
+          throw Exception('Failed to create file after rename: ${file.path}');
+        }
+
+        return file;
+      } catch (e) {
+        // 清理临时文件
+        try {
+          if (await tempFile.exists()) {
+            await tempFile.delete();
+          }
+        } catch (e) {
+          _log('[CacheManager] cache operation failed: ${e.runtimeType}');
+        }
+        rethrow;
+      }
+    });
+  }
+
+  /// 判断 IPv4 是否落在 172.16.0.0/12 私网段（172.16.x ~ 172.31.x）。
+  /// 用于 F-13 SSRF 加固的内网地址拒绝。
+  Future<({List<int> bytes, String cacheKey, String extSource})> _readResource(
+    String url, {
+    Map<String, String>? headers,
+    required int maxRetries,
+    required bool validateImageData,
+    required bool publicDirect,
+    bool revalidate = false,
+    required AccountLocalTaskOwner owner,
+    required CancelToken cancelToken,
+    required void Function() requireCurrent,
+  }) async {
     requireCurrent();
     // Retain the authenticated material across authorization/download awaits.
     final attachmentSpec = AssetsService.isObjectKey(url)
         ? AttachmentOpenRegistry.lookup(url)
         : null;
     // 添加调试日志
-    _log('📦 getSingleFile: url=$url, validateImageData=$validateImageData');
+    _log('📦 media resource: validateImageData=$validateImageData');
 
     if (url.isEmpty) {
       throw Exception('IMBoyCacheManager getSingleFile url is empty');
@@ -302,7 +449,9 @@ class IMBoyCacheManager {
       extSource = rawUri.path;
     } else if (isObjKey) {
       resourceKey = 'objkey://$url';
-      downloadUrl = await AssetUrlResolver.instance.resolve(url);
+      downloadUrl = await (revalidate
+          ? AssetUrlResolver.instance.resolveFresh(url)
+          : AssetUrlResolver.instance.resolve(url));
       extSource = url;
     } else {
       final rawUri = Uri.parse(url);
@@ -316,9 +465,10 @@ class IMBoyCacheManager {
       if (AssetsService.isPresignedUrl(url)) {
         downloadUrl = url;
       } else if (_isGarageHost(rawUri.host)) {
-        downloadUrl = await AssetUrlResolver.instance.resolve(
-          _objectKeyFromUrl(rawUri),
-        );
+        final key = _objectKeyFromUrl(rawUri);
+        downloadUrl = await (revalidate
+            ? AssetUrlResolver.instance.resolveFresh(key)
+            : AssetUrlResolver.instance.resolve(key));
       } else {
         final viewUri = await AssetsService.viewUrlAsync(url);
         downloadUrl = viewUri.toString();
@@ -331,7 +481,7 @@ class IMBoyCacheManager {
     // presigned host（X-Amz-Signature）。若这里出现 pro.imboy.pub，即下载走了 API 域名。
     _log(
       '🌐 实际下载 URL: host=${Uri.tryParse(downloadUrl)?.host} '
-      'publicDirect=$publicDirect isObjKey=$isObjKey downloadUrl=$downloadUrl',
+      'publicDirect=$publicDirect isObjKey=$isObjKey',
     );
 
     List<int> bytes = [];
@@ -340,16 +490,26 @@ class IMBoyCacheManager {
     for (int retry = 0; retry < maxRetries; retry++) {
       requireCurrent();
       try {
+        // A full URL has no logical authorization key: verify it remotely again.
+        if (kIsWeb && revalidate && !publicDirect && !isObjKey) {
+          throw StateError('A remote capability must be checked again');
+        }
         bytes = await _crossCache.get(cacheKey);
         requireCurrent();
+        if (kIsWeb && bytes.length > browserResourceByteBudget) {
+          throw const FormatException(
+            'Cached resource exceeds browser byte budget',
+          );
+        }
         // 检查缓存是否为空
         if (bytes.isEmpty) {
-          _log('缓存为空，重新下载 (尝试 ${retry + 1}/$maxRetries): $url');
+          _log('缓存为空，重新下载 (尝试 ${retry + 1}/$maxRetries)');
           throw Exception('Empty cache');
         }
         // 仅在需要时验证缓存数据是否有效
         if (validateImageData && !_isValidImageData(bytes)) {
-          _log('缓存数据损坏，重新下载 (尝试 ${retry + 1}/$maxRetries): $url');
+          _log('缓存数据损坏，重新下载 (尝试 ${retry + 1}/$maxRetries)');
+          requireWebWriter();
           await _crossCache.delete(cacheKey);
           throw Exception('Invalid cached image data');
         }
@@ -359,25 +519,19 @@ class IMBoyCacheManager {
         requireCurrent();
         // 缓存失败，尝试下载
         try {
-          // The same Dio retains authentication/interceptor behavior. Never use
-          // downloadAndSave: it first persists an ownerless signed-URL entry.
-          final response = await _dio.get<List<int>>(
-            downloadUrl,
-            options: Options(
-              headers: headers,
-              responseType: ResponseType.bytes,
-            ),
-            cancelToken: cancelToken,
-          );
+          final rawDownloaded = kIsWeb
+              ? await readBrowserResourceBytes(
+                  downloadUrl,
+                  cancelToken: cancelToken,
+                  requireCurrent: requireCurrent,
+                )
+              : await _nativeResourceBytes(
+                  downloadUrl,
+                  headers,
+                  cancelToken,
+                  requireCurrent,
+                );
           requireCurrent();
-          if (response.statusCode != 200) {
-            throw DioException.badResponse(
-              statusCode: response.statusCode ?? -1,
-              requestOptions: response.requestOptions,
-              response: response,
-            );
-          }
-          final rawDownloaded = Uint8List.fromList(response.data ?? const []);
 
           // E2EE-061 Slice 6：开封必须排在**验证与落盘之前**——
           // 密文过不了图片魔数校验（会被当成"损坏"反复重下），
@@ -391,6 +545,11 @@ class IMBoyCacheManager {
                 )
               : rawDownloaded;
 
+          if (kIsWeb && downloaded.length > browserResourceByteBudget) {
+            throw const FormatException(
+              'Opened resource exceeds browser byte budget',
+            );
+          }
           // 调试：输出下载状态
           _log(
             '📥 下载完成，大小: ${downloaded.length} bytes, validateImageData=$validateImageData',
@@ -398,12 +557,13 @@ class IMBoyCacheManager {
 
           // 检查下载的文件是否为空
           if (downloaded.isEmpty) {
-            _log('下载的文件为空 (尝试 ${retry + 1}/$maxRetries): $url');
+            _log('下载的文件为空 (尝试 ${retry + 1}/$maxRetries)');
             if (retry < maxRetries - 1) {
               try {
+                requireWebWriter();
                 await _crossCache.delete(cacheKey);
               } catch (e) {
-                _log('[CacheManager] cache operation failed: $e');
+                _log('[CacheManager] cache operation failed: ${e.runtimeType}');
               }
               continue;
             }
@@ -414,12 +574,13 @@ class IMBoyCacheManager {
 
           // 仅在需要时验证下载的图片数据是否有效
           if (validateImageData && !_isValidImageData(downloaded)) {
-            _log('⚠️ 图片数据验证失败，重新下载 (尝试 ${retry + 1}/$maxRetries): $url');
+            _log('⚠️ 图片数据验证失败，重新下载 (尝试 ${retry + 1}/$maxRetries)');
             if (retry < maxRetries - 1) {
               try {
+                requireWebWriter();
                 await _crossCache.delete(cacheKey);
               } catch (e) {
-                _log('[CacheManager] cache operation failed: $e');
+                _log('[CacheManager] cache operation failed: ${e.runtimeType}');
               }
               continue;
             }
@@ -428,6 +589,7 @@ class IMBoyCacheManager {
             );
           }
 
+          requireWebWriter();
           await _crossCache.set(cacheKey, downloaded);
           requireCurrent();
           bytes = downloaded;
@@ -445,6 +607,7 @@ class IMBoyCacheManager {
           if (downloadError is AttachmentOpenException) {
             _log('❌ 附件开封失败，不重试: ${downloadError.message}');
             try {
+              requireWebWriter();
               await _crossCache.delete(cacheKey);
             } on Object catch (_) {
               // best-effort：删不掉也不该盖住开封失败这个真因
@@ -453,10 +616,12 @@ class IMBoyCacheManager {
           }
           // 404 错误不需要重试
           if (_isNotFoundError(downloadError)) {
-            _log('❌ 资源不存在 (404): $url');
+            _log('❌ 资源不存在 (404)');
             rethrow;
           }
-          _log('下载失败 (尝试 ${retry + 1}/$maxRetries): $downloadError');
+          _log(
+            '下载失败 (尝试 ${retry + 1}/$maxRetries): ${downloadError.runtimeType}',
+          );
           if (retry == maxRetries - 1) {
             rethrow;
           }
@@ -475,84 +640,32 @@ class IMBoyCacheManager {
       );
     }
 
-    // 使用文件锁防止并发写入冲突
-    return await _fileLock.synchronized(() async {
-      requireCurrent();
-      final directory = await _ownership.materializedDirectory(owner);
-      requireCurrent();
-      if (!await directory.exists()) {
-        await directory.create(recursive: true);
-      }
-      requireCurrent();
-      // Preserve the existing stale-plaintext hygiene within this owner only.
-      if (_sweptStaleScopes.add(AccountMediaCacheStore.scopeId(owner))) {
-        await AttachmentTempHygiene.sweep(directory);
-        requireCurrent();
-      }
-      final candidateExt = _getFileExtension(extSource) ?? 'cache';
-      final ext = RegExp(r'^[A-Za-z0-9]{1,12}$').hasMatch(candidateExt)
-          ? candidateExt
-          : 'cache';
-      final fileName = '${AccountMediaCacheStore.digest(cacheKey)}.$ext';
-      final file = File('${directory.path}/$fileName');
-
-      // 检查文件是否已存在且有效
-      if (await file.exists()) {
-        try {
-          final existingBytes = await file.readAsBytes();
-          requireCurrent();
-          if (existingBytes.isNotEmpty &&
-              (validateImageData ? _isValidImageData(existingBytes) : true)) {
-            // debugPrint('使用现有缓存文件: ${file.path}');
-            return file;
-          }
-        } catch (e) {
-          requireCurrent();
-          _log('[CacheManager] cache operation failed: $e');
-          // 文件损坏，删除后重新写入
-          await file.delete();
-        }
-      }
-
-      // 使用临时文件确保原子性写入
-      final tempFile = File('${directory.path}/$fileName.tmp');
-      try {
-        requireCurrent();
-        // 写入临时文件
-        await tempFile.writeAsBytes(bytes, flush: true);
-        requireCurrent();
-
-        // 验证临时文件是否写入成功
-        if (!await tempFile.exists()) {
-          throw Exception('Failed to write temp file: ${tempFile.path}');
-        }
-
-        // 原子性重命名
-        await tempFile.rename(file.path);
-        requireCurrent();
-
-        // 最终验证文件是否成功创建
-        if (!await file.exists()) {
-          throw Exception('Failed to create file after rename: ${file.path}');
-        }
-
-        return file;
-      } catch (e) {
-        // 清理临时文件
-        try {
-          if (await tempFile.exists()) {
-            await tempFile.delete();
-          }
-        } catch (e) {
-          _log('[CacheManager] cache operation failed: $e');
-        }
-        rethrow;
-      }
-    });
+    requireCurrent();
+    return (bytes: bytes, cacheKey: cacheKey, extSource: extSource);
   }
 
-  /// 判断 IPv4 是否落在 172.16.0.0/12 私网段（172.16.x ~ 172.31.x）。
-  /// 用于 F-13 SSRF 加固的内网地址拒绝。
+  Future<Uint8List> _nativeResourceBytes(
+    String url,
+    Map<String, String>? headers,
+    CancelToken cancelToken,
+    void Function() requireCurrent,
+  ) async {
+    final response = await _dio.get<List<int>>(
+      url,
+      options: Options(headers: headers, responseType: ResponseType.bytes),
+      cancelToken: cancelToken,
+    );
+    requireCurrent();
+    if (response.statusCode != 200) {
+      throw DioException.badResponse(
+        statusCode: response.statusCode ?? -1,
+        requestOptions: response.requestOptions,
+        response: response,
+      );
+    }
+    return Uint8List.fromList(response.data ?? const []);
+  }
+
   bool _isPrivate172(String host) {
     if (!host.startsWith('172.')) return false;
     final parts = host.split('.');
@@ -570,7 +683,7 @@ class IMBoyCacheManager {
         return filePath.substring(lastDotIndex + 1);
       }
     } catch (e) {
-      _log('[CacheManager] cache operation failed: $e');
+      _log('[CacheManager] cache operation failed: ${e.runtimeType}');
     }
     return null;
   }
@@ -600,7 +713,10 @@ class IMBoyCacheManager {
     }
     await _ownership.removeAccount(
       owner,
-      deleteKey: _crossCache.delete,
+      deleteKey: (key) {
+        requireWebWriter();
+        return _crossCache.delete(key);
+      },
       containsKey: _crossCache.contains,
     );
     _sweptStaleScopes.remove(scope);
@@ -633,6 +749,7 @@ class IMBoyCacheManager {
         : '${uri!.scheme}://${uri.host}:${uri.port}${uri.path}';
     final key = AccountMediaCacheStore.cacheKey(owner, resource);
     Future<void> remove(AccountLocalTask? task) async {
+      requireWebWriter();
       if ((generation != null && generationFor(owner) != generation) ||
           (owner.uid.isNotEmpty &&
               (!authSessionReader.isCurrent(session) ||
@@ -641,6 +758,7 @@ class IMBoyCacheManager {
         throw const MediaCacheCleanupException();
       }
       task?.throwIfCancelled();
+      requireWebWriter();
       await _crossCache.delete(key);
       task?.throwIfCancelled();
       await _fileLock.synchronized(

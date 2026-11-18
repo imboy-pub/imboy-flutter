@@ -21,3 +21,21 @@ cancelSchedule: Termin absagen
 scheduleIdMissing: Termin-ID fehlt, Details können nicht angezeigt werden
 untitledSchedule: "Unbenannter Termin"
 cardViewAndAttend: "Details ansehen und zusagen"
+
+# ---- DSN-06 gap fill (machine-candidate 2026-11-16) ----
+allParticipants: "Alle Teilnehmer ($count)" # machine-candidate 2026-11-16
+attendSummary: "$attending/$total nehmen teil" # machine-candidate 2026-11-16
+cardViewDetail: "Details ansehen" # machine-candidate 2026-11-16
+collapseParticipants: "Einklappen" # machine-candidate 2026-11-16
+duration: "Erwartet $minutes Minuten" # machine-candidate 2026-11-16
+hintToday: "Heute" # machine-candidate 2026-11-16
+hintTomorrow: "Morgen" # machine-candidate 2026-11-16
+organizer: "Organisator" # machine-candidate 2026-11-16
+participantAttending: "Zugesagt" # machine-candidate 2026-11-16
+participantDeclined: "Abgelehnt" # machine-candidate 2026-11-16
+participantPending: "Offen" # machine-candidate 2026-11-16
+remindBefore: "Erinnerung $minutes Minuten vorher" # machine-candidate 2026-11-16
+sectionLater: "Später" # machine-candidate 2026-11-16
+sectionThisWeek: "Diese Woche" # machine-candidate 2026-11-16
+sectionToday: "Heute" # machine-candidate 2026-11-16
+startsHint: "Beginnt $hint um $time" # machine-candidate 2026-11-16

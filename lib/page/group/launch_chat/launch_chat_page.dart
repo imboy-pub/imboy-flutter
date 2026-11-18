@@ -91,7 +91,9 @@ class _LaunchChatPageState extends ConsumerState<LaunchChatPage> {
                 ),
               ),
               // 用户头像
-              Avatar(imgUri: model.avatar, width: 40, height: 40),
+              IgnorePointer(
+                child: Avatar(imgUri: model.avatar, width: 40, height: 40),
+              ),
               const SizedBox(width: AppSpacing.medium),
               // 用户昵称
               Expanded(

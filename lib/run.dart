@@ -21,12 +21,18 @@ import 'package:imboy/capabilities/contracts/media_picker_capability.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/page/error/init_error_page.dart';
 import 'package:imboy/service/storage.dart';
+import 'package:imboy/service/web_writer_gate.dart';
+import 'package:imboy/page/error/web_writer_failure_boundary.dart';
+import 'package:imboy/service/auth_session_scope.dart';
 import 'package:imboy/service/app_logger.dart';
 
 // slang 国际化
 import 'package:imboy/i18n/strings.g.dart';
 
 import 'package:imboy/store/repository/user_repo_local.dart';
+import 'package:imboy/store/repository/user_repo_provider.dart';
+import 'package:imboy/store/model/user_model.dart';
+import 'package:imboy/service/account_local_task_registry.dart';
 import 'package:imboy/theme/providers/theme_provider.dart';
 import 'package:imboy/theme/theme_manager.dart';
 
@@ -35,6 +41,10 @@ import 'config/router/app_router.dart';
 import 'service/incoming_backup_handler.dart';
 import 'service/deep_link_router_bridge.dart';
 import 'service/message.dart';
+
+// DEF-A11YNEW-01：Web 语义按钮 Enter 激活桥（非 Web 平台为 no-op stub）。
+import 'package:imboy/component/helper/web_semantics_keyboard_io.dart'
+    if (dart.library.html) 'package:imboy/component/helper/web_semantics_keyboard_web.dart';
 
 /// 应用级共享 ProviderContainer
 /// MessageService 和 Widget 树共用，保证状态同步
@@ -66,6 +76,12 @@ Future<void> bootstrapFromRun() async {
 }
 
 Future<void> run() async {
+  try {
+    await prepareWebWriter();
+  } on WebWriterGateFailure catch (error) {
+    runApp(InitErrorPage(error: error, onRetry: run));
+    return;
+  }
   // === 全局错误捕获 ===
   // 捕获 Flutter 框架内部错误（Widget build、layout、paint 等）
   FlutterError.onError = (FlutterErrorDetails details) {
@@ -119,10 +135,19 @@ Future<void> run() async {
   );
 
   if (kIsWeb) {
+    // DEF-A11YNEW-01：启动期挂 Enter→click 激活桥，键盘用户 Tab 到语义按钮
+    // （flt-semantics[flt-tappable]）后按 Enter 与 Space/鼠标点击同效。
+    // 详见 web_semantics_keyboard_web.dart 头注释。
+    installWebSemanticsKeyboardActivation();
     // Web 平台：使用 runWidget 支持多视图模式
     // 从 PlatformDispatcher 获取默认视图
     final view = PlatformDispatcher.instance.views.first;
-    runWidget(View(view: view, child: app));
+    runWidget(
+      View(
+        view: view,
+        child: WebWriterFailureBoundary(child: app),
+      ),
+    );
   } else {
     // 非 Web 平台：继续使用 runApp
     runApp(app);
@@ -142,11 +167,15 @@ class _IMBoyAppState extends ConsumerState<IMBoyApp> {
   late final GoRouter _router;
   StreamSubscription<AppLocale>? _localeSubscription;
   StreamSubscription<String>? _incomingBackupSub;
+  ({AccountLocalTaskOwner account, int generation})? _webFontOwner;
+  int _webFontRevision = 0;
+  String? _webFontValue;
 
   @override
   void initState() {
     super.initState();
     _router = ref.read(goRouterProvider);
+    if (kIsWeb) authSessionReader.addListener(_onWebFontSession);
     // Android imboy:// 深链桥接（MC-AC-22）：热启动 push + 冷启动 pull。
     // 登录态守卫由 GoRouter.redirect 统一承担，这里只做 URI→location 转换。
     DeepLinkRouterBridge.watchIncomingLinks(_router);
@@ -158,9 +187,13 @@ class _IMBoyAppState extends ConsumerState<IMBoyApp> {
     // routeInformationProvider 的 WidgetsBindingObserver 订阅，屏蔽平台路由
     // 报告通道。注意时机：provider 在 Router 首帧订阅时才注册 observer，
     // initState 阶段 removeObserver 是空操作（r8 实证），必须 post-frame。
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      WidgetsBinding.instance.removeObserver(_router.routeInformationProvider);
-    });
+    if (!kIsWeb) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        WidgetsBinding.instance.removeObserver(
+          _router.routeInformationProvider,
+        );
+      });
+    }
     // 监听语言变化
     _localeSubscription = LocaleSettings.getLocaleStream().listen((locale) {
       if (mounted && _currentLocale != locale) {
@@ -191,6 +224,7 @@ class _IMBoyAppState extends ConsumerState<IMBoyApp> {
 
   @override
   void dispose() {
+    if (kIsWeb) authSessionReader.removeListener(_onWebFontSession);
     _localeSubscription?.cancel();
     _incomingBackupSub?.cancel();
     super.dispose();
@@ -262,6 +296,70 @@ class _IMBoyAppState extends ConsumerState<IMBoyApp> {
     }
   }
 
+  void _onWebFontSession() {
+    if (!mounted) {
+      return;
+    }
+    _captureWebFontOwner();
+    setState(() {});
+  }
+
+  void _captureWebFontOwner() {
+    final session = authSessionReader.current;
+    final owner = (
+      account: AccountLocalTaskOwner.capture(uid: session.uid),
+      generation: session.generation,
+    );
+    if (_webFontOwner == owner) {
+      return;
+    }
+    _webFontOwner = owner;
+    _webFontRevision = ref.read(themeProvider.notifier).fontRequestRevision;
+    _webFontValue = null;
+  }
+
+  void _restoreWebAccountFont(UserModel? user) {
+    final owner = _webFontOwner;
+    final session = authSessionReader.current;
+    if (owner == null ||
+        user == null ||
+        user.uid != owner.account.uid ||
+        !UserRepoLocal.to.hasCurrentProfileSettings ||
+        !authSessionReader.isCurrent(session)) {
+      return;
+    }
+    final value = UserSettingModel.fromJson(user.setting ?? {}).fontSize;
+    if (_webFontValue == value) {
+      return;
+    }
+    _webFontValue = value;
+    bool current() {
+      if (!mounted ||
+          _webFontOwner != owner ||
+          !authSessionReader.isCurrent(session) ||
+          !UserRepoLocal.to.hasCurrentProfileSettings ||
+          AccountLocalTaskOwner.capture() != owner.account) {
+        return false;
+      }
+      final now = ref.read(currentUserProvider);
+      return now?.uid == owner.account.uid &&
+          UserSettingModel.fromJson(now?.setting ?? {}).fontSize == value;
+    }
+
+    unawaited(
+      ref
+          .read(themeProvider.notifier)
+          .restoreAccountFontSize(
+            value,
+            expectedRevision: _webFontRevision,
+            isCurrent: current,
+          )
+          .catchError((Object error) {
+            debugPrint('[theme] account font restore: ${error.runtimeType}');
+          }),
+    );
+  }
+
   /// 初始化字体大小设置
   void _initFontSize(WidgetRef ref) {
     if (_fontSizeInitialized) return;
@@ -270,8 +368,18 @@ class _IMBoyAppState extends ConsumerState<IMBoyApp> {
       // 从用户设置中读取字体大小
       final fontSizeValue = UserRepoLocal.to.setting.fontSize;
       final themeNotifier = ref.read(themeProvider.notifier);
-      // 更新字体大小
-      themeNotifier.updateFontSize(fontSizeValue);
+      // Restore the captured account after preference loading, never as a new save.
+      final session = authSessionReader.current;
+      unawaited(
+        themeNotifier
+            .restoreAccountFontSize(
+              fontSizeValue,
+              isCurrent: () => authSessionReader.isCurrent(session),
+            )
+            .catchError((Object error) {
+              debugPrint('[theme] startup font: ${error.runtimeType}');
+            }),
+      );
       _fontSizeInitialized = true;
     } catch (e) {
       _fontSizeInitialized = true;
@@ -280,18 +388,25 @@ class _IMBoyAppState extends ConsumerState<IMBoyApp> {
 
   @override
   Widget build(BuildContext context) {
-    // 初始化语言和字体大小设置（只执行一次）
+    // Native keeps startup-only restoration; Web follows the current account.
+    final fontUser = kIsWeb ? ref.watch(currentUserProvider) : null;
+    if (kIsWeb) _captureWebFontOwner();
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
       // 移除启动画面
       FlutterNativeSplash.remove();
 
       // 初始化语言和字体大小
       _initLocale();
-      _initFontSize(ref);
+      if (kIsWeb) {
+        _restoreWebAccountFont(fontUser);
+      } else {
+        _initFontSize(ref);
+      }
     });
 
     // 监听主题状态
-    final themeState = ref.watch(themeProvider);
+    ref.watch(themeProvider);
     final themeMode = ref.watch(themeModeProvider);
 
     // 方向（RTL/LTR）由 MaterialApp + GlobalWidgetsLocalizations 依据当前
@@ -344,9 +459,7 @@ class _IMBoyAppState extends ConsumerState<IMBoyApp> {
             ),
           ),
           // 使用 Riverpod 主题系统（字体大小变化时会自动重建）
-          theme: themeState.isDarkMode
-              ? ref.read(themeProvider.notifier).darkTheme
-              : ref.read(themeProvider.notifier).lightTheme,
+          theme: ref.read(themeProvider.notifier).lightTheme,
           darkTheme: ref.read(themeProvider.notifier).darkTheme,
           // 使用 Riverpod themeMode provider
           themeMode: themeMode,

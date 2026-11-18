@@ -3,6 +3,8 @@
 /// 使用 Web Crypto API 进行 RSA-OAEP 加密和密钥生成
 library;
 
+import 'package:imboy/service/web_writer_gate.dart';
+
 import 'dart:async';
 import 'dart:convert';
 import 'dart:js_interop';
@@ -258,6 +260,7 @@ class WebStorageStub {
   }
 
   void setItem(String key, String value) {
+    requireWebWriter();
     try {
       _storage.setItem(key, value);
     } catch (e) {
@@ -266,6 +269,7 @@ class WebStorageStub {
   }
 
   void removeItem(String key) {
+    requireWebWriter();
     try {
       _storage.removeItem(key);
     } catch (e) {
@@ -274,6 +278,7 @@ class WebStorageStub {
   }
 
   void clear() {
+    requireWebWriter();
     try {
       _storage.clear();
     } catch (e) {

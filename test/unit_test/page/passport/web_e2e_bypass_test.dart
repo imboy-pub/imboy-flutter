@@ -2,10 +2,11 @@
 ///
 /// 决策语义：
 /// - token 或 uid 为空 → BypassDisabled（走原 QR 流程）
-/// - 两者都非空 → BypassEnabled（直接注入登录态）
+/// - 实际 debug 构建且两者非空 → BypassEnabled；profile/release 恒禁用
 /// - 不在测试 hook 内做副作用（saveToken / context.go），只决策
 library;
 
+import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/page/passport/web_e2e_bypass.dart';
 
@@ -40,6 +41,41 @@ void main() {
       const jwt = 'eyJhbGciOiJIUzI1NiJ9.eyJ1aWQiOiIxMjMifQ.signature-x_y-z';
       final config = parseE2eBypassConfig(token: jwt, uid: 'u-002');
       expect((config as BypassEnabled).token, jwt);
+    });
+  });
+
+  group('交付构建边界', () {
+    test('configured credentials cannot override a delivery restriction', () {
+      final config = parseE2eBypassConfig(
+        token: 'synthetic-delivery-token',
+        uid: 'synthetic-delivery-uid',
+        debugBuild: false,
+      );
+      expect(config, isA<BypassDisabled>());
+    });
+
+    test(
+      'a debug request remains bounded by the actual compiled build mode',
+      () {
+        final config = parseE2eBypassConfig(
+          token: 'synthetic-build-mode-token',
+          uid: 'synthetic-build-mode-uid',
+          debugBuild: true,
+        );
+        expect(
+          config,
+          kDebugMode ? isA<BypassEnabled>() : isA<BypassDisabled>(),
+        );
+      },
+    );
+
+    test('bypass diagnostics expose neither token nor account identifier', () {
+      const config = BypassEnabled(
+        token: 'synthetic-secret-for-redaction',
+        uid: 'synthetic-owner-for-redaction',
+      );
+      expect(config.toString(), isNot(contains(config.token)));
+      expect(config.toString(), isNot(contains(config.uid)));
     });
   });
 

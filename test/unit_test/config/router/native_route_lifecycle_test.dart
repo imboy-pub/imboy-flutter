@@ -1,7 +1,19 @@
 import 'dart:async';
+import 'dart:convert';
+
+import 'package:dio/dio.dart';
+import 'package:imboy/component/http/http_client.dart' as api;
+import 'package:imboy/config/init.dart' show serviceContainer;
+import 'package:imboy/i18n/strings.g.dart';
+import 'package:imboy/page/contact/apply_friend/apply_friend_page.dart';
+import 'package:imboy/page/contact/people_info/people_info_page.dart';
+import 'package:imboy/page/contact/people_info/people_info_provider.dart';
+import 'package:imboy/page/web_shell/web_shell_page.dart';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:cupertino_ui/cupertino_ui.dart';
+import 'package:flutter/services.dart';
+import 'package:go_router/go_router.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:imboy/config/router/app_router.dart';
@@ -15,6 +27,56 @@ import '../../helper/fake_webview_platform.dart';
 import '../../smoke/route_registry.dart';
 import '../../smoke/smoke_test_harness.dart';
 
+class _UnrelatedPerson extends PeopleInfoNotifier {
+  @override
+  PeopleInfoState build() => const PeopleInfoState(nickname: 'Fixture peer');
+
+  @override
+  Future<void> initData(String id, String scene) async {}
+}
+
+class _FriendResponseAdapter implements HttpClientAdapter {
+  _FriendResponseAdapter(this.delegate, {this.responseGate});
+  final HttpClientAdapter delegate;
+  final Completer<void>? responseGate;
+  int completed = 0;
+  String? to;
+
+  @override
+  Future<ResponseBody> fetch(
+    RequestOptions options,
+    Stream<Uint8List>? body,
+    Future<void>? cancelFuture,
+  ) async {
+    if (options.method != 'POST' || !options.uri.path.endsWith('/friend/add')) {
+      return delegate.fetch(options, body, cancelFuture);
+    }
+    final chunks = <int>[];
+    if (body != null) {
+      await for (final chunk in body) {
+        chunks.addAll(chunk);
+      }
+    }
+    final data = utf8.decode(chunks);
+    final fields = options.contentType?.contains('json') == true
+        ? Map<String, dynamic>.from(jsonDecode(data) as Map)
+        : Uri.splitQueryString(data);
+    to = fields['to']?.toString();
+    completed++;
+    await responseGate?.future;
+    return ResponseBody.fromString(
+      '{"code":0,"msg":"success","payload":{}}',
+      200,
+      headers: {
+        Headers.contentTypeHeader: [Headers.jsonContentType],
+      },
+    );
+  }
+
+  @override
+  void close({bool force = false}) {}
+}
+
 void main() {
   setUpAll(() {
     installSmokeHttpOverrides();
@@ -22,6 +84,24 @@ void main() {
   });
   tearDownAll(() => MessageService.instance.dispose());
   setUp(prepareSmokeEnv);
+
+  testWidgets('friend apply returns to the existing shell before mine', (
+    tester,
+  ) async {
+    await _checkFriendRouteReturn(tester);
+  });
+
+  testWidgets('friend apply from a root profile returns to the native shell', (
+    tester,
+  ) async {
+    await _checkFriendRouteReturn(tester, rootProfile: true);
+  });
+
+  testWidgets('friend apply completion leaves a newer route untouched', (
+    tester,
+  ) async {
+    await _checkFriendRouteReturn(tester, coverWhileWaiting: true);
+  });
 
   for (final name in ['live_room_publisher', 'live_room_subscriber']) {
     testWidgets('$name unload stops the renderer before releasing it', (
@@ -132,4 +212,231 @@ void main() {
       expect(platform.channels, contains('FlutterBridge'));
     },
   );
+}
+
+Future<void> _checkFriendRouteReturn(
+  WidgetTester tester, {
+  bool rootProfile = false,
+  bool coverWhileWaiting = false,
+}) async {
+  _installConnectivityFixture();
+  tester.view.physicalSize = const Size(1200, 800);
+  tester.view.devicePixelRatio = 1;
+  final client = serviceContainer.get<api.HttpClient>();
+  final oldAdapter = client.dio.httpClientAdapter;
+  final gate = coverWhileWaiting ? Completer<void>() : null;
+  final adapter = _FriendResponseAdapter(oldAdapter, responseGate: gate);
+  client.dio.httpClientAdapter = adapter;
+  final container = ProviderContainer(
+    overrides: [peopleInfoProvider.overrideWith(_UnrelatedPerson.new)],
+  );
+  final router = createAppRouter(
+    initialLocation: '/web_shell?tab=chat',
+    navigatorKeyOverride: GlobalKey<NavigatorState>(),
+  );
+  try {
+    await tester.pumpWidget(
+      UncontrolledProviderScope(
+        container: container,
+        child: buildRouterApp(router),
+      ),
+    );
+    await _exerciseFriendReturn(
+      tester,
+      router,
+      adapter,
+      rootProfile: rootProfile,
+      gate: gate,
+    );
+  } finally {
+    if (gate != null && !gate.isCompleted) gate.complete();
+    await tester.pumpWidget(const SizedBox.shrink());
+    router.dispose();
+    container.dispose();
+    client.dio.httpClientAdapter = oldAdapter;
+    tester.view.resetPhysicalSize();
+    tester.view.resetDevicePixelRatio();
+  }
+}
+
+Future<void> _exerciseFriendReturn(
+  WidgetTester tester,
+  GoRouter router,
+  _FriendResponseAdapter adapter, {
+  required bool rootProfile,
+  Completer<void>? gate,
+}) async {
+  await _checkedFrames(tester, 32);
+  final shellState = tester.state(find.byType(WebShellPage));
+  if (rootProfile) {
+    router.go('/people_info/123');
+  } else {
+    router.push('/people_info/123');
+  }
+  await _checkedFrames(tester, 32);
+  expect(find.byType(PeopleInfoPage), findsOneWidget);
+  await tester.ensureVisible(find.text(t.common.addToContacts));
+  await tester.tap(find.text(t.common.addToContacts));
+  await _checkedFrames(tester, 32);
+  expect(find.byType(ApplyFriendPage), findsOneWidget);
+  await tester.tap(find.text(t.common.buttonSend));
+  if (gate != null) {
+    await _checkCoveredApplyCompletion(tester, router, adapter, gate);
+    return;
+  }
+  await _waitForApplyAndReturn(
+    tester,
+    router,
+    adapter,
+    destination: rootProfile ? '/bottom_navigation' : '/web_shell',
+  );
+  if (!rootProfile) {
+    expect(
+      identical(tester.state(find.byType(WebShellPage)), shellState),
+      isTrue,
+    );
+  }
+  router.go('/web_shell?tab=mine');
+  await _checkedFrames(tester, 40);
+  expect(
+    router.routeInformationProvider.value.uri.queryParameters['tab'],
+    'mine',
+  );
+  expect(find.byType(WebShellPage), findsOneWidget);
+  if (!rootProfile) {
+    expect(
+      identical(tester.state(find.byType(WebShellPage)), shellState),
+      isTrue,
+    );
+  }
+  expect(find.byType(ErrorWidget), findsNothing);
+}
+
+Future<void> _checkCoveredApplyCompletion(
+  WidgetTester tester,
+  GoRouter router,
+  _FriendResponseAdapter adapter,
+  Completer<void> gate,
+) async {
+  for (var i = 0; i < 100 && adapter.completed == 0; i++) {
+    await tester.runAsync(() => Future<void>.delayed(Duration.zero));
+    await _checkedFrames(tester, 1);
+  }
+  expect(adapter.completed, 1);
+  expect(adapter.to, '123');
+  const coverKey = ValueKey('friend-apply-cover');
+  final requestElement = tester.element(find.byType(ApplyFriendPage));
+  final requestRoute = ModalRoute.of(requestElement)!;
+  final topRoute = CupertinoPageRoute<void>(
+    builder: (_) => const CupertinoPageScaffold(
+      child: Center(child: Text('Route ownership cover', key: coverKey)),
+    ),
+  );
+  Navigator.of(requestElement).push(topRoute);
+  await _waitForApplyCover(tester, requestRoute, topRoute);
+  expect(requestRoute.isCurrent, isFalse);
+  expect(topRoute.isCurrent, isTrue);
+  expect(find.byType(ApplyFriendPage, skipOffstage: false), findsOneWidget);
+  expect(find.byType(ApplyFriendPage), findsNothing);
+  final coverElement = tester.element(find.byKey(coverKey));
+  expect(ModalRoute.of(coverElement), same(topRoute));
+  final topUri = router.routeInformationProvider.value.uri;
+  gate.complete();
+  final restoredSend = find.descendant(
+    of: find.byType(ApplyFriendPage, skipOffstage: false),
+    matching: find.text(t.common.buttonSend, skipOffstage: false),
+    skipOffstage: false,
+  );
+  for (var i = 0; i < 100 && restoredSend.evaluate().isEmpty; i++) {
+    await tester.runAsync(() => Future<void>.delayed(Duration.zero));
+    await _checkedFrames(tester, 1);
+  }
+  expect(
+    restoredSend,
+    findsOneWidget,
+    reason: 'Offstage request page must finish its successful async action',
+  );
+  expect(router.routeInformationProvider.value.uri, topUri);
+  expect(find.byType(ApplyFriendPage), findsNothing);
+  expect(topRoute.isCurrent, isTrue);
+  expect(requestRoute.isCurrent, isFalse);
+  expect(identical(tester.element(find.byKey(coverKey)), coverElement), isTrue);
+  expect(adapter.completed, 1);
+  expect(find.byType(ErrorWidget), findsNothing);
+}
+
+Future<void> _waitForApplyCover(
+  WidgetTester tester,
+  ModalRoute<dynamic> requestRoute,
+  CupertinoPageRoute<void> topRoute,
+) async {
+  final request = find.byType(ApplyFriendPage);
+  for (
+    var i = 0;
+    i < 100 &&
+        (topRoute.animation?.status != AnimationStatus.completed ||
+            request.evaluate().isNotEmpty);
+    i++
+  ) {
+    await _checkedFrames(tester, 1);
+  }
+  final flags =
+      'opaque=${topRoute.opaque}, '
+      'overlayFirstOpaque=${topRoute.overlayEntries.isNotEmpty && topRoute.overlayEntries.first.opaque}, '
+      'requestCurrent=${requestRoute.isCurrent}, topCurrent=${topRoute.isCurrent}, '
+      'animation=${topRoute.animation?.status}';
+  expect(topRoute.animation?.status, AnimationStatus.completed, reason: flags);
+  expect(request, findsNothing, reason: flags);
+}
+
+Future<void> _waitForApplyAndReturn(
+  WidgetTester tester,
+  GoRouter router,
+  _FriendResponseAdapter adapter, {
+  String destination = '/web_shell',
+}) async {
+  for (var i = 0; i < 100; i++) {
+    // SQLite initialization may need the host event loop for filesystem IO.
+    await tester.runAsync(() => Future<void>.delayed(Duration.zero));
+    await _checkedFrames(tester, 1);
+    if (adapter.completed == 1 &&
+        find.byType(ApplyFriendPage, skipOffstage: false).evaluate().isEmpty &&
+        find.byType(PeopleInfoPage, skipOffstage: false).evaluate().isEmpty &&
+        router.routeInformationProvider.value.uri.path == destination) {
+      break;
+    }
+  }
+  expect(adapter.completed, 1);
+  expect(adapter.to, '123');
+  expect(find.byType(ApplyFriendPage, skipOffstage: false), findsNothing);
+  expect(find.byType(PeopleInfoPage, skipOffstage: false), findsNothing);
+  expect(router.routeInformationProvider.value.uri.path, destination);
+  expect(find.byType(ErrorWidget), findsNothing);
+}
+
+Future<void> _checkedFrames(WidgetTester tester, int frames) async {
+  for (var i = 0; i < frames; i++) {
+    await tester.pump(const Duration(milliseconds: 16));
+    expect(tester.takeException(), isNull);
+  }
+}
+
+void _installConnectivityFixture() {
+  const method = MethodChannel('dev.fluttercommunity.plus/connectivity');
+  const events = MethodChannel('dev.fluttercommunity.plus/connectivity_status');
+  final messenger =
+      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
+  messenger.setMockMethodCallHandler(method, (call) async {
+    if (call.method == 'check') return <String>['wifi'];
+    throw MissingPluginException('Unexpected connectivity method');
+  });
+  // ConversationPage.initData subscribes after check; no events are emitted.
+  messenger.setMockMethodCallHandler(events, (call) async {
+    if (call.method == 'listen' || call.method == 'cancel') return null;
+    throw MissingPluginException('Unexpected connectivity event method');
+  });
+  addTearDown(() {
+    messenger.setMockMethodCallHandler(method, null);
+    messenger.setMockMethodCallHandler(events, null);
+  });
 }

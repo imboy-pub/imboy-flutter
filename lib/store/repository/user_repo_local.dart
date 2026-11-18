@@ -1,3 +1,4 @@
+import 'package:imboy/service/web_writer_gate.dart';
 import 'package:imboy/app_core/feature_flags/runtime_feature_recovery.dart';
 
 import 'dart:async';
@@ -18,12 +19,15 @@ import 'package:imboy/service/account_local_data_service.dart';
 import 'package:imboy/service/account_local_task_registry.dart';
 import 'package:imboy/service/login_account_history_service.dart';
 import 'package:imboy/service/push_notification_service.dart';
+import 'package:imboy/service/rsa.dart';
 import 'package:imboy/service/sqlite.dart';
 import 'package:imboy/service/storage.dart';
 import 'package:imboy/service/storage_secure.dart';
 import 'package:imboy/component/upload/resumable_attachment_uploader.dart';
 import 'package:imboy/service/asset_url_resolver.dart';
 import 'package:imboy/service/websocket.dart';
+import 'package:imboy/service/websocket_message_queue.dart'
+    show PersistentMessageQueue;
 import 'package:imboy/store/model/user_model.dart';
 import 'package:imboy/service/app_logger.dart';
 
@@ -54,6 +58,7 @@ class UserRepoLocal extends ChangeNotifier {
   final _authChanges = ChangeNotifier();
   int _pendingAuthTransitions = 0;
   bool _authTransitionFailed = false;
+  bool get isAuthTransitionFailed => _authTransitionFailed;
   bool _isClearingAccountData = false;
 
   // Lifecycle state only: UID/generation remain authoritative above.
@@ -77,6 +82,7 @@ class UserRepoLocal extends ChangeNotifier {
       _authChanges.removeListener(listener);
 
   void _beginAuthTransition() {
+    requireWebWriter();
     _pendingAuthTransitions++;
   }
 
@@ -104,7 +110,10 @@ class UserRepoLocal extends ChangeNotifier {
       isCurrentSession(generation + 1) && !isLoggedIn;
 
   Future<T> _serializeSessionWrite<T>(Future<T> Function() operation) {
-    final result = _sessionWrites.then((_) => operation());
+    final result = _sessionWrites.then((_) {
+      requireWebWriter();
+      return operation();
+    });
     _sessionWrites = result.then<void>(
       (_) {},
       onError: (Object error, StackTrace stack) {},
@@ -176,6 +185,9 @@ class UserRepoLocal extends ChangeNotifier {
   });
 
   String get currentUid => StorageService.to.getString(Keys.currentUid);
+
+  bool get hasCurrentProfileSettings =>
+      StorageService.getMap(Keys.currentUser)['setting'] is Map;
 
   bool get isLoggedIn {
     return currentUid.isNotEmpty;
@@ -346,15 +358,28 @@ class UserRepoLocal extends ChangeNotifier {
     });
   }
 
-  Future<bool> changeInfo(Map<String, dynamic> payload) {
-    final uid = currentUid;
-    final generation = sessionGeneration;
-    if (!_canUpdateProfile(uid, generation)) return Future<bool>.value(false);
+  Future<bool> changeInfo(
+    Map<String, dynamic> payload, {
+    String? expectedUid,
+    int? expectedGeneration,
+    String? expectedEnvironment,
+    String? expectedEndpoint,
+  }) {
+    final uid = expectedUid ?? currentUid;
+    final generation = expectedGeneration ?? sessionGeneration;
+    if (expectedUid != null && payload['uid'] != expectedUid) {
+      return Future<bool>.value(false);
+    }
+    bool current() =>
+        _canUpdateProfile(uid, generation) &&
+        (expectedEnvironment == null || currentEnv == expectedEnvironment) &&
+        (expectedEndpoint == null || Env().apiBaseUrl == expectedEndpoint);
+    if (!current()) return Future<bool>.value(false);
     final savedPayload = Map<String, dynamic>.of(payload)
       ..remove(LoginAccountHistoryService.localProfileKey);
     // 与退出和历史账号清理共用写队列，迟到的资料响应不能恢复已删除的数据。
     return _serializeSessionWrite(() async {
-      if (!_canUpdateProfile(uid, generation)) return false;
+      if (!current()) return false;
       final localIdentity = StorageService.getMap(
         Keys.currentUser,
       )[LoginAccountHistoryService.localProfileKey];
@@ -364,6 +389,7 @@ class UserRepoLocal extends ChangeNotifier {
           LoginAccountHistoryService.localProfileKey: ?localIdentity,
         }),
       );
+      if (!current()) return false;
       notifyListeners();
       return true;
     });
@@ -545,6 +571,7 @@ class UserRepoLocal extends ChangeNotifier {
       if (!active()) throw StateError('secret write session changed');
     } on Object {
       try {
+        requireWebWriter();
         await discard();
       } on Object {
         await StorageService.to.setBool(Keys.e2eePurgePending, true);
@@ -584,6 +611,7 @@ class UserRepoLocal extends ChangeNotifier {
   /// Login-page cleanup shares the session write queue. A new login cannot
   /// reopen files or overwrite secrets while the confirmed account is cleared.
   Future<void> clearHistoricalAccountData(String value) {
+    requireWebWriter();
     if (isLoggedIn ||
         _pendingAuthTransitions > 0 ||
         _isClearingSession ||
@@ -688,6 +716,76 @@ class UserRepoLocal extends ChangeNotifier {
         await StorageService.to.remove(key);
       }
 
+      // SEC02-DRAFT-QUITLOGIN-RESIDUE（属主裁决 2026-11-16 修复窗二批）：
+      // 草稿文本键 draft_v2:<uid>:<type>:<peer>（含 composer 的
+      // :pending 待发变体，两者共用同一 per-uid 前缀）与 draftCursor_v2
+      // 游标是 per-uid 数据，登出不清会让真实草稿文本残留在
+      // localStorage（runs/sec02-census-rerun-20261116 实测）。
+      // 按登出 uid 的前缀精确清理，不触碰其他历史账号的同族键与
+      // 设备级共享键（主题/环境等）。
+      if (logoutUid.isNotEmpty) {
+        final encodedUid = Uri.encodeComponent(logoutUid);
+        for (final prefix in <String>[
+          'draft_v2:$encodedUid:',
+          'draftCursor_v2:$encodedUid:',
+        ]) {
+          // getKeys() 返回快照（shared_preferences 2.5.6
+          // Set<String>.from(_preferenceCache.keys)），边遍历边删安全。
+          for (final key in StorageService.to.getKeys().where(
+            (k) => k.startsWith(prefix),
+          )) {
+            await StorageService.to.remove(key);
+          }
+        }
+      }
+
+      // DEF-LOGOUT-RELOAD-INIT-POISON（属主裁决 owner-batch4 修复窗 R6b）：
+      // 登出除草稿键外，还需使两类 per-uid 残留失效，避免登出后 reload 的
+      // 启动清点（AccountLocalDataService.captureInitialOwnership）被毒化：
+      // 1) ws_message_queue 中属主为登出 uid 的残留帧——正常帧虽可被启动
+      //    清点归因，但任何损坏帧都会被读侧视为不可归因证据而 fail-closed
+      //    （InitErrorPage）；属主已登出，帧没有再投递的意义。
+      // 2) app_features/app_manifest/app_manifest_etag 的 *_scoped_* 旧 uid
+      //    缓存——下次 init 以 uid='' 绑定 scope 不会读到它们，但残留会在
+      //    持久存储保留旧 uid 载荷（census 实证 3814B 存活）。属主解码复用
+      //    AccountLocalDataService.isScopedFeatureCacheOwnedBy（与历史账号
+      //    清理授权链同一口径），不会误删其他账号的 scoped 缓存。
+      try {
+        await PersistentMessageQueue.removeAccount(logoutUid);
+      } on Object catch (error, stack) {
+        // 队列残留不毒化正常形状的启动清点，清失败不阻断登出，仅记日志。
+        AppLogger.error(
+          '[user_repo_local] ws message queue purge failed',
+          error,
+          stack,
+        );
+      }
+      for (final key in StorageService.to.getKeys().where(
+        (k) => AccountLocalDataService.isScopedFeatureCacheOwnedBy(
+          k,
+          uid: logoutUid,
+          endpoint: Env().apiBaseUrl,
+        ),
+      )) {
+        await StorageService.to.remove(key);
+      }
+
+      // SEC02 同批：current_user 登出后残留 504B 用户资料（昵称/头像等
+      // 展示性 PII）。只保留 _login_account_identity_v1 所有权证明
+      // （uid/env/endpoint 标识，LoginAccountIdentity 文档注明
+      // "identifiers only, no credentials"），保住
+      // ownsLastSession→clearLastSessionData 历史账号清理授权链不断；
+      // hasCurrentProfileSettings 消费点（run.dart:389/402、
+      // web_shell_bootstrap.dart:127）均为会话内闸门，空资料时安全降级。
+      final localIdentity = StorageService.getMap(
+        Keys.currentUser,
+      )[LoginAccountHistoryService.localProfileKey];
+      await StorageService.to.persistPreference(
+        () => StorageService.setMap(Keys.currentUser, {
+          LoginAccountHistoryService.localProfileKey: ?localIdentity,
+        }),
+      );
+
       // Drain initialization/key acquisition before purging: a late writer must
       // not recreate a key after the inventory's final residual check.
       var databaseClosed = false;
@@ -745,6 +843,21 @@ class UserRepoLocal extends ChangeNotifier {
         iPrint("> quitLogin: Secure tokens cleared successfully");
       } on Object {
         // FlutterKeychain 不支持 macos
+      }
+
+      // SEC-02（属主裁决 2026-11-16「以清除为准」）：Web 登录加密 RSA 密钥
+      // 材料随登出清除（原实测保留与 rsa.dart 注释矛盾）。失败置位
+      // purgeFailed，由既有登出闸门兜底；非 Web 为 no-op。
+      try {
+        await RSAService.clearWebKeysForLogout();
+        iPrint("> quitLogin: Web RSA login keys cleared");
+      } on Object catch (error, stack) {
+        AppLogger.error(
+          '[user_repo_local] web rsa key clear failed',
+          error,
+          stack,
+        );
+        purgeFailed = true;
       }
 
       iPrint("> quitLogin: Closing WebSocket");

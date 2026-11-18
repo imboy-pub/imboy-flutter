@@ -183,6 +183,16 @@ class PassportNotifier extends _$PassportNotifier {
     state = state.copyWith(loginPwdObscure: !state.loginPwdObscure);
   }
 
+  /// 登录密码可见性归位为 obscured（默认态）。
+  ///
+  /// F3（a11y03-residual-20261116）：登录页 dispose 时调用——web login 的
+  /// passportProvider 是会话级单例，用户曾点过「显示密码」后离开页面，
+  /// 下一次进入登录页会继承明文态，AX 树 value 可读。
+  void resetLoginPwdObscure() {
+    if (state.loginPwdObscure) return;
+    state = state.copyWith(loginPwdObscure: true);
+  }
+
   void toggleNewPwdObscure() {
     state = state.copyWith(newPwdObscure: !state.newPwdObscure);
   }

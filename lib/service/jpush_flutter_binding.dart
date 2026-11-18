@@ -33,7 +33,8 @@ import 'package:imboy/config/local_external_services_policy.dart';
 import 'dart:async';
 import 'dart:io' show Platform;
 
-import 'package:flutter/foundation.dart' show kDebugMode, visibleForTesting;
+import 'package:flutter/foundation.dart'
+    show kDebugMode, kIsWeb, visibleForTesting;
 import 'package:flutter/widgets.dart' show BuildContext;
 import 'package:go_router/go_router.dart';
 
@@ -82,9 +83,10 @@ abstract interface class JPushPluginChannel {
 
 /// 生产通道：直连 jpush_flutter 3.5.8。
 class JPushFlutterPluginChannel implements JPushPluginChannel {
-  JPushFlutterPluginChannel() : _plugin = JPush.newJPush();
+  JPushFlutterPluginChannel();
 
-  final JPushFlutterInterface _plugin;
+  // The factory probes dart:io; initialize the SDK only after capability checks.
+  late final JPushFlutterInterface _plugin = JPush.newJPush();
 
   @override
   void setup({required bool production, required String channel}) {
@@ -147,7 +149,8 @@ Map<String, dynamic> extractJPushRoutingPayload(Map<dynamic, dynamic> event) {
 
 /// 默认启用判定：构建开关 + Android 平台（JPush 一期仅 Android；
 /// iOS/macos/桌面平台不 setup、不注册——平台枚举见 A7 合同）。
-bool defaultJPushEnabledCheck() => _jpushBuildEnabled && Platform.isAndroid;
+bool defaultJPushEnabledCheck() =>
+    !kIsWeb && _jpushBuildEnabled && Platform.isAndroid;
 
 /// 默认 token 注入出口：A7 的 setToken（未登录只存、loginAfter 兜底；
 /// W4 合并 A7 分支后自动携带 device_type/platform=jpush 字段合同）。

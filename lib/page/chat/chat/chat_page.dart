@@ -2,6 +2,8 @@ import 'dart:async';
 
 import 'package:imboy/component/ui/app_back_scope.dart';
 import 'package:imboy/service/auth_session_scope.dart';
+import 'package:imboy/service/account_draft_store.dart';
+import 'package:imboy/service/pending_text_send.dart';
 import 'package:imboy/config/env.dart';
 import 'package:imboy/page/chat/chat/services/chat_archive_service.dart';
 
@@ -586,6 +588,7 @@ class ChatPageState extends ConsumerState<ChatPage>
         burnEnabled: _burnEnabled,
         burnAfterMs: _burnAfterMs,
         onMessageCreated: _addMessage,
+        onMessagePersisted: _presentPersistedAttachment,
         isMutedCheck: () => _isMuted,
       );
 
@@ -1142,6 +1145,41 @@ class ChatPageState extends ConsumerState<ChatPage>
 
   // 标记消息为已读
   // 添加消息
+  Future<bool> _presentPersistedAttachment(Message message) async {
+    if (!_locationIsCurrent ||
+        message.authorId != currentUserId ||
+        message.metadata?['conversation_uk3'] != _conversationUk3) {
+      return false;
+    }
+    final service = ref.read(chatProvider.notifier).chatService;
+    if (service == null) return false;
+    final index = service.messages.indexWhere((item) => item.id == message.id);
+    if (index < 0) {
+      await service.insertMessage(
+        message,
+        index: service.messages.length,
+        animated: true,
+      );
+    } else {
+      final old = service.messages[index];
+      const ranks = {
+        MessageStatus.sending: 0,
+        MessageStatus.sent: 1,
+        MessageStatus.delivered: 2,
+        MessageStatus.seen: 3,
+      };
+      final preserveAck =
+          (ranks[old.status] ?? -1) > (ranks[message.status] ?? -1);
+      await service.updateMessage(
+        old,
+        preserveAck ? message.copyWith(status: old.status) : message,
+      );
+    }
+    if (!_locationIsCurrent) return false;
+    unawaited(_scrollToBottomAfterSend());
+    return true;
+  }
+
   Future<bool> _addMessage(Message message) async {
     try {
       final sent = await ref
@@ -1347,7 +1385,7 @@ class ChatPageState extends ConsumerState<ChatPage>
     if (message is TextMessage) {
       showTextMessage(message.text);
     } else if (message is FileMessage) {
-      confirmOpenFile(context, message.source);
+      confirmOpenFile(context, message.source, fileName: message.name);
     } else if (message is ImageMessage) {
       // 打开图片查看器（使用 Riverpod）
       ref
@@ -1432,7 +1470,7 @@ class ChatPageState extends ConsumerState<ChatPage>
     // 打开（对齐图片消息单击预览）；FlyerChatFileMessage 本身是纯展示组件
     // 无点击处理，此前单击只有外层 Message tapped 日志、无任何动作。
     if (message is FileMessage) {
-      confirmOpenFile(context, message.source);
+      confirmOpenFile(context, message.source, fileName: message.name);
       return;
     }
 
@@ -1489,7 +1527,8 @@ class ChatPageState extends ConsumerState<ChatPage>
     final isSentByMe = message.authorId == UserRepoLocal.to.currentUid;
 
     // 如果是自己的消息且是发送失败状态，提供重试选项
-    if (isSentByMe && message.status == MessageStatus.error) {
+    if (isSentByMe &&
+        canOfferMessageRetry(message, UserRepoLocal.to.currentUid)) {
       _showRetryMenu(context, message);
     } else {
       // 显示简化的操作菜单
@@ -1574,7 +1613,14 @@ class ChatPageState extends ConsumerState<ChatPage>
   }
 
   // 发送文本消息
-  Future<bool> _handleSendPressed(String text) async {
+  Future<bool> _handleSendPressed(String text) async =>
+      (await _submitText(text, allowPendingHandoff: false)).accepted;
+
+  Future<ComposerSendReceipt> _submitText(
+    String text, {
+    required bool allowPendingHandoff,
+    Future<bool>? draftSaved,
+  }) async {
     iPrint('handleSendPressed 开始: editing=$_editingMessageId');
 
     // slice-C-3a: 决策内核已抽到 send_mode_rules.dart 并有 14 个单测钉死优先级
@@ -1591,10 +1637,10 @@ class ChatPageState extends ConsumerState<ChatPage>
     switch (decision) {
       case SendDenyMuted():
         AppLoading.showInfo(t.common.mutedCannotSend);
-        return false;
+        return const ComposerSendReceipt(false);
       case SendDenyDebounced():
         iPrint('消息发送防抖触发：距离上次发送不足 ${_sendDebounceDuration.inMilliseconds}ms');
-        return false;
+        return const ComposerSendReceipt(false);
       case SendAsEdit(:final messageId):
         iPrint('执行编辑消息: messageId=$messageId');
         final editingGeneration = _editingGeneration;
@@ -1609,14 +1655,18 @@ class ChatPageState extends ConsumerState<ChatPage>
             editingGeneration != _editingGeneration ||
             submittedText == null ||
             _chatInputKey.currentState?.textController.text != submittedText) {
-          return false;
+          return const ComposerSendReceipt(false);
         }
         if (result) _editingMessageId = null;
-        return result;
+        return ComposerSendReceipt(result);
       case SendAsNewText():
         iPrint(t.chat.sendNewMessage);
-        final result = await _sendTextMessage(text);
-        if (result) {
+        final result = await _sendTextMessage(
+          text,
+          allowPendingHandoff: allowPendingHandoff,
+          draftSaved: draftSaved,
+        );
+        if (result.accepted) {
           _lastSendTime = DateTime.now();
         }
         return result;
@@ -1625,12 +1675,16 @@ class ChatPageState extends ConsumerState<ChatPage>
         if (result) {
           _lastSendTime = DateTime.now();
         }
-        return result;
+        return ComposerSendReceipt(result);
     }
   }
 
   // 发送普通文本消息
-  Future<bool> _sendTextMessage(String text) async {
+  Future<ComposerSendReceipt> _sendTextMessage(
+    String text, {
+    required bool allowPendingHandoff,
+    Future<bool>? draftSaved,
+  }) async {
     // 构建 metadata，包含 mentions 字段（仅群聊）
     final metadata = _withBurnMetadata({'peer_id': widget.peerId});
 
@@ -1654,7 +1708,7 @@ class ChatPageState extends ConsumerState<ChatPage>
         case MentionResolveDeniedAll():
           AppLoading.showToast(t.mention.mentionAllDenied);
           _currentMentionIds = [];
-          return false;
+          return const ComposerSendReceipt(false);
       }
       _currentMentionIds = [];
     }
@@ -1669,7 +1723,31 @@ class ChatPageState extends ConsumerState<ChatPage>
       text: text,
       metadata: metadata,
     );
-    return await _addMessage(textMessage);
+    final type = _chatType;
+    final peer = widget.peerId;
+    final drafts = AccountDraftStore.capture(type, peer);
+    bool current() =>
+        mounted &&
+        drafts.isCurrent &&
+        drafts.owner.uid == textMessage.authorId &&
+        _chatType == type &&
+        widget.peerId == peer;
+    if (!current()) return const ComposerSendReceipt(false);
+    if (allowPendingHandoff &&
+        (draftSaved == null || !await draftSaved || !current())) {
+      return const ComposerSendReceipt(false);
+    }
+    return submitComposerText(
+      drafts: drafts,
+      proposed: textMessage,
+      type: type,
+      peerId: peer,
+      allowPendingHandoff: allowPendingHandoff,
+      repository: MessageRepo(tableName: MessageRepo.getTableName(type)),
+      sendNew: _addMessage,
+      retry: ref.read(chatProvider.notifier).retryMessage,
+      isCurrent: current,
+    );
   }
 
   // 发送引用消息
@@ -1703,8 +1781,7 @@ class ChatPageState extends ConsumerState<ChatPage>
   // 消息状态点击事件
   void _onMessageStatusTap(BuildContext ctx, Message msg) {
     // 检查是否为发送失败的消息，如果是则触发重试
-    if (msg.status == MessageStatus.error &&
-        msg.authorId == UserRepoLocal.to.currentUid) {
+    if (canOfferMessageRetry(msg, UserRepoLocal.to.currentUid)) {
       _onMessageRetry(msg.id);
       return;
     }
@@ -2037,7 +2114,11 @@ class ChatPageState extends ConsumerState<ChatPage>
                     composerHeight: composerHeightNotifier,
                     type: _chatType,
                     peerId: widget.peerId,
-                    onSendPressed: _handleSendPressed,
+                    onSendPressed: (submission) => _submitText(
+                      submission.text,
+                      allowPendingHandoff: true,
+                      draftSaved: submission.draftSaved,
+                    ),
                     onTextChanged: _handleInputChanged,
                     isMuted: _isMuted,
                     muteMessage: _muteMessage,

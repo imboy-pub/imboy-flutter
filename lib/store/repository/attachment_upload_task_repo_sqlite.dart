@@ -1,6 +1,11 @@
 import 'package:imboy/service/server_ack_receipts.dart';
 
 import 'dart:convert';
+import 'dart:typed_data';
+
+import 'package:flutter/foundation.dart' show kIsWeb;
+
+import 'package:crypto/crypto.dart' as material_crypto;
 
 import 'package:crypto/crypto.dart';
 
@@ -8,6 +13,12 @@ import 'package:sqflite_sqlcipher/sqflite.dart'
     show Database, DatabaseExecutor, ConflictAlgorithm;
 
 import 'package:imboy/service/sqlite.dart';
+import 'package:imboy/service/account_local_task_registry.dart';
+import 'package:imboy/service/browser_attachment_durability.dart';
+import 'package:imboy/service/login_account_history_service.dart';
+import 'package:imboy/config/init.dart' show currentEnv;
+import 'package:imboy/config/env.dart';
+import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/store/model/message_model.dart';
 import 'package:imboy/store/model/attachment_upload_task.dart';
 import 'package:imboy/store/repository/message_repo_sqlite.dart';
@@ -15,6 +26,8 @@ import 'package:imboy/service/e2ee/attachment_seal_policy.dart';
 import 'package:imboy/service/e2ee/protected_frame_v3.dart';
 
 export 'package:imboy/store/model/attachment_upload_task.dart';
+
+part 'attachment_upload_browser_material.dart';
 
 class LegacyOutboxConflict implements Exception {
   const LegacyOutboxConflict();
@@ -827,6 +840,7 @@ class AttachmentUploadTaskRepo {
           'id',
           'type',
           'from_id',
+          if (chatType == 'C2G') 'to_id',
           'is_author',
           'status',
           'conversation_uk3',
@@ -841,12 +855,14 @@ class AttachmentUploadTaskRepo {
           message['from_id'].toString() != userId ||
           message['is_author'] != 1 ||
           (message['conversation_uk3']?.toString().isEmpty ?? true) ||
-          !{
-            IMBoyMessageStatus.sending,
-            IMBoyMessageStatus.pendingRetry,
-            IMBoyMessageStatus.error,
-            IMBoyMessageStatus.sent,
-          }.contains(message['status'])) {
+          (!{
+                IMBoyMessageStatus.sending,
+                IMBoyMessageStatus.pendingRetry,
+                IMBoyMessageStatus.error,
+                IMBoyMessageStatus.sent,
+              }.contains(message['status']) &&
+              !(chatType == 'C2G' &&
+                  message['status'] == IMBoyMessageStatus.outcomeUnknown))) {
         return false;
       }
       for (final row in managed) {
@@ -868,6 +884,29 @@ class AttachmentUploadTaskRepo {
         where: 'id = ? AND from_id = ?',
         whereArgs: [anchor, userId],
       );
+      if (chatType == 'C2G' &&
+          message['status'] == IMBoyMessageStatus.outcomeUnknown) {
+        final tables = await tx.rawQuery(
+          "SELECT name FROM sqlite_master WHERE type = 'table' AND name = ?",
+          ['conversation'],
+        );
+        if (tables.isNotEmpty) {
+          await tx.update(
+            'conversation',
+            {'last_msg_status': IMBoyMessageStatus.sent},
+            where:
+                'user_id = ? AND peer_id = ? AND type = ? AND last_msg_id = ? '
+                'AND last_msg_status = ?',
+            whereArgs: [
+              userId,
+              message['to_id'],
+              'C2G',
+              anchor,
+              IMBoyMessageStatus.outcomeUnknown,
+            ],
+          );
+        }
+      }
       final tables = await tx.rawQuery(
         "SELECT name FROM sqlite_master WHERE type = 'table' AND name = ?",
         ['crypto_outbox'],
@@ -950,8 +989,12 @@ class AttachmentUploadTaskRepo {
       await tx.update(
         table,
         {'status': IMBoyMessageStatus.error},
-        where: 'id = ? AND status != ?',
-        whereArgs: [anchor, IMBoyMessageStatus.sent],
+        where: 'id = ? AND status NOT IN (?, ?)',
+        whereArgs: [
+          anchor,
+          IMBoyMessageStatus.sent,
+          IMBoyMessageStatus.outcomeUnknown,
+        ],
       );
       if (!isCurrent()) throw StateError('outbox account changed');
       return true;

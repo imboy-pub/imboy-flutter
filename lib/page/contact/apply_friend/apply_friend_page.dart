@@ -1,3 +1,5 @@
+import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:go_router/go_router.dart';
 import 'package:cupertino_ui/cupertino_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:imboy/component/ui/ios_settings_ui.dart';
@@ -173,6 +175,8 @@ class _ApplyFriendPageState extends ConsumerState<ApplyFriendPage> {
                   setState(() => _isSubmitting = true);
                   try {
                     final nav = Navigator.of(context);
+                    final router = GoRouter.of(context);
+                    final route = ModalRoute.of(context);
                     Map<String, dynamic> payload = {
                       "from": {
                         "source": widget.source,
@@ -201,8 +205,17 @@ class _ApplyFriendPageState extends ConsumerState<ApplyFriendPage> {
                           peerAvatar: widget.avatar,
                           payload: payload,
                         )) {
-                      nav.pop();
-                      nav.pop();
+                      if (!mounted || route?.isCurrent != true) return;
+                      if (nav.canPop()) nav.pop();
+                      if (nav.canPop()) {
+                        nav.pop();
+                      } else {
+                        router.go(
+                          kIsWeb
+                              ? '/web_shell?tab=contact'
+                              : '/bottom_navigation',
+                        );
+                      }
                     }
                   } finally {
                     if (mounted) setState(() => _isSubmitting = false);

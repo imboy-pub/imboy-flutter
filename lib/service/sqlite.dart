@@ -213,7 +213,10 @@ class SqliteService {
 
     final path = await _databasePathForScope(scope);
     if (!_isCurrentSqliteScope(scope)) return null;
-    bool exists = await databaseExists(path);
+    // Web files belong to the initialized Web VFS, not SQLCipher's IO factory.
+    final exists = kIsWeb
+        ? await common.databaseFactory.databaseExists(path)
+        : await databaseExists(path);
     if (!_isCurrentSqliteScope(scope)) return null;
 
     if (!exists) {
@@ -366,11 +369,11 @@ class SqliteService {
   Future<void> _onCreate(Database db, int version) async {
     iPrint("SqliteService_onCreate version=$version");
 
-    // 加密平台不复制明文模板，直接创建空加密数据库。
-    // 需要从 example10.db 资源中读取基线 schema 并执行建表，
-    // 然后执行 v10+ 的增量迁移脚本（ALTER TABLE 等）。
-    // 非加密平台从 example10.db 模板复制（含初始 schema），此处无需额外操作。
-    if (isEncryptionSupported) {
+    // SQLCipher and Web create empty files instead of copying example10.db.
+    // Both must execute the same embedded baseline, registered migrations and
+    // post-migration verification before sqflite advances the version.
+    // Native non-encrypted platforms retain their existing template path.
+    if (kIsWeb || isEncryptionSupported) {
       // 1. 使用内嵌 DDL 常量（不再依赖 rootBundle 加载 assets，见 embedded_schema_scripts.dart 顶部说明）
       final schemaSql = kBaselineSchemaSql;
 

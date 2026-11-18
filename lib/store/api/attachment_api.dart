@@ -7,6 +7,7 @@ import 'package:imboy/config/env.dart';
 import 'package:imboy/config/init.dart' show currentEnv;
 import 'package:imboy/component/upload/resumable_attachment_uploader.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
+import 'package:imboy/store/repository/attachment_upload_task_repo_sqlite.dart';
 import 'package:imboy/service/account_local_task_registry.dart';
 import 'package:imboy/service/account_local_files.dart';
 import 'package:imboy/store/api/attachment_direct_api.dart';
@@ -17,6 +18,7 @@ import 'package:xid/xid.dart';
 // ignore: depend_on_referenced_packages
 import 'package:crypto/crypto.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:file_picker/file_picker.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:imboy/component/ui/app_loading.dart';
@@ -391,8 +393,11 @@ class AttachmentApi {
     UploadSessionFn? sessionFn,
     DirectSessionFn? directSessionFn,
     DirectFilePutFn? directPutFn,
+    DirectSourcePutFn? directSourcePutFn,
     void Function()? requireSession,
     CancelToken? cancelToken,
+    BrowserAttachmentMaterialStore? browserMaterialStore,
+    Future<void> Function(UploadCheckpoint event)? onUploadCheckpoint,
 
     /// W5-01：远程阶段边界的持久化检查点。每个边界 await 一次；抛错即
     /// 中止上传推进（durable checkpoint fail-closed：材料未落盘不上网络）。
@@ -415,6 +420,12 @@ class AttachmentApi {
         sealRequest: seal,
         encrypt: seal != null,
         process: process,
+        browserMaterialStore: browserMaterialStore,
+        cancelToken: cancelToken,
+        requireCurrent: requireSession,
+        directSessionFn: directSessionFn,
+        directPutFn: directPutFn,
+        directSourcePutFn: directSourcePutFn,
       ).uploadProduction(
         userId: UserRepoLocal.to.currentUid,
         bytes: bytes,
@@ -425,6 +436,7 @@ class AttachmentApi {
         anchorMsgId: anchorMsgId,
         messageIntent: messageIntent,
         clientUploadId: clientUploadId,
+        checkpoint: onUploadCheckpoint,
       );
     }
 
@@ -446,6 +458,7 @@ class AttachmentApi {
         checkpoint: checkpoint,
         sessionFn: directSessionFn,
         putFn: directPutFn,
+        sourcePutFn: directSourcePutFn,
         requireSession: requireSession,
         cancelToken: cancelToken,
       );
@@ -814,6 +827,10 @@ class AttachmentApi {
     PresignFn? presignFn,
     PutFn? putFn,
     ConfirmFn? confirmFn,
+    CancelToken? cancelToken,
+    BrowserAttachmentMaterialStore? browserMaterialStore,
+    void Function()? requireSession,
+    Future<void> Function(UploadCheckpoint event)? onUploadCheckpoint,
   }) async {
     final String objectKey = await uploadViaPresign(
       bytes,
@@ -828,6 +845,10 @@ class AttachmentApi {
       presignFn: presignFn,
       putFn: putFn,
       confirmFn: confirmFn,
+      cancelToken: cancelToken,
+      browserMaterialStore: browserMaterialStore,
+      requireSession: requireSession,
+      onUploadCheckpoint: onUploadCheckpoint,
     );
     return <String, dynamic>{
       'object_key': objectKey,

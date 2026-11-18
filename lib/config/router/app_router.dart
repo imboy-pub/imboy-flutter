@@ -1,4 +1,5 @@
 import 'package:cupertino_ui/cupertino_ui.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart' show Message;
@@ -207,9 +208,8 @@ GoRouter createAppRouter({
         name: 'sign_in',
         pageBuilder: (context, state) {
           // 大屏桌面/Web 环境使用 WebLoginPage（阈值与 AppBreakpoints.wide 对齐）
-          final useSplitView = AppBreakpoints.isWide(
-            MediaQuery.sizeOf(context).width,
-          );
+          final useSplitView =
+              kIsWeb || AppBreakpoints.isWide(MediaQuery.sizeOf(context).width);
           return CupertinoPage(
             key: state.pageKey,
             child: useSplitView ? const WebLoginPage() : const LoginPage(),
@@ -293,8 +293,13 @@ GoRouter createAppRouter({
       GoRoute(
         path: '/web_shell',
         name: 'web_shell',
-        pageBuilder: (context, state) =>
-            CupertinoPage(key: state.pageKey, child: const WebShellBootstrap()),
+        pageBuilder: (context, state) => CupertinoPage(
+          key: state.pageKey,
+          child: WebShellRoute(
+            uri: state.uri,
+            child: const WebShellBootstrap(),
+          ),
+        ),
       ),
 
       // ==================== 会话列表 ====================

@@ -1,0 +1,57 @@
+# attachmentManager namespace — de-DE
+# DSN-06 gap fill 2026-11-16: machine-candidate translations (owner decision owner-batch-20261116).
+allChannels: "Alle Kanäle" # machine-candidate 2026-11-16
+allGroups: "Alle Gruppen" # machine-candidate 2026-11-16
+allPeople: "Alle Uploader" # machine-candidate 2026-11-16
+cacheAction: "Temporären Cache leeren" # machine-candidate 2026-11-16
+cacheConfirmBody: "Der temporäre Download- und Vorschauspeicher wird geleert. Chatverläufe, Verschlüsselungsschlüssel und Unternehmensanhänge in der Cloud werden nicht gelöscht. Einige Inhalte müssen beim erneuten Ansehen erneut geladen werden." # machine-candidate 2026-11-16
+cacheConfirmTitle: "Temporären Cache leeren?" # machine-candidate 2026-11-16
+cacheFailed: "Leeren des Caches fehlgeschlagen. Bitte später erneut versuchen" # machine-candidate 2026-11-16
+centerHint: "Durchsucht Anhänge aus Gruppen, Kanälen und Face-to-face-Notizen des aktuellen Arbeitsbereichs, die Sie sehen dürfen." # machine-candidate 2026-11-16
+clearFilters: "Filter zurücksetzen" # machine-candidate 2026-11-16
+clearFiltersAction: "Filter zurücksetzen" # machine-candidate 2026-11-16
+dateRange: "Zeitraum" # machine-candidate 2026-11-16
+emptyHint: "Versuchen Sie andere Suchbegriffe oder Filter" # machine-candidate 2026-11-16
+emptyLocal: "Keine auf diesem Gerät sichtbaren Anhänge" # machine-candidate 2026-11-16
+emptySearch: "Keine passenden Anhänge gefunden" # machine-candidate 2026-11-16
+enterpriseBoundary: "Anhänge mit der Markierung „Unternehmens-Aufbewahrung“ verbleiben in der Unternehmens-Cloud und werden beim Leeren des Gerätecaches oder Löschen von Chatverläufen nicht entfernt. Die Sichtbarkeit richtet sich weiterhin nach den Berechtigungen der ursprünglichen Gruppe, des Kanals oder der Face-to-face-Notiz." # machine-candidate 2026-11-16
+enterpriseHint: "Wählen Sie eine Gruppe im aktuellen Arbeitsbereich, um Cloud-Dateien zu sehen." # machine-candidate 2026-11-16
+enterpriseRetained: "Unternehmens-Aufbewahrung" # machine-candidate 2026-11-16
+enterpriseTitle: "Unternehmensanhänge" # machine-candidate 2026-11-16
+enterpriseUnmanaged: "Nicht aufbewahrt" # machine-candidate 2026-11-16
+governanceAction: "Anhang-Governance" # machine-candidate 2026-11-16
+governanceExtendAction: "Aufbewahrung verlängern" # machine-candidate 2026-11-16
+governanceExtendUntil: "Verlängern bis" # machine-candidate 2026-11-16
+governanceHoldAction: "Legal Hold setzen" # machine-candidate 2026-11-16
+governanceHoldReason: "Hold-Grund (max. 200 Zeichen)" # machine-candidate 2026-11-16
+governancePhysicalPending: "Eine genehmigte Bereinigung bedeutet nicht, dass die Datei bereits gelöscht ist. Der echte Fortschritt ergibt sich aus dem Bereinigungsstatus." # machine-candidate 2026-11-16
+governancePurgeAction: "Bereinigung genehmigen" # machine-candidate 2026-11-16
+governancePurgeApproved: "Bereinigung genehmigt" # machine-candidate 2026-11-16
+governancePurgeConfirm: "Bereinigung dieses Anhangs genehmigen? Danach lässt sich der Governance-Zustand nicht wiederherstellen. Die Bereinigung beginnt erst, wenn alle Referenz-, Upload- und Verarbeitungsschutzbedingungen erfüllt sind." # machine-candidate 2026-11-16
+governanceRefreshConflict: "Die Datenversion hat sich geändert. Bitte aktualisieren, prüfen und erneut senden." # machine-candidate 2026-11-16
+governanceReleaseHoldAction: "Legal Hold aufheben" # machine-candidate 2026-11-16
+groupSource: "Gruppenanhänge" # machine-candidate 2026-11-16
+loadFailed: "Laden der Anhänge fehlgeschlagen. Bitte erneut versuchen" # machine-candidate 2026-11-16
+loadMore: "Mehr laden" # machine-candidate 2026-11-16
+localOnly: "Lokaler Nachrichtenindex" # machine-candidate 2026-11-16
+moreFailed: "Weitere Anhänge konnten nicht geladen werden. Bitte später erneut versuchen." # machine-candidate 2026-11-16
+openSource: "Ursprungsnachricht anzeigen" # machine-candidate 2026-11-16
+organizationCenterHint: "Durchsucht Anhänge im Unternehmen, die Sie sehen dürfen, einschließlich Face-to-face-Notizen ohne Arbeitsbereich." # machine-candidate 2026-11-16
+personSearch: "Name, Konto oder Nummer des Uploaders" # machine-candidate 2026-11-16
+personalBoundary: "Auf diesem Gerät sichtbar bedeutet nicht, dass ein Cloud-Backup existiert. Das Leeren des Caches behält den Nachrichtenindex; nach dem Löschen des Chatverlaufs wird nichts automatisch wiederhergestellt. Verschlüsselte Inhalte erfordern weiterhin verfügbare Schlüssel." # machine-candidate 2026-11-16
+personalHint: "Findet Anhänge anhand des lokalen Chatverlaufs. Tippen Sie auf eine Datei, um zur Ursprungsnachricht zu springen." # machine-candidate 2026-11-16
+personalTitle: "Anhänge auf diesem Gerät" # machine-candidate 2026-11-16
+resultCount: "${count} Anhänge insgesamt" # machine-candidate 2026-11-16
+retryAction: "Erneut versuchen" # machine-candidate 2026-11-16
+searchGroupsHint: "Gruppen suchen" # machine-candidate 2026-11-16
+searchHint: "Anhangnamen suchen" # machine-candidate 2026-11-16
+selectChannelTitle: "Kanal wählen" # machine-candidate 2026-11-16
+selectGroupTitle: "Gruppe wählen" # machine-candidate 2026-11-16
+sourceAll: "Alle Quellen" # machine-candidate 2026-11-16
+sourceChannels: "Kanäle" # machine-candidate 2026-11-16
+sourceGroups: "Gruppen" # machine-candidate 2026-11-16
+sourceTalkRecords: "Face-to-face-Notizen" # machine-candidate 2026-11-16
+storageHint: "Hier verwalten Sie die Gerätebelegung. Zum Suchen und Ansehen von Anhängen verwenden Sie bitte die Anhänge auf diesem Gerät." # machine-candidate 2026-11-16
+talkRecordSourceHint: "Face-to-face-Notizen ansehen. Wiedergabe und Export richten sich weiterhin nach den Berechtigungen der Notiz." # machine-candidate 2026-11-16
+title: "Anhänge" # machine-candidate 2026-11-16
+unavailableSource: "Die Quellunterhaltung existiert nicht mehr. Der Anhang kann nicht sicher geöffnet werden" # machine-candidate 2026-11-16

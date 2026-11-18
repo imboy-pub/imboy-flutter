@@ -1,3 +1,5 @@
+import 'package:imboy/component/http/web_writer_http_adapter.dart';
+
 import 'dart:io';
 
 import 'package:dio/dio.dart';
@@ -79,6 +81,8 @@ class E2EEBackupUrlDownloadService {
         headers: const {'user-agent': 'IMBoy-E2EE-Backup-Import/1.0'},
       ),
     );
+
+    guardWebWriterDio(dio);
 
     // 流式下载：在 onReceiveProgress 中累计字节，超限即取消请求，
     // 避免大文件先全量读入内存再拒绝（OOM 风险）。

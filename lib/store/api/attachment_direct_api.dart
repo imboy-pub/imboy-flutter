@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
 import 'dart:io' as io;
+import 'dart:typed_data';
 
 import 'package:crypto/crypto.dart' as crypto;
 import 'package:dio/dio.dart' show CancelToken;
@@ -12,29 +13,21 @@ import 'package:imboy/component/http/http_client.dart';
 import 'package:imboy/component/http/http_response.dart';
 import 'package:imboy/store/api/attachment_api.dart';
 
-part 'attachment_direct_transport.dart';
+import 'package:imboy/component/upload/browser_direct_put_stub.dart'
+    if (dart.library.js_interop) 'package:imboy/component/upload/browser_direct_put_web.dart'
+    as browser_put;
 
-/// direct-v1（协议 docs/architecture/attachment-direct-transfer-v1-protocol.md，
-/// backend attachment_direct_logic）的客户端实现。
-///
-/// 与 V5 [AttachmentApi.uploadViaPresign]（Uint8List 整文件内存路径）并行：
-///   register（RESERVED，无写能力）→ declare（expected 冻结）→ grant（COMMIT
-///   后签发 staging s3_put 描述符）→ fixed-length 流式 PUT（required_headers
-///   仅 Content-Type + x-amz-checksum-sha256，无业务凭据）→ finalize（服务端
-///   单次 Copy dispatch + proof + winner pin）→ CONFIRMED。
-///
-/// 安全合同（客户端侧）：
-///   * required_headers 原样发送、不增不减——grant URL 是签名绑定
-///     （content-type;host;x-amz-checksum-sha256），任何额外 x-amz-*/ACL/copy-source
-///     头都会破坏签名或越权（T07）；
-///   * 无业务 JWT/Cookie 进存储 PUT（T29：业务 Bearer 仅送本实例 API）；
-///   * 大文件全程不 readAsBytes：hash 与 PUT 均为 File.openRead 流式（R04）；
-///   * grant 是单次写授权：PUT 失败/取消后不得重放同一 URL，重试只能
-///     renew_grant（新 attempt + 新 target，I05）；重试上限 3（服务端预算硬门）；
-///   * finalize 返回 UNKNOWN_QUARANTINED（服务端封存中）时不得把附件发出，
-///     重试仍走新 attempt；
-///   * 恢复以服务端 status 为权威（本地 journal 仅加速定位会话，epoch=uid
-///     不符即拒绝，E10）。
+part 'attachment_direct_transport.dart';
+part 'attachment_direct_source.dart';
+part 'attachment_direct_source_engine.dart';
+part 'attachment_direct_confirmation.dart';
+
+/// direct-v1 客户端：register → declare → grant → PUT → finalize → CONFIRMED。
+/// [AttachmentApi.uploadViaPresign] 的生产出口复用本状态机。
+/// 原生 File 与浏览器字节/stream source 共用状态机；原生 hash/PUT 保持流式。
+/// PUT 只带 required_headers，不携带业务 JWT/Cookie，也不跟随重定向。
+/// 失败或取消不重放旧 URL；renew 新 attempt，服务端预算为 3。
+/// UNKNOWN 不进入业务 outbox；恢复以 status 和原账号/材料为准。
 
 /// direct-v1 会话请求 seam（默认 [HttpClient.client]；测试注入 fake）。
 typedef DirectSessionFn = Future<IMBoyHttpResponse> Function(
@@ -42,13 +35,23 @@ typedef DirectSessionFn = Future<IMBoyHttpResponse> Function(
   Map<String, dynamic>? body,
 });
 
-/// fixed-length 流式 PUT seam（默认 [_ioFilePut]；测试注入 fake 捕获 headers）。
+/// 保留原生 File PUT seam 的既有签名；默认运输由平台 source 适配。
 typedef DirectFilePutFn = Future<void> Function(
   String url,
   io.File file,
   int length,
   Map<String, String> headers,
 );
+
+/// source PUT seam；取消令牌与真实字节进度由平台运输接收。
+typedef DirectSourcePutFn = Future<void> Function(
+  String url,
+  DirectUploadSource source,
+  int length,
+  Map<String, String> headers, {
+  CancelToken? cancelToken,
+  void Function(int sent, int total)? onProgress,
+});
 
 /// direct-v1 阶段检查点（持久化由调用方决定；材料只有明文文件本身，
 /// 无密钥类敏感值——与 V5 sealed 检查点不同，不进安全存储）。
@@ -151,7 +154,7 @@ Future<String> sha256OfFile(io.File file) async {
   return digest.toString();
 }
 
-/// direct-v1 上传编排（文件化全链）。
+/// direct-v1 上传编排（原生文件与浏览器字节流共用）。
 class DirectAttachmentApi {
   /// PUT 重试上限：与协议 §1.3 每 session 最大写 attempt 数一致（服务端
   /// fn_dv1_attempt_create 23514 硬门为最终防线）。
@@ -254,207 +257,62 @@ class DirectAttachmentApi {
     Future<void> Function(DirectCheckpoint event)? checkpoint,
   }) async {
     _checkCancelled(cancelToken);
-    if (mime == 'image/jpg') mime = 'image/jpeg';
-    final int size = file.lengthSync();
-    final String? validationError = AttachmentApi.validateUpload(size, mime);
-    if (validationError != null) {
-      throw Exception(validationError);
-    }
-
-    Future<IMBoyHttpResponse> session(
-      String action, {
-      Map<String, dynamic>? body,
-    }) async {
-      _checkCancelled(cancelToken);
-      final String path = '/api/v1/attachment/direct/$action';
-      final response = sessionFn != null
-          ? await sessionFn(path, body: body)
-          : await HttpClient.client.post(
-              path,
-              data: body,
-              cancelToken: cancelToken,
-            );
-      _checkCancelled(cancelToken);
-      return response;
-    }
-
-    // 1. register（RESERVED，无写能力/R08）：同 client_upload_id 同声明幂等。
-    String registeredState = '';
-    final String objectKey = await registerSession(
+    return uploadSource(
+      _fileUploadSource(file),
       fileName: fileName,
+      mime: mime,
       scope: scope,
       scopeRef: scopeRef,
       clientUploadId: clientUploadId,
       cipher: cipher,
       purpose: purpose,
       anchorMsgId: anchorMsgId,
+      registerCancelHandler: registerCancelHandler,
       sessionFn: sessionFn,
       cancelToken: cancelToken,
-      onState: (state) => registeredState = state,
+      onProgress: onProgress,
+      checkpoint: checkpoint,
+      putFn: _filePutAdapter(file, putFn),
     );
-    _checkCancelled(cancelToken, objectKey);
-    await checkpoint?.call(
-      DirectCheckpoint(
-        DirectCheckpointStage.registered,
-        objectKey: objectKey,
-        clientUploadId: clientUploadId,
-      ),
-    );
-
-    if (registeredState == stateConfirmed ||
-        registeredState == 'GRANTED' ||
-        registeredState == stateFinalizing) {
-      return resumeDirect(
-        objectKey: objectKey,
-        file: file,
-        mime: mime,
-        sessionFn: sessionFn,
-        cancelToken: cancelToken,
-        putFn: putFn,
-        onProgress: onProgress,
-        checkpoint: checkpoint,
-      );
-    }
-
-    if (registeredState != 'RESERVED' && registeredState != 'DECLARED') {
-      throw StateError('direct session terminal: $registeredState');
-    }
-
-    // 2. declare：expected 冻结（同值幂等；异值 expected_conflict）。
-    final String sha256Hex = await sha256OfFile(file);
-    final IMBoyHttpResponse decl = await session(
-      'declare',
-      body: <String, dynamic>{
-        'object_key': objectKey,
-        'sha256': sha256Hex,
-        'size_bytes': size,
-        'mime': mime,
-      },
-    );
-    if (!decl.ok) {
-      throw Exception('direct declare 失败: code=${decl.code} msg=${decl.msg}');
-    }
-    await checkpoint?.call(
-      DirectCheckpoint(DirectCheckpointStage.declared, objectKey: objectKey),
-    );
-
-    // 3..N grant → 流式 PUT → finalize；失败/隔离只能 renew 新 attempt。
-    int attemptId = 0;
-    for (int round = 1; round <= maxAttempts; round++) {
-      final IMBoyHttpResponse grantResp = round == 1
-          ? await session(
-              'grant',
-              body: <String, dynamic>{
-                'object_key': objectKey,
-                'sha256': sha256Hex,
-              },
-            )
-          : await session(
-              'renew',
-              body: <String, dynamic>{
-                'object_key': objectKey,
-                'sha256': sha256Hex,
-              },
-            );
-      if (!grantResp.ok) {
-        // 预算耗尽等：把信封语义上抛（40904 attempt_budget_exhausted）。
-        throw Exception(
-          'direct grant 失败: code=${grantResp.code} msg=${grantResp.msg}',
-        );
-      }
-      final DirectGrantDescriptor grant = grantOf(grantResp.payload);
-      attemptId = grant.attemptId;
-      await checkpoint?.call(
-        DirectCheckpoint(
-          DirectCheckpointStage.granted,
-          objectKey: objectKey,
-          attemptId: attemptId,
-        ),
-      );
-
-      _checkCancelled(cancelToken, objectKey);
-      bool cancelled = false;
-      bool putFailed = false;
-      try {
-        final Future<void> putting = putFn != null
-            ? putFn(grant.url, file, size, grant.requiredHeaders)
-            : _ioFilePut(
-                grant.url,
-                file,
-                size,
-                grant.requiredHeaders,
-                onProgress: onProgress,
-                cancelToken: cancelToken,
-              );
-        registerCancelHandler?.call();
-        await putting;
-        _checkCancelled(cancelToken, objectKey);
-      } on DirectUploadCancelled {
-        cancelled = true;
-      } catch (_) {
-        _checkCancelled(cancelToken, objectKey);
-        // 普通 PUT 失败（网络/5xx）：该 attempt 已 dispatch、无 closed 证据，
-        // 不得 finalize 它；URL 是单次授权，重放同一 URL 无意义（I05）——
-        // 直接 renew 新 attempt。预算由服务端 23514 硬门兜底。
-        putFailed = round != maxAttempts;
-        if (!putFailed) rethrow;
-      }
-      if (cancelled) {
-        // 本地取消：不 finalize（服务端会话超期由 sweep 收敛，物理残留由
-        // step-7 cleanup 账本收敛）。重试必须新 attempt。
-        throw DirectUploadCancelled(objectKey);
-      }
-      if (putFailed) {
-        continue;
-      }
-      await checkpoint?.call(
-        DirectCheckpoint(
-          DirectCheckpointStage.putDone,
-          objectKey: objectKey,
-          attemptId: attemptId,
-        ),
-      );
-
-      final IMBoyHttpResponse fin = await session(
-        'finalize',
-        body: <String, dynamic>{
-          'object_key': objectKey,
-          'attempt_id': attemptId,
-        },
-      );
-      if (fin.ok) {
-        final String state = str(fin.payload, 'state');
-        // confirmed checkpoint 只对应真 CONFIRMED——UNKNOWN 封存态（FINALIZING）
-        // 发 confirmed 会让持久化该 checkpoint 的调用方误判"已确认"而发出
-        // 未证明附件，与下方 quarantined 标志自相矛盾。
-        if (state == stateConfirmed) {
-          await checkpoint?.call(
-            DirectCheckpoint(
-              DirectCheckpointStage.confirmed,
-              objectKey: objectKey,
-              attemptId: attemptId,
-            ),
-          );
-        }
-        _checkCancelled(cancelToken, objectKey);
-        return DirectUploadResult(
-          objectKey: objectKey,
-          state: state,
-          attemptId: attemptId,
-          // UNKNOWN_QUARANTINED：本次 attempt 已被服务端隔离，调用方不得
-          // 把附件发出（重试走 resumeDirect/新 attempt）
-          quarantined: str(fin.payload, 'outcome') == 'UNKNOWN_QUARANTINED',
-        );
-      }
-      // 非确认信封：rejected（可重试新 attempt）或预算耗尽（40904 上抛）。
-      final int code = fin.code;
-      final bool retryable = code == 409; // 409 attempt_rejected/illegal_state
-      if (!retryable || round == maxAttempts) {
-        throw Exception('direct finalize 失败: code=$code msg=${fin.msg}');
-      }
-    }
-    throw StateError('direct upload exhausted attempts (objectKey=$objectKey)');
   }
+
+  /// 使用可重开字节流，复用 register/declare/grant/PUT/finalize 状态机。
+  static Future<DirectUploadResult> uploadSource(
+    DirectUploadSource source, {
+    required String fileName,
+    required String mime,
+    String scope = 'private',
+    String? scopeRef,
+    String? clientUploadId,
+    String? cipher,
+    String purpose = 'attachment',
+    String? anchorMsgId,
+
+    /// 非 null 时本地取消该 attempt（AbortSignal 语义）：中断流并抛
+    /// [DirectUploadCancelled]，不调 finalize。
+    VoidCallback? registerCancelHandler,
+    DirectSessionFn? sessionFn,
+    CancelToken? cancelToken,
+    DirectSourcePutFn? putFn,
+    void Function(int sent, int total)? onProgress,
+    Future<void> Function(DirectCheckpoint event)? checkpoint,
+  }) => _uploadDirectSource(
+    source,
+    fileName: fileName,
+    mime: mime,
+    scope: scope,
+    scopeRef: scopeRef,
+    clientUploadId: clientUploadId,
+    cipher: cipher,
+    purpose: purpose,
+    anchorMsgId: anchorMsgId,
+    registerCancelHandler: registerCancelHandler,
+    sessionFn: sessionFn,
+    cancelToken: cancelToken,
+    onProgress: onProgress,
+    checkpoint: checkpoint,
+    putFn: putFn,
+  );
 
   /// 查询会话当前状态（恢复第一跳；RESERVED/DECLARED/GRANTED/FINALIZING/
   /// CONFIRMED 等服务端权威状态）。网络/信封失败抛异常。
@@ -531,133 +389,38 @@ class DirectAttachmentApi {
     Future<void> Function(DirectCheckpoint event)? checkpoint,
   }) async {
     _checkCancelled(cancelToken, objectKey);
-    if (mime == 'image/jpg') mime = 'image/jpeg';
-    final int size = file.lengthSync();
-    Future<IMBoyHttpResponse> session(
-      String action, {
-      Map<String, dynamic>? body,
-    }) async {
-      _checkCancelled(cancelToken);
-      final String path = '/api/v1/attachment/direct/$action';
-      final response = sessionFn != null
-          ? await sessionFn(path, body: body)
-          : await HttpClient.client.post(
-              path,
-              data: body,
-              cancelToken: cancelToken,
-            );
-      _checkCancelled(cancelToken);
-      return response;
-    }
-
-    const String statusPath = '/api/v1/attachment/direct/status';
-    final Map<String, dynamic> statusQuery = {'object_key': objectKey};
-    final IMBoyHttpResponse st = sessionFn != null
-        ? await sessionFn(statusPath, body: statusQuery)
-        : await HttpClient.client.get(
-            statusPath,
-            queryParameters: statusQuery,
-            cancelToken: cancelToken,
-          );
-    _checkCancelled(cancelToken, objectKey);
-    if (!st.ok) {
-      throw Exception('direct status 失败: code=${st.code} msg=${st.msg}');
-    }
-    final String state = str(st.payload, 'state');
-    if (state != stateConfirmed &&
-        state != 'GRANTED' &&
-        state != stateFinalizing) {
-      throw StateError('direct session terminal: $state');
-    }
-    final payload = IMBoyHttpResponse.payloadAsMap(st.payload);
-    final rawExpected = payload['expected'];
-    final dynamic decoded = rawExpected is String
-        ? jsonDecode(rawExpected)
-        : rawExpected;
-    final sha256Hex = await sha256OfFile(file);
-    _checkCancelled(cancelToken, objectKey);
-    if (decoded is! Map ||
-        decoded['sha256'] != sha256Hex ||
-        decoded['size_bytes']?.toString() != size.toString() ||
-        decoded['mime'] != mime) {
-      throw StateError('direct upload does not match local file');
-    }
-    if (state == stateConfirmed) {
-      return DirectUploadResult(
-        objectKey: objectKey,
-        state: state,
-        attemptId: 0,
-      );
-    }
-    final int used = attemptCount(st.payload);
-    if (used >= maxAttempts) {
-      throw StateError('direct attempt budget exhausted (remote)');
-    }
-    final IMBoyHttpResponse renew = await session(
-      'renew',
-      body: <String, dynamic>{'object_key': objectKey, 'sha256': sha256Hex},
-    );
-    if (!renew.ok) {
-      throw Exception('direct renew 失败: code=${renew.code} msg=${renew.msg}');
-    }
-    final DirectGrantDescriptor grant = grantOf(renew.payload);
-    await checkpoint?.call(
-      DirectCheckpoint(
-        DirectCheckpointStage.granted,
-        objectKey: objectKey,
-        attemptId: grant.attemptId,
-      ),
-    );
-    _checkCancelled(cancelToken, objectKey);
-    if (putFn != null) {
-      await putFn(grant.url, file, size, grant.requiredHeaders);
-    } else {
-      await _ioFilePut(
-        grant.url,
-        file,
-        size,
-        grant.requiredHeaders,
-        onProgress: onProgress,
-      );
-    }
-    _checkCancelled(cancelToken, objectKey);
-    await checkpoint?.call(
-      DirectCheckpoint(
-        DirectCheckpointStage.putDone,
-        objectKey: objectKey,
-        attemptId: grant.attemptId,
-      ),
-    );
-    final IMBoyHttpResponse fin = await session(
-      'finalize',
-      body: <String, dynamic>{
-        'object_key': objectKey,
-        'attempt_id': grant.attemptId,
-      },
-    );
-    if (!fin.ok) {
-      throw Exception('direct finalize 失败: code=${fin.code} msg=${fin.msg}');
-    }
-    // 与 uploadFile 同规则：confirmed checkpoint 只对应真 CONFIRMED
-    //（UNKNOWN 封存态不得让调用方误判"已确认"）。
-    if (str(fin.payload, 'state') == stateConfirmed) {
-      await checkpoint?.call(
-        DirectCheckpoint(
-          DirectCheckpointStage.confirmed,
-          objectKey: objectKey,
-          attemptId: grant.attemptId,
-        ),
-      );
-    }
-    _checkCancelled(cancelToken, objectKey);
-    return DirectUploadResult(
+    return resumeSource(
       objectKey: objectKey,
-      state: str(fin.payload, 'state'),
-      attemptId: grant.attemptId,
-      // 与 uploadFile 同合同：UNKNOWN 封存态不得把附件发出
-      quarantined: str(fin.payload, 'outcome') == 'UNKNOWN_QUARANTINED',
+      mime: mime,
+      sessionFn: sessionFn,
+      cancelToken: cancelToken,
+      onProgress: onProgress,
+      checkpoint: checkpoint,
+      source: _fileUploadSource(file),
+      putFn: _filePutAdapter(file, putFn),
     );
   }
+
+  /// 使用相同状态机恢复可重开的浏览器或原生材料。
+  static Future<DirectUploadResult> resumeSource({
+    required String objectKey,
+    required DirectUploadSource source,
+    required String mime,
+    DirectSessionFn? sessionFn,
+    CancelToken? cancelToken,
+    DirectSourcePutFn? putFn,
+    void Function(int sent, int total)? onProgress,
+    Future<void> Function(DirectCheckpoint event)? checkpoint,
+  }) => _resumeDirectSource(
+    objectKey: objectKey,
+    mime: mime,
+    sessionFn: sessionFn,
+    cancelToken: cancelToken,
+    onProgress: onProgress,
+    checkpoint: checkpoint,
+    source: source,
+    putFn: putFn,
+  );
 
   static DirectGrantDescriptor grantOf(dynamic payload) {
     final dynamic g = payload is Map ? payload['grant'] : null;

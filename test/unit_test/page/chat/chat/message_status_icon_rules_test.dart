@@ -19,6 +19,31 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/page/chat/chat/utils/message_status_icon_rules.dart';
 
 void main() {
+  test('结果待确认不提供重试，普通失败只允许本人重试', () {
+    const held = TextMessage(
+      id: 'held',
+      authorId: 'owner',
+      text: '保留原文',
+      status: MessageStatus.error,
+      metadata: {'_imboy_local_status': 42},
+    );
+    const failed = TextMessage(
+      id: 'failed',
+      authorId: 'owner',
+      text: '保留原文',
+      status: MessageStatus.error,
+    );
+    expect(isMessageOutcomeUnknown(held), isTrue);
+    expect(
+      isMessageOutcomeUnknown(held.copyWith(status: MessageStatus.sent)),
+      isFalse,
+    );
+    expect(canOfferMessageRetry(held, 'owner'), isFalse);
+    expect(canOfferMessageRetry(failed, 'owner'), isTrue);
+    expect(canOfferMessageRetry(failed, 'other'), isFalse);
+    expect(canOfferMessageRetry(failed, ''), isFalse);
+  });
+
   group('resolveMessageStatusIcon', () {
     test('sending → access_time / textSecondary', () {
       final r = resolveMessageStatusIcon(MessageStatus.sending);

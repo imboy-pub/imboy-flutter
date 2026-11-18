@@ -13,6 +13,10 @@
 /// 单元测试（FakeSseClient + fakeAsync 即可全覆盖）。
 library;
 
+import 'package:imboy/service/web_writer_gate.dart';
+import 'package:imboy/service/app_logger.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
+
 import 'dart:async';
 
 import 'package:imboy/page/passport/qr_login_response_rules.dart';
@@ -34,6 +38,7 @@ class QrSseSession {
   StreamSubscription<String>? _framesSub;
   StreamSubscription<Object>? _errorsSub;
   Timer? _watcher;
+  StreamSubscription<void>? _writerFailureSub;
   bool _attemptFailed = false;
   int _silentSeconds = 0;
   bool _stopped = false;
@@ -43,20 +48,30 @@ class QrSseSession {
   ///
   /// gracePeriodSeconds 透传给 [shouldFallbackToPolling]，默认 3 秒。
   Future<void> start(String url, {int gracePeriodSeconds = 3}) async {
+    requireWebWriter();
+    if (kIsWeb) {
+      _writerFailureSub = webWriterFailures.listen((_) {
+        unawaited(
+          stop().catchError((Object error) {
+            AppLogger.warning('QR watcher pause failed: ${error.runtimeType}');
+          }),
+        );
+      });
+    }
     // 1. 先订阅，避免 connect 后立即收到的 frame 丢失
     _framesSub = client.frames.listen((raw) {
-      if (_stopped) return;
+      if (_stopped || !isWebWriterReady) return;
       _silentSeconds = 0; // frame 重置静默计数
       onEvent(parseSseFrame(raw));
     });
     _errorsSub = client.errors.listen((_) {
-      if (_stopped) return;
+      if (_stopped || !isWebWriterReady) return;
       _attemptFailed = true;
     });
 
     // 2. watcher：每秒 tick，达条件触发 fallback
     _watcher = Timer.periodic(const Duration(seconds: 1), (_) {
-      if (_stopped || _fallbackFired) return;
+      if (_stopped || _fallbackFired || !isWebWriterReady) return;
       _silentSeconds += 1;
       if (shouldFallbackToPolling(
         sseConnected: client.isOpen,
@@ -87,7 +102,7 @@ class QrSseSession {
   /// 设计：仅重置 `_silentSeconds`，不重启 watcher / 不重连 SSE
   /// （SSE 连接由浏览器层维持，重连决策交给 EventSource onerror 路径）。
   void onResume() {
-    if (_stopped) return;
+    if (_stopped || !isWebWriterReady) return;
     _silentSeconds = 0;
   }
 
@@ -96,6 +111,8 @@ class QrSseSession {
     _stopped = true;
     _watcher?.cancel();
     _watcher = null;
+    await _writerFailureSub?.cancel();
+    _writerFailureSub = null;
     await _framesSub?.cancel();
     _framesSub = null;
     await _errorsSub?.cancel();

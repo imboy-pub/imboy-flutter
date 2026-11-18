@@ -155,7 +155,6 @@ class EntrypointTest(unittest.TestCase):
                 script = (ROOT / 'scripts' / name).read_text(encoding='utf-8')
                 self.assertNotIn('XWE6R19916004085', script)
                 self.assertNotRegex(script, r'\b(?:flutter|patrol)\s+test\b|\badb\s+-s\b')
-
     def run_web_shell(self, arguments=(), environment=None, *, assets=True, inside_artifacts=False):
         with tempfile.TemporaryDirectory() as directory:
             base = Path(directory)
@@ -163,6 +162,7 @@ class EntrypointTest(unittest.TestCase):
             scripts = project / 'scripts'
             scripts.mkdir(parents=True)
             shutil.copyfile(ROOT / 'scripts/verify_web_shell.sh', scripts / 'verify_web_shell.sh')
+            shutil.copyfile(ROOT / 'scripts/check_web_delivery_config.py', scripts / 'check_web_delivery_config.py')
             if assets:
                 asset_dir = project / 'web/pkg'
                 asset_dir.mkdir(parents=True)
@@ -177,7 +177,7 @@ from pathlib import Path
 name, args = Path(sys.argv[0]).name, sys.argv[1:]
 with open(os.environ['WEB_FIXTURE_CALLS'], 'a') as stream:
     stream.write(json.dumps([name, *args]) + '\\n')
-if name == 'python3' and args[0] == '-c':
+if name == 'python3' and (args[0] == '-c' or args[0].endswith('check_web_delivery_config.py')):
     os.execv(sys.executable, [sys.executable, *args])
 if name == 'uname':
     print(os.environ.get('WEB_FIXTURE_HOST', 'Linux'))
@@ -208,7 +208,6 @@ raise SystemExit(code)
             calls = [json.loads(line) for line in calls_file.read_text().splitlines()] if calls_file.exists() else []
             logs = sorted(path.name for path in evidence.glob('*.log'))
             return result, calls, logs
-
     def test_web_shell_dry_run_precedes_sdk_assets_analysis_and_build(self):
         for host, platform in (('Linux', 'linux'), ('Darwin', 'macos')):
             with self.subTest(host=host):
@@ -260,7 +259,7 @@ raise SystemExit(code)
         self.assertEqual([call[1] for call in calls if call[0] == 'flutter'], ['analyze', 'build'])
         self.assertEqual(sum('execution-run' in call for call in calls), 1)
         self.assertIn('execution-run', calls[-1])
-        self.assertEqual(logs, ['analyze.log', 'build.log', 'execution.log', 'sdk.log'])
+        self.assertEqual(logs, ['analyze.log', 'build.log', 'delivery-config.log', 'execution.log', 'sdk.log'])
 
     def test_web_shell_rejects_artifacts_inside_repository_before_execution(self):
         result, calls, logs = self.run_web_shell(['--quick', '--no-server'], inside_artifacts=True)

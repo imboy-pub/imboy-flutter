@@ -87,6 +87,7 @@ reply: 返信
 resendCode: 認証コードを再送
 revoke: 送信取消
 scanQrCodeBusinessCard: QRコード名刺をスキャン
+scanQrEntry: QRコードをスキャン
 privateChat: "個人チャット"
 sendFriendRequest: 友達追加リクエストを送信
 sendMsgRejected: メッセージは送信されましたが、相手に拒否されました。
@@ -179,7 +180,7 @@ webFeatureE2EE: エンドツーエンド暗号化
 webFeatureE2EEDesc: すべてのメッセージをエンドツーエンドで暗号化し、プライバシーを保護
 webFeatureFileTransfer: ファイル転送
 webFeatureFileTransferDesc: ドラッグ&ドロップでファイルを送信、あらゆる形式に対応
-webQRStatusWaiting: ImBoyスマートフォン版を開く ＞ 設定 ＞ スキャン
+webQRStatusWaiting: ImBoyスマートフォン版を開く ＞ メッセージ ＞ 右上のスキャン
 webQRStatusScanned: スマートフォンで「ログインを確認」をタップしてください
 webQRStatusVerifying: 確認中...
 webQRStatusExpired: 更新ボタンを押して再度スキャンしてください
@@ -278,3 +279,8 @@ fileWithNameSize(name,size): "$name（$size）"
 voiceDurationSeconds(seconds): "$seconds秒"
 bundleInvalidOrEmpty: 無効または空のチャット履歴
 bundleForwardedBy(name): "$name が転送"
+chatStatusOutcomeUnknown: 今回の送信は拒否されました。送信結果は未確認です
+
+# ---- DSN-06 gap fill (machine-candidate 2026-11-16) ----
+e2eeMsgBeforeDevice: "このメッセージはこのデバイスの参加前に送信されたため、このデバイスでは表示できません" # machine-candidate 2026-11-16
+e2eeMsgBeforeDeviceTapHint: "このメッセージはこのデバイスを含めずに暗号化されています（例: 機種変更前の履歴）。ここでは復号できません。このデバイスで送受信する新しいメッセージには影響しません" # machine-candidate 2026-11-16

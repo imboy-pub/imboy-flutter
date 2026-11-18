@@ -28,6 +28,7 @@ import 'package:imboy/service/websocket_status_provider.dart';
 import 'package:imboy/component/ui/glass_bottom_bar.dart';
 import 'package:imboy/component/dialog/e2ee_recovery_guide_dialog.dart';
 import 'package:imboy/service/storage.dart';
+import 'package:imboy/service/auth_session_scope.dart';
 import 'package:imboy/theme/default/app_breakpoints.dart';
 import 'package:imboy/i18n/strings.g.dart';
 
@@ -72,12 +73,28 @@ bool shouldUseCollapsibleDesktopNavigation({
   return usesDesktopNavigation(platform: platform, isWeb: isWeb);
 }
 
+bool personalChannelTabAvailable() =>
+    AppFeatureRegistry.isEnabled(FeatureKeys.channel) &&
+    compiledChannelListPage() != null;
+
 class BottomNavigationPage extends ConsumerStatefulWidget {
-  const BottomNavigationPage({super.key, this.restoredIndex});
+  const BottomNavigationPage({
+    super.key,
+    this.restoredIndex,
+    this.onDestinationSelected,
+    this.content,
+  }) : assert(content == null || onDestinationSelected != null);
 
   /// A live resize restores the active destination instead of replaying a
   /// previously consumed URL query. Ordinary entry still honors that query.
   final int? restoredIndex;
+
+  /// When supplied, restoredIndex is controlled by the canonical route owner.
+  final ValueChanged<int>? onDestinationSelected;
+
+  /// Canonical Web navigation can host its single shared list tree.
+  /// Uncontrolled Native/legacy entries retain the original PageView.
+  final Widget? content;
 
   @override
   ConsumerState<BottomNavigationPage> createState() =>
@@ -99,7 +116,7 @@ class _BottomNavigationPageState extends ConsumerState<BottomNavigationPage> {
 
   bool _isTabEnabled(String entry) {
     if (entry == 'channel_tab') {
-      return AppFeatureRegistry.isEnabled(FeatureKeys.channel);
+      return personalChannelTabAvailable();
     }
     final manifest = AppManifestService.manifest;
     if (manifest != null) {
@@ -149,6 +166,19 @@ class _BottomNavigationPageState extends ConsumerState<BottomNavigationPage> {
     super.didChangeDependencies();
     if (_initialIndexApplied) return;
     _initialIndexApplied = true;
+    if (widget.onDestinationSelected != null) {
+      final session = authSessionReader.current;
+      final path = GoRouterState.of(context).uri.path;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted &&
+            authSessionReader.current == session &&
+            GoRouter.of(context).routeInformationProvider.value.uri.path ==
+                path) {
+          _maybeShowE2EERecoveryGuide();
+        }
+      });
+      return;
+    }
 
     final navigationBeforeRestore = ref.read(bottomNavigationProvider);
     int initialIndex = _normalizeIndex(
@@ -197,6 +227,33 @@ class _BottomNavigationPageState extends ConsumerState<BottomNavigationPage> {
     unawaited(
       showE2EERecoveryGuide(context, scene: E2EERecoveryScene.newDevice),
     );
+  }
+
+  @override
+  void didUpdateWidget(covariant BottomNavigationPage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.content != null ||
+        widget.onDestinationSelected == null ||
+        widget.restoredIndex == oldWidget.restoredIndex) {
+      return;
+    }
+    final target = widget.restoredIndex ?? 0;
+    final ticket = ++_pageTransitionTicket;
+    final session = authSessionReader.current;
+    final path = GoRouterState.of(context).uri.path;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted ||
+          ticket != _pageTransitionTicket ||
+          widget.onDestinationSelected == null ||
+          widget.restoredIndex != target ||
+          authSessionReader.current != session ||
+          GoRouter.of(context).routeInformationProvider.value.uri.path !=
+              path ||
+          _normalizeIndex(target) != target) {
+        return;
+      }
+      _transitionToPage(target);
+    });
   }
 
   void _transitionToPage(int target) {
@@ -249,7 +306,10 @@ class _BottomNavigationPageState extends ConsumerState<BottomNavigationPage> {
     // channelEnabled 控制会话列表顶部频道置顶区显示（Slice-5 接线）
     final channelEnabled = AppFeatureRegistry.isEnabled(FeatureKeys.channel);
 
-    final rawBottomBarIndex = ref.watch(bottomNavigationProvider);
+    final controlled = widget.onDestinationSelected != null;
+    final rawBottomBarIndex = controlled
+        ? (widget.restoredIndex ?? 0)
+        : ref.watch(bottomNavigationProvider);
     final bottomBarIndex = _normalizeIndex(rawBottomBarIndex);
     final socketStatusAsync = ref.watch(webSocketStatusProvider);
     final socketStatus =
@@ -267,13 +327,17 @@ class _BottomNavigationPageState extends ConsumerState<BottomNavigationPage> {
       platform: defaultTargetPlatform,
       isWeb: kIsWeb,
     );
-    final pageList = _buildPageList(useRail: isRailLayout);
+    final pageList = widget.content == null
+        ? _buildPageList(useRail: isRailLayout)
+        : const <Widget>[];
 
-    ref.listen(bottomNavigationProvider, (_, index) {
-      _transitionToPage(_normalizeIndex(index));
-    });
+    if (!controlled) {
+      ref.listen(bottomNavigationProvider, (_, index) {
+        _transitionToPage(_normalizeIndex(index));
+      });
+    }
 
-    if (rawBottomBarIndex != bottomBarIndex) {
+    if (!controlled && rawBottomBarIndex != bottomBarIndex) {
       Future.microtask(() {
         if (!mounted ||
             ref.read(bottomNavigationProvider) != rawBottomBarIndex) {
@@ -325,7 +389,12 @@ class _BottomNavigationPageState extends ConsumerState<BottomNavigationPage> {
     ];
 
     void selectDestination(int index) {
-      ref.read(bottomNavigationProvider.notifier).changeIndex(index);
+      final select = widget.onDestinationSelected;
+      if (select != null) {
+        select(index);
+      } else {
+        ref.read(bottomNavigationProvider.notifier).changeIndex(index);
+      }
     }
 
     final pageTransitionDuration = AppDuration.respectReducedMotion(
@@ -403,16 +472,20 @@ class _BottomNavigationPageState extends ConsumerState<BottomNavigationPage> {
                   duration: pageTransitionDuration,
                   curve: Curves.easeOutCubic,
                   opacity: _pageOpacity,
-                  child: PageView(
-                    controller: pageController,
-                    onPageChanged: (index) {
-                      ref
-                          .read(bottomNavigationProvider.notifier)
-                          .changeIndex(index);
-                    },
-                    physics: const NeverScrollableScrollPhysics(),
-                    children: pageList,
-                  ),
+                  child:
+                      widget.content ??
+                      PageView(
+                        controller: pageController,
+                        onPageChanged: (index) {
+                          if (widget.onDestinationSelected == null) {
+                            ref
+                                .read(bottomNavigationProvider.notifier)
+                                .changeIndex(index);
+                          }
+                        },
+                        physics: const NeverScrollableScrollPhysics(),
+                        children: pageList,
+                      ),
                 ),
               ),
             ),

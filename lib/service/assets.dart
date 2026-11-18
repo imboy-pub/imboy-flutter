@@ -120,14 +120,42 @@ class AssetsService {
   /// `file_.../y2.png` 这个位置，改数据库不搬对象只会变成 404。
   /// 认不出来的后果是被甩进旧 go-fastdfs 的 HMAC 授权分支，
   /// 那套签名 Garage 不认 —— 群相册破图就是这么来的（BUG#89）。
-  static final RegExp _objectKeyReg = RegExp(r'^(u\d+|file_\d+_[0-9a-fA-F]+)/');
+  static final RegExp _objectKeyReg = RegExp(
+    r'^(?:[a-zA-Z0-9_-]+/)*(?:u\d+|file_\d+_[0-9a-fA-F]+)/.+$',
+  );
 
   /// 判断 [input] 是否为 Garage presign object_key（而非 go-fastdfs 完整 URL）。
   ///
-  /// 规则：非空、不含 `://`（无 scheme）、且以 `u<digits>/` 或 `file_<ts>_<hex>/` 开头。
+  /// 规则：非空、不含 `://`（无 scheme）、允许部署前缀段后接 `u<digits>/` 或 `file_<ts>_<hex>/`。
   static bool isObjectKey(String input) {
     if (input.isEmpty) return false;
-    if (input.contains('://')) return false;
+    if (input.contains('://') || input.contains('\\')) return false;
+    try {
+      // Check original segments before Uri normalizes dot paths.
+      for (final raw in input.split('/')) {
+        final part = Uri.decodeComponent(raw);
+        if (part.isEmpty ||
+            part == '.' ||
+            part == '..' ||
+            part.contains('/') ||
+            part.contains('\\') ||
+            RegExp(r'[\x00-\x1f\x7f]').hasMatch(part)) {
+          return false;
+        }
+      }
+    } on FormatException {
+      return false;
+    } on ArgumentError {
+      return false;
+    }
+    final uri = Uri.tryParse(input);
+    if (uri == null ||
+        uri.hasScheme ||
+        uri.hasAuthority ||
+        uri.hasQuery ||
+        uri.hasFragment) {
+      return false;
+    }
     return _objectKeyReg.hasMatch(input);
   }
 

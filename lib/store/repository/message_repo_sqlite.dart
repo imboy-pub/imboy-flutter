@@ -289,20 +289,17 @@ class MessageRepo implements MessageRepository {
         MessageRepo.action: msg.action,
         MessageRepo.e2ee: msg.e2ee != null ? json.encode(msg.e2ee) : '',
       };
-      if (targetTableName == MessageRepo.c2gTable &&
-          msg.e2ee != null &&
-          msg.senderDid != null &&
-          msg.senderDid!.isNotEmpty) {
-        insert[MessageRepo.e2ee] = jsonEncode({
-          ...msg.e2ee!,
-          MessageModel.localSenderDidKey: msg.senderDid,
-        });
+      insert[MessageColumns.senderDid] = msg.senderDid;
+      // DEF-SYN01-ORDER-NOCONV-1（选项B切片）：live 落库随行写入 wire 下发
+      // 的 conv_seq（模型经 MessageModel.parseConvSeq 保真解析）。仅 insert
+      // （新行）触达本分支；已存在行走 save→update，不触碰该列。NULL=服务端
+      // 尚未给出（出站待 ACK / 存量旧行），绝不本地伪造；与 offline/archive
+      // 写入点（offline_message_writer parseServerOrderFacts）同口径，权威值
+      // 后续仍可由 backfillServerOrderFacts 对 NULL 行幂等补齐。
+      if (msg.convSeq != null && msg.convSeq! > 0) {
+        insert[MessageColumns.convSeq] = msg.convSeq;
       }
-      if (targetTableName == MessageRepo.c2cTable &&
-          msg.senderDid != null &&
-          msg.senderDid!.isNotEmpty) {
-        insert[MessageColumns.senderDid] = msg.senderDid;
-      }
+      _normalizeSenderDid(insert, targetTableName);
       // Inbound redelivery must never REPLACE an existing row or its metadata.
       final insertedId = await txn.insert(
         targetTableName,
@@ -334,6 +331,27 @@ class MessageRepo implements MessageRepository {
     return msg;
   }
 
+  // Only C2C has a physical sender_did column. C2G retains context in e2ee.
+  static void _normalizeSenderDid(Map<String, dynamic> data, String table) {
+    if (table == c2cTable) {
+      if (data[MessageColumns.senderDid] == null ||
+          data[MessageColumns.senderDid] == '') {
+        data.remove(MessageColumns.senderDid);
+      }
+      return;
+    }
+    final did = data.remove(MessageColumns.senderDid);
+    if (table != c2gTable || did == null || did == '') return;
+    final raw = data[e2ee];
+    final envelope = raw is String && raw.isNotEmpty ? jsonDecode(raw) : raw;
+    if (envelope is Map) {
+      data[e2ee] = jsonEncode({
+        ...envelope,
+        MessageModel.localSenderDidKey: did,
+      });
+    }
+  }
+
   // 更新信息
   @override
   Future<int> update(Map<String, dynamic> data, {Transaction? txn}) async {
@@ -342,6 +360,27 @@ class MessageRepo implements MessageRepository {
     final generation = session.sessionGeneration;
     final updateData = Map<String, dynamic>.from(data);
     final targetId = updateData[MessageRepo.id];
+    if (tableName == c2gTable &&
+        updateData[MessageColumns.senderDid] != null &&
+        !updateData.containsKey(e2ee)) {
+      final rows = txn != null
+          ? await txn.query(
+              tableName,
+              columns: [e2ee],
+              where: 'id = ?',
+              whereArgs: [targetId],
+              limit: 1,
+            )
+          : await _db.query(
+              tableName,
+              columns: [e2ee],
+              where: 'id = ?',
+              whereArgs: [targetId],
+              limit: 1,
+            );
+      if (rows.isNotEmpty) updateData[e2ee] = rows.first[e2ee];
+    }
+    _normalizeSenderDid(updateData, tableName);
     final msgId = targetId?.toString() ?? '';
     // payload: Map -> JSON 字符串
     if (updateData.containsKey(MessageRepo.payload) &&

@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:material_ui/material_ui.dart';
 import 'package:cupertino_ui/cupertino_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -14,9 +15,12 @@ import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_radius.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
+import 'package:imboy/store/repository/user_repo_provider.dart';
 
 class MorePage extends ConsumerStatefulWidget {
-  const MorePage({super.key});
+  const MorePage({super.key, this.readOnly = kIsWeb});
+
+  final bool readOnly;
 
   @override
   ConsumerState<MorePage> createState() => _MorePageState();
@@ -27,6 +31,16 @@ class _MorePageState extends ConsumerState<MorePage> {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final colorScheme = Theme.of(context).colorScheme;
+    final user = ref.watch(currentUserProvider);
+    if (user == null) {
+      return Scaffold(
+        appBar: GlassAppBar(
+          title: t.common.moreInfo,
+          automaticallyImplyLeading: true,
+        ),
+        body: Center(child: Text(t.common.notLoggedIn)),
+      );
+    }
 
     return Scaffold(
       backgroundColor: isDark
@@ -51,8 +65,10 @@ class _MorePageState extends ConsumerState<MorePage> {
                 icon: CupertinoIcons.person,
                 iconColor: AppColors.iosBlue,
                 title: t.account.gender,
-                value: UserRepoLocal.to.current.genderTitle,
-                onPressed: () => _handleGenderUpdate(context),
+                value: user.genderTitle,
+                onPressed: widget.readOnly
+                    ? null
+                    : () => _handleGenderUpdate(context),
               ),
 
               // 地区设置项
@@ -61,10 +77,10 @@ class _MorePageState extends ConsumerState<MorePage> {
                 icon: CupertinoIcons.location,
                 iconColor: AppColors.iosGreen,
                 title: t.account.region,
-                value: UserRepoLocal.to.current.region.isEmpty
-                    ? t.common.notFilled
-                    : UserRepoLocal.to.current.region,
-                onPressed: () => _handleRegionUpdate(context),
+                value: user.region.isEmpty ? t.common.notFilled : user.region,
+                onPressed: widget.readOnly
+                    ? null
+                    : () => _handleRegionUpdate(context),
               ),
 
               // 个性签名设置项
@@ -73,10 +89,10 @@ class _MorePageState extends ConsumerState<MorePage> {
                 icon: CupertinoIcons.pencil,
                 iconColor: AppColors.iosOrange,
                 title: t.account.signature,
-                value: UserRepoLocal.to.current.sign.isEmpty
-                    ? t.common.notFilled
-                    : UserRepoLocal.to.current.sign,
-                onPressed: () => _handleSignatureUpdate(context),
+                value: user.sign.isEmpty ? t.common.notFilled : user.sign,
+                onPressed: widget.readOnly
+                    ? null
+                    : () => _handleSignatureUpdate(context),
               ),
             ]),
           ],
@@ -137,7 +153,7 @@ class _MorePageState extends ConsumerState<MorePage> {
     required Color iconColor,
     required String title,
     required String value,
-    required VoidCallback onPressed,
+    required VoidCallback? onPressed,
   }) {
     return DetailSettingsTile(
       title: Text(title),

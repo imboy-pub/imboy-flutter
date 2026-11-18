@@ -1,3 +1,6 @@
+import 'package:imboy/component/http/web_writer_http_adapter.dart';
+import 'package:imboy/service/web_writer_gate.dart';
+
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
@@ -67,6 +70,7 @@ class PublisherNotifier extends _$PublisherNotifier {
 
   Future<void> saveServerUrl(String url) async {
     final prefs = state.preferences ?? await SharedPreferences.getInstance();
+    requireWebWriter();
     await prefs.setString('pushServer', url);
     state = state.copyWith(serverUrl: url, preferences: prefs);
   }
@@ -139,7 +143,7 @@ class PublisherNotifier extends _$PublisherNotifier {
       if (localDesc == null) throw Exception('无法获取本地 SDP');
 
       // 5. POST SDP offer 到 WHIP 端点
-      final response = await Dio().post<String>(
+      final response = await guardWebWriterDio(Dio()).post<String>(
         state.serverUrl,
         data: localDesc.sdp,
         options: Options(
@@ -183,7 +187,7 @@ class PublisherNotifier extends _$PublisherNotifier {
     // 发送 DELETE 请求通知服务器关闭推流会话
     if (_resourceUrl != null) {
       try {
-        await Dio().delete<void>(_resourceUrl!);
+        await guardWebWriterDio(Dio()).delete<void>(_resourceUrl!);
       } on Exception catch (e) {
         iPrint('[LivePublisher] 停止推流 DELETE 失败: $e');
       }

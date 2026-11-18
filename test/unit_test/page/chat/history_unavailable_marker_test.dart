@@ -66,6 +66,46 @@ void main() {
     });
   });
 
+  group('DEF-SYN03-WEB-PAGINATION-DEAD(b) 游标超前重探判定', () {
+    test('游标非零且已归零重探仍 0 条 → 标记（重探排除假不可用）', () {
+      expect(
+        ChatNotifier.shouldMarkHistoryUnavailable(
+          anyFetched: false,
+          lastMsgId: 'dbs479929ohnsje6v1r0',
+          cursorBehindEvidence: true,
+          cursorResetReexplored: true,
+        ),
+        isTrue,
+        reason: '游标回拔后服务端仍 0 条，才是真「历史不可用」',
+      );
+    });
+
+    test('游标非零但未重探 → 不标记（不得一次判死，须先重探）', () {
+      expect(
+        ChatNotifier.shouldMarkHistoryUnavailable(
+          anyFetched: false,
+          lastMsgId: 'dbs479929ohnsje6v1r0',
+          cursorBehindEvidence: true,
+          cursorResetReexplored: false,
+        ),
+        isFalse,
+        reason: 'R3b 实证清游标即恢复——未重探前「不可用」是恢复性误标',
+      );
+    });
+
+    test('游标本就为零（无超前证据）→ 标记（BUG#119 原语义保持）', () {
+      expect(
+        ChatNotifier.shouldMarkHistoryUnavailable(
+          anyFetched: false,
+          lastMsgId: 'dbs479929ohnsje6v1r0',
+          cursorBehindEvidence: false,
+          cursorResetReexplored: false,
+        ),
+        isTrue,
+      );
+    });
+  });
+
   group('BUG#119 ChatState.historyUnavailable 状态传播', () {
     test('copyWith 置位/复位正常，不传则保留旧值', () {
       const initial = ChatState();

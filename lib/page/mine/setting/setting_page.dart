@@ -1,3 +1,4 @@
+import 'package:imboy/service/explicit_web_logout.dart';
 import 'package:imboy/modules/organization/presentation/account_deletion_check_page.dart';
 import 'package:imboy/app_core/feature_flags/feature_revision_provider.dart';
 
@@ -5,6 +6,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:math' as math;
 
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:cupertino_ui/cupertino_ui.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
@@ -20,6 +22,7 @@ import 'package:imboy/component/ui/detail_settings_tile.dart';
 import 'package:imboy/component/ui/resource_page_layout.dart';
 import 'package:imboy/theme/default/app_sizes.dart';
 import 'package:imboy/config/init.dart';
+import 'package:imboy/config/routes.dart';
 import 'package:imboy/modules/organization/presentation/organization_routes.dart';
 import 'package:imboy/page/single/markdown_page.dart';
 import 'package:imboy/service/app_upgrade_service.dart';
@@ -38,6 +41,11 @@ import 'package:imboy/theme/providers/theme_provider.dart';
 
 /// 允许搜索状态的 Provider - 使用 Provider 从存储中读取值
 final allowSearchProvider = Provider<bool>((ref) {
+  final user = ref.watch(currentUserProvider);
+  final setting = user?.setting;
+  if (setting?.containsKey('allow_search') ?? false) {
+    return UserSettingModel.fromJson(setting!).allowSearch;
+  }
   final settingData = StorageService.to.getString('setting');
   if (settingData.isNotEmpty) {
     try {
@@ -56,7 +64,22 @@ final allowSearchProvider = Provider<bool>((ref) {
 
 /// 设置页面 - 像素级对齐 iOS 设置风 (Inset Grouped)
 class SettingPage extends ConsumerStatefulWidget {
-  const SettingPage({super.key});
+  const SettingPage({
+    super.key,
+    this.webMode = kIsWeb,
+    this.readWebDeviceId,
+    this.revokeWebDevice,
+    this.quitLocal,
+    this.isLoggedOutAfter,
+  });
+
+  /// 平台能力边界；不是用户配置。Web 仅开放本期可用设置。
+  final bool webMode;
+  final Future<String> Function()? readWebDeviceId;
+  final Future<bool> Function(String did, void Function() guard)?
+  revokeWebDevice;
+  final Future<bool> Function(int? expectedGeneration)? quitLocal;
+  final bool Function(int originalGeneration)? isLoggedOutAfter;
 
   @override
   ConsumerState<SettingPage> createState() => _SettingPageState();
@@ -72,6 +95,7 @@ class _SettingPageState extends ConsumerState<SettingPage> {
   // 防抖状态
   bool _isUpdatingAllowSearch = false;
   bool _isRefreshingKeys = false;
+  bool _isLoggingOut = false;
 
   /// 获取主题类型提示文字
   String themeTypeTips(WidgetRef ref) {
@@ -131,6 +155,8 @@ class _SettingPageState extends ConsumerState<SettingPage> {
   Widget build(BuildContext context) {
     ref.watch(featureRevisionProvider);
     final allowSearch = ref.watch(allowSearchProvider);
+    final user = ref.watch(currentUserProvider);
+    final hasAllowSearch = user?.setting?.containsKey('allow_search') ?? false;
     final userRepo = ref.watch(userRepoProvider);
     final themeState = ref.watch(themeProvider);
     final brightness = Theme.of(context).brightness;
@@ -145,11 +171,12 @@ class _SettingPageState extends ConsumerState<SettingPage> {
           child: ImBoySettingsSection(
             header: Text(t.common.sectionGeneral.toUpperCase()),
             children: [
-              DetailSettingsTile(
-                title: Text(t.account.accountSecurity),
-                leading: _buildIcon(CupertinoIcons.lock_shield),
-                onTap: () => context.push('/account_security'),
-              ),
+              if (!widget.webMode)
+                DetailSettingsTile(
+                  title: Text(t.account.accountSecurity),
+                  leading: _buildIcon(CupertinoIcons.lock_shield),
+                  onTap: () => context.push('/account_security'),
+                ),
               DetailSettingsTile(
                 title: Text(t.talkRecord.aiServicesTitle),
                 leading: _buildIcon(CupertinoIcons.sparkles),
@@ -188,15 +215,26 @@ class _SettingPageState extends ConsumerState<SettingPage> {
             children: [
               DetailSettingsTile(
                 title: Text(t.common.allowSearchMe),
-                subtitle: Text(t.discovery.otherUsersCanFindMe),
-                leading: _buildIcon(CupertinoIcons.search),
-                trailing: CupertinoSwitch(
-                  value: allowSearch,
-                  activeTrackColor: AppColors.getIosBlue(brightness),
-                  onChanged: _isUpdatingAllowSearch
-                      ? null
-                      : (v) => _handleAllowSearchChange(v, userRepo),
+                subtitle: Text(
+                  widget.webMode
+                      ? t.common.webReadOnlySettingsHint
+                      : t.discovery.otherUsersCanFindMe,
                 ),
+                leading: _buildIcon(CupertinoIcons.search),
+                value: widget.webMode
+                    ? (hasAllowSearch
+                          ? (allowSearch ? t.common.enabled : t.common.disabled)
+                          : t.common.unknown)
+                    : null,
+                trailing: widget.webMode
+                    ? null
+                    : CupertinoSwitch(
+                        value: allowSearch,
+                        activeTrackColor: AppColors.getIosBlue(brightness),
+                        onChanged: _isUpdatingAllowSearch
+                            ? null
+                            : (v) => _handleAllowSearchChange(v, userRepo),
+                      ),
               ),
               // E2EE 入口按总开关显示：服务端在 storage_mode=disabled 硬闸下会把
               // features.e2ee 强制置 false（imboy_policy:apply_hard_off_feature_overrides/2），
@@ -283,7 +321,7 @@ class _SettingPageState extends ConsumerState<SettingPage> {
         ),
 
         // 开发环境 Section
-        if (currentEnv != 'pro')
+        if (!widget.webMode && currentEnv != 'pro')
           SliverToBoxAdapter(
             child: ImBoySettingsSection(
               header: Text(t.common.developer),
@@ -305,28 +343,29 @@ class _SettingPageState extends ConsumerState<SettingPage> {
           ),
         ),
 
-        // 注销账号 Section
-        SliverToBoxAdapter(
-          child: ImBoySettingsSection(
-            children: [
-              DetailSettingsTile(
-                title: Text(t.organization.experienceUi.accountCheck),
-                leading: const Icon(CupertinoIcons.checkmark_shield),
-                onTap: () => Navigator.of(context).push(
-                  CupertinoPageRoute<void>(
-                    builder: (_) => const AccountDeletionCheckPage(),
+        // 注销账号由 App 的完整账号管理流程承接。
+        if (!widget.webMode)
+          SliverToBoxAdapter(
+            child: ImBoySettingsSection(
+              children: [
+                DetailSettingsTile(
+                  title: Text(t.organization.experienceUi.accountCheck),
+                  leading: const Icon(CupertinoIcons.checkmark_shield),
+                  onTap: () => Navigator.of(context).push(
+                    CupertinoPageRoute<void>(
+                      builder: (_) => const AccountDeletionCheckPage(),
+                    ),
                   ),
                 ),
-              ),
-              DetailSettingsTile(
-                title: Center(child: Text(t.account.logoutAccount)),
-                destructive: true,
-                trailing: const SizedBox.shrink(),
-                onTap: () => context.push('/logout_account'),
-              ),
-            ],
+                DetailSettingsTile(
+                  title: Center(child: Text(t.account.logoutAccount)),
+                  destructive: true,
+                  trailing: const SizedBox.shrink(),
+                  onTap: () => context.push('/logout_account'),
+                ),
+              ],
+            ),
           ),
-        ),
       ],
     );
   }
@@ -344,6 +383,7 @@ class _SettingPageState extends ConsumerState<SettingPage> {
   );
 
   Widget _buildAboutTrailing() {
+    if (widget.webMode) return const CupertinoListTileChevron();
     final hasUpdate = AppUpgradeService.to.hasUpdate;
     return Row(
       mainAxisSize: MainAxisSize.min,
@@ -495,66 +535,83 @@ class _SettingPageState extends ConsumerState<SettingPage> {
   }
 
   Future<void> _handleLogout() async {
-    final confirmed = await showCupertinoDialog<bool>(
-      context: context,
-      builder: (context) => CupertinoAlertDialog(
-        title: Text(t.account.logOut),
-        content: Text(t.account.areYouSureLogOut),
-        actions: [
-          CupertinoDialogAction(
-            onPressed: () => Navigator.pop(context, false),
-            child: Text(t.common.buttonCancel),
-          ),
-          CupertinoDialogAction(
-            isDestructiveAction: true,
-            onPressed: () => Navigator.pop(context, true),
-            child: Text(t.common.buttonConfirm),
-          ),
-        ],
-      ),
+    if (!widget.webMode) return _handleNativeLogout();
+    if (_isLoggingOut) return;
+    _isLoggingOut = true;
+    final router = GoRouter.of(context);
+    final action = ExplicitWebLogoutAction(
+      readWebDeviceId: widget.readWebDeviceId,
+      revokeWebDevice: widget.revokeWebDevice,
+      quitLocal: widget.quitLocal,
+      isLoggedOutAfter: widget.isLoggedOutAfter,
     );
+    try {
+      if (await action.run(
+        isMounted: () => mounted,
+        confirm: _confirmLogout,
+        onFailure: () => AppLoading.showToast(t.common.logoutFailed),
+      )) {
+        router.go(AppRoutes.signIn);
+      }
+    } finally {
+      _isLoggingOut = false;
+    }
+  }
+
+  Future<bool?> _confirmLogout() =>
+      confirmExplicitWebLogout(context, followAppFont: widget.webMode);
+
+  Future<void> _handleNativeLogout() async {
+    final confirmed = await _confirmLogout();
     if (confirmed == true && mounted) {
-      await UserRepoLocal.to.quitLogin();
-      if (mounted) context.go('/welcome');
+      final ok =
+          await (widget.quitLocal?.call(null) ?? UserRepoLocal.to.quitLogin());
+      if (!mounted) return;
+      if (ok) {
+        context.go('/welcome');
+      } else {
+        AppLoading.showToast(t.common.logoutFailed);
+      }
     }
   }
 
   void _showAboutDialog() {
-    final rightDMActions = [
-      // 这里在 AppBar 的 actions 里，可用高度只有 ~36pt，
-      // 而 RoundedElevatedButton 的 minimumSize 是 48pt，
-      // 字号调大后「检查更新」四个字上下被裁掉（QA#46）。
-      // 换成导航栏惯例的文字按钮：高度随内容、不会被裁，
-      // 颜色按 DESIGN.md 用 iOS 蓝，触达区保持 44pt。
-      Padding(
-        padding: const EdgeInsets.only(right: 4),
-        child: CupertinoButton(
-          padding: const EdgeInsets.symmetric(horizontal: 12),
-          minimumSize: const Size(44, 44),
-          child: Text(
-            t.common.checkForUpdates,
-            style: context.textStyle(
-              FontSizeType.body,
-              color: AppColors.getIosBlue(Theme.of(context).brightness),
-              fontWeight: FontWeight.w600,
+    final rightDMActions = <Widget>[
+      if (!widget.webMode)
+        // 这里在 AppBar 的 actions 里，可用高度只有 ~36pt，
+        // 而 RoundedElevatedButton 的 minimumSize 是 48pt，
+        // 字号调大后「检查更新」四个字上下被裁掉（QA#46）。
+        // 换成导航栏惯例的文字按钮：高度随内容、不会被裁，
+        // 颜色按 DESIGN.md 用 iOS 蓝，触达区保持 44pt。
+        Padding(
+          padding: const EdgeInsets.only(right: 4),
+          child: CupertinoButton(
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+            minimumSize: const Size(44, 44),
+            child: Text(
+              t.common.checkForUpdates,
+              style: context.textStyle(
+                FontSizeType.body,
+                color: AppColors.getIosBlue(Theme.of(context).brightness),
+                fontWeight: FontWeight.w600,
+              ),
             ),
-          ),
-          onPressed: () async {
-            AppLoading.show();
-            try {
-              final info = await AppUpgradeService.to.manualCheck();
-              if (info == null || !info.hasUpdate) {
-                AppLoading.showInfo(t.common.nowNewVersion);
+            onPressed: () async {
+              AppLoading.show();
+              try {
+                final info = await AppUpgradeService.to.manualCheck();
+                if (info == null || !info.hasUpdate) {
+                  AppLoading.showInfo(t.common.nowNewVersion);
+                }
+              } catch (e) {
+                iPrint('[Setting] 检查更新失败: $e');
+                AppLoading.showError(t.common.errorNetwork);
+              } finally {
+                AppLoading.dismiss();
               }
-            } catch (e) {
-              iPrint('[Setting] 检查更新失败: $e');
-              AppLoading.showError(t.common.errorNetwork);
-            } finally {
-              AppLoading.dismiss();
-            }
-          },
+            },
+          ),
         ),
-      ),
     ];
 
     Navigator.push(

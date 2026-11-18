@@ -21,6 +21,9 @@ class _BlockedChat extends ChatNotifier {
   ChatState build() => ChatState();
 
   @override
+  bool get ownsCurrentSession => true;
+
+  @override
   Future<bool> markAsRead(
     String type,
     String peerId,

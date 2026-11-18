@@ -43,6 +43,69 @@ class _Adapter implements HttpClientAdapter {
 }
 
 void main() {
+  test('login rewrites only top-level payload identity numbers', () {
+    const wire =
+        '{"code":0,"payload":{"uid":9007199254740993,'
+        '"user_id":9007199254740995,"status":1,"role":7,'
+        '"nested":{"uid":55},"text":"9007199254740993"}}';
+    final value = jsonDecode(
+      rewriteChannelIds(wire, ChannelResponseShape.login),
+    );
+    expect(value['payload']['uid'], '9007199254740993');
+    expect(value['payload']['user_id'], '9007199254740995');
+    expect(value['payload']['status'], 1);
+    expect(value['payload']['role'], 7);
+    expect(value['payload']['nested']['uid'], 55);
+    expect(value['payload']['text'], '9007199254740993');
+  });
+
+  test('conversation list preserves only top-level row identities', () {
+    const id = '9007199254740993';
+    for (final key in ['list', 'items', 'rows']) {
+      final wire =
+          '{"payload":{"$key":[{"conversation_id":$id,'
+          '"server_ts":42,"nested":{"conversation_id":7}},'
+          '{"conversation_id":"$id"}],"total":2}}';
+      final decoded = jsonDecode(
+        rewriteChannelIds(wire, ChannelResponseShape.conversation),
+      );
+      final rows = decoded['payload'][key] as List;
+      expect(rows[0]['conversation_id'], id);
+      expect(rows[1]['conversation_id'], id);
+      expect(rows[0]['server_ts'], 42);
+      expect(rows[0]['nested']['conversation_id'], 7);
+      expect(decoded['payload']['total'], 2);
+    }
+    const direct = '{"payload":[{"conversation_id":9007199254740993}]}';
+    expect(
+      jsonDecode(
+        rewriteChannelIds(direct, ChannelResponseShape.conversation),
+      )['payload'][0]['conversation_id'],
+      id,
+    );
+    const empty = '{"payload":{"list":[]}}';
+    expect(
+      jsonDecode(
+        rewriteChannelIds(empty, ChannelResponseShape.conversation),
+      )['payload']['list'],
+      isEmpty,
+    );
+  });
+
+  test('group notice list preserves only declared identity tokens', () {
+    const id = '9007199254740993123';
+    final wire =
+        '{"code":0,"payload":{"list":[{"id":$id,"group_id":$id,"publisher_id":$id,"content":"notice","created_at":123}],"total":1}}';
+    final rewritten = rewriteChannelIds(wire, ChannelResponseShape.groupNotice);
+    final root = jsonDecode(rewritten) as Map<String, dynamic>;
+    final row = root['payload']['list'][0] as Map<String, dynamic>;
+    expect(row['id'], id);
+    expect(row['group_id'], id);
+    expect(row['publisher_id'], id);
+    expect(row['created_at'], 123);
+    expect(root['payload']['total'], 1);
+  });
+
   test('Dio applies decoder only when explicitly requested', () async {
     final dio = Dio()..httpClientAdapter = _Adapter();
     final enabled = await dio.get<dynamic>(

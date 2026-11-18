@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart' show Options;
 import 'package:imboy/config/const.dart';
 import 'package:imboy/component/http/http_client.dart';
 import 'package:imboy/component/http/http_response.dart';
@@ -41,13 +42,18 @@ class UserDeviceApi extends HttpClient {
   }
 
   /// 删除设备
-  Future<bool> deleteDevice({required String deviceId}) async {
+  Future<bool> deleteDevice({
+    required String deviceId,
+    bool showError = true,
+    Options? options,
+  }) async {
     IMBoyHttpResponse resp = await post(
       API.userDeviceDelete,
       data: {"did": deviceId},
+      options: options,
     );
     // 透出服务端中文错误消息，页面层不再重复兜底
-    if (!resp.ok && resp.msg.isNotEmpty) {
+    if (showError && !resp.ok && resp.msg.isNotEmpty) {
       AppLoading.showBackendError(resp.msg);
     }
     return resp.ok ? true : false;

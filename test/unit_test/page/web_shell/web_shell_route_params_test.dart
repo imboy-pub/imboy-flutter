@@ -45,6 +45,15 @@ void main() {
   });
 
   group('parseShellRouteParams — Tab 0 ChatSelection', () {
+    test('unsupported chat type never constructs a selection', () {
+      for (final type in ['', 'c2c', 'C2S', 'arbitrary']) {
+        expect(
+          parseShellRouteParams({'tab': 'chat', 'id': 'p1', 'type': type}),
+          const WebShellState(),
+        );
+      }
+    });
+
     test('chat + id + type=C2C', () {
       final state = parseShellRouteParams({
         'tab': 'chat',

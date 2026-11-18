@@ -5,7 +5,10 @@
 // 真库执行：sqflite_common_ffi + fixture v35 schema（非 mock）。
 library;
 
+import 'dart:convert';
+
 import 'package:flutter_test/flutter_test.dart';
+import 'package:imboy/store/model/message_model.dart';
 import 'package:imboy/service/sqlite.dart';
 import 'package:imboy/store/repository/message_repo_sqlite.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
@@ -55,6 +58,69 @@ void main() {
 
   Future<Map<String, Object?>> fetchRow() async =>
       (await db.rawQuery('SELECT * FROM msg_c2c WHERE id = ?', [_msgId])).first;
+
+  for (final direction in ['C2C', 'C2G', 'C2S', 'S2C']) {
+    test('$direction 重复 save 保持设备标识的实际表合同', () async {
+      await db.close();
+      db = await openFixtureDatabaseAtVersion(version: 39);
+      SqliteService.setDbForTest(db);
+      final table = MessageRepo.getTableName(direction);
+      final target = MessageRepo(tableName: table);
+      final message = MessageModel(
+        'synthetic-sender-${direction.toLowerCase()}',
+        autoId: 0,
+        type: direction,
+        status: 20,
+        fromId: 990001,
+        toId: 990002,
+        payload: {'text': '合成正文'},
+        isAuthor: 0,
+        conversationUk3: 'synthetic-sender-$direction',
+        createdAt: _createdAt,
+        msgType: 'text',
+        e2ee: {'v': 3, 'ciphertext': 'synthetic-opaque'},
+        senderDid: 'synthetic-device',
+      );
+      await target.insert(message);
+      await target.save(message);
+      await db.transaction((txn) => target.save(message, txn: txn));
+      if (direction == 'C2G') {
+        await target.update({
+          'id': message.id,
+          'sender_did': 'synthetic-device',
+        });
+        await db.transaction(
+          (txn) => target.update({
+            'id': message.id,
+            'sender_did': 'synthetic-device',
+          }, txn: txn),
+        );
+      }
+      final rows = await db.query(
+        table,
+        where: 'id = ?',
+        whereArgs: [message.id],
+      );
+      expect(rows, hasLength(1));
+      final row = rows.single;
+      expect(jsonDecode(row['payload']! as String), {'text': '合成正文'});
+      if (direction == 'C2C') {
+        expect(row['sender_did'], 'synthetic-device');
+      } else {
+        expect(row.containsKey('sender_did'), isFalse);
+      }
+      if (direction != 'S2C') {
+        final envelope = jsonDecode(row['e2ee']! as String) as Map;
+        expect(envelope['v'], 3);
+        expect(envelope['ciphertext'], 'synthetic-opaque');
+        expect(
+          envelope[MessageModel.localSenderDidKey],
+          direction == 'C2G' ? 'synthetic-device' : isNull,
+        );
+      }
+      await target.waitForFtsReindexForTest();
+    });
+  }
 
   test('缺失双列：补齐 conv_seq 与 accepted_at，其余列逐字段不变', () async {
     final before = await fetchRow();

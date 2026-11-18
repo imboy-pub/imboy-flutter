@@ -7,6 +7,7 @@ Future<T> _runAccountRetryTask<T>({
   required T cancelled,
   required Future<T> Function() operation,
 }) async {
+  if (!isWebWriterReady) return cancelled;
   final actor = UserRepoLocal.to;
   if (actor.currentUid.isEmpty || actor.isAuthTransitioning) return cancelled;
   final owner = AccountLocalTaskOwner.capture();

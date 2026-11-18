@@ -171,7 +171,11 @@ class ChatMessageItem extends ConsumerWidget {
       isRemoved: isRemoved,
     );
 
-    final statusSpec = resolveMessageStatusIcon(message.status);
+    final uncertain = isCurrentUser && isMessageOutcomeUnknown(message);
+    final statusSpec = resolveMessageStatusIcon(
+      message.status,
+      outcomeUnknown: uncertain,
+    );
     Widget? statusIcon;
     if (statusSpec.hasIcon) {
       final color = statusSpec.colorKey == 'sendMessageBg'
@@ -183,6 +187,16 @@ class ChatMessageItem extends ConsumerWidget {
         color: color,
         semanticLabel: statusSpec.semanticLabel,
       );
+      if (uncertain) {
+        statusIcon = ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 160),
+          child: Text(
+            statusSpec.semanticLabel!,
+            style: Theme.of(context).textTheme.bodySmall
+                ?.copyWith(color: color),
+          ),
+        );
+      }
     }
 
     Widget? avatar;

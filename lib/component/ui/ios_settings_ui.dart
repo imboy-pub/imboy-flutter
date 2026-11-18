@@ -286,7 +286,7 @@ class ImBoySettingsTile extends StatelessWidget {
           : AppColors.lightTextSecondary,
     );
 
-    return CupertinoListTile.notched(
+    final Widget tile = CupertinoListTile.notched(
       // 非 Text 的 title（Center / Row / Expanded 包着 Text 的写法，全仓 28 处）
       // 走 DefaultTextStyle 让样式穿透，否则 destructive 的 iosRed 会被整个跳过 ——
       // 设置页「注销账号」传的正是 Center(child: Text(...))，明明写了
@@ -329,6 +329,18 @@ class ImBoySettingsTile extends StatelessWidget {
       padding:
           padding ?? const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
     );
+    // 键盘可达性（DEF-A11YNEW-02）：CupertinoListTile 底层是裸 GestureDetector，
+    // 语义只带 hasTapAction、不带 isFocusable 标志 → web 引擎不给语义节点渲染
+    // tabindex，键盘 Tab 永远到不了（深色模式页浅色/深色模式选项即此根因，
+    // Tab 轨迹只在「返回 ↔ 跟随系统 switch」间循环）。
+    // Focus（includeSemantics 默认 true）给语义节点注入 focusable 标志，
+    // 引擎据此渲染 tabindex=0，Tab 可达；激活由 Enter/Space（web 语义键盘桥 +
+    // 浏览器 Space 合成 click）与鼠标点击三向同效。原生端 Focus 仅注册焦点
+    // 节点，无视觉/交互变化。
+    if (onTap == null) {
+      return tile;
+    }
+    return Focus(child: tile);
   }
 }
 

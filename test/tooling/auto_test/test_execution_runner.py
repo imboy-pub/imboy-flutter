@@ -62,6 +62,65 @@ class RunnerTest(unittest.TestCase):
         (self.root / 'test/b_test.dart').write_text('// synthetic\n')
         self.output = self.root / 'evidence'
 
+    def test_contract_gate_uses_explicit_source_or_backend_binding(self):
+        from auto_test_lib.execution_gates import run_gates
+        cases = [
+            ({}, self.root.parent / 'imboy/include/error_code.hrl'),
+            ({'IMBOY_BACKEND_ROOT': '/synthetic/backend'},
+             Path('/synthetic/backend/include/error_code.hrl')),
+            ({'IMBOY_BACKEND_ROOT': '/synthetic/backend',
+              'IMBOY_ERROR_CODE_HRL': '/synthetic/explicit.hrl'},
+             Path('/synthetic/explicit.hrl')),
+        ]
+        for number, (env, expected) in enumerate(cases):
+            with self.subTest(env=env), \
+                    patch('auto_test_lib.execution_gates.shutil.which', return_value='synthetic'), \
+                    patch('auto_test_lib.execution_gates.subprocess.run',
+                          return_value=subprocess.CompletedProcess([], 0)) as execute:
+                gates = run_gates(self.root, plan(gates=['contracts'], source_fingerprint='synthetic'),
+                                  self.output / str(number), env)
+                self.assertEqual(gates['contracts']['status'], 'PASS')
+                first = execute.call_args_list[0].args[0]
+                self.assertEqual(first, ['dart', 'scripts/generate_error_code.dart', '--check',
+                                         f'--source={expected}'])
+                self.assertEqual(len(execute.call_args_list), 2)
+
+    def test_protobuf_check_uses_backend_binding_and_still_rejects_drift(self):
+        app = self.root / 'app'
+        script = app / 'scripts/regen_protobuf.sh'
+        script.parent.mkdir(parents=True)
+        shutil.copyfile(REPO_ROOT / 'scripts/regen_protobuf.sh', script)
+        backend = self.root / 'bound backend'
+        (backend / 'src').mkdir(parents=True)
+        (backend / 'src/imboy.proto').write_text('synthetic protocol')
+        generated = app / 'lib/service/protocol/imboy.pb.dart'
+        generated.parent.mkdir(parents=True)
+        generated.write_text('synthetic output\n')
+        binary = self.root / 'bin'
+        binary.mkdir()
+        for name, contents in {
+            'protoc-gen-dart': '#!/bin/sh\nexit 0\n',
+            'protoc': '#!/bin/sh\nfor arg in "$@"; do\n'
+                      'case "$arg" in --dart_out=*) out="${arg#--dart_out=}";; esac\n'
+                      'done\nprintf "synthetic output\\n" > "$out/imboy.pb.dart"\n',
+        }.items():
+            executable = binary / name
+            executable.write_text(contents)
+            executable.chmod(0o755)
+        env = {**os.environ, 'PATH': f'{binary}:{os.environ.get("PATH", "")}',
+               'IMBOY_BACKEND_ROOT': str(backend)}
+        command = ['bash', str(script), '--check']
+        result = subprocess.run(command, env=env, capture_output=True, text=True)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertEqual(generated.read_text(), 'synthetic output\n')
+        generated.write_text('drift\n')
+        result = subprocess.run(command, env=env, capture_output=True, text=True)
+        self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+        self.assertEqual(generated.read_text(), 'drift\n')
+        env['IMBOY_BACKEND_ROOT'] = str(self.root / 'missing')
+        result = subprocess.run(command, env=env, capture_output=True, text=True)
+        self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+
     def result(self, spec=None, data=None, code=0, planned=None):
         spec = spec or instance()
         planned = planned or plan(spec)

@@ -11,7 +11,7 @@ uploadProgressParts(confirmed, total): "確認済み $confirmed/$total セグメ
 aiServicesTitle: "AI サービス"
 aiServicesSubtitle: "ご自身の API アカウントを使用します。料金は提供元が請求します。"
 aiMinimaxTitle: "MiniMax"
-aiZhipuTitle: "Zhipu GLM-5.3-Flash"
+aiZhipuTitle: "Zhipu GLM-5.3-Flash モデル"
 aiMinimaxPurpose: "音声の文字起こしと一時的な話者ラベル"
 aiZhipuPurpose: "要約、決定事項、アクションの下書き"
 aiConfigured: "この端末に設定済み"
@@ -54,3 +54,382 @@ aiProviderResubmitNotice: "新しい文字起こしを作成するため、重�
 aiProviderCancelled: "停止しました。既存の録音は保持されます。"
 aiProviderResumePreparation: "文字起こしの準備を続行"
 aiProviderResumeNotice: "元のタスクは提供元に未送信です。音声ソースを再準備し、現在の権限と同意で続行します。"
+
+# ---- DSN-06 gap fill (machine-candidate 2026-11-16) ----
+actionDelete: "記録を削除" # machine-candidate 2026-11-16
+actionExport: "テキストを書き出す" # machine-candidate 2026-11-16
+actionPendingIntegration: "この操作は今後のバージョンで提供されます（共有/書き出し/削除は各モジュールとの連携後に開放）。現在のビルドでは入口のみ表示されます。" # machine-candidate 2026-11-16
+actionShare: "共有の管理" # machine-candidate 2026-11-16
+aiAsrOptionalNotice: "AI文字起こしはオプション機能です。現在は設定済みのMiniMaxが利用できます。録音のみならAI Keyは不要です。" # machine-candidate 2026-11-16
+aiAsrProvider: "文字起こしサービス" # machine-candidate 2026-11-16
+aiProcessSummarize: "このデバイスで要約 / 続行" # machine-candidate 2026-11-16
+aiProcessTranscribe: "このデバイスで文字起こし / 続行" # machine-candidate 2026-11-16
+aiProcessingBalance: "提供元の残高不足です。進行状況を保持して停止しました。自動再送は行いません。" # machine-candidate 2026-11-16
+aiProcessingComplete: "処理結果を送信しました。原文と要約ドラフトを確認してください。" # machine-candidate 2026-11-16
+aiProcessingConsent: "Appはフォアグラウンドでのみ送信・照会を続けます。提供元の受理後はAppを離れても処理と課金が続く場合があります。各ステップで権限と今回の同意を再検証します。提供元のタスクIDがある場合は照会のみ。IDがなく結果不明の場合は停止し、自動再送信しません。本体の表示がアカウント課金の上限を保証するものではありません。" # machine-candidate 2026-11-16
+aiProcessingKeyInvalid: "提供元がKeyを拒否しました。設定 → AIサービスでこのデバイスの設定を確認してください。停止済みで、自動再送はしません。" # machine-candidate 2026-11-16
+aiProcessingRunning: "このデバイスで処理中です。このページを開いたままにしてください。" # machine-candidate 2026-11-16
+aiProcessingStopped: "処理を停止しました。録音は保持されます。このデバイスのKey・権限・設定と入力を確認してください。すでに送信済みで結果未確認の場合、自動再呼び出しは行いません。" # machine-candidate 2026-11-16
+aiProcessingUnknown: "提供元の結果が不明です。課金済みの可能性があります。送信を停止しました。費用と元の実行は手動で確認が必要で、そのまま再送はできません。" # machine-candidate 2026-11-16
+aiUnknownRecoveryConfirm: "確認済み。二重課金の可能性を受け入れる" # machine-candidate 2026-11-16
+aiUnknownRecoveryIntents: "ブロック番号 / 不明なリクエスト番号" # machine-candidate 2026-11-16
+aiUnknownRecoveryNotice: "以下の旧リクエストは結果と費用を検証できず、すでに課金されている可能性があります。確認すると同じタスクで新しい実行を作成し、未確認ブロックのみ再リクエストします。二重課金の可能性があります。旧リクエストの事実と結果は保持されます。キャンセルしても復元リクエストは送信されません。" # machine-candidate 2026-11-16
+aiUnknownRecoveryRun: "元の実行" # machine-candidate 2026-11-16
+aiUnknownRecoveryTitle: "不明な実行を確認して再リクエスト" # machine-candidate 2026-11-16
+barControlsUnavailable: "録音コントロールは録音モジュールが提供します。現在のビルドではプレースホルダー表示です" # machine-candidate 2026-11-16
+barExpandHint: "録音状態を表示" # machine-candidate 2026-11-16
+barInterrupted: "録音が中断されました · 再開は手動です" # machine-candidate 2026-11-16
+barOriginOrgFallback: "企業スペース" # machine-candidate 2026-11-16
+barOriginPersonal: "個人スペース" # machine-candidate 2026-11-16
+barOriginPrefix: "送信元" # machine-candidate 2026-11-16
+barPaused: "一時停止中。録音時間には含まれません" # machine-candidate 2026-11-16
+barRecording: "録音中 · 端末内で分割保存" # machine-candidate 2026-11-16
+changeConfirmAction: "変更を確認" # machine-candidate 2026-11-16
+changeConfirmClearParticipants: "新しい場所に適用されない参加者の選択はクリアされます" # machine-candidate 2026-11-16
+changeConfirmKeepTitle: "入力済みのタイトルとメモは保持されます" # machine-candidate 2026-11-16
+changeConfirmRecheck: "処理方法は新しい場所の能力で再検証されます" # machine-candidate 2026-11-16
+changeConfirmTarget: "保存先: $name" # machine-candidate 2026-11-16
+changeConfirmTitle: "保存先を変更" # machine-candidate 2026-11-16
+cleanupBlockedHoldBody: "記録は削除済みです。添付ファイルはリーガルホールド（Hold）で保護されています。Hold解除後にクリーンアップが続行されます。" # machine-candidate 2026-11-16
+cleanupBlockedHoldTitle: "Holdで保護中" # machine-candidate 2026-11-16
+cleanupBlockedRetentionBody: "記録は削除済みです。添付ファイルは保持ルールで保護されています。保持期間終了後にクリーンアップが続行されます。" # machine-candidate 2026-11-16
+cleanupBlockedRetentionTitle: "保持期間未了" # machine-candidate 2026-11-16
+cleanupCompleteBody: "記録と添付ファイルのクリーンアップが完了しました。" # machine-candidate 2026-11-16
+cleanupCompleteTitle: "クリーンアップ完了" # machine-candidate 2026-11-16
+cleanupFailedBody: "添付ファイルのクリーンアップが完了していません。更新して状態を確認してください。条件を満たせば再試行できます。" # machine-candidate 2026-11-16
+cleanupFailedTitle: "クリーンアップ失敗" # machine-candidate 2026-11-16
+cleanupNoneBody: "記録はまだクリーンアップ対象になっていません。" # machine-candidate 2026-11-16
+cleanupNoneTitle: "クリーンアップ未実行" # machine-candidate 2026-11-16
+cleanupPendingBody: "クリーンアップキューに送信されました。キュー投入=添付ファイルのバイト削除ではありません。" # machine-candidate 2026-11-16
+cleanupPendingTitle: "クリーンアップ進行中" # machine-candidate 2026-11-16
+cleanupProcessorUnconfirmed: "処理タスクは停止または検証中で、一時音声コピーのクリーンアップ完了は未確認です。更新して進行状況を確認してください。" # machine-candidate 2026-11-16
+cleanupRetainedBody: "一部の添付ファイルは他の正当な業務から参照されているため、物理削除は見送られます。" # machine-candidate 2026-11-16
+cleanupRetainedTitle: "添付ファイルは他の業務から参照中" # machine-candidate 2026-11-16
+cleanupRetryAccepted: "再試行を送信しました。最新のクリーンアップ状態を取得中です。キュー投入=削除ではありません。" # machine-candidate 2026-11-16
+cleanupRetryAction: "クリーンアップを再試行" # machine-candidate 2026-11-16
+cleanupRetryFailedBody: "クリーンアップの再試行に失敗しました。しばらくしてからもう一度お試しください。" # machine-candidate 2026-11-16
+cleanupRetryPartial: "再試行は、試行回数を使い果たしクリーンアップ可能な添付ファイルのみ対象です。保護中の添付ファイルは保持されます。" # machine-candidate 2026-11-16
+cleanupRetryProtected: "添付ファイルはホールド・保持・他の有効な参照で保護されているため、強制クリーンアップはできません。" # machine-candidate 2026-11-16
+cleanupRetryReconcile: "同じ再試行リクエストを照合" # machine-candidate 2026-11-16
+cleanupRetryRefreshFailed: "最新状態を取得できませんでした。更新して確認してください。" # machine-candidate 2026-11-16
+cleanupRetryUnavailable: "クリーンアップ再試行の権限を確認できません。状態を更新してください。" # machine-candidate 2026-11-16
+cleanupRetryUnknown: "送信結果は未確認です。先に更新して確認してください。再送信は同じリクエストを再利用します。" # machine-candidate 2026-11-16
+cleanupRetryWaiting: "再試行可能な条件に未達です。アップロード能力や他の参照が失効した後に状態を更新してください。" # machine-candidate 2026-11-16
+cleanupRetrying: "再試行中…" # machine-candidate 2026-11-16
+cleanupUnknownBody: "クリーンアップ状態を取得できませんでした。更新して再試行できます。" # machine-candidate 2026-11-16
+cleanupUnknownTitle: "クリーンアップ状態不明" # machine-candidate 2026-11-16
+cleanupWriteOutcomeUnknown: "添付ファイルの書き込み結果が未確認のため、クリーンアップは未完了です。保護状態は保持され、運用担当者が確認します。更新して進行状況を確認できます。" # machine-candidate 2026-11-16
+collabParticipantsCount: "$count人を選択中" # machine-candidate 2026-11-16
+collabParticipantsEmpty: "参加者が未選択" # machine-candidate 2026-11-16
+collabParticipantsLabel: "参加者" # machine-candidate 2026-11-16
+collabParticipantsUnavailable: "参加者ディレクトリは未接続です。記録を作成後に共有を許可できます。" # machine-candidate 2026-11-16
+collabSectionSubtitle: "任意。企業の記録のみ有効" # machine-candidate 2026-11-16
+collabSectionTitle: "コラボレーション情報" # machine-candidate 2026-11-16
+confirmProcessingUpload: "処理に同意してアップロード" # machine-candidate 2026-11-16
+contextOrgFallback: "現在の企業" # machine-candidate 2026-11-16
+contextPersonal: "個人スペース" # machine-candidate 2026-11-16
+contextSectionTitle: "現在のスペース" # machine-candidate 2026-11-16
+createRecord: "記録を作成" # machine-candidate 2026-11-16
+deleteBackToList: "リストに戻る" # machine-candidate 2026-11-16
+deleteCleanupSectionTitle: "添付ファイルのクリーンアップ状態" # machine-candidate 2026-11-16
+deleteConfirmAction: "削除" # machine-candidate 2026-11-16
+deleteConfirmBodyPoint1: "削除後、記録の本文と要約は表示されなくなります。" # machine-candidate 2026-11-16
+deleteConfirmBodyPoint2: "削除すると全員のアクセスを先に取り消します。書き出し済み・保存済みのコピーは回収できません。" # machine-candidate 2026-11-16
+deleteConfirmBodyPoint3: "添付ファイルは保持ルールと参照状況に応じてクリーンアップされます。送信=バイト即時削除ではありません。" # machine-candidate 2026-11-16
+deleteConfirmDialogContent: "削除後、本文は表示されません。書き出し済み・保存済みのコピーは回収できません。" # machine-candidate 2026-11-16
+deleteConfirmTitle: "この記録を削除しますか？" # machine-candidate 2026-11-16
+deleteConflictHint: "記録が他の人によって更新されました。更新してから再試行してください。" # machine-candidate 2026-11-16
+deleteDeleting: "削除中…" # machine-candidate 2026-11-16
+deleteFailedBody: "削除に失敗しました。しばらくしてからもう一度お試しください。" # machine-candidate 2026-11-16
+deleteOnlyOwner: "作成者のみが記録を削除できます。" # machine-candidate 2026-11-16
+deleteRefreshStatus: "クリーンアップ状態を更新" # machine-candidate 2026-11-16
+deleteStatusFixtureHint: "コンポーネント段階: クリーンアップ状態はfixtureのサンプルです。実際の進行状況は連携後に提供されます。" # machine-candidate 2026-11-16
+deleteStatusNoContentHint: "記録の内容は表示されなくなりました。" # machine-candidate 2026-11-16
+deleteStatusTitle: "記録は削除済み" # machine-candidate 2026-11-16
+deleteTitle: "記録を削除" # machine-candidate 2026-11-16
+detailNoSpeechBody: "録音は保持されています。今回の録音に文字起こし可能な音声はありませんでした。" # machine-candidate 2026-11-16
+detailNoSpeechTitle: "文字起こし可能な音声を検出できず" # machine-candidate 2026-11-16
+detailRecordOnlyBody: "文字起こしを要求していないため、原文と要約はまだありません。録音の再生は可能で、会後に文字起こしへアップグレードできます。" # machine-candidate 2026-11-16
+detailRecordOnlyTitle: "この記録は録音のみ保存" # machine-candidate 2026-11-16
+detailTranscribeFailedBodyEditor: "文字起こしに失敗しました。録音は再生できます。文字起こしを再試行できます。" # machine-candidate 2026-11-16
+detailTranscribeFailedBodyViewer: "文字起こしに失敗しました。録音は再生できます。作成者に再試行を依頼してください。" # machine-candidate 2026-11-16
+detailTranscribeFailedTitle: "文字起こし失敗" # machine-candidate 2026-11-16
+detailTranscribeRetry: "文字起こしを再試行" # machine-candidate 2026-11-16
+detailTranscribingBody: "原文の生成後にここに表示されます。処理中は完了予定時刻を表示しません。" # machine-candidate 2026-11-16
+detailTranscribingTitle: "文字起こし処理中" # machine-candidate 2026-11-16
+durationLabel: "長さ" # machine-candidate 2026-11-16
+emptyNeverCreatedSubtitle: "対面での会話の後、ここに録音と文字起こしを保存します" # machine-candidate 2026-11-16
+emptyNeverCreatedTitle: "対面チャット記録はまだありません" # machine-candidate 2026-11-16
+emptyNoMatchSubtitle: "現在のフィルター・検索語では結果がありません。条件を変えて再試行できます" # machine-candidate 2026-11-16
+emptyNoMatchTitle: "一致する記録がありません" # machine-candidate 2026-11-16
+entrySubtitleOrg: "会議・面談のチームコラボレーション記録" # machine-candidate 2026-11-16
+entrySubtitlePersonal: "対面での会話の録音・文字起こし記録" # machine-candidate 2026-11-16
+entryTitle: "対面チャット記録" # machine-candidate 2026-11-16
+exportBlockedInstancePolicy: "現在のインスタンスは書き出し機能が無効のため、書き出しできません。" # machine-candidate 2026-11-16
+exportBlockedNoGrant: "現在の役割には書き出し権限が付与されていません。作成者の許可またはポリシーでの許可が必要です。" # machine-candidate 2026-11-16
+exportBlockedOrgPolicy: "書き出しは企業ポリシーで無効化されているため、書き出しできません。" # machine-candidate 2026-11-16
+exportBlockedUnknown: "現在の書き出しポリシーを確認できないため、書き出しできません。" # machine-candidate 2026-11-16
+exportCapabilitySectionTitle: "書き出し機能" # machine-candidate 2026-11-16
+exportConflictHint: "記録が他の人によって更新されました。更新してから再試行してください。" # machine-candidate 2026-11-16
+exportDownload: "書き出しファイルを保存" # machine-candidate 2026-11-16
+exportDownloadCancelled: "保存をキャンセルしました。再度保存できます。" # machine-candidate 2026-11-16
+exportDownloadFailed: "ダウンロードまたは保存に失敗しました。再試行できます" # machine-candidate 2026-11-16
+exportDownloadReady: "ファイルを保存しました。これは独立したコピーで、権限を取り消してもこのコピーは削除されません。" # machine-candidate 2026-11-16
+exportDownloading: "ダウンロードして保存を準備中…" # machine-candidate 2026-11-16
+exportExpiredBody: "ダウンロードリンクの有効期限が切れました。書き出しを再生成してください。" # machine-candidate 2026-11-16
+exportExpiredTitle: "書き出しの期限切れ" # machine-candidate 2026-11-16
+exportExpiresAt: "有効期限: $date" # machine-candidate 2026-11-16
+exportFailedBody: "書き出しの生成に失敗しました。再試行できます。" # machine-candidate 2026-11-16
+exportFixtureHint: "コンポーネント段階: ダウンロードリンクはfixtureのサンプルで、実際のファイルは生成されません。" # machine-candidate 2026-11-16
+exportFormatHint: "書き出しにはテキストのみ含まれ、音声と未許可の参加者情報は含まれません。" # machine-candidate 2026-11-16
+exportFormatMd: "Markdown .md" # machine-candidate 2026-11-16
+exportFormatSectionTitle: "書き出し形式" # machine-candidate 2026-11-16
+exportFormatTxt: "プレーンテキスト .txt" # machine-candidate 2026-11-16
+exportGenerate: "書き出しを生成" # machine-candidate 2026-11-16
+exportGenerating: "生成中…" # machine-candidate 2026-11-16
+exportIndependentCopyAck: "書き出しの独立コピーは回収できないことを了解しました" # machine-candidate 2026-11-16
+exportIndependentCopyBody: "書き出しで生成されるのは独立したコピーです。生成後に記録の削除や権限取り消しでは回収できません。" # machine-candidate 2026-11-16
+exportIndependentCopyTitle: "独立コピーについて" # machine-candidate 2026-11-16
+exportQueuedBody: "生成リクエストを送信しました。キュー投入=生成完了ではないため、後で状態を更新してください。" # machine-candidate 2026-11-16
+exportQueuedTitle: "書き出しキュー待ち" # machine-candidate 2026-11-16
+exportReadyBody: "書き出しファイルをダウンロードできます。ダウンロードリンクの有効期間は短く、期限後は再生成が必要です。" # machine-candidate 2026-11-16
+exportReadyTitle: "書き出し準備完了" # machine-candidate 2026-11-16
+exportRefreshState: "状態を更新" # machine-candidate 2026-11-16
+exportRegenerate: "再生成" # machine-candidate 2026-11-16
+exportRemaining: "残り約$minutes分" # machine-candidate 2026-11-16
+exportTitle: "テキストを書き出す" # machine-candidate 2026-11-16
+fieldTitleLabel: "タイトル" # machine-candidate 2026-11-16
+fieldTitlePlaceholder: "任意。後で探しやすくなります" # machine-candidate 2026-11-16
+filterAll: "すべて" # machine-candidate 2026-11-16
+filterOwned: "自分が作成" # machine-candidate 2026-11-16
+filterShared: "共有されています" # machine-candidate 2026-11-16
+grantEditCandidateEmpty: "許可できる候補がいません" # machine-candidate 2026-11-16
+grantEditCandidateSearchHint: "名前またはアカウントを検索" # machine-candidate 2026-11-16
+grantEditCandidateSection: "許可する人を選択" # machine-candidate 2026-11-16
+grantEditCandidatesUnavailable: "候補ディレクトリは現在利用できません。しばらくしてからもう一度お試しください。" # machine-candidate 2026-11-16
+grantEditConflict: "許可が他の人によって更新されました。戻って名簿を更新してから再試行してください。設定は保持されています。" # machine-candidate 2026-11-16
+grantEditExpiresHint: "任意。設定すると相手は期限後に自動的にアクセスを失います。" # machine-candidate 2026-11-16
+grantEditExpiresOn: "$date に期限切れ" # machine-candidate 2026-11-16
+grantEditExpiresSectionTitle: "有効期限" # machine-candidate 2026-11-16
+grantEditExportBlockedOrg: "書き出しは企業ポリシーで無効化されているため、許可で有効にできません。" # machine-candidate 2026-11-16
+grantEditExportBlockedUnknown: "現在の書き出しポリシーを確認できないため、書き出しを有効にできません。" # machine-candidate 2026-11-16
+grantEditExportSectionTitle: "書き出しを許可" # machine-candidate 2026-11-16
+grantEditGranteeLabel: "被許可者" # machine-candidate 2026-11-16
+grantEditRoleEditorHint: "原文と発言者の校正、共有メモの編集が可能。共有管理や削除はできません。" # machine-candidate 2026-11-16
+grantEditRoleSectionTitle: "役割" # machine-candidate 2026-11-16
+grantEditRoleViewerHint: "記録の閲覧と音声の再生は可能。内容の変更はできません。" # machine-candidate 2026-11-16
+grantEditSave: "権限を保存" # machine-candidate 2026-11-16
+grantEditSaveFailed: "保存に失敗しました。しばらくしてからもう一度お試しください。設定は保持されています。" # machine-candidate 2026-11-16
+grantEditSaving: "処理中…" # machine-candidate 2026-11-16
+grantEditTitle: "権限を編集" # machine-candidate 2026-11-16
+grantEditTitleNew: "許可を追加" # machine-candidate 2026-11-16
+invalidBack: "戻る" # machine-candidate 2026-11-16
+invalidBody: "この内容は現在表示できません。存在しないか、閲覧権限がありません。" # machine-candidate 2026-11-16
+invalidTitle: "現在表示できません" # machine-candidate 2026-11-16
+keepRecordingLocal: "後で処理。この端末に保持" # machine-candidate 2026-11-16
+listTitle: "対面チャット記録" # machine-candidate 2026-11-16
+loadFailedAction: "再試行" # machine-candidate 2026-11-16
+loadFailedTitle: "記録の読み込みに失敗しました" # machine-candidate 2026-11-16
+localDraftBadge: "端末内ドラフト" # machine-candidate 2026-11-16
+markDefaultText: "手動ハイライト" # machine-candidate 2026-11-16
+markPillPrefix: "ハイライト" # machine-candidate 2026-11-16
+maxDurationHint: "1回の録音は最長$minutes分" # machine-candidate 2026-11-16
+micDeniedMessage: "対面チャット記録には現場の音声を録音するためマイクの使用が必要です。現在権限が拒否されています。再試行するか、システム設定で有効にしてください。" # machine-candidate 2026-11-16
+micDeniedTitle: "マイクの権限が必要です" # machine-candidate 2026-11-16
+micOpenSettings: "設定に移動" # machine-candidate 2026-11-16
+micRetry: "再試行" # machine-candidate 2026-11-16
+microphoneStopUnconfirmed: "録音の停止が未確認です。停止を再試行してください。それでも失敗する場合は、アプリを終了してシステムのマイク表示を確認してください。" # machine-candidate 2026-11-16
+moreActionsCancel: "キャンセル" # machine-candidate 2026-11-16
+moreActionsTitle: "その他の操作" # machine-candidate 2026-11-16
+notesCancel: "キャンセル" # machine-candidate 2026-11-16
+notesConflictHint: "メモが他の人によって更新されました。更新してから再試行してください。現在の入力は保持されています。" # machine-candidate 2026-11-16
+notesEditAction: "編集" # machine-candidate 2026-11-16
+notesEmpty: "追加メモはまだありません" # machine-candidate 2026-11-16
+notesFailedHint: "保存に失敗しました。しばらくしてからもう一度お試しください。現在の入力は保持されています。" # machine-candidate 2026-11-16
+notesPlaceholder: "会議の結論や背景情報などを補足" # machine-candidate 2026-11-16
+notesReadonlyHint: "記録と共有されます。現在は読み取り専用です。" # machine-candidate 2026-11-16
+notesSave: "メモを保存" # machine-candidate 2026-11-16
+notesSavedHint: "メモを保存しました" # machine-candidate 2026-11-16
+notesSharedHint: "記録と共有され、この記録を閲覧できる全員に表示されます。" # machine-candidate 2026-11-16
+notesTitle: "共有の追加メモ" # machine-candidate 2026-11-16
+noticeCheckbox: "今回の録音とその扱いについて現場の参加者に通知しました" # machine-candidate 2026-11-16
+noticeHint: "録音開始前に通知済みであることを確認する必要があります" # machine-candidate 2026-11-16
+notificationRequiredMessage: "バックグラウンド録音の可視性を保つため、アプリ通知を許可し、システム設定で録音通知チャンネルを有効にしてください。有効化後にこのページへ戻って再試行してください。今回の録音はまだ開始されていません。" # machine-candidate 2026-11-16
+notificationRequiredTitle: "録音通知を有効にする" # machine-candidate 2026-11-16
+openNotificationSettings: "通知設定に移動" # machine-candidate 2026-11-16
+participantsAddGuest: "ゲストを追加" # machine-candidate 2026-11-16
+participantsConflict: "名簿が更新され、最新の内容に反映されました。確認して編集し直してください。" # machine-candidate 2026-11-16
+participantsGuestLabel: "ゲストの名前またはラベル" # machine-candidate 2026-11-16
+participantsInfoHint: "参加者は実際の出席者の記録にのみ使用され、記録の自動共有や発言者の確認を意味するものではありません。" # machine-candidate 2026-11-16
+participantsInvalid: "最大100人まで選択してください。ゲストラベルは1〜120文字で重複不可です。メンバーの資格は変更されている可能性があるため、名簿を確認してください。" # machine-candidate 2026-11-16
+participantsNoResults: "一致する連絡先や同僚がいません。検索をお試しください。" # machine-candidate 2026-11-16
+participantsRemove: "参加者を削除" # machine-candidate 2026-11-16
+participantsSaveFailed: "保存結果を確認できませんでした。現在の選択は保持されています。再試行するか更新してください。" # machine-candidate 2026-11-16
+playbackPauseLabel: "一時停止" # machine-candidate 2026-11-16
+playbackPlayLabel: "再生" # machine-candidate 2026-11-16
+playbackProgressLabel: "再生位置 $position / $duration" # machine-candidate 2026-11-16
+playbackTicketFailed: "再生セッションを利用できません。再試行できます" # machine-candidate 2026-11-16
+playbackUnavailable: "現在再生の権限がありません" # machine-candidate 2026-11-16
+prepareTitle: "対面チャット記録を作成" # machine-candidate 2026-11-16
+processingReasonLoadFailed: "処理能力を取得できなかったため、今回は録音のみとして扱います。" # machine-candidate 2026-11-16
+processingReasonQuota: "文字起こしのクォータが現在利用できないため、今回は録音のみ保存します。録音には影響しません。" # machine-candidate 2026-11-16
+processingReasonUnavailable: "現在のインスタンスには文字起こしサービスが未設定のため、今回は録音のみ保存します。" # machine-candidate 2026-11-16
+processingRecordOnly: "録音のみ" # machine-candidate 2026-11-16
+processingRecordOnlyHint: "録音のみ保存し、いつでも再生できます。会後に詳細ページで文字起こしへアップグレードできます。" # machine-candidate 2026-11-16
+processingRecoveryHint: "処理の告知または処理器の設定が更新されました。確認後、下の現在のバージョンでアップロードし、当初選択した処理方法を実行します。録音時の告知履歴は変更されません。" # machine-candidate 2026-11-16
+processingRecoveryTitle: "録音の処理を確認" # machine-candidate 2026-11-16
+processingRecoveryUnavailable: "現在処理器を利用できません。録音は端末内に保持され、復旧後に再度アップロードできます。" # machine-candidate 2026-11-16
+processingSectionTitle: "処理方法" # machine-candidate 2026-11-16
+processingSummarize: "文字起こし＋要約" # machine-candidate 2026-11-16
+processingTranscribe: "テキスト化（文字起こし）" # machine-candidate 2026-11-16
+recordingUnavailableMessage: "未終了の録音、マイクの権限、端末のストレージ容量を確認してください。ドラフトと既存の分割データは保持されています。" # machine-candidate 2026-11-16
+recordingUnavailableTitle: "現在録音を開始できません" # machine-candidate 2026-11-16
+resultBack: "戻る" # machine-candidate 2026-11-16
+retentionPolicyLabel: "保存期間" # machine-candidate 2026-11-16
+retryRecordingUpload: "アップロードを再試行" # machine-candidate 2026-11-16
+returnToPlayback: "再生位置に戻る" # machine-candidate 2026-11-16
+roleEditor: "編集者" # machine-candidate 2026-11-16
+roleEditorHint: "原文と発言者の校正、共有メモの編集が可能。共有と削除は作成者が管理します。" # machine-candidate 2026-11-16
+roleOwner: "作成者" # machine-candidate 2026-11-16
+roleViewer: "閲覧者" # machine-candidate 2026-11-16
+saveLocationEmpty: "選択できる保存先がありません" # machine-candidate 2026-11-16
+saveLocationOrgSection: "権限のある企業" # machine-candidate 2026-11-16
+saveLocationPersonalSection: "個人" # machine-candidate 2026-11-16
+saveLocationTitle: "保存先" # machine-candidate 2026-11-16
+saveLocationWorkspaceOptional: "ワークスペースを指定しない" # machine-candidate 2026-11-16
+saveToChangeAction: "変更" # machine-candidate 2026-11-16
+saveToSectionTitle: "保存先" # machine-candidate 2026-11-16
+searchHint: "対面チャット記録を検索" # machine-candidate 2026-11-16
+segmentAdoptServer: "サーバー稿を採用" # machine-candidate 2026-11-16
+segmentConflictBody: "入力は保持されています。サーバーの最新稿と比較してから再送信できます。保存時はあなたの入力が優先されます。" # machine-candidate 2026-11-16
+segmentConflictTitle: "バージョン競合: 原文が他の人によって変更されました" # machine-candidate 2026-11-16
+segmentEditLabel: "テキストを校正" # machine-candidate 2026-11-16
+segmentEditPlaceholder: "文字起こしテキストを修正" # machine-candidate 2026-11-16
+segmentEditTitle: "断片の校正" # machine-candidate 2026-11-16
+segmentHumanEditedPill: "手動修正" # machine-candidate 2026-11-16
+segmentListenLabel: "$time を再生" # machine-candidate 2026-11-16
+segmentOriginalLabel: "原稿" # machine-candidate 2026-11-16
+segmentResubmit: "再送信" # machine-candidate 2026-11-16
+segmentRowSemanticLabel: "$speaker による $time の発言" # machine-candidate 2026-11-16
+segmentSave: "校正を保存" # machine-candidate 2026-11-16
+segmentSaveFailed: "保存に失敗しました。しばらくしてからもう一度お試しください。入力は保持されています。" # machine-candidate 2026-11-16
+segmentTimeLabel: "時点 $time" # machine-candidate 2026-11-16
+shareAddEntryOrg: "同僚を追加" # machine-candidate 2026-11-16
+shareAddEntryPersonal: "連絡先を追加" # machine-candidate 2026-11-16
+shareAddHintOrg: "現在の企業内でワークスペース権限を満たす同僚を許可できます" # machine-candidate 2026-11-16
+shareAddHintPersonal: "既存の連絡先を許可できます" # machine-candidate 2026-11-16
+shareAllowExportPill: "書き出し可" # machine-candidate 2026-11-16
+shareCardSendCancelled: "送信をキャンセルしました。新しいカードは送信されていません。" # machine-candidate 2026-11-16
+shareCardSendFailed: "送信に失敗しました。再試行できます" # machine-candidate 2026-11-16
+shareCardSendPending: "送信キューに追加されました。サーバー確認はまだです。会話で確認してください。再試行してもメッセージが重複作成されることはありません。" # machine-candidate 2026-11-16
+shareCardSenderUnavailable: "現在、会話選択を開けません。戻ってから再試行してください。" # machine-candidate 2026-11-16
+shareCardSending: "処理中…" # machine-candidate 2026-11-16
+shareCardSent: "カードを送信しました（サンプル）" # machine-candidate 2026-11-16
+shareConflictHint: "許可が他の人によって更新されました。更新してから再試行してください。" # machine-candidate 2026-11-16
+shareEditorCannotManageAcl: "編集者は共有権限の管理や記録の削除はできません。調整が必要な場合は作成者に連絡してください。" # machine-candidate 2026-11-16
+shareEmptyBody: "この記録は既定では自分のみ表示されます。明示的に許可すると、相手が閲覧と再生を行えます。" # machine-candidate 2026-11-16
+shareEmptyTitle: "まだ誰も許可していません" # machine-candidate 2026-11-16
+shareExpiresPill: "有効期限: $date" # machine-candidate 2026-11-16
+shareGrantEditAction: "編集" # machine-candidate 2026-11-16
+shareGrantRevokeAction: "取り消す" # machine-candidate 2026-11-16
+shareGrantRoleEditor: "校正と編集が可能" # machine-candidate 2026-11-16
+shareGrantRoleViewer: "閲覧と再生が可能" # machine-candidate 2026-11-16
+shareManageTitle: "共有の管理" # machine-candidate 2026-11-16
+shareMyPermissionNone: "現在、この記録の許可情報がありません。共有は作成者が管理します。" # machine-candidate 2026-11-16
+shareMyPermissionReadonly: "この記録の閲覧と再生が可能です。共有権限は作成者が管理します。" # machine-candidate 2026-11-16
+shareMyPermissionTitle: "自分の権限" # machine-candidate 2026-11-16
+shareOwnerRowHint: "作成者は常に閲覧と共有の管理が可能です" # machine-candidate 2026-11-16
+shareOwnerRowLabel: "自分 · 作成者" # machine-candidate 2026-11-16
+shareRevokeConfirmAction: "取り消す" # machine-candidate 2026-11-16
+shareRevokeConfirmBody: "元の記録にアクセスできなくなります。書き出し済み・保存済みのコピーは回収できません。" # machine-candidate 2026-11-16
+shareRevokeConfirmTitle: "$name のアクセス権を取り消しますか？" # machine-candidate 2026-11-16
+shareRevokeFailedBody: "取り消しに失敗しました。しばらくしてからもう一度お試しください。" # machine-candidate 2026-11-16
+shareRevokeFailedTitle: "取り消せませんでした" # machine-candidate 2026-11-16
+shareRosterSectionTitle: "閲覧できる人" # machine-candidate 2026-11-16
+shareSaveFeedback: "権限を保存しました" # machine-candidate 2026-11-16
+shareSendCard: "カードを送信" # machine-candidate 2026-11-16
+shareSendCardHint: "対面チャット記録カードを生成して同僚に送信します。相手は自分の権限で閲覧します。" # machine-candidate 2026-11-16
+shareSendNeedsGrant: "先に許可を追加すると共有カードを送信できます。" # machine-candidate 2026-11-16
+shareVisibilityOfRecord: "現在の公開範囲: $visibility" # machine-candidate 2026-11-16
+shareVisibilityOwnerOnly: "自分のみ表示" # machine-candidate 2026-11-16
+shareVisibilitySectionTitle: "現在の公開範囲" # machine-candidate 2026-11-16
+shareVisibilityShared: "$count人に共有済み" # machine-candidate 2026-11-16
+speakerAnonymousPill: "匿名" # machine-candidate 2026-11-16
+speakerAudition: "断片を試聴" # machine-candidate 2026-11-16
+speakerClaimConflict: "この話者は他の人によってクレーム済みです。作成者が手動で修正してください。" # machine-candidate 2026-11-16
+speakerClaimSelf: "自分だとクレーム" # machine-candidate 2026-11-16
+speakerDirectoryUnavailable: "参加者ディレクトリが未接続のため、現在同僚を選択できません。表示名を先に設定できます。" # machine-candidate 2026-11-16
+speakerManualPill: "手動マーク" # machine-candidate 2026-11-16
+speakerMarkColleague: "同僚としてマーク" # machine-candidate 2026-11-16
+speakerSelfClaimPill: "本人クレーム済み" # machine-candidate 2026-11-16
+speakerSetName: "表示名を設定" # machine-candidate 2026-11-16
+speakerSetNameConfirm: "保存" # machine-candidate 2026-11-16
+speakerSetNameTitle: "表示名を設定" # machine-candidate 2026-11-16
+speakerSourceHint: "この署名は手動マークまたは本人クレームであり、身分認証ではありません。" # machine-candidate 2026-11-16
+speakerUnknown: "不明な話者" # machine-candidate 2026-11-16
+speakersEntry: "発言者の校正" # machine-candidate 2026-11-16
+speakersScopeHint: "話者の設定はこの記録のみに適用されます。手動マーク=本人認証ではなく、声紋プロファイルも作成しません。" # machine-candidate 2026-11-16
+speakersTitle: "発言者の校正" # machine-candidate 2026-11-16
+startRecording: "録音を開始" # machine-candidate 2026-11-16
+statusAssembling: "音声を結合中" # machine-candidate 2026-11-16
+statusNoSpeech: "文字起こし可能な音声なし" # machine-candidate 2026-11-16
+statusRecordOnly: "録音のみ" # machine-candidate 2026-11-16
+statusRecording: "録音中" # machine-candidate 2026-11-16
+statusTranscribeFailed: "文字起こし失敗。録音は再生可能" # machine-candidate 2026-11-16
+statusTranscribeQueued: "文字起こし待ち" # machine-candidate 2026-11-16
+statusTranscribeReady: "文字起こし済み" # machine-candidate 2026-11-16
+statusTranscribeRunning: "文字起こし中" # machine-candidate 2026-11-16
+statusUploadFailed: "アップロード失敗。再試行できます" # machine-candidate 2026-11-16
+statusUploading: "アップロード中" # machine-candidate 2026-11-16
+statusVerifying: "アップロード検証中" # machine-candidate 2026-11-16
+summaryActionsTitle: "TODOドラフト" # machine-candidate 2026-11-16
+summaryAssigneeUnset: "担当者未定" # machine-candidate 2026-11-16
+summaryDecisionsTitle: "議論のポイント" # machine-candidate 2026-11-16
+summaryDraftBadge: "AI整理ドラフト · 使用前に確認してください" # machine-candidate 2026-11-16
+summaryFailed: "要約の生成に失敗しました。後でもう一度お試しください。" # machine-candidate 2026-11-16
+summaryJumpToSource: "原文の出所を表示" # machine-candidate 2026-11-16
+summaryNoSource: "原文がまだなく、要約を生成できません。" # machine-candidate 2026-11-16
+summaryNotGenerated: "原文は生成済みですが、要約は未要求です。" # machine-candidate 2026-11-16
+summaryQueued: "要約はキュー待ちです。生成後に表示されます。" # machine-candidate 2026-11-16
+summaryRunning: "要約を整理中。生成後に表示されます。" # machine-candidate 2026-11-16
+summarySectionTitle: "要約" # machine-candidate 2026-11-16
+summaryStaleBanner: "原文または署名が更新されたため、要約が古い可能性があります" # machine-candidate 2026-11-16
+summaryUnavailable: "現在のインスタンスには要約サービスが未設定です。" # machine-candidate 2026-11-16
+tabSummary: "要約" # machine-candidate 2026-11-16
+tabTranscript: "原文" # machine-candidate 2026-11-16
+transcriptEmpty: "原文の断片はまだありません" # machine-candidate 2026-11-16
+transcriptHitCount: "$count件が一致。時点をタップして再生位置へ" # machine-candidate 2026-11-16
+transcriptNoHit: "一致する断片がありません" # machine-candidate 2026-11-16
+transcriptSearchHint: "原文のキーワードを検索" # machine-candidate 2026-11-16
+transferBackToDetail: "詳細に戻る" # machine-candidate 2026-11-16
+transferCandidateEmpty: "条件を満たす候補の同僚がいません" # machine-candidate 2026-11-16
+transferCandidateHint: "候補は現在の企業内でワークスペース権限を満たす同僚です。最終的な資格はサーバーが判定します。" # machine-candidate 2026-11-16
+transferCandidateSectionTitle: "新しい責任者を選択" # machine-candidate 2026-11-16
+transferConfirmAction: "移管を確認" # machine-candidate 2026-11-16
+transferConfirmKeepOff: "移管後、閲覧権限は保持されず、この記録を管理することもできません。" # machine-candidate 2026-11-16
+transferConfirmKeepOn: "移管後も閲覧権限は保持されますが、管理権限は新しい責任者に移ります。" # machine-candidate 2026-11-16
+transferConfirmTarget: "管理責任を移管します: $name" # machine-candidate 2026-11-16
+transferConfirmTitle: "管理責任を移管しますか？" # machine-candidate 2026-11-16
+transferConflictHint: "記録が他の人によって更新されました。更新してから再試行してください。" # machine-candidate 2026-11-16
+transferCreatedByHint: "作成者の記録は変更されません。この操作と共有権限は相互に独立です。" # machine-candidate 2026-11-16
+transferFailedBody: "移管に失敗しました。しばらくしてからもう一度お試しください。" # machine-candidate 2026-11-16
+transferKeepDefaultHint: "既定では保持しません: 移管後、この記録にアクセスできなくなります。" # machine-candidate 2026-11-16
+transferKeepOnHint: "保持すると閲覧と再生は引き続き可能ですが、共有と削除は新しい責任者が管理します。" # machine-candidate 2026-11-16
+transferKeepSectionTitle: "元の責任者のアクセス" # machine-candidate 2026-11-16
+transferKeepViewer: "移管後も閲覧権限を保持" # machine-candidate 2026-11-16
+transferOnlyOwner: "現在の管理責任者のみが管理責任を移管できます。" # machine-candidate 2026-11-16
+transferPersonalUnsupported: "個人の記録は現在、管理責任の移管に対応していません。" # machine-candidate 2026-11-16
+transferScopeHint: "移管は管理責任者のみ変更します。記録の帰属（企業とワークスペース）は変更されません。" # machine-candidate 2026-11-16
+transferSubmit: "管理責任を移管" # machine-candidate 2026-11-16
+transferSubmitting: "移管中…" # machine-candidate 2026-11-16
+transferSuccessKeptAccess: "閲覧権限は引き続き保持されています。共有の管理は新しい責任者が行います。" # machine-candidate 2026-11-16
+transferSuccessOwner: "新しい責任者: $name" # machine-candidate 2026-11-16
+transferSuccessScopeUnchanged: "記録の帰属は変更されていません（企業とワークスペースは不変）。" # machine-candidate 2026-11-16
+transferSuccessTitle: "管理責任を移管しました" # machine-candidate 2026-11-16
+transferTitle: "管理責任の移管" # machine-candidate 2026-11-16
+untitledRecord: "無題の記録" # machine-candidate 2026-11-16
+uploadNoticeHint: "現在の録音の告知を確認してください。今回の確認は今のアップロードに使用されます。録音開始時の告知履歴は書き換えられず、保存スペースも変更されません。" # machine-candidate 2026-11-16
+uploadNoticeTitle: "アップロード前の確認" # machine-candidate 2026-11-16
+uploadRecording: "録音をアップロード" # machine-candidate 2026-11-16
+visibilityOwnerOnly: "自分のみ表示" # machine-candidate 2026-11-16
+visibilityShared: "共有済み" # machine-candidate 2026-11-16

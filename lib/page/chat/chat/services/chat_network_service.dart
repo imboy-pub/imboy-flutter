@@ -1,5 +1,10 @@
 import 'dart:convert';
 
+import 'package:imboy/service/plaintext_text_limit.dart';
+
+import 'package:imboy/service/auth_session_scope.dart';
+import 'package:imboy/config/env.dart';
+
 import 'package:flutter/foundation.dart' show visibleForTesting;
 import 'package:imboy/component/ui/app_loading.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart';
@@ -67,6 +72,12 @@ class ChatNetworkService {
     bool sendToServer = true,
     required Future<void> Function() syncMessagesToState,
   }) async {
+    if (sendToServer &&
+        message is TextMessage &&
+        PlaintextTextLimit.exceeded(message.text)) {
+      AppLoading.showBackendError(t.common.textTooLarge);
+      return false;
+    }
     iPrint(
       '📤 [ChatNetworkService.addMessage] 开始: msgId=${message.id}, type=$type, toId=$toId, sendToServer=$sendToServer',
     );
@@ -171,6 +182,129 @@ class ChatNetworkService {
       );
       rethrow;
     }
+  }
+
+  /// Present the canonical durable outbox row without persisting or dispatching again.
+  Future<bool> presentAttachmentOutbox({
+    required String type,
+    required String peerId,
+    required String conversationUk3,
+    required String messageId,
+    required bool Function() isCurrent,
+    required Future<bool> Function(Message) present,
+  }) async {
+    final actor = UserRepoLocal.to;
+    final uid = actor.currentUid;
+    final generation = actor.sessionGeneration;
+    final session = authSessionReader.current;
+    final endpoint = Env().apiBaseUrl;
+    bool current() =>
+        authSessionReader.isCurrent(session) &&
+        Env().apiBaseUrl == endpoint &&
+        isCurrent() &&
+        uid.isNotEmpty &&
+        actor.currentUid == uid &&
+        actor.isCurrentSession(generation) &&
+        !actor.isAuthTransitioning;
+    if (!current()) return false;
+    final canonical = await _readConfirmedAttachment(
+      type: type,
+      peerId: peerId,
+      conversationUk3: conversationUk3,
+      messageId: messageId,
+      uid: uid,
+      current: current,
+    );
+    if (!current() || canonical == null) return false;
+    final message = await canonical.toTypeMessage();
+    if (!current()) return false;
+    final refreshed = await _refreshAttachmentConversation(
+      canonical,
+      peerId,
+      current,
+    );
+    if (!current() || !refreshed) return false;
+    return present(message);
+  }
+
+  Future<MessageModel?> _readConfirmedAttachment({
+    required String type,
+    required String peerId,
+    required String conversationUk3,
+    required String messageId,
+    required String uid,
+    required bool Function() current,
+  }) async {
+    final db = await SqliteService.to.db;
+    if (db == null || !current()) return null;
+    return db.transaction((txn) async {
+      final tasks = await txn.query(
+        AttachmentUploadTaskRepo.tableName,
+        where: 'anchor_msg_id = ? AND user_id = ?',
+        whereArgs: [messageId, uid],
+      );
+      if (!current()) throw StateError('attachment presentation owner changed');
+      if (tasks.isEmpty ||
+          tasks.any(
+            (task) => task['stage'] != AttachmentUploadStage.confirmed.value,
+          )) {
+        return null;
+      }
+      final model = await MessageRepo(tableName: MessageRepo.getTableName(type))
+          .find(messageId, txn: txn);
+      if (!current()) throw StateError('attachment presentation owner changed');
+      if (model == null ||
+          model.fromId.toString() != uid ||
+          model.toId.toString() != peerId ||
+          model.type != type ||
+          model.conversationUk3 != conversationUk3) {
+        return null;
+      }
+      return model;
+    });
+  }
+
+  Future<bool> _refreshAttachmentConversation(
+    MessageModel message,
+    String peerId,
+    bool Function() current,
+  ) async {
+    final db = await SqliteService.to.db;
+    if (db == null || !current()) return false;
+    final repo = ConversationRepo();
+    final conversation = await db.transaction((txn) async {
+      final row = await repo.findByPeerId(message.type!, peerId, txn: txn);
+      if (!current()) throw StateError('attachment presentation owner changed');
+      if (row == null || row.uk3 != message.conversationUk3) return null;
+      final latest = await MessageRepo(
+        tableName: MessageRepo.getTableName(message.type!),
+      ).find(message.id, txn: txn);
+      if (!current() || latest == null) {
+        throw StateError('attachment presentation owner changed');
+      }
+      if (row.lastTime < latest.createdAt || row.lastMsgId == latest.id) {
+        await repo.updateById(row.id, {
+          ConversationRepo.lastMsgId: latest.id,
+          ConversationRepo.lastMsgStatus: latest.status,
+          ConversationRepo.lastTime: row.lastTime > latest.createdAt
+              ? row.lastTime
+              : latest.createdAt,
+          ConversationRepo.msgType: MessageModel.conversationMsgTypeFromModel(
+            latest,
+          ),
+          ConversationRepo.subtitle: MessageModel.conversationSubtitleFromModel(
+            latest,
+          ),
+          ConversationRepo.isShow: 1,
+        }, txn: txn);
+      }
+      final updated = await repo.findByPeerId(message.type!, peerId, txn: txn);
+      if (!current()) throw StateError('attachment presentation owner changed');
+      return updated;
+    });
+    if (!current() || conversation == null) return false;
+    AppEventBus.fireData(conversation);
+    return true;
   }
 
   // ===== 消息模型转换 =====
@@ -483,6 +617,15 @@ class ChatNetworkService {
       return true;
     }
 
+    if (PlaintextTextLimit.exceededPayload(
+      msgType: obj.msgType,
+      action: obj.action,
+      payload: obj.payloadMap,
+    )) {
+      AppLoading.showBackendError(t.common.textTooLarge);
+      return false;
+    }
+
     final int clientSendTs = DateTimeHelper.millisecond();
     final Map<String, dynamic> payloadWithTs = Map<String, dynamic>.from(
       obj.payloadMap,
@@ -601,6 +744,19 @@ class ChatNetworkService {
 
   /// 直接发送消息（不经过数据库），含 E2EE 加密
   Future<bool> sendMessage(Map<String, dynamic> msg) async {
+    final rawPayload = msg['payload'];
+    final rawType =
+        msg['msg_type'] ?? (rawPayload is Map ? rawPayload['msg_type'] : null);
+    final rawAction =
+        msg['action'] ?? (rawPayload is Map ? rawPayload['action'] : null);
+    if (PlaintextTextLimit.exceededPayload(
+      msgType: rawType,
+      action: rawAction,
+      payload: rawPayload,
+    )) {
+      AppLoading.showBackendError(t.common.textTooLarge);
+      return false;
+    }
     final session = UserRepoLocal.to;
     final ownerUid = session.currentUid;
     final generation = session.sessionGeneration;

@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'package:flutter/foundation.dart' show kIsWeb;
+
 import 'package:dio/dio.dart';
 import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/component/helper/func.dart';
@@ -124,7 +126,9 @@ class ConfirmNewFriendNotifier extends _$ConfirmNewFriendNotifier {
         "${Env().apiBaseUrl}${API.confirmFriend}",
         data: msg,
         options: Options(
-          contentType: "application/x-www-form-urlencoded",
+          contentType: kIsWeb
+              ? Headers.jsonContentType
+              : "application/x-www-form-urlencoded",
           responseDecoder: channelIdResponseDecoder(
             ChannelResponseShape.contact,
           ),

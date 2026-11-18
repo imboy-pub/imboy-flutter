@@ -21,6 +21,18 @@ class _DirectTemporaryPaths extends PathProviderPlatform {
   Future<String?> getTemporaryPath() async => root;
 }
 
+class _NoNativeAttachmentPaths extends PathProviderPlatform {
+  @override
+  Future<String?> getTemporaryPath() =>
+      throw StateError('native temp forbidden');
+  @override
+  Future<String?> getApplicationSupportPath() =>
+      throw StateError('native support forbidden');
+  @override
+  Future<String?> getApplicationDocumentsPath() =>
+      throw StateError('native documents forbidden');
+}
+
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
   late Directory temporary;
@@ -36,6 +48,74 @@ void main() {
     PathProviderPlatform.instance = previousPaths;
     await temporary.delete(recursive: true);
   });
+  test(
+    'source pipeline uses no native path and retains direct checkpoints',
+    () async {
+      PathProviderPlatform.instance = _NoNativeAttachmentPaths();
+      final bytes = Uint8List.fromList([1, 2, 3]);
+      final stages = <UploadCheckpointStage>[];
+      final actions = <String>[];
+      final key = await AttachmentApi.uploadViaPresign(
+        bytes,
+        'source.png',
+        'image/png',
+        process: false,
+        persistTask: false,
+        directSessionFn: (path, {body}) async {
+          final action = path.split('/').last;
+          actions.add(action);
+          switch (action) {
+            case 'register':
+              return IMBoyHttpResponse.success({
+                'object_key': 'u1/source',
+                'state': 'RESERVED',
+              });
+            case 'declare':
+              return IMBoyHttpResponse.success({'state': 'DECLARED'});
+            case 'grant':
+              return IMBoyHttpResponse.success({
+                'attempt_id': 1,
+                'grant': {
+                  'transport': 's3_put',
+                  'method': 'PUT',
+                  'url': 'https://s3.example/source',
+                  'required_headers': [
+                    ['Content-Type', 'image/png'],
+                    [
+                      'x-amz-checksum-sha256',
+                      base64Encode(crypto.sha256.convert(bytes).bytes),
+                    ],
+                  ],
+                },
+              });
+            case 'finalize':
+              return IMBoyHttpResponse.success({'state': 'CONFIRMED'});
+            default:
+              throw StateError(action);
+          }
+        },
+        directSourcePutFn:
+            (url, source, length, headers, {cancelToken, onProgress}) async {
+              expect(
+                await source
+                    .openRead(cancelToken: cancelToken)
+                    .expand((chunk) => chunk)
+                    .toList(),
+                bytes,
+              );
+            },
+        checkpoint: (event) async => stages.add(event.stage),
+      );
+      expect(key, 'u1/source');
+      expect(actions, ['register', 'register', 'declare', 'grant', 'finalize']);
+      expect(stages.last, UploadCheckpointStage.confirmed);
+      expect(
+        stages.where((stage) => stage == UploadCheckpointStage.putDone).length,
+        1,
+      );
+    },
+  );
+
   test('群消息密文 direct 登记并冻结密文与锚点', () async {
     final bytes = Uint8List.fromList([1, 2, 3, 4]);
     final requests = <({String action, Map<String, dynamic> body})>[];

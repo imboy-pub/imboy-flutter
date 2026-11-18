@@ -8,21 +8,15 @@ part of 'theme_provider.dart';
 
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
-/// ThemeMode Provider - 用于 MaterialApp.themeMode
-///
-/// 这是从本地存储读取的主题模式
+/// MaterialApp mode is a projection of the same persisted theme state.
 
 @ProviderFor(ThemeModeNotifier)
 final themeModeProvider = ThemeModeNotifierProvider._();
 
-/// ThemeMode Provider - 用于 MaterialApp.themeMode
-///
-/// 这是从本地存储读取的主题模式
+/// MaterialApp mode is a projection of the same persisted theme state.
 final class ThemeModeNotifierProvider
     extends $NotifierProvider<ThemeModeNotifier, ThemeMode> {
-  /// ThemeMode Provider - 用于 MaterialApp.themeMode
-  ///
-  /// 这是从本地存储读取的主题模式
+  /// MaterialApp mode is a projection of the same persisted theme state.
   ThemeModeNotifierProvider._()
     : super(
         from: null,
@@ -50,11 +44,9 @@ final class ThemeModeNotifierProvider
   }
 }
 
-String _$themeModeNotifierHash() => r'8d56177fdc386d6b157a16223561a3790fbefed8';
+String _$themeModeNotifierHash() => r'a957f2e6c908c22d22481dfcf8ce5c01e6c900a7';
 
-/// ThemeMode Provider - 用于 MaterialApp.themeMode
-///
-/// 这是从本地存储读取的主题模式
+/// MaterialApp mode is a projection of the same persisted theme state.
 
 abstract class _$ThemeModeNotifier extends $Notifier<ThemeMode> {
   ThemeMode build();
@@ -116,7 +108,7 @@ final class ThemeNotifierProvider
   }
 }
 
-String _$themeNotifierHash() => r'f4aed992b45f17498b6dc08fe81939fd3c4bb52c';
+String _$themeNotifierHash() => r'acb9d4aed2941aaca0a2d68bf347f8f4032095cc';
 
 /// 主题管理器 Provider
 ///

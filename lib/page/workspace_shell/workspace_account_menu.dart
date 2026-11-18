@@ -16,6 +16,10 @@
 /// - 底部：工作模式（二级 ActionSheet） / 退出登录（destructive）
 library;
 
+import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:imboy/service/explicit_web_logout.dart';
+import 'package:imboy/config/routes.dart';
+
 import 'dart:async';
 
 import 'package:cupertino_ui/cupertino_ui.dart';
@@ -166,6 +170,7 @@ class WorkspaceSwitcherChip extends ConsumerWidget {
 }
 
 Future<void> _openAccountSheet(BuildContext context, WidgetRef ref) {
+  final logoutAction = ExplicitWebLogoutAction();
   return showModalBottomSheet<void>(
     context: context,
     useSafeArea: true,
@@ -175,13 +180,16 @@ Future<void> _openAccountSheet(BuildContext context, WidgetRef ref) {
     shape: const RoundedRectangleBorder(
       borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
     ),
-    builder: (sheetContext) => const _WorkspaceAccountSheet(),
+    builder: (sheetContext) =>
+        _WorkspaceAccountSheet(logoutAction: logoutAction),
   );
 }
 
 /// 账户 Sheet 本体（消费壳状态与成员数据，非路由——滑掉即返回）。
 class _WorkspaceAccountSheet extends ConsumerWidget {
-  const _WorkspaceAccountSheet();
+  const _WorkspaceAccountSheet({required this.logoutAction});
+
+  final ExplicitWebLogoutAction logoutAction;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -270,7 +278,7 @@ class _WorkspaceAccountSheet extends ConsumerWidget {
               icon: CupertinoIcons.square_arrow_right,
               label: t.account.logOut,
               isDestructive: true,
-              onTap: () => unawaited(_logout(context)),
+              onTap: () => unawaited(_logout(context, logoutAction)),
             ),
           ],
         ),
@@ -304,7 +312,27 @@ class _WorkspaceAccountSheet extends ConsumerWidget {
   /// 与 `logoutAccount`（注销账号）是两个语义，本入口绝不能走注销流程。
   /// router/navigator 在 quitLogin **之前**捕获：quitLogin 清全局状态后
   /// sheet widget 可能已随监听器重建，再经 context 取会撞 unmounted。
-  static Future<void> _logout(BuildContext context) async {
+  static Future<void> _logout(
+    BuildContext context,
+    ExplicitWebLogoutAction action,
+  ) async {
+    if (!kIsWeb) return _logoutNative(context);
+    final router = GoRouter.of(context);
+    final navigator = Navigator.of(context);
+    final originalRoute = ModalRoute.of(context);
+    if (await action.run(
+      isMounted: () => context.mounted,
+      confirm: () => confirmExplicitWebLogout(context),
+      onFailure: () => AppLoading.showToast(context.t.common.logoutFailed),
+    )) {
+      if (originalRoute is PopupRoute && originalRoute.isActive) {
+        navigator.removeRoute(originalRoute);
+      }
+      router.go(AppRoutes.signIn);
+    }
+  }
+
+  static Future<void> _logoutNative(BuildContext context) async {
     final t = context.t;
     final confirmed = await showCupertinoDialog<bool>(
       context: context,

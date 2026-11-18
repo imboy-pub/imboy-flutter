@@ -2,15 +2,40 @@
 ///
 /// 覆盖：
 /// - mobile fallback (< 900px)
-/// - threeColumn 三栏渲染（>= 900px）
+/// - twoColumn 列表/详情切换与 threeColumn 三栏渲染
 /// - tab 切换联动 (NavRail.onTap → webShellProvider.switchTab)
 /// - selection 渲染（null=welcome / chat / contact / channel / mine）
 /// - i18n label 透传到 navItems
 /// - badge 透传
 library;
 
+import 'package:flutter/services.dart';
+import 'package:flutter_chat_core/flutter_chat_core.dart';
+import 'package:imboy/app_core/feature_flags/app_feature_registry.dart';
+import 'package:imboy/app_core/feature_flags/feature_keys.dart';
+import 'package:imboy/component/ui/nodata_view.dart';
+import 'package:imboy/config/const.dart';
+import 'package:imboy/i18n/strings.g.dart';
+import 'package:imboy/page/bottom_navigation/bottom_navigation_provider.dart';
+import 'package:imboy/page/chat/chat/chat_provider.dart';
+import 'package:imboy/page/contact/contact/contact_page.dart';
+import 'package:imboy/page/contact/contact/contact_provider.dart';
+import 'package:imboy/page/conversation/conversation_page.dart';
+import 'package:imboy/page/conversation/conversation_provider.dart';
+import 'package:imboy/page/web_shell/web_chat_input.dart';
+import 'package:imboy/service/storage.dart';
+import 'package:imboy/service/web_writer_gate.dart';
+import 'package:imboy/store/model/contact_model.dart';
+
+import 'fixtures/chat_input_io_fence.dart';
+import 'fixtures/text_send_fixture.dart';
+
 import 'package:cupertino_ui/cupertino_ui.dart';
 import 'package:material_ui/material_ui.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:go_router/go_router.dart';
+import 'package:imboy/component/ui/resource_page_layout.dart';
+import 'package:imboy/theme/default/app_colors.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/page/web_shell/web_shell.dart';
@@ -59,6 +84,10 @@ Future<ProviderContainer> _pumpShell(
   String welcomeTitle = 'Welcome',
   String? welcomeSubtitle,
   Widget? navigationLeading,
+  Widget messageTab = _kMessageTab,
+  Widget Function(ChatSelection)? chatBuilder,
+  bool canonicalRoute = false,
+  bool channelTabAvailable = true,
 }) async {
   // MediaQuery.of(context).size 读 view.physicalSize / view.devicePixelRatio，
   // setSurfaceSize 不影响 MediaQuery — 必须直接设 view.physicalSize（按 DPR 放大）
@@ -74,38 +103,181 @@ Future<ProviderContainer> _pumpShell(
   // 保活订阅，避免 auto-dispose（Riverpod 3 测试陷阱）
   container.listen(webShellProvider, (_, _) {});
 
+  final shell = WebShellPage(
+    tabMessageLabel: 'Messages',
+    tabContactLabel: 'Contacts',
+    tabChannelLabel: 'Channels',
+    tabMineLabel: 'Me',
+    welcomeTitle: welcomeTitle,
+    welcomeSubtitle: welcomeSubtitle,
+    messageTab: messageTab,
+    contactTab: _kContactTab,
+    channelTab: _kChannelTab,
+    mineTab: _kMineTab,
+    chatBuilder: chatBuilder ?? _chatBuilder,
+    contactBuilder: _contactBuilder,
+    channelBuilder: _channelBuilder,
+    mineBuilder: _mineBuilder,
+    mobileFallback: _kMobile,
+    mobileFallbackBuilder: canonicalRoute ? (content) => content : null,
+    navigationLeading: navigationLeading,
+    messageBadgeCount: messageBadgeCount,
+    contactBadgeCount: contactBadgeCount,
+    channelBadgeCount: channelBadgeCount,
+    channelTabAvailable: channelTabAvailable,
+  );
+  final router = canonicalRoute
+      ? GoRouter(
+          initialLocation: '/web_shell',
+          routes: [GoRoute(path: '/web_shell', builder: (_, _) => shell)],
+        )
+      : null;
+  if (router != null) addTearDown(router.dispose);
   await tester.pumpWidget(
     UncontrolledProviderScope(
       container: container,
-      child: MaterialApp(
-        home: WebShellPage(
-          tabMessageLabel: 'Messages',
-          tabContactLabel: 'Contacts',
-          tabChannelLabel: 'Channels',
-          tabMineLabel: 'Me',
-          welcomeTitle: welcomeTitle,
-          welcomeSubtitle: welcomeSubtitle,
-          messageTab: _kMessageTab,
-          contactTab: _kContactTab,
-          channelTab: _kChannelTab,
-          mineTab: _kMineTab,
-          chatBuilder: _chatBuilder,
-          contactBuilder: _contactBuilder,
-          channelBuilder: _channelBuilder,
-          mineBuilder: _mineBuilder,
-          mobileFallback: _kMobile,
-          navigationLeading: navigationLeading,
-          messageBadgeCount: messageBadgeCount,
-          contactBadgeCount: contactBadgeCount,
-          channelBadgeCount: channelBadgeCount,
-        ),
-      ),
+      child: router == null
+          ? MaterialApp(home: shell)
+          : MaterialApp.router(routerConfig: router),
     ),
   );
   return container;
 }
 
 void main() {
+  group('A02 first contact message', () {
+    late ChatInputIoFence fence;
+    setUp(() => fence = ChatInputIoFence()..install());
+    tearDown(() => fence.verifyAndRestore());
+    isolatedChatInputTestWidgets(
+      'A02 empty action opens contact and sends first C2C',
+      (tester) => _a02FirstSend(tester),
+    );
+  });
+  group('approved page-specific columns', () {
+    for (final width in [
+      if (kIsWeb) 390.0,
+      900.0,
+      1024.0,
+      1199.0,
+      1200.0,
+      1400.0,
+    ]) {
+      testWidgets(
+        'Mine uses full main region and bounded resources at $width',
+        (tester) async {
+          final container = await _pumpShell(
+            tester,
+            size: Size(width, 800),
+            canonicalRoute: kIsWeb,
+          );
+          container.read(webShellProvider.notifier).switchTab(3);
+          await tester.pumpAndSettle();
+          final list = find.byType(WebMiddlePanel);
+          final element = tester.element(list);
+          expect(find.byType(WebMainPanel), findsNothing);
+          expect(find.text('Welcome'), findsNothing);
+          final content = tester.getRect(
+            find.byKey(const ValueKey('web-shell-content')),
+          );
+          final bounds = tester.getRect(list);
+          expect(bounds.width, closeTo(content.width, 1));
+          expect(tester.widget<WebMiddlePanel>(list).showDivider, isFalse);
+          final background = find.byKey(
+            const ValueKey('web-shell-page-background'),
+          );
+          expect(tester.getRect(background), content);
+          expect(
+            tester.widget<ColoredBox>(background).color,
+            AppColors.getSurfaceGrouped(
+              Theme.of(tester.element(background)).brightness,
+            ),
+          );
+          expect(bounds.center.dx, closeTo(content.center.dx, 1));
+          container
+              .read(webShellProvider.notifier)
+              .selectItem(const MineSelection(section: 'settings'));
+          await tester.pumpAndSettle();
+          expect(find.byType(WebMiddlePanel), findsNothing);
+          expect(
+            tester.element(find.byType(WebMiddlePanel, skipOffstage: false)),
+            same(element),
+          );
+          expect(find.text('MINE:settings'), findsOneWidget);
+          final panel = tester.getRect(
+            find.byKey(const ValueKey('mine-panel')),
+          );
+          expect(panel.width, lessThanOrEqualTo(ResourcePageLayout.maxWidth));
+          expect(panel.center.dx, closeTo(content.center.dx, 1));
+          expect(find.byType(CupertinoNavigationBarBackButton), findsOneWidget);
+          await tester.tap(find.byType(CupertinoNavigationBarBackButton));
+          await tester.pumpAndSettle();
+          expect(container.read(webShellProvider).selectedItem, isNull);
+          expect(tester.element(list), same(element));
+          expect(find.text('Welcome'), findsNothing);
+          container
+              .read(webShellProvider.notifier)
+              .selectItem(const MineSelection(section: 'profile'));
+          await tester.pumpAndSettle();
+          expect(find.text('MINE:profile'), findsOneWidget);
+          expect(find.byType(WebMiddlePanel), findsNothing);
+          expect(
+            tester.getSize(find.byKey(const ValueKey('mine-panel'))).width,
+            lessThanOrEqualTo(ResourcePageLayout.maxWidth),
+          );
+          expect(tester.takeException(), isNull);
+        },
+      );
+      for (final tab in [1, 2]) {
+        testWidgets('tab$tab only splits on actual selection at $width', (
+          tester,
+        ) async {
+          final container = await _pumpShell(
+            tester,
+            size: Size(width, 800),
+            canonicalRoute: kIsWeb,
+          );
+          container.read(webShellProvider.notifier).switchTab(tab);
+          await tester.pumpAndSettle();
+          final list = find.byType(WebMiddlePanel);
+          final element = tester.element(list);
+          final content = tester.getRect(
+            find.byKey(const ValueKey('web-shell-content')),
+          );
+          expect(tester.getSize(list).width, closeTo(content.width, 1));
+          expect(find.byType(WebMainPanel), findsNothing);
+          expect(find.text('Welcome'), findsNothing);
+          container
+              .read(webShellProvider.notifier)
+              .selectItem(
+                tab == 1
+                    ? const ContactSelection(uid: '123411316393379840')
+                    : const ChannelSelection(channelId: '123411316393379841'),
+              );
+          await tester.pumpAndSettle();
+          expect(find.byType(WebMainPanel), findsOneWidget);
+          expect(
+            tester.element(find.byType(WebMiddlePanel, skipOffstage: false)),
+            same(element),
+          );
+          if (width >= 1200) {
+            expect(tester.getSize(list).width, 360);
+          } else {
+            expect(list, findsNothing);
+            await tester.tap(find.byType(CupertinoNavigationBarBackButton));
+            await tester.pumpAndSettle();
+          }
+          container.read(webShellProvider.notifier).clearSelection();
+          await tester.pumpAndSettle();
+          expect(tester.element(list), same(element));
+          expect(tester.getSize(list).width, closeTo(content.width, 1));
+          expect(find.byType(WebMainPanel), findsNothing);
+          expect(tester.takeException(), isNull);
+        });
+      }
+    }
+  });
+
   group('WebShellPage — mobile fallback (< 900px)', () {
     testWidgets('width 320 → 渲染 mobileFallback', (tester) async {
       await _pumpShell(tester, size: const Size(320, 700));
@@ -175,9 +347,91 @@ void main() {
       expect(find.text('Welcome'), findsOneWidget);
     });
 
-    testWidgets('width 1024 → twoColumn 也走三栏分支（>= 900）', (tester) async {
-      await _pumpShell(tester, size: const Size(1024, 800));
-      expect(find.byType(WebNavRail), findsOneWidget);
+    for (final width in [899.0, 900.0, 901.0, 1199.0, 1200.0, 1201.0]) {
+      testWidgets('actual layout at $width', (tester) async {
+        final container = await _pumpShell(tester, size: Size(width, 800));
+        if (width < 900) {
+          expect(find.byKey(const ValueKey('mobile-fallback')), findsOneWidget);
+          return;
+        }
+        expect(find.byType(WebNavRail), findsOneWidget);
+        expect(find.byType(WebMiddlePanel), findsOneWidget);
+        expect(
+          find.byType(WebMainPanel),
+          width < 1200 ? findsNothing : findsOneWidget,
+        );
+        container
+            .read(webShellProvider.notifier)
+            .selectItem(const ChatSelection(peerId: 'p1', chatType: 'C2C'));
+        await tester.pump();
+        expect(find.byType(WebMainPanel), findsOneWidget);
+        expect(
+          find.byType(WebMiddlePanel),
+          width < 1200 ? findsNothing : findsOneWidget,
+        );
+        expect(tester.takeException(), isNull);
+      });
+    }
+
+    testWidgets(
+      'detail draft survives resizing across 1200 in both directions',
+      (tester) async {
+        const key = ValueKey('detail-draft');
+        final container = await _pumpShell(
+          tester,
+          size: const Size(1199, 800),
+          chatBuilder: (_) => const CupertinoTextField(key: key),
+        );
+        container
+            .read(webShellProvider.notifier)
+            .selectItem(const ChatSelection(peerId: 'p1', chatType: 'C2C'));
+        await tester.pump();
+        await tester.enterText(find.byKey(key), 'unsent draft');
+        final element = tester.element(find.byKey(key));
+        for (final width in [1200.0, 1199.0]) {
+          tester.view.physicalSize = Size(width, 800);
+          await tester.pump();
+          expect(tester.element(find.byKey(key)), same(element));
+          expect(find.text('unsent draft'), findsOneWidget);
+          expect(tester.takeException(), isNull);
+        }
+      },
+    );
+
+    testWidgets('two columns retain list draft and exclude hidden focus', (
+      tester,
+    ) async {
+      const fieldKey = ValueKey('list-search');
+      const spaceKey = ValueKey('space-entry');
+      final container = await _pumpShell(
+        tester,
+        size: const Size(1024, 800),
+        messageTab: const CupertinoTextField(key: fieldKey),
+        navigationLeading: const Text('SPACE', key: spaceKey),
+      );
+      await tester.enterText(find.byKey(fieldKey), 'saved query');
+      final listElement = tester.element(find.byKey(fieldKey));
+      container
+          .read(webShellProvider.notifier)
+          .selectItem(const ChatSelection(peerId: 'p1', chatType: 'C2C'));
+      await tester.pump();
+      expect(find.byKey(fieldKey), findsNothing);
+      expect(find.byKey(spaceKey), findsOneWidget);
+      expect(
+        tester
+            .widget<EditableText>(
+              find.byType(EditableText, skipOffstage: false),
+            )
+            .focusNode
+            .hasFocus,
+        isFalse,
+      );
+      await tester.tap(find.byType(CupertinoNavigationBarBackButton));
+      await tester.pump();
+      expect(tester.element(find.byKey(fieldKey)), same(listElement));
+      expect(find.text('saved query'), findsOneWidget);
+      expect(container.read(webShellProvider).selectedItem, isNull);
+      expect(tester.takeException(), isNull);
     });
   });
 
@@ -199,6 +453,107 @@ void main() {
       );
       expect(find.text('欢迎使用'), findsOneWidget);
       expect(find.text('选一个会话开始'), findsOneWidget);
+    });
+  });
+
+  // LAY-06：channel-off profile 下桌面 rail 不得出现死入口；索引重排对齐
+  // 原生 bottom_navigation（隐藏频道目的地）与移动 fallback（mine3→位2）。
+  group('WebShellPage — channelTabAvailable=false（LAY-06）', () {
+    testWidgets('rail 不渲染频道入口，其余 3 项保留', (tester) async {
+      await _pumpShell(
+        tester,
+        size: const Size(1400, 800),
+        channelTabAvailable: false,
+      );
+
+      expect(
+        find.byTooltip('Channels'),
+        findsNothing,
+        reason: 'channel-off 下 rail 显示频道项即死入口',
+      );
+      expect(find.byTooltip('Messages'), findsOneWidget);
+      expect(find.byTooltip('Contacts'), findsOneWidget);
+      expect(find.byTooltip('Me'), findsOneWidget);
+    });
+
+    testWidgets('rail 位 2（Me）重排到 tab 3，而不是误入频道 tab', (tester) async {
+      final container = await _pumpShell(
+        tester,
+        size: const Size(1400, 800),
+        channelTabAvailable: false,
+      );
+
+      tester.widget<WebNavRail>(find.byType(WebNavRail)).onTap(2);
+      await tester.pumpAndSettle();
+
+      expect(
+        container.read(webShellProvider).currentTab,
+        3,
+        reason: '隐藏频道后 rail 第 3 项是"我的"(tab3)，不得映射到 tab2',
+      );
+      expect(find.text('MINE_TAB', skipOffstage: false), findsOneWidget);
+      // rail 高亮同步重排：tab3 → rail 位 2
+      expect(
+        tester.widget<WebNavRail>(find.byType(WebNavRail)).currentIndex,
+        2,
+      );
+    });
+
+    testWidgets('currentTab=2 残留（深链 ?tab=channel）在 channel-off 下治愈为消息', (
+      tester,
+    ) async {
+      final container = await _pumpShell(
+        tester,
+        size: const Size(1400, 800),
+        channelTabAvailable: false,
+      );
+      container
+          .read(webShellProvider.notifier)
+          .replaceState(const WebShellState(currentTab: 2));
+      await tester.pumpAndSettle();
+
+      expect(
+        container.read(webShellProvider).currentTab,
+        0,
+        reason: '频道不可用时不得停留在空频道 tab（死胡同）',
+      );
+      expect(find.byTooltip('Messages'), findsOneWidget);
+    });
+
+    testWidgets('WebShellBootstrap 在 channel-off profile 下关闭 rail 频道入口', (
+      tester,
+    ) async {
+      final flags = Map<String, dynamic>.from(AppFeatureRegistry.snapshot);
+      addTearDown(() => AppFeatureRegistry.replaceSnapshotForTest(flags));
+      AppFeatureRegistry.replaceSnapshotForTest({FeatureKeys.channel: false});
+
+      late WebShellPage shell;
+      await tester.pumpWidget(
+        TranslationProvider(
+          child: ProviderScope(
+            child: MaterialApp(
+              home: Consumer(
+                builder: (context, ref, _) {
+                  // 构造真实生产 producer 但不挂载业务页（DB/网络），
+                  // 只检查 bootstrap 注入的公共参数（模式对齐 web_shell_route_test）。
+                  shell = const WebShellBootstrap().build(
+                    context,
+                    ref,
+                  ) as WebShellPage;
+                  return const SizedBox(key: ValueKey('bootstrap-probe'));
+                },
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.pump();
+
+      expect(
+        shell.channelTabAvailable,
+        isFalse,
+        reason: 'bootstrap 必须按 personalChannelTabAvailable() 注入 rail 可用性',
+      );
     });
   });
 
@@ -416,4 +771,198 @@ void main() {
       expect(lightBg, isNot(darkBg));
     });
   });
+}
+
+class _A02EmptyConversations extends ConversationNotifier {
+  @override
+  ConversationState build() => ConversationState(isLoading: false);
+  @override
+  Future<void> syncManualPendingFromServer() async {}
+  @override
+  Future<void> syncAuthoritativeConversationList({
+    String trigger = 'manual',
+  }) async {}
+}
+
+class _A02Contacts extends ContactNotifier {
+  _A02Contacts(this.contact);
+  final ContactModel contact;
+  @override
+  ContactState build() => ContactState(
+    contactList: [contact],
+    isLoading: false,
+    indexBarData: const {'F'},
+  );
+  @override
+  Future<void> loadData() async {}
+}
+
+class _A02Reminders extends NewFriendRemindNotifier {
+  @override
+  Set<String> build() => <String>{};
+  @override
+  Future<void> countReminders() async {}
+}
+
+void _a02Connectivity() {
+  const check = MethodChannel('dev.fluttercommunity.plus/connectivity');
+  const events = MethodChannel('dev.fluttercommunity.plus/connectivity_status');
+  final messenger =
+      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
+  messenger.setMockMethodCallHandler(check, (call) async {
+    if (call.method == 'check') return <String>['wifi'];
+    throw MissingPluginException('unexpected connectivity call');
+  });
+  messenger.setMockMethodCallHandler(events, (call) async {
+    if (call.method == 'listen' || call.method == 'cancel') return null;
+    throw MissingPluginException('unexpected connectivity event');
+  });
+  addTearDown(() {
+    messenger.setMockMethodCallHandler(check, null);
+    messenger.setMockMethodCallHandler(events, null);
+  });
+}
+
+Future<void> _a02FirstSend(WidgetTester tester) async {
+  final oldUid = StorageService.to.getString(Keys.currentUid);
+  _a02Connectivity();
+  addTearDown(() async {
+    await StorageService.to.setString(Keys.currentUid, oldUid);
+    tester.view.resetPhysicalSize();
+    tester.view.resetDevicePixelRatio();
+  });
+  await tester.runAsync(() async {
+    await prepareWebWriter();
+    await StorageService.to.setString(Keys.currentUid, '900001');
+  });
+  tester.view.devicePixelRatio = 1;
+  tester.view.physicalSize = const Size(1024, 768);
+  final contact = ContactModel(
+    peerId: '990001',
+    nickname: 'Fixture Friend',
+    avatar: '',
+    isFriend: 1,
+  )..nameIndex = 'F';
+  final messages = TextSendMessages();
+  final chat = TextSendChat(messages);
+  final scope = ProviderContainer(
+    overrides: [
+      conversationProvider.overrideWith(_A02EmptyConversations.new),
+      contactProvider.overrideWith(() => _A02Contacts(contact)),
+      newFriendRemindProvider.overrideWith(_A02Reminders.new),
+      chatProvider.overrideWith(() => chat),
+    ],
+  );
+  final router = _a02Router(scope, contact, messages);
+  try {
+    await tester.pumpWidget(
+      UncontrolledProviderScope(
+        container: scope,
+        child: TranslationProvider(
+          child: MaterialApp.router(routerConfig: router),
+        ),
+      ),
+    );
+    await _a02Frames(tester);
+    await _a02Journey(tester, scope, chat, messages);
+  } finally {
+    await tester.pumpWidget(const SizedBox.shrink());
+    router.dispose();
+    scope.dispose();
+  }
+}
+
+GoRouter _a02Router(
+  ProviderContainer scope,
+  ContactModel contact,
+  TextSendMessages messages,
+) => GoRouter(
+  initialLocation: '/web_shell',
+  routes: [
+    GoRoute(
+      path: '/web_shell',
+      builder: (_, _) => WebShellPage(
+        tabMessageLabel: 'Messages',
+        tabContactLabel: 'Contacts',
+        tabChannelLabel: 'Channels',
+        tabMineLabel: 'Mine',
+        welcomeTitle: 'Welcome',
+        messageTab: const ConversationPage(),
+        contactTab: const ContactPage(),
+        channelTab: const SizedBox(),
+        mineTab: const SizedBox(),
+        mobileFallback: const SizedBox(),
+        chatBuilder: (sel) => Material(
+          child: WebChatInput(
+            selection: sel,
+            currentUserId: '900001',
+            messageRepository: messages,
+          ),
+        ),
+        contactBuilder: (sel) => WebContactInfoPanel(
+          selection: sel,
+          sendButtonLabel: 'Start chat',
+          closeTooltip: 'Close',
+          contactLoader: (_) async => contact,
+          onClose: scope.read(webShellProvider.notifier).clearSelection,
+          onSendMessage: () => scope
+              .read(webShellProvider.notifier)
+              .openChat(ChatSelection(peerId: sel.uid, chatType: 'C2C')),
+        ),
+        channelBuilder: (_) => const SizedBox(),
+        mineBuilder: (_) => const SizedBox(),
+      ),
+    ),
+  ],
+);
+
+Future<void> _a02Journey(
+  WidgetTester tester,
+  ProviderContainer scope,
+  TextSendChat chat,
+  TextSendMessages messages,
+) async {
+  expect(scope.read(conversationProvider).conversations, isEmpty);
+  expect(find.byType(NoDataView), findsOneWidget);
+  await tester.tap(find.text(t.organization.directory.title));
+  await _a02Frames(tester);
+  expect(find.byType(ContactPage), findsOneWidget);
+  await tester.tap(find.text('Fixture Friend'));
+  await _a02Frames(tester);
+  expect(find.byType(WebContactInfoPanel), findsOneWidget);
+  await tester.tap(find.text('Start chat'));
+  await _a02Frames(tester);
+  expect(
+    scope.read(webShellProvider).selectedItem,
+    const ChatSelection(peerId: '990001', chatType: 'C2C'),
+  );
+  final field = find.descendant(
+    of: find.byKey(const ValueKey('web-chat-input-field')),
+    matching: find.byType(TextField),
+  );
+  final send = find.byKey(const ValueKey('web-chat-input-send-btn'));
+  await tester.enterText(field, 'fixture first message');
+  await _a02Frames(tester);
+  expect(
+    tester.widget<IconButton>(send).onPressed,
+    isNotNull,
+    reason: 'empty-state disabled status must not survive into C2C composer',
+  );
+  await tester.tap(send);
+  await _a02Frames(tester);
+  expect(chat.submitted, hasLength(1));
+  final sent = chat.submitted.single as TextMessage;
+  expect(sent.id, isNotEmpty);
+  expect(sent.authorId, '900001');
+  expect(sent.text, 'fixture first message');
+  expect(sent.metadata?['peer_id'], '990001');
+  expect(messages.rows[sent.id]?.toId, '990001');
+  expect(messages.rows[sent.id]?.type, 'C2C');
+}
+
+Future<void> _a02Frames(WidgetTester tester) async {
+  for (var i = 0; i < 25; i++) {
+    await tester.pump(const Duration(milliseconds: 16));
+    expect(tester.takeException(), isNull);
+  }
 }

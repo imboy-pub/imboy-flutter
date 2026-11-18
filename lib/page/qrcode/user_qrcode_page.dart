@@ -17,7 +17,7 @@ import 'package:imboy/page/qrcode/qrcode_url.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/helper/repaint_boundary.dart';
 import 'package:imboy/component/ui/ios_settings_ui.dart';
-import 'package:imboy/store/repository/user_repo_local.dart';
+import 'package:imboy/store/repository/user_repo_provider.dart';
 import 'package:imboy/i18n/strings.g.dart';
 
 /// 个人二维码名片：屏幕与导出共用紧凑、可扫描的固定白色卡片。
@@ -28,9 +28,16 @@ class UserQrCodePage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final user = UserRepoLocal.to.current;
-    String qrcodeData = buildUserQrcodeUrl(UserRepoLocal.to.currentUid);
-    String filename = "${UserRepoLocal.to.currentUid}_qrcode";
+    final user = ref.watch(currentUserProvider);
+    if (user == null) {
+      return IosPageTemplate(
+        title: t.account.myQrcode,
+        useLargeTitle: false,
+        child: Center(child: Text(t.common.notLoggedIn)),
+      );
+    }
+    final qrcodeData = buildUserQrcodeUrl(user.uid);
+    final filename = "${user.uid}_qrcode";
 
     return IosPageTemplate(
       title: t.account.myQrcode,

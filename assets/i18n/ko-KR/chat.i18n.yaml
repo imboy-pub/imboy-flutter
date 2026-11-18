@@ -87,6 +87,7 @@ reply: 답장
 resendCode: 인증 코드 재전송
 revoke: 회수
 scanQrCodeBusinessCard: QR코드 명함 스캔
+scanQrEntry: QR코드 스캔
 privateChat: "1:1 채팅"
 sendFriendRequest: 친구 추가 요청 보내기
 sendMsgRejected: 메시지가 전송되었으나 상대방이 거부했습니다.
@@ -179,7 +180,7 @@ webFeatureE2EE: 종단간 암호화
 webFeatureE2EEDesc: 모든 메시지는 종단간 암호화되어 개인정보를 안전하게 보호합니다
 webFeatureFileTransfer: 파일 전송
 webFeatureFileTransferDesc: 드래그 앤 드롭으로 파일을 보낼 수 있으며 다양한 형식을 지원합니다
-webQRStatusWaiting: ImBoy 모바일 앱 열기 > 설정 > 스캔
+webQRStatusWaiting: ImBoy 모바일 앱 열기 > 메시지 > 오른쪽 위 스캔
 webQRStatusScanned: 휴대폰에서 "로그인 확인"을 눌러주세요
 webQRStatusVerifying: 확인 중...
 webQRStatusExpired: 새로고침을 눌러 다시 스캔해주세요
@@ -277,3 +278,8 @@ fileWithNameSize(name,size): "$name ($size)"
 voiceDurationSeconds(seconds): "$seconds초"
 bundleInvalidOrEmpty: 잘못되었거나 비어 있는 채팅 기록
 bundleForwardedBy(name): "$name님이 전달함"
+chatStatusOutcomeUnknown: 이번 전송이 거부되었습니다. 전송 결과를 확인할 수 없습니다
+
+# ---- DSN-06 gap fill (machine-candidate 2026-11-16) ----
+e2eeMsgBeforeDevice: "이 메시지는 이 기기가 참여하기 전에 전송되어 이 기기에서 표시할 수 없습니다" # machine-candidate 2026-11-16
+e2eeMsgBeforeDeviceTapHint: "이 메시지는 이 기기를 포함하지 않고 암호화되었습니다(예: 기기 변경 전 과거 메시지). 여기서 복호화할 수 없습니다. 이 기기에서 주고받는 새 메시지에는 영향이 없습니다" # machine-candidate 2026-11-16

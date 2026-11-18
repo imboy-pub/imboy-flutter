@@ -136,6 +136,21 @@ void main() {
       expect(fakeNew.connectCalls, 1);
     });
 
+    test(
+      'provider disposal closes SSE without a widget cleanup call',
+      () async {
+        final localContainer = ProviderContainer();
+        localContainer.listen(qRLoginProvider, (_, _) {});
+        final notifier = localContainer.read(qRLoginProvider.notifier);
+        final fake = FakeSseClient();
+        notifier.sseClientBuilderForTesting = () => fake;
+        notifier.startSseSession('synthetic-disposed-provider');
+        localContainer.dispose();
+        await Future<void>.delayed(Duration.zero);
+        expect(fake.closed, isTrue);
+      },
+    );
+
     test('dispose 触发 SSE session 清理', () async {
       final notifier = container.read(qRLoginProvider.notifier);
       final fake = FakeSseClient();

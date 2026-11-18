@@ -1,0 +1,145 @@
+# customerService namespace — ja-JP
+# DSN-06 gap fill 2026-11-16: machine-candidate translations (owner decision owner-batch-20261116).
+actionDraftWarning: "未送信のドラフトがあります。この操作を確認してもドラフトは送信されません。" # machine-candidate 2026-11-16
+actionSendingWarning: "メッセージを送信中です。完了を待って確認してから操作してください。" # machine-candidate 2026-11-16
+actionUnconfirmedWarning: "未確認のメッセージがあります。先に結果を確認してください。現時点では会話の操作を送信できません。" # machine-candidate 2026-11-16
+actionUploadingWarning: "添付ファイルをアップロード中です。完了を待って確認してから操作してください。" # machine-candidate 2026-11-16
+activeEmptyHint: "受付待ちリストから対応を開始すると、会話がここに表示されます" # machine-candidate 2026-11-16
+activeEmptyTitle: "対応中の会話はありません" # machine-candidate 2026-11-16
+attachAction: "添付" # machine-candidate 2026-11-16
+attachBinaryNoPreview: "バイナリコンテンツのため、プレビューは対応していません" # machine-candidate 2026-11-16
+attachCancel: "以降のアップロード手順を停止" # machine-candidate 2026-11-16
+attachCancelled: "添付ファイルはアップロード開始前にキャンセルされました" # machine-candidate 2026-11-16
+attachConfirming: "アップロード済みファイルを確認中" # machine-candidate 2026-11-16
+attachPreparing: "添付ファイルを準備中" # machine-candidate 2026-11-16
+attachPresigning: "アップロード権限を申請中" # machine-candidate 2026-11-16
+attachPreviewTitle: "添付ファイルプレビュー（企業セキュアチャネル）" # machine-candidate 2026-11-16
+attachPreviewTruncated: "テキストの一部のみ表示しています。保存したファイルには完全な内容が含まれます。" # machine-candidate 2026-11-16
+attachRetry: "添付ファイルのアップロードを再試行" # machine-candidate 2026-11-16
+attachSave: "ファイルを保存" # machine-candidate 2026-11-16
+attachSaveFailed: "保存に失敗しました。再試行できます。" # machine-candidate 2026-11-16
+attachSaved: "ファイルを保存しました" # machine-candidate 2026-11-16
+attachStatusUnavailable: "現在利用不可 · $size" # machine-candidate 2026-11-16
+attachTooLarge: "添付ファイルは空でなく、25 MiB以下である必要があります。" # machine-candidate 2026-11-16
+attachUnknown: "アップロード結果は完全に確認されていません。自動再試行やメッセージ送信は行っていません。" # machine-candidate 2026-11-16
+attachUnnamedFile: "添付ファイル" # machine-candidate 2026-11-16
+attachUnsupportedType: "このファイル形式は対応していません。別のファイルを選んでください" # machine-candidate 2026-11-16
+attachUploadFailed: "添付ファイルのアップロードに失敗しました。再試行してください" # machine-candidate 2026-11-16
+attachUploadStopped: "アップロードが完了せず、以降の操作を停止しました。権限と会話状態を確認してから再度ファイルを選択してください。" # machine-candidate 2026-11-16
+attachUploaded: "添付ファイルをアップロードしました" # machine-candidate 2026-11-16
+attachUploadedNotSent: "添付ファイルはアップロード済みですが、メッセージの送信結果は未確認です。送信結果を確認してください。再アップロードはしないでください。" # machine-candidate 2026-11-16
+attachUploading: "バイトをアップロード中: $sent / $total" # machine-candidate 2026-11-16
+channelUnavailable: "メッセージチャネルは現在利用できません。サーバーによる会話バインドを待っています" # machine-candidate 2026-11-16
+claimAction: "対応開始" # machine-candidate 2026-11-16
+claimConflict: "この会話は他のエージェントが対応を開始したか、状態が変化しました。最新のキューに更新しました" # machine-candidate 2026-11-16
+claimFailed: "対応開始に失敗しました。しばらくしてからもう一度お試しください" # machine-candidate 2026-11-16
+claimForbidden: "エージェントは停止中のため、対応を開始できません" # machine-candidate 2026-11-16
+claimOffboardingRequired: "離職引き継ぎ中のため、現時点では対応を開始できません" # machine-candidate 2026-11-16
+claimSuccess: "対応を開始しました" # machine-candidate 2026-11-16
+closeAction: "会話をクローズ" # machine-candidate 2026-11-16
+closeBody: "クローズ後、お客様に評価が案内され、会話は読み取り専用になります。" # machine-candidate 2026-11-16
+closeConflict: "会話の状態が変化しました。更新して確認してから再度実行してください。" # machine-candidate 2026-11-16
+closeFailed: "クローズに失敗しました。しばらくしてからもう一度お試しください" # machine-candidate 2026-11-16
+closeReasonLabel: "理由（任意）" # machine-candidate 2026-11-16
+closeReasonTooLong: "理由は$max文字以内で入力してください" # machine-candidate 2026-11-16
+closeSuccess: "会話をクローズしました" # machine-candidate 2026-11-16
+closeTitle: "クローズの確認" # machine-candidate 2026-11-16
+closedEmptyHint: "クローズ済みの会話はここにアーカイブ表示されます" # machine-candidate 2026-11-16
+closedEmptyTitle: "クローズ済みの会話はありません" # machine-candidate 2026-11-16
+closedReadonly: "会話はクローズ済み。内容は閲覧のみ可能" # machine-candidate 2026-11-16
+countUnavailable: "--" # machine-candidate 2026-11-16
+entrySubtitle: "受付待ちのカスタマー会話を取得して対応します" # machine-candidate 2026-11-16
+entryTitle: "サポートワークスペース" # machine-candidate 2026-11-16
+inputHint: "返信内容を入力…" # machine-candidate 2026-11-16
+loadFailedTitle: "読み込みに失敗しました" # machine-candidate 2026-11-16
+loadMoreFailed: "さらに読み込めませんでした。上にスワイプして再試行" # machine-candidate 2026-11-16
+loadingMore: "さらに読み込み中…" # machine-candidate 2026-11-16
+newMessagesJump: "新着メッセージ · 最新を表示" # machine-candidate 2026-11-16
+noMore: "これ以上ありません" # machine-candidate 2026-11-16
+noSeatHint: "有効なサポートエージェント枠がまだありません。企業管理者に有効化を依頼してください" # machine-candidate 2026-11-16
+noSeatTitle: "利用可能なエージェント枠がありません" # machine-candidate 2026-11-16
+offboardingRequired: "離職引き継ぎ中のため、会話の担当権は移管され、この会話は読み取り専用です" # machine-candidate 2026-11-16
+offlineHint: "ネットワークを利用できません。確認してもう一度お試しください" # machine-candidate 2026-11-16
+orgSelectorLabel: "企業" # machine-candidate 2026-11-16
+presenceAwayAction: "離席にする" # machine-candidate 2026-11-16
+presenceCapacityLabel: "$active/$max 会話" # machine-candidate 2026-11-16
+presenceMenuLabel: "エージェント状態" # machine-candidate 2026-11-16
+presenceResumeAction: "自動に戻す" # machine-candidate 2026-11-16
+presenceStatusAway: "離席" # machine-candidate 2026-11-16
+presenceStatusBusy: "取込中" # machine-candidate 2026-11-16
+presenceStatusOffline: "オフライン" # machine-candidate 2026-11-16
+presenceStatusOnline: "オンライン" # machine-candidate 2026-11-16
+presenceUnavailable: "状態を利用できません" # machine-candidate 2026-11-16
+queuedEmptyHint: "引き下げて更新すると、新しい会話がここに表示されます" # machine-candidate 2026-11-16
+queuedEmptyTitle: "受付待ちの会話はありません" # machine-candidate 2026-11-16
+ratedReadonly: "会話は評価されて終了しました。内容は閲覧のみ可能" # machine-candidate 2026-11-16
+ratedTitle: "お客様が評価を完了しました" # machine-candidate 2026-11-16
+ratingScoreLabel: "お客様の評価: $score つ星" # machine-candidate 2026-11-16
+ratingTimeLabel: "評価日時: $time" # machine-candidate 2026-11-16
+ratingUnknownTitle: "評価状態は不明" # machine-candidate 2026-11-16
+readOnlySuspended: "エージェントが停止（suspend）されたため、メッセージチャネルは読み取り専用に切り替わり、バックグラウンド送受信は停止しました" # machine-candidate 2026-11-16
+seatAtCapacity: "エージェント枠の同時上限に達しました（対応中会話が上限）。対応中の会話をクローズするか、管理者に容量調整を依頼してください" # machine-candidate 2026-11-16
+seatDisabledNotice: "エージェント枠は無効です" # machine-candidate 2026-11-16
+seatLabel: "エージェント" # machine-candidate 2026-11-16
+seatSuspendedNotice: "エージェントが停止中のため、キューは閲覧のみ可能" # machine-candidate 2026-11-16
+sendConflict: "会話の状態が変化しました。最新の状態に更新しました" # machine-candidate 2026-11-16
+sendFailed: "送信に失敗しました。しばらくしてからもう一度お試しください" # machine-candidate 2026-11-16
+sessionTitle: "サポート会話" # machine-candidate 2026-11-16
+sourceLabel: "ソース" # machine-candidate 2026-11-16
+sourceWidget: "ウェブ" # machine-candidate 2026-11-16
+tabActive: "対応中" # machine-candidate 2026-11-16
+tabClosed: "クローズ済み" # machine-candidate 2026-11-16
+tabQueued: "受付待ち" # machine-candidate 2026-11-16
+targetAvailable: "転送可能" # machine-candidate 2026-11-16
+targetBusy: "取込中" # machine-candidate 2026-11-16
+title: "サポートワークスペース" # machine-candidate 2026-11-16
+transferAction: "転送" # machine-candidate 2026-11-16
+transferConfirmBody: "現在の会話を $name に引き継ぎますか？転送後、この会話の担当から外れます。" # machine-candidate 2026-11-16
+transferConfirmTitle: "転送の確認" # machine-candidate 2026-11-16
+transferConflict: "会話の状態が変化しました。更新して確認してから再度実行してください。" # machine-candidate 2026-11-16
+transferEmpty: "転送できる同じ企業のサポートエージェントがいません" # machine-candidate 2026-11-16
+transferFailed: "転送に失敗しました。しばらくしてからもう一度お試しください" # machine-candidate 2026-11-16
+transferSuccess: "転送しました" # machine-candidate 2026-11-16
+transferTitle: "同じ企業のエージェントへ転送" # machine-candidate 2026-11-16
+transferredAway: "会話は他のエージェントに引き継がれました。この会話はあなたには読み取り専用です" # machine-candidate 2026-11-16
+unreadBadgeLabel: "未読 $n 件" # machine-candidate 2026-11-16
+visitorLabel: "お客様" # machine-candidate 2026-11-16
+waitingDaysHours: "$d日 $h時間" # machine-candidate 2026-11-16
+waitingHoursMinutes: "$h時間 $m分" # machine-candidate 2026-11-16
+waitingJustNow: "たった今" # machine-candidate 2026-11-16
+waitingMinutes: "$n分" # machine-candidate 2026-11-16
+waitingRatingTitle: "会話はクローズ済み。お客様の評価を待っています" # machine-candidate 2026-11-16
+
+# ---- DSN-06 gap fill (machine-candidate 2026-11-16) ----
+governance:
+  actionDone: "操作が反映されました" # machine-candidate 2026-11-16
+  actionFailed: "操作に失敗しました。しばらくしてからもう一度お試しください" # machine-candidate 2026-11-16
+  errorForbidden: "ガバナンス権限がありません: サポートガバナンスは企業のowner/adminのみ利用できます" # machine-candidate 2026-11-16
+  errorLoadFailed: "読み込みに失敗しました" # machine-candidate 2026-11-16
+  errorNoDefaultWorkspace: "企業にデフォルトワークスペースが設定されておらず、ガバナンスの範囲を確定できません" # machine-candidate 2026-11-16
+  errorWithCode: "${msg}（${code}）" # machine-candidate 2026-11-16
+  limitAdjustAction: "枠を調整" # machine-candidate 2026-11-16
+  limitAdjustTitle: "エージェント枠を調整" # machine-candidate 2026-11-16
+  limitAtCapacity: "上限に達しました" # machine-candidate 2026-11-16
+  limitCardTitle: "エージェント枠" # machine-candidate 2026-11-16
+  limitClearAction: "上限を解除（無制限）" # machine-candidate 2026-11-16
+  limitInputLabel: "エージェント上限（正の整数。空欄=無制限）" # machine-candidate 2026-11-16
+  limitInvalidInput: "正の整数を入力してください" # machine-candidate 2026-11-16
+  limitSaved: "枠を更新しました" # machine-candidate 2026-11-16
+  limitUnlimited: "無制限" # machine-candidate 2026-11-16
+  limitValueLabel: "${used}/${limit} 枠" # machine-candidate 2026-11-16
+  resumeAction: "エージェントを有効化" # machine-candidate 2026-11-16
+  retry: "再試行" # machine-candidate 2026-11-16
+  scopeNote: "このページは企業ガバナンス面（owner/admin）です。サーバーの403が権限の最終判定です。" # machine-candidate 2026-11-16
+  seatCapacityLabel: "${active}/${max} 会話" # machine-candidate 2026-11-16
+  seatEnabledBadge: "有効" # machine-candidate 2026-11-16
+  seatIdentityLabel: "エージェント ${identity}" # machine-candidate 2026-11-16
+  seatLimitExceededHint: "エージェント枠が上限です: ${used}/${limit} 使用中。エージェントを追加できません（seat_limit_exceeded）" # machine-candidate 2026-11-16
+  seatLoadMore: "さらに読み込む" # machine-candidate 2026-11-16
+  seatSuspendedBadge: "停止中" # machine-candidate 2026-11-16
+  seatsEmpty: "エージェント枠はまだありません" # machine-candidate 2026-11-16
+  seatsSectionTitle: "エージェント枠" # machine-candidate 2026-11-16
+  suspendAction: "エージェントを停止" # machine-candidate 2026-11-16
+  suspendConfirmBody: "停止中は新しい会話を開始できません。進行中の会話には影響せず、いつでも有効化できます。" # machine-candidate 2026-11-16
+  suspendConfirmTitle: "このエージェントを停止しますか？" # machine-candidate 2026-11-16
+  title: "サポートガバナンス" # machine-candidate 2026-11-16

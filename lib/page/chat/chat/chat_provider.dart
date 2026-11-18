@@ -60,6 +60,12 @@ MessageHandlingService messageHandlingService(Ref ref) {
 /// 聊天 Provider（Riverpod Notifier 实现）
 @riverpod
 class ChatNotifier extends _$ChatNotifier {
+  // ChatState equality excludes messages; Riverpod must still publish snapshots.
+  @override
+  bool updateShouldNotify(ChatState previous, ChatState next) =>
+      !identical(previous.messages, next.messages) ||
+      super.updateShouldNotify(previous, next);
+
   SqliteChatService? _chatService;
   PlayerController? _globalPlayerController;
   StreamSubscription<PlayerState>? _playerStateSubscription;
@@ -94,10 +100,28 @@ class ChatNotifier extends _$ChatNotifier {
   ///
   /// lastMsgId 是 Xid 字符串（与 MessageModel.id 同契约），
   /// 旧 int 契约下 parseModelInt 把 Xid 静默归零导致本判定恒 false，已修复。
+  ///
+  /// DEF-SYN03-WEB-PAGINATION-DEAD(b)（R3b 实证 runs/syn03-jny06-web-20261116/
+  /// r3bwalk_console.jsonl「归档为空但会话有消息(lastMsgId=dbs479929…)标记
+  /// historyUnavailable」→ 仅自发 9 条渲染、7 条对方消息全缺；清
+  /// msg_history_seq*/offline_cursor* 重登才恢复）：归档「0 条」还有第三种
+  /// 成因——本机持久化游标 seq 超前于本地已有数据（换机导入/上游删库重灌/
+  /// 游标写入成功但落库批次失败），服务端归档其实是健康的（lastMsgId 即
+  /// 佐证）。此时「不可用」是**误标**：游标回拔重拉即可恢复（R3b 清游标
+  /// 实证），绝不是不可恢复态。故标记条件必须叠加「游标已归零重探仍为空」
+  /// ——cursorBehindEvidence=true 表示游标非零（可能超前），交由调用方先走
+  /// 游标重置重拉，重探后仍 0 条才允许置 unavailable。
   static bool shouldMarkHistoryUnavailable({
     required bool anyFetched,
     required String lastMsgId,
-  }) => !anyFetched && lastMsgId.isNotEmpty;
+    bool cursorBehindEvidence = false,
+    bool cursorResetReexplored = true,
+  }) =>
+      !anyFetched &&
+      lastMsgId.isNotEmpty &&
+      // 游标可能超前（seq>0）→ 不允许一次判定就永久标记；
+      // 必须先游标重置重探（cursorResetReexplored=true）仍空才成立。
+      (!cursorBehindEvidence || cursorResetReexplored);
 
   // SharedPreferences keys
   static const String _spPendingReadReceiptsKey =
@@ -132,7 +156,7 @@ class ChatNotifier extends _$ChatNotifier {
 
   @override
   ChatState build() {
-    _ownerSession = authSessionReader.current;
+    _ownerSession = sessionReader.current;
     _preferences = AccountPreferences.capture(
       isActive: () => ref.mounted && !_isDisposed,
     );
@@ -184,6 +208,14 @@ class ChatNotifier extends _$ChatNotifier {
 
     return const ChatState();
   }
+
+  /// Default reader remains the existing immutable instance owner.
+  AuthSessionReader get sessionReader => authSessionReader;
+
+  bool get ownsCurrentSession =>
+      !_isDisposed &&
+      sessionReader.isCurrent(_ownerSession) &&
+      Env().apiBaseUrl == _ownerEndpoint;
 
   /// 初始化网络状态监听
   void initConnectivityListener() {
@@ -266,14 +298,99 @@ class ChatNotifier extends _$ChatNotifier {
       _locationRequest++;
       _contextPaginationConversationId = null;
     }
-    state = state.copyWith(currentConversationId: id);
+    state = state.copyWith(
+      currentConversationId: id,
+      historySyncFailed: state.currentConversationId == id
+          ? state.historySyncFailed
+          : false,
+      historyUnavailable: state.currentConversationId == id
+          ? state.historyUnavailable
+          : false,
+    );
   }
 
   // ===== 消息加载 =====
 
+  List<Message> _mergeWebInitialMessages(
+    List<Message> current,
+    List<Message> history,
+  ) {
+    final chosen = <String, Message>{};
+    final positions = <String, int>{};
+    for (final message in history) {
+      chosen[message.id] = message;
+      positions[message.id] = parseModelInt(message.metadata?['auto_id']);
+    }
+    for (final message in current) {
+      chosen[message.id] = message;
+      final position = parseModelInt(message.metadata?['auto_id']);
+      if (position > 0) positions[message.id] = position;
+    }
+    final highest = positions.values.fold<int>(0, (a, b) => a > b ? a : b);
+    var unknown = highest + current.length;
+    // Web live items already use newest-first order.
+    for (final message in current) {
+      if ((positions[message.id] ?? 0) <= 0) positions[message.id] = unknown--;
+    }
+    final result = chosen.values.toList();
+    result.sort(
+      (a, b) => (positions[b.id] ?? 0).compareTo(positions[a.id] ?? 0),
+    );
+    return result;
+  }
+
+  Future<void> _webPageTail = Future<void>.value();
+  Object? _webPageLease;
+
   Future<List<Message>> loadMoreMessages(
     ConversationModel obj, {
     bool isInitial = false,
+    bool webNewestFirst = false,
+    bool allowPendingRetry = true,
+  }) {
+    if (!webNewestFirst) {
+      return _loadMoreMessagesImpl(
+        obj,
+        isInitial: isInitial,
+        webNewestFirst: false,
+        allowPendingRetry: allowPendingRetry,
+      );
+    }
+    final request = _locationRequest;
+    final service = _chatService;
+    final lease = (request, _ownerSession, _ownerEndpoint, obj.uk3, service);
+    if (_webPageLease != lease) {
+      _webPageLease = lease;
+      _webPageTail = Future<void>.value();
+    }
+    final pending = _webPageTail.then<List<Message>>((_) async {
+      if (_isDisposed ||
+          !sessionReader.isCurrent(_ownerSession) ||
+          Env().apiBaseUrl != _ownerEndpoint ||
+          request != _locationRequest ||
+          !identical(service, _chatService) ||
+          state.currentConversationId != obj.uk3) {
+        return <Message>[];
+      }
+      return _loadMoreMessagesImpl(
+        obj,
+        isInitial: isInitial,
+        webNewestFirst: true,
+        allowPendingRetry: allowPendingRetry,
+      );
+    });
+    _webPageTail = pending.then<void>(
+      (_) {},
+      onError: (Object _, StackTrace _) {},
+    );
+    return pending;
+  }
+
+  Future<List<Message>> _loadMoreMessagesImpl(
+    ConversationModel obj, {
+    bool isInitial = false,
+    bool webNewestFirst = false,
+    bool allowPendingRetry = true,
   }) async {
     iPrint(
       '_loadMoreMessages: isInitial=$isInitial, hasMore=${state.hasMoreMessage}, loading=${state.isLoading}',
@@ -301,7 +418,13 @@ class ChatNotifier extends _$ChatNotifier {
       );
 
       // P1-2：进会话后台正向同步服务端归档历史入 SQLite（不阻塞首屏渲染）
-      unawaited(syncHistoryBackfill(obj));
+      unawaited(
+        syncHistoryBackfill(
+          obj,
+          webNewestFirst: webNewestFirst,
+          allowPendingRetry: allowPendingRetry,
+        ),
+      );
 
       if (isDifferentConversation) {
         _chatService?.setMessages([]);
@@ -314,7 +437,7 @@ class ChatNotifier extends _$ChatNotifier {
 
         if (messageCount == 0) {
           iPrint('警告：会话初始化但消息列表为空，将重新加载');
-        } else {
+        } else if (!webNewestFirst) {
           iPrint('会话初始化：跳过加载，直接返回现有 $messageCount 条消息');
           return _chatService!.messages.toList();
         }
@@ -338,16 +461,25 @@ class ChatNotifier extends _$ChatNotifier {
     final conversationId = obj.uk3;
     bool current() =>
         !_isDisposed &&
-        authSessionReader.isCurrent(_ownerSession) &&
+        sessionReader.isCurrent(_ownerSession) &&
         Env().apiBaseUrl == _ownerEndpoint &&
         request == _locationRequest &&
         identical(service, _chatService) &&
         state.currentConversationId == conversationId;
     if (!current()) return [];
     state = state.copyWith(isLoading: true);
-    final items = await _pageMessages(obj, state.pageSize, current);
+    final List<Message> items;
+    try {
+      items = await pageMessagesForConversation(
+        obj,
+        state.pageSize,
+        current,
+        allowPendingRetry: allowPendingRetry,
+      );
+    } finally {
+      if (current()) state = state.copyWith(isLoading: false);
+    }
     if (!current()) return [];
-    state = state.copyWith(isLoading: false);
 
     syncMessagesToState();
 
@@ -366,16 +498,32 @@ class ChatNotifier extends _$ChatNotifier {
       'loadMoreMessages: items=${items.length}, currentIds=${currentIds.length}, newItems=${newItems.length}, isInitial=$isInitial',
     );
 
+    if (isInitial && webNewestFirst) {
+      final service = _chatService;
+      if (service == null) return [];
+      final merged = _mergeWebInitialMessages(service.messages.toList(), items);
+      await service.setMessages(merged, animated: false);
+      if (!current()) return [];
+    }
     if (newItems.isNotEmpty) {
       if (isInitial) {
         final service = _chatService;
-        service?.setMessages(newItems);
+        if (!webNewestFirst) service?.setMessages(newItems);
         state = state.copyWith(
           nextAutoId: parseModelInt(newItems.first.metadata?['auto_id']),
           prevAutoId: parseModelInt(newItems.last.metadata?['auto_id']),
         );
       } else {
-        _chatService?.insertAllMessages(newItems, index: 0);
+        if (webNewestFirst) {
+          final service = _chatService;
+          await service?.insertAllMessages(
+            newItems.reversed.toList(),
+            index: service.messages.length,
+          );
+          if (!current()) return [];
+        } else {
+          _chatService?.insertAllMessages(newItems, index: 0);
+        }
         if (_contextPaginationConversationId != obj.uk3) {
           state = state.copyWith(
             nextAutoId: parseModelInt(
@@ -387,14 +535,21 @@ class ChatNotifier extends _$ChatNotifier {
       }
     }
 
+    if (current()) syncMessagesToState();
     return newItems;
   }
 
-  Future<List<Message>> _pageMessages(
+  /// Test seam for observing existing pending-message retry behavior.
+  Future<bool> retryPendingMessage(MessageModel item) =>
+      _networkService.sendWsMsg(item);
+
+  /// Query seam for deterministic paging failure/retry coverage.
+  Future<List<Message>> pageMessagesForConversation(
     ConversationModel obj,
     int size,
-    bool Function() isCurrent,
-  ) async {
+    bool Function() isCurrent, {
+    bool allowPendingRetry = true,
+  }) async {
     final String tb = MessageRepo.getTableName(obj.type);
     final repo = MessageRepo(tableName: tb);
 
@@ -416,8 +571,8 @@ class ChatNotifier extends _$ChatNotifier {
 
     final messages = await Future.wait(
       items.map((item) async {
-        if (item.status == IMBoyMessageStatus.sending) {
-          await _networkService.sendWsMsg(item);
+        if (allowPendingRetry && item.status == IMBoyMessageStatus.sending) {
+          await retryPendingMessage(item);
         }
         return await item.toTypeMessage();
       }),
@@ -591,7 +746,7 @@ class ChatNotifier extends _$ChatNotifier {
     bool syncToServer = true,
   }) async {
     var applied = false;
-    await _runChatAccountTask(this, (isCurrent) async {
+    await runChatAccountTask(this, (isCurrent) async {
       applied = await _markAsRead(
         type,
         peerId,
@@ -635,7 +790,9 @@ class ChatNotifier extends _$ChatNotifier {
     if (fresh.isShow != 0) {
       await ref.read(conversationProvider.notifier).replace(fresh);
     }
-    await _emitUpdatedMessagesAfterStatusChange(type, result.msgIds);
+    if (!isCurrent()) return false;
+    await _emitUpdatedMessagesAfterStatusChange(type, result.msgIds, isCurrent);
+    if (!isCurrent()) return false;
     if (syncToServer) {
       await _enqueueReadReceipt(
         type: type,
@@ -650,17 +807,22 @@ class ChatNotifier extends _$ChatNotifier {
   Future<void> _emitUpdatedMessagesAfterStatusChange(
     String type,
     List<String> msgIds,
+    bool Function() isCurrent,
   ) async {
-    if (msgIds.isEmpty) return;
+    if (msgIds.isEmpty || !isCurrent()) return;
     try {
       final repo = MessagingFacade.instance.getMessageRepo(type);
       final List<Message> updated = [];
       for (final String id in msgIds) {
+        if (!isCurrent()) return;
         final m = await repo.find(id);
+        if (!isCurrent()) return;
         if (m == null) continue;
-        updated.add(await m.toTypeMessage());
+        final message = await m.toTypeMessage();
+        if (!isCurrent()) return;
+        updated.add(message);
       }
-      if (updated.isNotEmpty) {
+      if (updated.isNotEmpty && isCurrent()) {
         AppEventBus.fireData(updated);
       }
     } catch (e) {
@@ -700,7 +862,7 @@ class ChatNotifier extends _$ChatNotifier {
 
   Future<void> _enqueuePending(String key, Map<String, dynamic> item) async {
     final action = Map<String, dynamic>.of(item);
-    await _runChatAccountTask(this, (isCurrent) async {
+    await runChatAccountTask(this, (isCurrent) async {
       if (action['from'] != _preferences.owner.uid) return;
       await PendingChatActions.instance.update(
         key,
@@ -1024,18 +1186,26 @@ class ChatNotifier extends _$ChatNotifier {
   static bool isBurnPayload(Map<String, dynamic> payload) =>
       ChatBurnService.isBurnPayload(payload);
 
-  Future<void> markBurnReadAt(
+  Future<bool> markBurnReadAt(
     ConversationModel conversation,
     String messageId, {
     required int readAtMs,
+    bool Function()? isCurrent,
   }) async {
-    await _burnService.markBurnReadAt(
-      burnDeleteTimers: burnDeleteTimers,
-      conversation: conversation,
-      messageId: messageId,
-      readAtMs: readAtMs,
-      onDelete: (conv, msgId) => _deleteBurnMessage(conv, msgId),
-    );
+    var applied = false;
+    final completed = await runChatAccountTask(this, (ownerCurrent) async {
+      bool current() => ownerCurrent() && isCurrent?.call() != false;
+      if (!current()) return;
+      applied = await _burnService.markBurnReadAt(
+        burnDeleteTimers: burnDeleteTimers,
+        conversation: conversation,
+        messageId: messageId,
+        readAtMs: readAtMs,
+        onDelete: (conv, msgId) => _deleteBurnMessage(conv, msgId),
+        isCurrent: current,
+      );
+    });
+    return completed && applied;
   }
 
   Future<void> expireBurnMessage(
@@ -1043,7 +1213,7 @@ class ChatNotifier extends _$ChatNotifier {
     String messageId, {
     int? deletedAtMs,
   }) async {
-    await _runChatAccountTask(
+    await runChatAccountTask(
       this,
       (isCurrent) => _burnService.expireBurnMessage(
         chatService: _chatService,
@@ -1061,7 +1231,7 @@ class ChatNotifier extends _$ChatNotifier {
     ConversationModel conversation,
     String messageId,
   ) async {
-    await _runChatAccountTask(
+    await runChatAccountTask(
       this,
       (isCurrent) => _burnService.deleteBurnMessage(
         burnDeleteTimers: burnDeleteTimers,
@@ -1098,7 +1268,7 @@ class ChatNotifier extends _$ChatNotifier {
     final previousConversationId = state.currentConversationId;
     bool current() =>
         !_isDisposed &&
-        authSessionReader.isCurrent(_ownerSession) &&
+        sessionReader.isCurrent(_ownerSession) &&
         Env().apiBaseUrl == _ownerEndpoint &&
         request == _locationRequest &&
         (isCurrent?.call() ?? true) &&
@@ -1144,7 +1314,7 @@ class ChatNotifier extends _$ChatNotifier {
     final conversationId = obj.uk3;
     bool current() =>
         !_isDisposed &&
-        authSessionReader.isCurrent(_ownerSession) &&
+        sessionReader.isCurrent(_ownerSession) &&
         Env().apiBaseUrl == _ownerEndpoint &&
         request == _locationRequest &&
         identical(service, _chatService) &&
@@ -1206,7 +1376,19 @@ class ChatNotifier extends _$ChatNotifier {
   /// 即清的临时投递队列）覆盖不到的永久历史缺口（如新装机、离线超保留期）。
   /// 游标按会话持久化于 StorageService，重复进会话只增量拉新，不重复全量。
   /// 落库后既有 SQLite 分页（loadMoreMessages）自然渲染，无需另建渲染路径。
-  Future<void> syncHistoryBackfill(ConversationModel obj) async {
+  Future<bool> fetchArchiveHistory(ConversationModel obj, String chatType) =>
+      _archiveService.syncHistory(
+        convKey: obj.uk3,
+        chatType: chatType,
+        peerId: obj.peerId.toString(),
+        maxPages: _historyMaxPagesPerOpen,
+      );
+
+  Future<void> syncHistoryBackfill(
+    ConversationModel obj, {
+    bool webNewestFirst = false,
+    bool allowPendingRetry = true,
+  }) async {
     if (_historySyncing) return;
     final String chatType = obj.type.toLowerCase();
     if (chatType != 'c2c' && chatType != 'c2g') return;
@@ -1215,7 +1397,7 @@ class ChatNotifier extends _$ChatNotifier {
     final locationRequest = _locationRequest;
     bool current() =>
         !_isDisposed &&
-        authSessionReader.isCurrent(_ownerSession) &&
+        sessionReader.isCurrent(_ownerSession) &&
         Env().apiBaseUrl == _ownerEndpoint &&
         identical(service, _chatService) &&
         state.currentConversationId == conversationId;
@@ -1227,37 +1409,58 @@ class ChatNotifier extends _$ChatNotifier {
         historySyncFailed: false,
         historyUnavailable: false,
       );
-      final anyFetched = await _archiveService.syncHistory(
-        convKey: obj.uk3,
-        chatType: chatType,
-        peerId: obj.peerId.toString(),
-        maxPages: _historyMaxPagesPerOpen,
-      );
+      final anyFetched = await fetchArchiveHistory(obj, chatType);
       if (!current() || locationRequest != _locationRequest) return;
+      // DEF-SYN03-WEB-PAGINATION-DEAD(b)（R3b 实证 runs/syn03-jny06-web-
+      // 20261116/r3bwalk_console.jsonl：游标超前→归档趟趟 0 条→误标
+      // historyUnavailable，清 msg_history_seq* 重登即恢复 15/16）：归档
+      // 「0 条」时若持久化游标非零，先回拔归零重探一趟，仍 0 条才允许置
+      // 不可用——不得凭一次判定永久判死。
+      var fetched = anyFetched;
+      var cursorBehind = false;
+      if (!fetched) {
+        cursorBehind = await ChatArchiveService.resetHistoryCursor(obj.uk3) > 0;
+        if (!current() || locationRequest != _locationRequest) return;
+        if (cursorBehind) {
+          iPrint(
+            'syncHistoryBackfill: 归档 0 条但游标非零(超前证据)，'
+            '回拔归零重探',
+          );
+          fetched = await fetchArchiveHistory(obj, chatType);
+          if (!current() || locationRequest != _locationRequest) return;
+        }
+      }
       // BUG#119（批次72 真机复现）：回填「成功但 0 条」≠「会话无消息」。
       // 服务端 msg_store 归档为空（生产未开启 msg_archive_enabled）时，
       // history 接口正常返回空，此时不能展示误导性的「暂无数据」——
       // 会话行 lastMsgId 非空即服务端确认该会话存在消息，只是历史不可取。
       // 置 historyUnavailable 让空态显示「历史消息暂不可用」而非「暂无数据」。
       if (shouldMarkHistoryUnavailable(
-        anyFetched: anyFetched,
+        anyFetched: fetched,
         lastMsgId: obj.lastMsgId,
+        cursorBehindEvidence: cursorBehind,
+        cursorResetReexplored: true,
       )) {
         iPrint(
-          'syncHistoryBackfill: 归档为空但会话有消息(lastMsgId=${obj.lastMsgId})，'
-          '标记 historyUnavailable',
+          'syncHistoryBackfill: 归档为空但会话有消息(lastMsgId=${obj.lastMsgId}，'
+          'cursorBehind=$cursorBehind 已重探)，标记 historyUnavailable',
         );
         state = state.copyWith(historyUnavailable: true);
       }
       // 有回填则重置本地分页游标位，让上滑能读到新落库的更老消息
-      if (anyFetched) {
+      if (fetched) {
         state = state.copyWith(hasMoreMessage: true);
         // BUG#120：空会话没有可上滑的内容，只置 hasMoreMessage 回填消息本次
         // 完全不可见（必须退出重进）。视图为空时主动重跑一次首屏加载。
         // 此处仍在 _historySyncing=true 的窗口内，嵌套调用会被入口 guard 挡掉，
         // 不会递归回填。
         if ((_chatService?.messages.length ?? 0) == 0) {
-          await loadMoreMessages(obj, isInitial: true);
+          await loadMoreMessages(
+            obj,
+            isInitial: true,
+            webNewestFirst: webNewestFirst,
+            allowPendingRetry: allowPendingRetry,
+          );
         }
       }
     } catch (e) {
@@ -1405,6 +1608,7 @@ class ChatNotifier extends _$ChatNotifier {
 
   void _dispose() {
     if (_isDisposed) return;
+    _isDisposed = true;
     _locationRequest++;
 
     iPrint('开始释放 Chat 资源...');
@@ -1449,7 +1653,6 @@ class ChatNotifier extends _$ChatNotifier {
     _ssReEdit?.cancel();
     _connectivitySubscription?.cancel();
 
-    _isDisposed = true;
     iPrint('Chat 资源释放完成');
   }
 

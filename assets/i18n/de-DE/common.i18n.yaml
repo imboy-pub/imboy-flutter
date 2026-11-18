@@ -117,6 +117,7 @@ feedbackContentRequired: Feedback-Inhalt darf nicht leer sein
 feedbackDetails: Feedback-Details
 feedbackSuccessMsg: Feedback erhalten. Wir werden es schnell bearbeiten!
 followSystemTips: Nach Aktivierung wird der Dunkel-Modus entsprechend dem System ein- oder ausgeschaltet
+themeBrowserLocalOnly: "Diese Designeinstellungen werden nur in diesem Browser gespeichert und nicht mit anderen Geräten synchronisiert."
 genderUpdateFailed: Geschlechtseinstellung fehlgeschlagen, bitte versuchen Sie es erneut
 groupAnnouncement: Gruppenankündigung
 groupFileUploadSuccess: Datei hochgeladen
@@ -952,3 +953,28 @@ myLocation: "Mein Standort"
 searchConversations: "Unterhaltungen"
 
 webpageLoadProblem: "Beim Laden der Seiteninhalte ist ein Problem aufgetreten. Bitte erneut versuchen."
+webReadOnlySettingsHint: "Im Web nur lesbar. Änderungen sind in der App möglich."
+
+legacyUploadCheckLocal: "Lokalen Sendestatus prüfen"
+
+textTooLarge: "Der Text überschreitet 64 KiB. Bitte bearbeiten und erneut versuchen."
+
+# ---- DSN-06 gap fill (machine-candidate 2026-11-16) ----
+e2eeBackupDeviceKeySyncPending: "Hinweis: Die Gerätekennung wird noch synchronisiert. Dieses Gerät kann neue Nachrichten vorübergehend nicht entschlüsseln. Nach erneuter Anmeldung wird die Synchronisierung automatisch abgeschlossen" # machine-candidate 2026-11-16
+e2eeBackupSetupBlockedToast: "Bitte zuerst die Schlüssel-Backup-Einrichtung abschließen" # machine-candidate 2026-11-16
+e2eeBackupSetupBody: "Erst nach dem Festlegen eines Wiederherstellungspassworts und dem Hochladen des Cloud-Backups lassen sich verschlüsselte Chatverläufe bei Gerätewechsel oder Neuinstallation wiederfinden. Ohne Backup lassen sich Verlaufsnachrichten auf dem neuen Gerät nicht entschlüsseln." # machine-candidate 2026-11-16
+e2eeBackupSetupBusyHint: "Wird lokal verschlüsselt und in die Cloud hochgeladen. Bitte warten. Bei schwachem Netz können Sie unten mit „Später“ überspringen" # machine-candidate 2026-11-16
+e2eeBackupSetupLater: "Später (Erinnerung auch beim nächsten Start)" # machine-candidate 2026-11-16
+e2eeBackupSetupLaterConfirmBody: "Ohne Einrichtung lassen sich diese verschlüsselten Chatverläufe nach Gerätewechsel oder Neuinstallation weder entschlüsseln noch wiederfinden. Beim nächsten Start werden Sie erneut erinnert." # machine-candidate 2026-11-16
+e2eeBackupSetupLaterConfirmLeave: "Nicht einrichten" # machine-candidate 2026-11-16
+e2eeBackupSetupLaterConfirmStay: "Einrichtung fortsetzen" # machine-candidate 2026-11-16
+e2eeBackupSetupLaterConfirmTitle: "Backup nicht einrichten?" # machine-candidate 2026-11-16
+e2eeBackupSetupPostponedToast: "Auf später verschoben. Beim nächsten Start folgt eine erneute Erinnerung" # machine-candidate 2026-11-16
+e2eeBackupSetupPwdHint: "Eigenes Wiederherstellungspasswort wählen oder unten einen zufälligen Wiederherstellungsschlüssel erzeugen" # machine-candidate 2026-11-16
+e2eeBackupSetupPwdTooShort: "Das Passwort muss mindestens 8 Stellen haben" # machine-candidate 2026-11-16
+e2eeBackupSetupSavedNote: "Das Wiederherstellungspasswort liegt im sicheren Speicher dieses Geräts. Bei künftigen Schlüsseländerungen wird das Backup damit automatisch neu hochgeladen. Eine erneute Eingabe ist nicht nötig." # machine-candidate 2026-11-16
+e2eeBackupSetupSubmit: "Abschließen und Cloud-Backup hochladen" # machine-candidate 2026-11-16
+e2eeBackupSetupTimeoutToast: "Upload-Zeitlimit überschritten. Bitte Netzwerk prüfen und erneut versuchen oder später einrichten" # machine-candidate 2026-11-16
+e2eeBackupSetupTitle: "Verschlüsselten Verlauf schützen" # machine-candidate 2026-11-16
+e2eeBackupSetupUploading: "Wird hochgeladen…" # machine-candidate 2026-11-16
+e2eeBackupSetupWeakHint: "Das Passwort ist kurz. Empfohlen sind mindestens 12 Stellen, oder erzeugen Sie unten per „Wiederherstellungsschlüssel erzeugen“ einen zufälligen Schlüssel" # machine-candidate 2026-11-16

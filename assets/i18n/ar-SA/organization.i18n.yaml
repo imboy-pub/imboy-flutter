@@ -350,6 +350,9 @@ contactEntry:
   loadFailed: فشل تحميل بيانات المؤسسة
 # ==================== ENT-APP-01 مركز المؤسسة (/organization/:orgId) ====================
 hub:
+  # ---- DSN-06 gap fill (machine-candidate 2026-11-16) ----
+  adminCsGovernance: "حوكمة الدعم" # machine-candidate 2026-11-16
+  adminCsGovernanceDesc: "حصة المقاعد · تفعيل/إيقاف المقاعد" # machine-candidate 2026-11-16
   sectionResources: موارد المؤسسة
   sectionAdmin: منطقة المسؤول
   zoneMembers: الأعضاء
@@ -416,6 +419,20 @@ chart:
 
 # Space and resource navigation / 空间与资源导航
 experienceUi:
+  # ---- DSN-06 gap fill (machine-candidate 2026-11-16) ----
+  cleanupRecordLabel: "السجلّات" # machine-candidate 2026-11-16
+  cleanupResourcesTruncated: "يُعرض أول 20 عنصرًا فقط؛ وبعد المعالجة حدّث وتحقق من الباقي." # machine-candidate 2026-11-16
+  openPersonalTalkRecords: "عرض سجلّات اللقاءات المباشرة الشخصية" # machine-candidate 2026-11-16
+  talkRecordCleanupPendingBody: "حُذفت السجلّات ولم يكتمل تنظيف الملفات بعد. يمكن عرض التقدم الفعلي؛ ولا يمكن تخطي قواعد الاستبقاء أو حماية المعالجة يدويًا." # machine-candidate 2026-11-16
+  talkRecordCleanupPendingTitle: "لا يزال تنظيف ملفات الصوت جاريًا" # machine-candidate 2026-11-16
+  talkRecordOrganizationOwnerPendingBody: "سلّم أولًا مسؤولية إدارة سجلّات اللقاءات المباشرة للمؤسسة. ولا يرفع التسليم إشارات الهويات التاريخية تلقائيًا." # machine-candidate 2026-11-16
+  talkRecordOrganizationOwnerPendingTitle: "لم تُسلَّم سجلّات اللقاءات المباشرة للمؤسسة بعد" # machine-candidate 2026-11-16
+  talkRecordPersonalPendingBody: "عالج أولًا سجلّات لقاءاتك المباشرة الشخصية ثم أعد فحص شروط حذف الحساب." # machine-candidate 2026-11-16
+  talkRecordPersonalPendingTitle: "سجلّات اللقاءات المباشرة الشخصية قيد المعالجة" # machine-candidate 2026-11-16
+  talkRecordRetainedIdentityPendingBody: "لا تزال السجلّات التاريخية تشير إلى هذه الهوية، فلا يمكن إتمام حذف الحساب حاليًا. ولا يضمن تسليم السجلّات رفع هذه الإشارات." # machine-candidate 2026-11-16
+  talkRecordRetainedIdentityPendingTitle: "إشارات الهويات التاريخية قيد التحقق" # machine-candidate 2026-11-16
+  unknownBlockerTitle: "لا تزال هناك بنود قيد المعالجة" # machine-candidate 2026-11-16
+  viewTalkRecordCleanup: "عرض تقدم التنظيف" # machine-candidate 2026-11-16
   switchSpace: "تبديل المساحة"
   personalSpace: "المساحة الشخصية"
   enterpriseSpaces: "مساحات المؤسسة"

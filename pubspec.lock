@@ -341,7 +341,7 @@ packages:
     source: hosted
     version: "7.3.1"
   connectivity_plus_platform_interface:
-    dependency: transitive
+    dependency: "direct dev"
     description:
       name: connectivity_plus_platform_interface
       sha256: "3c09627c536d22fd24691a905cdd8b14520de69da52c7a97499c8be5284a32ed"
@@ -1169,7 +1169,7 @@ packages:
     source: hosted
     version: "18.1.4"
   gpt_markdown:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: gpt_markdown
       sha256: "948469e671fb6bce1d7ecdfb5b01b4ca5686741514f1274bf53b72452fecf07b"
@@ -1950,7 +1950,7 @@ packages:
     source: hosted
     version: "6.1.0"
   provider:
-    dependency: "direct dev"
+    dependency: "direct main"
     description:
       name: provider
       sha256: "4e82183fa20e5ca25703ead7e05de9e4cceed1fbd1eadc1ac3cb6f565a09f272"
@@ -2348,7 +2348,7 @@ packages:
     source: hosted
     version: "3.4.1"
   sqlite3:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: sqlite3
       sha256: "8765980411f9b6733534efe9d014fad0750fa649590598772c04692deb34886b"
@@ -2428,7 +2428,7 @@ packages:
     source: hosted
     version: "1.32.0"
   test_api:
-    dependency: transitive
+    dependency: "direct dev"
     description:
       name: test_api
       sha256: "0a10344e901e5b2e63819567951cb6a06673ed6b84f40462188ff5a0c41f371f"
@@ -2532,7 +2532,7 @@ packages:
     source: hosted
     version: "2.3.2"
   url_launcher_web:
-    dependency: transitive
+    dependency: "direct dev"
     description:
       name: url_launcher_web
       sha256: "85c81589622fbc87c1c683aaea164d3604a7777495a79d91e39ffcdec39ddb34"

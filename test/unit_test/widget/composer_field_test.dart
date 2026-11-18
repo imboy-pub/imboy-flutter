@@ -18,6 +18,29 @@ import 'package:imboy/theme/default/app_colors.dart';
 Widget _wrap(Widget child) => MaterialApp(home: Scaffold(body: child));
 
 void main() {
+  testWidgets('nullable chat limit retains long text and whole ZWJ emoji', (
+    tester,
+  ) async {
+    final controller = TextEditingController(text: 'a' * 65537);
+    addTearDown(controller.dispose);
+    final key = GlobalKey<ComposerFieldState>();
+    await tester.pumpWidget(
+      _wrap(
+        ComposerField(
+          key: key,
+          controller: controller,
+          maxLength: null,
+          maxLines: 5,
+          showCounter: false,
+        ),
+      ),
+    );
+    key.currentState!.debugInsertEmoji('👩‍👩‍👧‍👦');
+    await tester.pump();
+    expect(controller.text, '${'a' * 65537}👩‍👩‍👧‍👦');
+    expect(find.byKey(const Key('composer_counter')), findsNothing);
+  });
+
   testWidgets('输入超过 warnThreshold 时计数变警示色', (tester) async {
     // Arrange：上限 10、警示阈值 5
     final controller = TextEditingController();

@@ -237,9 +237,15 @@ class QuoteTipsWidget extends StatelessWidget {
                     style: context.textStyle(
                       FontSizeType.footnote,
                       fontWeight: FontWeight.w600,
-                      color: AppColors.getIosBlue(
-                        MediaQuery.platformBrightnessOf(context),
-                      ),
+                      // DSN-05 R21/R22：亮色 iosBlue(#007AFF) on #FFFFFF =
+                      // 4.017 < 4.5。可点文字亮色改 primaryDark(5.746)；
+                      // 暗色 iosBlueDark 在气泡 #262629 上 4.137，改用
+                      // 高对比档 iosBlueDarkHighContrast(5.33)。
+                      color:
+                          MediaQuery.platformBrightnessOf(context) ==
+                              Brightness.dark
+                          ? AppColors.iosBlueDarkHighContrast
+                          : AppColors.primaryDark,
                     ),
                   ),
                   const SizedBox(height: 2),

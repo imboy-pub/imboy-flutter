@@ -4,6 +4,7 @@ import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:imboy/theme/default/font_types.dart';
 import 'package:cupertino_ui/cupertino_ui.dart';
 import 'package:material_ui/material_ui.dart';
+import 'package:flutter/semantics.dart' show CustomSemanticsAction;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:imboy/component/ui/avatar.dart';
 import 'package:imboy/i18n/strings.g.dart';
@@ -19,16 +20,20 @@ import 'package:imboy/theme/default/app_colors.dart';
 /// 会话列表项组件 - iOS 17 Premium 风格
 class ConversationItem extends ConsumerStatefulWidget {
   final ConversationModel model;
+  final String? displayTitleOverride;
   final void Function()? onTapAvatar;
   final void Function()? onTap;
   final VoidCallback? onLongPress;
+  final Map<CustomSemanticsAction, VoidCallback>? customSemanticsActions;
 
   const ConversationItem({
     super.key,
     required this.model,
+    this.displayTitleOverride,
     required this.onTapAvatar,
     this.onTap,
     this.onLongPress,
+    this.customSemanticsActions,
   });
 
   @override
@@ -136,6 +141,7 @@ class _ConversationItemState extends ConsumerState<ConversationItem> {
           : null,
       onTap: widget.onTap,
       onLongPress: widget.onLongPress,
+      customSemanticsActions: widget.customSemanticsActions,
     );
   }
 
@@ -143,7 +149,10 @@ class _ConversationItemState extends ConsumerState<ConversationItem> {
     // 末档原本是 `peerId.toString()`，把 TSID 直接渲染给用户。
     // 判据与兜底已收口到 ConversationModel.displayTitle —— 会话列表、搜索过滤、
     // 跳转参数、聊天页原本各写一遍，写歪一处就漏一条路径。
-    String displayTitle = currentModel.displayTitle;
+    final rawTitle = widget.displayTitleOverride;
+    final displayTitle = rawTitle == null
+        ? currentModel.displayTitle
+        : (rawTitle.isEmpty ? context.t.main.unnamed : rawTitle);
 
     return LayoutBuilder(
       builder: (context, constraints) {

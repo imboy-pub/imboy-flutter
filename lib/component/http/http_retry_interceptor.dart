@@ -1,3 +1,5 @@
+import 'package:imboy/component/http/web_writer_http_adapter.dart';
+
 import 'dart:async';
 
 import 'http_request_policy.dart';
@@ -88,7 +90,7 @@ class HttpRetryInterceptor extends Interceptor {
 
           // 使用绑定的 Dio 实例重试，保留完整的配置（headers、adapter、证书等）
           // 如果未绑定则回退到 requestOptions 自带的配置
-          final retryDio = _dio ?? Dio();
+          final retryDio = guardWebWriterDio(_dio ?? Dio());
           // 同步最新的认证 headers，防止携带陈旧 token
           final currentHeaders = retryDio.options.headers;
           if (currentHeaders.containsKey('authorization')) {

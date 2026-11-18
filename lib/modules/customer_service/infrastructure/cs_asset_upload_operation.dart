@@ -2,6 +2,9 @@ import 'dart:typed_data';
 
 import 'package:crypto/crypto.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:imboy/service/auth_session_scope.dart';
+import 'package:imboy/service/web_writer_gate.dart';
 import 'package:imboy/component/http/http_retry_interceptor.dart';
 import 'package:imboy/service/account_local_task_registry.dart';
 import 'package:imboy/modules/enterprise/domain/enterprise_models.dart';
@@ -65,6 +68,7 @@ class CsAssetUploadOperation {
   bool get canRetry =>
       _current && (!requestStarted || (_retryable && !_cancel.isCancelled));
   bool Function()? _scopeGuard;
+  bool Function()? _accountIsCurrent;
   void bindScope(bool Function() guard) {
     if (_used || _scopeGuard != null) {
       throw const CsAssetOperationException(
@@ -75,7 +79,11 @@ class CsAssetUploadOperation {
     _scopeGuard = guard;
   }
 
-  bool get _current => _isCurrent() && (_scopeGuard?.call() ?? true);
+  bool get _current =>
+      (!kIsWeb || isWebWriterReady) &&
+      (_accountIsCurrent?.call() ?? true) &&
+      _isCurrent() &&
+      (_scopeGuard?.call() ?? true);
   void cancel() {
     if (_cancel.isCancelled ||
         (stage == CsAssetUploadStage.complete && !_notifying) ||
@@ -167,6 +175,23 @@ class CsAssetUploadOperation {
     onCancel: cancel,
     operation: (task) async {
       task.throwIfCancelled();
+      if (kIsWeb) {
+        final session = authSessionReader.current;
+        final endpoint = api.dio.options.baseUrl.isEmpty
+            ? task.owner.endpoint
+            : api.dio.options.baseUrl;
+        _accountIsCurrent = () {
+          final owner = AccountLocalTaskOwner.capture();
+          return isWebWriterReady &&
+              !task.isCancelled &&
+              authSessionReader.isCurrent(session) &&
+              owner == task.owner &&
+              (api.dio.options.baseUrl.isEmpty
+                      ? owner.endpoint
+                      : api.dio.options.baseUrl) ==
+                  endpoint;
+        };
+      }
       begin(bytes.length);
       final input = _CsUploadInput(
         org,
@@ -344,6 +369,7 @@ class CsAssetUploadOperation {
         ),
         cancelToken: _cancel,
         onSendProgress: progress,
+        beforeDispatch: kIsWeb ? check : null,
       );
     } finally {
       transport.close();

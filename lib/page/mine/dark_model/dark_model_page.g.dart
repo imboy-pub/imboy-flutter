@@ -41,7 +41,7 @@ final class DarkModelNotifierProvider
   }
 }
 
-String _$darkModelNotifierHash() => r'7517c02de09209f5802b9c8d1470cb4613956e30';
+String _$darkModelNotifierHash() => r'e151dbe85b3e91a4bbab64dc7fe55ff105650c2d';
 
 abstract class _$DarkModelNotifier extends $Notifier<DarkModelState> {
   DarkModelState build();

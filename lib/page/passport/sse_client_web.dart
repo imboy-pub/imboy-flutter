@@ -10,6 +10,9 @@
 /// 后端原始格式一致，让 parseSseFrame 同一份解析逻辑覆盖两端。
 library;
 
+import 'package:imboy/service/web_writer_gate.dart';
+import 'package:imboy/service/app_logger.dart';
+
 import 'dart:async';
 import 'dart:js_interop';
 
@@ -20,6 +23,7 @@ import 'package:imboy/page/passport/sse_client.dart';
 /// Web 平台真实 EventSource 包装。
 class SseClientImpl implements SseClient {
   web.EventSource? _eventSource;
+  StreamSubscription<void>? _writerFailureSub;
   final StreamController<String> _framesCtrl =
       StreamController<String>.broadcast();
   final StreamController<Object> _errorsCtrl =
@@ -38,6 +42,7 @@ class SseClientImpl implements SseClient {
 
   @override
   Future<void> connect(String url) async {
+    requireWebWriter();
     if (_closed) {
       throw StateError('SseClientImpl 已 close，不可重连，请新建实例');
     }
@@ -48,10 +53,12 @@ class SseClientImpl implements SseClient {
     final es = web.EventSource(url);
 
     es.onopen = ((web.Event _) {
+      if (!isWebWriterReady || _closed) return;
       _isOpen = true;
     }).toJS;
 
     es.onmessage = ((web.MessageEvent event) {
+      if (!isWebWriterReady || _closed) return;
       // event.data 是 String（已剥离 SSE 协议字段）
       final data = (event.data as JSString?)?.toDart;
       if (data == null) return;
@@ -60,11 +67,19 @@ class SseClientImpl implements SseClient {
     }).toJS;
 
     es.onerror = ((web.Event event) {
+      if (!isWebWriterReady || _closed) return;
       _isOpen = false;
       _errorsCtrl.add(event);
     }).toJS;
 
     _eventSource = es;
+    _writerFailureSub = webWriterFailures.listen((_) {
+      unawaited(
+        close().catchError((Object error) {
+          AppLogger.warning('SSE writer pause failed: ${error.runtimeType}');
+        }),
+      );
+    });
   }
 
   @override
@@ -74,6 +89,8 @@ class SseClientImpl implements SseClient {
     _isOpen = false;
     _eventSource?.close();
     _eventSource = null;
+    await _writerFailureSub?.cancel();
+    _writerFailureSub = null;
     await _framesCtrl.close();
     await _errorsCtrl.close();
   }

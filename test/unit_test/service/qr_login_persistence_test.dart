@@ -15,9 +15,11 @@ import 'package:sqflite_sqlcipher/sqflite.dart' as sql_cipher;
 
 import 'package:imboy/app_core/feature_flags/runtime_feature_recovery.dart';
 import 'package:imboy/component/http/http_client.dart';
+import 'package:imboy/component/http/http_config.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/config/env.dart';
-import 'package:imboy/config/init.dart' show currentEnv, serviceContainer;
+import 'package:imboy/config/init.dart'
+    show currentEnv, deviceId, serviceContainer;
 import 'package:imboy/page/passport/sse_client.dart';
 import 'package:imboy/page/passport/web_login_page.dart';
 import 'package:imboy/service/account_local_data_service.dart';
@@ -28,6 +30,18 @@ import 'package:imboy/service/storage.dart';
 import 'package:imboy/service/websocket.dart';
 import 'package:imboy/service/websocket_message_queue.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
+
+final class _QrIsolatedEnv implements Env {
+  const _QrIsolatedEnv();
+  @override
+  String get apiBaseUrl => 'http://127.0.0.1:0';
+  @override
+  String get solidifiedKey => 'synthetic-qr-signing-key';
+  @override
+  String? get wsUrl => 'ws://127.0.0.1:0/ws';
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+}
 
 class _QrPaths extends PathProviderPlatform {
   _QrPaths(this.root);
@@ -52,10 +66,17 @@ class _QrPaths extends PathProviderPlatform {
 class _QrPreferences extends InMemorySharedPreferencesStore {
   _QrPreferences() : super.withData({});
   bool failRegistry = false;
+  bool failHydratedProfile = false;
   Future<void> Function()? beforeRegistryWrite;
 
   @override
   Future<bool> setValue(String valueType, String key, Object value) async {
+    if (failHydratedProfile &&
+        key == 'flutter.${Keys.currentUser}' &&
+        value is String &&
+        (jsonDecode(value) as Map).containsKey('nickname')) {
+      return false;
+    }
     if (key == 'flutter.${LoginAccountHistoryService.storageKey}') {
       await beforeRegistryWrite?.call();
       if (failRegistry) return false;
@@ -71,6 +92,31 @@ class _SyntheticHttpAdapter implements HttpClientAdapter {
   void Function(RequestOptions)? beforeQrStatus;
   Future<void> Function()? beforeStatusResponse;
   int statusRequests = 0;
+  int createRequests = 0;
+  int profileRequests = 0;
+  int profileStatusCode = 200;
+  int? lastProfileStatusCode;
+  Future<void> Function()? beforeProfileResponse;
+  Map<String, dynamic> profileResponse = {
+    'code': 0,
+    'payload': {
+      'uid': '9007199254740993',
+      'nickname': 'Hydrated synthetic',
+      'account': 'hydrated-account',
+      'email': '',
+      'avatar': '',
+      'gender': 3,
+      'region': 'Hydrated region',
+      'sign': 'Hydrated sign',
+      'setting': {
+        'allow_search': 2,
+        'enable_visibility_read': 'false',
+        'visibility_read_fraction': '0.83',
+        'visibility_read_delay_ms': '1350',
+        'font_size': 'huge',
+      },
+    },
+  };
 
   @override
   Future<ResponseBody> fetch(
@@ -78,20 +124,29 @@ class _SyntheticHttpAdapter implements HttpClientAdapter {
     Stream<Uint8List>? requestStream,
     Future<void>? cancelFuture,
   ) async {
+    var responseStatus = 200;
     Map<String, dynamic> response = {
       'code': 503,
       'msg': 'synthetic unavailable',
     };
     if (options.path == '/api/v1/passport/qr_login/create') {
+      createRequests++;
+      final sessionToken = qrSessionToken;
       await beforeCreateResponse?.call();
       response = {
         'code': 0,
         'payload': {
           'qr_token': 'synthetic-qr-code',
-          'session_token': qrSessionToken,
+          'session_token': sessionToken,
           'expires_in': 60,
         },
       };
+    } else if (options.path == '/api/v1/user/me') {
+      profileRequests++;
+      responseStatus = profileStatusCode;
+      lastProfileStatusCode = responseStatus;
+      await beforeProfileResponse?.call();
+      response = profileResponse;
     } else if (options.path == '/api/v1/passport/qr_login/status') {
       statusRequests++;
       beforeQrStatus?.call(options);
@@ -100,7 +155,7 @@ class _SyntheticHttpAdapter implements HttpClientAdapter {
     }
     return ResponseBody.fromString(
       jsonEncode(response),
-      200,
+      responseStatus,
       headers: {
         Headers.contentTypeHeader: [Headers.jsonContentType],
       },
@@ -139,6 +194,9 @@ class _ReadyQrLogin extends QRLogin {
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
+  // Keep the test isolate on an unreachable endpoint, including late callbacks.
+  envMap['dev'] = const _QrIsolatedEnv();
+  currentEnv = 'dev';
   const secureChannel = MethodChannel(
     'plugins.it_nomads.com/flutter_secure_storage',
   );
@@ -150,6 +208,9 @@ void main() {
   const token = 'synthetic-qr-access-token';
   final repo = UserRepoLocal.to;
   final history = LoginAccountHistoryService();
+  late String previousDeviceId;
+  late String previousEnv;
+  late Map<String, Env> previousEnvMap;
   late Directory root;
   late PathProviderPlatform previousPaths;
   late _QrPaths paths;
@@ -203,6 +264,26 @@ void main() {
   );
 
   setUp(() async {
+    const wsOverride = String.fromEnvironment('WS_URL_OVERRIDE');
+    expect(
+      wsOverride,
+      isEmpty,
+      reason: 'QR tests require isolated WS configuration',
+    );
+    previousEnv = currentEnv;
+    previousEnvMap = Map<String, Env>.of(envMap);
+    addTearDown(() {
+      envMap
+        ..clear()
+        ..addAll(previousEnvMap);
+      currentEnv = previousEnv;
+    });
+    currentEnv = 'qr-isolated';
+    envMap[currentEnv] = const _QrIsolatedEnv();
+    expect(Env().apiBaseUrl, 'http://127.0.0.1:0');
+    expect(Env.effectiveWsUrl, 'ws://127.0.0.1:0/ws');
+    previousDeviceId = deviceId;
+    deviceId = 'synthetic-qr-device';
     root = await Directory.systemTemp.createTemp('imboy-qr-persistence-');
     for (final directory in [
       'databases',
@@ -229,7 +310,7 @@ void main() {
     adapter = _SyntheticHttpAdapter();
     HttpClient.adapterForTest = adapter;
     serviceContainer.put(
-      HttpClient(options: BaseOptions(baseUrl: Env().apiBaseUrl)),
+      HttpClient(conf: HttpConfig(baseUrl: Env().apiBaseUrl)),
     );
     container = ProviderContainer(
       overrides: [qRLoginProvider.overrideWith(_ReadyQrLogin.new)],
@@ -278,6 +359,7 @@ void main() {
   });
 
   tearDown(() async {
+    deviceId = previousDeviceId;
     notifier.dispose();
     container.dispose();
     serviceContainer.clear();
@@ -367,6 +449,284 @@ void main() {
     });
   }
 
+  test(
+    'create response after anonymous generation changes cannot publish failure',
+    () async {
+      final entered = Completer<void>();
+      final release = Completer<void>();
+      adapter.beforeCreateResponse = () async {
+        entered.complete();
+        await release.future;
+      };
+      final creating = notifier.generateQRCode();
+      try {
+        await entered.future.timeout(const Duration(seconds: 5));
+        expect(await repo.quitLogin(), isTrue);
+      } finally {
+        release.complete();
+        await creating;
+      }
+      expect(container.read(qRLoginProvider).status, QRLoginStatus.waiting);
+      expect(container.read(qRLoginProvider).sessionToken, isNull);
+      expect(container.read(qRLoginProvider).errorMessage, isNull);
+      expect(adapter.createRequests, 1);
+    },
+  );
+
+  test(
+    'QR success waits for current owner profile, then replaces fields safely',
+    () async {
+      final entered = Completer<void>();
+      final release = Completer<void>();
+      adapter.beforeProfileResponse = () async {
+        entered.complete();
+        await release.future;
+      };
+      notifier.startSseSession('synthetic-session');
+      final success = waitForStatus(QRLoginStatus.success);
+      sse.confirmed(confirmed);
+      try {
+        await entered.future.timeout(const Duration(seconds: 8));
+        expect(repo.currentUid, uid);
+        expect(
+          container.read(qRLoginProvider).status,
+          QRLoginStatus.confirming,
+        );
+        expect(repo.current.nickname, isEmpty);
+      } finally {
+        release.complete();
+      }
+      await success;
+      expect(repo.current.nickname, 'Hydrated synthetic');
+      expect(repo.setting.allowSearch, isFalse);
+      expect(repo.setting.enableVisibilityRead, isFalse);
+      expect(repo.setting.visibilityReadFraction, .83);
+      expect(repo.setting.visibilityReadDelayMs, 1350);
+      expect(repo.setting.fontSize, 'huge');
+      expect(repo.current.account, 'hydrated-account');
+      expect(repo.current.region, 'Hydrated region');
+      expect(repo.current.gender, 3);
+      expect(adapter.profileRequests, 1);
+      expect(secure['secure_token'], token);
+    },
+  );
+
+  test(
+    'profile failure retains active session and retries only the profile read',
+    () async {
+      adapter.profileResponse = {
+        'code': 503,
+        'msg': 'synthetic profile unavailable',
+      };
+      notifier.startSseSession('synthetic-session');
+      final failed = waitForStatus(QRLoginStatus.failed);
+      sse.confirmed(confirmed);
+      await failed;
+      expect(repo.currentUid, uid);
+      expect(secure['secure_token'], token);
+      expect(
+        container.read(qRLoginProvider).errorMessage,
+        'synthetic profile unavailable',
+      );
+      expect(notifier.canRetryProfile, isTrue);
+      final generation = repo.sessionGeneration;
+      final mutations = List<String>.of(secretMutations);
+      adapter.profileResponse = {
+        'code': 0,
+        'payload': {
+          'uid': uid,
+          'nickname': 'Recovered',
+          'setting': {'allow_search': false},
+          'account': 'recovered',
+          'email': '',
+          'avatar': '',
+          'gender': 3,
+          'region': '',
+          'sign': '',
+        },
+      };
+      await notifier.refresh();
+      expect(container.read(qRLoginProvider).status, QRLoginStatus.success);
+      expect(repo.current.nickname, 'Recovered');
+      expect(adapter.profileRequests, 2);
+      expect(adapter.createRequests, 0);
+      expect(repo.sessionGeneration, generation);
+      expect(secretMutations, mutations);
+    },
+  );
+
+  test(
+    'profile mismatched UID fails without overwriting the committed owner',
+    () async {
+      adapter.profileResponse = {
+        'code': 0,
+        'payload': {'uid': 'another-owner', 'nickname': 'Forbidden'},
+      };
+      notifier.startSseSession('synthetic-session');
+      final failed = waitForStatus(QRLoginStatus.failed);
+      sse.confirmed(confirmed);
+      await failed;
+      expect(repo.currentUid, uid);
+      expect(repo.current.uid, uid);
+      expect(repo.current.nickname, isEmpty);
+      expect(secure['secure_token'], token);
+    },
+  );
+
+  test(
+    'late profile after account replacement never writes into the new account',
+    () async {
+      final entered = Completer<void>();
+      final release = Completer<void>();
+      adapter.beforeProfileResponse = () async {
+        entered.complete();
+        await release.future;
+      };
+      notifier.startSseSession('synthetic-session');
+      sse.confirmed(confirmed);
+      try {
+        await entered.future.timeout(const Duration(seconds: 8));
+        expect(await repo.quitLogin(), isTrue);
+        expect(
+          await repo.loginAfterQr(uid: 'another-qr-owner', token: token),
+          isTrue,
+        );
+      } finally {
+        release.complete();
+      }
+      await Future<void>.delayed(Duration.zero);
+      expect(repo.currentUid, 'another-qr-owner');
+      expect(repo.current.uid, 'another-qr-owner');
+      expect(repo.current.nickname, isEmpty);
+      expect(
+        container.read(qRLoginProvider).status,
+        isNot(QRLoginStatus.success),
+      );
+    },
+  );
+
+  test(
+    'profile persistence failure never publishes success and can retry',
+    () async {
+      preferences.failHydratedProfile = true;
+      notifier.startSseSession('synthetic-session');
+      final failed = waitForStatus(QRLoginStatus.failed);
+      sse.confirmed(confirmed);
+      await failed;
+      expect(repo.currentUid, uid);
+      expect(secure['secure_token'], token);
+      expect(container.read(qRLoginProvider).status, QRLoginStatus.failed);
+      preferences.failHydratedProfile = false;
+      await notifier.refresh();
+      expect(container.read(qRLoginProvider).status, QRLoginStatus.success);
+      expect(repo.current.nickname, 'Hydrated synthetic');
+      expect(repo.setting.allowSearch, isFalse);
+      expect(repo.setting.enableVisibilityRead, isFalse);
+      expect(repo.setting.visibilityReadFraction, .83);
+      expect(repo.setting.visibilityReadDelayMs, 1350);
+      expect(repo.setting.fontSize, 'huge');
+    },
+  );
+
+  test(
+    'profile result from the previous environment cannot publish success',
+    () async {
+      final entered = Completer<void>();
+      final release = Completer<void>();
+      adapter.beforeProfileResponse = () async {
+        entered.complete();
+        await release.future;
+      };
+      notifier.startSseSession('synthetic-session');
+      sse.confirmed(confirmed);
+      try {
+        await entered.future.timeout(const Duration(seconds: 8));
+        currentEnv = 'qr-other';
+        envMap[currentEnv] = const _QrIsolatedEnv();
+      } finally {
+        release.complete();
+      }
+      await Future<void>.delayed(Duration.zero);
+      expect(repo.currentUid, uid);
+      expect(repo.current.nickname, isEmpty);
+      expect(
+        container.read(qRLoginProvider).status,
+        isNot(QRLoginStatus.success),
+      );
+      expect(notifier.canRetryProfile, isFalse);
+    },
+  );
+
+  test(
+    'real profile HTTP401 invokes owned logout without bypassing auth handling',
+    () async {
+      adapter.profileStatusCode = 401;
+      late Map<String, dynamic> retainedProfile;
+      adapter.beforeProfileResponse = () async {
+        retainedProfile = StorageService.getMap(Keys.currentUser);
+      };
+      adapter.profileResponse = {
+        'code': 401,
+        'msg': 'synthetic session expired',
+      };
+      final expired = Completer<void>();
+      final previous = HttpClient.onAuthExpired;
+      var notifications = 0;
+      HttpClient.onAuthExpired = () {
+        notifications++;
+        if (!expired.isCompleted) expired.complete();
+      };
+      addTearDown(() => HttpClient.onAuthExpired = previous);
+      notifier.startSseSession('synthetic-session');
+      sse.confirmed(confirmed);
+      await expired.future.timeout(const Duration(seconds: 8));
+      expect(adapter.profileRequests, 1);
+      expect(adapter.lastProfileStatusCode, 401);
+      expect(repo.currentUid, isEmpty);
+      expect(repo.isLoggedIn, isFalse);
+      // Logout retains the exact owner record for explicit historical cleanup.
+      expect(StorageService.getMap(Keys.currentUser), retainedProfile);
+      expect(secure.containsKey('secure_token'), isFalse);
+      expect(secure.containsKey('secure_refresh_token'), isFalse);
+      expect(notifications, 1);
+      expect(notifier.canRetryProfile, isFalse);
+      // Chrome separately exercises Page cancellation; this host fixture has no Web Page.
+    },
+  );
+
+  test(
+    'password session commits original typed settings without QR-only parsing',
+    () async {
+      final setting = <String, dynamic>{
+        'enable_visibility_read': 'garbage',
+        'manual_pending': {'nested': true},
+        'font_size': 'huge',
+      };
+      expect(
+        await repo.loginAfter('synthetic-password-account', {
+          'uid': uid,
+          'token': token,
+          'refreshtoken': 'synthetic-password-refresh',
+          'account': 'synthetic-password-account',
+          'nickname': 'Password owner',
+          'setting': setting,
+        }),
+        isTrue,
+      );
+      expect(repo.currentUid, uid);
+      expect(StorageService.getMap(Keys.currentUser)['setting'], setting);
+      expect(secure['secure_token'], token);
+      // Actual panel's malformed-setting case independently proves no read side effect.
+    },
+  );
+
+  test('missing device identity rejects QR creation before request', () async {
+    deviceId = '';
+    await notifier.generateQRCode();
+    expect(container.read(qRLoginProvider).status, QRLoginStatus.failed);
+    expect(adapter.createRequests, 0);
+  });
+
   test('polling confirmed uses the same exact owner and token', () async {
     adapter.qrStatusResponse = {'code': 0, 'payload': confirmed};
     final success = waitForStatus(QRLoginStatus.success);
@@ -416,6 +776,84 @@ void main() {
       );
       expect(repo.sessionGeneration, generation);
       expect(repo.currentUid, isEmpty);
+    },
+  );
+
+  test(
+    'older create response cannot replace the refreshed QR session',
+    () async {
+      final entered = Completer<void>();
+      final release = Completer<void>();
+      adapter.qrSessionToken = 'synthetic-old-session';
+      adapter.beforeCreateResponse = () async {
+        entered.complete();
+        await release.future;
+      };
+      final oldCreate = notifier.generateQRCode();
+      try {
+        await entered.future.timeout(const Duration(seconds: 5));
+        adapter.beforeCreateResponse = null;
+        adapter.qrSessionToken = 'synthetic-current-session';
+        await notifier.refresh();
+        expect(
+          container.read(qRLoginProvider).sessionToken,
+          'synthetic-current-session',
+        );
+      } finally {
+        release.complete();
+        await oldCreate;
+      }
+      expect(
+        container.read(qRLoginProvider).sessionToken,
+        'synthetic-current-session',
+      );
+      expect(secretMutations, isEmpty);
+    },
+  );
+
+  for (final disposeInstead in [false, true]) {
+    test(
+      'retiring QR during create ignores its response (dispose=$disposeInstead)',
+      () async {
+        final entered = Completer<void>();
+        final release = Completer<void>();
+        adapter.beforeCreateResponse = () async {
+          entered.complete();
+          await release.future;
+        };
+        final creating = notifier.generateQRCode();
+        try {
+          await entered.future.timeout(const Duration(seconds: 5));
+          if (disposeInstead) {
+            notifier.dispose();
+          } else {
+            notifier.cancelQRCode();
+          }
+        } finally {
+          release.complete();
+          await creating;
+        }
+        expect(container.read(qRLoginProvider).sessionToken, isNull);
+        expect(container.read(qRLoginProvider).qrData, isNull);
+        expect(adapter.statusRequests, 0);
+        expect(secretMutations, isEmpty);
+      },
+    );
+  }
+
+  test(
+    'switching to password closes SSE and ignores late confirmed frames',
+    () async {
+      final generation = repo.sessionGeneration;
+      notifier.startSseSession('synthetic-session');
+      notifier.cancelQRCode();
+      sse.confirmed(confirmed);
+      await Future<void>.delayed(Duration.zero);
+      expect(sse.closed, isTrue);
+      expect(container.read(qRLoginProvider).sessionToken, isNull);
+      expect(repo.sessionGeneration, generation);
+      expect(repo.currentUid, isEmpty);
+      expect(secretMutations, isEmpty);
     },
   );
 
@@ -562,7 +1000,7 @@ void main() {
         account: 'other-endpoint-alias',
         profile: {'uid': uid},
         environment: currentEnv,
-        endpoint: 'http://127.0.0.1:9802',
+        endpoint: 'http://127.0.0.2:0',
         storageWasUnusedAtStartup: true,
       );
       await StorageService.setMap(Keys.currentUser, {

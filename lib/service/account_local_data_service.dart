@@ -1,3 +1,5 @@
+import 'package:imboy/service/web_writer_gate.dart';
+
 import 'dart:convert';
 import 'dart:io';
 
@@ -141,6 +143,7 @@ class AccountLocalDataService {
     required String endpoint,
     required bool clearLastSessionData,
   }) async {
+    requireWebWriter();
     _validateIdentity(uid, environment, endpoint);
     final currentUid = StorageService.to.getString(Keys.currentUid);
     if (currentUid.isNotEmpty) {
@@ -278,6 +281,7 @@ class AccountLocalDataService {
     await CurrentOrganizationStore.removeAccount(uid);
     OrganizationCache.disposeAccount(uid);
     if (clearLastSessionData) {
+      requireWebWriter();
       _clearSessionMemory();
       await StorageService.to.persistPreference(
         () => StorageService.to.remove(Keys.e2eePurgePending),
@@ -369,6 +373,25 @@ class AccountLocalDataService {
     }
     // Feature cache scopes contain the manifest hash. Decode the owner so old
     // versions for this identity are removed without matching another account.
+    return _scopedFeatureCacheOwnedBy(key, uid, endpoint);
+  }
+
+  /// Whether [key] is a feature/manifest cache scoped to [uid] at [endpoint].
+  ///
+  /// Shared by [_ownsPreference]（历史账号清理授权链）与 quitLogin 的登出
+  /// 卫生清理（DEF-LOGOUT-RELOAD-INIT-POISON），保证两侧对 scoped 键属主的
+  /// 解码口径完全一致，登出不会误删其他账号的缓存。
+  static bool isScopedFeatureCacheOwnedBy(
+    String key, {
+    required String uid,
+    required String endpoint,
+  }) => _scopedFeatureCacheOwnedBy(key, uid, endpoint);
+
+  static bool _scopedFeatureCacheOwnedBy(
+    String key,
+    String uid,
+    String endpoint,
+  ) {
     for (final prefix in [
       Keys.appFeatures,
       Keys.appManifest,

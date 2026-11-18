@@ -11,8 +11,15 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:imboy/component/helper/func.dart' show iPrint;
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/store/model/conversation_model.dart';
+import 'package:imboy/store/model/message_model.dart'
+    show IMBoyMessageStatus, MessageModel;
 import 'package:imboy/service/event_bus.dart' show AppEventBus;
 import 'package:imboy/service/events/common_events.dart';
+import 'package:imboy/service/events/message_events.dart' show MessageSentEvent;
+import 'package:imboy/service/auth_session_scope.dart';
+import 'package:imboy/service/server_ack_receipts.dart';
+import 'package:imboy/service/sqlite.dart';
+import 'package:imboy/store/repository/message_repo_sqlite.dart';
 
 import 'package:flutter_chat_core/flutter_chat_core.dart';
 import 'package:imboy/store/model/model_parse_utils.dart';
@@ -40,6 +47,8 @@ class ChatEventSubscriptionManager {
     required this.isBurnMessageChecker,
     required this.conversationGetter,
     required this.newGroupNameSetter,
+    this.isCurrent,
+    this.newestFirst = false,
   });
 
   /// Riverpod WidgetRef
@@ -74,6 +83,382 @@ class ChatEventSubscriptionManager {
 
   /// 设置新群组名称的回调
   final void Function(String) newGroupNameSetter;
+
+  /// Optional owner/selection lease for embedded consumers.
+  final bool Function()? isCurrent;
+  final bool newestFirst;
+
+  /// WS 交付消息在既有在场列表中的时间序插入位（OBS-SYN03-SETTLEDROP）。
+  ///
+  /// - newest-first（web_shell）：插到首条比 [message] 更旧的行前；全场都比
+  ///   它新（= 它最旧）则落 tail。真新消息时间戳最新 → 落 index 0，与原行为
+  ///   一致；补投的旧消息按时间序落中间/最旧端，不再被误置最新端。
+  /// - oldest-first（mobile）：插到首条不比 [message] 旧的行前；全场都比它
+  ///   旧（= 它最新）则落 tail。
+  /// 同时间戳保持稳定：newest-first 落同时间戳组之后，oldest-first 落组之前。
+  /// 交付行或在场行缺时间戳（本地合成消息）时无法建立时间序，保持原落位
+  /// 语义（一律视为最新）。
+  @visibleForTesting
+  static int deliveryInsertionIndex(
+    List<Message> messages,
+    Message message, {
+    required bool newestFirst,
+  }) {
+    final created = message.createdAt;
+    final orderable =
+        created != null && messages.every((m) => m.createdAt != null);
+    if (!orderable) {
+      return newestFirst ? 0 : messages.length;
+    }
+    for (var i = 0; i < messages.length; i++) {
+      final existing = messages[i].createdAt!;
+      final anchorHere = newestFirst
+          ? existing.isBefore(created)
+          : !existing.isBefore(created);
+      if (anchorHere) return i;
+    }
+    return messages.length;
+  }
+
+  /// 挂载期状态治愈两遍之间的延迟（测试可注入缩短）。
+  @visibleForTesting
+  static Duration transientHealPassDelay = const Duration(seconds: 8);
+
+  /// 治愈延迟遍的定时器与完成器：dispose 时取消，避免悬挂 Timer。
+  Timer? _healPassTimer;
+  Completer<void>? _healPassCompleter;
+
+  /// 可被 dispose 取消的治愈延迟；返回 false 表示已被取消应立即退出。
+  Future<bool> _healDelay() async {
+    final completer = _healPassCompleter = Completer<void>();
+    _healPassTimer = Timer(transientHealPassDelay, () {
+      if (!completer.isCompleted) completer.complete();
+    });
+    await completer.future;
+    return !_disposed;
+  }
+
+  /// Reuse ordinary message/status/revoke streams without native composer hooks.
+  void setupCoreMessageListeners() {
+    if (!_coreAuthListening) {
+      authSessionReader.addListener(_wakeCoreRetries);
+      _coreAuthListening = true;
+    }
+    _setupMessageListener();
+    _setupMessageStateListener(() {});
+    _setupCoreDeleteListener();
+    _ssCoreSent ??= AppEventBus.on<MessageSentEvent>().listen((event) {
+      final owner = authSessionReader.current;
+      if (_disposed ||
+          isCurrent?.call() == false ||
+          !authSessionReader.isCurrent(owner) ||
+          event.messageType != chatType ||
+          event.conversationUk3 != conversationUk3 ||
+          !ServerAckReceipts.contains(
+            owner.uid,
+            owner.generation,
+            event.messageId,
+            conversationUk3,
+          )) {
+        return;
+      }
+      unawaited(_refreshConfirmedImage(event));
+    });
+    _ssCoreOperations ??= widgetRef
+        .read(chatProvider.notifier)
+        .chatService
+        ?.operationsStream
+        .listen((operation) {
+          if (operation.type == ChatOperationType.remove) return;
+          _refreshVisibleConfirmedImages(
+            operation.messages ??
+                [if (operation.message != null) operation.message!],
+          );
+        });
+    _refreshVisibleConfirmedImages(
+      widgetRef.read(chatProvider.notifier).chatService?.messages ?? const [],
+    );
+    unawaited(_healVisibleTransientStatuses());
+  }
+
+  void _refreshVisibleConfirmedImages(Iterable<Message> messages) {
+    if (_disposed || isCurrent?.call() == false) return;
+    for (final message in messages) {
+      if (message is ImageMessage && message.status == MessageStatus.sending) {
+        unawaited(
+          _refreshConfirmedImage(
+            MessageSentEvent(
+              messageId: message.id,
+              messageType: chatType,
+              conversationUk3: conversationUk3,
+              serverTimestamp: 0,
+              sendDuration: 0,
+            ),
+          ),
+        );
+      }
+    }
+  }
+
+  /// 启动竞态修复（缺陷 C2G-ACKLOSS-UI-REFRESH-20261115）：
+  /// boot 期的对账（附件恢复 / 离线 ACK 回放）可能在面板监听器挂载或
+  /// 消息行加载之前就已把 DB 状态写成 sent，而可见行仍停留在 sending。
+  /// 挂载时及短暂延迟后的第二遍，对可见 sending 行重读 DB，以库内真值
+  /// 刷新行状态；DB 仍为 sending 的在制行不受影响。与
+  /// [_refreshVisibleConfirmedImages] 互补（那一路只补图片元数据）。
+  /// 两遍均为一次性有界操作，不引入常驻定时器。
+  Future<void> _healVisibleTransientStatuses() async {
+    // 与 _refreshConfirmedImage 相同的闸门：仅 C2C/C2G 有可对账的库表；
+    // 其他类型（如 C2S）不得因此触发数据库初始化。
+    if (!{'C2C', 'C2G'}.contains(chatType)) return;
+    for (var pass = 0; pass < 2; pass++) {
+      if (_disposed || isCurrent?.call() == false) return;
+      final service = widgetRef.read(chatProvider.notifier).chatService;
+      final pending = (service?.messages ?? const <Message>[])
+          .where((m) => m.status == MessageStatus.sending)
+          .toList(growable: false);
+      // boot 时面板监听器可能先于消息行加载挂载：第一遍为空不代表无需
+      // 治愈，仍要调度延迟的第二遍（对账/离线回放通常在数秒内完成落库）。
+      if (pending.isEmpty) {
+        if (pass == 0) {
+          if (!await _healDelay()) return;
+          continue;
+        }
+        return;
+      }
+      // db 打开异常不得逃逸成未处理异步错误（本方法经 unawaited 调用）；
+      // 瞬时失败交给延迟的第二遍，不提前放弃。
+      dynamic db;
+      try {
+        db = await SqliteService.to.db.timeout(const Duration(seconds: 5));
+      } on Object catch (e) {
+        iPrint('[chat_event_subscription_manager] status heal db error: $e');
+        db = null;
+      }
+      if (db == null) {
+        if (pass == 0) {
+          if (!await _healDelay()) return;
+          continue;
+        }
+        return;
+      }
+      if (_disposed || isCurrent?.call() == false) return;
+      final repo = MessageRepo(tableName: MessageRepo.getTableName(chatType));
+      for (final message in pending) {
+        if (_disposed || isCurrent?.call() == false) return;
+        try {
+          final MessageModel? model = await repo.find(message.id);
+          if (model == null) continue;
+          final dbStatus = model.typesStatus;
+          // 白名单目标态（与 _refreshConfirmedImage 一致）：撤回(30/31)/
+          // 未知(42) 经 typesStatus 兜底成 error，不得把 sending 行误翻
+          // 成红叉；真实失败(error)的展示由交互路径负责。
+          if (dbStatus != MessageStatus.sent &&
+              dbStatus != MessageStatus.delivered &&
+              dbStatus != MessageStatus.seen) {
+            continue;
+          }
+          final index = service!.messages.indexWhere((e) => e.id == message.id);
+          if (index < 0) continue;
+          // 快照与落库之间行可能已被实时事件推进（如 seen）：只降级仍在
+          // sending 的行，避免把更高状态回退成 sent。
+          final old = service.messages[index];
+          if (old.status != MessageStatus.sending) continue;
+          // 只翻状态不重建对象：行内容在 boot 渲染时已正确，重建会引入
+          // 用户资料等额外依赖（未登录过渡期会 Bad state）。
+          service.updateMessage(old, old.copyWith(status: dbStatus));
+        } on Object catch (e) {
+          iPrint('[chat_event_subscription_manager] status heal error: $e');
+        }
+      }
+      if (pass == 0) {
+        if (!await _healDelay()) return;
+      }
+    }
+  }
+
+  bool _disposed = false;
+  StreamSubscription<ChatExtendEvent>? _ssCoreDelete;
+  StreamSubscription<MessageSentEvent>? _ssCoreSent;
+  StreamSubscription<ChatOperation>? _ssCoreOperations;
+  final Set<String> _refreshingCoreSent = {};
+  final Map<String, Timer> _coreRetryTimers = {};
+  final Map<String, Completer<void>> _coreRetrySignals = {};
+  bool _coreAuthListening = false;
+
+  void _wakeCoreRetries() {
+    for (final timer in _coreRetryTimers.values) {
+      timer.cancel();
+    }
+    _coreRetryTimers.clear();
+    for (final signal in _coreRetrySignals.values) {
+      if (!signal.isCompleted) signal.complete();
+    }
+    _coreRetrySignals.clear();
+  }
+
+  Future<void> _waitCoreRetry(String id, Duration delay) async {
+    final signal = Completer<void>();
+    _coreRetrySignals[id] = signal;
+    _coreRetryTimers[id] = Timer(delay, () {
+      if (!signal.isCompleted) signal.complete();
+    });
+    await signal.future;
+    _coreRetryTimers.remove(id)?.cancel();
+    _coreRetrySignals.remove(id);
+  }
+
+  Future<void> _refreshConfirmedImage(MessageSentEvent event) async {
+    final owner = authSessionReader.current;
+    bool current() =>
+        !_disposed &&
+        isCurrent?.call() != false &&
+        authSessionReader.isCurrent(owner);
+    if (!current() ||
+        event.messageType != chatType ||
+        event.conversationUk3 != conversationUk3 ||
+        !ServerAckReceipts.contains(
+          owner.uid,
+          owner.generation,
+          event.messageId,
+          conversationUk3,
+        )) {
+      return;
+    }
+    final service = widgetRef.read(chatProvider.notifier).chatService;
+    if (service == null ||
+        !service.messages.any(
+          (m) =>
+              m.id == event.messageId &&
+              m is ImageMessage &&
+              m.authorId == owner.uid &&
+              m.status == MessageStatus.sending &&
+              m.metadata?['conversation_uk3'] == conversationUk3,
+        ) ||
+        !_refreshingCoreSent.add(event.messageId)) {
+      return;
+    }
+    try {
+      if (!{'C2C', 'C2G'}.contains(chatType)) return;
+      Map<String, Object?>? canonical;
+      const delays = [100, 250, 500, 1000, 2000, 4000, 8000, 16000, 30000];
+      var attempt = 0;
+      while (true) {
+        if (!current() ||
+            widgetRef.read(chatProvider.notifier).chatService != service ||
+            !service.messages.any(
+              (m) =>
+                  m.id == event.messageId &&
+                  m is ImageMessage &&
+                  m.authorId == owner.uid &&
+                  m.status == MessageStatus.sending &&
+                  m.metadata?['conversation_uk3'] == conversationUk3,
+            )) {
+          return;
+        }
+        try {
+          final db = await SqliteService.to.db.timeout(
+            const Duration(seconds: 5),
+          );
+          if (!current() ||
+              widgetRef.read(chatProvider.notifier).chatService != service) {
+            return;
+          }
+          if (db == null) throw StateError('message database unavailable');
+          final rows = await db
+              .query(
+                MessageRepo.getTableName(chatType),
+                columns: [
+                  'id',
+                  'type',
+                  'CAST(from_id AS TEXT) AS from_id',
+                  'CAST(to_id AS TEXT) AS to_id',
+                  'msg_type',
+                  'conversation_uk3',
+                  'status',
+                ],
+                where: 'id = ?',
+                whereArgs: [event.messageId],
+                limit: 2,
+              )
+              .timeout(const Duration(seconds: 5));
+          if (rows.length != 1) return;
+          canonical = rows.single;
+          break;
+        } on Object catch (error) {
+          if (!current()) return;
+          if (attempt == 0) {
+            iPrint(
+              '[chat_event_subscription_manager] confirmed image refresh: ${error.runtimeType}',
+            );
+          }
+          final delay =
+              delays[attempt < delays.length ? attempt : delays.length - 1];
+          attempt++;
+          await _waitCoreRetry(event.messageId, Duration(milliseconds: delay));
+        }
+      }
+      final status = switch (canonical['status']) {
+        IMBoyMessageStatus.sent => MessageStatus.sent,
+        IMBoyMessageStatus.delivered => MessageStatus.delivered,
+        IMBoyMessageStatus.seen => MessageStatus.seen,
+        _ => null,
+      };
+      if (!current() ||
+          canonical['id'] != event.messageId ||
+          canonical['from_id'] != owner.uid ||
+          canonical['to_id'] != peerId ||
+          canonical['type'] != chatType ||
+          canonical['msg_type'] != 'image' ||
+          canonical['conversation_uk3'] != conversationUk3 ||
+          status == null ||
+          widgetRef.read(chatProvider.notifier).chatService != service) {
+        return;
+      }
+      final index = service.messages.indexWhere((m) => m.id == event.messageId);
+      if (index < 0) return;
+      final old = service.messages[index];
+      if (old is! ImageMessage ||
+          old.authorId != owner.uid ||
+          old.status != MessageStatus.sending ||
+          old.metadata?['conversation_uk3'] != conversationUk3) {
+        return;
+      }
+      await service.updateMessage(old, old.copyWith(status: status));
+    } on Object catch (error) {
+      iPrint(
+        '[chat_event_subscription_manager] confirmed image refresh: ${error.runtimeType}',
+      );
+    } finally {
+      _refreshingCoreSent.remove(event.messageId);
+    }
+  }
+
+  void _setupCoreDeleteListener() {
+    _ssCoreDelete ??= AppEventBus.on<ChatExtendEvent>().listen((event) {
+      if (_disposed ||
+          isCurrent?.call() == false ||
+          event.type != 'delete_msg') {
+        return;
+      }
+      final conversation = event.payload['conversation'];
+      final message = event.payload['msg'];
+      if (conversation is! ConversationModel ||
+          conversation.type != chatType ||
+          conversation.peerId != peerId ||
+          message is! Message ||
+          message.metadata?['conversation_uk3'] != conversationUk3) {
+        return;
+      }
+      final service = widgetRef.read(chatProvider.notifier).chatService;
+      // Only remove an already-owned visible row; a missing ID must not start
+      // the service's database fallback lookup for this late event.
+      if (service == null || !service.messages.any((m) => m.id == message.id)) {
+        return;
+      }
+      unawaited(service.removeMessageById(message.id));
+    });
+  }
 
   // Stream 订阅实例
   StreamSubscription<ChatExtendEvent>? _ssMsgExt;
@@ -168,6 +553,7 @@ class ChatEventSubscriptionManager {
   /// 监听新消息事件
   void _setupMessageListener() {
     _ssMsg = AppEventBus.on<DataWrapperEvent<dynamic>>().listen((event) async {
+      if (isCurrent?.call() == false) return;
       // 检查数据类型，处理 Message 及其子类型
       // flutter_chat_core 包中的消息类型：TextMessage, ImageMessage 等
       // 它们的 runtimeType 是 'TextMessage' 等，不是抽象的 'Message'
@@ -200,27 +586,23 @@ class ChatEventSubscriptionManager {
           return;
         }
         msgIds.add(msg.id);
-        final i =
-            widgetRef
-                .read(chatProvider.notifier)
-                .chatService
-                ?.messages
-                .indexWhere((e) => e.id == msg.id) ??
-            -1;
+        final chatService = widgetRef.read(chatProvider.notifier).chatService;
+        final i = chatService?.messages.indexWhere((e) => e.id == msg.id) ?? -1;
         if (i == -1) {
-          widgetRef
-              .read(chatProvider.notifier)
-              .chatService
-              ?.insertMessage(
-                msg,
-                index:
-                    widgetRef
-                        .read(chatProvider.notifier)
-                        .chatService
-                        ?.messages
-                        .length ??
-                    0,
-              );
+          // OBS-SYN03-SETTLEDROP：WS 补投的旧消息（未读积压重投/离线队列回放）
+          // 必须按时间序落位，不得一律插到「最新端」——newest-first 列表里落在
+          // head 的旧消息会被阅读防跳窗口（ChatMessageList._deferredIds）在
+          // 用户远离底部时整块隐藏，settle 后渲染列表缺一整块真实历史（模型
+          // 计数完好）。真正的新消息时间戳最新，落位结果与原 index 0/length
+          // 一致，防跳行为不变。
+          chatService?.insertMessage(
+            msg,
+            index: deliveryInsertionIndex(
+              chatService.messages,
+              msg,
+              newestFirst: newestFirst,
+            ),
+          );
           if (msg is ImageMessage) {
             // 图片画廊已迁移至 Riverpod，由 ChatProvider 处理
           }
@@ -232,6 +614,7 @@ class ChatEventSubscriptionManager {
           final old = cs?.messages[i];
           if (old is TextStreamMessage) {
             await cs?.updateMessage(old, msg);
+            if (isCurrent?.call() == false) return;
             // 定稿替换后清理流式状态，防本地 chunks + 全局 notifier state 泄漏
             _streamChunks.remove(msg.id);
             widgetRef
@@ -391,7 +774,7 @@ class ChatEventSubscriptionManager {
     return buf.toString();
   }
 
-  /// 监听消息状态更新事件
+  /// 监听消息状态更新事件；已读同步可以一次广播多个消息。
   void _setupMessageStateListener(VoidCallback onMountedStateChanged) {
     _ssMsgState = AppEventBus.on<DataWrapperEvent<dynamic>>().listen((event) {
       // 检查数据类型，只处理消息列表类型的事件。
@@ -399,6 +782,7 @@ class ChatEventSubscriptionManager {
       // WebRTC 信令等状态刷新）实际使用的 dataType，此前不认它=这些
       // 刷新全部空投（消息状态变更 UI 不跟随）。批量已读回执可含多个
       // toTypeMessage() 结果，必须逐一更新，不得只消费第一项。
+      if (isCurrent?.call() == false) return;
       if (event.dataType != 'MessageList' &&
           event.dataType != 'messages' &&
           event.dataType != 'List<Message>') {
@@ -410,26 +794,32 @@ class ChatEventSubscriptionManager {
         return;
       }
 
-      final updates = (event.data as List).cast<Message>();
+      // 车道侧语义：批量里若混入非 Message 元素，跳过而非整批抛错。
+      final updates = [
+        for (final value in event.data as List)
+          if (value is Message) value,
+      ];
       final chat = widgetRef.read(chatProvider.notifier).chatService;
       if (chat == null) return;
-      for (final msg in updates) {
+      for (final value in updates) {
         try {
-          final index = chat.messages.indexWhere((item) => item.id == msg.id);
+          if (isCurrent?.call() == false) return;
+          final index = chat.messages.indexWhere((item) => item.id == value.id);
+          // A batch may include messages outside the visible history window.
           if (index < 0) continue;
           final old = chat.messages[index];
-          chat.updateMessage(old, msg);
+          chat.updateMessage(old, value);
           final didBecomeSeen =
               old.status != MessageStatus.seen &&
-              msg.status == MessageStatus.seen;
+              value.status == MessageStatus.seen;
           if (didBecomeSeen &&
-              isBurnMessageChecker(msg) &&
-              (msg.metadata?['burn_read_at'] ?? 0) == 0) {
+              isBurnMessageChecker(value) &&
+              (value.metadata?['burn_read_at'] ?? 0) == 0) {
             widgetRef
                 .read(chatProvider.notifier)
                 .markBurnReadAt(
                   conversationGetter(),
-                  msg.id,
+                  value.id,
                   readAtMs: DateTimeHelper.millisecond(),
                 );
           }
@@ -481,6 +871,22 @@ class ChatEventSubscriptionManager {
 
   /// 取消所有订阅
   void dispose() {
+    _disposed = true;
+    _healPassTimer?.cancel();
+    _healPassTimer = null;
+    final healCompleter = _healPassCompleter;
+    _healPassCompleter = null;
+    if (healCompleter != null && !healCompleter.isCompleted) {
+      healCompleter.complete();
+    }
+    if (_coreAuthListening) {
+      authSessionReader.removeListener(_wakeCoreRetries);
+      _coreAuthListening = false;
+    }
+    _wakeCoreRetries();
+    _ssCoreDelete?.cancel();
+    _ssCoreSent?.cancel();
+    _ssCoreOperations?.cancel();
     _ssMsgExt?.cancel();
     _ssMsg?.cancel();
     _ssMsgState?.cancel();

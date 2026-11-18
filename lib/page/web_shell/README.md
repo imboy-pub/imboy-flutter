@@ -1,7 +1,6 @@
 # Web Shell 模块 / Web Shell Module
 
-> **状态 / Status**：Phase 1.1 foundation 批次完成（12 commits）；2026-09-30 复测：16 测试文件 255 测全绿 / Phase 1.1 foundation batch complete (12 commits); re-verified 2026-09-30: 16 test files, 255 tests green
-> **下游 / Downstream**：1.1.h.3 i18n wrapper + 1.1.i 路由整合 / 1.1.h.3 i18n wrapper + 1.1.i route integration
+> **状态 / Status**：现有 Flutter WebShell 持续建设；历史测试仅对应原候选，当前结果以原生执行收据为准。 / Existing Flutter WebShell under development; historical results do not certify the current candidate.
 
 ---
 
@@ -26,9 +25,10 @@
 
 响应式：
 - `< 900px` → 回退到移动端 BottomNavigationPage（mobile fallback）
-- `>= 900px` → 三栏布局（threeColumn）
+- `900–1199px` → 导航 + 列表/详情互斥（twoColumn），返回保留列表状态
+- `>= 1200px` → 三栏布局（threeColumn）
 
-### 文件清单（16 文件）
+### 文件清单
 
 | 文件 | 职责 |
 |------|------|
@@ -45,6 +45,8 @@
 | `web_shell_helper_panels.dart` | 右栏辅助面板（mine 最小面板 / 联系人详情 / 占位等） |
 | `web_nav_items_factory.dart` | NavItems 工厂（i18n + badge 与 widget 解耦） |
 | `web_shell_route_params.dart` | URL ↔ state 双向编解码（深链支持） |
+| `web_shell_route.dart` | 已认证路由下的状态恢复、URL 回写与账号代际保护 |
+| `web_chat_input.dart` | 共享 ComposerField、账号草稿和同 ID 发送/重试 |
 | `web_shell_keyboard_intent.dart` | 桌面快捷键映射（Cmd/Ctrl + K/N/, + Esc） |
 | `web_chat_title_resolver.dart` | ChatPanel 标题决策（纯函数，Phase 2.1.d） |
 | `web_message_actions.dart` | 长按消息动作决策（纯函数，Phase 2.1.b-5a） |
@@ -101,32 +103,23 @@ class WebShellBootstrap extends ConsumerWidget {
 }
 ```
 
-### 路由集成（1.1.i 已完成：`/web_shell` 已注册于 `app_router.dart`）
+### 路由与输入接线
+
+`app_router.dart` 的 `/web_shell` 保留现有认证和功能守卫：
 
 ```dart
-// lib/config/router/app_router.dart 新增
-GoRoute(
-  path: '/web_shell',
-  name: 'web_shell',
-  builder: (context, state) {
-    // 从 URL query 恢复 shell state
-    final params = state.uri.queryParameters;
-    if (params.isNotEmpty) {
-      // 用 1.1.m 提供的纯函数
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        ref.read(webShellProvider.notifier).replaceState(
-          parseShellRouteParams(params),
-        );
-      });
-    }
-    return const WebShellBootstrap();
-  },
+pageBuilder: (context, state) => CupertinoPage(
+  key: state.pageKey,
+  child: WebShellRoute(
+    uri: state.uri,
+    child: const WebShellBootstrap(),
+  ),
 ),
-
-// 修改 WebLoginPage 登录成功跳转：
-// 旧：context.go('/bottom_navigation')
-// 新：context.go(kIsWeb ? '/web_shell' : '/bottom_navigation')
 ```
+
+`WebShellRoute` 在显示业务页面前恢复选择，并同步后续 URL；账号代际变化时丢弃旧恢复，退出中的旧页面不再写路由。认证与群权限仍由原守卫和业务层核验。
+
+`WebChatInput` 复用 `ComposerField`、`AccountDraftStore` 和原消息发送/重试入口。待发身份先落盘，恢复时按消息 ID 对账；发送失败保留原文，迟到结果仅清理未被用户修改的输入。系统 IME、真实浏览器历史、SQLite/outbox 与 Web/App 配对仍需相应集成验收，组件测试不能替代。
 
 ### 设计原则
 
@@ -137,7 +130,7 @@ GoRoute(
 5. **状态短路**：Riverpod Notifier 同 tab + null sel / 同 sel / null clear 短路（避免无效 rebuild）
 6. **深链编解码 round-trip 不变性**：`parseShellRouteParams(toParams(state)) == state`
 
-### 测试统计
+### 历史测试统计（2026-09-30 原候选）
 
 | Slice | 测 | 类型 |
 |-------|-----|------|

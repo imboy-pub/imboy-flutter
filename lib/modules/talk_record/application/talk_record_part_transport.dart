@@ -2,6 +2,8 @@
 /// server-signed s3_put descriptor; the BEAM never relays the body.
 library;
 
+import 'package:imboy/component/http/web_writer_http_adapter.dart';
+
 import 'dart:io' show File;
 
 import 'package:dio/dio.dart';
@@ -48,6 +50,7 @@ class TalkRecordS3PutPartTransport implements TalkRecordPartTransport {
         validateStatus: (_) => true,
       ),
     )..interceptors.add(HttpRequestGuardInterceptor());
+    guardWebWriterDio(dio);
     try {
       final response = await dio.put<void>(
         ticket.grantUrl,

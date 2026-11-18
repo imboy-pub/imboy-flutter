@@ -52,6 +52,7 @@ class MessageScrollState {
 class MessageScrollManager extends _$MessageScrollManager {
   // 由聊天页注入的消息列表 controller（所有权在页面 State）
   ScrollController? _scrollController;
+  bool _reversed = false;
 
   // 消息位置缓存 {conversationId: {messageId: offset}}
   final Map<String, Map<String, double>> _messagePositions = {};
@@ -80,11 +81,30 @@ class MessageScrollManager extends _$MessageScrollManager {
   }
 
   /// 注入聊天页持有的消息列表 controller（幂等）
-  void attachScrollController(ScrollController controller) {
-    if (_isDisposed || identical(_scrollController, controller)) return;
+  void attachScrollController(
+    ScrollController controller, {
+    bool reversed = false,
+  }) {
+    if (_isDisposed) return;
+    _reversed = reversed;
+    if (identical(_scrollController, controller)) return;
+    _scrollController?.removeListener(_onScroll);
     _scrollController = controller;
     controller.removeListener(_onScroll);
     controller.addListener(_onScroll);
+  }
+
+  void detachScrollController(ScrollController controller) {
+    if (!identical(_scrollController, controller)) return;
+    controller.removeListener(_onScroll);
+    _scrollController = null;
+  }
+
+  void resetReadingState() {
+    if (_isDisposed) return;
+    _autoScrollTimer?.cancel();
+    _messagePositions.clear();
+    state = MessageScrollState();
   }
 
   /// 当前注入的 controller（页面已销毁时为 null，调用方需判空）
@@ -100,7 +120,11 @@ class MessageScrollManager extends _$MessageScrollManager {
 
     state = state.copyWith(
       scrollPosition: currentScroll,
-      isAtBottom: maxScroll - currentScroll <= _scrollThreshold,
+      isAtBottom:
+          (_reversed
+              ? currentScroll - controller.position.minScrollExtent
+              : maxScroll - currentScroll) <=
+          _scrollThreshold,
     );
 
     // 检测滚动状态
@@ -110,26 +134,46 @@ class MessageScrollManager extends _$MessageScrollManager {
   }
 
   /// 滚动到底部
-  Future<void> scrollToBottom({bool animated = true}) async {
+  Future<void> scrollToBottom({
+    bool animated = true,
+    bool Function()? isCurrent,
+  }) async {
     final controller = _scrollController;
     // 检查是否已释放或 ScrollController 无效
-    if (_isDisposed || controller == null || !controller.hasClients) return;
+    if (_isDisposed ||
+        controller == null ||
+        !controller.hasClients ||
+        isCurrent?.call() == false) {
+      return;
+    }
+    final bottom = _reversed
+        ? controller.position.minScrollExtent
+        : controller.position.maxScrollExtent;
 
     state = state.copyWith(isScrolling: true);
 
     if (animated) {
       await controller.animateTo(
-        controller.position.maxScrollExtent,
+        bottom,
         duration: _scrollDuration,
         curve: Curves.easeInOut,
       );
     } else {
-      controller.jumpTo(controller.position.maxScrollExtent);
+      controller.jumpTo(bottom);
     }
 
     // 再次检查，防止异步操作期间被释放
-    if (!_isDisposed) {
-      state = state.copyWith(isAtBottom: true, isScrolling: false);
+    if (!_isDisposed &&
+        identical(_scrollController, controller) &&
+        controller.hasClients &&
+        isCurrent?.call() != false) {
+      final distance = _reversed
+          ? controller.position.pixels - controller.position.minScrollExtent
+          : controller.position.maxScrollExtent - controller.position.pixels;
+      state = state.copyWith(
+        isAtBottom: distance <= _scrollThreshold,
+        isScrolling: false,
+      );
     }
   }
 

@@ -36,6 +36,7 @@ class CellPressable extends StatefulWidget {
     required this.child,
     this.onTap,
     this.onLongPress,
+    this.semanticLabel,
   });
 
   final Widget child;
@@ -44,6 +45,15 @@ class CellPressable extends StatefulWidget {
   /// 长按回调；触发时同样会展示按下高亮（与 [onTap] 共享 _pressed 状态）。
   /// 长按由 [GestureDetector] 经过 ~500ms 阈值后触发。
   final VoidCallback? onLongPress;
+
+  /// 可访问名（A11Y-02 AN1）：挂在 container 语义节点（吸收 button/tap/focus
+  /// 的同一节点）上，web 引擎渲染为 role=button 的 aria-label。
+  ///
+  /// 传入本参数时，调用方须对行内纯文本用 [ExcludeSemantics] 排除视觉文案，
+  /// 否则子文本节点并入同一节点后，引擎会把名字落回 DOM textContent 而非
+  /// aria-label（参照 space_switcher_button.dart 的 label+ExcludeSemantics 组合，
+  /// 其 AX 树名字可被 CDP 读出）。null 时保持既有结构（名字走 textContent）。
+  final String? semanticLabel;
 
   @override
   State<CellPressable> createState() => _CellPressableState();
@@ -79,10 +89,20 @@ class _CellPressableState extends State<CellPressable> {
     final hasLongPress = widget.onLongPress != null;
 
     final enabled = hasTap || hasLongPress;
+
+    // DEF-SETTINGS-WIDE-TILE-MOUSE-DEAD（R6b 修复窗）：container 归组语义必须
+    // 与 tap action / button 角色收敛在**同一个语义节点**上——web 引擎的
+    // tappable（flt-tappable + click→SemanticsAction.tap）与 tabindex 都按
+    // 最终合并节点渲染，节点拆开会把裸鼠标事件引到无 tap handler 的节点上。
+    // 本组件经 container:true 使外层吸收 Focus（includeSemantics 默认 true
+    // 注入 focusable/focused）与内层 button/tap 的全部标志，恰好形成单一
+    // 合并节点；改动层级顺序（如把 container 移到内层）会让 Focus 的显式
+    // Semantics 不再并入 button 节点（键盘聚焦断言回归），勿动此结构。
     return Semantics(
       // Keep this control's focus, actions, and child label together when
       // another CellPressable surrounds it. Read-only cells need no boundary.
       container: enabled,
+      label: widget.semanticLabel,
       child: FocusableActionDetector(
         enabled: enabled,
         shortcuts: const {

@@ -113,7 +113,7 @@ void main() {
                   ChatInput(
                     type: 'C2C',
                     peerId: 'peer_101',
-                    onSendPressed: (_) async => true,
+                    onSendPressed: (_) async => const ComposerSendReceipt(true),
                     composerHeight: composerHeight,
                   ),
                 ],
@@ -178,7 +178,7 @@ void main() {
                   ChatInput(
                     type: 'C2C',
                     peerId: 'peer_101',
-                    onSendPressed: (_) async => true,
+                    onSendPressed: (_) async => const ComposerSendReceipt(true),
                     composerHeight: composerHeight,
                   ),
                 ],

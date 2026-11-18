@@ -160,6 +160,16 @@ extension MessageModelMapper on MessageModel {
   }
 
   Future<Message> toTypeMessage() async {
+    final message = await _toTypeMessage();
+    return message.copyWith(
+      metadata: {
+        ...?message.metadata,
+        IMBoyMessageStatus.localStatusMetadataKey: status,
+      },
+    );
+  }
+
+  Future<Message> _toTypeMessage() async {
     // WebSocket API v2.0: payload 可能是 Map 或 String（E2EE 场景）
     Map<String, dynamic> payloadData;
 

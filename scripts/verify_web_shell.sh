@@ -28,7 +28,7 @@ while [[ "$#" -gt 0 ]]; do
         'Artifacts must be outside the repository; default is a temporary directory.' \
         'The web-shell profile selects this host plus Chrome; --quick skips only build/preview.'
       exit 0 ;;
-    *) echo "Unknown Web Shell option: $1" >&2; exit 64 ;;
+    *) echo 'Unknown Web Shell option.' >&2; exit 64 ;;
   esac
 done
 case "$(uname -s)" in
@@ -84,6 +84,9 @@ if $READY; then
 fi
 if $READY; then
   run_check analyze flutter analyze lib/page/web_shell/ test/unit_test/page/web_shell/ --no-fatal-infos
+fi
+if $READY && ! $QUICK; then
+  run_check delivery-config python3 scripts/check_web_delivery_config.py
 fi
 if $READY && ! $QUICK; then
   run_check build flutter build web --release --no-tree-shake-icons

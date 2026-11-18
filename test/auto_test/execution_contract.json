@@ -351,6 +351,13 @@
       "classifier": "host-dart"
     },
     {
+      "id": "golden-pending-review",
+      "prefixes": [
+        "test/golden_pending_review/"
+      ],
+      "classifier": "host-dart"
+    },
+    {
       "id": "host-ux-matrix",
       "prefixes": [
         "test/ux_matrix/"
@@ -419,6 +426,1310 @@
     }
   ],
   "overrides": {
+    "test/fixtures/browser_sqlite_bridge_probe.dart": {
+      "kind": "driver",
+      "basis": [
+        "Exact RPC bootstrap client compiled only for test/unit_test/service/browser_sqlite_storage_bridge_chrome_test.dart; the unique Chrome parent owns case execution and PASS/FAIL counts.",
+        "main() only registers same-origin message RPC and readiness; no Flutter test/testWidgets invocation. This executable auxiliary is explicitly owned and is not a separate product test target.",
+        "Keep the existing host-fixtures support rule and EXECUTABLE_IN_SUPPORT_RULE guard unchanged; this override applies only to this one path."
+      ]
+    },
+    "test/fixtures/web_profile_io_fence.dart": {
+      "kind": "fixture",
+      "included_by": [
+        "test/service/web_profile_readonly_chrome_test.dart",
+        "test/unit_test/page/web_shell/web_native_push_startup_chrome_test.dart"
+      ],
+      "basis": [
+        "Owned deny-only transport sink; no main, no product requests, restores original adapter and browser functions."
+      ]
+    },
+    "test/fixtures/web_profile_readonly_cases.dart": {
+      "kind": "included-test",
+      "included_by": [
+        "test/service/web_profile_readonly_chrome_test.dart"
+      ],
+      "basis": [
+        "Imported once by the unique Chrome wrapper; contains owned SET01 case registration, not an independently executed target."
+      ]
+    },
+    "test/service/app_manifest_uninitialized_scope_test.dart": {
+      "runner": "flutter-machine",
+      "platforms": [
+        "macos",
+        "linux"
+      ],
+      "offline": true,
+      "source_dependencies": [
+        "lib/store/api/user_api.dart",
+        "lib/app_core/feature_flags/app_manifest_service.dart",
+        "lib/component/http/http_client.dart",
+        "lib/page/contact/apply_friend/apply_friend_provider.dart",
+        "lib/page/contact/confirm_new_friend/confirm_new_friend_provider.dart",
+        "lib/component/http/web_control_fetch_adapter_web.dart",
+        "pubspec.lock"
+      ],
+      "basis": [
+        "Native refresh without scope returns false before Storage initialization.",
+        "Nearest root test config preserves declared setup; no weakening of normal PR gates."
+      ]
+    },
+    "test/service/browser_received_attachment_chrome_test.dart": {
+      "runner": "flutter-machine",
+      "platforms": [
+        "web"
+      ],
+      "offline": true,
+      "dart_defines": {
+        "WEB_CONTROL_TEST_ORIGIN": "http://127.0.0.1:65438"
+      },
+      "source_dependencies": [
+        "lib/component/chat/message.dart",
+        "lib/component/chat/message_file_builder.dart",
+        "lib/component/extension/imboy_cache_manager.dart",
+        "lib/component/http/browser_received_attachment.dart",
+        "lib/component/http/browser_received_attachment_stub.dart",
+        "lib/component/http/browser_received_attachment_web.dart",
+        "lib/component/ui/imboy_cached_image_provider.dart",
+        "lib/page/chat/chat/chat_page.dart",
+        "lib/service/account_local_task_registry.dart",
+        "lib/service/account_media_cache_store.dart",
+        "lib/service/account_media_cache_web.dart",
+        "lib/service/asset_url_resolver.dart",
+        "lib/service/auth_session_scope.dart",
+        "lib/service/web_writer_gate.dart",
+        "lib/service/browser_sqlite_storage_bridge_web.dart",
+        "test/fixtures/web_control_fetch_server.cjs",
+        "test/service/sqlite3.wasm",
+        "web/sqlite3.wasm",
+        "test/env_test_pin.dart",
+        "test/flutter_test_config.dart",
+        "pubspec.lock",
+        "lib/component/helper/image_dimensions.dart",
+        "lib/page/web_shell/web_attachment_input.dart",
+        "lib/page/chat/chat/attachment_handler.dart",
+        "lib/store/repository/attachment_upload_task_repo_sqlite.dart",
+        "lib/store/repository/attachment_upload_browser_material.dart",
+        "lib/service/browser_attachment_durability_web.dart",
+        "lib/component/upload/resumable_browser_materials.dart",
+        "lib/service/sqlite.dart",
+        "lib/service/sqlite_lifecycle.dart"
+      ],
+      "basis": [
+        "Actual Chrome Fetch/reader, production owned cache/provider and Blob/anchor with synthetic authorization URL; controlled loopback server only.",
+        "Only one real writer target in this plan. No shared backend/Garage/account; no OS file save because click default is cancelled. No pre-primed cookie jar proof.",
+        "Fixture origin is ephemeral and bound to owned PID/start/listen; explicit fresh preparation required after release. Normal PR gates preserved.",
+        "Runtime fix: safe metadata before provider budget; actual local PNG selection with real writer/production SQLite, only OS picker substituted; no ImageDescriptor encoded width/height on Web. Budget-only preview refusal is distinct from valid upload intent."
+      ]
+    },
+    "test/service/env_web_factory_chrome_test.dart": {
+      "runner": "flutter-machine",
+      "platforms": [
+        "web"
+      ],
+      "offline": true,
+      "source_dependencies": [
+        "lib/config/env.dart",
+        "lib/config/env_factory_native.dart",
+        "lib/config/env_factory_web.dart",
+        "lib/config/env_field.dart",
+        "lib/config/init.dart",
+        "lib/service/rsa.dart",
+        "pubspec.lock",
+        "test/env_test_pin.dart",
+        "test/flutter_test_config.dart"
+      ],
+      "basis": [
+        "Synthetic Env map injection and explicit unavailable Web fields; no backend, no resource writer, no secrets values.",
+        "Relocate from unassigned test/config to existing test/service family and retain normal PR ownership/static-analysis/framework/sqlite-generator/contracts gates.",
+        "Factory import selection proof is separate from compiled artifact absence and real Human auth.",
+        "Public WEB_API_BASE_URL origin; Web signing key always denied even under envMap injection; pre-bootstrap Web WS/public resources have no persisted or Native fallback."
+      ]
+    },
+    "test/service/friend_api_request_shape_test.dart": {
+      "runner": "flutter-machine",
+      "platforms": [
+        "macos",
+        "linux",
+        "web"
+      ],
+      "offline": true,
+      "source_dependencies": [
+        "lib/store/api/user_api.dart",
+        "lib/app_core/feature_flags/app_manifest_service.dart",
+        "lib/component/http/http_client.dart",
+        "lib/page/contact/apply_friend/apply_friend_provider.dart",
+        "lib/page/contact/confirm_new_friend/confirm_new_friend_provider.dart",
+        "lib/component/http/web_control_fetch_adapter_web.dart",
+        "pubspec.lock",
+        "test/service/sqlite3.wasm",
+        "web/sqlite3.wasm"
+      ],
+      "basis": [
+        "4 real provider/wrapper shape and owner cases; only I/O refusal synthetic, not a network/Fetch claim.",
+        "Nearest root test config preserves declared setup; no weakening of normal PR gates."
+      ]
+    },
+    "test/service/message_inbox_keyboard_chrome_test.dart": {
+      "offline": true,
+      "source_dependencies": [
+        "lib/page/conversation/widget/message_inbox_tile.dart",
+        "lib/component/ui/cell_pressable.dart",
+        "lib/i18n/strings.g.dart",
+        "lib/theme/theme_manager.dart",
+        "lib/theme/default/theme.dart",
+        "lib/theme/default/font_types.dart",
+        "lib/theme/default/app_colors.dart",
+        "lib/theme/default/app_duration.dart",
+        "lib/theme/default/app_radius.dart",
+        "lib/theme/default/app_spacing.dart",
+        "lib/theme/default/config/text_theme.dart",
+        "lib/theme/default/config/component_theme_manager.dart",
+        "test/flutter_test_config.dart",
+        "test/env_test_pin.dart",
+        "test/secure_storage_test_pin.dart",
+        "pubspec.lock"
+      ],
+      "basis": [
+        "Real MessageInboxTile and CellPressable under Flutter Chrome engine; two production AppTheme brightness variants, synthetic row/unread/actions only.",
+        "Uses test/ root hook and production ThemeManager default-font fallback. No backend, database, writer startup, account or unit_test hook.",
+        "host-service/host-dart + explicit @TestOn chrome infers widget suite, web platform and chrome dependency; keep normal product and PR gates."
+      ]
+    },
+    "test/service/web_attachment_events_chrome_test.dart": {
+      "runner": "flutter-machine",
+      "platforms": [
+        "web"
+      ],
+      "offline": true,
+      "source_dependencies": [
+        "lib/page/web_shell/web_attachment_input_events_web.dart",
+        "lib/page/web_shell/web_attachment_input_events_stub.dart",
+        "test/flutter_test_config.dart",
+        "pubspec.lock"
+      ],
+      "basis": [
+        "Actual Chrome DOM File/DataTransfer/drag/paste events and bytes; synthetic user input, no clipboard permissions or backend.",
+        "Checks composer region gate, focused-paste acceptance, listener disposal and owner change between files; not OS input, full UI or direct-v1 upload."
+      ]
+    },
+    "test/service/web_attachment_input_restore_chrome_test.dart": {
+      "runner": "flutter-machine",
+      "platforms": [
+        "web"
+      ],
+      "offline": true,
+      "source_dependencies": [
+        "lib/capabilities/adapters/picked_attachment_bytes.dart",
+        "lib/component/upload/resumable_attachment_uploader.dart",
+        "lib/page/chat/chat/attachment_handler.dart",
+        "lib/page/chat/chat/attachment_handler_lifecycle.dart",
+        "lib/page/web_shell/web_attachment_input.dart",
+        "lib/page/web_shell/web_attachment_input_events_stub.dart",
+        "lib/page/web_shell/web_attachment_input_events_web.dart",
+        "lib/page/web_shell/web_chat_input.dart",
+        "lib/store/api/attachment_api.dart",
+        "lib/service/browser_sqlite_storage_bridge_web.dart",
+        "lib/service/sqlite.dart",
+        "lib/service/web_writer_gate.dart",
+        "lib/store/repository/attachment_upload_task_repo_sqlite.dart",
+        "test/service/sqlite3.wasm",
+        "web/sqlite3.wasm",
+        "test/env_test_pin.dart",
+        "test/flutter_test_config.dart",
+        "pubspec.lock"
+      ],
+      "basis": [
+        "Actual Chrome writer/production SQLite journal with synthetic pending row; group permission initially denied then ready/revoked/ready must restore original anchor before new selection.",
+        "No backend, upload success, device or lease override; nearest test root config does not initialize Storage before real writer admission."
+      ]
+    },
+    "test/service/web_bootstrap_scope_chrome_test.dart": {
+      "suite": "component",
+      "platforms": [
+        "web"
+      ],
+      "offline": true,
+      "dependencies": [
+        "chrome",
+        "sqlite-wasm"
+      ],
+      "source_dependencies": [
+        "lib/config/env.dart",
+        "lib/config/env_factory_web.dart",
+        "lib/config/init.dart",
+        "lib/service/rsa.dart",
+        "lib/component/http/http_client.dart",
+        "lib/component/http/http_response.dart",
+        "lib/service/storage.dart",
+        "lib/service/web_writer_gate.dart",
+        "lib/service/web_writer_gate_web.dart",
+        "lib/service/browser_sqlite_storage_bridge_web.dart",
+        "test/service/sqlite3.wasm",
+        "web/sqlite3.wasm",
+        "test/flutter_test_config.dart",
+        "test/env_test_pin.dart",
+        "test/secure_storage_test_pin.dart",
+        "pubspec.lock"
+      ],
+      "basis": [
+        "Actual AppInitializer Web branch, public field persistence and existing browser writer. The HttpClient service boundary returns synthetic bootstrap payloads; no server/transport/Auth acceptance.",
+        "Eight fields, real synthetic RSA-2048 SPKI parse, invalid URL/types/missing-key rejection, delayed response/root/environment/cache-reset/completer isolation; old storage is not trusted.",
+        "Normal host-service ownership; existing root hook and service/sqlite3.wasm fixture. No product_independent, new runner, profile or gate changes."
+      ]
+    },
+    "test/service/web_control_fetch_chrome_test.dart": {
+      "runner": "flutter-machine",
+      "platforms": [
+        "web"
+      ],
+      "offline": true,
+      "dart_defines": {
+        "WEB_CONTROL_TEST_ORIGIN": "http://127.0.0.1:53371"
+      },
+      "source_dependencies": [
+        "lib/component/http/web_control_fetch_adapter.dart",
+        "lib/component/http/web_control_fetch_adapter_stub.dart",
+        "lib/component/http/web_control_fetch_adapter_web.dart",
+        "lib/component/http/web_control_fetch_types.dart",
+        "test/fixtures/web_control_fetch_server.cjs",
+        "pubspec.lock",
+        "test/service/sqlite3.wasm",
+        "web/sqlite3.wasm",
+        "test/env_test_pin.dart"
+      ],
+      "basis": [
+        "Task-owned ephemeral loopback Node fixture, synthetic bytes/IDs; actual request-arrival oracle and transport. Explicit preparation required; no real backend/account or shared resource.",
+        "Nearest test/flutter_test_config.dart does not initialize Storage or replace HttpClient; Chrome explicitly acquires real browser writer. Engine-only tests; production caller activation and complete poison acceptance remain separate."
+      ]
+    },
+    "test/service/web_control_fixture_oracle_test.dart": {
+      "runner": "flutter-machine",
+      "platforms": [
+        "macos",
+        "linux"
+      ],
+      "offline": true,
+      "dart_defines": {
+        "WEB_CONTROL_TEST_ORIGIN": "http://127.0.0.1:65311"
+      },
+      "source_dependencies": [
+        "lib/component/http/web_control_fetch_adapter.dart",
+        "lib/component/http/web_control_fetch_adapter_stub.dart",
+        "lib/component/http/web_control_fetch_adapter_web.dart",
+        "lib/component/http/web_control_fetch_types.dart",
+        "test/fixtures/web_control_fetch_server.cjs",
+        "pubspec.lock"
+      ],
+      "basis": [
+        "Task-owned ephemeral loopback Node fixture, synthetic bytes/IDs; actual request-arrival oracle and transport. Explicit preparation required; no real backend/account or shared resource.",
+        "Nearest test/flutter_test_config.dart does not initialize Storage or replace HttpClient; Chrome explicitly acquires real browser writer. Engine-only tests; production caller activation and complete poison acceptance remain separate."
+      ]
+    },
+    "test/service/web_control_production_wrapper_chrome_test.dart": {
+      "runner": "flutter-machine",
+      "platforms": [
+        "web"
+      ],
+      "offline": true,
+      "source_dependencies": [
+        "lib/component/http/http_client.dart",
+        "lib/component/http/web_control_fetch_adapter_web.dart",
+        "lib/component/http/http_request_policy.dart",
+        "lib/config/const.dart",
+        "lib/service/auth_session_scope.dart",
+        "lib/service/web_writer_gate.dart",
+        "test/fixtures/web_control_fetch_server.cjs",
+        "test/service/sqlite3.wasm",
+        "web/sqlite3.wasm",
+        "test/env_test_pin.dart",
+        "test/flutter_test_config.dart",
+        "test/secure_storage_test_pin.dart",
+        "pubspec.lock"
+      ],
+      "basis": [
+        "Two actual production HttpClient wrapper→network cases; no handler.resolve/adapter injection or owner=true mock.",
+        "Use existing controlled loopback fixture and Web public bootstrap alias and manifest endpoints. bind actual fresh WEB_CONTROL_TEST_ORIGIN; no new service/runner or product_independent field.",
+        "HTTP wrapper transport/session proof, not real backend authentication acceptance."
+      ],
+      "dart_defines": {
+        "WEB_CONTROL_TEST_ORIGIN": "http://127.0.0.1:64596"
+      }
+    },
+    "test/service/web_conversation_lossless_chrome_test.dart": {
+      "runner": "flutter-machine",
+      "platforms": [
+        "web"
+      ],
+      "offline": true,
+      "dependencies": [
+        "chrome",
+        "sqlite-wasm"
+      ],
+      "source_dependencies": [
+        "lib/component/http/channel_id_response_decoder.dart",
+        "lib/component/http/http_client.dart",
+        "lib/component/http/http_request_policy.dart",
+        "lib/store/api/conversation_api.dart",
+        "lib/config/const.dart",
+        "lib/config/env.dart",
+        "lib/service/storage.dart",
+        "lib/service/web_writer_gate.dart",
+        "lib/service/web_writer_gate_web.dart",
+        "lib/service/auth_session_scope.dart",
+        "lib/store/repository/user_repo_local.dart",
+        "lib/service/browser_sqlite_storage_bridge_web.dart",
+        "test/service/sqlite3.wasm",
+        "web/sqlite3.wasm",
+        "test/env_test_pin.dart",
+        "test/flutter_test_config.dart",
+        "test/secure_storage_test_pin.dart",
+        "pubspec.lock"
+      ],
+      "basis": [
+        "Chrome exercises production ConversationApi and request decoder with synthetic response adapter; not real server or SQLite persistence.",
+        "Web writer and existing test fixtures; no new runner, profile or gate override."
+      ]
+    },
+    "test/service/web_human_device_qr_ws_chrome_test.dart": {
+      "runner": "flutter-machine",
+      "platforms": [
+        "web"
+      ],
+      "offline": true,
+      "source_dependencies": [
+        "lib/component/extension/device_ext.dart",
+        "lib/component/extension/device_ext_web.dart",
+        "lib/page/passport/web_login_page.dart",
+        "lib/page/passport/qr_sse_session.dart",
+        "lib/component/http/http_request_policy.dart",
+        "lib/config/env.dart",
+        "lib/config/init.dart",
+        "lib/service/websocket.dart",
+        "lib/service/protocol/imboy_frame.dart",
+        "lib/service/protocol/imboy_pb_codec.dart",
+        "lib/service/web_writer_gate.dart",
+        "lib/service/browser_sqlite_storage_bridge_web.dart",
+        "test/service/sqlite3.wasm",
+        "web/sqlite3.wasm",
+        "test/env_test_pin.dart",
+        "test/flutter_test_config.dart",
+        "test/secure_storage_test_pin.dart",
+        "pubspec.lock",
+        "lib/page/passport/web_login_qr.dart",
+        "lib/service/auth_session_scope.dart",
+        "lib/store/repository/user_repo_local.dart",
+        "test/service/fixtures/web_qr_stable_anonymous_cases.dart",
+        "lib/store/service/user_profile_service.dart"
+      ],
+      "basis": [
+        "Actual DeviceExt/localStorage path, actual QR notifier to injected SSE transport, production WS URI/protocol boundary functions and existing outbound v2 codec; synthetic values only.",
+        "Chrome writer uses existing prepareWebWriter and pinned SQLite artifact. No product network/service or account; no native/proxy/auth fallback, skip, disabled or product_independent.",
+        "Retain normal inherited PR/static/framework/sqlite-generator/contracts gates. This target proves neither actual WebSocket negotiation nor full Human password/QR authentication."
+      ],
+      "dependencies": [
+        "chrome",
+        "sqlite-wasm"
+      ]
+    },
+    "test/service/web_login_lossless_chrome_test.dart": {
+      "runner": "flutter-machine",
+      "platforms": [
+        "web"
+      ],
+      "offline": true,
+      "source_dependencies": [
+        "lib/component/http/channel_id_response_decoder.dart",
+        "lib/component/http/http_client.dart",
+        "lib/component/http/http_request_policy.dart",
+        "lib/config/const.dart",
+        "lib/config/env.dart",
+        "lib/service/storage.dart",
+        "lib/service/web_writer_gate.dart",
+        "lib/service/browser_sqlite_storage_bridge_web.dart",
+        "test/service/sqlite3.wasm",
+        "web/sqlite3.wasm",
+        "test/env_test_pin.dart",
+        "test/flutter_test_config.dart",
+        "test/secure_storage_test_pin.dart",
+        "pubspec.lock"
+      ],
+      "basis": [
+        "Chrome runs the real Web login request interceptor and Dio response decoder on synthetic JSON with a fake transport; it does not prove network or authentication.",
+        "Three calls cover the shared login endpoint with synthetic password, retry and code-shaped bodies; QR has a separate uid_str contract and test ownership.",
+        "Existing Web writer and pinned SQLite fixture; no new profile, runner, product-independence override, skip or gate change."
+      ]
+    },
+    "test/service/web_message_content_security_chrome_test.dart": {
+      "runner": "flutter-machine",
+      "platforms": [
+        "web"
+      ],
+      "offline": true,
+      "dependencies": [
+        "chrome",
+        "sqlite-wasm"
+      ],
+      "dart_defines": {
+        "WEB_CONTROL_TEST_ORIGIN": "http://127.0.0.1:61239"
+      },
+      "source_dependencies": [
+        "lib/page/web_shell/web_message_content.dart",
+        "lib/component/helper/func.dart",
+        "lib/component/ui/imboy_cached_image_provider.dart",
+        "lib/component/extension/imboy_cache_manager.dart",
+        "lib/component/chat/message_spacing.dart",
+        "lib/component/helper/image_dimensions.dart",
+        "lib/service/assets.dart",
+        "lib/page/web_shell/web_chat_panel.dart",
+        "lib/page/web_shell/web_shell_bootstrap.dart",
+        "lib/page/web_shell/web_visible_message_read.dart",
+        "lib/page/chat/chat/services/chat_burn_service.dart",
+        "lib/page/chat/chat/chat_provider.dart",
+        "lib/page/chat/chat/chat_local_preferences.dart",
+        "lib/page/chat/chat/utils/chat_page_utils.dart",
+        "lib/modules/messaging/domain/policy/visibility_read_rules.dart",
+        "lib/page/chat/chat/chat_panel.dart",
+        "lib/page/chat/widget/chat_message_list.dart",
+        "lib/page/chat/widget/message_bubble_style.dart",
+        "lib/page/chat/widget/message_semantics.dart",
+        "lib/component/chat/chat_web_links.dart",
+        "lib/component/helper/safe_launcher.dart",
+        "pubspec.lock",
+        "test/fixtures/web_control_fetch_server.cjs",
+        "test/service/sqlite3.wasm",
+        "web/sqlite3.wasm",
+        "test/flutter_test_config.dart",
+        "test/env_test_pin.dart",
+        "test/secure_storage_test_pin.dart",
+        "lib/page/chat/widget/chat_reading_restore.dart",
+        "lib/page/web_shell/web_chat_reading_restore.dart",
+        "lib/page/web_shell/web_reading_anchor_store.dart"
+      ],
+      "basis": [
+        "Task-owned loopback fixture observes Markdown image requests; Web plugin is installed in test and window.open intercepted.",
+        "Synthetic browser proof only; not real external navigation or product acceptance."
+      ]
+    },
+    "test/service/web_profile_readonly_chrome_test.dart": {
+      "suite": "widget",
+      "runner": "flutter-machine",
+      "platforms": [
+        "web"
+      ],
+      "products": [
+        "phase1_delivery"
+      ],
+      "offline": true,
+      "dependencies": [
+        "chrome",
+        "sqlite-wasm"
+      ],
+      "source_dependencies": [
+        "lib/page/web_shell/web_shell_helper_panels.dart",
+        "lib/page/personal_info/personal_info/personal_info_page.dart",
+        "lib/page/personal_info/widget/more_page.dart",
+        "lib/page/qrcode/user_qrcode_page.dart",
+        "lib/page/qrcode/qrcode_url.dart",
+        "lib/store/model/user_model.dart",
+        "lib/store/repository/user_repo_provider.dart",
+        "lib/store/repository/user_repo_local.dart",
+        "lib/service/storage.dart",
+        "lib/service/web_writer_gate.dart",
+        "lib/component/ui/detail_settings_tile.dart",
+        "lib/component/ui/ios_settings_ui.dart",
+        "lib/component/http/http_client.dart",
+        "lib/config/env.dart",
+        "lib/config/router/app_router.dart",
+        "test/fixtures/web_profile_readonly_cases.dart",
+        "test/fixtures/web_profile_io_fence.dart",
+        "test/service/sqlite3.wasm",
+        "web/sqlite3.wasm",
+        "test/env_test_pin.dart",
+        "test/flutter_test_config.dart",
+        "test/secure_storage_test_pin.dart",
+        "pubspec.lock",
+        "lib/page/personal_info/profile/profile_page.dart",
+        "lib/component/ui/resource_page_layout.dart"
+      ],
+      "basis": [
+        "Actual WebMineMinPanel, PersonalInfoPage(readOnly), MorePage and UserQrCodePage; real UserModel with in-memory preferences and scoped currentUserProvider control. No login/logout/DB/real account or product services.",
+        "All product adapter/Fetch/XHR attempts fail and are counted; only same-origin declared Flutter assets and pinned WASM may dispatch. Avatar is empty; export/share/scanner are separate capabilities not invoked.",
+        "Primary/default inherited. Page-level QR identity-update assertions deliberately retain expected behavior even while current implementation may fail; minimal router does not prove actual root auth navigation or an end-to-end leak. Normal inherited gates remain unchanged."
+      ]
+    },
+    "test/service/web_writer_startup_busy_chrome_test.dart": {
+      "runner": "flutter-machine",
+      "suite": "component",
+      "platforms": [
+        "web"
+      ],
+      "offline": true,
+      "dependencies": [
+        "chrome",
+        "sqlite-wasm"
+      ],
+      "source_dependencies": [
+        "lib/config/init.dart",
+        "lib/config/local_external_services_policy.dart",
+        "lib/service/web_writer_gate.dart",
+        "lib/service/web_writer_gate_web.dart",
+        "lib/service/web_writer_gate_types.dart",
+        "lib/service/browser_sqlite_storage_bridge_web.dart",
+        "test/flutter_test_config.dart",
+        "test/env_test_pin.dart",
+        "test/secure_storage_test_pin.dart",
+        "test/fixtures/startup_busy_counter.js",
+        "test/fixtures/browser_sqlite_bridge_probe.dart",
+        "test/fixtures/browser_sqlite_bridge_probe.html",
+        "test/fixtures/browser_sqlite_bridge_probe.htm",
+        "test/fixtures/browser_sqlite_bridge_probe.js",
+        "test/fixtures/sqlite3.wasm",
+        "web/sqlite3.wasm",
+        "pubspec.lock"
+      ],
+      "basis": [
+        "Actual AppInitializer in a second document and current real SQLite bridge writer; owned private Chrome origin with synthetic UID.",
+        "Same-document instrumented subset of Storage, IDB open/delete and network APIs; secure-storage test pin and other channels remain outside this proof.",
+        "Pinned current probe JS SRI and immutable preparation receipt are required; normal ownership, product and PR gates remain required."
+      ],
+      "dart_defines": {
+        "BROWSER_SQLITE_PROBE_SRI": "sha256-XeyanX+bME9ToQ3wR9LhwWUKXdovonphrnY3ETl0ExQ=",
+        "BROWSER_SQLITE_PREPARATION_SHA256": "a7b4f7ea18d807f5dbf703b83c49ade8ca41fbadee54a66500ea108c43d1121e",
+        "STARTUP_BUSY_COUNTER_SRI": "sha256-xeXpd/n16a+IZYm2KO9sP5bB9A9GetOUXc4lb0EE20o="
+      }
+    },
+    "test/unit_test/api/w09_inflight_cancel_chrome_test.dart": {
+      "runner": "flutter-machine",
+      "platforms": [
+        "web"
+      ],
+      "offline": true,
+      "dependencies": [
+        "chrome"
+      ],
+      "source_dependencies": [
+        "scripts/auto_test_lib/w09_fixture.py",
+        "test/fixtures/w09_cancel/slow-put.cjs",
+        "lib/store/api/attachment_direct_api.dart",
+        "lib/store/api/attachment_direct_source.dart",
+        "lib/store/api/attachment_direct_source_engine.dart",
+        "lib/store/api/attachment_direct_transport.dart",
+        "lib/store/api/attachment_direct_confirmation.dart",
+        "lib/store/api/attachment_api.dart",
+        "lib/component/upload/browser_direct_put_web.dart",
+        "lib/component/upload/browser_direct_put_stub.dart",
+        "lib/component/http/http_response.dart",
+        "lib/component/http/http_client.dart",
+        "test/flutter_test_config.dart",
+        "test/env_test_pin.dart",
+        "test/secure_storage_test_pin.dart",
+        "pubspec.lock",
+        "test/unit_test/flutter_test_config.dart",
+        "test/unit_test/smoke/smoke_test_harness.dart",
+        "test/unit_test/smoke/route_registry.dart",
+        "test/unit_test/helper/sqflite_test_helper.dart",
+        "lib/service/storage.dart",
+        "lib/service/web_writer_gate.dart"
+      ],
+      "basis": [
+        "Task-owned loopback PUT fixture with per-run identity; synthetic control API and caller outbox only, not Garage or product acceptance."
+      ]
+    },
+    "test/unit_test/component/http/http_request_policy_privacy_test.dart": {
+      "runner": "flutter-machine",
+      "platforms": [
+        "macos",
+        "linux"
+      ],
+      "offline": true,
+      "source_dependencies": [
+        "lib/component/http/http_request_policy.dart",
+        "lib/service/web_writer_gate.dart",
+        "test/flutter_test_config.dart",
+        "test/unit_test/flutter_test_config.dart",
+        "test/env_test_pin.dart",
+        "test/unit_test/smoke/smoke_test_harness.dart",
+        "pubspec.lock"
+      ],
+      "basis": [
+        "Pure Web Human URI policy and synthetic Dio adapter privacy/guard probes; current-device deletion alias is private POST only. No backend or database."
+      ]
+    },
+    "test/unit_test/component/image_gallery/guarded_gallery_navigation_test.dart": {
+      "runner": "flutter-machine",
+      "platforms": [
+        "macos",
+        "linux"
+      ],
+      "offline": true,
+      "source_dependencies": [
+        "lib/component/image_gallery/image_gallery.dart",
+        "lib/component/image_gallery/image_gallery.g.dart",
+        "lib/component/ui/app_back_scope.dart",
+        "lib/component/helper/func.dart",
+        "lib/component/ui/imboy_cached_image_provider.dart",
+        "lib/component/ui/icon_image_provider.dart",
+        "lib/component/extension/imboy_cache_manager.dart",
+        "test/flutter_test_config.dart",
+        "test/unit_test/flutter_test_config.dart",
+        "test/env_test_pin.dart",
+        "test/unit_test/smoke/smoke_test_harness.dart",
+        "pubspec.lock"
+      ],
+      "basis": [
+        "Existing gallery navigation plus delayed fake Connectivity to reject a single-image preview after owner invalidation. No image provider resolution or network requests for the new owner probe."
+      ]
+    },
+    "test/unit_test/page/chat/widget/chat_message_list_test.dart": {
+      "source_dependencies": [
+        "lib/page/chat/widget/chat_message_list.dart",
+        "lib/page/chat/widget/chat_reading_restore.dart"
+      ],
+      "basis": [
+        "Exact source-only binding for reading-anchor restore; existing classifier/platform/profile/runner and gates remain inherited unchanged."
+      ]
+    },
+    "test/unit_test/page/conversation/conversation_page_test.dart": {
+      "runner": "flutter-machine",
+      "platforms": [
+        "macos",
+        "linux",
+        "web"
+      ],
+      "offline": true,
+      "source_dependencies": [
+        "lib/page/web_shell/web_shell_page.dart",
+        "lib/page/web_shell/web_middle_panel.dart",
+        "lib/page/web_shell/web_main_panel.dart",
+        "lib/page/web_shell/web_shell_route.dart",
+        "lib/page/web_shell/web_shell_provider.dart",
+        "lib/service/auth_session_scope.dart",
+        "lib/service/web_writer_gate.dart",
+        "test/flutter_test_config.dart",
+        "test/unit_test/flutter_test_config.dart",
+        "test/env_test_pin.dart",
+        "pubspec.lock",
+        "lib/page/conversation/conversation_page.dart",
+        "lib/page/conversation/message_inbox_scroll_anchor.dart",
+        "lib/page/conversation/conversation_provider.dart",
+        "lib/page/conversation/widget/conversation_item.dart",
+        "lib/page/web_shell/web_chat_panel.dart",
+        "lib/page/chat/chat/chat_panel.dart",
+        "lib/page/chat/chat/chat_provider.dart",
+        "lib/page/chat/chat/sqlite_chat_service.dart",
+        "lib/page/chat/widget/chat_message_list.dart",
+        "test/unit_test/page/web_shell/fixtures/chat_input_io_fence.dart",
+        "test/unit_test/page/web_shell/fixtures/chat_input_platform_fence_stub.dart",
+        "test/unit_test/page/web_shell/fixtures/chat_input_platform_fence_web.dart",
+        "test/unit_test/page/conversation/sqlite3.wasm",
+        "web/sqlite3.wasm",
+        "lib/component/ui/resource_page_layout.dart",
+        "lib/page/chat/widget/chat_reading_restore.dart",
+        "lib/page/web_shell/web_chat_reading_restore.dart",
+        "lib/page/web_shell/web_reading_anchor_store.dart"
+      ],
+      "basis": [
+        "Existing Native cases retained; additional canonical list/detail/reorder obligations register only with kIsWeb; actual WebChatPanel/ChatPanel, controlled memory history and deny-IO fence, no remote service or composer acceptance."
+      ]
+    },
+    "test/unit_test/page/conversation/sqlite3.wasm": {
+      "kind": "fixture",
+      "source_dependencies": [
+        "web/sqlite3.wasm"
+      ],
+      "basis": [
+        "Exact symlink to existing application WASM; production Web writer bootstrap loads relative sqlite3.wasm from this browser test directory. No gate bypass, fixture schema or copied binary."
+      ]
+    },
+    "test/unit_test/page/conversation/widget/message_inbox_tile_test.dart": {
+      "runner": "flutter-machine",
+      "platforms": [
+        "macos",
+        "linux"
+      ],
+      "offline": true,
+      "source_dependencies": [
+        "lib/page/conversation/widget/message_inbox_tile.dart",
+        "lib/component/ui/cell_pressable.dart",
+        "lib/i18n/strings.g.dart",
+        "lib/theme/default/app_colors.dart",
+        "lib/theme/default/app_duration.dart",
+        "lib/theme/default/app_radius.dart",
+        "lib/theme/default/app_spacing.dart",
+        "lib/theme/default/font_types.dart",
+        "test/flutter_test_config.dart",
+        "test/unit_test/flutter_test_config.dart",
+        "test/env_test_pin.dart",
+        "test/unit_test/smoke/smoke_test_harness.dart",
+        "pubspec.lock"
+      ],
+      "basis": [
+        "Real framework SemanticsAction.tap verifies independently labeled avatar and row actions and avatar bounds, including a noninteractive avatar. Synthetic widgets only; no image load, backend, account or database."
+      ]
+    },
+    "test/unit_test/page/error/init_error_page_writer_gate_test.dart": {
+      "runner": "flutter-machine",
+      "platforms": [
+        "macos",
+        "linux"
+      ],
+      "offline": true,
+      "basis": [
+        "VM-only local regression; TestOn(vm); no actual browser lease/durability claim."
+      ]
+    },
+    "test/unit_test/page/mine/mine/mine_page_test.dart": {
+      "runner": "flutter-machine",
+      "platforms": [
+        "macos",
+        "linux",
+        "web"
+      ],
+      "offline": true,
+      "source_dependencies": [
+        "lib/page/mine/mine/mine_page.dart",
+        "lib/page/mine/mine/mine_menu.dart",
+        "lib/page/mine/mine/mine_profile.dart",
+        "lib/page/mine/mine/mine_shortcut.dart",
+        "lib/theme/default/app_breakpoints.dart",
+        "lib/theme/default/app_spacing.dart",
+        "lib/component/ui/resource_page_layout.dart",
+        "lib/service/web_writer_gate.dart",
+        "lib/service/browser_sqlite_storage_bridge_web.dart",
+        "test/flutter_test_config.dart",
+        "test/unit_test/flutter_test_config.dart",
+        "test/env_test_pin.dart",
+        "pubspec.lock",
+        "web/sqlite3.wasm",
+        "test/unit_test/page/mine/mine/sqlite3.wasm"
+      ],
+      "basis": [
+        "Existing Native/enterprise tests retained; actual kIsWeb personal overview uses full available width with existing margins and responsive2-column management. Exact UI geometry/callback scope, no external destination or live data acceptance. Production writer gate uses same-origin existing WASM, no fake admission.",
+        "Native CS eligibility/transport cases retain original semantics. On Web, CS namespace is outside finite Human API contract: explicit actual-policy/API rejection, zero dispatch and hidden entry are negative compatibility checks, not Web CS seat qualification; four negatives overlap and do not add four business coverage claims."
+      ]
+    },
+    "test/unit_test/page/mine/mine/sqlite3.wasm": {
+      "kind": "fixture",
+      "source_dependencies": [
+        "web/sqlite3.wasm"
+      ],
+      "basis": [
+        "Exact relative symlink ../../../../../web/sqlite3.wasm to existing application binary for this browser test path; no binary copy/download or writer bypass."
+      ]
+    },
+    "test/unit_test/page/mine/setting/setting_page_test.dart": {
+      "runner": "flutter-machine",
+      "platforms": [
+        "macos",
+        "linux"
+      ],
+      "offline": true,
+      "source_dependencies": [
+        "lib/page/mine/setting/setting_page.dart",
+        "lib/page/web_shell/web_shell_route.dart",
+        "lib/page/web_shell/web_shell_provider.dart",
+        "lib/page/web_shell/web_shell_route_params.dart",
+        "lib/page/web_shell/web_shell_state.dart",
+        "lib/page/chat/chat/chat_provider.dart",
+        "lib/store/api/user_device_api.dart",
+        "lib/component/extension/device_ext.dart",
+        "lib/config/init.dart",
+        "lib/component/http/http_request_policy.dart",
+        "lib/component/http/http_client.dart",
+        "lib/component/http/http_parse.dart",
+        "lib/component/http/http_retry_interceptor.dart",
+        "lib/store/repository/user_repo_local.dart",
+        "lib/service/auth_session_scope.dart",
+        "lib/service/storage.dart",
+        "lib/config/routes.dart",
+        "test/flutter_test_config.dart",
+        "test/unit_test/flutter_test_config.dart",
+        "test/env_test_pin.dart",
+        "test/unit_test/smoke/smoke_test_harness.dart",
+        "pubspec.lock"
+      ],
+      "basis": [
+        "Settings UI with fake device-ID read, revocation and generation-scoped local-logout callbacks. SharedPreferences mock only; never invokes real device deletion, local account cleanup, database or network. Includes cancellation, order, failures/retry, duplicate intent, account replacement and server-kick race; Native retains no revocation."
+      ]
+    },
+    "test/unit_test/page/personal_info/personal_info/personal_info_page_widget_test.dart": {
+      "source_dependencies": [
+        "lib/page/personal_info/personal_info/personal_info_page.dart",
+        "lib/page/personal_info/profile/profile_page.dart",
+        "lib/component/ui/resource_page_layout.dart"
+      ],
+      "basis": [
+        "Existing host profile behavior retained; Web readOnly-only bounded content tested separately by actual Chrome ProfilePage fixture. No Native/editor limits or guards relaxed."
+      ]
+    },
+    "test/unit_test/page/web_shell/web_chat_input_chrome_test.dart": {
+      "source_dependencies": [
+        "test/unit_test/page/web_shell/fixtures/text_send_fixture.dart",
+        "test/unit_test/page/web_shell/web_chat_input_test.dart",
+        "test/unit_test/page/web_shell/sqlite3.wasm",
+        "web/sqlite3.wasm"
+      ],
+      "basis": [
+        "The production Web writer loads sqlite3.wasm relative to the browser test entry."
+      ],
+      "dependencies": [
+        "chrome",
+        "sqlite-wasm"
+      ]
+    },
+    "test/unit_test/page/web_shell/sqlite3.wasm": {
+      "kind": "fixture",
+      "source_dependencies": [
+        "web/sqlite3.wasm"
+      ],
+      "basis": [
+        "Tracked symlink to the existing application WASM for the WebShell browser tests."
+      ]
+    },
+    "test/unit_test/page/web_shell/web_chat_lifecycle_test.dart": {
+      "runner": "flutter-machine",
+      "platforms": [
+        "macos",
+        "linux"
+      ],
+      "offline": true,
+      "source_dependencies": [
+        "lib/page/web_shell/web_shell_bootstrap.dart",
+        "lib/page/web_shell/web_chat_panel.dart",
+        "lib/page/web_shell/web_message_content.dart",
+        "lib/page/web_shell/web_visible_message_read.dart",
+        "lib/page/chat/chat/chat_panel.dart",
+        "lib/page/chat/widget/chat_message_list.dart",
+        "lib/component/image_gallery/image_gallery.dart",
+        "lib/component/image_gallery/image_gallery.g.dart",
+        "lib/component/helper/func.dart",
+        "lib/component/ui/imboy_cached_image_provider.dart",
+        "lib/component/extension/imboy_cache_manager.dart",
+        "lib/page/chat/chat/chat_provider.dart",
+        "lib/page/chat/chat/chat_local_preferences.dart",
+        "lib/page/chat/chat/services/chat_burn_service.dart",
+        "lib/service/auth_session_scope.dart",
+        "lib/service/account_local_task_registry.dart",
+        "lib/service/account_preferences.dart",
+        "lib/service/storage.dart",
+        "lib/store/repository/user_repo_local.dart",
+        "test/flutter_test_config.dart",
+        "test/unit_test/flutter_test_config.dart",
+        "test/env_test_pin.dart",
+        "test/unit_test/smoke/smoke_test_harness.dart",
+        "pubspec.lock",
+        "lib/store/repository/user_repo_provider.dart",
+        "lib/store/model/user_model.dart",
+        "lib/store/service/user_profile_service.dart",
+        "lib/theme/default/font_types.dart",
+        "lib/modules/messaging/domain/policy/visibility_read_rules.dart",
+        "lib/page/chat/widget/chat_reading_restore.dart",
+        "lib/page/web_shell/web_chat_reading_restore.dart",
+        "lib/page/web_shell/web_reading_anchor_store.dart"
+      ],
+      "basis": [
+        "Web owner/lifecycle and actual SemanticsAction.tap with an injected preview callback; image decoding is seeded in Flutter memory cache and file confirmation is canceled. No provider download, database or external service."
+      ]
+    },
+    "test/unit_test/page/web_shell/web_late_conversation_sqlite_test.dart": {
+      "runner": "flutter-machine",
+      "platforms": [
+        "macos",
+        "linux"
+      ],
+      "offline": true,
+      "source_dependencies": [
+        "lib/page/chat/chat/chat_provider.dart",
+        "lib/page/chat/chat/mixin/chat_event_subscription_manager.dart",
+        "lib/page/web_shell/web_chat_panel.dart",
+        "lib/page/web_shell/web_shell_bootstrap.dart",
+        "lib/page/web_shell/web_visible_message_read.dart",
+        "lib/page/chat/chat/services/chat_burn_service.dart",
+        "lib/page/chat/chat/chat_provider.dart",
+        "lib/page/chat/chat/chat_local_preferences.dart",
+        "lib/page/chat/chat/utils/chat_page_utils.dart",
+        "lib/modules/messaging/domain/policy/visibility_read_rules.dart",
+        "lib/page/chat/widget/chat_message_list.dart",
+        "lib/service/sqlite.dart",
+        "lib/service/embedded_schema_scripts.dart",
+        "lib/store/repository/message_query_reader.dart",
+        "lib/modules/messaging/infrastructure/message_model_mapper.dart",
+        "lib/page/chat/chat/sqlite_chat_service.dart",
+        "lib/page/chat/chat/chat_panel.dart",
+        "lib/page/web_shell/web_shell_state.dart",
+        "lib/service/storage.dart",
+        "lib/service/migrations/downgrade_edges_all.dart",
+        "lib/service/migrations/downgrade_edges_v34_v35.dart",
+        "lib/service/migrations/downgrade_edges_v39.dart",
+        "lib/service/migrations/manifest_all.dart",
+        "lib/service/migrations/upgrade_edges_v09_v16.dart",
+        "lib/service/migrations/upgrade_edges_v17_v24.dart",
+        "lib/service/migrations/upgrade_edges_v25_v31.dart",
+        "lib/service/migrations/upgrade_edges_v32.dart",
+        "lib/service/migrations/upgrade_edges_v33.dart",
+        "lib/service/migrations/upgrade_edges_v34.dart",
+        "lib/service/migrations/upgrade_edges_v35.dart",
+        "lib/service/migrations/upgrade_edges_v36.dart",
+        "lib/service/migrations/upgrade_edges_v37.dart",
+        "lib/service/migrations/upgrade_edges_v38_fts.dart",
+        "lib/service/migrations/upgrade_edges_v39.dart",
+        "lib/service/auth_session_scope.dart",
+        "lib/service/message_retry.dart",
+        "test/fixtures/sqlite_migration/sqlite_migration_fixtures.dart",
+        "test/flutter_test_config.dart",
+        "pubspec.lock",
+        "lib/page/chat/widget/chat_reading_restore.dart",
+        "lib/page/web_shell/web_chat_reading_restore.dart",
+        "lib/page/web_shell/web_reading_anchor_store.dart"
+      ],
+      "basis": [
+        "Isolated in-memory SQLite, controlled archive and suspended paging; actual Web panel widget runs on native test runtime.",
+        "No real browser, backend, complete network or full regression claim."
+      ]
+    },
+    "test/unit_test/page/web_shell/web_message_content_test.dart": {
+      "runner": "flutter-machine",
+      "platforms": [
+        "macos",
+        "linux"
+      ],
+      "offline": true,
+      "source_dependencies": [
+        "lib/page/web_shell/web_message_content.dart",
+        "lib/component/helper/func.dart",
+        "lib/component/ui/imboy_cached_image_provider.dart",
+        "lib/component/extension/imboy_cache_manager.dart",
+        "lib/component/chat/message_spacing.dart",
+        "lib/component/helper/image_dimensions.dart",
+        "lib/service/assets.dart",
+        "lib/page/web_shell/web_chat_panel.dart",
+        "lib/page/web_shell/web_shell_bootstrap.dart",
+        "lib/page/web_shell/web_visible_message_read.dart",
+        "lib/page/chat/chat/services/chat_burn_service.dart",
+        "lib/page/chat/chat/chat_provider.dart",
+        "lib/page/chat/chat/chat_local_preferences.dart",
+        "lib/page/chat/chat/utils/chat_page_utils.dart",
+        "lib/modules/messaging/domain/policy/visibility_read_rules.dart",
+        "lib/page/chat/chat/chat_panel.dart",
+        "lib/page/chat/widget/chat_message_list.dart",
+        "lib/page/chat/widget/message_bubble_style.dart",
+        "lib/page/chat/widget/message_semantics.dart",
+        "lib/component/chat/chat_web_links.dart",
+        "lib/component/helper/safe_launcher.dart",
+        "pubspec.lock",
+        "test/flutter_test_config.dart",
+        "lib/page/chat/widget/chat_reading_restore.dart",
+        "lib/page/web_shell/web_chat_reading_restore.dart",
+        "lib/page/web_shell/web_reading_anchor_store.dart"
+      ],
+      "basis": [
+        "Focused WebShell text/file rendering, semantics, status and color tests under native widget runtime; not product browser or backend acceptance."
+      ]
+    },
+    "test/unit_test/page/web_shell/web_native_push_startup_chrome_test.dart": {
+      "source_dependencies": [
+        "lib/run.dart",
+        "lib/theme/providers/theme_provider.dart",
+        "lib/theme/default/font_types.dart",
+        "lib/theme/default/theme.dart",
+        "lib/theme/default/config/text_theme.dart",
+        "lib/service/auth_session_scope.dart",
+        "lib/service/account_local_task_registry.dart",
+        "lib/store/repository/user_repo_local.dart",
+        "lib/store/repository/user_repo_provider.dart",
+        "lib/store/model/user_model.dart",
+        "lib/service/storage.dart",
+        "lib/service/web_writer_gate.dart",
+        "lib/service/web_writer_gate_web.dart",
+        "lib/service/browser_sqlite_storage_bridge_web.dart",
+        "lib/config/env.dart",
+        "lib/config/init.dart",
+        "lib/config/router/app_router.dart",
+        "lib/service/deep_link_router_bridge.dart",
+        "lib/service/incoming_backup_handler.dart",
+        "lib/service/jpush_flutter_binding.dart",
+        "lib/modules/talk_record/presentation/talk_record_providers.dart",
+        "lib/modules/talk_record/presentation/talk_record_recording_host.dart",
+        "lib/modules/talk_record/application/talk_record_recording_coordinator.dart",
+        "lib/component/http/http_client.dart",
+        "test/fixtures/web_profile_io_fence.dart",
+        "test/unit_test/page/web_shell/sqlite3.wasm",
+        "web/sqlite3.wasm",
+        "test/env_test_pin.dart",
+        "test/flutter_test_config.dart",
+        "test/secure_storage_test_pin.dart",
+        "pubspec.lock",
+        "lib/page/splash/splash_page.dart",
+        "lib/page/chat_shell/experience_provider.dart",
+        "lib/page/passport/web_login_page.dart",
+        "lib/page/passport/widget/web_login_layout.dart"
+      ],
+      "dependencies": [
+        "chrome",
+        "sqlite-wasm"
+      ],
+      "basis": [
+        "testWidgets entrypoints; explicit TestOn chrome restriction remains unchanged.",
+        "Actual IMBoyApp font ownership with existing router; reads production Run/Theme/account sources and uses existing deny-only IOFence; local browser WASM writer preparation only."
+      ]
+    },
+    "test/unit_test/page/web_shell/web_shell_page_test.dart": {
+      "runner": "flutter-machine",
+      "platforms": [
+        "macos",
+        "linux",
+        "web"
+      ],
+      "offline": true,
+      "source_dependencies": [
+        "lib/page/web_shell/web_shell_page.dart",
+        "lib/page/web_shell/web_middle_panel.dart",
+        "lib/page/web_shell/web_main_panel.dart",
+        "lib/page/web_shell/web_shell_provider.dart",
+        "lib/page/web_shell/web_shell_state.dart",
+        "lib/component/ui/resource_page_layout.dart",
+        "lib/service/auth_session_scope.dart",
+        "test/flutter_test_config.dart",
+        "test/unit_test/flutter_test_config.dart",
+        "test/env_test_pin.dart",
+        "pubspec.lock"
+      ],
+      "basis": [
+        "Preserve original Native/noncanonical mobile tests and actual host breakpoints; three extra390canonical geometry cases register only with kIsWeb. User-approved page-specific columns; mock page builders establish geometry/state only, not real Settings/Profile/auth."
+      ]
+    },
+    "test/unit_test/page/web_shell/web_shell_resize_chrome_test.dart": {
+      "source_dependencies": [
+        "lib/page/web_shell/web_shell_bootstrap.dart",
+        "lib/page/web_shell/web_chat_panel.dart",
+        "lib/page/chat/chat/chat_panel.dart",
+        "lib/page/chat/widget/chat_message_list.dart",
+        "lib/page/web_shell/web_chat_reading_restore.dart",
+        "lib/page/web_shell/web_reading_anchor_store.dart",
+        "lib/page/chat/widget/chat_reading_restore.dart",
+        "test/unit_test/page/web_shell/fixtures/text_send_fixture.dart"
+      ],
+      "basis": [
+        "Exact source-only binding for reading-anchor restore; existing classifier/platform/profile/runner and gates remain inherited unchanged."
+      ]
+    },
+    "test/unit_test/page/web_shell/web_shell_route_chrome_test.dart": {
+      "runner": "flutter-machine",
+      "platforms": [
+        "web"
+      ],
+      "offline": true,
+      "source_dependencies": [
+        "lib/page/web_shell/web_shell_page.dart",
+        "lib/page/web_shell/web_middle_panel.dart",
+        "lib/page/web_shell/web_main_panel.dart",
+        "lib/page/web_shell/web_shell_route.dart",
+        "lib/page/web_shell/web_shell_provider.dart",
+        "lib/service/auth_session_scope.dart",
+        "lib/service/web_writer_gate.dart",
+        "test/flutter_test_config.dart",
+        "test/unit_test/flutter_test_config.dart",
+        "test/env_test_pin.dart",
+        "pubspec.lock",
+        "lib/page/contact/contact/contact_page.dart",
+        "lib/page/contact/contact/contact_provider.dart",
+        "lib/page/bottom_navigation/bottom_navigation_provider.dart",
+        "lib/store/model/contact_model.dart",
+        "test/unit_test/page/web_shell/web_shell_route_test.dart",
+        "lib/page/web_shell/web_shell_bootstrap.dart",
+        "lib/component/ui/resource_page_layout.dart",
+        "lib/page/web_shell/web_chat_reading_restore.dart",
+        "lib/page/web_shell/web_reading_anchor_store.dart",
+        "lib/page/chat/widget/chat_reading_restore.dart"
+      ],
+      "basis": [
+        "Existing canonical route16 retained with actual contact80-row list/detail/UI-back assertions; exact decimal string identities and controlled loaders, no live account/database/device acceptance."
+      ]
+    },
+    "test/unit_test/page/web_shell/web_visible_message_read_test.dart": {
+      "runner": "flutter-machine",
+      "platforms": [
+        "macos",
+        "linux"
+      ],
+      "offline": true,
+      "source_dependencies": [
+        "lib/page/web_shell/web_visible_message_read.dart",
+        "lib/page/chat/chat/services/chat_burn_service.dart",
+        "lib/page/chat/chat/chat_provider.dart",
+        "lib/page/chat/chat/chat_local_preferences.dart",
+        "lib/page/chat/chat/utils/chat_page_utils.dart",
+        "lib/modules/messaging/domain/policy/visibility_read_rules.dart",
+        "lib/page/web_shell/web_chat_panel.dart",
+        "lib/page/web_shell/web_shell_bootstrap.dart",
+        "lib/page/chat/chat/chat_panel.dart",
+        "lib/page/chat/widget/chat_message_list.dart",
+        "test/flutter_test_config.dart",
+        "test/unit_test/flutter_test_config.dart",
+        "test/env_test_pin.dart",
+        "test/unit_test/smoke/smoke_test_harness.dart",
+        "pubspec.lock",
+        "lib/page/chat/widget/chat_reading_restore.dart",
+        "lib/page/web_shell/web_chat_reading_restore.dart",
+        "lib/page/web_shell/web_reading_anchor_store.dart"
+      ],
+      "basis": [
+        "Synthetic widget visibility, lifecycle and owner callbacks only; no login, database or network operations. Not browser or server read receipt acceptance."
+      ]
+    },
+    "test/unit_test/service/account_local_task_terminal_hold_test.dart": {
+      "runner": "flutter-machine",
+      "platforms": [
+        "macos",
+        "linux"
+      ],
+      "offline": true,
+      "source_dependencies": [
+        "lib/service/account_local_task_registry.dart",
+        "lib/service/web_writer_gate.dart",
+        "lib/service/web_writer_gate_stub.dart",
+        "lib/service/web_writer_gate_types.dart",
+        "pubspec.lock"
+      ],
+      "basis": [
+        "VM-only real registry terminal-hold semantics; does not prove browser durability or transport denial."
+      ]
+    },
+    "test/unit_test/service/browser_attachment_materials_chrome_test.dart": {
+      "runner": "flutter-machine",
+      "platforms": [
+        "web"
+      ],
+      "offline": true,
+      "source_dependencies": [
+        "scripts/auto_test_lib/execution_runner.py",
+        "scripts/auto_test_lib/execution_catalog.py",
+        "scripts/auto_test_lib/w09_fixture.py",
+        "test/fixtures/w09_cancel/slow-put.cjs",
+        "lib/component/upload/browser_direct_put_web.dart",
+        "lib/component/upload/browser_direct_put_stub.dart",
+        "lib/store/api/attachment_direct_transport.dart",
+        "lib/component/upload/resumable_attachment_uploader.dart",
+        "lib/component/upload/resumable_browser_materials.dart",
+        "lib/service/browser_attachment_durability.dart",
+        "lib/service/browser_attachment_durability_stub.dart",
+        "lib/service/browser_attachment_durability_web.dart",
+        "lib/service/browser_sqlite_storage_bridge_web.dart",
+        "lib/store/repository/attachment_upload_browser_material.dart",
+        "lib/store/repository/attachment_upload_task_repo_sqlite.dart",
+        "lib/service/sqflite_init_web.dart",
+        "lib/service/sqlite.dart",
+        "lib/service/sqlite_lifecycle.dart",
+        "lib/service/sqlite_account_data.dart",
+        "lib/service/login_account_history_service.dart",
+        "lib/service/account_local_task_registry.dart",
+        "lib/component/upload/upload_key_store.dart",
+        "lib/store/api/attachment_api.dart",
+        "lib/store/api/attachment_direct_api.dart",
+        "lib/store/api/attachment_direct_source.dart",
+        "lib/store/api/attachment_direct_source_engine.dart",
+        "lib/store/api/attachment_direct_pipeline.dart",
+        "pubspec.lock",
+        "test/unit_test/service/sqlite3.wasm",
+        "web/sqlite3.wasm",
+        "test/env_test_pin.dart"
+      ],
+      "basis": [
+        "Actual SqliteService production schema and singleton bridge, physical account SQLite BLOB, managed transaction/rollback and outbox CAS.",
+        "Existing material tests keep synthetic control/PUT; added cancel tests use task-owned loopback Fetch and real SQLite, with synthetic control and key plugin I/O; owner guards have no override.",
+        "The runner owns one nonce-scoped slow-PUT fixture per attempt. Does not prove login ownership, secure key durability, Garage, general CORS, cross-context reload or Human acceptance."
+      ]
+    },
+    "test/unit_test/service/browser_sqlite_storage_bridge_chrome_test.dart": {
+      "runner": "flutter-machine",
+      "platforms": [
+        "web"
+      ],
+      "offline": true,
+      "source_dependencies": [
+        "lib/service/browser_sqlite_storage_bridge_web.dart",
+        "lib/service/sqflite_init_web.dart",
+        "pubspec.lock",
+        "test/fixtures/browser_sqlite_bridge_probe.dart",
+        "test/fixtures/browser_sqlite_bridge_probe.html",
+        "test/fixtures/browser_sqlite_bridge_host.html",
+        "test/fixtures/browser_sqlite_bridge_probe.js",
+        "test/fixtures/sqlite3.wasm",
+        "web/sqlite3.wasm",
+        "test/fixtures/browser_sqlite_bridge_host.htm",
+        "test/fixtures/browser_sqlite_bridge_probe.htm"
+      ],
+      "basis": [
+        "Actual separate browsing contexts, real SQLite WASM and real IndexedDB; no storage mock.",
+        "IDB abort is a real aborted browser transaction, injected only by the isolated fixture.",
+        "Exact .htm symlink aliases serve the existing host/probe HTML without the Flutter test server .html wrapper; link text and final HTML bytes remain preparation inputs. Parent reads the existing report pre text as JSON across realms, preserving all seven oracles and pinned probe SRI."
+      ]
+    },
+    "test/unit_test/service/e2ee/e2ee_secret_inventory_test.dart": {
+      "runner": "flutter-machine",
+      "platforms": [
+        "macos",
+        "linux"
+      ],
+      "offline": true,
+      "source_dependencies": [
+        "lib/service/e2ee/e2ee_secret_inventory.dart",
+        "lib/service/e2ee/collect_keychain.dart",
+        "lib/service/e2ee_service.dart",
+        "lib/service/group_session_service.dart",
+        "lib/service/olm_session_service.dart",
+        "lib/service/olm_session_cleanup.dart",
+        "lib/service/storage_secure.dart",
+        "test/flutter_test_config.dart",
+        "test/unit_test/flutter_test_config.dart",
+        "test/env_test_pin.dart",
+        "test/unit_test/smoke/smoke_test_harness.dart",
+        "pubspec.lock"
+      ],
+      "basis": [
+        "Synthetic map secret purge and production platform callback-set inspection only; no callbacks to real file, secure storage, database or network are invoked."
+      ]
+    },
+    "test/unit_test/service/qr_login_persistence_test.dart": {
+      "source_dependencies": [
+        "lib/store/repository/user_repo_local.dart",
+        "lib/store/service/user_profile_service.dart",
+        "lib/store/model/user_model.dart",
+        "lib/theme/default/font_types.dart",
+        "lib/modules/messaging/domain/policy/visibility_read_rules.dart",
+        "lib/page/passport/web_login_page.dart",
+        "lib/page/passport/web_login_qr.dart",
+        "lib/component/http/http_request_policy.dart",
+        "lib/service/auth_session_scope.dart",
+        "lib/service/storage.dart"
+      ],
+      "basis": [
+        "Existing isolated QR/password persistence target; fingerprint its shared parser/owner and local repository paths; no selection/gate or resource-isolation change."
+      ]
+    },
+    "test/unit_test/service/sqlite_fresh_schema_chrome_test.dart": {
+      "source_dependencies": [
+        "test/unit_test/service/sqlite3.wasm",
+        "web/sqlite3.wasm"
+      ],
+      "basis": [
+        "Real Chrome SqliteService fresh-open callbacks use the production Web factory and its default relative sqlite3.wasm URL. The test-directory symlink serves the existing application binary at that exact same-origin location without replacing the database factory, creating fixture schema or injecting a database handle. Close/reopen covers schema and same-context data only, not crash durability."
+      ],
+      "dependencies": [
+        "chrome",
+        "sqlite-wasm"
+      ]
+    },
+    "test/unit_test/service/sqlite3.wasm": {
+      "kind": "fixture",
+      "source_dependencies": [
+        "web/sqlite3.wasm"
+      ],
+      "basis": [
+        "Tracked symlink to ../../../web/sqlite3.wasm. Flutter's browser suite iframe is /unit_test/service/<test>.html, so the unchanged production default relative sqlite3.wasm resolves to this fixture; no binary copy, custom factory or extra fixture server."
+      ]
+    },
     "test/fixtures/sqlite3.wasm": {
       "kind": "fixture",
       "source_dependencies": [
@@ -516,6 +1827,123 @@
       "kind": "driver",
       "basis": [
         "integrationDriver waits for a device test; not a business target."
+      ]
+    },
+    "test/unit_test/service/w09_bound_transport_chrome_test.dart": {
+      "runner": "flutter-machine",
+      "platforms": [
+        "web"
+      ],
+      "offline": true,
+      "source_dependencies": [
+        "lib/component/upload/browser_direct_put_stub.dart",
+        "lib/component/upload/browser_direct_put_web.dart",
+        "lib/component/upload/resumable_attachment_uploader.dart",
+        "lib/component/upload/resumable_browser_materials.dart",
+        "lib/store/api/attachment_direct_pipeline.dart",
+        "lib/store/api/attachment_direct_source.dart",
+        "lib/store/api/attachment_direct_source_engine.dart",
+        "lib/store/api/attachment_direct_transport.dart",
+        "lib/service/web_writer_gate.dart",
+        "lib/service/web_writer_gate_types.dart",
+        "lib/service/web_writer_gate_web.dart",
+        "lib/service/web_writer_gate_stub.dart",
+        "lib/component/http/web_writer_http_adapter.dart",
+        "lib/service/browser_sqlite_storage_bridge_web.dart",
+        "lib/service/account_local_task_registry.dart",
+        "lib/component/http/http_request_policy.dart",
+        "pubspec.lock",
+        "test/unit_test/service/sqlite3.wasm",
+        "web/sqlite3.wasm",
+        "test/env_test_pin.dart"
+      ],
+      "basis": [
+        "4 scoped transport regressions, actual bridge readiness and actual delegated browser Fetch; synthetic owner and control API.",
+        "No control XHR atomic-send, quota, durability or full poison acceptance claim."
+      ]
+    },
+    "test/unit_test/service/websocket_queue_non_destructive_suspend_test.dart": {
+      "runner": "flutter-machine",
+      "platforms": [
+        "macos",
+        "linux"
+      ],
+      "offline": true,
+      "basis": [
+        "VM-only local regression; TestOn(vm); no actual browser lease/durability claim."
+      ]
+    },
+    "test/unit_test/store/attachment_browser_material_test_cases.dart": {
+      "kind": "included-test",
+      "basis": [
+        "Dart part registers the original eight Browser material counterexamples exactly once from existing FFI recovery main."
+      ],
+      "included_by": [
+        "test/unit_test/store/attachment_upload_task_recovery_test.dart"
+      ]
+    },
+    "test/unit_test/store/repository/user_repo_local_test.dart": {
+      "runner": "flutter-machine",
+      "platforms": [
+        "macos",
+        "linux"
+      ],
+      "offline": true,
+      "source_dependencies": [
+        "lib/app_core/feature_flags/runtime_feature_recovery.dart",
+        "lib/store/repository/user_repo_local.dart",
+        "lib/service/storage.dart",
+        "lib/service/sqlite.dart",
+        "lib/service/sqlite_lifecycle.dart",
+        "lib/service/auth_session_scope.dart",
+        "lib/service/login_account_history_service.dart",
+        "lib/component/http/http_client.dart",
+        "lib/service/e2ee/e2ee_secret_inventory.dart",
+        "lib/service/e2ee/collect_keychain.dart",
+        "lib/service/e2ee_service.dart",
+        "lib/service/group_session_service.dart",
+        "lib/service/olm_session_service.dart",
+        "lib/service/olm_session_cleanup.dart",
+        "lib/service/storage_secure.dart",
+        "test/flutter_test_config.dart",
+        "test/unit_test/flutter_test_config.dart",
+        "test/env_test_pin.dart",
+        "test/unit_test/smoke/smoke_test_harness.dart",
+        "pubspec.lock"
+      ],
+      "basis": [
+        "Mock preferences/secure channel, unavailable database, synthetic HTTP adapter; Native artifact paths confined to per-test owned temporary directories, never system temporary root or shared resources."
+      ]
+    },
+    "test/unit_test/store/service/user_profile_service_test.dart": {
+      "source_dependencies": [
+        "lib/store/service/user_profile_service.dart",
+        "lib/store/model/user_model.dart",
+        "lib/theme/default/font_types.dart",
+        "lib/modules/messaging/domain/policy/visibility_read_rules.dart",
+        "lib/component/http/http_response.dart"
+      ],
+      "basis": [
+        "Existing injected UserProfileService unit target; fingerprint the shared five-key settings parser/model/policy inputs, no backend/service dispatch."
+      ]
+    },
+    "test/unit_test/theme/theme_preference_persistence_test.dart": {
+      "source_dependencies": [
+        "lib/theme/providers/theme_provider.dart",
+        "lib/page/mine/font_size/font_size_page.dart",
+        "lib/page/mine/dark_model/dark_model_page.dart",
+        "lib/theme/default/font_types.dart",
+        "lib/service/storage.dart",
+        "lib/service/auth_session_scope.dart",
+        "lib/service/web_writer_gate.dart",
+        "lib/store/repository/user_repo_local.dart",
+        "lib/config/init.dart",
+        "lib/config/env.dart",
+        "lib/theme/default/app_colors.dart",
+        "lib/page/chat/widget/chat_background_manager.dart"
+      ],
+      "basis": [
+        "Existing Theme/FontSize/DarkModel preference tests; add source fingerprints for font restoration and account-owner guards without changing suite/runner/platforms."
       ]
     },
     "test_driver/integration_test.dart": {
@@ -2870,10 +4298,16 @@
       ]
     },
     "web-shell": {
-      "description": "Web Shell family, with host unit/widget and Chrome-only tests selected on their declared platforms.",
+      "description": "Web Shell family and delivery-auth guard, with host unit/widget and Chrome-only tests selected on their declared platforms.",
       "suites": [],
       "prefixes": [
         "test/unit_test/page/web_shell/"
+      ],
+      "targets": [
+        "test/unit_test/page/passport/web_e2e_bypass_test.dart",
+        "test/service/web_bootstrap_scope_chrome_test.dart",
+        "test/service/web_human_device_qr_ws_chrome_test.dart",
+        "test/service/web_writer_startup_busy_chrome_test.dart"
       ],
       "platforms": [
         "linux",

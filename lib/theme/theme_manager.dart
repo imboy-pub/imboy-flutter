@@ -100,12 +100,9 @@ class ThemeManager {
   }
 
   /// 容器未注入时的字族回退（与 ThemeNotifier.getTextStyle 保持一致）
-  static const List<String> _fallbackFontFamily = [
-    'PingFang SC',
-    'Heiti SC',
-    'Microsoft YaHei',
-    'sans-serif',
-  ];
+  // F5（PERF-05）：改引 kAppFontFamilyFallback——首位为内嵌 NotoSansSC 中文
+  // 子集，阻断 CanvasKit 对 fonts.gstatic 的动态字体拉取。
+  static const List<String> _fallbackFontFamily = kAppFontFamilyFallback;
 
   /// 容器未注入（widget 测试 / 启动早期）时的降级文本样式。
   ///

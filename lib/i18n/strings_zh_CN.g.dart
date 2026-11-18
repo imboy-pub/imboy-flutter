@@ -1786,6 +1786,9 @@ class Translations$chat$zh_CN {
 	/// zh-CN: '扫描二维码名片'
 	String get scanQrCodeBusinessCard => '扫描二维码名片';
 
+	/// zh-CN: '扫一扫'
+	String get scanQrEntry => '扫一扫';
+
 	/// zh-CN: '私聊'
 	String get privateChat => '私聊';
 
@@ -2083,8 +2086,8 @@ class Translations$chat$zh_CN {
 	/// zh-CN: '拖拽即可发送文件，支持各种格式'
 	String get webFeatureFileTransferDesc => '拖拽即可发送文件，支持各种格式';
 
-	/// zh-CN: '打开 ImBoy 手机版 > 设置 > 扫一扫'
-	String get webQRStatusWaiting => '打开 ImBoy 手机版 > 设置 > 扫一扫';
+	/// zh-CN: '打开 ImBoy 手机版 > 消息 > 右上角扫一扫'
+	String get webQRStatusWaiting => '打开 ImBoy 手机版 > 消息 > 右上角扫一扫';
 
 	/// zh-CN: '请在手机上点击"确认登录"'
 	String get webQRStatusScanned => '请在手机上点击"确认登录"';
@@ -2270,6 +2273,9 @@ class Translations$chat$zh_CN {
 
 	/// zh-CN: '由 $name 转发'
 	String bundleForwardedBy({required Object name}) => '由 ${name} 转发';
+
+	/// zh-CN: '本次被拒，发送结果待确认'
+	String get chatStatusOutcomeUnknown => '本次被拒，发送结果待确认';
 }
 
 // Path: common
@@ -2654,6 +2660,9 @@ class Translations$common$zh_CN {
 
 	/// zh-CN: '开启后，将跟随系统打开或关闭深色模式'
 	String get followSystemTips => '开启后，将跟随系统打开或关闭深色模式';
+
+	/// zh-CN: '主题设置仅保存在当前浏览器，不会同步到其他设备。'
+	String get themeBrowserLocalOnly => '主题设置仅保存在当前浏览器，不会同步到其他设备。';
 
 	/// zh-CN: '性别设置失败，请重试'
 	String get genderUpdateFailed => '性别设置失败，请重试';
@@ -5159,6 +5168,15 @@ class Translations$common$zh_CN {
 
 	/// zh-CN: '网页内容加载遇到问题，请重试。'
 	String get webpageLoadProblem => '网页内容加载遇到问题，请重试。';
+
+	/// zh-CN: 'Web 端仅供查看，请在 App 中修改。'
+	String get webReadOnlySettingsHint => 'Web 端仅供查看，请在 App 中修改。';
+
+	/// zh-CN: '检查本地发送状态'
+	String get legacyUploadCheckLocal => '检查本地发送状态';
+
+	/// zh-CN: '文本超过64 KiB，请修改后重试'
+	String get textTooLarge => '文本超过64 KiB，请修改后重试';
 }
 
 // Path: complaint
@@ -11775,6 +11793,7 @@ extension on Translations {
 			'chat.resendCode' => '重发验证码',
 			'chat.revoke' => '撤回',
 			'chat.scanQrCodeBusinessCard' => '扫描二维码名片',
+			'chat.scanQrEntry' => '扫一扫',
 			'chat.privateChat' => '私聊',
 			'chat.sendFriendRequest' => '发送添加朋友申请',
 			'chat.sendMsgRejected' => '消息已发出，但被对方拒收了。',
@@ -11874,7 +11893,7 @@ extension on Translations {
 			'chat.webFeatureE2EEDesc' => '所有消息都经过端到端加密，确保隐私安全',
 			'chat.webFeatureFileTransfer' => '文件传输',
 			'chat.webFeatureFileTransferDesc' => '拖拽即可发送文件，支持各种格式',
-			'chat.webQRStatusWaiting' => '打开 ImBoy 手机版 > 设置 > 扫一扫',
+			'chat.webQRStatusWaiting' => '打开 ImBoy 手机版 > 消息 > 右上角扫一扫',
 			'chat.webQRStatusScanned' => '请在手机上点击"确认登录"',
 			'chat.webQRStatusVerifying' => '正在验证...',
 			'chat.webQRStatusExpired' => '请点击刷新重新扫码',
@@ -11951,6 +11970,7 @@ extension on Translations {
 			'chat.voiceDurationSeconds' => ({required Object seconds}) => '${seconds}″',
 			'chat.bundleInvalidOrEmpty' => '聊天记录无效或为空',
 			'chat.bundleForwardedBy' => ({required Object name}) => '由 ${name} 转发',
+			'chat.chatStatusOutcomeUnknown' => '本次被拒，发送结果待确认',
 			'common.about' => '关于',
 			'common.aboutApp' => '关于应用',
 			'common.accept' => '接受',
@@ -12076,6 +12096,7 @@ extension on Translations {
 			'common.feedbackDetails' => '反馈建议明细',
 			'common.feedbackSuccessMsg' => '你的反馈问题我们已经收到了，会尽快处理！',
 			'common.followSystemTips' => '开启后，将跟随系统打开或关闭深色模式',
+			'common.themeBrowserLocalOnly' => '主题设置仅保存在当前浏览器，不会同步到其他设备。',
 			'common.genderUpdateFailed' => '性别设置失败，请重试',
 			'common.groupAnnouncement' => '群公告',
 			'common.groupFileUploadSuccess' => '文件上传成功',
@@ -12242,11 +12263,11 @@ extension on Translations {
 			'common.timeHoursAgo' => ({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(n, other: '${n}小时前', ), 
 			'common.timeJustNow' => '刚刚',
 			'common.timeMinutesAgo' => ({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(n, other: '${n}分钟前', ), 
+			_ => null,
+		} ?? switch (path) {
 			'common.tipConnectDesc' => '无网络',
 			'common.tipConnectDescWithParen' => ({required Object param}) => '(${param})',
 			'common.tipDeleteContact' => ({required Object param}) => '将联系人"${param}"删除，同时删除与该联系人的聊天记录',
-			_ => null,
-		} ?? switch (path) {
 			'common.tipDeviceSpace' => ({required Object param1, required Object param2}) => '占设备 ${param1}% 存储空间(${param2})',
 			'common.tipDraft' => '草稿',
 			'common.tipFailed' => '操作失败！',
@@ -12756,11 +12777,11 @@ extension on Translations {
 			'common.e2eeBackupSetupPostponedToast' => '已稍后，下次启动会再次提醒',
 			'common.e2eeBackupSetupPwdTooShort' => '口令至少 8 位',
 			'common.e2eeBackupSetupUploading' => '正在上传…',
+			_ => null,
+		} ?? switch (path) {
 			'common.e2eeBackupSetupBusyHint' => '正在本机加密并上传到云端，请稍候；网络不佳时可以点下方「稍后再说」先跳过',
 			'common.e2eeBackupSetupTimeoutToast' => '上传超时，请检查网络后重试，或稍后再设置',
 			'common.e2eeBackupSetupLaterConfirmTitle' => '暂不设置备份？',
-			_ => null,
-		} ?? switch (path) {
 			'common.e2eeBackupSetupLaterConfirmBody' => '暂不设置的话，换设备或重装后这些加密聊天记录将无法解密，也无法找回。下次启动仍会提醒你。',
 			'common.e2eeBackupSetupLaterConfirmStay' => '继续设置',
 			'common.e2eeBackupSetupLaterConfirmLeave' => '暂不设置',
@@ -12913,6 +12934,9 @@ extension on Translations {
 			'common.myLocation' => '我的位置',
 			'common.searchConversations' => '会话',
 			'common.webpageLoadProblem' => '网页内容加载遇到问题，请重试。',
+			'common.webReadOnlySettingsHint' => 'Web 端仅供查看，请在 App 中修改。',
+			'common.legacyUploadCheckLocal' => '检查本地发送状态',
+			'common.textTooLarge' => '文本超过64 KiB，请修改后重试',
 			'complaint.complaint' => '投诉',
 			'complaint.e2eeConsentTitle' => '提交加密消息证据',
 			'complaint.e2eeConsentBody' => '该消息为端到端加密消息，服务器无法查看其内容。提交内容摘录会将你选择的消息明文随工单披露给审核员用于核实举报。是否同意提交？',
@@ -13267,14 +13291,14 @@ extension on Translations {
 			'group.groupGuest' => '嘉宾',
 			'group.groupInfo' => '群聊信息',
 			'group.groupMemberRoleLabel' => '成员',
+			_ => null,
+		} ?? switch (path) {
 			'group.noMemberWithRole' => ({required Object roleName}) => '暂无${roleName}',
 			'group.moreActions' => '更多操作',
 			'group.touchContactAddMember' => '点击联系人添加为群成员',
 			'group.groupCreated' => '群聊已创建',
 			'group.groupCreatedSuccess' => '群聊创建成功，邀请你完善群信息或直接进入群聊',
 			'group.enterGroupChat' => '进入群聊',
-			_ => null,
-		} ?? switch (path) {
 			'group.perfectionGroupInfo' => '完善群信息',
 			'group.setAdmin' => '设为管理员',
 			'group.selectGroup' => '选择群聊',
@@ -13781,14 +13805,14 @@ extension on Translations {
 			'organization.departments.createSubHere' => '在其下新建子部门',
 			'organization.departments.movePickParent' => '移动（选择新父部门）',
 			'organization.departments.addMemberByUid' => '添加成员（按 UID）',
+			_ => null,
+		} ?? switch (path) {
 			'organization.departments.archiveDept' => '归档部门',
 			'organization.departments.createRootDept' => '新建根部门',
 			'organization.departments.deptNameLabel' => '部门名称',
 			'organization.departments.createUnder' => ({required Object parent}) => '在「${parent}」下新建',
 			'organization.departments.renameDept' => '重命名部门',
 			'organization.departments.newNameLabel' => '新名称',
-			_ => null,
-		} ?? switch (path) {
 			'organization.departments.renameFailed' => '重命名失败',
 			'organization.departments.moveDept' => '移动部门',
 			'organization.departments.rootLevel' => '企业根目录',
@@ -14295,14 +14319,14 @@ extension on Translations {
 			'talkRecord.shareRevokeFailedBody' => '撤销失败，请稍后重试。',
 			'talkRecord.grantEditTitle' => '编辑权限',
 			'talkRecord.grantEditTitleNew' => '添加授权',
+			_ => null,
+		} ?? switch (path) {
 			'talkRecord.grantEditCandidateSection' => '选择要授权的人',
 			'talkRecord.grantEditCandidateSearchHint' => '搜索姓名或账号',
 			'talkRecord.grantEditCandidatesUnavailable' => '候选目录暂不可用，请稍后重试。',
 			'talkRecord.grantEditCandidateEmpty' => '没有可授权的候选人',
 			'talkRecord.grantEditGranteeLabel' => '被授权人',
 			'talkRecord.grantEditRoleSectionTitle' => '角色',
-			_ => null,
-		} ?? switch (path) {
 			'talkRecord.grantEditRoleViewerHint' => '可查看记录与回听音频，不能修改内容。',
 			'talkRecord.grantEditRoleEditorHint' => '可校对原文与发言人、编辑共享笔记；不能管理分享或删除。',
 			'talkRecord.grantEditExportSectionTitle' => '允许导出',

@@ -14,9 +14,15 @@ Future<String> _uploadDirect(
   Future<void> Function(UploadCheckpoint event)? checkpoint,
   DirectSessionFn? sessionFn,
   DirectFilePutFn? putFn,
+  DirectSourcePutFn? sourcePutFn,
   void Function()? requireSession,
   CancelToken? cancelToken,
 }) async {
+  if (putFn != null && (kIsWeb || sourcePutFn != null)) {
+    throw ArgumentError(
+      'native File PUT cannot serve a browser/source transport',
+    );
+  }
   requireSession?.call();
   final requestCancel = cancelToken ?? CancelToken();
   final localTask = AccountLocalTaskRegistry.instance.register(
@@ -143,19 +149,48 @@ Future<String> _uploadDirect(
     }
     localTask.throwIfCancelled();
     requireSession?.call();
-    final ownerDirectory = await AccountLocalFiles.directory(localTask);
-    final directory = await ownerDirectory.createTemp('direct-');
+    Directory? directory;
+    DirectUploadSource source;
+    DirectSourcePutFn? transport = sourcePutFn;
+    if (kIsWeb || sourcePutFn != null) {
+      source = DirectUploadSource.bytes(
+        body,
+        beforeDispatch: kIsWeb ? requireSession : null,
+      );
+    } else {
+      final ownerDirectory = await AccountLocalFiles.directory(localTask);
+      directory = await ownerDirectory.createTemp('direct-');
+      try {
+        final file = File('${directory.path}/body');
+        await file.writeAsBytes(body, flush: true);
+        source = DirectUploadSource(
+          length: body.length,
+          openRead: file.openRead,
+        );
+        if (putFn != null) {
+          transport = (
+            url,
+            source,
+            length,
+            headers, {
+            cancelToken,
+            onProgress,
+          }) => putFn(url, file, length, headers);
+        }
+      } catch (_) {
+        await directory.delete(recursive: true);
+        rethrow;
+      }
+    }
     final progress = process
         ? UploadProgressSession(actor, generation, environment, requireSession)
         : null;
     try {
       localTask.throwIfCancelled();
       requireSession?.call();
-      final file = File('${directory.path}/body');
-      await file.writeAsBytes(body, flush: true);
       bool putCheckpoint = resume?.skipPut == true;
-      final result = await DirectAttachmentApi.uploadFile(
-        file,
+      final result = await DirectAttachmentApi.uploadSource(
+        source,
         fileName: fileName,
         mime: mime,
         scope: scope,
@@ -165,7 +200,7 @@ Future<String> _uploadDirect(
         purpose: purpose,
         anchorMsgId: anchor,
         sessionFn: guardedSession,
-        putFn: putFn,
+        putFn: transport,
         cancelToken: requestCancel,
         onProgress: (sent, total) {
           progress?.update(sent, total);
@@ -198,7 +233,7 @@ Future<String> _uploadDirect(
       return key;
     } finally {
       await progress?.dispose();
-      await directory.delete(recursive: true);
+      await directory?.delete(recursive: true);
     }
   } finally {
     localTask.finish();

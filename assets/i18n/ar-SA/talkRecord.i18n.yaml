@@ -11,7 +11,7 @@ uploadProgressParts(confirmed, total): "المقاطع المؤكدة: $confirme
 aiServicesTitle: "خدمات الذكاء الاصطناعي"
 aiServicesSubtitle: "استخدم حسابات API الخاصة بك. يفرض المزوّدون رسوم الاستخدام."
 aiMinimaxTitle: "MiniMax"
-aiZhipuTitle: "Zhipu GLM-5.3-Flash"
+aiZhipuTitle: "نموذج Zhipu GLM-5.3-Flash"
 aiMinimaxPurpose: "تفريغ الصوت وتسميات مؤقتة للمتحدثين"
 aiZhipuPurpose: "مسودات الملخصات والقرارات والإجراءات"
 aiConfigured: "تم الإعداد على هذا الجهاز"
@@ -41,7 +41,7 @@ aiDeleteTitle: "هل تريد حذف مفتاح الجهاز؟"
 aiDeleteNotice: "يوقف الطلبات الجديدة لهذه الخدمة. تبقى التسجيلات والنتائج محفوظة. لا يمكن سحب الطلبات التي أُرسلت إلى المزوّد."
 aiCancel: "إلغاء"
 
-aiDoubaoTitle: "Doubao Speech 2.0"
+aiDoubaoTitle: "خدمة Doubao Speech 2.0"
 aiDoubaoPurpose: "تحويل الصوت إلى نص وتسميات مؤقتة للمتحدثين"
 aiDoubaoExternalNotice: "يُرسل الصوت إلى Volcengine Doubao Speech للتفريغ وقد تُفرض رسوم من المزوّد. اضبط مفتاح API على هذا الجهاز؛ لا تُستخدم مفاتيح MiniMax مجددًا."
 aiDoubaoPendingNotice: "لم يتم ربط تفريغ Doubao بعد. يمكن حاليًا حفظ إعدادات الجهاز فقط. الحفظ لا يتحقق من الاتصال ولا يفعّل التفريغ."
@@ -54,3 +54,382 @@ aiProviderResubmitNotice: "ينشئ تفريغًا جديدًا وقد يسبب 
 aiProviderCancelled: "توقف التفريغ. تم الاحتفاظ بالصوت الموجود."
 aiProviderResumePreparation: "متابعة إعداد التفريغ"
 aiProviderResumeNotice: "لم تُرسل المهمة الأصلية إلى المزوّد. أعد تجهيز مصدر الصوت وفق الأذونات والموافقة الحالية."
+
+# ---- DSN-06 gap fill (machine-candidate 2026-11-16) ----
+actionDelete: "حذف السجل" # machine-candidate 2026-11-16
+actionExport: "تصدير النص" # machine-candidate 2026-11-16
+actionPendingIntegration: "سيُربط هذا الإجراء في إصدار لاحق (تُفتح المشاركة/التصدير/الحذف بعد تكامل الوحدات المعنية)، والنسخة الحالية توفر المدخل فقط." # machine-candidate 2026-11-16
+actionShare: "إدارة المشاركة" # machine-candidate 2026-11-16
+aiAsrOptionalNotice: "التفريغ بالذكاء الاصطناعي ميزة اختيارية، ويمكن حاليًا استخدام MiniMax المُعد. التسجيل وحده لا يحتاج أي مفتاح ذكاء اصطناعي." # machine-candidate 2026-11-16
+aiAsrProvider: "خدمة التفريغ" # machine-candidate 2026-11-16
+aiProcessSummarize: "تلخيص على هذا الجهاز / متابعة" # machine-candidate 2026-11-16
+aiProcessTranscribe: "تفريغ على هذا الجهاز / متابعة" # machine-candidate 2026-11-16
+aiProcessingBalance: "رصيد المزوّد غير كافٍ. حُفظ التقدم وأُوقفت العملية؛ ولن تُعاد تلقائيًا." # machine-candidate 2026-11-16
+aiProcessingComplete: "أُرسلت النتيجة، فتحقق من النص الأصلي ومسودة الملخص." # machine-candidate 2026-11-16
+aiProcessingConsent: "لا يُرسل التطبيق الطلبات ولا يستعلم إلا في المقدمة. بعد قبول المزوّد قد تستمر المعالجة والفوترة خارج التطبيق. يُعاد التحقق من الأذونات والموافقة الحالية في كل خطوة. عند وجود معرّف مهمة لدى المزوّد يُستعلم فقط؛ وبدونه مع جهالة النتيجة يتوقف الإرسال دون إعادة تلقائية. وتنبيهات هذا الجهاز لا تضمن حدًا أقصى لمصروفات الحساب." # machine-candidate 2026-11-16
+aiProcessingKeyInvalid: "رفض المزوّد المفتاح. تحقق من إعداد هذا الجهاز في الإعدادات → خدمات الذكاء الاصطناعي؛ أُوقفت العملية ولن تُعاد تلقائيًا." # machine-candidate 2026-11-16
+aiProcessingRunning: "جارٍ المعالجة على هذا الجهاز، فأبقِ هذه الصفحة مفتوحة." # machine-candidate 2026-11-16
+aiProcessingStopped: "أُوقفت المعالجة وبقي التسجيل محفوظًا. تحقق من مفتاح هذا الجهاز وأذوناته وإعداداته والمدخلات؛ وإذا كان قد أُرسل دون تأكيد النتيجة فلن يُعاد الاستدعاء تلقائيًا." # machine-candidate 2026-11-16
+aiProcessingUnknown: "نتيجة المزوّد مجهولة وقد تكون فوّرت بالفعل. أُوقف الإرسال؛ ويجب التحقق يدويًا من المصروفات والتنفيذ الأصلي دون إعادة إرسال مباشرة." # machine-candidate 2026-11-16
+aiUnknownRecoveryConfirm: "تم التحقق، وأقبل احتمال فوترة مزدوجة" # machine-candidate 2026-11-16
+aiUnknownRecoveryIntents: "رقم الكتلة / رقم الطلب المجهول" # machine-candidate 2026-11-16
+aiUnknownRecoveryNotice: "لا يمكن التحقق من نتيجة الطلبات القديمة التالية وتكاليفها، وقد تكون فوّرت بالفعل. بعد التأكيد يُنشأ تنفيذ جديد لنفس المهمة ويُطلب مجددًا الكتل غير المؤكدة فقط، مع احتمال فوترة مزدوجة؛ وتبقى وقائع المجاهيل الأصلية ونتائجها محفوظة. والإلغاء لا يرسل طلب استعادة." # machine-candidate 2026-11-16
+aiUnknownRecoveryRun: "التنفيذ الأصلي" # machine-candidate 2026-11-16
+aiUnknownRecoveryTitle: "تحقق من التنفيذ المجهول وأعد الطلب" # machine-candidate 2026-11-16
+barControlsUnavailable: "توفر وحدة التسجيل أزرار التحكم، والنسخة الحالية عرض تجريبي فقط" # machine-candidate 2026-11-16
+barExpandHint: "عرض حالة التسجيل" # machine-candidate 2026-11-16
+barInterrupted: "انقطع التسجيل · الاستئناف يدوي" # machine-candidate 2026-11-16
+barOriginOrgFallback: "مساحة المؤسسة" # machine-candidate 2026-11-16
+barOriginPersonal: "المساحة الشخصية" # machine-candidate 2026-11-16
+barOriginPrefix: "من" # machine-candidate 2026-11-16
+barPaused: "متوقف مؤقتًا، ولا يُحتسب في مدة التسجيل" # machine-candidate 2026-11-16
+barRecording: "جارٍ التسجيل · حفظ محلي على مقاطع" # machine-candidate 2026-11-16
+changeConfirmAction: "تأكيد التغيير" # machine-candidate 2026-11-16
+changeConfirmClearParticipants: "ستُمسح اختيارات المشاركين غير المنطبقة على الموقع الجديد" # machine-candidate 2026-11-16
+changeConfirmKeepTitle: "سيُحتفظ بالعنوان والملاحظات المعبأة" # machine-candidate 2026-11-16
+changeConfirmRecheck: "سيعاد التحقق من طريقة المعالجة وفق قدرات الموقع الجديد" # machine-candidate 2026-11-16
+changeConfirmTarget: "سيُحفظ في: $name" # machine-candidate 2026-11-16
+changeConfirmTitle: "تغيير مكان الحفظ" # machine-candidate 2026-11-16
+cleanupBlockedHoldBody: "حُذف السجل والمرفق محمي بحجز قانوني (Hold)؛ وسيستمر التنظيف بعد رفع الحجز." # machine-candidate 2026-11-16
+cleanupBlockedHoldTitle: "محمي بحجز قانوني" # machine-candidate 2026-11-16
+cleanupBlockedRetentionBody: "حُذف السجل والمرفق محمي بقواعد الاستبقاء؛ وسيستمر التنظيف بعد انتهاء مدة الاستبقاء." # machine-candidate 2026-11-16
+cleanupBlockedRetentionTitle: "مدة الاستبقاء لم تنتهِ بعد" # machine-candidate 2026-11-16
+cleanupCompleteBody: "اكتمل تنظيف السجل والمرفقات." # machine-candidate 2026-11-16
+cleanupCompleteTitle: "اكتمل التنظيف" # machine-candidate 2026-11-16
+cleanupFailedBody: "لم يكتمل تنظيف المرفقات. حدّث الحالة؛ وعند استيفاء الشروط يمكن إعادة محاولة التنظيف." # machine-candidate 2026-11-16
+cleanupFailedTitle: "فشل التنظيف" # machine-candidate 2026-11-16
+cleanupNoneBody: "لم يدخل السجل بعد في مسار التنظيف." # machine-candidate 2026-11-16
+cleanupNoneTitle: "لم يُقدَّم للتنظيف" # machine-candidate 2026-11-16
+cleanupPendingBody: "قُدِّم إلى قائمة التنظيف؛ ولا يعني دخول القائمة حذف بايتات المرفقات فعلًا." # machine-candidate 2026-11-16
+cleanupPendingTitle: "التنظيف جارٍ" # machine-candidate 2026-11-16
+cleanupProcessorUnconfirmed: "لا تزال مهمة المعالجة في طور التوقف أو التحقق، ولم يُؤكَّد تنظيف نسخ الصوت المؤقتة. حدّث لمتابعة التقدم." # machine-candidate 2026-11-16
+cleanupRetainedBody: "لا تزال بعض المرفقات مُشارًا إليها من أعمال أخرى مشروعة ولن تُحذف ماديًا حاليًا." # machine-candidate 2026-11-16
+cleanupRetainedTitle: "لا تزال المرفقات مُشارًا إليها من أعمال أخرى" # machine-candidate 2026-11-16
+cleanupRetryAccepted: "قُدِّمت إعادة المحاولة وجارٍ قراءة أحدث حالة تنظيف؛ ودخول القائمة لا يعني حذف المرفق." # machine-candidate 2026-11-16
+cleanupRetryAction: "إعادة محاولة التنظيف" # machine-candidate 2026-11-16
+cleanupRetryFailedBody: "فشلت إعادة محاولة التنظيف. حاول مجددًا لاحقًا." # machine-candidate 2026-11-16
+cleanupRetryPartial: "تُعاد المحاولة للمرفقات المستنفدة والمسموح بتنظيفها فقط؛ وتظل المرفقات المحمية محفوظة." # machine-candidate 2026-11-16
+cleanupRetryProtected: "لا يزال المرفق محميًا بحجز أو استبقاء أو مراجع صحيحة أخرى، فلا يمكن فرض التنظيف." # machine-candidate 2026-11-16
+cleanupRetryReconcile: "مطابقة نفس طلب إعادة المحاولة" # machine-candidate 2026-11-16
+cleanupRetryRefreshFailed: "تعذّرت قراءة أحدث حالة، فحدّث وتحقق." # machine-candidate 2026-11-16
+cleanupRetryUnavailable: "يتعذر حاليًا تأكيد صلاحية إعادة محاولة التنظيف، فحدّث الحالة." # machine-candidate 2026-11-16
+cleanupRetryUnknown: "نتيجة التقديم لم تُؤكد بعد. حدّث وتحقق أولًا؛ وإعادة التقديم تعيد استخدام نفس الطلب." # machine-candidate 2026-11-16
+cleanupRetryWaiting: "لم تتحقق شروط إعادة المحاولة بعد. حدّث الحالة بعد انتهاء صلاحية قدرات الرفع أو المراجع الأخرى." # machine-candidate 2026-11-16
+cleanupRetrying: "جارٍ إعادة المحاولة…" # machine-candidate 2026-11-16
+cleanupUnknownBody: "تعذّر جلب حالة التنظيف، فحدّث وأعد المحاولة." # machine-candidate 2026-11-16
+cleanupUnknownTitle: "حالة التنظيف مجهولة" # machine-candidate 2026-11-16
+cleanupWriteOutcomeUnknown: "نتيجة كتابة المرفقات لم تُؤكد بعد ولم يكتمل التنظيف. سيحتفظ النظام بحالة الحماية ويتحقق المشغّلون منها؛ وحدّث لمتابعة التقدم." # machine-candidate 2026-11-16
+collabParticipantsCount: "تم اختيار $count من الأشخاص" # machine-candidate 2026-11-16
+collabParticipantsEmpty: "لم يُختر أي مشاركين" # machine-candidate 2026-11-16
+collabParticipantsLabel: "المشاركون" # machine-candidate 2026-11-16
+collabParticipantsUnavailable: "دليل المشاركين لم يُربط بعد؛ أنشئ السجل ثم امنح المشاركة." # machine-candidate 2026-11-16
+collabSectionSubtitle: "اختياري، ويُطبَّق على سجلّات المؤسسة فقط" # machine-candidate 2026-11-16
+collabSectionTitle: "معلومات التعاون" # machine-candidate 2026-11-16
+confirmProcessingUpload: "الموافقة على المعالجة والرفع" # machine-candidate 2026-11-16
+contextOrgFallback: "المؤسسة الحالية" # machine-candidate 2026-11-16
+contextPersonal: "المساحة الشخصية" # machine-candidate 2026-11-16
+contextSectionTitle: "المساحة الحالية" # machine-candidate 2026-11-16
+createRecord: "إنشاء سجل" # machine-candidate 2026-11-16
+deleteBackToList: "العودة إلى القائمة" # machine-candidate 2026-11-16
+deleteCleanupSectionTitle: "حالة تنظيف المرفقات" # machine-candidate 2026-11-16
+deleteConfirmAction: "حذف" # machine-candidate 2026-11-16
+deleteConfirmBodyPoint1: "بعد الحذف لن يُعرض نص السجل ولا ملخصه." # machine-candidate 2026-11-16
+deleteConfirmBodyPoint2: "يبدأ الحذف بإلغاء وصول الجميع؛ والنسخ المصدَّرة أو المحفوظة سابقًا لا يمكن استرجاعها." # machine-candidate 2026-11-16
+deleteConfirmBodyPoint3: "تُنظَّف المرفقات وفق قواعد الاستبقاء والمراجع؛ وتقديم التنظيف لا يعني حذف البايتات فورًا." # machine-candidate 2026-11-16
+deleteConfirmDialogContent: "بعد الحذف لن يُعرض النص؛ والنسخ المصدَّرة أو المحفوظة سابقًا لا يمكن استرجاعها." # machine-candidate 2026-11-16
+deleteConfirmTitle: "تأكيد حذف هذا السجل؟" # machine-candidate 2026-11-16
+deleteConflictHint: "حدّث المستخدمون الآخرون السجل، فحدّث ثم أعد المحاولة." # machine-candidate 2026-11-16
+deleteDeleting: "جارٍ الحذف…" # machine-candidate 2026-11-16
+deleteFailedBody: "فشل الحذف. حاول مجددًا لاحقًا." # machine-candidate 2026-11-16
+deleteOnlyOwner: "لا يمكن حذف السجل إلا منشئه." # machine-candidate 2026-11-16
+deleteRefreshStatus: "تحديث حالة التنظيف" # machine-candidate 2026-11-16
+deleteStatusFixtureHint: "مرحلة المكوّنات: حالة التنظيف من أمثلة تجريبية، والتقدم الفعلي يأتي بعد التكامل." # machine-candidate 2026-11-16
+deleteStatusNoContentHint: "لم يعد يُعرض محتوى السجل." # machine-candidate 2026-11-16
+deleteStatusTitle: "حُذف السجل" # machine-candidate 2026-11-16
+deleteTitle: "حذف السجل" # machine-candidate 2026-11-16
+detailNoSpeechBody: "بقي التسجيل محفوظًا. لا يحتوي هذا التسجيل على كلام قابل للتفريغ." # machine-candidate 2026-11-16
+detailNoSpeechTitle: "لم يُكتشف كلام قابل للتفريغ" # machine-candidate 2026-11-16
+detailRecordOnlyBody: "لم يُطلب التفريغ؛ فلا نص أصلي ولا ملخص حاليًا. يمكن الاستماع إلى التسجيل، وترقية التفريغ متاحة بعد الاجتماع." # machine-candidate 2026-11-16
+detailRecordOnlyTitle: "هذا السجل يحفظ التسجيل فقط" # machine-candidate 2026-11-16
+detailTranscribeFailedBodyEditor: "فشل التفريغ ويظل التسجيل قابلًا للاستماع. يمكنك إعادة محاولة التفريغ." # machine-candidate 2026-11-16
+detailTranscribeFailedBodyViewer: "فشل التفريغ ويظل التسجيل قابلًا للاستماع. اطلب من المنشئ إعادة المحاولة." # machine-candidate 2026-11-16
+detailTranscribeFailedTitle: "فشل التفريغ" # machine-candidate 2026-11-16
+detailTranscribeRetry: "إعادة محاولة التفريغ" # machine-candidate 2026-11-16
+detailTranscribingBody: "سيُعرض النص الأصلي هنا بعد توليده؛ ولا تُعرض مدة إنجاز متوقعة أثناء المعالجة." # machine-candidate 2026-11-16
+detailTranscribingTitle: "التفريغ جارٍ" # machine-candidate 2026-11-16
+durationLabel: "المدة" # machine-candidate 2026-11-16
+emptyNeverCreatedSubtitle: "بعد التواصل وجهًا لوجه، احفظ هنا التسجيل والتفريغ" # machine-candidate 2026-11-16
+emptyNeverCreatedTitle: "لا توجد سجلّات لقاءات مباشرة بعد" # machine-candidate 2026-11-16
+emptyNoMatchSubtitle: "لا نتائج وفق التصفية أو كلمات البحث الحالية، فعدّل ثم أعد المحاولة" # machine-candidate 2026-11-16
+emptyNoMatchTitle: "لا سجلّات مطابقة" # machine-candidate 2026-11-16
+entrySubtitleOrg: "سجلّات تعاون الفريق للاجتماعات واللقاءات" # machine-candidate 2026-11-16
+entrySubtitlePersonal: "تسجيلات وتفريغات التواصل وجهًا لوجه" # machine-candidate 2026-11-16
+entryTitle: "سجلّات اللقاءات المباشرة" # machine-candidate 2026-11-16
+exportBlockedInstancePolicy: "لم تُفعّل قدرة التصدير على هذه النسخة، فلا يمكن التصدير حاليًا." # machine-candidate 2026-11-16
+exportBlockedNoGrant: "دورك الحالي لا يملك إذن التصدير؛ ويتطلب التصدير تفويضًا من المنشئ أو سياسة تسمح به." # machine-candidate 2026-11-16
+exportBlockedOrgPolicy: "عطّلت سياسة المؤسسة التصدير، فلا يمكن التصدير حاليًا." # machine-candidate 2026-11-16
+exportBlockedUnknown: "تعذّر تأكيد سياسة التصدير الحالية، فلا يمكن التصدير حاليًا." # machine-candidate 2026-11-16
+exportCapabilitySectionTitle: "قدرات التصدير" # machine-candidate 2026-11-16
+exportConflictHint: "حدّث المستخدمون الآخرون السجل، فحدّث ثم أعد المحاولة." # machine-candidate 2026-11-16
+exportDownload: "حفظ الملف المصدَّر" # machine-candidate 2026-11-16
+exportDownloadCancelled: "أُلغي الحفظ، ويمكن الحفظ مجددًا." # machine-candidate 2026-11-16
+exportDownloadFailed: "فشل التنزيل أو الحفظ، أعد المحاولة" # machine-candidate 2026-11-16
+exportDownloadReady: "حُفظ الملف؛ وهو نسخة مستقلة، وإلغاء الأذونات لا يحذف هذه النسخة." # machine-candidate 2026-11-16
+exportDownloading: "جارٍ التنزيل والتحضير للحفظ…" # machine-candidate 2026-11-16
+exportExpiredBody: "انتهت صلاحية رابط التنزيل، فأعد توليد التصدير." # machine-candidate 2026-11-16
+exportExpiredTitle: "انتهت صلاحية التصدير" # machine-candidate 2026-11-16
+exportExpiresAt: "صالح حتى $date" # machine-candidate 2026-11-16
+exportFailedBody: "فشل توليد التصدير، أعد المحاولة." # machine-candidate 2026-11-16
+exportFixtureHint: "مرحلة المكوّنات: رابط التنزيل مثال تجريبي ولا يُنتج ملفًا حقيقيًا." # machine-candidate 2026-11-16
+exportFormatHint: "يحتوي التصدير على النصوص فقط، دون الصوت ومعلومات المشاركين غير المصرّح بها." # machine-candidate 2026-11-16
+exportFormatMd: "Markdown .md" # machine-candidate 2026-11-16
+exportFormatSectionTitle: "صيغة التصدير" # machine-candidate 2026-11-16
+exportFormatTxt: "نص عادي .txt" # machine-candidate 2026-11-16
+exportGenerate: "توليد التصدير" # machine-candidate 2026-11-16
+exportGenerating: "جارٍ التوليد…" # machine-candidate 2026-11-16
+exportIndependentCopyAck: "أدركت أن النسخة المستقلة المصدَّرة لا يمكن استرجاعها" # machine-candidate 2026-11-16
+exportIndependentCopyBody: "يولّد التصدير نسخة مستقلة؛ ولا يمكن بعد التوليد استرجاعها بحذف السجل أو إلغاء الأذونات." # machine-candidate 2026-11-16
+exportIndependentCopyTitle: "تنبيه النسخة المستقلة" # machine-candidate 2026-11-16
+exportQueuedBody: "قُدِّم طلب التوليد؛ ودخول القائمة لا يعني اكتمال التوليد، فحدّث الحالة لاحقًا." # machine-candidate 2026-11-16
+exportQueuedTitle: "التصدير في قائمة الانتظار" # machine-candidate 2026-11-16
+exportReadyBody: "يمكن تنزيل الملف المصدَّر؛ ورابط التنزيل صالح لمدة قصيرة ويحتاج التوليد مجددًا بعد انتهائه." # machine-candidate 2026-11-16
+exportReadyTitle: "التصدير جاهز" # machine-candidate 2026-11-16
+exportRefreshState: "تحديث الحالة" # machine-candidate 2026-11-16
+exportRegenerate: "إعادة التوليد" # machine-candidate 2026-11-16
+exportRemaining: "متبقٍ نحو $minutes دقيقة" # machine-candidate 2026-11-16
+exportTitle: "تصدير النص" # machine-candidate 2026-11-16
+fieldTitleLabel: "العنوان" # machine-candidate 2026-11-16
+fieldTitlePlaceholder: "اختياري، لتسهيل الوصول لاحقًا" # machine-candidate 2026-11-16
+filterAll: "الكل" # machine-candidate 2026-11-16
+filterOwned: "أنشأتها" # machine-candidate 2026-11-16
+filterShared: "مُشاركة معي" # machine-candidate 2026-11-16
+grantEditCandidateEmpty: "لا يوجد مرشحون للتخويل" # machine-candidate 2026-11-16
+grantEditCandidateSearchHint: "ابحث بالاسم أو الحساب" # machine-candidate 2026-11-16
+grantEditCandidateSection: "اختر الشخص المراد تخويله" # machine-candidate 2026-11-16
+grantEditCandidatesUnavailable: "دليل المرشحين غير متاح مؤقتًا، فحاول مجددًا لاحقًا." # machine-candidate 2026-11-16
+grantEditConflict: "حدّث المستخدمون الآخرون التخويل؛ فعُد وحدّث القائمة ثم أعد المحاولة، وقد حُفظت إعداداتك." # machine-candidate 2026-11-16
+grantEditExpiresHint: "اختياري؛ عند التعيين يفقد الشخص الوصول تلقائيًا عند الانتهاء." # machine-candidate 2026-11-16
+grantEditExpiresOn: "ينتهي في $date" # machine-candidate 2026-11-16
+grantEditExpiresSectionTitle: "وقت الانتهاء" # machine-candidate 2026-11-16
+grantEditExportBlockedOrg: "عطّلت سياسة المؤسسة التصدير، فلا يمكن تمكينه في التخويل." # machine-candidate 2026-11-16
+grantEditExportBlockedUnknown: "تعذّر تأكيد سياسة التصدير الحالية، فلا يمكن تمكين التصدير حاليًا." # machine-candidate 2026-11-16
+grantEditExportSectionTitle: "السماح بالتصدير" # machine-candidate 2026-11-16
+grantEditGranteeLabel: "الشخص المخوَّل" # machine-candidate 2026-11-16
+grantEditRoleEditorHint: "يدقق النص الأصلي والمتحدثين ويحرر الملاحظات المشتركة؛ ولا يدير المشاركة أو يحذف." # machine-candidate 2026-11-16
+grantEditRoleSectionTitle: "الدور" # machine-candidate 2026-11-16
+grantEditRoleViewerHint: "يعرض السجل ويستمع للصوت دون تعديل المحتوى." # machine-candidate 2026-11-16
+grantEditSave: "حفظ الأذونات" # machine-candidate 2026-11-16
+grantEditSaveFailed: "فشل الحفظ. حاول مجددًا لاحقًا، وقد حُفظت إعداداتك." # machine-candidate 2026-11-16
+grantEditSaving: "جارٍ المعالجة…" # machine-candidate 2026-11-16
+grantEditTitle: "تعديل الأذونات" # machine-candidate 2026-11-16
+grantEditTitleNew: "إضافة تخويل" # machine-candidate 2026-11-16
+invalidBack: "رجوع" # machine-candidate 2026-11-16
+invalidBody: "يتعذر عرض هذا المحتوى حاليًا، فقد لا يكون موجودًا أو لا تملك صلاحية العرض." # machine-candidate 2026-11-16
+invalidTitle: "غير متاح للعرض مؤقتًا" # machine-candidate 2026-11-16
+keepRecordingLocal: "عدم المعالجة الآن والإبقاء على الجهاز" # machine-candidate 2026-11-16
+listTitle: "سجلّات اللقاءات المباشرة" # machine-candidate 2026-11-16
+loadFailedAction: "إعادة المحاولة" # machine-candidate 2026-11-16
+loadFailedTitle: "فشل تحميل السجل" # machine-candidate 2026-11-16
+localDraftBadge: "مسودة محلية" # machine-candidate 2026-11-16
+markDefaultText: "نقطة مهمة يدوية" # machine-candidate 2026-11-16
+markPillPrefix: "نقطة مهمة" # machine-candidate 2026-11-16
+maxDurationHint: "الحد الأقصى لكل تسجيل $minutes دقيقة" # machine-candidate 2026-11-16
+micDeniedMessage: "تحتاج سجلّات اللقاءات المباشرة إلى الميكروفون لتسجيل الأصوات في الموقع. الإذن مرفوض حاليًا؛ أعد المحاولة أو فعّله من إعدادات النظام." # machine-candidate 2026-11-16
+micDeniedTitle: "مطلوب إذن الميكروفون" # machine-candidate 2026-11-16
+micOpenSettings: "الذهاب إلى الإعدادات" # machine-candidate 2026-11-16
+micRetry: "إعادة المحاولة" # machine-candidate 2026-11-16
+microphoneStopUnconfirmed: "لم يُؤكَّد إيقاف التسجيل، فأعد محاولة الإيقاف؛ وإذا استمر الفشل فأغلق التطبيق وتحقق من مؤشر الميكروفون في النظام." # machine-candidate 2026-11-16
+moreActionsCancel: "إلغاء" # machine-candidate 2026-11-16
+moreActionsTitle: "المزيد من الإجراءات" # machine-candidate 2026-11-16
+notesCancel: "إلغاء" # machine-candidate 2026-11-16
+notesConflictHint: "حدّث المستخدمون الآخرون الملاحظات، فحدّث ثم أعد المحاولة، وقد حُفظ إدخالك." # machine-candidate 2026-11-16
+notesEditAction: "تحرير" # machine-candidate 2026-11-16
+notesEmpty: "لا ملاحظات إضافية بعد" # machine-candidate 2026-11-16
+notesFailedHint: "فشل الحفظ. حاول مجددًا لاحقًا، وقد حُفظ إدخالك." # machine-candidate 2026-11-16
+notesPlaceholder: "أضف خلاصات الاجتماع ومعلومات الخلفية وغيرها" # machine-candidate 2026-11-16
+notesReadonlyHint: "تُشارك مع السجل، وهي للقراءة فقط حاليًا." # machine-candidate 2026-11-16
+notesSave: "حفظ الملاحظات" # machine-candidate 2026-11-16
+notesSavedHint: "حُفظت الملاحظات" # machine-candidate 2026-11-16
+notesSharedHint: "تُشارك مع السجل ويراها كل من يستطيع عرض هذا السجل." # machine-candidate 2026-11-16
+notesTitle: "ملاحظات إضافية مشتركة" # machine-candidate 2026-11-16
+noticeCheckbox: "أبلغتُ الحاضرين بهذا التسجيل وطريقة معالجته" # machine-candidate 2026-11-16
+noticeHint: "قبل بدء التسجيل يجب تأكيد الإبلاغ أولًا" # machine-candidate 2026-11-16
+notificationRequiredMessage: "لإبقاء التسجيل في الخلفية مرئيًا، اسمح بإشعارات التطبيق وفعّل قناة إشعارات التسجيل في إعدادات النظام. بعد التفعيل عُد إلى هذه الصفحة وأعد المحاولة؛ ولم يبدأ هذا التسجيل بعد." # machine-candidate 2026-11-16
+notificationRequiredTitle: "تفعيل إشعارات التسجيل" # machine-candidate 2026-11-16
+openNotificationSettings: "الذهاب إلى إعدادات الإشعارات" # machine-candidate 2026-11-16
+participantsAddGuest: "إضافة ضيف" # machine-candidate 2026-11-16
+participantsConflict: "حُدّثت القائمة إلى أحدث محتوى. تحقق ثم أعد التحرير." # machine-candidate 2026-11-16
+participantsGuestLabel: "اسم الضيف أو وسمه" # machine-candidate 2026-11-16
+participantsInfoHint: "المشاركون لتوثيق الحاضرين فعليًا فقط؛ ولا يشاركون السجل تلقائيًا ولا يعني تحقق المتحدثين." # machine-candidate 2026-11-16
+participantsInvalid: "اختر 100 شخص كحد أقصى؛ ويجب أن تكون أوسمة الضيوف من 1 إلى 120 حرفًا وغير مكررة. وقد تكون الأهلية تغيّرت، فتحقق من القائمة." # machine-candidate 2026-11-16
+participantsNoResults: "لا جهات اتصال أو زملاء مطابقون، فجرّب البحث." # machine-candidate 2026-11-16
+participantsRemove: "إزالة مشارك" # machine-candidate 2026-11-16
+participantsSaveFailed: "تعذّر تأكيد نتيجة الحفظ، وقد حُفظ اختيارك؛ فأعد المحاولة أو حدّث." # machine-candidate 2026-11-16
+playbackPauseLabel: "إيقاف مؤقت" # machine-candidate 2026-11-16
+playbackPlayLabel: "تشغيل" # machine-candidate 2026-11-16
+playbackProgressLabel: "تقدم التشغيل $position / $duration" # machine-candidate 2026-11-16
+playbackTicketFailed: "جلسة التشغيل غير متاحة، أعد المحاولة" # machine-candidate 2026-11-16
+playbackUnavailable: "لا توجد صلاحية إعادة استماع" # machine-candidate 2026-11-16
+prepareTitle: "سجل لقاء مباشر جديد" # machine-candidate 2026-11-16
+processingReasonLoadFailed: "تعذّر جلب قدرات المعالجة، وسيعامل هذا التسجيل كتسجيل فقط." # machine-candidate 2026-11-16
+processingReasonQuota: "حصة التفريغ غير متاحة مؤقتًا، وسيُحفظ التسجيل فقط؛ ولا يتأثر التسجيل." # machine-candidate 2026-11-16
+processingReasonUnavailable: "لم تُهيَّأ خدمة تفريغ على هذه النسخة، وسيُحفظ التسجيل فقط." # machine-candidate 2026-11-16
+processingRecordOnly: "تسجيل فقط" # machine-candidate 2026-11-16
+processingRecordOnlyHint: "يحفظ التسجيل فقط ويمكن الاستماع إليه في أي وقت؛ ويمكن ترقية التفريغ من صفحة التفاصيل بعد الاجتماع." # machine-candidate 2026-11-16
+processingRecoveryHint: "حُدّث إشعار المعالجة أو إعداد المعالِج. بعد التأكيد سيتم الرفع وفق النسخة الحالية أدناه وتنفيذ طريقة المعالجة المختارة أصلًا؛ ودون تغيير الإشعار التاريخي عند بدء التسجيل." # machine-candidate 2026-11-16
+processingRecoveryTitle: "تأكيد معالجة التسجيل" # machine-candidate 2026-11-16
+processingRecoveryUnavailable: "المعالِج غير متاح حاليًا. سيبقى التسجيل على هذا الجهاز ويمكن رفعه بعد الاستعادة." # machine-candidate 2026-11-16
+processingSectionTitle: "طريقة المعالجة" # machine-candidate 2026-11-16
+processingSummarize: "تفريغ وتلخيص" # machine-candidate 2026-11-16
+processingTranscribe: "تفريغ إلى نص" # machine-candidate 2026-11-16
+recordingUnavailableMessage: "تحقق من عدم وجود تسجيل غير منتهٍ، ومن إذن الميكروفون ومساحة التخزين على الجهاز. حُفظت المسودات والمقاطع الموجودة." # machine-candidate 2026-11-16
+recordingUnavailableTitle: "يتعذر بدء التسجيل مؤقتًا" # machine-candidate 2026-11-16
+resultBack: "رجوع" # machine-candidate 2026-11-16
+retentionPolicyLabel: "مدة الاستبقاء" # machine-candidate 2026-11-16
+retryRecordingUpload: "إعادة محاولة الرفع" # machine-candidate 2026-11-16
+returnToPlayback: "العودة إلى موضع التشغيل" # machine-candidate 2026-11-16
+roleEditor: "محرر" # machine-candidate 2026-11-16
+roleEditorHint: "يمكنك تدقيق النص الأصلي والمتحدثين وتحرير الملاحظات المشتركة؛ وتدير المشاركة والحذف من المنشئ." # machine-candidate 2026-11-16
+roleOwner: "المنشئ" # machine-candidate 2026-11-16
+roleViewer: "قارئ" # machine-candidate 2026-11-16
+saveLocationEmpty: "لا توجد أماكن حفظ متاحة للاختيار" # machine-candidate 2026-11-16
+saveLocationOrgSection: "المؤسسات المصرّح بها" # machine-candidate 2026-11-16
+saveLocationPersonalSection: "شخصي" # machine-candidate 2026-11-16
+saveLocationTitle: "مكان الحفظ" # machine-candidate 2026-11-16
+saveLocationWorkspaceOptional: "بدون مساحة عمل" # machine-candidate 2026-11-16
+saveToChangeAction: "تغيير" # machine-candidate 2026-11-16
+saveToSectionTitle: "الحفظ في" # machine-candidate 2026-11-16
+searchHint: "البحث في سجلّات اللقاءات المباشرة" # machine-candidate 2026-11-16
+segmentAdoptServer: "اعتماد نسخة الخادم" # machine-candidate 2026-11-16
+segmentConflictBody: "حُفظ إدخالك، فقارنه بأحدث نسخة الخادم ثم أعد الإرسال؛ وعند الحفظ يكون إدخالك هو المعتمد." # machine-candidate 2026-11-16
+segmentConflictTitle: "تعارض إصدارات: عدّل المستخدمون الآخرون النص الأصلي" # machine-candidate 2026-11-16
+segmentEditLabel: "تدقيق النص" # machine-candidate 2026-11-16
+segmentEditPlaceholder: "تعديل نص التفريغ" # machine-candidate 2026-11-16
+segmentEditTitle: "تدقيق المقطع" # machine-candidate 2026-11-16
+segmentHumanEditedPill: "مراجَع يدويًا" # machine-candidate 2026-11-16
+segmentListenLabel: "إعادة استماع $time" # machine-candidate 2026-11-16
+segmentOriginalLabel: "النسخة الأصلية" # machine-candidate 2026-11-16
+segmentResubmit: "إعادة الإرسال" # machine-candidate 2026-11-16
+segmentRowSemanticLabel: "كلمة $speaker عند $time" # machine-candidate 2026-11-16
+segmentSave: "حفظ التدقيق" # machine-candidate 2026-11-16
+segmentSaveFailed: "فشل الحفظ. حاول مجددًا لاحقًا، وحُفظ الإدخال." # machine-candidate 2026-11-16
+segmentTimeLabel: "اللحظة $time" # machine-candidate 2026-11-16
+shareAddEntryOrg: "إضافة زملاء" # machine-candidate 2026-11-16
+shareAddEntryPersonal: "إضافة جهة اتصال" # machine-candidate 2026-11-16
+shareAddHintOrg: "يمكن تخويل الزملاء في المؤسسة الحالية المستوفين لأذونات مساحة العمل" # machine-candidate 2026-11-16
+shareAddHintPersonal: "يمكن تخويل جهات الاتصال الموجودة" # machine-candidate 2026-11-16
+shareAllowExportPill: "قابل للتصدير" # machine-candidate 2026-11-16
+shareCardSendCancelled: "أُلغي الإرسال، ولم تُرسل بطاقة جديدة." # machine-candidate 2026-11-16
+shareCardSendFailed: "فشل الإرسال، أعد المحاولة" # machine-candidate 2026-11-16
+shareCardSendPending: "أُضيف إلى قائمة الإرسال دون تأكيد من الخادم بعد؛ فتحقق داخل المحادثة، ولن تُنشئ إعادة المحاولة رسالة مكررة." # machine-candidate 2026-11-16
+shareCardSenderUnavailable: "يتعذر فتح منتقي المحادثات مؤقتًا، فعُد ثم أعد المحاولة." # machine-candidate 2026-11-16
+shareCardSending: "جارٍ المعالجة…" # machine-candidate 2026-11-16
+shareCardSent: "أُرسلت البطاقة (مثال)" # machine-candidate 2026-11-16
+shareConflictHint: "حدّث المستخدمون الآخرون التخويل، فحدّث ثم أعد المحاولة." # machine-candidate 2026-11-16
+shareEditorCannotManageAcl: "لا يدير المحرر أذونات المشاركة ولا يحذف السجل؛ وللتعديل تواصل مع المنشئ." # machine-candidate 2026-11-16
+shareEmptyBody: "هذا السجل مرئي لك فقط افتراضيًا؛ وبعد تخويل صريح يمكن للطرف الآخر العرض والاستماع." # machine-candidate 2026-11-16
+shareEmptyTitle: "لم يُخوَّل أي شخص بعد" # machine-candidate 2026-11-16
+shareExpiresPill: "صالح حتى $date" # machine-candidate 2026-11-16
+shareGrantEditAction: "تحرير" # machine-candidate 2026-11-16
+shareGrantRevokeAction: "إلغاء" # machine-candidate 2026-11-16
+shareGrantRoleEditor: "يمكنه التدقيق والتحرير" # machine-candidate 2026-11-16
+shareGrantRoleViewer: "يمكنه العرض والاستماع" # machine-candidate 2026-11-16
+shareManageTitle: "إدارة المشاركة" # machine-candidate 2026-11-16
+shareMyPermissionNone: "لا تملك حاليًا معلومات تخويل لهذا السجل؛ وتدير المشاركة من المنشئ." # machine-candidate 2026-11-16
+shareMyPermissionReadonly: "يمكنك عرض هذا السجل والاستماع إليه؛ وأذونات المشاركة يديرها المنشئ." # machine-candidate 2026-11-16
+shareMyPermissionTitle: "صلاحيتي" # machine-candidate 2026-11-16
+shareOwnerRowHint: "يمكن للمنشئ دائمًا عرض المشاركة وإدارتها" # machine-candidate 2026-11-16
+shareOwnerRowLabel: "أنا · المنشئ" # machine-candidate 2026-11-16
+shareRevokeConfirmAction: "إلغاء" # machine-candidate 2026-11-16
+shareRevokeConfirmBody: "سيفقد الوصول إلى السجل الأصلي. والنسخ المصدَّرة أو المحفوظة سابقًا لا يمكن استرجاعها." # machine-candidate 2026-11-16
+shareRevokeConfirmTitle: "إلغاء وصول $name؟" # machine-candidate 2026-11-16
+shareRevokeFailedBody: "فشل الإلغاء. حاول مجددًا لاحقًا." # machine-candidate 2026-11-16
+shareRevokeFailedTitle: "تعذّر الإلغاء" # machine-candidate 2026-11-16
+shareRosterSectionTitle: "من يمكنه العرض" # machine-candidate 2026-11-16
+shareSaveFeedback: "حُفظت الأذونات" # machine-candidate 2026-11-16
+shareSendCard: "إرسال البطاقة" # machine-candidate 2026-11-16
+shareSendCardHint: "يولّد بطاقة سجل لقاء مباشر وترسل لزميل؛ وعند فتحها يسري العرض وفق صلاحياته." # machine-candidate 2026-11-16
+shareSendNeedsGrant: "أضف تخويلًا أولًا لتتمكن من إرسال بطاقة المشاركة." # machine-candidate 2026-11-16
+shareVisibilityOfRecord: "نطاق رؤية السجل الحالي: $visibility" # machine-candidate 2026-11-16
+shareVisibilityOwnerOnly: "مرئي لي فقط" # machine-candidate 2026-11-16
+shareVisibilitySectionTitle: "نطاق الرؤية الحالي" # machine-candidate 2026-11-16
+shareVisibilityShared: "مُشارك للعرض مع $count من الأشخاص" # machine-candidate 2026-11-16
+speakerAnonymousPill: "مجهول" # machine-candidate 2026-11-16
+speakerAudition: "استماع للمقطع" # machine-candidate 2026-11-16
+speakerClaimConflict: "ادّعى شخص آخر هذا المتحدث، فاطلب من المنشئ التصحيح يدويًا." # machine-candidate 2026-11-16
+speakerClaimSelf: "أنا هو" # machine-candidate 2026-11-16
+speakerDirectoryUnavailable: "دليل المشاركين لم يُربط بعد، ويتعذر اختيار الزملاء حاليًا؛ ويمكن تعيين اسم عرض أولًا." # machine-candidate 2026-11-16
+speakerManualPill: "وسم يدوي" # machine-candidate 2026-11-16
+speakerMarkColleague: "وسم زميل" # machine-candidate 2026-11-16
+speakerSelfClaimPill: "ادعاء ذاتي" # machine-candidate 2026-11-16
+speakerSetName: "تعيين اسم العرض" # machine-candidate 2026-11-16
+speakerSetNameConfirm: "حفظ" # machine-candidate 2026-11-16
+speakerSetNameTitle: "تعيين اسم العرض" # machine-candidate 2026-11-16
+speakerSourceHint: "هذه النسبة وسم يدوي أو ادعاء ذاتي، ولا تُعد توثيقًا للهوية." # machine-candidate 2026-11-16
+speakerUnknown: "متحدث مجهول" # machine-candidate 2026-11-16
+speakersEntry: "تدقيق المتحدثين" # machine-candidate 2026-11-16
+speakersScopeHint: "تسري إعدادات المتحدثين على هذا السجل فقط؛ والوسم اليدوي لا يعادل توثيقًا ولا يُنشئ بصمة صوتية." # machine-candidate 2026-11-16
+speakersTitle: "تدقيق المتحدثين" # machine-candidate 2026-11-16
+startRecording: "بدء التسجيل" # machine-candidate 2026-11-16
+statusAssembling: "جارٍ تجميع الصوت" # machine-candidate 2026-11-16
+statusNoSpeech: "لم يُكتشف كلام قابل للتفريغ" # machine-candidate 2026-11-16
+statusRecordOnly: "تسجيل فقط" # machine-candidate 2026-11-16
+statusRecording: "جارٍ التسجيل" # machine-candidate 2026-11-16
+statusTranscribeFailed: "فشل التفريغ، ويظل التسجيل قابلًا للاستماع" # machine-candidate 2026-11-16
+statusTranscribeQueued: "التفريغ في قائمة الانتظار" # machine-candidate 2026-11-16
+statusTranscribeReady: "مفرَّغ" # machine-candidate 2026-11-16
+statusTranscribeRunning: "جارٍ التفريغ" # machine-candidate 2026-11-16
+statusUploadFailed: "فشل الرفع، ويمكن إعادة المحاولة" # machine-candidate 2026-11-16
+statusUploading: "جارٍ الرفع" # machine-candidate 2026-11-16
+statusVerifying: "جارٍ التحقق من الرفع" # machine-candidate 2026-11-16
+summaryActionsTitle: "مسودة المهام" # machine-candidate 2026-11-16
+summaryAssigneeUnset: "المسؤول غير محدد" # machine-candidate 2026-11-16
+summaryDecisionsTitle: "أهم ما نوقش" # machine-candidate 2026-11-16
+summaryDraftBadge: "مسودة بتنظيم الذكاء الاصطناعي · تحقق قبل الاستخدام" # machine-candidate 2026-11-16
+summaryFailed: "فشل توليد الملخص. حاول مجددًا لاحقًا." # machine-candidate 2026-11-16
+summaryJumpToSource: "عرض المصدر في النص" # machine-candidate 2026-11-16
+summaryNoSource: "لا نص أصلي بعد، فلا يمكن توليد الملخص حاليًا." # machine-candidate 2026-11-16
+summaryNotGenerated: "وُلّد النص الأصلي، ولم يُطلب الملخص بعد." # machine-candidate 2026-11-16
+summaryQueued: "الملخص في قائمة الانتظار وسيُعرض بعد توليده." # machine-candidate 2026-11-16
+summaryRunning: "جارٍ تنظيم الملخص وسيُعرض بعد توليده." # machine-candidate 2026-11-16
+summarySectionTitle: "الملخص" # machine-candidate 2026-11-16
+summaryStaleBanner: "حُدّث النص الأصلي أو النسب، وقد يكون الملخص قديمًا" # machine-candidate 2026-11-16
+summaryUnavailable: "لم تُهيَّأ خدمة ملخص على هذه النسخة." # machine-candidate 2026-11-16
+tabSummary: "الملخص" # machine-candidate 2026-11-16
+tabTranscript: "النص الأصلي" # machine-candidate 2026-11-16
+transcriptEmpty: "لا مقاطع نص أصلي بعد" # machine-candidate 2026-11-16
+transcriptHitCount: "عدد الإصابات $count، انقر اللحظة للاستماع وتحديد الموضع" # machine-candidate 2026-11-16
+transcriptNoHit: "لا مقاطع مطابقة" # machine-candidate 2026-11-16
+transcriptSearchHint: "البحث بكلمات النص الأصلي" # machine-candidate 2026-11-16
+transferBackToDetail: "العودة إلى التفاصيل" # machine-candidate 2026-11-16
+transferCandidateEmpty: "لا زملاء مرشحون مستوفون للشروط" # machine-candidate 2026-11-16
+transferCandidateHint: "المرشحون زملاء في المؤسسة الحالية يستوفون أذونات مساحة العمل؛ والقرار النهائي للأهلية على الخادم." # machine-candidate 2026-11-16
+transferCandidateSectionTitle: "اختيار المسؤول الجديد" # machine-candidate 2026-11-16
+transferConfirmAction: "تأكيد التسليم" # machine-candidate 2026-11-16
+transferConfirmKeepOff: "لن تحتفظ بعد التسليم بصلاحية العرض ولن تتمكن من إدارة هذا السجل." # machine-candidate 2026-11-16
+transferConfirmKeepOn: "تحتفظ بعد التسليم بصلاحية العرض، وتؤول الإدارة إلى المسؤول الجديد." # machine-candidate 2026-11-16
+transferConfirmTarget: "ستُسلَّم مسؤولية الإدارة إلى: $name" # machine-candidate 2026-11-16
+transferConfirmTitle: "تأكيد تسليم مسؤولية الإدارة؟" # machine-candidate 2026-11-16
+transferConflictHint: "حدّث المستخدمون الآخرون السجل، فحدّث ثم أعد المحاولة." # machine-candidate 2026-11-16
+transferCreatedByHint: "يبقى سجل المنشئ دون تغيير؛ وهذا الإجراء مستقل عن أذونات المشاركة." # machine-candidate 2026-11-16
+transferFailedBody: "فشل التسليم. حاول مجددًا لاحقًا." # machine-candidate 2026-11-16
+transferKeepDefaultHint: "الافتراضي عدم الاحتفاظ: بعد التسليم لن تتمكن من الوصول إلى هذا السجل." # machine-candidate 2026-11-16
+transferKeepOnHint: "عند الاحتفاظ يمكنك مواصلة العرض والاستماع، وتدير المشاركة والحذف من المسؤول الجديد." # machine-candidate 2026-11-16
+transferKeepSectionTitle: "وصول المسؤول السابق" # machine-candidate 2026-11-16
+transferKeepViewer: "الاحتفاظ بصلاحية العرض بعد التسليم" # machine-candidate 2026-11-16
+transferOnlyOwner: "لا يستطيع تسليم مسؤولية الإدارة إلا المسؤول الحالي." # machine-candidate 2026-11-16
+transferPersonalUnsupported: "لا يُدعَم تسليم مسؤولية الإدارة للسجلّات الشخصية حاليًا." # machine-candidate 2026-11-16
+transferScopeHint: "يغيّر التسليم المسؤول فقط؛ ويبقى انتماء السجل (المؤسسة ومساحة العمل) دون تغيير." # machine-candidate 2026-11-16
+transferSubmit: "تسليم مسؤولية الإدارة" # machine-candidate 2026-11-16
+transferSubmitting: "جارٍ التسليم…" # machine-candidate 2026-11-16
+transferSuccessKeptAccess: "لا تزال تحتفظ بصلاحية العرض؛ وتدير المشاركة من المسؤول الجديد." # machine-candidate 2026-11-16
+transferSuccessOwner: "المسؤول الجديد: $name" # machine-candidate 2026-11-16
+transferSuccessScopeUnchanged: "بقي انتماء السجل دون تغيير (المؤسسة ومساحة العمل)." # machine-candidate 2026-11-16
+transferSuccessTitle: "سُلّمت مسؤولية الإدارة" # machine-candidate 2026-11-16
+transferTitle: "تسليم مسؤولية الإدارة" # machine-candidate 2026-11-16
+untitledRecord: "سجل بدون عنوان" # machine-candidate 2026-11-16
+uploadNoticeHint: "أكّد إشعار التسجيل الحالي. هذا التأكيد للرفع الآن؛ ولا يُعيد كتابة التأكيد التاريخي عند بدء التسجيل ولا يغيّر مساحة الحفظ." # machine-candidate 2026-11-16
+uploadNoticeTitle: "التأكيد قبل الرفع" # machine-candidate 2026-11-16
+uploadRecording: "رفع التسجيل" # machine-candidate 2026-11-16
+visibilityOwnerOnly: "مرئي لي فقط" # machine-candidate 2026-11-16
+visibilityShared: "مُشارك" # machine-candidate 2026-11-16

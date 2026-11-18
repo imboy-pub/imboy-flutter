@@ -117,6 +117,7 @@ feedbackContentRequired: Le contenu du commentaire ne peut pas être vide.
 feedbackDetails: Détails des commentaires et suggestions
 feedbackSuccessMsg: Nous avons bien reçu vos commentaires et les traiterons dès que possible !
 followSystemTips: Une fois activé, le mode sombre sera activé ou désactivé en suivant le système.
+themeBrowserLocalOnly: "Les réglages du thème sont enregistrés uniquement dans ce navigateur et ne sont pas synchronisés avec vos autres appareils."
 genderUpdateFailed: Échec du paramétrage du genre. Réessayez.
 groupAnnouncement: Annonce de groupe
 groupFileUploadSuccess: Fichier envoyé
@@ -952,3 +953,28 @@ myLocation: "Ma position"
 searchConversations: "Conversations"
 
 webpageLoadProblem: "Un problème est survenu lors du chargement du contenu. Veuillez réessayer."
+webReadOnlySettingsHint: "Lecture seule sur le Web. Modifiez ce réglage dans l’application."
+
+legacyUploadCheckLocal: "Vérifier l’état local d’envoi"
+
+textTooLarge: "Le texte dépasse 64 KiB. Modifiez-le puis réessayez."
+
+# ---- DSN-06 gap fill (machine-candidate 2026-11-16) ----
+e2eeBackupDeviceKeySyncPending: "Info : la synchronisation de l'identité de l'appareil n'est pas terminée ; cet appareil peut momentanément être incapable de déchiffrer les nouveaux messages. Après une nouvelle connexion, la synchronisation se fera automatiquement" # machine-candidate 2026-11-16
+e2eeBackupSetupBlockedToast: "Terminez d'abord la configuration de la sauvegarde des clés" # machine-candidate 2026-11-16
+e2eeBackupSetupBody: "Ce n'est qu'après avoir défini une phrase de récupération et téléversé la sauvegarde cloud que l'historique chiffré pourra être retrouvé lors d'un changement d'appareil ou d'une réinstallation ; sans sauvegarde, les messages de l'historique seront indéchiffrables sur le nouvel appareil." # machine-candidate 2026-11-16
+e2eeBackupSetupBusyHint: "Chiffrement local et téléversement cloud en cours, patientez ; en cas de réseau faible, touchez « Plus tard » ci-dessous pour passer" # machine-candidate 2026-11-16
+e2eeBackupSetupLater: "Plus tard (rappel au prochain démarrage)" # machine-candidate 2026-11-16
+e2eeBackupSetupLaterConfirmBody: "Sans configuration, ces historiques chiffrés seront indéchiffrables et introuvables après un changement d'appareil ou une réinstallation. Un rappel aura lieu au prochain démarrage." # machine-candidate 2026-11-16
+e2eeBackupSetupLaterConfirmLeave: "Ne pas configurer" # machine-candidate 2026-11-16
+e2eeBackupSetupLaterConfirmStay: "Continuer la configuration" # machine-candidate 2026-11-16
+e2eeBackupSetupLaterConfirmTitle: "Ne pas configurer la sauvegarde ?" # machine-candidate 2026-11-16
+e2eeBackupSetupPostponedToast: "Reporté ; un nouveau rappel aura lieu au prochain démarrage" # machine-candidate 2026-11-16
+e2eeBackupSetupPwdHint: "Choisissez votre phrase de récupération, ou touchez ci-dessous pour générer une clé de récupération aléatoire" # machine-candidate 2026-11-16
+e2eeBackupSetupPwdTooShort: "La phrase doit compter au moins 8 caractères" # machine-candidate 2026-11-16
+e2eeBackupSetupSavedNote: "La phrase de récupération est stockée dans le stockage sécurisé de l'appareil ; lors des futurs changements de clés, la sauvegarde sera retéléversée automatiquement, sans nouvelle saisie." # machine-candidate 2026-11-16
+e2eeBackupSetupSubmit: "Terminer et téléverser la sauvegarde cloud" # machine-candidate 2026-11-16
+e2eeBackupSetupTimeoutToast: "Délai de téléversement dépassé ; vérifiez le réseau et réessayez, ou configurez plus tard" # machine-candidate 2026-11-16
+e2eeBackupSetupTitle: "Protégez votre historique chiffré" # machine-candidate 2026-11-16
+e2eeBackupSetupUploading: "Téléversement en cours…" # machine-candidate 2026-11-16
+e2eeBackupSetupWeakHint: "Phrase courte ; 12 caractères ou plus sont recommandés, ou touchez « Générer une clé de récupération » ci-dessous pour utiliser une clé aléatoire" # machine-candidate 2026-11-16

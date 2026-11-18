@@ -1,4 +1,9 @@
 import 'package:imboy/service/server_ack_receipts.dart';
+import 'package:imboy/service/c2g_send_gate.dart';
+import 'package:imboy/service/web_writer_gate.dart';
+import 'package:imboy/component/http/http_client.dart' as app_http;
+import 'package:imboy/component/http/http_request_policy.dart';
+import 'package:imboy/component/http/web_writer_http_adapter.dart';
 
 import 'dart:convert';
 import 'dart:typed_data';
@@ -9,7 +14,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:dio/dio.dart';
 import 'package:imboy/config/env.dart';
 import 'package:imboy/service/account_local_task_registry.dart';
-import 'package:flutter/foundation.dart' show debugPrint;
+import 'package:flutter/foundation.dart' show debugPrint, kIsWeb;
 
 import 'package:crypto/crypto.dart';
 import 'package:imboy/config/init.dart' show currentEnv, navigatorKey;
@@ -36,6 +41,7 @@ import 'package:imboy/component/upload/upload_key_store.dart';
 export 'upload_key_store.dart' show SecureUploadKeyStore, UploadKeyStore;
 
 part 'resumable_attachment_migration_material.dart';
+part 'resumable_browser_materials.dart';
 
 Uint8List _hexDecode(String hex) => Uint8List.fromList(
   List<int>.generate(
@@ -61,8 +67,12 @@ class ResumableAttachmentUploader {
     this.process = true,
     this.cacheDirectory,
     this.cacheWriter,
+    this.browserMaterialStore,
+    CancelToken? cancelToken,
+    this.requireCurrent,
     this.directSessionFn,
     this.directPutFn,
+    this.directSourcePutFn,
     this.legacyMigrationBarrier,
     this.legacyMigrationCommittedBarrier,
   }) : _repo = repo ?? AttachmentUploadTaskRepo(),
@@ -71,7 +81,8 @@ class ResumableAttachmentUploader {
        _externalSeal = sealRequest,
        _generation = UserRepoLocal.to.sessionGeneration,
        _environment = currentEnv,
-       _endpoint = Env().apiBaseUrl;
+       _endpoint = Env().apiBaseUrl,
+       _cancel = cancelToken ?? CancelToken();
 
   final AttachmentUploadTaskRepo _repo;
   final UploadKeyStore _keys;
@@ -79,8 +90,10 @@ class ResumableAttachmentUploader {
   final bool encrypt;
   final bool process;
   final Directory? cacheDirectory;
+  final BrowserAttachmentMaterialStore? browserMaterialStore;
   final DirectSessionFn? directSessionFn;
   final DirectFilePutFn? directPutFn;
+  final DirectSourcePutFn? directSourcePutFn;
   final Future<void> Function(String replacementId)? legacyMigrationBarrier;
   final Future<void> Function(String replacementId)?
   legacyMigrationCommittedBarrier;
@@ -89,14 +102,24 @@ class ResumableAttachmentUploader {
   final int _generation;
   final String _environment;
   final String _endpoint;
-  final CancelToken _cancel = CancelToken();
+  final CancelToken _cancel;
+  final void Function()? requireCurrent;
   final bool Function(String userId) _sessionGuard;
 
-  bool _isSessionCurrent(String uid) =>
-      !_cancel.isCancelled &&
-      _sessionGuard(uid) &&
-      currentEnv == _environment &&
-      Env().apiBaseUrl == _endpoint;
+  bool _isSessionCurrent(String uid) {
+    if (_cancel.isCancelled ||
+        !_sessionGuard(uid) ||
+        currentEnv != _environment ||
+        Env().apiBaseUrl != _endpoint) {
+      return false;
+    }
+    try {
+      requireCurrent?.call();
+      return true;
+    } on Object {
+      return false;
+    }
+  }
 
   Future<T> _runOwned<T>(String uid, Future<T> Function() operation) =>
       AccountLocalTaskRegistry.instance.run<T>(
@@ -138,6 +161,7 @@ class ResumableAttachmentUploader {
     if (userId.isEmpty || !_isSessionCurrent(userId)) {
       throw StateError('upload session changed');
     }
+    requireCurrent?.call();
   }
 
   Future<String> uploadProduction({
@@ -151,6 +175,7 @@ class ResumableAttachmentUploader {
     String? clientUploadId,
     Map<String, dynamic>? messageIntent,
     bool prepareOnly = false,
+    Future<void> Function(UploadCheckpoint event)? checkpoint,
   }) => _runOwned(userId, () async {
     _requireSession(userId);
     final binding =
@@ -189,6 +214,7 @@ class ResumableAttachmentUploader {
       anchorMsgId: anchorMsgId,
       messageIntent: messageIntent,
       prepareOnly: prepareOnly,
+      checkpoint: checkpoint,
     );
   });
 
@@ -444,6 +470,9 @@ class ResumableAttachmentUploader {
   }
 
   Future<void> _cacheSource(AttachmentUploadTask task, Uint8List bytes) async {
+    if (_usesBrowserMaterials) {
+      return _cacheBrowserSource(task, bytes);
+    }
     final encrypted = task.cipher != null;
     final base = (await _cacheFile(task)).path;
     final file = File('$base.source${encrypted ? '.enc' : ''}');
@@ -508,6 +537,9 @@ class ResumableAttachmentUploader {
     if (event.uploadBytes == null) {
       throw StateError('upload checkpoint missing bytes');
     }
+    if (_usesBrowserMaterials) {
+      return _cacheBrowserUpload(task, event, expectedKeyRef);
+    }
     final base = await _cacheFile(task);
     final file = File('${base.path}.material-${_newUuid()}');
     final temporary = File('${file.path}.tmp');
@@ -562,49 +594,70 @@ class ResumableAttachmentUploader {
     final actor = UserRepoLocal.to;
     if (!actor.isLoggedIn || actor.isAuthTransitioning) return Future.value();
     final uid = actor.currentUid;
-    final scope = '$currentEnv:$uid:${actor.sessionGeneration}';
+    final scope = jsonEncode([
+      currentEnv,
+      uid,
+      Env().apiBaseUrl,
+      actor.sessionGeneration,
+    ]);
     if (_recovering != null) {
       return _recoveringScope == scope
           ? _recovering!
           : _recovering!.then((_) => recoverCurrentSession());
     }
     _recoveringScope = scope;
-    final uploader = ResumableAttachmentUploader();
-    _recovering = uploader._runOwned(uid, () async {
+    _recovering = Future<void>(() async {
       try {
-        // 单阶段故障不阻挡已经确认的业务 outbox；账号切换仍停止整轮。
-        for (final recover in <Future<void> Function()>[
-          () => ServerAckReceipts.restoreDurable(uid, uploader._generation),
-          () async {
-            await uploader.resumeAll(uid);
-          },
-          () => uploader.reconcileMessages(uid),
-          () => uploader.recoverBusinessOutbox(uid),
-        ]) {
-          uploader._requireSession(uid);
-          try {
-            await recover();
-          } on Object {
+        final currentScope = jsonEncode([
+          currentEnv,
+          actor.currentUid,
+          Env().apiBaseUrl,
+          actor.sessionGeneration,
+        ]);
+        if (scope != currentScope || actor.isAuthTransitioning) return;
+        final repo = AttachmentUploadTaskRepo();
+        final uploader = ResumableAttachmentUploader(
+          repo: repo,
+          browserMaterialStore: kIsWeb
+              ? BrowserAttachmentMaterialStore.forCurrentBrowserSession(repo)
+              : null,
+        );
+        await uploader._runOwned(uid, () async {
+          // 单阶段故障不阻挡已经确认的业务 outbox；账号切换仍停止整轮。
+          for (final recover in <Future<void> Function()>[
+            () => ServerAckReceipts.restoreDurable(uid, uploader._generation),
+            () async {
+              await uploader.resumeAll(uid);
+            },
+            () => uploader.reconcileMessages(uid),
+            () => uploader.recoverBusinessOutbox(uid),
+          ]) {
             uploader._requireSession(uid);
-            debugPrint(
-              '[attachment_upload] recovery phase blocked; checkpoints retained',
-            );
+            try {
+              await recover();
+            } on Object {
+              uploader._requireSession(uid);
+              debugPrint(
+                '[attachment_upload] recovery phase blocked; checkpoints retained',
+              );
+            }
           }
-        }
-        uploader._requireSession(uid);
-        if (await uploader.repo.hasUnrecoverableNonChat(uid)) {
           uploader._requireSession(uid);
-          final context = navigatorKey.currentContext;
-          if (context != null && context.mounted) {
-            AppLoading.showError(t.common.legacyUploadReturnToOriginalPage);
+          if (await uploader.repo.hasUnrecoverableNonChat(uid)) {
+            uploader._requireSession(uid);
+            final context = navigatorKey.currentContext;
+            if (context != null && context.mounted) {
+              AppLoading.showError(t.common.legacyUploadReturnToOriginalPage);
+            }
           }
-        }
+        });
       } on Object {
         debugPrint(
           '[attachment_upload] recovery blocked; checkpoints retained',
         );
       } finally {
         _recovering = null;
+        _recoveringScope = null;
       }
     });
     return _recovering!;
@@ -614,6 +667,9 @@ class ResumableAttachmentUploader {
     uid,
     () async {
       for (final row in await _repo.listBusinessPending(uid)) {
+        if (_usesBrowserMaterials && !await _browserOwnsBusinessRow(row, uid)) {
+          continue; // 未证明归属的旧/其他 endpoint 任务保持只读，不发消息。
+        }
         _requireSession(uid);
         if (row.stage != AttachmentUploadStage.confirmed) continue;
         final intent = jsonDecode(row.businessIntent!) as Map<String, dynamic>;
@@ -647,31 +703,40 @@ class ResumableAttachmentUploader {
         );
         _requireSession(uid);
         if ({'dispatch_intent', 'commit_unknown'}.contains(intent['state'])) {
-          final changed = committed
-              ? await _repo.reconcileOutboxCommitted(
-                  row.anchorMsgId!,
-                  uid,
-                  isCurrent: () => _isSessionCurrent(uid),
-                )
-              : await _repo.markOutboxUnknown(
-                  row.anchorMsgId!,
-                  uid,
-                  type,
+          Future<void> reconcile() async {
+            _requireSession(uid);
+            final changed = committed
+                ? await _repo.reconcileOutboxCommitted(
+                    row.anchorMsgId!,
+                    uid,
+                    isCurrent: () => _isSessionCurrent(uid),
+                  )
+                : await _repo.markOutboxUnknown(
+                    row.anchorMsgId!,
+                    uid,
+                    type,
+                    isCurrent: () => _isSessionCurrent(uid),
+                  );
+            if (changed && committed) {
+              final messages = MessageRepo(
+                tableName: MessageRepo.getTableName(type.toUpperCase()),
+              );
+              final message = await messages.find(row.anchorMsgId!);
+              if (message != null && _isSessionCurrent(uid)) {
+                ServerAckReceipts.announceVerified(
+                  message: message,
+                  ownerUid: uid,
+                  generation: _generation,
                   isCurrent: () => _isSessionCurrent(uid),
                 );
-          if (changed && committed) {
-            final messages = MessageRepo(
-              tableName: MessageRepo.getTableName(type.toUpperCase()),
-            );
-            final message = await messages.find(row.anchorMsgId!);
-            if (message != null && _isSessionCurrent(uid)) {
-              ServerAckReceipts.announceVerified(
-                message: message,
-                ownerUid: uid,
-                generation: _generation,
-                isCurrent: () => _isSessionCurrent(uid),
-              );
+              }
             }
+          }
+
+          if (type == 'c2g') {
+            await C2gSendGate.run(uid, row.anchorMsgId!, reconcile);
+          } else {
+            await reconcile();
           }
           continue;
         }
@@ -700,6 +765,7 @@ class ResumableAttachmentUploader {
 
   Future<void> recoverBusinessOutbox(
     String uid, {
+    String? anchorMsgId,
     Future<MessageModel> Function(Map<String, dynamic>, Message)?
     prepareMessage,
     void Function(String, String)? notifyRetry,
@@ -707,6 +773,10 @@ class ResumableAttachmentUploader {
   }) => _runOwned(uid, () async {
     final seen = <String>{};
     for (final row in await _repo.listBusinessPending(uid)) {
+      if (anchorMsgId != null && row.anchorMsgId != anchorMsgId) continue;
+      if (_usesBrowserMaterials && !await _browserOwnsBusinessRow(row, uid)) {
+        continue; // 未证明归属的旧/其他 endpoint 任务保持只读，不发消息。
+      }
       _requireSession(uid);
       if (row.anchorMsgId == null || !seen.add(row.anchorMsgId!)) continue;
       final intent = jsonDecode(row.businessIntent!) as Map<String, dynamic>;
@@ -828,10 +898,22 @@ class ResumableAttachmentUploader {
     Future<void> Function(UploadCheckpoint event)? checkpoint,
   }) => _runOwned(userId, () async {
     _requireSession(userId);
+    if (_usesBrowserMaterials &&
+        (presignFn != null || putFn != null || confirmFn != null)) {
+      throw ArgumentError('Browser upload requires the direct source contract');
+    }
+    if (_usesBrowserMaterials) await _browserStore.ensureDurable();
     final digest = sha256.convert(bytes).toString();
     final existing = await _repo.find(idempotencyKey);
     _requireSession(userId);
     if (existing != null) {
+      if (_usesBrowserMaterials) {
+        BrowserUploadMaterial.requireOwner(
+          existing.uploadPath,
+          _browserOwner(userId),
+          existing.id,
+        );
+      }
       if (existing.userId != userId) {
         // 账号切换后的旧幂等键：不写入新账号，按新任务处理。
         throw StateError('upload idempotency key belongs to another account');
@@ -848,6 +930,12 @@ class ResumableAttachmentUploader {
           existing.plainSize != bytes.length ||
           existing.plainSha256 != digest) {
         throw StateError('upload declaration changed');
+      }
+      if (_usesBrowserMaterials &&
+          !prepareOnly &&
+          existing.stage == AttachmentUploadStage.pending &&
+          existing.objectKey == null) {
+        await _cacheSource(existing, bytes);
       }
       if (prepareOnly) {
         if (existing.stage == AttachmentUploadStage.pending &&
@@ -913,6 +1001,9 @@ class ResumableAttachmentUploader {
       plainSize: bytes.length,
       plainSha256: digest,
       objectKey: null,
+      uploadPath: _usesBrowserMaterials
+          ? BrowserUploadMaterial.pending(_browserOwner(userId), idempotencyKey)
+          : null,
       stage: AttachmentUploadStage.pending,
       cipher: encrypt ? AttachmentDescriptor.supportedCipher : null,
       bindingHash: bindingHashHex,
@@ -927,6 +1018,7 @@ class ResumableAttachmentUploader {
     if (!await _repo.insert(task)) {
       throw StateError('upload journal write failed');
     }
+    if (_usesBrowserMaterials) _requireBrowserSession(userId);
     if (encrypt) {
       await _keys.write(task.keyRef!, {
         'content_key': base64Encode(AttachmentEncryptor.randomContentKey()),
@@ -966,6 +1058,10 @@ class ResumableAttachmentUploader {
     ConfirmFn? confirmFn,
     Future<void> Function(UploadCheckpoint event)? checkpoint,
   }) => _runOwned(task.userId, () async {
+    if (_usesBrowserMaterials &&
+        (presignFn != null || putFn != null || confirmFn != null)) {
+      throw ArgumentError('Browser resume requires the direct source contract');
+    }
     return _run(
       task,
       bytes,
@@ -983,6 +1079,7 @@ class ResumableAttachmentUploader {
 
   Future<List<String>> resumeAll(
     String userId, {
+    String? anchorMsgId,
     Future<Uint8List?> Function(AttachmentUploadTask task)? bytesProvider,
     PresignFn? presignFn,
     PutFn? putFn,
@@ -990,7 +1087,21 @@ class ResumableAttachmentUploader {
     UploadSessionFn? sessionFn,
   }) => _runOwned(userId, () async {
     _requireSession(userId);
-    final rows = await _repo.listResumable(userId);
+    final rows = (await _repo.listResumable(userId))
+        .where((row) => anchorMsgId == null || row.anchorMsgId == anchorMsgId)
+        .toList();
+    if (_usesBrowserMaterials) {
+      if (bytesProvider != null ||
+          presignFn != null ||
+          putFn != null ||
+          confirmFn != null ||
+          sessionFn != null) {
+        throw ArgumentError(
+          'Browser recovery requires the direct source contract',
+        );
+      }
+      return _resumeBrowserRows(userId, rows);
+    }
     final scheduled = rows.map((row) => row.id).toSet();
     final ok = <String>[];
     Future<void> scheduleReplacement(String id) async {
@@ -1057,7 +1168,7 @@ class ResumableAttachmentUploader {
           final thumb = thumbs.single;
           final state = await DirectAttachmentApi.strictStatus(
             objectKey: thumb.objectKey!,
-            sessionFn: directSessionFn,
+            sessionFn: _directSessionFor(row.userId),
             cancelToken: _cancel,
           );
           _requireSession(userId);
@@ -1420,6 +1531,14 @@ class ResumableAttachmentUploader {
     ConfirmFn? confirmFn,
     Future<void> Function(UploadCheckpoint event)? checkpoint,
   }) async {
+    if (_usesBrowserMaterials) {
+      await _browserStore.ensureDurable();
+      BrowserUploadMaterial.requireOwner(
+        task.uploadPath,
+        _browserOwner(task.userId),
+        task.id,
+      );
+    }
     final materials = await _loadMaterials(task);
     return _runWithMaterials(
       task,
@@ -1478,7 +1597,7 @@ class ResumableAttachmentUploader {
       final thumb = thumbs.single;
       final state = await DirectAttachmentApi.strictStatus(
         objectKey: thumb.objectKey!,
-        sessionFn: directSessionFn,
+        sessionFn: _directSessionFor(task.userId),
         cancelToken: _cancel,
       );
       _requireSession(task.userId);
@@ -1605,9 +1724,12 @@ class ResumableAttachmentUploader {
                     )),
       resume: resumeState,
       checkpoint: pipeline,
-      requireSession: () => _requireSession(task.userId),
-      directSessionFn: directSessionFn,
+      requireSession: () => _usesBrowserMaterials
+          ? _requireBrowserSession(task.userId)
+          : _requireSession(task.userId),
+      directSessionFn: _directSessionFor(task.userId),
       directPutFn: directPutFn,
+      directSourcePutFn: directSourcePutFn,
       persistTask: false,
       cancelToken: _cancel,
     );
@@ -1690,6 +1812,10 @@ class ResumableAttachmentUploader {
         if (!ok) {
           throw StateError('checkpoint CAS failed at confirmed for ${task.id}');
         }
+    }
+    if (_usesBrowserMaterials) {
+      await _browserStore.ensureDurable();
+      _requireBrowserSession(task.userId);
     }
   }
 }

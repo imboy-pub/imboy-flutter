@@ -9,6 +9,9 @@ import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_radius.dart';
 import 'package:imboy/theme/default/font_types.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
+import 'package:imboy/store/model/user_model.dart';
+import 'package:imboy/service/auth_session_scope.dart';
+import 'package:imboy/service/account_local_task_registry.dart';
 import 'package:imboy/theme/providers/theme_provider.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -69,32 +72,48 @@ class FontSizeNotifier extends _$FontSizeNotifier {
     final index = value.round().clamp(0, options.length - 1);
     final option = options[index];
 
+    final repo = UserRepoLocal.to;
+    final session = authSessionReader.current;
+    final owner = AccountLocalTaskOwner.capture(uid: session.uid);
+    bool current() =>
+        ref.mounted &&
+        authSessionReader.isCurrent(session) &&
+        AccountLocalTaskOwner.capture(uid: session.uid) == owner;
     try {
-      await ref.read(themeProvider.notifier).updateFontSizeOption(option);
-      // 字号有两个数据源：themeProvider 存 SharedPreferences 的 `theme_font_size`，
-      // 而启动时 run.dart 的 _initFontSize 是从 UserRepoLocal.setting.fontSize 读的，
-      // 并且会**覆盖**掉刚从 SharedPreferences 加载的值。
-      // 只写前者的话，设置在本次运行内有效，一重启就被后者盖回旧值（QA#57）。
-      // 这里同步写用户设置，让两个源保持一致。
-      final setting = UserRepoLocal.to.setting;
-      if (setting.fontSize != option.value) {
-        setting.fontSize = option.value;
-        await UserRepoLocal.to.changeSetting(setting);
-      }
+      if (!current()) throw StateError('Font preference owner changed');
+      await ref
+          .read(themeProvider.notifier)
+          .updateFontSizeOption(
+            option,
+            isCurrent: current,
+            saveAccountFont: () {
+              if (!current()) return Future<bool>.value(false);
+              // Preserve settings committed while the device write was pending.
+              final setting = UserSettingModel.fromJson(repo.setting.toMap())
+                ..fontSize = option.value;
+              return repo.changeSettingForSession(
+                setting,
+                uid: session.uid,
+                generation: session.generation,
+              );
+            },
+          );
+      if (!current()) throw StateError('Font preference owner changed');
       currentFontSize.value = option.value;
       state = state.copyWith(
         currentOption: option,
         previewOption: option,
         sliderValue: index.toDouble(),
       );
-    } on Exception {
-      // 应用失败：回滚预览到当前真实生效档位，避免滑块/预览停留在
-      // 未生效的新档位、误导用户以为已保存成功。
-      final revertIndex = options.indexOf(state.currentOption);
-      state = state.copyWith(
-        previewOption: state.currentOption,
-        sliderValue: revertIndex.toDouble(),
-      );
+    } on Object {
+      if (ref.mounted) {
+        final actual = ref.read(themeProvider).fontSizeOption;
+        state = state.copyWith(
+          currentOption: actual,
+          previewOption: actual,
+          sliderValue: options.indexOf(actual).toDouble(),
+        );
+      }
       rethrow;
     }
   }
@@ -258,43 +277,80 @@ class FontSizePage extends ConsumerWidget {
             ),
           ),
           AppSpacing.verticalRegular,
-          SliderTheme(
-            data: SliderTheme.of(context).copyWith(
-              activeTrackColor: iosBlue,
-              inactiveTrackColor: AppColors.iosGray5.withValues(alpha: 0.6),
-              thumbColor: AppColors.onPrimary,
-              trackHeight: 4.0,
-              thumbShape: const RoundSliderThumbShape(
-                enabledThumbRadius: 14.0,
-                elevation: 3,
-              ),
-              tickMarkShape: const RoundSliderTickMarkShape(
-                tickMarkRadius: 3.5,
-              ),
-              activeTickMarkColor: AppColors.onPrimary,
-              inactiveTickMarkColor: AppColors.iosGray4,
+          Semantics(
+            // DEF-A11YNEW-03：字号滑块此前在 web 语义树中完全不可见、键盘
+            // 不可达（引擎把 role=slider 渲染在内层 <input type=range> 上，
+            // 外层语义节点无 role/无 label/无 tabindex；Tab 走查仅「返回」
+            // 可达，六档 0.9-1.4 全部键盘不可达）。
+            // 这里在滑块外显式声明完整语义：container 节点带当前档位
+            // label/value 与 increase/decrease 动作，引擎据此渲染语义滑块
+            // （<input type=range role=slider> + tabindex=0），Tab 可达、
+            // 读屏播报当前档位（aria-label=当前档位描述）、上下键逐步调档，
+            // 与拖动滑块走同一条 updatePreview→applyFontSize 数据链路。
+            // ExcludeSemantics 隐藏内层 Slider 的原生语义避免双节点；
+            // Semantics/ExcludeSemantics 不参与绘制，视觉零变化。
+            container: true,
+            label: t.common.currentFontScale(
+              param1: state.previewOption.localizedName,
+              param2: ((state.previewOption.scale * 100).toInt()).toString(),
             ),
-            child: Slider(
-              min: 0,
-              max: (options.length - 1).toDouble(),
-              divisions: options.length - 1,
-              value: state.sliderValue,
-              semanticFormatterCallback: (value) =>
-                  options[value.round().clamp(0, options.length - 1)]
-                      .localizedName,
-              onChanged: (value) =>
-                  ref.read(fontSizeProvider.notifier).updatePreview(value),
-              onChangeEnd: (value) async {
-                try {
-                  await ref
-                      .read(fontSizeProvider.notifier)
-                      .applyFontSize(value);
-                  AppLoading.showSuccess(t.common.fontSizeSettingUpdated);
-                } catch (e) {
-                  iPrint('[FontSize] 应用字号失败: $e');
-                  AppLoading.showError(t.common.settingFailedPleaseTryAgain);
-                }
-              },
+            value: state.previewOption.localizedName,
+            increasedValue:
+                options[(state.sliderValue.round() + 1).clamp(
+                      0,
+                      options.length - 1,
+                    )]
+                    .localizedName,
+            decreasedValue:
+                options[(state.sliderValue.round() - 1).clamp(
+                      0,
+                      options.length - 1,
+                    )]
+                    .localizedName,
+            onIncrease: () => _applySliderStep(ref, t, 1),
+            onDecrease: () => _applySliderStep(ref, t, -1),
+            child: ExcludeSemantics(
+              child: SliderTheme(
+                data: SliderTheme.of(context).copyWith(
+                  activeTrackColor: iosBlue,
+                  inactiveTrackColor: AppColors.iosGray5.withValues(alpha: 0.6),
+                  thumbColor: AppColors.onPrimary,
+                  trackHeight: 4.0,
+                  thumbShape: const RoundSliderThumbShape(
+                    enabledThumbRadius: 14.0,
+                    elevation: 3,
+                  ),
+                  tickMarkShape: const RoundSliderTickMarkShape(
+                    tickMarkRadius: 3.5,
+                  ),
+                  activeTickMarkColor: AppColors.onPrimary,
+                  inactiveTickMarkColor: AppColors.iosGray4,
+                ),
+                child: Slider(
+                  min: 0,
+                  max: (options.length - 1).toDouble(),
+                  divisions: options.length - 1,
+                  value: state.sliderValue,
+                  semanticFormatterCallback: (value) =>
+                      options[value.round().clamp(0, options.length - 1)]
+                          .localizedName,
+                  onChanged: (value) =>
+                      ref.read(fontSizeProvider.notifier).updatePreview(value),
+                  onChangeEnd: (value) async {
+                    try {
+                      await ref
+                          .read(fontSizeProvider.notifier)
+                          .applyFontSize(value);
+                      AppLoading.showSuccess(t.common.fontSizeSettingUpdated);
+                    } catch (e) {
+                      iPrint('[FontSize] 应用字号失败: $e');
+                      AppLoading.showError(
+                        t.common.settingFailedPleaseTryAgain,
+                      );
+                    }
+                  },
+                ),
+              ),
             ),
           ),
           Padding(
@@ -322,6 +378,32 @@ class FontSizePage extends ConsumerWidget {
         ],
       ),
     );
+  }
+
+  /// 语义 increase/decrease 动作的档位步进（DEF-A11YNEW-03）。
+  ///
+  /// 每次读取最新 state（快速连按不会基于过期快照计算），先 updatePreview
+  /// 即时刷新预览，再 applyFontSize 持久化——与拖动滑块（onChanged→
+  /// onChangeEnd）走同一条数据链路，含 themeProvider/UserRepoLocal 双数据源
+  /// 同步与失败回滚。结果提示与鼠标路径一致（成功/失败 toast）。
+  void _applySliderStep(WidgetRef ref, Translations t, int delta) {
+    final notifier = ref.read(fontSizeProvider.notifier);
+    final current = ref.read(fontSizeProvider);
+    final index = (current.sliderValue.round() + delta).clamp(
+      0,
+      FontSizeOption.values.length - 1,
+    );
+    final value = index.toDouble();
+    notifier.updatePreview(value);
+    () async {
+      try {
+        await notifier.applyFontSize(value);
+        AppLoading.showSuccess(t.common.fontSizeSettingUpdated);
+      } catch (e) {
+        iPrint('[FontSize] 语义步进应用字号失败: $e');
+        AppLoading.showError(t.common.settingFailedPleaseTryAgain);
+      }
+    }();
   }
 
   Widget _buildPreviewFooter(

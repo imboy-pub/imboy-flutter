@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:cupertino_ui/cupertino_ui.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:imboy/theme/default/app_sizes.dart';
@@ -21,13 +22,16 @@ import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/font_types.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 
+import '../personal_info/personal_info_page.dart';
 import 'profile_provider.dart';
 import 'widgets/profile_completion_widget.dart';
 import 'widgets/profile_identity_header.dart';
 
 /// 个人资料页面 - iOS 17 Premium 风格重构
 class ProfilePage extends ConsumerStatefulWidget {
-  const ProfilePage({super.key});
+  const ProfilePage({super.key, this.readOnly = kIsWeb});
+
+  final bool readOnly;
 
   @override
   ConsumerState<ProfilePage> createState() => _ProfilePageState();
@@ -68,6 +72,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
 
   @override
   Widget build(BuildContext context) {
+    if (widget.readOnly) return const PersonalInfoPage(readOnly: true);
     final profileState = ref.watch(profileProvider);
     final profileNotifier = ref.read(profileProvider.notifier);
 

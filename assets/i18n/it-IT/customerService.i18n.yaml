@@ -1,0 +1,143 @@
+# customerService namespace — it-IT
+# DSN-06 gap fill 2026-11-16: machine-candidate translations (owner decision owner-batch-20261116).
+entryTitle: "Area supporto" # machine-candidate 2026-11-16
+entrySubtitle: "Prendi in carico e gestisci le conversazioni clienti in attesa" # machine-candidate 2026-11-16
+title: "Area supporto" # machine-candidate 2026-11-16
+tabQueued: "In attesa" # machine-candidate 2026-11-16
+tabActive: "In gestione" # machine-candidate 2026-11-16
+tabClosed: "Chiuse" # machine-candidate 2026-11-16
+countUnavailable: "--" # machine-candidate 2026-11-16
+orgSelectorLabel: "Organizzazione" # machine-candidate 2026-11-16
+noSeatTitle: "Nessuna postazione disponibile" # machine-candidate 2026-11-16
+noSeatHint: "Non hai postazioni di assistenza attive. Contatta l'amministratore della tua organizzazione" # machine-candidate 2026-11-16
+waitingJustNow: "proprio ora" # machine-candidate 2026-11-16
+waitingMinutes: "$n min" # machine-candidate 2026-11-16
+waitingHoursMinutes: "$h h $m min" # machine-candidate 2026-11-16
+waitingDaysHours: "$d g $h h" # machine-candidate 2026-11-16
+sourceWidget: "Web" # machine-candidate 2026-11-16
+sourceLabel: "Origine" # machine-candidate 2026-11-16
+queuedEmptyTitle: "Nessuna conversazione in attesa" # machine-candidate 2026-11-16
+queuedEmptyHint: "Trascina per aggiornare: le nuove conversazioni compariranno qui" # machine-candidate 2026-11-16
+loadingMore: "Caricamento altri…" # machine-candidate 2026-11-16
+loadMoreFailed: "Caricamento non riuscito. Scorri verso l'alto per riprovare" # machine-candidate 2026-11-16
+noMore: "Nessun'altra conversazione" # machine-candidate 2026-11-16
+claimAction: "Prendi in carico" # machine-candidate 2026-11-16
+claimSuccess: "Preso in carico" # machine-candidate 2026-11-16
+claimConflict: "Questa conversazione è stata presa in carico da un'altra postazione o il suo stato è cambiato. La coda è stata aggiornata" # machine-candidate 2026-11-16
+claimOffboardingRequired: "Passaggio di consegne in corso; la presa in carico non è disponibile" # machine-candidate 2026-11-16
+claimForbidden: "Postazione sospesa; la presa in carico non è disponibile" # machine-candidate 2026-11-16
+claimFailed: "Presa in carico non riuscita. Riprova più tardi" # machine-candidate 2026-11-16
+seatAtCapacity: "Capacità della postazione esaurita (limite di conversazioni attive raggiunto). Chiudi una conversazione attiva o chiedi a un admin di aumentare il limite" # machine-candidate 2026-11-16
+activeEmptyTitle: "Nessuna conversazione in gestione" # machine-candidate 2026-11-16
+activeEmptyHint: "Prendi in carico una conversazione dalla coda e comparirà qui" # machine-candidate 2026-11-16
+closedEmptyTitle: "Nessuna conversazione chiusa" # machine-candidate 2026-11-16
+closedEmptyHint: "Le conversazioni chiuse vengono archiviate qui" # machine-candidate 2026-11-16
+loadFailedTitle: "Caricamento non riuscito" # machine-candidate 2026-11-16
+offlineHint: "Rete non disponibile. Controlla la connessione e riprova" # machine-candidate 2026-11-16
+seatSuspendedNotice: "Postazione sospesa; la coda è in sola lettura" # machine-candidate 2026-11-16
+sessionTitle: "Conversazione di assistenza" # machine-candidate 2026-11-16
+channelUnavailable: "Canale messaggi momentaneamente non disponibile; in attesa del collegamento della sessione lato server" # machine-candidate 2026-11-16
+visitorLabel: "Cliente" # machine-candidate 2026-11-16
+seatLabel: "Operatore" # machine-candidate 2026-11-16
+inputHint: "Scrivi una risposta…" # machine-candidate 2026-11-16
+attachAction: "Allega" # machine-candidate 2026-11-16
+attachUploaded: "Allegato caricato" # machine-candidate 2026-11-16
+attachPreviewTitle: "Anteprima allegato (canale sicuro aziendale)" # machine-candidate 2026-11-16
+attachUnnamedFile: "Allegato" # machine-candidate 2026-11-16
+attachStatusUnavailable: "Non disponibile · $size" # machine-candidate 2026-11-16
+attachUnsupportedType: "Tipo di file non supportato. Scegli un altro file" # machine-candidate 2026-11-16
+attachBinaryNoPreview: "Contenuto binario, anteprima non disponibile" # machine-candidate 2026-11-16
+transferAction: "Trasferisci" # machine-candidate 2026-11-16
+transferTitle: "Trasferisci a un operatore della stessa azienda" # machine-candidate 2026-11-16
+transferEmpty: "Nessuna postazione di assistenza trasferibile in azienda" # machine-candidate 2026-11-16
+targetAvailable: "Disponibile" # machine-candidate 2026-11-16
+targetBusy: "Occupato" # machine-candidate 2026-11-16
+transferConfirmTitle: "Conferma trasferimento" # machine-candidate 2026-11-16
+transferConfirmBody: "Trasferire questa conversazione a $name? Non la gestirai più." # machine-candidate 2026-11-16
+transferSuccess: "Trasferita" # machine-candidate 2026-11-16
+transferConflict: "Lo stato della conversazione è cambiato. Aggiorna, verifica e conferma di nuovo." # machine-candidate 2026-11-16
+transferFailed: "Trasferimento non riuscito. Riprova più tardi" # machine-candidate 2026-11-16
+closeAction: "Chiudi conversazione" # machine-candidate 2026-11-16
+closeTitle: "Conferma chiusura" # machine-candidate 2026-11-16
+closeBody: "Dopo la chiusura, al cliente verrà chiesto di valutare; la conversazione diventa di sola lettura." # machine-candidate 2026-11-16
+closeReasonLabel: "Motivo (facoltativo)" # machine-candidate 2026-11-16
+closeReasonTooLong: "Il motivo non può superare $max caratteri" # machine-candidate 2026-11-16
+closeSuccess: "Conversazione chiusa" # machine-candidate 2026-11-16
+closeConflict: "Lo stato della conversazione è cambiato. Aggiorna, verifica e conferma di nuovo." # machine-candidate 2026-11-16
+closeFailed: "Chiusura non riuscita. Riprova più tardi" # machine-candidate 2026-11-16
+waitingRatingTitle: "Chiusa — in attesa della valutazione del cliente" # machine-candidate 2026-11-16
+ratedTitle: "Il cliente ha valutato questa conversazione" # machine-candidate 2026-11-16
+ratingScoreLabel: "Valutazione del cliente: $score stelle" # machine-candidate 2026-11-16
+ratingUnknownTitle: "Stato della valutazione sconosciuto" # machine-candidate 2026-11-16
+ratingTimeLabel: "Valutata alle: $time" # machine-candidate 2026-11-16
+readOnlySuspended: "Postazione sospesa; il canale è in sola lettura e la sincronizzazione in background è stata arrestata" # machine-candidate 2026-11-16
+offboardingRequired: "Passaggio di consegne in corso; la gestione è stata trasferita e questa conversazione è in sola lettura" # machine-candidate 2026-11-16
+closedReadonly: "Conversazione chiusa; contenuto solo visibile" # machine-candidate 2026-11-16
+ratedReadonly: "Conversazione valutata e conclusa; contenuto solo visibile" # machine-candidate 2026-11-16
+sendFailed: "Invio non riuscito. Riprova più tardi" # machine-candidate 2026-11-16
+sendConflict: "Lo stato della sessione è cambiato; lo stato più recente è stato aggiornato per te" # machine-candidate 2026-11-16
+attachUploadFailed: "Caricamento dell'allegato non riuscito. Riprova" # machine-candidate 2026-11-16
+transferredAway: "Questa conversazione è stata trasferita a un altro operatore ed è in sola lettura per te" # machine-candidate 2026-11-16
+presenceMenuLabel: "Stato postazione" # machine-candidate 2026-11-16
+presenceUnavailable: "Stato non disponibile" # machine-candidate 2026-11-16
+seatDisabledNotice: "Postazione disabilitata" # machine-candidate 2026-11-16
+presenceStatusOnline: "Online" # machine-candidate 2026-11-16
+presenceStatusAway: "Assente" # machine-candidate 2026-11-16
+presenceStatusBusy: "Occupato" # machine-candidate 2026-11-16
+presenceStatusOffline: "Offline" # machine-candidate 2026-11-16
+presenceAwayAction: "Imposta assente" # machine-candidate 2026-11-16
+presenceResumeAction: "Riprendi automatico" # machine-candidate 2026-11-16
+presenceCapacityLabel: "$active/$max conversazioni" # machine-candidate 2026-11-16
+unreadBadgeLabel: "$n non letti" # machine-candidate 2026-11-16
+actionDraftWarning: "C'è una bozza non inviata; confermare questa azione non la invierà." # machine-candidate 2026-11-16
+actionSendingWarning: "Un messaggio è in fase di invio; attendi l'esito finale e verifica prima di confermare." # machine-candidate 2026-11-16
+actionUploadingWarning: "Un allegato è in caricamento; attendi l'esito finale e verifica prima di confermare." # machine-candidate 2026-11-16
+actionUnconfirmedWarning: "Restano messaggi non confermati; verifica prima i risultati, ora non è possibile inviare azioni di sessione." # machine-candidate 2026-11-16
+attachSave: "Salva file" # machine-candidate 2026-11-16
+attachSaved: "File salvato" # machine-candidate 2026-11-16
+attachSaveFailed: "Salvataggio non riuscito. Puoi riprovare." # machine-candidate 2026-11-16
+attachPreparing: "Preparazione dell'allegato" # machine-candidate 2026-11-16
+attachPresigning: "Richiesta dell'autorizzazione di caricamento" # machine-candidate 2026-11-16
+attachUploading: "Caricamento byte: $sent / $total" # machine-candidate 2026-11-16
+attachConfirming: "Conferma del file caricato" # machine-candidate 2026-11-16
+attachCancelled: "Allegato annullato prima del caricamento" # machine-candidate 2026-11-16
+attachUnknown: "L'esito del caricamento non è del tutto confermato. Nessun nuovo tentativo automatico né messaggio inviato." # machine-candidate 2026-11-16
+attachRetry: "Riprova caricamento dell'allegato" # machine-candidate 2026-11-16
+attachCancel: "Interrompi i passaggi successivi del caricamento" # machine-candidate 2026-11-16
+attachTooLarge: "L'allegato non deve essere vuoto e non può superare 25 MiB." # machine-candidate 2026-11-16
+attachPreviewTruncated: "È mostrata solo parte del testo; il salvataggio conserva il file completo." # machine-candidate 2026-11-16
+attachUploadedNotSent: "L'allegato è caricato, ma l'invio del messaggio non è confermato. Verifica l'esito dell'invio invece di ricaricare." # machine-candidate 2026-11-16
+attachUploadStopped: "Il caricamento non è completato; i passaggi successivi sono stati arrestati. Verifica autorizzazioni e stato della sessione prima di scegliere di nuovo il file." # machine-candidate 2026-11-16
+newMessagesJump: "Nuovi messaggi · Vai ai più recenti" # machine-candidate 2026-11-16
+governance:
+  title: "Governance dell'assistenza" # machine-candidate 2026-11-16
+  scopeNote: "Questa è la superficie di governance aziendale (owner/admin); un 403 del server è la decisione definitiva sui permessi." # machine-candidate 2026-11-16
+  limitCardTitle: "Quota postazioni" # machine-candidate 2026-11-16
+  limitUnlimited: "Illimitata" # machine-candidate 2026-11-16
+  limitValueLabel: "${used}/${limit} postazioni" # machine-candidate 2026-11-16
+  limitAtCapacity: "Quota raggiunta" # machine-candidate 2026-11-16
+  limitAdjustAction: "Modifica quota" # machine-candidate 2026-11-16
+  limitAdjustTitle: "Modifica quota postazioni" # machine-candidate 2026-11-16
+  limitInputLabel: "Limite postazioni (intero positivo, vuoto = illimitato)" # machine-candidate 2026-11-16
+  limitClearAction: "Rimuovi limite (illimitato)" # machine-candidate 2026-11-16
+  limitInvalidInput: "Inserisci un intero positivo" # machine-candidate 2026-11-16
+  limitSaved: "Quota aggiornata" # machine-candidate 2026-11-16
+  seatsSectionTitle: "Postazioni" # machine-candidate 2026-11-16
+  seatsEmpty: "Ancora nessuna postazione" # machine-candidate 2026-11-16
+  seatEnabledBadge: "Attiva" # machine-candidate 2026-11-16
+  seatSuspendedBadge: "Sospesa" # machine-candidate 2026-11-16
+  seatIdentityLabel: "Postazione ${identity}" # machine-candidate 2026-11-16
+  seatCapacityLabel: "${active}/${max} conversazioni" # machine-candidate 2026-11-16
+  seatLoadMore: "Carica altri" # machine-candidate 2026-11-16
+  suspendAction: "Sospendi postazione" # machine-candidate 2026-11-16
+  resumeAction: "Riattiva postazione" # machine-candidate 2026-11-16
+  suspendConfirmTitle: "Sospendere questa postazione?" # machine-candidate 2026-11-16
+  suspendConfirmBody: "Le postazioni sospese non possono prendere nuove sessioni; quelle in corso restano invariate e si può riattivare in qualsiasi momento." # machine-candidate 2026-11-16
+  actionDone: "Azione applicata" # machine-candidate 2026-11-16
+  actionFailed: "Azione non riuscita. Riprova più tardi" # machine-candidate 2026-11-16
+  errorForbidden: "Accesso negato: la governance dell'assistenza è riservata a owner/admin dell'organizzazione" # machine-candidate 2026-11-16
+  errorNoDefaultWorkspace: "Nessuna area di lavoro predefinita impostata per l'organizzazione; l'ambito della governance è indeterminato" # machine-candidate 2026-11-16
+  errorLoadFailed: "Caricamento non riuscito" # machine-candidate 2026-11-16
+  errorWithCode: "${msg} (codice ${code})" # machine-candidate 2026-11-16
+  seatLimitExceededHint: "Quota postazioni esaurita: ${used}/${limit} in uso, impossibile aggiungere postazioni (seat_limit_exceeded)" # machine-candidate 2026-11-16
+  retry: "Riprova" # machine-candidate 2026-11-16

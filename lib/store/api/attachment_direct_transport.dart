@@ -7,9 +7,9 @@ part of 'attachment_direct_api.dart';
 ///   [AttachmentApi._rawDioPut] 注释——本引擎不经 Dio）；
 /// * headers 原样发送且**只发** required_headers（无业务凭据，T29/T07）；
 /// * 取消：[DirectUploadCancelled] 由调用方通过 abort 回调注入（HttpClientRequest.abort）。
-Future<void> _ioFilePut(
+Future<void> _ioSourcePut(
   String url,
-  io.File file,
+  DirectUploadSource source,
   int length,
   Map<String, String> headers, {
   void Function(int sent, int total)? onProgress,
@@ -44,7 +44,7 @@ Future<void> _ioFilePut(
     request.contentLength = length;
     var sent = 0;
     await request.addStream(
-      file.openRead().map((chunk) {
+      source.openRead(cancelToken: cancelToken).map((chunk) {
         DirectAttachmentApi._checkCancelled(cancelToken);
         sent += chunk.length;
         onProgress?.call(sent, length);
@@ -73,5 +73,56 @@ Future<void> _ioFilePut(
       // The abort error was surfaced by the upload operation.
     }
     activeRequest = null;
+  }
+}
+
+/// 默认平台运输：浏览器 Fetch 没有可靠逐字节上传事件，不编造上传百分比。
+Future<void> _putSource(
+  String url,
+  DirectUploadSource source,
+  int length,
+  Map<String, String> headers, {
+  CancelToken? cancelToken,
+  void Function(int sent, int total)? onProgress,
+}) async {
+  DirectAttachmentApi._checkCancelled(cancelToken);
+  if (!kIsWeb) {
+    return _ioSourcePut(
+      url,
+      source,
+      length,
+      headers,
+      cancelToken: cancelToken,
+      onProgress: onProgress,
+    );
+  }
+  if (length <= 0 || length > AttachmentApi.maxUploadBytes) {
+    throw StateError('invalid browser direct source length');
+  }
+  final buffer = BytesBuilder();
+  await for (final chunk in source.openRead(cancelToken: cancelToken)) {
+    buffer.add(chunk);
+  }
+  DirectAttachmentApi._checkCancelled(cancelToken);
+  try {
+    final status = await browser_put.directWebPutUrl(
+      url,
+      buffer.takeBytes(),
+      headers,
+      cancelToken,
+      const Duration(minutes: 2),
+      (_) {},
+      (_) {},
+      beforeDispatch: source._requireDispatch,
+    );
+    DirectAttachmentApi._checkCancelled(cancelToken);
+    source._requireDispatch();
+    if (status < 200 || status >= 300) {
+      throw StateError('direct put failed: http $status');
+    }
+    onProgress?.call(length, length);
+  } catch (_) {
+    DirectAttachmentApi._checkCancelled(cancelToken);
+    rethrow;
   }
 }
