@@ -16,6 +16,7 @@ import 'package:sqflite_sqlcipher/sqflite.dart' as sql_cipher;
 import 'package:imboy/app_core/feature_flags/runtime_feature_recovery.dart';
 import 'package:imboy/component/http/http_client.dart';
 import 'package:imboy/component/http/http_config.dart';
+import 'package:imboy/component/helper/func.dart' show getOperatingSystem;
 import 'package:imboy/config/const.dart';
 import 'package:imboy/config/env.dart';
 import 'package:imboy/config/init.dart'
@@ -93,6 +94,7 @@ class _SyntheticHttpAdapter implements HttpClientAdapter {
   Future<void> Function()? beforeStatusResponse;
   int statusRequests = 0;
   int createRequests = 0;
+  Map<String, dynamic>? lastCreateBody;
   int profileRequests = 0;
   int profileStatusCode = 200;
   int? lastProfileStatusCode;
@@ -131,6 +133,7 @@ class _SyntheticHttpAdapter implements HttpClientAdapter {
     };
     if (options.path == '/api/v1/passport/qr_login/create') {
       createRequests++;
+      lastCreateBody = Map<String, dynamic>.from(options.data as Map);
       final sessionToken = qrSessionToken;
       await beforeCreateResponse?.call();
       response = {
@@ -448,6 +451,18 @@ void main() {
       expect(StorageService.to.getKeys(), isEmpty);
     });
   }
+
+  test('Native QR create uses the actual device platform, not web', () async {
+    await notifier.generateQRCode();
+    expect(adapter.createRequests, 1);
+    expect(adapter.lastCreateBody, containsPair('device_id', deviceId));
+    expect(
+      adapter.lastCreateBody,
+      containsPair('platform', getOperatingSystem()),
+    );
+    expect(adapter.lastCreateBody, containsPair('purpose', 'human'));
+    expect(adapter.lastCreateBody?['platform'], isNot('web'));
+  });
 
   test(
     'create response after anonymous generation changes cannot publish failure',
