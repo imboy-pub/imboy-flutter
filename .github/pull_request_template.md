@@ -38,6 +38,8 @@
 - [ ] `dart format .` 通过
 - [ ] `flutter test` 全绿
 - [ ] `flutter test --coverage` 不下降
+- [ ] 验证证据合规：SKIP/空测试集/测试未执行/环境不完整不判 PASS；独立验证判定落任务包 `evidence/verdict.json`（最小 schema 见主仓 `imboy/docs/reference/engineering/ai-engineering/VERIFICATION_POLICY.md`）
+- [ ] 版本 bump PR：核对主仓 `imboy/docs/reference/engineering/ai-engineering/ENGINEERING_MAP.md` 是否需随版本刷新（工程地图修订责任）
 
 ### 契约变更（如适用）
 
