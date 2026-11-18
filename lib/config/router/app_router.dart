@@ -207,7 +207,7 @@ GoRouter createAppRouter({
         path: AppRoutes.signIn,
         name: 'sign_in',
         pageBuilder: (context, state) {
-          // 大屏桌面/Web 环境使用 WebLoginPage（阈值与 AppBreakpoints.wide 对齐）
+          // 宽屏 Native 保留分栏登录 UI；QR 设备及认证面由运行平台决定。
           final useSplitView =
               kIsWeb || AppBreakpoints.isWide(MediaQuery.sizeOf(context).width);
           return CupertinoPage(
