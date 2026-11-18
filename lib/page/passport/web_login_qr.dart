@@ -9,6 +9,10 @@ class QRLogin extends _$QRLogin {
   ({AuthSessionScope auth, String environment, String endpoint})?
   _pendingProfile;
 
+  // Override only in isolated tests that exercise Web hydration on a VM.
+  @visibleForTesting
+  bool get shouldHydrateWebProfile => kIsWeb;
+
   bool get hasPendingProfile => _pendingProfile != null;
 
   bool get canRetryProfile {
@@ -69,8 +73,8 @@ class QRLogin extends _$QRLogin {
         '/api/v1/passport/qr_login/create',
         data: {
           'device_id': deviceId,
-          'device_name': 'Web Browser',
-          'platform': 'web',
+          'device_name': kIsWeb ? 'Web Browser' : getOperatingSystem(),
+          'platform': kIsWeb ? 'web' : getOperatingSystem(),
           'purpose': 'human',
         },
       );
@@ -260,7 +264,14 @@ class QRLogin extends _$QRLogin {
             environment: environment,
             endpoint: endpoint,
           );
-          await _hydrateProfile(generation);
+          if (shouldHydrateWebProfile) {
+            await _hydrateProfile(generation);
+          } else {
+            // Native uses Native credentials and bootstrap/profile flow;
+            // /api/v1/user/me is a Web-only route.
+            _pendingProfile = null;
+            state = state.copyWith(status: QRLoginStatus.success);
+          }
         } catch (e) {
           // F6/AUT01：committed 后的成功链异常（hydrate 等）不受 UI cancel
           // 影响；未提交场景仍尊重 generation 失效（用户已切走登录方式）。
