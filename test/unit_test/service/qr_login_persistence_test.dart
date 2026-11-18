@@ -684,8 +684,15 @@ void main() {
       expect(adapter.lastProfileStatusCode, 401);
       expect(repo.currentUid, isEmpty);
       expect(repo.isLoggedIn, isFalse);
-      // Logout retains the exact owner record for explicit historical cleanup.
-      expect(StorageService.getMap(Keys.currentUser), retainedProfile);
+      // SEC02（属主裁决 2026-11-16，user_repo_local.quitLogin）：登出保留
+      // _login_account_identity_v1 所有权证明（uid/env/endpoint，历史账号
+      // 清理授权链 ownsLastSession→clearLastSessionData 依赖它），但清除
+      // 顶层 uid 与展示性 PII；sanitized 形状已由 DEF-LOGOUT-RELOAD-INIT-
+      // POISON 读侧适配（8b271618d）固化为分支约定。
+      expect(StorageService.getMap(Keys.currentUser), {
+        LoginAccountHistoryService.localProfileKey:
+            retainedProfile[LoginAccountHistoryService.localProfileKey],
+      });
       expect(secure.containsKey('secure_token'), isFalse);
       expect(secure.containsKey('secure_refresh_token'), isFalse);
       expect(notifications, 1);
