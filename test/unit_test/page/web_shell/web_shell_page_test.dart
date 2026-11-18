@@ -466,14 +466,16 @@ void main() {
         channelTabAvailable: false,
       );
 
+      // 并集修复：合并后 WebNavRail 用 material_ui.Tooltip（main 形态），
+      // SDK find.byTooltip 只认 flutter/material 的 Tooltip，须走 findMaterialTooltip。
       expect(
-        find.byTooltip('Channels'),
+        findMaterialTooltip('Channels'),
         findsNothing,
         reason: 'channel-off 下 rail 显示频道项即死入口',
       );
-      expect(find.byTooltip('Messages'), findsOneWidget);
-      expect(find.byTooltip('Contacts'), findsOneWidget);
-      expect(find.byTooltip('Me'), findsOneWidget);
+      expect(findMaterialTooltip('Messages'), findsOneWidget);
+      expect(findMaterialTooltip('Contacts'), findsOneWidget);
+      expect(findMaterialTooltip('Me'), findsOneWidget);
     });
 
     testWidgets('rail 位 2（Me）重排到 tab 3，而不是误入频道 tab', (tester) async {
@@ -517,7 +519,7 @@ void main() {
         0,
         reason: '频道不可用时不得停留在空频道 tab（死胡同）',
       );
-      expect(find.byTooltip('Messages'), findsOneWidget);
+      expect(findMaterialTooltip('Messages'), findsOneWidget);
     });
 
     testWidgets('WebShellBootstrap 在 channel-off profile 下关闭 rail 频道入口', (

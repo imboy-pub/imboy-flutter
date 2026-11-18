@@ -119,11 +119,11 @@ GoRouter _stubRouter({
             ? const DarkModelPage()
             : stub('dark_model stub'),
       ),
-      GoRoute(
-        path: '/font_size',
-        builder: (_, _) =>
-            realPreferencePages ? const FontSizePage() : stub('font_size stub'),
-      ),
+      // 并集修复：main 的字体导航用例（默认 harness）直接点按 tile 并断言真实
+      // FontSizePage（Slider/GlassBackButton），而车道用例只在 realPreferencePages
+      // 真实偏好 harness 里点按。/font_size 恒挂真实页面对两者均成立；
+      // /dark_model 仍按 realPreferencePages 条件式（stub 导航用例依赖 stub）。
+      GoRoute(path: '/font_size', builder: (_, _) => const FontSizePage()),
       GoRoute(
         path: '/bottom_navigation',
         builder: (_, _) => stub('bottom_navigation stub'),

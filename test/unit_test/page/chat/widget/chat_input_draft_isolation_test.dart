@@ -79,7 +79,7 @@ void main() {
               type: 'C2G',
               peerId: '995301',
               composerHeight: height,
-              onSendPressed: (_) async => true,
+              onSendPressed: (_) async => const ComposerSendReceipt(true),
             ),
           ),
         ),
