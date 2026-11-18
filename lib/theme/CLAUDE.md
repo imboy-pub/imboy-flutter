@@ -13,7 +13,6 @@
 | `default/app_radius.dart` | 圆角 Token（4–50px） |
 | `default/app_shadows.dart` | 阴影 Token（elevation 0/1/2/3，iOS 克制投影） |
 | `default/app_duration.dart` | 动画时长 Token（100–500ms，含场景别名） |
-| `default/app_curves.dart` | 动画曲线 Token（iOS spring/decelerate/standard 等 11 种） |
 | `default/app_sizes.dart` | 组件尺寸（按钮/输入框/头像等） |
 | `default/font_types.dart` | FontSizeType 枚举、FontSizeOption |
 | `default/config/text_theme.dart` | TextTheme 配置 |

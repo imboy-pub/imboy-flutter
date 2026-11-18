@@ -41,7 +41,6 @@ import 'package:imboy/component/ui/app_loading.dart';
 /// - [ChannelHeaderBar] 头部封面+统计
 /// - [ChannelMessageFeed] 消息流
 /// - [ChannelPublishBar] 发布栏
-/// - [ChannelPaywallView] 付费锁定视图
 class ChannelDetailPage extends ConsumerStatefulWidget {
   final String channelId;
   final bool autoLoadStats;
