@@ -5,6 +5,8 @@ import ast
 import importlib.util
 import contextlib
 import copy
+import base64
+import hashlib
 import json
 import os
 import re
@@ -606,6 +608,114 @@ raise SystemExit(code)
                 self.assertEqual(published, 'CHROME_EXECUTABLE=' + browser + '\n')
                 self.assertIn('Google Chrome 156.0.0.0', log)
                 self.assertIn(browser, log)
+
+    @contextlib.contextmanager
+    def browser_sqlite_preparation(self):
+        with tempfile.TemporaryDirectory() as directory:
+            project = Path(directory)
+            script = project / '.github/scripts/ci_prepare_chrome.sh'
+            script.parent.mkdir(parents=True)
+            shutil.copyfile(ROOT / '.github/scripts/ci_prepare_chrome.sh', script)
+            for name in (
+                'lib/service/browser_sqlite_storage_bridge_web.dart',
+                'lib/service/sqflite_init_web.dart', 'pubspec.lock',
+                '.dart_tool/package_config.json',
+                'test/fixtures/browser_sqlite_bridge_probe.dart',
+                'test/fixtures/browser_sqlite_bridge_probe.html',
+                'test/fixtures/browser_sqlite_bridge_host.html',
+                'test/fixtures/startup_busy_counter.js', 'web/sqlite3.wasm',
+            ):
+                path = project / name
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.write_text('synthetic input: ' + name)
+            fixtures = project / 'test/fixtures'
+            for name in ('probe', 'host'):
+                (fixtures / f'browser_sqlite_bridge_{name}.htm').symlink_to(
+                    f'browser_sqlite_bridge_{name}.html')
+            (fixtures / 'sqlite3.wasm').symlink_to('../../web/sqlite3.wasm')
+            (fixtures / 'browser_sqlite_bridge_probe.js').symlink_to(
+                '../../.dart_tool/browser_sqlite_bridge_probe.js')
+            binaries = project / 'bin'
+            binaries.mkdir()
+            dart = binaries / 'dart'
+            dart.write_text('#!' + sys.executable + '\n' + '''
+import os
+from pathlib import Path
+import sys
+assert os.environ['CI'] == 'true'
+assert os.environ['FLUTTER_SUPPRESS_ANALYTICS'] == 'true'
+if sys.argv[1:] == ['--version']:
+    print('Dart SDK controlled compiler fixture')
+    sys.exit(0)
+assert sys.argv[1:5] == ['compile', 'js', '--no-source-maps', '-O1']
+mode = os.environ.get('SQLITE_COMPILER_FIXTURE', '')
+if mode == 'failure':
+    print('synthetic compiler failure')
+    sys.exit(19)
+output = Path(sys.argv[sys.argv.index('-o') + 1])
+output.write_bytes(b'' if mode == 'empty' else b'compiled-current-probe')
+if mode == 'changed':
+    Path('lib/service/browser_sqlite_storage_bridge_web.dart').write_text('changed during compile')
+''')
+            dart.chmod(0o755)
+            env = {**os.environ, 'PATH': str(binaries) + os.pathsep + os.environ['PATH']}
+            env.pop('GITHUB_ENV', None)
+            output = project / 'preparation evidence'
+            command = ['bash', str(script), '--browser-sqlite-probe', str(output)]
+            yield project, output, command, env
+
+    def test_browser_sqlite_preparation_binds_current_sources_and_published_bytes(self):
+        with self.browser_sqlite_preparation() as (project, output, command, env):
+            result = subprocess.run(command, cwd=project, env=env, text=True, capture_output=True)
+            self.assertEqual(result.returncode, 0, result.stderr)
+            receipt_bytes = (output / 'receipt.json').read_bytes()
+            receipt = json.loads(receipt_bytes)
+            defines = json.loads((output / 'defines.json').read_text())
+            compiled = (output / 'browser_sqlite_bridge_probe.js').read_bytes()
+            self.assertEqual(compiled, b'compiled-current-probe')
+            self.assertEqual((project / 'test/fixtures/browser_sqlite_bridge_probe.js').read_bytes(), compiled)
+            self.assertEqual(defines['BROWSER_SQLITE_PROBE_SRI'],
+                             'sha256-' + base64.b64encode(hashlib.sha256(compiled).digest()).decode())
+            self.assertEqual(defines['BROWSER_SQLITE_PREPARATION_SHA256'], hashlib.sha256(receipt_bytes).hexdigest())
+            counter = (project / 'test/fixtures/startup_busy_counter.js').read_bytes()
+            self.assertEqual(defines['STARTUP_BUSY_COUNTER_SRI'],
+                             'sha256-' + base64.b64encode(hashlib.sha256(counter).digest()).decode())
+            self.assertEqual(receipt['status'], 'READY')
+            self.assertEqual(receipt['exit_code'], 0)
+            for name, digest in receipt['artifacts'].items():
+                self.assertEqual(hashlib.sha256((output / name).read_bytes()).hexdigest(), digest)
+            source = 'lib/service/browser_sqlite_storage_bridge_web.dart'
+            self.assertEqual(receipt['sources'][source]['sha256'],
+                             hashlib.sha256((project / source).read_bytes()).hexdigest())
+            self.assertEqual(receipt['sources']['test/fixtures/browser_sqlite_bridge_probe.js'],
+                             {'link_target': '../../.dart_tool/browser_sqlite_bridge_probe.js'})
+            (project / source).write_text('new production source')
+            rerun = subprocess.run(command, cwd=project, env=env, text=True, capture_output=True)
+            self.assertEqual(rerun.returncode, 0, rerun.stderr)
+            updated = json.loads((output / 'receipt.json').read_text())
+            self.assertNotEqual(updated['sources'][source], receipt['sources'][source])
+            self.assertNotEqual(json.loads((output / 'defines.json').read_text())[
+                'BROWSER_SQLITE_PREPARATION_SHA256'], defines['BROWSER_SQLITE_PREPARATION_SHA256'])
+
+    def test_browser_sqlite_preparation_refuses_failed_empty_changed_or_missing_inputs(self):
+        for mode in ('failure', 'empty', 'changed', 'missing', 'wrong-link'):
+            with self.subTest(mode=mode), self.browser_sqlite_preparation() as (project, output, command, env):
+                output.mkdir()
+                for name in ('defines.json', 'receipt.json'):
+                    (output / name).write_text('stale preparation must not be reused')
+                if mode == 'missing':
+                    (project / 'pubspec.lock').unlink()
+                elif mode == 'wrong-link':
+                    link = project / 'test/fixtures/browser_sqlite_bridge_probe.js'
+                    link.unlink()
+                    link.symlink_to('uncontrolled-probe.js')
+                result = subprocess.run(command, cwd=project,
+                    env={**env, 'SQLITE_COMPILER_FIXTURE': mode}, text=True, capture_output=True)
+                self.assertEqual(result.returncode, 2, result.stderr)
+                self.assertIn('BROWSER_SQLITE_PREPARATION_FAILED', result.stderr)
+                self.assertFalse((output / 'defines.json').exists())
+                self.assertFalse((output / 'receipt.json').exists())
+                self.assertFalse((project / '.dart_tool/browser_sqlite_bridge_probe.js').exists())
 
     def test_ci_web_chrome_failures_keep_nonzero_status_and_preflight_evidence(self):
         for failure in ('missing', 'failure', 'empty'):

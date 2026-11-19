@@ -28,8 +28,9 @@ import 'package:web/web.dart' as web;
 import '../../env_test_pin.dart';
 
 // Independent inventory: released v36 golden has these 25 application tables;
-// registered v39 adds local channel preferences, and production creation adds
-// schema metadata. v38 trigger changes remain an unregistered draft.
+// Registered v39 adds local channel preferences, v40 stores message FTS
+// content, and production creation adds schema metadata. The v38 trigger
+// changes remain an unregistered draft.
 const _tables = {
   'attachment_upload_task',
   'channel',
@@ -66,18 +67,22 @@ Future<List<Map<String, Object?>>> _objects(common.Database db) => db.rawQuery(
 );
 
 Future<void> _verifyProductionSchema(common.Database db) async {
-  expect(await db.getVersion(), 39);
+  expect(await db.getVersion(), 40);
   final objects = await _objects(db);
   final tables = {
     for (final row in objects)
       if (row['type'] == 'table') row['name'] as String,
   };
   for (final prefix in ['msg_c2c_fts', 'msg_c2g_fts']) {
-    for (final suffix in ['data', 'idx', 'docsize', 'config']) {
+    const shadowSuffixes = ['data', 'idx', 'content', 'docsize', 'config'];
+    expect(tables.where((name) => name.startsWith('${prefix}_')).toSet(), {
+      for (final suffix in shadowSuffixes) '${prefix}_$suffix',
+    });
+    for (final suffix in shadowSuffixes) {
       tables.remove('${prefix}_$suffix');
     }
   }
-  print(
+  debugPrintSynchronously(
     'WEB_SQLITE_SCHEMA_ORACLE version=${await db.getVersion()} '
     'tables=${tables.toList()..sort()}',
   );
@@ -99,16 +104,16 @@ Future<void> _verifyProductionSchema(common.Database db) async {
   expect(
     objects.where((row) => row['type'] == 'trigger'),
     isEmpty,
-    reason: 'Fresh v39 must not silently activate the unregistered v38 draft',
+    reason: 'Fresh v40 must not silently activate the unregistered v38 draft',
   );
   final idColumn = (await db.rawQuery('PRAGMA table_info(msg_c2c)'))
       .singleWhere((row) => row['name'] == 'id');
   expect(idColumn['type'], 'TEXT');
-  expect(await SchemaContract.verifyInvariants(db, version: 39), isEmpty);
+  expect(await SchemaContract.verifyInvariants(db, version: 40), isEmpty);
   final meta = await ImboySchemaMeta.readAll(db);
-  expect(meta['schema_version'], '39');
+  expect(meta['schema_version'], '40');
   expect(meta['migration_state'], 'ok');
-  expect(meta['last_migration_id'], 'baseline_create_v39');
+  expect(meta['last_migration_id'], 'baseline_create_v40');
   expect(meta['schema_hash'], matches(RegExp(r'^[0-9a-f]{64}$')));
   expect(
     (await db.rawQuery('PRAGMA application_id')).single.values.single,
@@ -124,8 +129,7 @@ Future<void> _verifyProductionSchema(common.Database db) async {
 }
 
 void main() {
-  // ignore: avoid_print
-  print('WEB_SQLITE_ORIGIN ${web.window.location.origin}');
+  debugPrintSynchronously('WEB_SQLITE_ORIGIN ${web.window.location.origin}');
   TestWidgetsFlutterBinding.ensureInitialized();
   testWidgets('large SQLite identities reconcile a held group attachment', (
     tester,
@@ -383,7 +387,7 @@ void main() {
             3,
           );
         } catch (error, stack) {
-          print('WEB_SQLITE_SCHEMA_FAILURE $error\n$stack');
+          debugPrintSynchronously('WEB_SQLITE_SCHEMA_FAILURE $error\n$stack');
           rethrow;
         } finally {
           await messages.waitForFtsReindexForTest();

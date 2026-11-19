@@ -1,8 +1,15 @@
-"""Fresh, runner-owned loopback service for the four host Oracle cases."""
+"""Fresh, runner-owned loopback service for the existing VM and Chrome cases."""
 from .owned_node_fixture import FixtureFailure, OwnedNodeFixture
 
 TARGET = 'test/service/web_control_fixture_oracle_test.dart'
-TARGETS = frozenset({TARGET})
+PLATFORMS = {
+    TARGET: frozenset({'linux', 'macos'}),
+    'test/service/web_control_fetch_chrome_test.dart': frozenset({'web'}),
+    'test/service/web_control_production_wrapper_chrome_test.dart': frozenset({'web'}),
+    'test/service/browser_received_attachment_chrome_test.dart': frozenset({'web'}),
+    'test/service/web_message_content_security_chrome_test.dart': frozenset({'web'}),
+}
+TARGETS = frozenset(PLATFORMS)
 FIXTURE = 'test/fixtures/web_control_fetch_server.cjs'
 
 

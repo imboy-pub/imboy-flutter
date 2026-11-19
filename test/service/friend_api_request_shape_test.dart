@@ -47,6 +47,10 @@ void main() {
           );
           final client = HttpClient();
           final captured = <RequestOptions>[];
+          var writerReadyAtRequest = false;
+          var originalOwnerAllowed = false;
+          Object? originalOwnerError;
+          Object? changedOwnerError;
           final payload = {
             'from': {'msg': 'synthetic'},
             'to': <String, dynamic>{},
@@ -55,37 +59,25 @@ void main() {
             InterceptorsWrapper(
               onRequest: (options, handler) async {
                 captured.add(options);
-                expect(options.method, 'POST');
-                expect(
-                  options.uri.path,
-                  confirm ? API.confirmFriend : API.addFriend,
-                );
-                expect(
-                  options.contentType,
-                  kIsWeb
-                      ? Headers.jsonContentType
-                      : 'application/x-www-form-urlencoded',
-                );
-                final data = options.data as Map;
-                expect(data['to'], confirm ? '2' : '1');
-                expect(jsonDecode(data['payload'] as String), payload);
-                if (confirm) {
-                  expect(data['from'], '1');
-                  expect(options.extra[httpNoAutoRetry], isTrue);
-                  expect(options.responseDecoder, isNotNull);
-                } else {
-                  expect(data['created_at'], isA<int>());
-                  // Preserve the pre-existing apply policy; do not falsely claim it
-                  // already had the confirmation path's explicit no-auto-retry flag.
-                  expect(options.extra[httpNoAutoRetry] == true, isFalse);
-                }
                 final guard = options.extra[httpRequestGuard];
-                expect(guard, isA<void Function()>());
-                expect(isWebWriterReady, isTrue);
-                expect(guard as void Function(), returnsNormally);
+                writerReadyAtRequest = isWebWriterReady;
+                if (guard is void Function()) {
+                  try {
+                    guard();
+                    originalOwnerAllowed = true;
+                  } catch (error) {
+                    originalOwnerError = error;
+                  }
+                }
                 if (changeOwner) {
                   await StorageService.to.setString(Keys.currentUid, '3');
-                  expect(guard, throwsA(isA<Exception>()));
+                  if (guard is void Function()) {
+                    try {
+                      guard();
+                    } catch (error) {
+                      changedOwnerError = error;
+                    }
+                  }
                 }
                 handler.resolve(
                   Response<dynamic>(
@@ -139,8 +131,42 @@ void main() {
             final result = await operation;
             expect(result, isFalse);
             expect(captured, hasLength(1));
+            // Assert outside the HTTP/provider catch boundary, so a request-shape
+            // failure cannot be mistaken for the expected business refusal.
+            final options = captured.single;
+            expect(options.method, 'POST');
+            expect(
+              options.uri.path,
+              kIsWeb
+                  ? '/api/v1/web/friend/${confirm ? 'confirm' : 'add'}'
+                  : (confirm ? API.confirmFriend : API.addFriend),
+            );
+            expect(
+              options.contentType,
+              kIsWeb
+                  ? Headers.jsonContentType
+                  : 'application/x-www-form-urlencoded',
+            );
+            final data = options.data as Map;
+            expect(data['to'], confirm ? '2' : '1');
+            expect(jsonDecode(data['payload'] as String), payload);
+            if (confirm) {
+              expect(data['from'], '1');
+              expect(options.extra[httpNoAutoRetry], isTrue);
+              expect(options.responseDecoder, isNotNull);
+            } else {
+              expect(data['created_at'], isA<int>());
+              // Preserve apply's policy; only confirmation explicitly disables
+              // automatic retry before the request is sent.
+              expect(options.extra[httpNoAutoRetry] == true, isFalse);
+            }
+            expect(options.extra[httpRequestGuard], isA<void Function()>());
+            expect(writerReadyAtRequest, isTrue);
+            expect(originalOwnerError, isNull);
+            expect(originalOwnerAllowed, isTrue);
             if (changeOwner) {
               expect(StorageService.to.getString(Keys.currentUid), '3');
+              expect(changedOwnerError, isA<Exception>());
             }
           } finally {
             final dismissed = AppLoading.dismiss(animation: false);

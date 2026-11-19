@@ -136,6 +136,13 @@ def verify_result_files(row, payload, candidate):
             context = read_json(context_path)
             if context != meta['value'] or execution_config_sha256(attempt['instance'], context) != attempt['fingerprint']['config_sha256']:
                 raise ValueError('startup execution context contradicts saved fingerprint')
+            from .browser_sqlite_fixture import validate_preparation_evidence
+            sqlite_meta = attempt.get('browser_sqlite_preparation')
+            if receipt.get('browser_sqlite_preparation') != sqlite_meta:
+                raise ValueError('BROWSER_SQLITE_PROCESS_ATTEMPT_MISMATCH')
+            validate_preparation_evidence(attempt['instance'], sqlite_meta, attempt.get('related_evidence'),
+                attempt.get('command'), attempt.get('process_receipt'),
+                lambda value: artifact_path(value, recorded_root, root))
             if attempt['instance'].get('suite') == 'backend-contract':
                 from .execution_adapters import validate_backend_manifest_evidence
                 backend = attempt.get('backend_manifest_evidence')

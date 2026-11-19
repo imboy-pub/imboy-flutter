@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:ui' as ui;
 
+import 'package:flutter/foundation.dart' show debugPrintSynchronously;
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -39,53 +40,7 @@ import 'package:imboy/store/model/group_model.dart';
 import 'package:imboy/store/repository/message_repo_sqlite.dart';
 import 'package:imboy/component/helper/func.dart' show cachedImageProvider;
 
-class _DifferentEndpoint implements Env {
-  @override
-  String get apiBaseUrl => 'http://127.0.0.1:19800';
-  @override
-  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
-}
-
-class _Sessions extends ChangeNotifier implements AuthSessionReader {
-  @override
-  bool get transitionFailed => false;
-  @override
-  AuthSessionScope current = (uid: '1', generation: 1, transitioning: false);
-  @override
-  bool isCurrent(AuthSessionScope captured) =>
-      captured == current && current.uid.isNotEmpty && !current.transitioning;
-  void profileChanged() => notifyListeners();
-
-  void change(String uid) {
-    current = (
-      uid: uid,
-      generation: current.generation + 1,
-      transitioning: false,
-    );
-    notifyListeners();
-  }
-}
-
-class _Conversation extends ConversationModel {
-  _Conversation(String peer, {this.owner = '1'})
-    : super(
-        id: 1,
-        peerId: peer,
-        avatar: '',
-        title: '',
-        subtitle: '',
-        type: 'C2C',
-        msgType: 'text',
-        unreadNum: 0,
-      );
-  final String owner;
-  @override
-  String get uk3 => ConversationUk3Generator.generateSmart(
-    type: type,
-    currentUserId: owner,
-    peerId: peerId,
-  );
-}
+part 'fixtures/web_chat_lifecycle_fixture.dart';
 
 class _Chat extends ChatNotifier {
   late SqliteChatService service;
@@ -454,7 +409,7 @@ void main() {
       expect(saved, isNotNull);
       expect(int.parse(saved!.id.split('-').last), greaterThanOrEqualTo(20));
       final before = readingGeometry(tester, saved.id);
-      print(
+      debugPrintSynchronously(
         'READING_ANCHOR_BEFORE ${jsonEncode({'id': saved.id, 'cacheY': saved.y, 'rowY': before.rowY, 'textY': before.textY})}',
       );
       expect(saved.y, closeTo(before.rowY, 1));
@@ -463,7 +418,7 @@ void main() {
       await mount(tester, panel('2', (_, _) async => conversation));
       await tester.pumpAndSettle();
       final after = readingGeometry(tester, saved.id);
-      print(
+      debugPrintSynchronously(
         'READING_ANCHOR_ORACLE ${jsonEncode({'id': saved.id, 'cacheY': saved.y, 'rowBefore': before.rowY, 'rowAfter': after.rowY, 'textBefore': before.textY, 'textAfter': after.textY})}',
       );
       expect(after.rowY, closeTo(before.rowY, 1));

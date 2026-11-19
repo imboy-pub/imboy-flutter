@@ -58,7 +58,7 @@ import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:xid/xid.dart';
 
 import 'env.dart';
-import 'env_factory_web.dart' as webEnv;
+import 'env_factory_web.dart' as web_env;
 
 import 'package:imboy/service/rsa.dart' show RSAService;
 
@@ -425,7 +425,7 @@ class AppInitializer {
 
   static (String, String) _currentInitScope() {
     final root = Env().apiBaseUrl;
-    return (currentEnv, kIsWeb ? webEnv.validateWebApiBaseUrl(root) : root);
+    return (currentEnv, kIsWeb ? web_env.validateWebApiBaseUrl(root) : root);
   }
 
   static Map<String, dynamic>? get currentWebBootstrap {
@@ -468,7 +468,7 @@ class AppInitializer {
             // Loopback 明文放行含 release：本地实验室/self-host 部署形态
             // （127.0.0.1:52392 直连）无 TLS 终结，kReleaseMode 硬性 wss/https
             // 会把这类部署逼到自签证书信任链上；非 loopback 的明文仍拒。
-            (uri.scheme == local && webEnv.isWebLoopbackHost(uri.host)))) {
+            (uri.scheme == local && web_env.isWebLoopbackHost(uri.host)))) {
       throw const FormatException('Invalid Web bootstrap URL');
     }
     return socket ? uri.toString() : value.replaceFirst(RegExp(r'/+$'), '');

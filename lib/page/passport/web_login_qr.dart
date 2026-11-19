@@ -1,7 +1,7 @@
 part of 'web_login_page.dart';
 
 /// QR 码登录状态管理
-@riverpod
+@Riverpod(keepAlive: false)
 class QRLogin extends _$QRLogin {
   Timer? _pollTimer;
   Timer? _expireTimer;

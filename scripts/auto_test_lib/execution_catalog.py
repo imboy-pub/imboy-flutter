@@ -18,6 +18,8 @@ from pathlib import Path, PurePosixPath
 from .discovery import git_head
 from .w09_fixture import TARGETS as W09_TARGETS
 from .web_control_fixture import TARGETS as WEB_CONTROL_TARGETS
+from .browser_sqlite_fixture import (TARGETS as BROWSER_SQLITE_TARGETS, PreparationFailure,
+                                     source_fingerprints as browser_sqlite_source_fingerprints)
 
 CONTRACT_PATH = 'test/auto_test/execution_contract.json'
 SCHEMA_VERSION = 1
@@ -702,6 +704,11 @@ def build_plan(root: Path, profile: str = 'pr', platforms: list[str] | None = No
                 path: hashlib.sha256((Path(root) / path).read_bytes()).hexdigest() for path in paths}
         except OSError as error:
             raise ContractError(['WEB_CONTROL_FIXTURE_INPUT_MISSING']) from error
+    if any(i['target'] in BROWSER_SQLITE_TARGETS for i in selected):
+        try:
+            fingerprint_inputs['browser_sqlite_fixture_inputs'] = browser_sqlite_source_fingerprints(root)
+        except (OSError, PreparationFailure) as error:
+            raise ContractError(['BROWSER_SQLITE_PREPARATION_INPUT_MISSING']) from error
     digest = hashlib.sha256(json.dumps(fingerprint_inputs, sort_keys=True).encode() + diff).hexdigest()
     return {'schema_version': SCHEMA_VERSION, 'commit': catalog['commit'],
             'profile': profile, 'scope': 'scoped' if scoped else profile,

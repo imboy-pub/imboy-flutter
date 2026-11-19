@@ -3,7 +3,7 @@ library;
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/config/env.dart';
-import 'package:imboy/config/env_factory_web.dart' as envFactory;
+import 'package:imboy/config/env_factory_web.dart' as env_factory;
 import 'package:imboy/config/init.dart' show AppInitializer, currentEnv;
 
 void main() {
@@ -16,7 +16,7 @@ void main() {
     AppInitializer.clearInitConfigCache();
     envMap
       ..clear()
-      ..addAll(envFactory.createEnvMap());
+      ..addAll(env_factory.createEnvMap());
   });
 
   tearDown(() {
@@ -51,6 +51,8 @@ void main() {
       '',
       'https://user:pass@example.invalid',
       'https://@example.invalid',
+      'HTTPS://@example.invalid:443',
+      'http://@127.0.0.1:19801',
       'https://example.invalid/',
       'https://example.invalid/path',
       'https://example.invalid?x=1',
@@ -58,25 +60,33 @@ void main() {
       'http://example.invalid',
       'https://example.invalid:0',
     ]) {
-      expect(() => envFactory.validateWebApiBaseUrl(invalid), throwsStateError);
+      expect(
+        () => env_factory.validateWebApiBaseUrl(invalid),
+        throwsStateError,
+        reason: 'Invalid public origin must be rejected: $invalid',
+      );
     }
     expect(
-      envFactory.validateWebApiBaseUrl('https://api.example.invalid'),
+      env_factory.validateWebApiBaseUrl('https://api.example.invalid'),
       'https://api.example.invalid',
     );
     expect(
-      envFactory.validateWebApiBaseUrl('http://127.0.0.1:19801'),
+      env_factory.validateWebApiBaseUrl('HTTPS://api.example.invalid:443'),
+      'https://api.example.invalid',
+    );
+    expect(
+      env_factory.validateWebApiBaseUrl('http://127.0.0.1:19801'),
       'http://127.0.0.1:19801',
     );
     expect(
-      () => envFactory.validateWebApiBaseUrl(
+      () => env_factory.validateWebApiBaseUrl(
         'http://127.0.0.1:19801',
         releaseMode: true,
       ),
       throwsStateError,
     );
     envMap.addAll(
-      envFactory.createEnvMap(apiBaseUrl: 'https://api.example.invalid'),
+      env_factory.createEnvMap(apiBaseUrl: 'https://api.example.invalid'),
     );
     currentEnv = 'dev';
     expect(Env().apiBaseUrl, 'https://api.example.invalid');

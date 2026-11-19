@@ -12,6 +12,12 @@ from auto_test_lib import execution_runner as runner
 
 ROOT = Path(__file__).resolve().parents[3]
 TARGET = 'test/service/web_control_fixture_oracle_test.dart'
+CHROME_TARGETS = frozenset({
+    'test/service/web_control_fetch_chrome_test.dart',
+    'test/service/web_control_production_wrapper_chrome_test.dart',
+    'test/service/browser_received_attachment_chrome_test.dart',
+    'test/service/web_message_content_security_chrome_test.dart',
+})
 FIXTURE_INPUTS = (
     'scripts/auto_test_lib/execution_runner.py',
     'scripts/auto_test_lib/owned_node_fixture.py',
@@ -43,9 +49,10 @@ class WebControlRunnerTest(unittest.TestCase):
         self.helper = support.RunnerTest('runTest')
         self.helper.setUp()
         self.addCleanup(self.helper.doCleanups)
-        target = self.helper.root / TARGET
-        target.parent.mkdir(parents=True, exist_ok=True)
-        target.write_text('// synthetic Oracle target\n')
+        for name in {TARGET} | CHROME_TARGETS:
+            target = self.helper.root / name
+            target.parent.mkdir(parents=True, exist_ok=True)
+            target.write_text('// synthetic owned fixture target\n')
 
     def test_owned_origin_replaces_old_define_and_does_not_reach_other_target(self):
         calls, fixtures = [], []
@@ -99,16 +106,58 @@ class WebControlRunnerTest(unittest.TestCase):
         self.assertEqual(result['results'][0]['reason_code'], 'WEB_CONTROL_FIXTURE_START_FAILED')
         self.assertNotEqual(result['exit_code'], 0)
 
-    def test_non_vm_scope_blocks_before_fixture_and_flutter_start(self):
-        with self.helper.mock_execution(self.helper.process), \
-                patch.object(runner, 'WebControlFixture') as fixture, \
-                patch.object(runner, 'execute_process') as process:
-            result = runner.run_plan(self.helper.root,
-                                     support.plan(support.instance(TARGET, platform='web')),
-                                     self.helper.output)
-        fixture.assert_not_called()
-        process.assert_not_called()
-        self.assertEqual(result['results'][0]['reason_code'], 'WEB_CONTROL_FIXTURE_SCOPE_INVALID')
+    def test_wrong_platform_blocks_before_fixture_and_flutter_start(self):
+        pairs = [(TARGET, 'web')] + [(target, 'linux') for target in sorted(CHROME_TARGETS)]
+        for target, platform in pairs:
+            with self.subTest(target=target), self.helper.mock_execution(self.helper.process), \
+                    patch.object(runner, 'WebControlFixture') as fixture, \
+                    patch.object(runner, 'execute_process') as process:
+                result = runner.run_plan(self.helper.root,
+                                         support.plan(support.instance(target, platform=platform)),
+                                         self.helper.output)
+            fixture.assert_not_called()
+            process.assert_not_called()
+            self.assertEqual(result['results'][0]['reason_code'], 'WEB_CONTROL_FIXTURE_SCOPE_INVALID')
+
+    def test_chrome_consumers_get_separate_owned_listeners_and_actual_origins(self):
+        calls, fixtures = [], []
+
+        class Fixture(SyntheticFixture):
+            def __init__(self, *args):
+                super().__init__(*args)
+                self.origin = f'http://127.0.0.1:{10000 + len(fixtures)}'
+                fixtures.append(self)
+
+        def process(command, env, output, **kwargs):
+            calls.append((list(command), kwargs))
+            return self.helper.process(command, env, output, **kwargs)
+
+        declared = support.plan(*(support.instance(target, platform='web')
+                                  for target in sorted(CHROME_TARGETS | {'test/b_test.dart'})))
+        with self.helper.mock_execution(process), patch.object(runner, 'WebControlFixture', Fixture):
+            result = runner.run_plan(self.helper.root, declared, self.helper.output)
+        self.assertEqual(result['status'], 'PASS', result)
+        self.assertEqual(len(fixtures), len(CHROME_TARGETS))
+        self.assertEqual(len({fixture.origin for fixture in fixtures}), len(fixtures))
+        self.assertEqual(len(calls), len(CHROME_TARGETS) + 1)
+        for command, options in calls:
+            selected = [target for target in CHROME_TARGETS if target in command]
+            if selected:
+                self.assertEqual(len(selected), 1)
+                fixture = options['observer'].__self__
+                self.assertIn('--dart-define=WEB_CONTROL_TEST_ORIGIN=' + fixture.origin, command)
+                self.assertGreaterEqual(fixture.stop_calls, 1)
+            else:
+                self.assertNotIn('observer', options)
+                self.assertFalse(any('WEB_CONTROL_TEST_ORIGIN=' in arg for arg in command))
+
+        config = catalog.load_contract(ROOT)
+        for target in CHROME_TARGETS:
+            override = config['overrides'][target]
+            self.assertEqual(override['platforms'], ['web'])
+            self.assertNotIn('WEB_CONTROL_TEST_ORIGIN', override.get('dart_defines', {}))
+            self.assertIn('node', override['dependencies'])
+            self.assertTrue(set(FIXTURE_INPUTS).issubset(override['source_dependencies']))
 
     def test_fixture_exit_or_cleanup_failure_vetoes_successful_machine_events(self):
         for failure in ('exit', 'cleanup'):
@@ -226,7 +275,7 @@ class WebControlRunnerTest(unittest.TestCase):
 
     def test_exact_target_keeps_pr_gates_and_does_not_expand_specialist_profiles(self):
         config, fake_catalog = self._plan_inputs()
-        self.assertEqual(runner.WEB_CONTROL_TARGETS, frozenset({TARGET}))
+        self.assertEqual(runner.WEB_CONTROL_TARGETS, frozenset({TARGET}) | CHROME_TARGETS)
         override = config['overrides'][TARGET]
         self.assertNotIn('WEB_CONTROL_TEST_ORIGIN', override.get('dart_defines', {}))
         self.assertEqual(set(override['platforms']), {'linux', 'macos'})

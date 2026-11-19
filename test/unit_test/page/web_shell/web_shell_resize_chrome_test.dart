@@ -390,6 +390,25 @@ void main() {
         ],
       );
       addTearDown(router.dispose);
+      Future<void> waitForReadyComposer() async {
+        final pick = find.byKey(const ValueKey('web-attachment-file'));
+        bool ready() =>
+            pick.evaluate().length == 1 &&
+            tester.widget<IconButton>(pick).onPressed != null &&
+            find.byType(CupertinoActivityIndicator).evaluate().isEmpty;
+        // The panel activation and SQLite bridge start in the real zone.
+        // Let their browser futures finish before fake-clock animation settling.
+        for (var i = 0; i < 200 && !ready(); i++) {
+          await Future<void>.delayed(const Duration(milliseconds: 10));
+          await tester.pump();
+        }
+        expect(
+          ready(),
+          isTrue,
+          reason: 'real history activation and journal restore must finish',
+        );
+      }
+
       final mounted = await tester.runAsync(() async {
         await tester.pumpWidget(
           UncontrolledProviderScope(
@@ -417,6 +436,7 @@ void main() {
           isEmpty,
         );
         await tester.pump();
+        await waitForReadyComposer();
         return true;
       });
       expect(tester.takeException(), isNull);
@@ -464,15 +484,7 @@ void main() {
             isEmpty,
           );
           await tester.pump();
-          expect(
-            tester
-                .widget<IconButton>(
-                  find.byKey(const ValueKey('web-attachment-file')),
-                )
-                .onPressed,
-            isNotNull,
-            reason: 'real-zone journal restore must finish before fake-clock settling',
-          );
+          await waitForReadyComposer();
           return true;
         });
         expect(tester.takeException(), isNull);

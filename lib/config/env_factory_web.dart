@@ -22,7 +22,8 @@ String validateWebApiBaseUrl(String value, {bool releaseMode = kReleaseMode}) {
       uri == null ||
       !uri.hasAuthority ||
       uri.host.isEmpty ||
-      uri.authority.contains('@') ||
+      // Uri normalizes away empty userinfo; validate the configured text.
+      value.contains('@') ||
       uri.path.isNotEmpty ||
       uri.hasQuery ||
       uri.hasFragment ||

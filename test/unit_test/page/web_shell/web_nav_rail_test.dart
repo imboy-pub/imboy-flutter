@@ -16,6 +16,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/page/web_shell/web_nav_rail.dart';
 import 'package:imboy/i18n/strings.g.dart';
+import 'package:imboy/service/web_writer_gate.dart';
 
 import '../../helper/material_tooltip_finder.dart';
 
@@ -78,6 +79,8 @@ Future<void> _pumpRail(
 }
 
 void main() {
+  setUpAll(prepareWebWriter);
+
   group('WebNavRail — 基础渲染', () {
     testWidgets('矮窗口固定全局入口，滚动目的地仍能到达我', (tester) async {
       tester.view.physicalSize = const Size(750, 200);

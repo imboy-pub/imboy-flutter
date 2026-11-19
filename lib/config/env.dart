@@ -7,12 +7,12 @@ import 'package:imboy/config/init.dart';
 import 'const.dart';
 import 'env_factory_native.dart'
     if (dart.library.js_interop) 'env_factory_web.dart'
-    as envFactory;
+    as env_factory;
 import 'env_field.dart';
 
 /// 环境映射配置
 /// 可用环境: pro, dev, local, local_home, local_office
-final Map<String, Env> envMap = envFactory.createEnvMap();
+final Map<String, Env> envMap = env_factory.createEnvMap();
 
 abstract interface class Env implements EnvField {
   factory Env() => _to;
@@ -44,7 +44,7 @@ abstract interface class Env implements EnvField {
     if (env != null) {
       return env;
     }
-    return envFactory.fallbackEnv();
+    return env_factory.fallbackEnv();
   }
 
   /// 获取签名密钥
