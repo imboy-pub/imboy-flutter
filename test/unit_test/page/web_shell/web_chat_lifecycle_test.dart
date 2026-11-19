@@ -5,6 +5,7 @@ import 'dart:ui' as ui;
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter/foundation.dart' show debugPrintSynchronously;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 import 'package:go_router/go_router.dart';
@@ -454,8 +455,7 @@ void main() {
       expect(saved, isNotNull);
       expect(int.parse(saved!.id.split('-').last), greaterThanOrEqualTo(20));
       final before = readingGeometry(tester, saved.id);
-      // ignore: avoid_print
-      print(
+      debugPrintSynchronously(
         'READING_ANCHOR_BEFORE ${jsonEncode({'id': saved.id, 'cacheY': saved.y, 'rowY': before.rowY, 'textY': before.textY})}',
       );
       expect(saved.y, closeTo(before.rowY, 1));
@@ -464,8 +464,7 @@ void main() {
       await mount(tester, panel('2', (_, _) async => conversation));
       await tester.pumpAndSettle();
       final after = readingGeometry(tester, saved.id);
-      // ignore: avoid_print
-      print(
+      debugPrintSynchronously(
         'READING_ANCHOR_ORACLE ${jsonEncode({'id': saved.id, 'cacheY': saved.y, 'rowBefore': before.rowY, 'rowAfter': after.rowY, 'textBefore': before.textY, 'textAfter': after.textY})}',
       );
       expect(after.rowY, closeTo(before.rowY, 1));
