@@ -14,6 +14,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flyer_chat_audio_message/flyer_chat_audio_message.dart';
 import 'package:flyer_chat_video_message/flyer_chat_video_message.dart';
+import 'package:imboy/component/extension/imboy_cache_manager.dart';
 import 'package:imboy/component/video/video_controller.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/i18n/strings.g.dart';
@@ -164,6 +165,13 @@ Future<void> _seedMedia(String url) async {
   } finally {
     cache.dispose();
   }
+  // Finish real filesystem materialization in setUp's real async zone before
+  // the widget starts its cache lookup inside FakeAsync.
+  final file = await IMBoyCacheManager().getSingleFile(
+    url,
+    validateImageData: false,
+  );
+  expect(await file.readAsBytes(), orderedEquals(_mediaBytes));
 }
 
 Future<void> _waitForMedia(
@@ -233,6 +241,7 @@ void main() {
     await container.pump();
     await _seedMedia(_audioUrl);
     await _seedMedia(_videoUrl);
+    expect(network.attempts, 0);
   });
 
   tearDown(() async {
