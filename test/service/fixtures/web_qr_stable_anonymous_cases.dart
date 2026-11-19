@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:go_router/go_router.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/passport/passport_notifier.dart';
 import 'package:imboy/page/passport/passport_state.dart';
@@ -77,19 +78,39 @@ void main() {
   setUpAll(prepareWebWriter);
   late _Sessions sessions;
   late _Qr qr;
+  late GoRouter router;
   Future<void> mount(WidgetTester tester) async {
     sessions = _Sessions();
     qr = _Qr(sessions);
+    // Real login success deliberately navigates immediately on a committed
+    // owner; this fixture needs a router rather than a MaterialApp home.
+    router = GoRouter(
+      initialLocation: '/sign_in',
+      routes: [
+        GoRoute(
+          path: '/sign_in',
+          builder: (_, _) => WebLoginPage(sessionReader: sessions),
+        ),
+        GoRoute(
+          path: '/web_shell',
+          builder: (_, _) =>
+              const Scaffold(body: Text('synthetic authenticated shell')),
+        ),
+        GoRoute(
+          path: '/bottom_navigation',
+          builder: (_, _) =>
+              const Scaffold(body: Text('synthetic native shell')),
+        ),
+      ],
+    );
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
           qRLoginProvider.overrideWith(() => qr),
           passportProvider.overrideWith(_Passport.new),
         ],
-        child: MaterialApp(
-          home: TranslationProvider(
-            child: WebLoginPage(sessionReader: sessions),
-          ),
+        child: TranslationProvider(
+          child: MaterialApp.router(routerConfig: router),
         ),
       ),
     );
@@ -101,6 +122,7 @@ void main() {
     await tester.pumpWidget(const SizedBox.shrink());
     await tester.pump();
     expect(sessions.hasSessionListeners, isFalse);
+    router.dispose();
     sessions.dispose();
   }
 
@@ -250,7 +272,8 @@ void main() {
         sessions.publish((uid: '123', generation: 2, transitioning: false));
         await tester.pump();
         expect(qr.calls, 1);
-        expect(qr.status, QRLoginStatus.confirming);
+        // Auth commit wins over the transient confirming screen.
+        expect(find.text('synthetic authenticated shell'), findsOneWidget);
         await retire(tester);
       },
     );
@@ -258,10 +281,12 @@ void main() {
       'profile pending owner revocation cancels confirming and allows anonymous QR',
       (tester) async {
         await mount(tester);
+        // Keep the owner in transition: a fully committed owner correctly
+        // navigates away, so revocation must race the pending transition.
         sessions.publish((
           uid: 'synthetic-hydration-owner',
           generation: 2,
-          transitioning: false,
+          transitioning: true,
         ));
         qr.profilePending = true;
         qr.confirming();
