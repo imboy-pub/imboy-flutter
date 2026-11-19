@@ -16,6 +16,7 @@ import 'package:sqflite_sqlcipher/sqflite.dart' as sql_cipher;
 import 'package:imboy/app_core/feature_flags/runtime_feature_recovery.dart';
 import 'package:imboy/component/http/http_client.dart';
 import 'package:imboy/component/http/http_config.dart';
+import 'package:imboy/component/helper/func.dart' show getOperatingSystem;
 import 'package:imboy/config/const.dart';
 import 'package:imboy/config/env.dart';
 import 'package:imboy/config/init.dart'
@@ -30,6 +31,8 @@ import 'package:imboy/service/storage.dart';
 import 'package:imboy/service/websocket.dart';
 import 'package:imboy/service/websocket_message_queue.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
+
+part 'fixtures/qr_login_persistence_fixture.dart';
 
 final class _QrIsolatedEnv implements Env {
   const _QrIsolatedEnv();
@@ -85,87 +88,6 @@ class _QrPreferences extends InMemorySharedPreferencesStore {
   }
 }
 
-class _SyntheticHttpAdapter implements HttpClientAdapter {
-  Map<String, dynamic>? qrStatusResponse;
-  String qrSessionToken = 'synthetic-session';
-  Future<void> Function()? beforeCreateResponse;
-  void Function(RequestOptions)? beforeQrStatus;
-  Future<void> Function()? beforeStatusResponse;
-  int statusRequests = 0;
-  int createRequests = 0;
-  int profileRequests = 0;
-  int profileStatusCode = 200;
-  int? lastProfileStatusCode;
-  Future<void> Function()? beforeProfileResponse;
-  Map<String, dynamic> profileResponse = {
-    'code': 0,
-    'payload': {
-      'uid': '9007199254740993',
-      'nickname': 'Hydrated synthetic',
-      'account': 'hydrated-account',
-      'email': '',
-      'avatar': '',
-      'gender': 3,
-      'region': 'Hydrated region',
-      'sign': 'Hydrated sign',
-      'setting': {
-        'allow_search': 2,
-        'enable_visibility_read': 'false',
-        'visibility_read_fraction': '0.83',
-        'visibility_read_delay_ms': '1350',
-        'font_size': 'huge',
-      },
-    },
-  };
-
-  @override
-  Future<ResponseBody> fetch(
-    RequestOptions options,
-    Stream<Uint8List>? requestStream,
-    Future<void>? cancelFuture,
-  ) async {
-    var responseStatus = 200;
-    Map<String, dynamic> response = {
-      'code': 503,
-      'msg': 'synthetic unavailable',
-    };
-    if (options.path == '/api/v1/passport/qr_login/create') {
-      createRequests++;
-      final sessionToken = qrSessionToken;
-      await beforeCreateResponse?.call();
-      response = {
-        'code': 0,
-        'payload': {
-          'qr_token': 'synthetic-qr-code',
-          'session_token': sessionToken,
-          'expires_in': 60,
-        },
-      };
-    } else if (options.path == '/api/v1/user/me') {
-      profileRequests++;
-      responseStatus = profileStatusCode;
-      lastProfileStatusCode = responseStatus;
-      await beforeProfileResponse?.call();
-      response = profileResponse;
-    } else if (options.path == '/api/v1/passport/qr_login/status') {
-      statusRequests++;
-      beforeQrStatus?.call(options);
-      await beforeStatusResponse?.call();
-      response = qrStatusResponse ?? response;
-    }
-    return ResponseBody.fromString(
-      jsonEncode(response),
-      responseStatus,
-      headers: {
-        Headers.contentTypeHeader: [Headers.jsonContentType],
-      },
-    );
-  }
-
-  @override
-  void close({bool force = false}) {}
-}
-
 class _SyntheticSseClient implements SseClient {
   final _frames = StreamController<String>.broadcast();
   final _errors = StreamController<Object>.broadcast();
@@ -188,6 +110,10 @@ class _SyntheticSseClient implements SseClient {
 }
 
 class _ReadyQrLogin extends QRLogin {
+  // Existing persistence tests model browser hydration using a VM runner.
+  @override
+  bool get shouldHydrateWebProfile => true;
+
   @override
   QRLoginState build() => const QRLoginState(sessionToken: 'synthetic-session');
 }
@@ -448,6 +374,18 @@ void main() {
       expect(StorageService.to.getKeys(), isEmpty);
     });
   }
+
+  test('Native QR create uses the actual device platform, not web', () async {
+    await notifier.generateQRCode();
+    expect(adapter.createRequests, 1);
+    expect(adapter.lastCreateBody, containsPair('device_id', deviceId));
+    expect(
+      adapter.lastCreateBody,
+      containsPair('platform', getOperatingSystem()),
+    );
+    expect(adapter.lastCreateBody, containsPair('purpose', 'human'));
+    expect(adapter.lastCreateBody?['platform'], isNot('web'));
+  });
 
   test(
     'create response after anonymous generation changes cannot publish failure',

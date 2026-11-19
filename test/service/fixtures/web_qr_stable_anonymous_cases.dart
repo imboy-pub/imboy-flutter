@@ -106,6 +106,11 @@ void main() {
           path: '/web_shell',
           builder: (_, _) => const Scaffold(body: Text('signed-in shell')),
         ),
+        GoRoute(
+          path: '/bottom_navigation',
+          builder: (_, _) =>
+              const Scaffold(body: Text('signed-in native shell')),
+        ),
       ],
     );
     addTearDown(router.dispose);

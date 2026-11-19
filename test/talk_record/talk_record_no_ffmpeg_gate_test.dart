@@ -460,17 +460,17 @@ packages:
     for (var i = 0; i < tickMsPerSegment.length; i++) {
       // 先订阅，避免错过滚动完成事件。单看 segmentCount 不足以证明
       // 下一段已启动：封段后创建目录的 await 期间也可能收到 ticker 快照。
+      // 封段包含真实加密与文件 I/O，等待完成事件；停滞由测试框架的
+      // 用例超时拦截，不额外要求繁忙宿主在 5 秒内完成。
       final rolledOver = i + 1 < tickMsPerSegment.length
-          ? recorder.snapshots
-                .firstWhere(
-                  (snapshot) =>
-                      snapshot.segmentCount == i + 1 &&
-                      engine.events
-                              .where((event) => event.startsWith('start:'))
-                              .length ==
-                          i + 2,
-                )
-                .timeout(const Duration(seconds: 5))
+          ? recorder.snapshots.firstWhere(
+              (snapshot) =>
+                  snapshot.segmentCount == i + 1 &&
+                  engine.events
+                          .where((event) => event.startsWith('start:'))
+                          .length ==
+                      i + 2,
+            )
           : null;
       clock.advanceMs(tickMsPerSegment[i]);
       engine.tick(tickMsPerSegment[i]);

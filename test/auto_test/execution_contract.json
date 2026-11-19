@@ -1736,6 +1736,7 @@
     },
     "test/unit_test/service/qr_login_persistence_test.dart": {
       "source_dependencies": [
+        "test/unit_test/service/fixtures/qr_login_persistence_fixture.dart",
         "lib/store/repository/user_repo_local.dart",
         "lib/store/service/user_profile_service.dart",
         "lib/store/model/user_model.dart",

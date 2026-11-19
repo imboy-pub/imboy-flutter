@@ -1,5 +1,59 @@
 part of 'web_login_page.dart';
 
+/// QR 码登录状态
+enum QRLoginStatus {
+  /// 等待扫码
+  waiting,
+
+  /// 已扫码，等待确认
+  scanned,
+
+  /// 已确认，登录中
+  confirming,
+
+  /// 已过期
+  expired,
+
+  /// 登录成功
+  success,
+
+  /// 登录失败
+  failed,
+}
+
+/// QR 码登录状态
+class QRLoginState {
+  final QRLoginStatus status;
+  final String? qrData;
+  final String? sessionToken;
+  final String? errorMessage;
+  final int remainingSeconds;
+
+  const QRLoginState({
+    this.status = QRLoginStatus.waiting,
+    this.qrData,
+    this.sessionToken,
+    this.errorMessage,
+    this.remainingSeconds = 60,
+  });
+
+  QRLoginState copyWith({
+    QRLoginStatus? status,
+    String? qrData,
+    String? sessionToken,
+    String? errorMessage,
+    int? remainingSeconds,
+  }) {
+    return QRLoginState(
+      status: status ?? this.status,
+      qrData: qrData ?? this.qrData,
+      sessionToken: sessionToken ?? this.sessionToken,
+      errorMessage: errorMessage ?? this.errorMessage,
+      remainingSeconds: remainingSeconds ?? this.remainingSeconds,
+    );
+  }
+}
+
 /// QR 码登录状态管理
 @Riverpod(keepAlive: false)
 class QRLogin extends _$QRLogin {
@@ -8,6 +62,10 @@ class QRLogin extends _$QRLogin {
   int _requestGeneration = 0;
   ({AuthSessionScope auth, String environment, String endpoint})?
   _pendingProfile;
+
+  // Override only in isolated tests that exercise Web hydration on a VM.
+  @visibleForTesting
+  bool get shouldHydrateWebProfile => kIsWeb;
 
   bool get hasPendingProfile => _pendingProfile != null;
 
@@ -69,8 +127,8 @@ class QRLogin extends _$QRLogin {
         '/api/v1/passport/qr_login/create',
         data: {
           'device_id': deviceId,
-          'device_name': 'Web Browser',
-          'platform': 'web',
+          'device_name': kIsWeb ? 'Web Browser' : getOperatingSystem(),
+          'platform': kIsWeb ? 'web' : getOperatingSystem(),
           'purpose': 'human',
         },
       );
@@ -260,7 +318,13 @@ class QRLogin extends _$QRLogin {
             environment: environment,
             endpoint: endpoint,
           );
-          await _hydrateProfile(generation);
+          if (shouldHydrateWebProfile) {
+            await _hydrateProfile(generation);
+          } else {
+            // Native does not request the Web-only /api/v1/user/me route.
+            _pendingProfile = null;
+            state = state.copyWith(status: QRLoginStatus.success);
+          }
         } catch (e) {
           // F6/AUT01：committed 后的成功链异常（hydrate 等）不受 UI cancel
           // 影响；未提交场景仍尊重 generation 失效（用户已切走登录方式）。

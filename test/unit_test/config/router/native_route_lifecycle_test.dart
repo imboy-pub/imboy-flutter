@@ -395,8 +395,10 @@ Future<void> _waitForApplyAndReturn(
   _FriendResponseAdapter adapter, {
   String destination = '/web_shell',
 }) async {
-  for (var i = 0; i < 100; i++) {
-    // SQLite initialization may need the host event loop for filesystem IO.
+  final wait = Stopwatch()..start();
+  while (wait.elapsed < const Duration(seconds: 30)) {
+    // Give host I/O a real-time budget and keep pumping until both departing
+    // routes are disposed; a fixed frame count can expire during their exit.
     await tester.runAsync(() => Future<void>.delayed(Duration.zero));
     await _checkedFrames(tester, 1);
     if (adapter.completed == 1 &&
