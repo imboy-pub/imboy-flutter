@@ -97,7 +97,10 @@ Widget? webMessageContent({
             if (hasTime)
               Text(
                 DateTimeHelper.dateTimeFmt(time),
-                style: MessageBubbleStyle.getTimestampStyle(context),
+                style: MessageBubbleStyle.getTimestampStyle(
+                  context: context,
+                  isSentByMe: isMe,
+                ),
               ),
           ],
         ),

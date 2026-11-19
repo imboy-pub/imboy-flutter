@@ -131,14 +131,31 @@ class MessageBubbleStyle {
   }
 
   /// 获取时间戳样式
-  static TextStyle getTimestampStyle(BuildContext context) {
+  ///
+  /// 必须按收发分色（2026-11-19 属主反馈"看不清"）：发送气泡底色是
+  /// primaryDark(#1565C0)/darkSent(#1D5EC2)，原先统一用深色次级文字
+  /// @54% → 深灰叠深蓝，对比度远低于 WCAG AA。发送侧改走 onPrimary
+  /// 白 @90%（亮 5.75:1 / 暗 ≈4.8:1 过 AA）。
+  /// 接收侧原 54% 同样不达标（亮 2.9:1 / 暗 2.55:1，存量问题），提到
+  /// 亮 @75%（≈5.2:1）/ 暗 @95%（≈4.9:1）——仍低于正文层级，保持"次级"观感。
+  static TextStyle getTimestampStyle({
+    required BuildContext context,
+    required bool isSentByMe,
+  }) {
+    final brightness = Theme.of(context).brightness;
+    final Color color;
+    if (isSentByMe) {
+      color = AppColors.onPrimary.withValues(alpha: 0.9);
+    } else {
+      color = AppColors.getTextColor(
+        brightness,
+        isSecondary: true,
+      ).withValues(alpha: brightness == Brightness.dark ? 0.95 : 0.75);
+    }
     return context.textStyle(
       FontSizeType.small,
       fontWeight: FontWeight.w400,
-      color: AppColors.getTextColor(
-        Theme.of(context).brightness,
-        isSecondary: true,
-      ).withValues(alpha: 0.54),
+      color: color,
     );
   }
 
