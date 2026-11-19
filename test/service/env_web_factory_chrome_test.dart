@@ -58,7 +58,10 @@ void main() {
       'http://example.invalid',
       'https://example.invalid:0',
     ]) {
-      expect(() => env_factory.validateWebApiBaseUrl(invalid), throwsStateError);
+      expect(
+        () => env_factory.validateWebApiBaseUrl(invalid),
+        throwsStateError,
+      );
     }
     expect(
       env_factory.validateWebApiBaseUrl('https://api.example.invalid'),
