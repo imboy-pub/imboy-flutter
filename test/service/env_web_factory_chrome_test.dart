@@ -46,9 +46,16 @@ void main() {
     }
   });
 
-  test('公开根只接受显式origin，release拒绝http且开发仅允许loopback', () {
+  group('公开根只接受显式origin', () {
     for (final invalid in [
       '',
+      ' https://example.invalid',
+      'https://example.invalid ',
+      'https://exam ple.invalid',
+      'https://',
+      '/api/v1',
+      '//example.invalid',
+      'file:///tmp/imboy',
       'https://user:pass@example.invalid',
       'https://@example.invalid',
       'HTTPS://@example.invalid:443',
@@ -58,33 +65,66 @@ void main() {
       'https://example.invalid?x=1',
       'https://example.invalid#fragment',
       'http://example.invalid',
+      'http://192.168.1.2:19801',
       'https://example.invalid:0',
+      'https://example.invalid:00',
+      'https://example.invalid:65536',
+      'https://example.invalid:-1',
     ]) {
-      expect(
-        () => env_factory.validateWebApiBaseUrl(invalid),
-        throwsStateError,
-        reason: 'Invalid public origin must be rejected: $invalid',
-      );
+      test('拒绝 "$invalid"', () {
+        for (final releaseMode in [false, true]) {
+          expect(
+            () => env_factory.validateWebApiBaseUrl(
+              invalid,
+              releaseMode: releaseMode,
+            ),
+            throwsStateError,
+            reason: 'Invalid origin "$invalid", releaseMode=$releaseMode',
+          );
+        }
+      });
     }
-    expect(
-      env_factory.validateWebApiBaseUrl('https://api.example.invalid'),
-      'https://api.example.invalid',
-    );
-    expect(
-      env_factory.validateWebApiBaseUrl('HTTPS://api.example.invalid:443'),
-      'https://api.example.invalid',
-    );
-    expect(
-      env_factory.validateWebApiBaseUrl('http://127.0.0.1:19801'),
-      'http://127.0.0.1:19801',
-    );
-    expect(
-      () => env_factory.validateWebApiBaseUrl(
-        'http://127.0.0.1:19801',
-        releaseMode: true,
-      ),
-      throwsStateError,
-    );
+
+    for (final entry in {
+      'https://api.example.invalid': 'https://api.example.invalid',
+      'HTTPS://API.EXAMPLE.INVALID': 'https://api.example.invalid',
+      'HTTPS://API.EXAMPLE.INVALID:443': 'https://api.example.invalid',
+      'https://api.example.invalid:8443': 'https://api.example.invalid:8443',
+    }.entries) {
+      for (final releaseMode in [false, true]) {
+        test('规范化 ${entry.key}，releaseMode=$releaseMode', () {
+          expect(
+            env_factory.validateWebApiBaseUrl(
+              entry.key,
+              releaseMode: releaseMode,
+            ),
+            entry.value,
+          );
+        });
+      }
+    }
+
+    for (final host in ['localhost', '127.0.0.1', '[::1]']) {
+      for (final port in ['', ':80', ':19801']) {
+        final origin = 'http://$host$port';
+        final normalized = 'http://$host${port == ':80' ? '' : port}';
+        test('非release允许并规范化loopback $origin', () {
+          expect(
+            env_factory.validateWebApiBaseUrl(origin, releaseMode: false),
+            normalized,
+          );
+        });
+        test('release拒绝loopback $origin', () {
+          expect(
+            () => env_factory.validateWebApiBaseUrl(origin, releaseMode: true),
+            throwsStateError,
+          );
+        });
+      }
+    }
+  });
+
+  test('公开根工厂保留origin且不提供Native配置', () {
     envMap.addAll(
       env_factory.createEnvMap(apiBaseUrl: 'https://api.example.invalid'),
     );
