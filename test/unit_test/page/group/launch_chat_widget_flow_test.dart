@@ -234,7 +234,7 @@ void main() {
     try {
       await _openPage(tester);
       final node = tester.getSemantics(find.text('好友乙'));
-      tester.binding.pipelineOwner.semanticsOwner!.performAction(
+      tester.binding.rootPipelineOwner.semanticsOwner!.performAction(
         node.id,
         SemanticsAction.tap,
       );
