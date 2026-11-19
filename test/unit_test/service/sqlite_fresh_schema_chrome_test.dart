@@ -3,7 +3,7 @@ library;
 
 import 'dart:convert';
 
-import 'package:flutter/foundation.dart';
+import 'package:flutter/foundation.dart' show debugPrintSynchronously;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/config/init.dart' show currentEnv;
@@ -80,8 +80,7 @@ Future<void> _verifyProductionSchema(common.Database db) async {
       tables.remove('${prefix}_$suffix');
     }
   }
-  // ignore: avoid_print
-  print(
+  debugPrintSynchronously(
     'WEB_SQLITE_SCHEMA_ORACLE version=${await db.getVersion()} '
     'tables=${tables.toList()..sort()}',
   );
@@ -128,8 +127,7 @@ Future<void> _verifyProductionSchema(common.Database db) async {
 }
 
 void main() {
-  // ignore: avoid_print
-  print('WEB_SQLITE_ORIGIN ${web.window.location.origin}');
+  debugPrintSynchronously('WEB_SQLITE_ORIGIN ${web.window.location.origin}');
   TestWidgetsFlutterBinding.ensureInitialized();
   testWidgets('large SQLite identities reconcile a held group attachment', (
     tester,
@@ -387,8 +385,7 @@ void main() {
             3,
           );
         } catch (error, stack) {
-          // ignore: avoid_print
-          print('WEB_SQLITE_SCHEMA_FAILURE $error\n$stack');
+          debugPrintSynchronously('WEB_SQLITE_SCHEMA_FAILURE $error\n$stack');
           rethrow;
         } finally {
           await messages.waitForFtsReindexForTest();
