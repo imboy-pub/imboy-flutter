@@ -4,7 +4,7 @@ library;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/config/env.dart';
 import 'package:imboy/config/env_dev.dart';
-import 'package:imboy/config/env_factory_native.dart' as envFactory;
+import 'package:imboy/config/env_factory_native.dart' as env_factory;
 import 'package:imboy/config/env_local.dart';
 import 'package:imboy/config/env_local_home.dart';
 import 'package:imboy/config/env_local_office.dart';
@@ -13,7 +13,7 @@ import 'package:imboy/config/init.dart' show currentEnv;
 
 void main() {
   test('Native 五环境键及包装类型保持不变', () {
-    final map = envFactory.createEnvMap();
+    final map = env_factory.createEnvMap();
     expect(
       map.keys,
       unorderedEquals(['pro', 'dev', 'local', 'local_home', 'local_office']),
