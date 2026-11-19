@@ -14,7 +14,7 @@ import 'package:imboy/component/http/http_response.dart';
 import 'package:imboy/component/http/http_transformer.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/config/env.dart';
-import 'package:imboy/config/env_factory_web.dart' as webEnv;
+import 'package:imboy/config/env_factory_web.dart' as web_env;
 import 'package:imboy/config/init.dart';
 import 'package:imboy/service/storage.dart';
 import 'package:imboy/service/web_writer_gate.dart';
@@ -100,7 +100,7 @@ void main() {
   setUpAll(() async {
     previousMap = Map<String, Env>.of(envMap);
     previousEnv = currentEnv;
-    envMap.addAll(webEnv.createEnvMap(apiBaseUrl: _firstRoot));
+    envMap.addAll(web_env.createEnvMap(apiBaseUrl: _firstRoot));
     currentEnv = 'dev';
     await prepareWebWriter();
   });
@@ -111,7 +111,7 @@ void main() {
     currentEnv = previousEnv;
   });
   setUp(() async {
-    envMap.addAll(webEnv.createEnvMap(apiBaseUrl: _firstRoot));
+    envMap.addAll(web_env.createEnvMap(apiBaseUrl: _firstRoot));
     currentEnv = 'dev';
     AppInitializer.clearInitConfigCache();
     SharedPreferences.setMockInitialValues({
@@ -256,7 +256,7 @@ void main() {
       if (clearOnly) {
         AppInitializer.clearInitConfigCache();
       } else {
-        envMap['dev'] = webEnv.createEnvMap(apiBaseUrl: root)['dev']!;
+        envMap['dev'] = web_env.createEnvMap(apiBaseUrl: root)['dev']!;
       }
       final newRequest = AppInitializer.initConfig();
       var newDone = false;
@@ -289,7 +289,7 @@ void main() {
         'retained-legacy-scene',
       );
       expect(secureCalls, 0);
-      envMap['pro'] = webEnv.createEnvMap(apiBaseUrl: root)['pro']!;
+      envMap['pro'] = web_env.createEnvMap(apiBaseUrl: root)['pro']!;
       currentEnv = 'pro';
       expect(Env.effectiveWsUrl, isNull);
       expect(Env.publicBaseUrl, isEmpty);
