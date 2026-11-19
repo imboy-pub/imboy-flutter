@@ -1050,10 +1050,36 @@ void main() {
         if (kIsWeb && type == 'C2G') {
           // Web group names come from the owned group projection, never the
           // legacy conversation title. Supply that independent trusted source.
+          final previousUid = StorageService.to.getString(Keys.currentUid);
+          final fixtureUid =
+              'conversation_title_${DateTime.now().microsecondsSinceEpoch}';
+          final databaseName = SqliteService.databaseNameForUid(fixtureUid);
+          sqlite.Database? ownedDatabase;
+          addTearDown(() async {
+            try {
+              await _unmount(tester);
+            } finally {
+              SqliteService.setDbForTest(null);
+              await tester.runAsync(() async {
+                try {
+                  await ownedDatabase?.close();
+                  await sqlite.databaseFactory.deleteDatabase(databaseName);
+                } finally {
+                  await StorageService.to.setString(
+                    Keys.currentUid,
+                    previousUid,
+                  );
+                }
+              });
+            }
+          });
           final database = await tester.runAsync(() async {
-            final db = await sqlite.databaseFactory.openDatabase(
-              sqlite.inMemoryDatabasePath,
-            );
+            await SqliteService.to.close();
+            await sqlite.databaseFactory.deleteDatabase(databaseName);
+            await StorageService.to.setString(Keys.currentUid, fixtureUid);
+            expect(authSessionReader.current.uid, fixtureUid);
+            final db = await sqlite.databaseFactory.openDatabase(databaseName);
+            ownedDatabase = db;
             await db.execute(
               'CREATE TABLE "group" (id TEXT PRIMARY KEY, title TEXT NOT NULL)',
             );
@@ -1067,10 +1093,6 @@ void main() {
           });
           expect(database, isNotNull);
           SqliteService.setDbForTest(database);
-          addTearDown(() async {
-            SqliteService.setDbForTest(null);
-            await tester.runAsync(database!.close);
-          });
         }
         final visitedRoutes = <String>[];
         final visitedExtras = <Object?>[];
@@ -1098,6 +1120,24 @@ void main() {
         );
         expect(row.hitTestable(), findsNothing, reason: '目标初始必须在屏外');
         await tester.scrollUntilVisible(row, 300, scrollable: scrollable);
+        if (kIsWeb && type == 'C2G') {
+          final trustedTitle = find.descendant(
+            of: row,
+            matching: find.text('Row open 30'),
+          );
+          // Real bridge reads can still be pending when no frame is scheduled.
+          await tester.runAsync(() async {
+            for (var i = 0; i < 200 && trustedTitle.evaluate().isEmpty; i++) {
+              await Future<void>.delayed(const Duration(milliseconds: 10));
+              await tester.pump();
+            }
+          });
+          expect(
+            trustedTitle,
+            findsOneWidget,
+            reason: 'trusted group title must be rendered before navigation',
+          );
+        }
         await tester.pumpAndSettle();
         final position = tester.state<ScrollableState>(scrollable).position;
         final offsetBefore = position.pixels;

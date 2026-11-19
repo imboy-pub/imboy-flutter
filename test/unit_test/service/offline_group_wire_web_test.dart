@@ -11,13 +11,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:sqflite_common_ffi_web/sqflite_ffi_web.dart';
 import 'package:imboy/app_core/feature_flags/app_feature_registry.dart';
 import 'package:imboy/component/http/http_client.dart';
 import 'package:imboy/component/http/web_writer_http_adapter.dart';
 import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/config/init.dart';
+import 'package:imboy/service/browser_sqlite_storage_bridge_web.dart';
 import 'package:imboy/service/event_bus.dart';
 import 'package:imboy/service/events/common_events.dart';
 import 'package:imboy/service/message_offline.dart';
@@ -80,15 +80,12 @@ void main() {
           'secure_token':
               '${encode({'alg': 'none'})}.${encode({'exp': 4102444800, 'uid': 995011})}.test',
         });
-        final factory = createDatabaseFactoryFfiWeb(
-          noWebWorker: true,
-          options: SqfliteFfiWebOptions(
-            sqlite3WasmUri: Uri.parse(
-              const String.fromEnvironment('SQLITE_WASM_URL'),
-            ),
-          ),
-        );
-        final db = await factory.openDatabase(':memory:');
+        // Keep the admitted bridge's process-global handler. Opening a legacy
+        // Web factory here replaces it and correctly poisons the writer gate.
+        final factory = browserSqliteStorageBridge.factory;
+        final databaseName = SqliteService.databaseNameForUid('995011');
+        await factory.deleteDatabase(databaseName);
+        final db = await factory.openDatabase(databaseName);
         SqliteService.setDbForTest(db);
         await db.execute(
           'CREATE TABLE group_member (id INTEGER PRIMARY KEY, group_id INTEGER, user_id INTEGER, role INTEGER, updated_at INTEGER)',
@@ -100,6 +97,7 @@ void main() {
           'role': 1,
           'updated_at': 0,
         });
+        expect(isWebWriterReady, isTrue);
         final container = ProviderContainer();
         MessageRepo.setProviderContainer(container);
         AppFeatureRegistry.replaceSnapshotForTest({'e2ee': false});
@@ -119,6 +117,7 @@ void main() {
             source: 'synthetic_offline',
             force: true,
           );
+          expect(isWebWriterReady, isTrue);
           await Future<void>.delayed(const Duration(milliseconds: 20));
           expect(ok, isTrue);
           final rows = await db.rawQuery(
@@ -135,6 +134,7 @@ void main() {
           container.dispose();
           SqliteService.setDbForTest(null);
           await db.close();
+          await factory.deleteDatabase(databaseName);
           client.dio.close(force: true);
           serviceContainer.clear();
           await AppFeatureRegistry.clear();
