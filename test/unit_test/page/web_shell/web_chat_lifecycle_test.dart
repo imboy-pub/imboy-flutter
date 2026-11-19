@@ -454,6 +454,7 @@ void main() {
       expect(saved, isNotNull);
       expect(int.parse(saved!.id.split('-').last), greaterThanOrEqualTo(20));
       final before = readingGeometry(tester, saved.id);
+      // ignore: avoid_print
       print(
         'READING_ANCHOR_BEFORE ${jsonEncode({'id': saved.id, 'cacheY': saved.y, 'rowY': before.rowY, 'textY': before.textY})}',
       );
@@ -463,6 +464,7 @@ void main() {
       await mount(tester, panel('2', (_, _) async => conversation));
       await tester.pumpAndSettle();
       final after = readingGeometry(tester, saved.id);
+      // ignore: avoid_print
       print(
         'READING_ANCHOR_ORACLE ${jsonEncode({'id': saved.id, 'cacheY': saved.y, 'rowBefore': before.rowY, 'rowAfter': after.rowY, 'textBefore': before.textY, 'textAfter': after.textY})}',
       );
