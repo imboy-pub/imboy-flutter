@@ -270,9 +270,10 @@ void main() {
         qr.confirming();
         sessions.publish((uid: '123', generation: 2, transitioning: true));
         sessions.publish((uid: '123', generation: 2, transitioning: false));
-        await tester.pump();
+        // GoRouter updates its page stack on a subsequent frame. Let the
+        // committed-owner navigation settle before asserting the destination.
+        await tester.pumpAndSettle();
         expect(qr.calls, 1);
-        // Auth commit wins over the transient confirming screen.
         expect(find.text('synthetic authenticated shell'), findsOneWidget);
         await retire(tester);
       },
