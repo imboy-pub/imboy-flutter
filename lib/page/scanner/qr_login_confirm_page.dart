@@ -2,12 +2,15 @@
 ///
 /// 职责：
 ///   1. initState 后自动调 `qrLoginConfirmProvider.notifier.scan(qrToken)`
-///   2. listen state 变化，终态（Success / CancelledByMe）后 800ms 自动 pop
-///   3. 把 state 与三个回调（confirm / cancel / close）注入展示组件
-///      [QrLoginConfirmContent]
+///   2. listen state 变化：CancelledByMe 后 800ms 自动 pop；
+///      Success 不自动退栈——展示组件出现"我知道了"按钮，点击后双层退栈
+///      （确认页 + 扫码页）回到进入扫一扫之前的页面（2026-11-19 前成功态
+///      800ms 自动 pop 只退到扫码取景页，用户观感"停留在扫描状态"）
+///   3. 把 state 与四个回调（confirm / cancel / close / acknowledged）
+///      注入展示组件 [QrLoginConfirmContent]
 ///
 /// 测试策略：本 widget 不单测（按项目惯例）；UI 渲染契约已被
-/// `qr_login_confirm_content_test.dart` 覆盖（17 widget 测）；状态机正确性
+/// `qr_login_confirm_content_test.dart` 覆盖（widget 测）；状态机正确性
 /// 已被 `qr_login_confirm_rules_test.dart` 覆盖（31 单测）。
 library;
 
@@ -41,10 +44,23 @@ class _QrLoginConfirmPageState extends ConsumerState<QrLoginConfirmPage> {
 
   @override
   Widget build(BuildContext context) {
-    // 终态自动 pop（成功 800ms 后退栈，让用户看清成功反馈）。
+    // 我知道了：确认页 + 扫码页双层退栈（栈形 [..., /scanner 路由页, 确认页]，
+    // 由 scanner_page.dart onDetect CupertinoPageRoute push 保证）。
+    // canPop 守卫：/scanner 是顶层 GoRoute，若它以根路由形态被直接打开
+    // （深链/冷启动直达），退栈只能退确认页，绝不 pop 最后一页（空 Navigator）。
+    void acknowledgeAndReturn() {
+      if (!context.mounted) return;
+      final navigator = Navigator.of(context);
+      navigator.pop();
+      if (navigator.canPop()) {
+        navigator.pop();
+      }
+    }
+
+    // 终态自动 pop（仅我方取消；成功态改为显式"我知道了"，见类注释）。
     ref.listen<QrLoginConfirmState>(qrLoginConfirmProvider, (prev, next) {
       switch (next) {
-        case QrLoginConfirmSuccess() || QrLoginConfirmCancelledByMe():
+        case QrLoginConfirmCancelledByMe():
           Future<dynamic>.delayed(const Duration(milliseconds: 800), () {
             if (context.mounted) Navigator.of(context).pop();
           });
@@ -62,6 +78,7 @@ class _QrLoginConfirmPageState extends ConsumerState<QrLoginConfirmPage> {
       onClose: () {
         if (context.mounted) Navigator.of(context).pop();
       },
+      onAcknowledged: acknowledgeAndReturn,
     );
   }
 }

@@ -898,6 +898,7 @@ class Translations$common$zh_Hant extends Translations$common$zh_CN {
 	@override String get buttonClose => '關閉';
 	@override String get buttonConfirm => '確認';
 	@override String get buttonContinue => '繼續';
+	@override String get buttonGotIt => '我知道了';
 	@override String get buttonCopy => '複製';
 	@override String get buttonDelete => '刪除';
 	@override String get buttonLogout => '登出';
@@ -2766,6 +2767,7 @@ class Translations$passport$zh_Hant extends Translations$passport$zh_CN {
 	@override String get qrWebLoginTitle => 'Web 端登入確認';
 	@override String get qrWebLoginDesc => '請確認是否在 Web 端登入此帳號';
 	@override String get qrLoginAction => '確認登入';
+	@override String get qrLoginLoggedIn => '已登錄';
 	@override String get qrLoginSuccess => '登入成功';
 	@override String get alipayNotSupportedWeb => 'Web 平台不支援支付寶登入';
 	@override String get oneKeyNotSupportedWeb => 'Web 平台不支援一鍵登入功能';
@@ -4921,6 +4923,7 @@ extension on TranslationsZhHant {
 			'common.buttonClose' => '關閉',
 			'common.buttonConfirm' => '確認',
 			'common.buttonContinue' => '繼續',
+			'common.buttonGotIt' => '我知道了',
 			'common.buttonCopy' => '複製',
 			'common.buttonDelete' => '刪除',
 			'common.buttonLogout' => '登出',
@@ -5179,9 +5182,9 @@ extension on TranslationsZhHant {
 			'common.tipConnectDescWithParen' => ({required Object param}) => '（${param}）',
 			'common.tipDeleteContact' => ({required Object param}) => '將聯絡人「${param}」刪除，同時刪除與該聯絡人的聊天記錄',
 			'common.tipDeviceSpace' => ({required Object param1, required Object param2}) => '佔裝置 ${param1}% 儲存空間（${param2}）',
-			'common.tipDraft' => '草稿內容',
 			_ => null,
 		} ?? switch (path) {
+			'common.tipDraft' => '草稿內容',
 			'common.tipFailed' => '操作失敗！',
 			'common.tipSuccess' => '操作已完成！',
 			'common.tipTips' => '小貼士',
@@ -5693,9 +5696,9 @@ extension on TranslationsZhHant {
 			'common.loadFailedWithError' => ({required Object error}) => '載入失敗: ${error}',
 			'common.webAudioNotSupported' => 'Web 平臺暫不支援語音訊息播放',
 			'common.e2eeKeyRecreationFailed' => ({required Object error}) => '金鑰建立失敗: ${error}',
-			'common.redPacket' => '紅包',
 			_ => null,
 		} ?? switch (path) {
+			'common.redPacket' => '紅包',
 			'common.transfer' => '轉賬',
 			'common.withdraw' => '提現',
 			'common.redPacketSend' => '發紅包',
@@ -6207,9 +6210,9 @@ extension on TranslationsZhHant {
 			'group.groupAdmin' => 'Admin',
 			'group.groupGuest' => '嘉賓',
 			'group.groupInfo' => '群組資訊',
-			'group.groupMemberRoleLabel' => '成員',
 			_ => null,
 		} ?? switch (path) {
+			'group.groupMemberRoleLabel' => '成員',
 			'group.noMemberWithRole' => ({required Object roleName}) => '暫無${roleName}',
 			'group.moreActions' => '更多選項',
 			'group.touchContactAddMember' => '點擊聯絡人新增為群組成員',
@@ -6721,9 +6724,9 @@ extension on TranslationsZhHant {
 			'organization.departments.loadFailed' => ({required Object err}) => '載入部門失敗：${err}',
 			'organization.departments.createSubHere' => '在其下新增子部門',
 			'organization.departments.movePickParent' => '移動（選擇新父部門）',
-			'organization.departments.addMemberByUid' => '新增成員（按 UID）',
 			_ => null,
 		} ?? switch (path) {
+			'organization.departments.addMemberByUid' => '新增成員（按 UID）',
 			'organization.departments.archiveDept' => '封存部門',
 			'organization.departments.createRootDept' => '建立根部門',
 			'organization.departments.deptNameLabel' => '部門名稱',
@@ -7017,6 +7020,7 @@ extension on TranslationsZhHant {
 			'passport.qrWebLoginTitle' => 'Web 端登入確認',
 			'passport.qrWebLoginDesc' => '請確認是否在 Web 端登入此帳號',
 			'passport.qrLoginAction' => '確認登入',
+			'passport.qrLoginLoggedIn' => '已登錄',
 			'passport.qrLoginSuccess' => '登入成功',
 			'passport.alipayNotSupportedWeb' => 'Web 平台不支援支付寶登入',
 			'passport.oneKeyNotSupportedWeb' => 'Web 平台不支援一鍵登入功能',
@@ -7234,10 +7238,10 @@ extension on TranslationsZhHant {
 			'talkRecord.grantEditExportBlockedOrg' => '匯出已被企業策略停用，不能在授權中開啟。',
 			'talkRecord.grantEditExportBlockedUnknown' => '未能確認目前匯出策略，暫不能開啟匯出。',
 			'talkRecord.grantEditExportSectionTitle' => '允許匯出',
-			'talkRecord.grantEditGranteeLabel' => '被授權人',
-			'talkRecord.grantEditRoleEditorHint' => '可校對原文與發言人、編輯共享筆記；不能管理分享或刪除。',
 			_ => null,
 		} ?? switch (path) {
+			'talkRecord.grantEditGranteeLabel' => '被授權人',
+			'talkRecord.grantEditRoleEditorHint' => '可校對原文與發言人、編輯共享筆記；不能管理分享或刪除。',
 			'talkRecord.grantEditRoleSectionTitle' => '角色',
 			'talkRecord.grantEditRoleViewerHint' => '可檢視記錄與回聽音訊，不能修改內容。',
 			'talkRecord.grantEditSave' => '儲存權限',

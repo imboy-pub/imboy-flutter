@@ -2400,6 +2400,9 @@ class Translations$common$zh_CN {
 	/// zh-CN: '继续'
 	String get buttonContinue => '继续';
 
+	/// zh-CN: '我知道了'
+	String get buttonGotIt => '我知道了';
+
 	/// zh-CN: '复制'
 	String get buttonCopy => '复制';
 
@@ -7544,6 +7547,9 @@ class Translations$passport$zh_CN {
 	/// zh-CN: '确认登录'
 	String get qrLoginAction => '确认登录';
 
+	/// zh-CN: '已登录'
+	String get qrLoginLoggedIn => '已登录';
+
 	/// zh-CN: '登录成功'
 	String get qrLoginSuccess => '登录成功';
 
@@ -12009,6 +12015,7 @@ extension on Translations {
 			'common.buttonClose' => '关闭',
 			'common.buttonConfirm' => '确认',
 			'common.buttonContinue' => '继续',
+			'common.buttonGotIt' => '我知道了',
 			'common.buttonCopy' => '复制',
 			'common.buttonDelete' => '删除',
 			'common.buttonLogout' => '退出登录',
@@ -12262,9 +12269,9 @@ extension on Translations {
 			'common.timeDaysAgo' => ({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(n, other: '${n}天前', ), 
 			'common.timeHoursAgo' => ({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(n, other: '${n}小时前', ), 
 			'common.timeJustNow' => '刚刚',
-			'common.timeMinutesAgo' => ({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(n, other: '${n}分钟前', ), 
 			_ => null,
 		} ?? switch (path) {
+			'common.timeMinutesAgo' => ({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(n, other: '${n}分钟前', ), 
 			'common.tipConnectDesc' => '无网络',
 			'common.tipConnectDescWithParen' => ({required Object param}) => '(${param})',
 			'common.tipDeleteContact' => ({required Object param}) => '将联系人"${param}"删除，同时删除与该联系人的聊天记录',
@@ -12776,9 +12783,9 @@ extension on Translations {
 			'common.e2eeBackupSetupBlockedToast' => '请先完成密钥备份设置',
 			'common.e2eeBackupSetupPostponedToast' => '已稍后，下次启动会再次提醒',
 			'common.e2eeBackupSetupPwdTooShort' => '口令至少 8 位',
-			'common.e2eeBackupSetupUploading' => '正在上传…',
 			_ => null,
 		} ?? switch (path) {
+			'common.e2eeBackupSetupUploading' => '正在上传…',
 			'common.e2eeBackupSetupBusyHint' => '正在本机加密并上传到云端，请稍候；网络不佳时可以点下方「稍后再说」先跳过',
 			'common.e2eeBackupSetupTimeoutToast' => '上传超时，请检查网络后重试，或稍后再设置',
 			'common.e2eeBackupSetupLaterConfirmTitle' => '暂不设置备份？',
@@ -13290,9 +13297,9 @@ extension on Translations {
 			'group.groupAdmin' => '管理员',
 			'group.groupGuest' => '嘉宾',
 			'group.groupInfo' => '群聊信息',
-			'group.groupMemberRoleLabel' => '成员',
 			_ => null,
 		} ?? switch (path) {
+			'group.groupMemberRoleLabel' => '成员',
 			'group.noMemberWithRole' => ({required Object roleName}) => '暂无${roleName}',
 			'group.moreActions' => '更多操作',
 			'group.touchContactAddMember' => '点击联系人添加为群成员',
@@ -13804,9 +13811,9 @@ extension on Translations {
 			'organization.departments.loadFailed' => ({required Object err}) => '加载部门失败：${err}',
 			'organization.departments.createSubHere' => '在其下新建子部门',
 			'organization.departments.movePickParent' => '移动（选择新父部门）',
-			'organization.departments.addMemberByUid' => '添加成员（按 UID）',
 			_ => null,
 		} ?? switch (path) {
+			'organization.departments.addMemberByUid' => '添加成员（按 UID）',
 			'organization.departments.archiveDept' => '归档部门',
 			'organization.departments.createRootDept' => '新建根部门',
 			'organization.departments.deptNameLabel' => '部门名称',
@@ -14100,6 +14107,7 @@ extension on Translations {
 			'passport.qrWebLoginTitle' => 'Web 端登录确认',
 			'passport.qrWebLoginDesc' => '请确认是否在 Web 端登录此账号',
 			'passport.qrLoginAction' => '确认登录',
+			'passport.qrLoginLoggedIn' => '已登录',
 			'passport.qrLoginSuccess' => '登录成功',
 			'passport.alipayNotSupportedWeb' => 'Web 平台不支持支付宝登录',
 			'passport.oneKeyNotSupportedWeb' => 'Web 平台不支持一键登录功能',
@@ -14317,10 +14325,10 @@ extension on Translations {
 			'talkRecord.shareRevokeConfirmAction' => '撤销',
 			'talkRecord.shareRevokeFailedTitle' => '未能撤销',
 			'talkRecord.shareRevokeFailedBody' => '撤销失败，请稍后重试。',
-			'talkRecord.grantEditTitle' => '编辑权限',
-			'talkRecord.grantEditTitleNew' => '添加授权',
 			_ => null,
 		} ?? switch (path) {
+			'talkRecord.grantEditTitle' => '编辑权限',
+			'talkRecord.grantEditTitleNew' => '添加授权',
 			'talkRecord.grantEditCandidateSection' => '选择要授权的人',
 			'talkRecord.grantEditCandidateSearchHint' => '搜索姓名或账号',
 			'talkRecord.grantEditCandidatesUnavailable' => '候选目录暂不可用，请稍后重试。',

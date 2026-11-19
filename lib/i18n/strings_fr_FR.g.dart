@@ -898,6 +898,7 @@ class _Translations$common$fr_FR extends Translations$common$zh_CN {
 	@override String get buttonClose => 'Fermer';
 	@override String get buttonConfirm => 'Confirmer';
 	@override String get buttonContinue => 'Continuer';
+	@override String get buttonGotIt => 'Compris';
 	@override String get buttonCopy => 'Copier';
 	@override String get buttonDelete => 'Supprimer';
 	@override String get buttonLogout => 'Se déconnecter';
@@ -2767,6 +2768,7 @@ class _Translations$passport$fr_FR extends Translations$passport$zh_CN {
 	@override String get qrLoginCancelled => 'Connexion annulée';
 	@override String get qrLoginCancelledByMe => 'Vous avez annulé la connexion';
 	@override String get qrLoginConfirming => 'Connexion en cours...';
+	@override String get qrLoginLoggedIn => 'Connecté';
 	@override String get qrLoginSuccess => 'Connexion réussie';
 	@override String get qrWebLoginDesc => 'Confirmez-vous la connexion à ce compte depuis le Web ?';
 	@override String get qrWebLoginTitle => 'Confirmation de connexion Web';
@@ -4924,6 +4926,7 @@ extension on TranslationsFrFr {
 			'common.buttonClose' => 'Fermer',
 			'common.buttonConfirm' => 'Confirmer',
 			'common.buttonContinue' => 'Continuer',
+			'common.buttonGotIt' => 'Compris',
 			'common.buttonCopy' => 'Copier',
 			'common.buttonDelete' => 'Supprimer',
 			'common.buttonLogout' => 'Se déconnecter',
@@ -5182,9 +5185,9 @@ extension on TranslationsFrFr {
 			'common.tipDeviceSpace' => ({required Object param1, required Object param2}) => 'Occupe ${param1}% de l\'espace de stockage de l\'appareil (${param2}).',
 			'common.tipDraft' => 'Brouillon',
 			'common.tipFailed' => 'Opération échouée !',
-			'common.tipSuccess' => 'Opération réussie !',
 			_ => null,
 		} ?? switch (path) {
+			'common.tipSuccess' => 'Opération réussie !',
 			'common.tipTips' => 'Conseils',
 			'common.titleContact' => 'Contacts',
 			'common.today' => 'Aujourd\'hui',
@@ -5696,9 +5699,9 @@ extension on TranslationsFrFr {
 			'common.transfer' => 'Transfert',
 			'common.withdraw' => 'Retrait',
 			'common.redPacketSend' => 'Envoyer une enveloppe',
-			'common.redPacketDetail' => 'Détails de l\'enveloppe',
 			_ => null,
 		} ?? switch (path) {
+			'common.redPacketDetail' => 'Détails de l\'enveloppe',
 			'common.transferSend' => 'Démarrer un transfert',
 			'common.greetingDefault' => 'Bonne année',
 			'common.transferAmountYuan' => ({required Object amount}) => 'Transfert : ${amount} yuan',
@@ -6210,9 +6213,9 @@ extension on TranslationsFrFr {
 			'group.groupAdmin' => 'Admin',
 			'group.groupGuest' => 'Invité d\'honneur',
 			'group.setAdmin' => 'Définir comme administrateur',
-			'group.selectGroup' => 'Sélectionner un groupe.',
 			_ => null,
 		} ?? switch (path) {
+			'group.selectGroup' => 'Sélectionner un groupe.',
 			'group.sureToDissolveGroup' => 'Confirmer la dissolution du groupe ?',
 			'group.sureToLeaveGroup' => 'Confirmer le départ du groupe ?',
 			'group.groupAlbumNameHint' => 'Nom de l\'album',
@@ -6724,9 +6727,9 @@ extension on TranslationsFrFr {
 			'organization.departments.loadFailed' => ({required Object err}) => 'Échec du chargement du département : ${err}',
 			'organization.departments.createSubHere' => 'Créer un sous-département ici',
 			'organization.departments.movePickParent' => 'Déplacer (choisir un nouveau parent)',
-			'organization.departments.addMemberByUid' => 'Ajouter un membre (par UID)',
 			_ => null,
 		} ?? switch (path) {
+			'organization.departments.addMemberByUid' => 'Ajouter un membre (par UID)',
 			'organization.departments.archiveDept' => 'Archiver le département',
 			'organization.departments.createRootDept' => 'Créer un département racine',
 			'organization.departments.deptNameLabel' => 'Nom du département',
@@ -7018,6 +7021,7 @@ extension on TranslationsFrFr {
 			'passport.qrLoginCancelled' => 'Connexion annulée',
 			'passport.qrLoginCancelledByMe' => 'Vous avez annulé la connexion',
 			'passport.qrLoginConfirming' => 'Connexion en cours...',
+			'passport.qrLoginLoggedIn' => 'Connecté',
 			'passport.qrLoginSuccess' => 'Connexion réussie',
 			'passport.qrWebLoginDesc' => 'Confirmez-vous la connexion à ce compte depuis le Web ?',
 			'passport.qrWebLoginTitle' => 'Confirmation de connexion Web',
@@ -7237,10 +7241,10 @@ extension on TranslationsFrFr {
 			'talkRecord.grantEditExportBlockedOrg' => 'L\'export est désactivé par la politique d\'entreprise et ne peut être activé dans l\'autorisation.',
 			'talkRecord.grantEditExportBlockedUnknown' => 'La politique d\'export actuelle n\'a pas pu être confirmée ; export impossible à activer pour l\'instant.',
 			'talkRecord.grantEditExportSectionTitle' => 'Autoriser l\'export',
-			'talkRecord.grantEditGranteeLabel' => 'Bénéficiaire',
-			'talkRecord.grantEditRoleEditorHint' => 'Peut relire le texte et les orateurs, modifier les notes partagées ; ne peut ni gérer le partage ni supprimer.',
 			_ => null,
 		} ?? switch (path) {
+			'talkRecord.grantEditGranteeLabel' => 'Bénéficiaire',
+			'talkRecord.grantEditRoleEditorHint' => 'Peut relire le texte et les orateurs, modifier les notes partagées ; ne peut ni gérer le partage ni supprimer.',
 			'talkRecord.grantEditRoleSectionTitle' => 'Rôle',
 			'talkRecord.grantEditRoleViewerHint' => 'Peut consulter la note et réécouter l\'audio, sans modifier le contenu.',
 			'talkRecord.grantEditSave' => 'Enregistrer l\'autorisation',

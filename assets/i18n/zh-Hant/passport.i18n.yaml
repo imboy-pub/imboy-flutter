@@ -14,6 +14,7 @@ qrConnecting: 連線中...
 qrWebLoginTitle: Web 端登入確認
 qrWebLoginDesc: 請確認是否在 Web 端登入此帳號
 qrLoginAction: 確認登入
+qrLoginLoggedIn: 已登錄
 qrLoginSuccess: 登入成功
 
 alipayNotSupportedWeb: "Web 平台不支援支付寶登入"

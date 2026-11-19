@@ -15,6 +15,7 @@ qrConnecting: جارٍ الاتصال...
 qrWebLoginTitle: تأكيد تسجيل الدخول عبر الويب
 qrWebLoginDesc: يرجى تأكيد ما إذا كنت تريد تسجيل الدخول إلى هذا الحساب على الويب
 qrLoginAction: تأكيد تسجيل الدخول
+qrLoginLoggedIn: تم تسجيل الدخول
 qrLoginSuccess: تم تسجيل الدخول بنجاح
 
 alipayNotSupportedWeb: "تسجيل الدخول عبر Alipay غير مدعوم على الويب"

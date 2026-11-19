@@ -26,7 +26,9 @@ import 'package:imboy/theme/default/app_sizes.dart';
 /// 状态映射：
 ///   - Idle / Scanning / Confirming → 加载圆圈
 ///   - AwaitingConfirm → 设备信息卡片 + "确认登录" + "取消"
-///   - Success → ✓ 图标 + "登录成功"
+///   - Success → 绿色圆勾 + "已登录" + "我知道了"（点击后由父层双层退栈
+///     回到进入扫一扫之前的页面；2026-11-19 前是 800ms 自动 pop 回扫码页，
+///     用户观感"还停留在扫描状态"，无明确反馈终点）
 ///   - Expired / AlreadyUsed / CancelledByOther / Failed → 错误图标 + "关闭"
 ///   - CancelledByMe → 提示文案（无按钮，由父层 800ms 后自动 pop）
 class QrLoginConfirmContent extends StatelessWidget {
@@ -36,6 +38,7 @@ class QrLoginConfirmContent extends StatelessWidget {
     required this.onConfirm,
     required this.onCancel,
     required this.onClose,
+    required this.onAcknowledged,
   });
 
   final QrLoginConfirmState state;
@@ -48,6 +51,10 @@ class QrLoginConfirmContent extends StatelessWidget {
 
   /// 用户在终态（错误 / 取消）下点击"关闭"，由父层退栈。
   final VoidCallback onClose;
+
+  /// 用户在 Success 状态下点击"我知道了"，由父层双层退栈
+  /// （确认页 + 扫码页）回到进入扫一扫之前的页面。
+  final VoidCallback onAcknowledged;
 
   @override
   Widget build(BuildContext context) {
@@ -210,16 +217,31 @@ class QrLoginConfirmContent extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         const Icon(
-          CupertinoIcons.checkmark_circle,
+          CupertinoIcons.checkmark_circle_fill,
           size: 80,
-          color: AppColors.primary,
+          color: AppColors.success,
         ),
         AppSpacing.verticalXLarge,
         Text(
-          t.passport.qrLoginSuccess,
+          t.passport.qrLoginLoggedIn,
           style: context.textStyle(
             FontSizeType.large,
             fontWeight: FontWeight.w600,
+          ),
+        ),
+        const SizedBox(height: 40),
+        SizedBox(
+          width: 200,
+          child: CupertinoButton(
+            minimumSize: const Size(0, 48),
+            padding: EdgeInsets.zero,
+            color: AppColors.getSurfaceGrouped(Theme.of(context).brightness),
+            borderRadius: BorderRadius.circular(24),
+            onPressed: onAcknowledged,
+            child: Text(
+              t.common.buttonGotIt,
+              style: context.textStyle(FontSizeType.medium),
+            ),
           ),
         ),
       ],

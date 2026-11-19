@@ -13,6 +13,7 @@ qrLoginAction: 로그인 확인
 qrLoginCancelled: 로그인이 취소되었습니다
 qrLoginCancelledByMe: 로그인을 취소했습니다
 qrLoginConfirming: "로그인 중..."
+qrLoginLoggedIn: 로그인됨
 qrLoginSuccess: 로그인 성공
 qrWebLoginDesc: 웹에서 이 계정으로 로그인하려 합니다. 확인해 주세요
 qrWebLoginTitle: 웹 로그인 확인

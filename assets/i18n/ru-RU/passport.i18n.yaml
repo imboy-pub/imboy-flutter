@@ -13,6 +13,7 @@ qrLoginAction: Подтвердить вход
 qrLoginCancelled: Вход отменён
 qrLoginCancelledByMe: Вы отменили вход
 qrLoginConfirming: Выполняется вход...
+qrLoginLoggedIn: Выполнен вход
 qrLoginSuccess: Вход выполнен
 qrWebLoginDesc: Подтвердите вход этого аккаунта в веб-версии
 qrWebLoginTitle: Подтверждение входа в веб-версии

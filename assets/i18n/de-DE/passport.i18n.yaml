@@ -13,6 +13,7 @@ qrLoginAction: Anmeldung bestätigen
 qrLoginCancelled: Anmeldung wurde abgebrochen
 qrLoginCancelledByMe: Sie haben die Anmeldung abgebrochen
 qrLoginConfirming: Anmeldung läuft...
+qrLoginLoggedIn: Angemeldet
 qrLoginSuccess: Angemeldet
 qrWebLoginDesc: Bitte bestätigen Sie die Anmeldung dieses Kontos im Web
 qrWebLoginTitle: Web-Anmeldung bestätigen

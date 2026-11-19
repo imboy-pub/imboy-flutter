@@ -898,6 +898,7 @@ class _Translations$common$ko_KR extends Translations$common$zh_CN {
 	@override String get buttonClose => '닫기';
 	@override String get buttonConfirm => '확인';
 	@override String get buttonContinue => '계속';
+	@override String get buttonGotIt => '확인';
 	@override String get buttonCopy => '복사';
 	@override String get buttonDelete => '삭제';
 	@override String get buttonLogout => '로그아웃';
@@ -2764,6 +2765,7 @@ class _Translations$passport$ko_KR extends Translations$passport$zh_CN {
 	@override String get qrLoginCancelled => '로그인이 취소되었습니다';
 	@override String get qrLoginCancelledByMe => '로그인을 취소했습니다';
 	@override String get qrLoginConfirming => '로그인 중...';
+	@override String get qrLoginLoggedIn => '로그인됨';
 	@override String get qrLoginSuccess => '로그인 성공';
 	@override String get qrWebLoginDesc => '웹에서 이 계정으로 로그인하려 합니다. 확인해 주세요';
 	@override String get qrWebLoginTitle => '웹 로그인 확인';
@@ -4921,6 +4923,7 @@ extension on TranslationsKoKr {
 			'common.buttonClose' => '닫기',
 			'common.buttonConfirm' => '확인',
 			'common.buttonContinue' => '계속',
+			'common.buttonGotIt' => '확인',
 			'common.buttonCopy' => '복사',
 			'common.buttonDelete' => '삭제',
 			'common.buttonLogout' => '로그아웃',
@@ -5179,9 +5182,9 @@ extension on TranslationsKoKr {
 			'common.tipDeviceSpace' => ({required Object param1, required Object param2}) => '기기 공간 ${param1}% 사용(${param2})',
 			'common.tipDraft' => '임시 저장',
 			'common.tipFailed' => '작업 실패!',
-			'common.tipSuccess' => '작업 성공!',
 			_ => null,
 		} ?? switch (path) {
+			'common.tipSuccess' => '작업 성공!',
 			'common.tipTips' => '팁',
 			'common.titleContact' => '연락처',
 			'common.today' => '오늘',
@@ -5693,9 +5696,9 @@ extension on TranslationsKoKr {
 			'common.transfer' => '송금',
 			'common.withdraw' => '출금',
 			'common.redPacketSend' => '복주머니 보내기',
-			'common.redPacketDetail' => '복주머니 상세',
 			_ => null,
 		} ?? switch (path) {
+			'common.redPacketDetail' => '복주머니 상세',
 			'common.transferSend' => '송금하기',
 			'common.greetingDefault' => '새해 복 많이 받으세요',
 			'common.transferAmountYuan' => ({required Object amount}) => '송금액: ${amount}위안',
@@ -6207,9 +6210,9 @@ extension on TranslationsKoKr {
 			'group.groupAdmin' => 'Admin',
 			'group.groupGuest' => '게스트',
 			'group.setAdmin' => '관리자로 설정',
-			'group.selectGroup' => '그룹 채팅 선택',
 			_ => null,
 		} ?? switch (path) {
+			'group.selectGroup' => '그룹 채팅 선택',
 			'group.sureToDissolveGroup' => '이 그룹을 해체하시겠습니까?',
 			'group.sureToLeaveGroup' => '이 그룹을 나가시겠습니까?',
 			'group.groupAlbumNameHint' => '앨범 이름을 입력하세요',
@@ -6721,9 +6724,9 @@ extension on TranslationsKoKr {
 			'organization.departments.loadFailed' => ({required Object err}) => '부서 불러오기 실패: ${err}',
 			'organization.departments.createSubHere' => '이 아래에 하위 부서 만들기',
 			'organization.departments.movePickParent' => '이동(새 상위 부서 선택)',
-			'organization.departments.addMemberByUid' => '멤버 추가(UID로)',
 			_ => null,
 		} ?? switch (path) {
+			'organization.departments.addMemberByUid' => '멤버 추가(UID로)',
 			'organization.departments.archiveDept' => '부서 보관',
 			'organization.departments.createRootDept' => '루트 부서 만들기',
 			'organization.departments.deptNameLabel' => '부서 이름',
@@ -7015,6 +7018,7 @@ extension on TranslationsKoKr {
 			'passport.qrLoginCancelled' => '로그인이 취소되었습니다',
 			'passport.qrLoginCancelledByMe' => '로그인을 취소했습니다',
 			'passport.qrLoginConfirming' => '로그인 중...',
+			'passport.qrLoginLoggedIn' => '로그인됨',
 			'passport.qrLoginSuccess' => '로그인 성공',
 			'passport.qrWebLoginDesc' => '웹에서 이 계정으로 로그인하려 합니다. 확인해 주세요',
 			'passport.qrWebLoginTitle' => '웹 로그인 확인',
@@ -7234,10 +7238,10 @@ extension on TranslationsKoKr {
 			'talkRecord.grantEditExportBlockedOrg' => '내보내기가 기업 정책으로 비활성화되어 승인에서 켤 수 없습니다.',
 			'talkRecord.grantEditExportBlockedUnknown' => '현재 내보내기 정책을 확인할 수 없어 내보내기를 켤 수 없습니다.',
 			'talkRecord.grantEditExportSectionTitle' => '내보내기 허용',
-			'talkRecord.grantEditGranteeLabel' => '피승인자',
-			'talkRecord.grantEditRoleEditorHint' => '원문과 발언자 교정, 공유 메모 편집 가능. 공유 관리나 삭제는 불가합니다.',
 			_ => null,
 		} ?? switch (path) {
+			'talkRecord.grantEditGranteeLabel' => '피승인자',
+			'talkRecord.grantEditRoleEditorHint' => '원문과 발언자 교정, 공유 메모 편집 가능. 공유 관리나 삭제는 불가합니다.',
 			'talkRecord.grantEditRoleSectionTitle' => '역할',
 			'talkRecord.grantEditRoleViewerHint' => '기록 보기와 오디오 재청취 가능. 내용 수정은 불가합니다.',
 			'talkRecord.grantEditSave' => '권한 저장',

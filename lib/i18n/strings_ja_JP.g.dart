@@ -898,6 +898,7 @@ class _Translations$common$ja_JP extends Translations$common$zh_CN {
 	@override String get buttonClose => '閉じる';
 	@override String get buttonConfirm => '確認';
 	@override String get buttonContinue => '続行';
+	@override String get buttonGotIt => 'わかりました';
 	@override String get buttonCopy => 'コピー';
 	@override String get buttonDelete => '削除';
 	@override String get buttonLogout => 'ログアウト';
@@ -2764,6 +2765,7 @@ class _Translations$passport$ja_JP extends Translations$passport$zh_CN {
 	@override String get qrLoginCancelled => 'ログインがキャンセルされました';
 	@override String get qrLoginCancelledByMe => 'ログインをキャンセルしました';
 	@override String get qrLoginConfirming => 'ログイン中...';
+	@override String get qrLoginLoggedIn => 'ログイン済み';
 	@override String get qrLoginSuccess => 'ログインしました';
 	@override String get qrWebLoginDesc => 'このアカウントでのWeb版ログインを確認してください';
 	@override String get qrWebLoginTitle => 'Web版ログインの確認';
@@ -4921,6 +4923,7 @@ extension on TranslationsJaJp {
 			'common.buttonClose' => '閉じる',
 			'common.buttonConfirm' => '確認',
 			'common.buttonContinue' => '続行',
+			'common.buttonGotIt' => 'わかりました',
 			'common.buttonCopy' => 'コピー',
 			'common.buttonDelete' => '削除',
 			'common.buttonLogout' => 'ログアウト',
@@ -5179,9 +5182,9 @@ extension on TranslationsJaJp {
 			'common.tipDeviceSpace' => ({required Object param1, required Object param2}) => 'デバイスの${param1}%ストレージ容量を占めています(${param2})',
 			'common.tipDraft' => '下書き',
 			'common.tipFailed' => '操作に失敗しました！',
-			'common.tipSuccess' => '操作が成功しました！',
 			_ => null,
 		} ?? switch (path) {
+			'common.tipSuccess' => '操作が成功しました！',
 			'common.tipTips' => 'ヒント',
 			'common.titleContact' => '連絡先',
 			'common.today' => '今日',
@@ -5693,9 +5696,9 @@ extension on TranslationsJaJp {
 			'common.transfer' => '送金',
 			'common.withdraw' => '出金',
 			'common.redPacketSend' => 'お年玉を送る',
-			'common.redPacketDetail' => 'お年玉の詳細',
 			_ => null,
 		} ?? switch (path) {
+			'common.redPacketDetail' => 'お年玉の詳細',
 			'common.transferSend' => '送金を開始',
 			'common.greetingDefault' => '謹賀新年',
 			'common.transferAmountYuan' => ({required Object amount}) => '送金金額：${amount} 元',
@@ -6207,9 +6210,9 @@ extension on TranslationsJaJp {
 			'group.groupAdmin' => 'Admin',
 			'group.groupGuest' => 'ゲスト',
 			'group.setAdmin' => '管理者に設定',
-			'group.selectGroup' => 'グループチャットを選択',
 			_ => null,
 		} ?? switch (path) {
+			'group.selectGroup' => 'グループチャットを選択',
 			'group.sureToDissolveGroup' => 'このグループを解散してもよろしいですか？',
 			'group.sureToLeaveGroup' => 'このグループを退出してもよろしいですか？',
 			'group.groupAlbumNameHint' => 'アルバム名を入力',
@@ -6721,9 +6724,9 @@ extension on TranslationsJaJp {
 			'organization.departments.loadFailed' => ({required Object err}) => '部門の読み込みに失敗：${err}',
 			'organization.departments.createSubHere' => 'この下に子部門を作成',
 			'organization.departments.movePickParent' => '移動（新しい親部門を選択）',
-			'organization.departments.addMemberByUid' => 'メンバーを追加（UID 指定）',
 			_ => null,
 		} ?? switch (path) {
+			'organization.departments.addMemberByUid' => 'メンバーを追加（UID 指定）',
 			'organization.departments.archiveDept' => '部門をアーカイブ',
 			'organization.departments.createRootDept' => 'ルート部門を作成',
 			'organization.departments.deptNameLabel' => '部門名',
@@ -7015,6 +7018,7 @@ extension on TranslationsJaJp {
 			'passport.qrLoginCancelled' => 'ログインがキャンセルされました',
 			'passport.qrLoginCancelledByMe' => 'ログインをキャンセルしました',
 			'passport.qrLoginConfirming' => 'ログイン中...',
+			'passport.qrLoginLoggedIn' => 'ログイン済み',
 			'passport.qrLoginSuccess' => 'ログインしました',
 			'passport.qrWebLoginDesc' => 'このアカウントでのWeb版ログインを確認してください',
 			'passport.qrWebLoginTitle' => 'Web版ログインの確認',
@@ -7234,10 +7238,10 @@ extension on TranslationsJaJp {
 			'talkRecord.grantEditExportBlockedOrg' => '書き出しは企業ポリシーで無効化されているため、許可で有効にできません。',
 			'talkRecord.grantEditExportBlockedUnknown' => '現在の書き出しポリシーを確認できないため、書き出しを有効にできません。',
 			'talkRecord.grantEditExportSectionTitle' => '書き出しを許可',
-			'talkRecord.grantEditGranteeLabel' => '被許可者',
-			'talkRecord.grantEditRoleEditorHint' => '原文と発言者の校正、共有メモの編集が可能。共有管理や削除はできません。',
 			_ => null,
 		} ?? switch (path) {
+			'talkRecord.grantEditGranteeLabel' => '被許可者',
+			'talkRecord.grantEditRoleEditorHint' => '原文と発言者の校正、共有メモの編集が可能。共有管理や削除はできません。',
 			'talkRecord.grantEditRoleSectionTitle' => '役割',
 			'talkRecord.grantEditRoleViewerHint' => '記録の閲覧と音声の再生は可能。内容の変更はできません。',
 			'talkRecord.grantEditSave' => '権限を保存',

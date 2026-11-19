@@ -1,13 +1,15 @@
 /// 钉住 `QrLoginConfirmContent` 的渲染 + 交互契约（slice-3 RED）。
 ///
-/// 受控模式：父层持有 state + 三个回调（onConfirm/onCancel/onClose），
-/// Widget 本身无状态。便于 widget test 不依赖 Riverpod / HTTP / 路由。
+/// 受控模式：父层持有 state + 四个回调（onConfirm/onCancel/onClose/
+/// onAcknowledged），Widget 本身无状态。便于 widget test 不依赖
+/// Riverpod / HTTP / 路由。
 ///
 /// 验证点：
 ///   1. 10 个状态变体下的关键 UI 元素可见性
 ///   2. AwaitingConfirm 状态下 deviceInfo 可选渲染（null / 仅 name / 完整）
 ///   3. tap 交互回调正确触发（按钮可点）
-///   4. 终态（Success / 错误状态）显示关闭按钮且语义清晰
+///   4. 错误终态显示关闭按钮且语义清晰；Success 显示"已登录"+"我知道了"
+///      （2026-11-19 起：成功态不自动退栈，改为显式确认终点）
 library;
 
 import 'package:cupertino_ui/cupertino_ui.dart';
@@ -25,12 +27,14 @@ void main() {
     VoidCallback? onConfirm,
     VoidCallback? onCancel,
     VoidCallback? onClose,
+    VoidCallback? onAcknowledged,
   }) {
     return QrLoginConfirmContent(
       state: state,
       onConfirm: onConfirm ?? () {},
       onCancel: onCancel ?? () {},
       onClose: onClose ?? () {},
+      onAcknowledged: onAcknowledged ?? () {},
     );
   }
 
@@ -78,9 +82,13 @@ void main() {
       expect(find.byType(CupertinoActivityIndicator), findsOneWidget);
     });
 
-    testWidgets('Success → 显示成功 icon + 文案', (tester) async {
+    testWidgets('Success → 绿色圆勾 + "已登录" + "我知道了"按钮', (tester) async {
       await tester.pumpWidget(wrap(build(const QrLoginConfirmSuccess())));
-      expect(find.byIcon(CupertinoIcons.checkmark_circle), findsOneWidget);
+      expect(find.byIcon(CupertinoIcons.checkmark_circle_fill), findsOneWidget);
+      expect(find.text('已登录'), findsOneWidget);
+      expect(find.text('我知道了'), findsOneWidget);
+      // 错误终态的"关闭"按钮在成功态不应出现
+      expect(find.text('关闭'), findsNothing);
     });
 
     testWidgets('Expired → 显示"已过期"文案 + 关闭按钮', (tester) async {
@@ -156,6 +164,31 @@ void main() {
       await tester.tap(find.text('关闭'));
       await tester.pumpAndSettle();
       expect(called, 1);
+    });
+
+    testWidgets('Success tap "我知道了" → onAcknowledged 被调用', (tester) async {
+      var called = 0;
+      await tester.pumpWidget(
+        wrap(
+          build(const QrLoginConfirmSuccess(), onAcknowledged: () => called++),
+        ),
+      );
+      await tester.tap(find.text('我知道了'));
+      await tester.pumpAndSettle();
+      expect(called, 1);
+    });
+
+    testWidgets('Success 我知道了按钮 minHeight ≥ 44pt（iOS HIG a11y）', (
+      tester,
+    ) async {
+      await tester.pumpWidget(wrap(build(const QrLoginConfirmSuccess())));
+      final btnSize = tester.getSize(
+        find.ancestor(
+          of: find.text('我知道了'),
+          matching: find.byType(CupertinoButton),
+        ),
+      );
+      expect(btnSize.height, greaterThanOrEqualTo(44.0));
     });
 
     testWidgets('Expired tap "关闭" → onClose 被调用', (tester) async {

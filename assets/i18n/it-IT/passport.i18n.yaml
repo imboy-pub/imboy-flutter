@@ -13,6 +13,7 @@ qrLoginAction: Conferma accesso
 qrLoginCancelled: Accesso annullato
 qrLoginCancelledByMe: Accesso annullato
 qrLoginConfirming: Accesso in corso...
+qrLoginLoggedIn: Accesso effettuato
 qrLoginSuccess: Accesso riuscito
 qrWebLoginDesc: "Conferma se accedere a questo account dal client Web"
 qrWebLoginTitle: "Conferma accesso dal Web"

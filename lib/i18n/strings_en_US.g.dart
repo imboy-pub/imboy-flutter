@@ -898,6 +898,7 @@ class _Translations$common$en_US extends Translations$common$zh_CN {
 	@override String get buttonClose => 'Close';
 	@override String get buttonConfirm => 'Confirm';
 	@override String get buttonContinue => 'Continue';
+	@override String get buttonGotIt => 'Got it';
 	@override String get buttonCopy => 'Copy';
 	@override String get buttonDelete => 'Delete';
 	@override String get buttonLogout => 'Log out';
@@ -2767,6 +2768,7 @@ class _Translations$passport$en_US extends Translations$passport$zh_CN {
 	@override String get qrLoginCancelled => 'Login cancelled';
 	@override String get qrLoginCancelledByMe => 'You cancelled this login';
 	@override String get qrLoginConfirming => 'Signing in...';
+	@override String get qrLoginLoggedIn => 'Logged in';
 	@override String get qrLoginSuccess => 'Login successful';
 	@override String get qrWebLoginTitle => 'Web Login Confirmation';
 	@override String get qrWebLoginDesc => 'Confirm whether to log in to this account on the web';
@@ -4924,6 +4926,7 @@ extension on TranslationsEnUs {
 			'common.buttonClose' => 'Close',
 			'common.buttonConfirm' => 'Confirm',
 			'common.buttonContinue' => 'Continue',
+			'common.buttonGotIt' => 'Got it',
 			'common.buttonCopy' => 'Copy',
 			'common.buttonDelete' => 'Delete',
 			'common.buttonLogout' => 'Log out',
@@ -5182,9 +5185,9 @@ extension on TranslationsEnUs {
 			'common.tipSuccess' => 'Operation successful!',
 			'common.tipTips' => 'Tips',
 			'common.titleContact' => 'Contacts',
-			'common.today' => 'Today',
 			_ => null,
 		} ?? switch (path) {
+			'common.today' => 'Today',
 			'common.unknown' => 'Unknown',
 			'common.unknownMessage' => 'Unknown message',
 			'common.updateLog' => 'Update log',
@@ -5696,9 +5699,9 @@ extension on TranslationsEnUs {
 			'common.e2eeKeyRecreationFailed' => ({required Object error}) => 'Key creation failed: ${error}',
 			'common.redPacket' => 'Red Packet',
 			'common.transfer' => 'Transfer',
-			'common.withdraw' => 'Withdraw',
 			_ => null,
 		} ?? switch (path) {
+			'common.withdraw' => 'Withdraw',
 			'common.redPacketSend' => 'Send Red Packet',
 			'common.redPacketDetail' => 'Red Packet Details',
 			'common.transferSend' => 'Send Transfer',
@@ -6210,9 +6213,9 @@ extension on TranslationsEnUs {
 			'group.groupAdmin' => 'Admin',
 			'group.groupGuest' => 'Guest',
 			'group.groupInfo' => 'Group Info',
-			'group.groupMemberRoleLabel' => 'Member',
 			_ => null,
 		} ?? switch (path) {
+			'group.groupMemberRoleLabel' => 'Member',
 			'group.noMemberWithRole' => ({required Object roleName}) => 'No ${roleName} yet',
 			'group.moreActions' => 'More Actions',
 			'group.touchContactAddMember' => 'Tap contacts to add group members',
@@ -6724,9 +6727,9 @@ extension on TranslationsEnUs {
 			'organization.departments.loadFailed' => ({required Object err}) => 'Failed to load department: ${err}',
 			'organization.departments.createSubHere' => 'Create sub-department here',
 			'organization.departments.movePickParent' => 'Move (choose new parent)',
-			'organization.departments.addMemberByUid' => 'Add member (by UID)',
 			_ => null,
 		} ?? switch (path) {
+			'organization.departments.addMemberByUid' => 'Add member (by UID)',
 			'organization.departments.archiveDept' => 'Archive department',
 			'organization.departments.createRootDept' => 'Create root department',
 			'organization.departments.deptNameLabel' => 'Department name',
@@ -7018,6 +7021,7 @@ extension on TranslationsEnUs {
 			'passport.qrLoginCancelled' => 'Login cancelled',
 			'passport.qrLoginCancelledByMe' => 'You cancelled this login',
 			'passport.qrLoginConfirming' => 'Signing in...',
+			'passport.qrLoginLoggedIn' => 'Logged in',
 			'passport.qrLoginSuccess' => 'Login successful',
 			'passport.qrWebLoginTitle' => 'Web Login Confirmation',
 			'passport.qrWebLoginDesc' => 'Confirm whether to log in to this account on the web',
@@ -7237,10 +7241,10 @@ extension on TranslationsEnUs {
 			'talkRecord.shareRevokeConfirmAction' => 'Revoke',
 			'talkRecord.shareRevokeFailedTitle' => 'Could not revoke',
 			'talkRecord.shareRevokeFailedBody' => 'Revoke failed, retry later.',
-			'talkRecord.grantEditTitle' => 'Edit access',
-			'talkRecord.grantEditTitleNew' => 'Grant access',
 			_ => null,
 		} ?? switch (path) {
+			'talkRecord.grantEditTitle' => 'Edit access',
+			'talkRecord.grantEditTitleNew' => 'Grant access',
 			'talkRecord.grantEditCandidateSection' => 'Choose who to grant',
 			'talkRecord.grantEditCandidateSearchHint' => 'Search name or account',
 			'talkRecord.grantEditCandidatesUnavailable' => 'The candidate directory is unavailable, retry later.',

@@ -898,6 +898,7 @@ class _Translations$common$ar_SA extends Translations$common$zh_CN {
 	@override String get buttonClose => 'إغلاق';
 	@override String get buttonConfirm => 'تأكيد';
 	@override String get buttonContinue => 'متابعة';
+	@override String get buttonGotIt => 'حسنًا';
 	@override String get buttonCopy => 'نسخ';
 	@override String get buttonDelete => 'حذف';
 	@override String get buttonLogout => 'تسجيل الخروج';
@@ -2778,6 +2779,7 @@ class _Translations$passport$ar_SA extends Translations$passport$zh_CN {
 	@override String get qrWebLoginTitle => 'تأكيد تسجيل الدخول عبر الويب';
 	@override String get qrWebLoginDesc => 'يرجى تأكيد ما إذا كنت تريد تسجيل الدخول إلى هذا الحساب على الويب';
 	@override String get qrLoginAction => 'تأكيد تسجيل الدخول';
+	@override String get qrLoginLoggedIn => 'تم تسجيل الدخول';
 	@override String get qrLoginSuccess => 'تم تسجيل الدخول بنجاح';
 	@override String get alipayNotSupportedWeb => 'تسجيل الدخول عبر Alipay غير مدعوم على الويب';
 	@override String get oneKeyNotSupportedWeb => 'تسجيل الدخول بنقرة واحدة غير مدعوم على الويب';
@@ -4933,6 +4935,7 @@ extension on TranslationsArSa {
 			'common.buttonClose' => 'إغلاق',
 			'common.buttonConfirm' => 'تأكيد',
 			'common.buttonContinue' => 'متابعة',
+			'common.buttonGotIt' => 'حسنًا',
 			'common.buttonCopy' => 'نسخ',
 			'common.buttonDelete' => 'حذف',
 			'common.buttonLogout' => 'تسجيل الخروج',
@@ -5191,9 +5194,9 @@ extension on TranslationsArSa {
 			'common.tipDeviceSpace' => ({required Object param1, required Object param2}) => 'تحتل ${param1}% من مساحة تخزين الجهاز (${param2})',
 			'common.tipDraft' => 'مسودة',
 			'common.tipFailed' => 'فشلت العملية!',
-			'common.tipSuccess' => 'تمت العملية بنجاح!',
 			_ => null,
 		} ?? switch (path) {
+			'common.tipSuccess' => 'تمت العملية بنجاح!',
 			'common.tipTips' => 'تلميح',
 			'common.titleContact' => 'جهات الاتصال',
 			'common.today' => 'اليوم',
@@ -5705,9 +5708,9 @@ extension on TranslationsArSa {
 			'common.transfer' => 'تحويل',
 			'common.withdraw' => 'سحب',
 			'common.redPacketSend' => 'إرسال مغلف',
-			'common.redPacketDetail' => 'تفاصيل المغلف',
 			_ => null,
 		} ?? switch (path) {
+			'common.redPacketDetail' => 'تفاصيل المغلف',
 			'common.transferSend' => 'تحويل أموال',
 			'common.greetingDefault' => 'كل عام وأنتم بخير وازدهار',
 			'common.transferAmountYuan' => ({required Object amount}) => 'مبلغ التحويل: ${amount} يوان',
@@ -6219,9 +6222,9 @@ extension on TranslationsArSa {
 			'group.groupAdmin' => 'Admin',
 			'group.groupGuest' => 'ضيف',
 			'group.setAdmin' => 'تعيين مشرفًا',
-			'group.selectGroup' => 'اختيار مجموعة',
 			_ => null,
 		} ?? switch (path) {
+			'group.selectGroup' => 'اختيار مجموعة',
 			'group.sureToDissolveGroup' => 'هل أنت متأكد من حل هذه المجموعة؟',
 			'group.sureToLeaveGroup' => 'هل أنت متأكد من مغادرة هذه المجموعة؟',
 			'group.groupAlbumNameHint' => 'أدخل اسم الألبوم',
@@ -6733,9 +6736,9 @@ extension on TranslationsArSa {
 			'organization.departments.loadFailed' => ({required Object err}) => 'فشل تحميل القسم: ${err}',
 			'organization.departments.createSubHere' => 'إنشاء قسم فرعي هنا',
 			'organization.departments.movePickParent' => 'نقل (اختيار قسم أب جديد)',
-			'organization.departments.addMemberByUid' => 'إضافة عضو (بمعرّف UID)',
 			_ => null,
 		} ?? switch (path) {
+			'organization.departments.addMemberByUid' => 'إضافة عضو (بمعرّف UID)',
 			'organization.departments.archiveDept' => 'أرشفة القسم',
 			'organization.departments.createRootDept' => 'إنشاء قسم جذري',
 			'organization.departments.deptNameLabel' => 'اسم القسم',
@@ -7029,6 +7032,7 @@ extension on TranslationsArSa {
 			'passport.qrWebLoginTitle' => 'تأكيد تسجيل الدخول عبر الويب',
 			'passport.qrWebLoginDesc' => 'يرجى تأكيد ما إذا كنت تريد تسجيل الدخول إلى هذا الحساب على الويب',
 			'passport.qrLoginAction' => 'تأكيد تسجيل الدخول',
+			'passport.qrLoginLoggedIn' => 'تم تسجيل الدخول',
 			'passport.qrLoginSuccess' => 'تم تسجيل الدخول بنجاح',
 			'passport.alipayNotSupportedWeb' => 'تسجيل الدخول عبر Alipay غير مدعوم على الويب',
 			'passport.oneKeyNotSupportedWeb' => 'تسجيل الدخول بنقرة واحدة غير مدعوم على الويب',
@@ -7246,10 +7250,10 @@ extension on TranslationsArSa {
 			'talkRecord.grantEditExportBlockedOrg' => 'عطّلت سياسة المؤسسة التصدير، فلا يمكن تمكينه في التخويل.',
 			'talkRecord.grantEditExportBlockedUnknown' => 'تعذّر تأكيد سياسة التصدير الحالية، فلا يمكن تمكين التصدير حاليًا.',
 			'talkRecord.grantEditExportSectionTitle' => 'السماح بالتصدير',
-			'talkRecord.grantEditGranteeLabel' => 'الشخص المخوَّل',
-			'talkRecord.grantEditRoleEditorHint' => 'يدقق النص الأصلي والمتحدثين ويحرر الملاحظات المشتركة؛ ولا يدير المشاركة أو يحذف.',
 			_ => null,
 		} ?? switch (path) {
+			'talkRecord.grantEditGranteeLabel' => 'الشخص المخوَّل',
+			'talkRecord.grantEditRoleEditorHint' => 'يدقق النص الأصلي والمتحدثين ويحرر الملاحظات المشتركة؛ ولا يدير المشاركة أو يحذف.',
 			'talkRecord.grantEditRoleSectionTitle' => 'الدور',
 			'talkRecord.grantEditRoleViewerHint' => 'يعرض السجل ويستمع للصوت دون تعديل المحتوى.',
 			'talkRecord.grantEditSave' => 'حفظ الأذونات',

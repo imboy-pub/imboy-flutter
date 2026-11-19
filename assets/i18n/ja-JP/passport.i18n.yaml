@@ -14,6 +14,7 @@ qrLoginAction: ログインを承認
 qrLoginCancelled: ログインがキャンセルされました
 qrLoginCancelledByMe: ログインをキャンセルしました
 qrLoginConfirming: ログイン中...
+qrLoginLoggedIn: ログイン済み
 qrLoginSuccess: ログインしました
 qrWebLoginDesc: このアカウントでのWeb版ログインを確認してください
 qrWebLoginTitle: Web版ログインの確認

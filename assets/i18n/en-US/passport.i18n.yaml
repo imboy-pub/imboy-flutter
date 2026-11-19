@@ -12,6 +12,7 @@ qrLoginAction: Confirm Login
 qrLoginCancelled: Login cancelled
 qrLoginCancelledByMe: You cancelled this login
 qrLoginConfirming: Signing in...
+qrLoginLoggedIn: Logged in
 qrLoginSuccess: Login successful
 qrWebLoginTitle: Web Login Confirmation
 qrWebLoginDesc: Confirm whether to log in to this account on the web

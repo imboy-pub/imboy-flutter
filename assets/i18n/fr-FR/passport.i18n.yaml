@@ -13,6 +13,7 @@ qrLoginAction: "Confirmer la connexion"
 qrLoginCancelled: "Connexion annulée"
 qrLoginCancelledByMe: "Vous avez annulé la connexion"
 qrLoginConfirming: "Connexion en cours..."
+qrLoginLoggedIn: Connecté
 qrLoginSuccess: "Connexion réussie"
 qrWebLoginDesc: "Confirmez-vous la connexion à ce compte depuis le Web ?"
 qrWebLoginTitle: "Confirmation de connexion Web"

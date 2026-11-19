@@ -898,6 +898,7 @@ class _Translations$common$ru_RU extends Translations$common$zh_CN {
 	@override String get buttonClose => 'Закрыть';
 	@override String get buttonConfirm => 'Подтвердить';
 	@override String get buttonContinue => 'Продолжить';
+	@override String get buttonGotIt => 'Понятно';
 	@override String get buttonCopy => 'Копировать';
 	@override String get buttonDelete => 'Удалить';
 	@override String get buttonLogout => 'Выйти';
@@ -2773,6 +2774,7 @@ class _Translations$passport$ru_RU extends Translations$passport$zh_CN {
 	@override String get qrLoginCancelled => 'Вход отменён';
 	@override String get qrLoginCancelledByMe => 'Вы отменили вход';
 	@override String get qrLoginConfirming => 'Выполняется вход...';
+	@override String get qrLoginLoggedIn => 'Выполнен вход';
 	@override String get qrLoginSuccess => 'Вход выполнен';
 	@override String get qrWebLoginDesc => 'Подтвердите вход этого аккаунта в веб-версии';
 	@override String get qrWebLoginTitle => 'Подтверждение входа в веб-версии';
@@ -4930,6 +4932,7 @@ extension on TranslationsRuRu {
 			'common.buttonClose' => 'Закрыть',
 			'common.buttonConfirm' => 'Подтвердить',
 			'common.buttonContinue' => 'Продолжить',
+			'common.buttonGotIt' => 'Понятно',
 			'common.buttonCopy' => 'Копировать',
 			'common.buttonDelete' => 'Удалить',
 			'common.buttonLogout' => 'Выйти',
@@ -5188,9 +5191,9 @@ extension on TranslationsRuRu {
 			'common.tipDeviceSpace' => ({required Object param1, required Object param2}) => 'Занимает ${param1}% памяти устройства (${param2})',
 			'common.tipDraft' => 'Черновик',
 			'common.tipFailed' => 'Операция не удалась!',
-			'common.tipSuccess' => 'Операция успешна!',
 			_ => null,
 		} ?? switch (path) {
+			'common.tipSuccess' => 'Операция успешна!',
 			'common.tipTips' => 'Советы',
 			'common.titleContact' => 'Контакты',
 			'common.today' => 'Сегодня',
@@ -5702,9 +5705,9 @@ extension on TranslationsRuRu {
 			'common.transfer' => 'Перевод',
 			'common.withdraw' => 'Вывод средств',
 			'common.redPacketSend' => 'Отправить конверт',
-			'common.redPacketDetail' => 'Детали конверта',
 			_ => null,
 		} ?? switch (path) {
+			'common.redPacketDetail' => 'Детали конверта',
 			'common.transferSend' => 'Сделать перевод',
 			'common.greetingDefault' => 'Счастья и процветания!',
 			'common.transferAmountYuan' => ({required Object amount}) => 'Перевод: ${amount} юаней',
@@ -6216,9 +6219,9 @@ extension on TranslationsRuRu {
 			'group.groupAdmin' => 'Admin',
 			'group.groupGuest' => 'Гость',
 			'group.setAdmin' => 'Назначить администратором',
-			'group.selectGroup' => 'Выбрать групповой чат',
 			_ => null,
 		} ?? switch (path) {
+			'group.selectGroup' => 'Выбрать групповой чат',
 			'group.sureToDissolveGroup' => 'Распустить эту группу?',
 			'group.sureToLeaveGroup' => 'Покинуть эту группу?',
 			'group.groupAlbumNameHint' => 'Введите название альбома',
@@ -6730,9 +6733,9 @@ extension on TranslationsRuRu {
 			'organization.departments.loadFailed' => ({required Object err}) => 'Не удалось загрузить отдел: ${err}',
 			'organization.departments.createSubHere' => 'Создать подотдел здесь',
 			'organization.departments.movePickParent' => 'Переместить (выбрать новый родительский отдел)',
-			'organization.departments.addMemberByUid' => 'Добавить участника (по UID)',
 			_ => null,
 		} ?? switch (path) {
+			'organization.departments.addMemberByUid' => 'Добавить участника (по UID)',
 			'organization.departments.archiveDept' => 'Архивировать отдел',
 			'organization.departments.createRootDept' => 'Создать корневой отдел',
 			'organization.departments.deptNameLabel' => 'Название отдела',
@@ -7024,6 +7027,7 @@ extension on TranslationsRuRu {
 			'passport.qrLoginCancelled' => 'Вход отменён',
 			'passport.qrLoginCancelledByMe' => 'Вы отменили вход',
 			'passport.qrLoginConfirming' => 'Выполняется вход...',
+			'passport.qrLoginLoggedIn' => 'Выполнен вход',
 			'passport.qrLoginSuccess' => 'Вход выполнен',
 			'passport.qrWebLoginDesc' => 'Подтвердите вход этого аккаунта в веб-версии',
 			'passport.qrWebLoginTitle' => 'Подтверждение входа в веб-версии',
@@ -7243,10 +7247,10 @@ extension on TranslationsRuRu {
 			'talkRecord.grantEditExportBlockedOrg' => 'Экспорт отключён политикой организации, включить его в доступе нельзя.',
 			'talkRecord.grantEditExportBlockedUnknown' => 'Не удалось подтвердить политику экспорта, включить экспорт нельзя.',
 			'talkRecord.grantEditExportSectionTitle' => 'Разрешить экспорт',
-			'talkRecord.grantEditGranteeLabel' => 'Получатель доступа',
-			'talkRecord.grantEditRoleEditorHint' => 'Может вычитывать текст и спикеров, редактировать общие заметки; управлять доступом или удалять — нет.',
 			_ => null,
 		} ?? switch (path) {
+			'talkRecord.grantEditGranteeLabel' => 'Получатель доступа',
+			'talkRecord.grantEditRoleEditorHint' => 'Может вычитывать текст и спикеров, редактировать общие заметки; управлять доступом или удалять — нет.',
 			'talkRecord.grantEditRoleSectionTitle' => 'Роль',
 			'talkRecord.grantEditRoleViewerHint' => 'Может смотреть запись и слушать аудио, изменять содержимое — нет.',
 			'talkRecord.grantEditSave' => 'Сохранить права',
