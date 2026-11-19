@@ -9,6 +9,7 @@ import 'dart:typed_data';
 
 import 'package:crypto/crypto.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart' show debugPrintSynchronously;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/component/http/http_response.dart';
 import 'package:imboy/store/api/attachment_direct_api.dart';
@@ -109,8 +110,7 @@ Future<void> _cleanup(String id, bool arrived, bool failed) async {
   } catch (_) {
     if (!failed) rethrow;
     // Preserve the primary failure, while making cleanup failure visible.
-    // ignore: avoid_print
-    print('fixture cleanup failed');
+    debugPrintSynchronously('fixture cleanup failed');
   }
 }
 
