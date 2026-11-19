@@ -149,6 +149,23 @@ jobs:
           WORKER_EVIDENCE_DIR: ${{ runner.temp }}/execution-${{ matrix.platform }}-${{ matrix.suite }}
         run: |
           set -euo pipefail
+          if [ "$WORKER_PLATFORM" = web ]; then
+            # These browser tests load a tracked symlink whose target is a
+            # generated JS probe under .dart_tool. Prepare the actual probe
+            # instead of treating a missing script as a browser behavior bug.
+            mkdir -p .dart_tool
+            dart compile js test/fixtures/browser_sqlite_bridge_probe.dart \
+              -o .dart_tool/browser_sqlite_bridge_probe.js
+            test -s .dart_tool/browser_sqlite_bridge_probe.js
+            python3 - <<'PY'
+          import base64
+          import hashlib
+          from pathlib import Path
+          blob = Path('.dart_tool/browser_sqlite_bridge_probe.js').read_bytes()
+          sri = 'sha256-' + base64.b64encode(hashlib.sha256(blob).digest()).decode('ascii')
+          print(f'Prepared browser SQLite bridge probe (SRI {sri})')
+          PY
+          fi
           # Every WEB_CONTROL_TEST_ORIGIN has an owned loopback Node fixture.
           # The execution contract pins distinct ports per target, so start
           # the actual servers before the unit/widget/component workers run.
