@@ -77,6 +77,7 @@ Future<void> _verifyProductionSchema(common.Database db) async {
       tables.remove('${prefix}_$suffix');
     }
   }
+  // ignore: avoid_print
   print(
     'WEB_SQLITE_SCHEMA_ORACLE version=${await db.getVersion()} '
     'tables=${tables.toList()..sort()}',
@@ -383,6 +384,7 @@ void main() {
             3,
           );
         } catch (error, stack) {
+          // ignore: avoid_print
           print('WEB_SQLITE_SCHEMA_FAILURE $error\n$stack');
           rethrow;
         } finally {
