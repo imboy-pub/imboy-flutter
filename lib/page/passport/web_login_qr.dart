@@ -1,5 +1,59 @@
 part of 'web_login_page.dart';
 
+/// QR 码登录状态
+enum QRLoginStatus {
+  /// 等待扫码
+  waiting,
+
+  /// 已扫码，等待确认
+  scanned,
+
+  /// 已确认，登录中
+  confirming,
+
+  /// 已过期
+  expired,
+
+  /// 登录成功
+  success,
+
+  /// 登录失败
+  failed,
+}
+
+/// QR 码登录状态
+class QRLoginState {
+  final QRLoginStatus status;
+  final String? qrData;
+  final String? sessionToken;
+  final String? errorMessage;
+  final int remainingSeconds;
+
+  const QRLoginState({
+    this.status = QRLoginStatus.waiting,
+    this.qrData,
+    this.sessionToken,
+    this.errorMessage,
+    this.remainingSeconds = 60,
+  });
+
+  QRLoginState copyWith({
+    QRLoginStatus? status,
+    String? qrData,
+    String? sessionToken,
+    String? errorMessage,
+    int? remainingSeconds,
+  }) {
+    return QRLoginState(
+      status: status ?? this.status,
+      qrData: qrData ?? this.qrData,
+      sessionToken: sessionToken ?? this.sessionToken,
+      errorMessage: errorMessage ?? this.errorMessage,
+      remainingSeconds: remainingSeconds ?? this.remainingSeconds,
+    );
+  }
+}
+
 /// QR 码登录状态管理
 @Riverpod(keepAlive: false)
 class QRLogin extends _$QRLogin {
@@ -267,8 +321,7 @@ class QRLogin extends _$QRLogin {
           if (shouldHydrateWebProfile) {
             await _hydrateProfile(generation);
           } else {
-            // Native uses Native credentials and bootstrap/profile flow;
-            // /api/v1/user/me is a Web-only route.
+            // Native does not request the Web-only /api/v1/user/me route.
             _pendingProfile = null;
             state = state.copyWith(status: QRLoginStatus.success);
           }

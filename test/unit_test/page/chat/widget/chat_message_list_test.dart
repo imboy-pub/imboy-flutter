@@ -1,10 +1,10 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:flutter/foundation.dart' show debugPrintSynchronously;
 import 'package:flutter_chat_core/flutter_chat_core.dart';
 
 import 'package:material_ui/material_ui.dart';
-import 'package:flutter/foundation.dart' show debugPrintSynchronously;
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:imboy/page/chat/widget/chat_message_list.dart';

@@ -24,90 +24,17 @@ import 'package:imboy/service/login_account_history_service.dart';
 import 'package:imboy/service/sqlite.dart';
 import 'package:imboy/service/storage.dart';
 import 'package:imboy/service/web_writer_gate.dart';
+import 'package:imboy/store/model/message_model.dart';
 import 'package:imboy/store/repository/attachment_upload_task_repo_sqlite.dart';
+import 'package:imboy/store/repository/message_repo_sqlite.dart';
+import 'package:imboy/utils/conversation_uk3_generator.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite_sqlcipher/sqflite.dart' show Database;
 import 'package:web/web.dart' as web;
 
 import '../env_test_pin.dart';
 
-final class _NoNetwork implements HttpClientAdapter {
-  int calls = 0;
-  @override
-  Future<ResponseBody> fetch(
-    RequestOptions options,
-    Stream<List<int>>? requestStream,
-    Future<void>? cancelFuture,
-  ) async {
-    calls++;
-    throw StateError('Unexpected product HTTP');
-  }
-
-  @override
-  void close({bool force = false}) {}
-}
-
-// The delegated query completes in the real database before its result is held.
-final class _HeldQueryDb implements Database {
-  _HeldQueryDb(this.delegate, this.whereToHold);
-  final Database delegate;
-  final String whereToHold;
-  final entered = Completer<void>.sync();
-  final release = Completer<void>.sync();
-  final returned = Completer<void>.sync();
-  bool armed = false;
-  @override
-  bool get isOpen => delegate.isOpen;
-
-  @override
-  Future<List<Map<String, Object?>>> query(
-    String table, {
-    bool? distinct,
-    List<String>? columns,
-    String? where,
-    List<Object?>? whereArgs,
-    String? groupBy,
-    String? having,
-    String? orderBy,
-    int? limit,
-    int? offset,
-  }) async {
-    debugPrintSynchronously(
-      'RACE_PROXY query start table=$table where=$where armed=$armed target=$whereToHold',
-    );
-    final result = await delegate.query(
-      table,
-      distinct: distinct,
-      columns: columns,
-      where: where,
-      whereArgs: whereArgs,
-      groupBy: groupBy,
-      having: having,
-      orderBy: orderBy,
-      limit: limit,
-      offset: offset,
-    );
-    debugPrintSynchronously(
-      'RACE_PROXY query returned table=$table where=$where rows=${result.length}',
-    );
-    if (armed &&
-        table == AttachmentUploadTaskRepo.tableName &&
-        where == whereToHold &&
-        !entered.isCompleted) {
-      debugPrintSynchronously('RACE_PROXY query gated where=$where');
-      entered.complete();
-      await release.future;
-      returned.complete();
-      debugPrintSynchronously('RACE_PROXY query released where=$where');
-    }
-    return result;
-  }
-
-  @override
-  dynamic noSuchMethod(Invocation invocation) => throw StateError(
-    'unexpected gated database operation: ${invocation.memberName}',
-  );
-}
+part 'fixtures/web_attachment_input_fixture.dart';
 
 // Synthetic discovery-only row. Real writer, ownership inventory and VFS barrier;
 // no upload, server success, alternative DB, lease override or custom storage seam.
@@ -266,6 +193,31 @@ Future<void> _close(String uid) async {
   await browserSqliteStorageBridge.durableBarrier();
   await SqliteService.to.close();
   await SqliteService.to.deleteDatabaseForUid(uid, environment: currentEnv);
+}
+
+// Local reconciliation requires the canonical message as well as committed
+// outbox rows. This synthetic record does not claim a backend response.
+Future<void> _persistCanonicalAttachment(String uid) async {
+  final repo = MessageRepo(tableName: MessageRepo.c2gTable);
+  await repo.insert(
+    MessageModel(
+      'pending-anchor',
+      autoId: 0,
+      type: 'C2G',
+      status: IMBoyMessageStatus.sent,
+      fromId: uid,
+      toId: '990001',
+      payload: {'name': 'pending.bin', 'size': 3},
+      isAuthor: 1,
+      conversationUk3: ConversationUk3Generator.generateSmart(
+        type: 'C2G',
+        currentUserId: uid,
+        peerId: '990001',
+      ),
+      msgType: 'file',
+    ),
+  );
+  await repo.waitForFtsReindexForTest();
 }
 
 void main() {
@@ -584,6 +536,18 @@ void main() {
           find.widgetWithText(TextButton, t.common.legacyUploadCheckLocal),
         );
         await tester.pump();
+        await waitForLocalCheck('committed-without-canonical');
+        expect(find.textContaining('pending.bin'), findsOneWidget);
+        expect(find.textContaining('other-pending.bin'), findsNothing);
+        expect(tester.widget<IconButton>(pick).onPressed, isNull);
+        await checkedDb(
+          'canonical-message',
+          () => _persistCanonicalAttachment(uid),
+        );
+        await tester.tap(
+          find.widgetWithText(TextButton, t.common.legacyUploadCheckLocal),
+        );
+        await tester.pump();
         debugPrintSynchronously('DIAGNOSTIC $state local:committed waiting');
         for (
           var i = 0;
@@ -740,6 +704,7 @@ void main() {
                 ),
                 1,
               );
+              await _persistCanonicalAttachment(uid);
               return snapshot();
             });
             debugPrintSynchronously('RACE_PHASE $gate snapshot prepared');

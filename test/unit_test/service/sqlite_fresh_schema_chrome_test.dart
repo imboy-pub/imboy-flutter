@@ -3,7 +3,7 @@ library;
 
 import 'dart:convert';
 
-import 'package:flutter/foundation.dart' show debugPrintSynchronously, kIsWeb;
+import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/config/init.dart' show currentEnv;
@@ -28,9 +28,9 @@ import 'package:web/web.dart' as web;
 import '../../env_test_pin.dart';
 
 // Independent inventory: released v36 golden has these 25 application tables;
-// registered v39 adds local channel preferences, while v40 makes FTS contentful;
-// production creation adds
-// schema metadata. v38 trigger changes remain an unregistered draft.
+// Registered v39 adds local channel preferences, v40 stores message FTS
+// content, and production creation adds schema metadata. The v38 trigger
+// changes remain an unregistered draft.
 const _tables = {
   'attachment_upload_task',
   'channel',
@@ -47,10 +47,8 @@ const _tables = {
   'moment_notify',
   'msg_c2c',
   'msg_c2c_fts',
-  'msg_c2c_fts_content',
   'msg_c2g',
   'msg_c2g_fts',
-  'msg_c2g_fts_content',
   'msg_c2s',
   'msg_s2c',
   'new_friend',
@@ -76,7 +74,11 @@ Future<void> _verifyProductionSchema(common.Database db) async {
       if (row['type'] == 'table') row['name'] as String,
   };
   for (final prefix in ['msg_c2c_fts', 'msg_c2g_fts']) {
-    for (final suffix in ['data', 'idx', 'docsize', 'config']) {
+    const shadowSuffixes = ['data', 'idx', 'content', 'docsize', 'config'];
+    expect(tables.where((name) => name.startsWith('${prefix}_')).toSet(), {
+      for (final suffix in shadowSuffixes) '${prefix}_$suffix',
+    });
+    for (final suffix in shadowSuffixes) {
       tables.remove('${prefix}_$suffix');
     }
   }

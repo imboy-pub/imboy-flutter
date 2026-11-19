@@ -11,12 +11,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:sqflite_common_ffi_web/sqflite_ffi_web.dart';
 import 'package:imboy/app_core/feature_flags/app_feature_registry.dart';
 import 'package:imboy/component/http/http_client.dart';
+import 'package:imboy/component/http/web_writer_http_adapter.dart';
 import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/config/init.dart';
+import 'package:imboy/service/browser_sqlite_storage_bridge_web.dart';
 import 'package:imboy/service/event_bus.dart';
 import 'package:imboy/service/events/common_events.dart';
 import 'package:imboy/service/message_offline.dart';
@@ -26,15 +27,20 @@ import 'package:imboy/service/web_writer_gate.dart';
 import 'package:imboy/store/repository/message_repo_sqlite.dart';
 
 class OfflineAdapter implements HttpClientAdapter {
+  static const offlinePath = '/api/v1/web/msg/offline';
+  static const ackPath = '/api/v1/web/msg/offline_ack';
   final paths = <String>[];
+  Map<String, dynamic>? ackPayload;
   @override
   Future<ResponseBody> fetch(
     RequestOptions options,
     Stream<Uint8List>? requestStream,
     Future<void>? cancelFuture,
   ) async {
-    paths.add(options.path);
-    if (options.path == API.msgOfflineAck) {
+    final path = options.uri.path;
+    paths.add(path);
+    if (path == ackPath && options.method == 'POST') {
+      ackPayload = Map<String, dynamic>.from(options.data as Map);
       return ResponseBody.fromString(
         '{"code":0,"payload":{}}',
         200,
@@ -43,8 +49,8 @@ class OfflineAdapter implements HttpClientAdapter {
         },
       );
     }
-    if (options.path != API.msgOffline) {
-      throw StateError('unexpected request ${options.path}');
+    if (path != offlinePath || options.method != 'GET') {
+      throw StateError('unexpected request ${options.method} $path');
     }
     return ResponseBody.fromString(
       '{"code":0,"payload":{"s2c":{"list":[{"msg_id":"synthetic-offline-role","action":"group_member_role","from":"1","to":"995011","payload":{"gid":9007199254740993,"user_id":9007199254740995,"role":3,"updated_at":42}}],"has_more":false,"next_last_msg_at":1}}}',
@@ -61,7 +67,6 @@ class OfflineAdapter implements HttpClientAdapter {
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
-  setUpAll(prepareWebWriter);
   testWidgets(
     'raw offline group role updates exact member and dispatches event',
     (tester) async {
@@ -69,6 +74,8 @@ void main() {
         MaterialApp(builder: AppLoading.init(), home: const SizedBox()),
       );
       await tester.runAsync(() async {
+        await prepareWebWriter();
+        expect(isWebWriterReady, isTrue);
         SharedPreferences.setMockInitialValues({Keys.currentUid: '995011'});
         await StorageService.init();
         String encode(Object v) =>
@@ -77,15 +84,12 @@ void main() {
           'secure_token':
               '${encode({'alg': 'none'})}.${encode({'exp': 4102444800, 'uid': 995011})}.test',
         });
-        final factory = createDatabaseFactoryFfiWeb(
-          noWebWorker: true,
-          options: SqfliteFfiWebOptions(
-            sqlite3WasmUri: Uri.parse(
-              const String.fromEnvironment('SQLITE_WASM_URL'),
-            ),
-          ),
-        );
-        final db = await factory.openDatabase(':memory:');
+        // Keep the admitted bridge's process-global handler. Opening a legacy
+        // Web factory here replaces it and correctly poisons the writer gate.
+        final factory = browserSqliteStorageBridge.factory;
+        final databaseName = SqliteService.databaseNameForUid('995011');
+        await factory.deleteDatabase(databaseName);
+        final db = await factory.openDatabase(databaseName);
         SqliteService.setDbForTest(db);
         await db.execute(
           'CREATE TABLE group_member (id INTEGER PRIMARY KEY, group_id INTEGER, user_id INTEGER, role INTEGER, updated_at INTEGER)',
@@ -97,12 +101,18 @@ void main() {
           'role': 1,
           'updated_at': 0,
         });
+        expect(isWebWriterReady, isTrue);
         final container = ProviderContainer();
         MessageRepo.setProviderContainer(container);
         AppFeatureRegistry.replaceSnapshotForTest({'e2ee': false});
         final adapter = OfflineAdapter();
-        HttpClient.adapterForTest = adapter;
-        serviceContainer.put(HttpClient());
+        final client = HttpClient(retryEnabled: false);
+        // Synthetic wire bytes exercise the real decoder and offline handler.
+        // Keep Web request/session and writer guards around this local adapter;
+        // the production control router otherwise dispatches real Fetch.
+        client.dio.httpClientAdapter = adapter;
+        guardWebWriterDio(client.dio);
+        serviceContainer.put(client);
         final service = MessageOfflineService.instance;
         final events = <GroupMemberRoleEvent>[];
         final sub = AppEventBus.on<GroupMemberRoleEvent>().listen(events.add);
@@ -111,6 +121,7 @@ void main() {
             source: 'synthetic_offline',
             force: true,
           );
+          expect(isWebWriterReady, isTrue);
           await Future<void>.delayed(const Duration(milliseconds: 20));
           expect(ok, isTrue);
           final rows = await db.rawQuery(
@@ -120,14 +131,20 @@ void main() {
           expect(rows.single['role'], 3);
           expect(events.single.gid, '9007199254740993');
           expect(events.single.userId, '9007199254740995');
-          expect(adapter.paths, contains(API.msgOfflineAck));
+          expect(adapter.paths, [
+            OfflineAdapter.offlinePath,
+            OfflineAdapter.ackPath,
+          ]);
+          expect(adapter.ackPayload, containsPair('type', 'S2C'));
+          expect(adapter.ackPayload?['msg_ids'], ['synthetic-offline-role']);
         } finally {
           await sub.cancel();
           service.onDispose();
           container.dispose();
           SqliteService.setDbForTest(null);
           await db.close();
-          HttpClient.adapterForTest = null;
+          await factory.deleteDatabase(databaseName);
+          client.dio.close(force: true);
           serviceContainer.clear();
           await AppFeatureRegistry.clear();
         }

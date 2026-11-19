@@ -32,7 +32,11 @@ import 'package:imboy/page/conversation/conversation_page.dart';
 import 'package:imboy/page/conversation/conversation_provider.dart';
 import 'package:imboy/page/conversation/widget/conversation_item.dart';
 import 'package:imboy/service/storage.dart';
+import 'package:imboy/service/sqlite.dart';
 import 'package:imboy/store/model/conversation_model.dart';
+import 'package:sqflite_common/sqflite.dart' as sqlite;
+
+part 'fixtures/conversation_page_fixture.dart';
 
 /// ConversationPage 渲染契约测试
 ///
@@ -50,87 +54,6 @@ import 'package:imboy/store/model/conversation_model.dart';
 ///   - non-empty state → SliverList 渲染（最低 1 项）
 ///   - connectDesc 非空 → NetworkFailureTips 可见（title 固定为 "消息"，不拼接描述）
 ///   - 会话列表承载于 CustomScrollView（IosPageTemplate slivers）
-class _StateOverrideNotifier extends ConversationNotifier {
-  _StateOverrideNotifier(this._initial);
-  final ConversationState _initial;
-
-  @override
-  ConversationState build() => _initial;
-}
-
-/// LAY-04：捕获重试派发（不触网络）的 notifier。
-///
-/// 错误视图的重试按钮必须重新发起权威拉取（syncAuthoritativeConversationList），
-/// 这里只计数不执行，保证断言独立于真实网络实现。
-class _RetryCapturingNotifier extends _StateOverrideNotifier {
-  _RetryCapturingNotifier(super.initial);
-
-  int syncCalls = 0;
-
-  @override
-  Future<void> syncAuthoritativeConversationList({
-    String trigger = 'manual',
-  }) async {
-    syncCalls++;
-  }
-}
-
-/// J15.b 桌面壳向量：捕获右栏派发的 ChatSelection（宿主目的地判据）。
-class _CapturingWebShellNotifier extends WebShellNotifier {
-  final selections = <ChatSelection>[];
-
-  @override
-  WebShellState build() => const WebShellState();
-
-  @override
-  void selectItem(WebSelection selection) {
-    if (selection is ChatSelection) selections.add(selection);
-  }
-}
-
-// 只验证生产页面的导航分派，不替代真实资料页或真机验收。
-GoRouter _stubRouter({
-  List<String>? visitedRoutes,
-  List<Object?>? visitedExtras,
-  bool webShellHost = false,
-}) {
-  Widget stub(String label, GoRouterState state) {
-    visitedRoutes?.add(state.uri.path);
-    return Scaffold(body: Center(child: Text(label)));
-  }
-
-  return GoRouter(
-    initialLocation: webShellHost ? '/web_shell' : '/conversation',
-    routes: [
-      GoRoute(
-        path: webShellHost ? '/web_shell' : '/conversation',
-        builder: (_, _) => const ConversationPage(),
-      ),
-      GoRoute(
-        path: '/contact/new_friend',
-        builder: (_, state) => stub('new_friend stub', state),
-      ),
-      GoRoute(
-        path: '/contact/people/:id',
-        builder: (_, state) =>
-            stub('person ${state.pathParameters['id']}', state),
-      ),
-      GoRoute(
-        path: '/group/detail/:id',
-        builder: (_, state) =>
-            stub('group ${state.pathParameters['id']}', state),
-      ),
-      GoRoute(
-        path: '/chat/:id',
-        builder: (_, state) {
-          visitedExtras?.add(state.extra);
-          return stub('chat ${state.pathParameters['id']}', state);
-        },
-      ),
-    ],
-  );
-}
-
 Future<void> _pumpConv(
   WidgetTester tester, {
   required ConversationState state,
@@ -1116,12 +1039,64 @@ void main() {
           (index) => _conv(
             id: index + 1,
             peerId: 2000 + index,
-            title: 'Row open $index',
+            title: kIsWeb && type == 'C2G'
+                ? 'Stale legacy group title $index'
+                : 'Row open $index',
             type: type,
             lastTime: 10000 - index,
           ),
         );
         final target = conversations[30];
+        if (kIsWeb && type == 'C2G') {
+          // Web group names come from the owned group projection, never the
+          // legacy conversation title. Supply that independent trusted source.
+          final previousUid = StorageService.to.getString(Keys.currentUid);
+          final fixtureUid =
+              'conversation_title_${DateTime.now().microsecondsSinceEpoch}';
+          final databaseName = SqliteService.databaseNameForUid(fixtureUid);
+          sqlite.Database? ownedDatabase;
+          addTearDown(() async {
+            try {
+              await _unmount(tester);
+            } finally {
+              SqliteService.setDbForTest(null);
+              await tester.runAsync(() async {
+                try {
+                  await _closeOwnedConversationDatabase(
+                    tester,
+                    ownedDatabase,
+                    databaseName,
+                  );
+                } finally {
+                  await StorageService.to.setString(
+                    Keys.currentUid,
+                    previousUid,
+                  );
+                }
+              });
+            }
+          });
+          final database = await tester.runAsync(() async {
+            await SqliteService.to.close();
+            await sqlite.databaseFactory.deleteDatabase(databaseName);
+            await StorageService.to.setString(Keys.currentUid, fixtureUid);
+            expect(authSessionReader.current.uid, fixtureUid);
+            final db = await sqlite.databaseFactory.openDatabase(databaseName);
+            ownedDatabase = db;
+            await db.execute(
+              'CREATE TABLE "group" (id TEXT PRIMARY KEY, title TEXT NOT NULL)',
+            );
+            for (final (index, conversation) in conversations.indexed) {
+              await db.insert('group', {
+                'id': conversation.peerId.toString(),
+                'title': 'Row open $index',
+              });
+            }
+            return db;
+          });
+          expect(database, isNotNull);
+          SqliteService.setDbForTest(database);
+        }
         final visitedRoutes = <String>[];
         final visitedExtras = <Object?>[];
         await _pumpConv(
@@ -1148,6 +1123,24 @@ void main() {
         );
         expect(row.hitTestable(), findsNothing, reason: '目标初始必须在屏外');
         await tester.scrollUntilVisible(row, 300, scrollable: scrollable);
+        if (kIsWeb && type == 'C2G') {
+          final trustedTitle = find.descendant(
+            of: row,
+            matching: find.text('Row open 30'),
+          );
+          // Real bridge reads can still be pending when no frame is scheduled.
+          await tester.runAsync(() async {
+            for (var i = 0; i < 200 && trustedTitle.evaluate().isEmpty; i++) {
+              await Future<void>.delayed(const Duration(milliseconds: 10));
+              await tester.pump();
+            }
+          });
+          expect(
+            trustedTitle,
+            findsOneWidget,
+            reason: 'trusted group title must be rendered before navigation',
+          );
+        }
         await tester.pumpAndSettle();
         final position = tester.state<ScrollableState>(scrollable).position;
         final offsetBefore = position.pixels;

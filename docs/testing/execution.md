@@ -140,6 +140,68 @@ python3 scripts/auto_test.py execution-plan --profile web \
 缺浏览器或启动失败为 `ENV_MISSING`，已选择目标的意外 skip 仍阻断。宿主 `HttpOverrides`
 不拦截浏览器 XHR；新增联网代码必须显式使用合成 HTTP 替身，不能依赖 VM 的禁网钩子。
 
+### Browser SQLite probe preparation
+
+`browser_sqlite_storage_bridge_chrome_test.dart` 和
+`web_writer_startup_busy_chrome_test.dart` 使用现有多文档 SQLite probe。
+统一执行器为每个独立 Chrome 批次调用 `ci_prepare_chrome.sh --browser-sqlite-probe`，
+从当前源码编译 JS，并注入本次编译产物的 SRI、原始 preparation receipt 摘要及
+counter 脚本 SRI。合同不保存人工复制的旧 SRI 或 receipt 常量。
+编译日志、源码/编译器指纹、JS 和 receipt 随执行证据保留；编译失败、证据不匹配或
+执行期间 served JS 被替换均阻断。冻结计划绑定源码和 symlink 文本，生成 JS 字节由
+运行时 receipt 绑定，因此正常准备不会让计划过期。主进程 receipt 与 attempt 同时绑定
+准备元数据；归档重放必须验证完整准备证据、命令及 SRI/receipt 关联，删除引用或缺失文件均阻断。
+
+The runner compiles the existing multi-document SQLite probe for each owned Chrome
+batch, injects current SRI/receipt digests, and retains compilation evidence. Failed
+preparation or changed served bytes blocks the result. Generated JS is bound by the
+runtime receipt; the frozen plan binds source and symlink text. Both the main process
+receipt and attempt bind preparation metadata. Archive replay requires the complete
+preparation evidence, command and SRI/receipt links; removed references or missing files block it.
+
+### Web control fixture Oracle / Chrome
+
+`test/service/web_control_fixture_oracle_test.dart` 的四项 VM 测试归属 `unit`，
+由 `pr` / `full` 的 Linux、macOS 分片执行；不属于 `backend`、`web` 或 `web-shell`。
+宿主需准备 Node、固定 Flutter SDK 和锁定依赖，不需要运行 Erlang 后端或准备账号。
+
+统一执行器为该目标及下列四个 Chrome 消费目标的每次尝试启动独立的
+`web_control_fetch_server.cjs`，使用随机
+loopback 端口，验证本次进程的 nonce 身份后注入 `WEB_CONTROL_TEST_ORIGIN`。
+无需手动启动服务、保留旧的 65311 端口或导出 origin；调用者的 fixture 端口不会被复用。
+目标单独成批，执行器观察服务存活并在成功、失败或中断后清理本次进程。
+Node/脚本缺失、启动失败、提前退出或清理失败均不能记为通过；重试使用新的记录集。
+
+| 既有 Chrome 目标 | 平台 |
+| --- | --- |
+| `test/service/web_control_fetch_chrome_test.dart` | `web` |
+| `test/service/web_control_production_wrapper_chrome_test.dart` | `web` |
+| `test/service/browser_received_attachment_chrome_test.dart` | `web` |
+| `test/service/web_message_content_security_chrome_test.dart` | `web` |
+
+这些目标继续由各自原有 suite/profile 选择；执行器按目标隔离端口、请求记录和清理。
+Chrome 目标不能发往 VM，四项 VM Oracle 也不能发往 Chrome。
+
+```bash
+# macOS 将 linux 换为 macos；REPORT_DIR 使用上文的仓外独立目录。
+python3 scripts/auto_test.py execution-plan --profile pr --platform linux \
+  --target test/service/web_control_fixture_oracle_test.dart \
+  --output "$REPORT_DIR/oracle-plan.json"
+python3 scripts/auto_test.py execution-run --plan "$REPORT_DIR/oracle-plan.json" \
+  --artifact-dir "$REPORT_DIR/oracle"
+python3 scripts/auto_test.py execution-summary --plan "$REPORT_DIR/oracle-plan.json" \
+  --results "$REPORT_DIR/oracle" --output "$REPORT_DIR/oracle-summary.json"
+```
+
+精确 target 仍保留 PR gates；只执行本机目标不能代表完整 PR/full 回归通过。
+
+The four VM Oracle cases run in the existing Linux/macOS unit lanes. Each attempt
+owns a fresh Node listener, verifies its nonce identity, injects the actual origin,
+monitors exit and cleans up the child. No fixed port, external backend or account
+is required. The same lifecycle prepares the four existing Chrome consumers listed
+above, each in its own browser batch. Their suite/profile ownership is preserved.
+The scoped command keeps PR gates and does not certify full regression.
+
 ### Web Shell
 
 `web-shell` profile 由合同中的目录前缀接管目标，保留各目标实际平台；完整专项包含

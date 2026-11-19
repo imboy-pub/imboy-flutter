@@ -243,7 +243,7 @@ void main() {
       expect(container.read(webShellProvider).selectedItem, isNull);
     });
 
-    testWidgets('选中聊天后切 Tab 1 → selection 清空，回 welcome（跨 Tab 串扰防护）', (
+    testWidgets('选中聊天后切 Tab 1 → selection 清空，显示完整联系人列表（跨 Tab 串扰防护）', (
       tester,
     ) async {
       final container = await _pumpShell(tester);
@@ -260,6 +260,21 @@ void main() {
       expect(tester.takeException(), isNull);
 
       expect(container.read(webShellProvider).currentTab, 1);
+      expect(container.read(webShellProvider).selectedItem, isNull);
+      expect(find.byType(ChatPanel), findsNothing);
+      expect(find.byKey(const ValueKey('contact-tab')), findsOneWidget);
+      expect(find.byType(WebMainPanel), findsNothing);
+      expect(find.text('WelcomeTitle'), findsNothing);
+      expect(
+        tester.getSize(find.byType(WebMiddlePanel)).width,
+        closeTo(
+          tester.getSize(find.byKey(const ValueKey('web-shell-content'))).width,
+          1,
+        ),
+      );
+
+      container.read(webShellProvider.notifier).switchTab(0);
+      await tester.pumpAndSettle(const Duration(milliseconds: 350));
       expect(container.read(webShellProvider).selectedItem, isNull);
       expect(find.byType(ChatPanel), findsNothing);
       expect(find.text('WelcomeTitle'), findsOneWidget);

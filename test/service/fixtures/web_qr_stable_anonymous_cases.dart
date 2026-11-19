@@ -46,6 +46,7 @@ class _Qr extends QRLogin {
 
   int calls = 0;
   bool fail = false;
+  bool disposed = false;
   @override
   QRLoginState build() => const QRLoginState();
   @override
@@ -62,6 +63,13 @@ class _Qr extends QRLogin {
   QRLoginStatus get status => state.status;
   void confirming() =>
       state = const QRLoginState(status: QRLoginStatus.confirming);
+
+  @override
+  void dispose() {
+    disposed = true;
+    profilePending = false;
+    super.dispose();
+  }
 }
 
 class _Passport extends PassportNotifier {
@@ -81,38 +89,33 @@ void main() {
   late GoRouter router;
   Future<void> mount(WidgetTester tester) async {
     sessions = _Sessions();
-    qr = _Qr(sessions);
-    // Real login success deliberately navigates immediately on a committed
-    // owner; this fixture needs a router rather than a MaterialApp home.
     router = GoRouter(
       initialLocation: '/sign_in',
       routes: [
         GoRoute(
           path: '/sign_in',
-          builder: (_, _) => WebLoginPage(sessionReader: sessions),
+          builder: (_, _) => ProviderScope(
+            overrides: [
+              qRLoginProvider.overrideWith(() => qr = _Qr(sessions)),
+              passportProvider.overrideWith(_Passport.new),
+            ],
+            child: WebLoginPage(sessionReader: sessions),
+          ),
         ),
         GoRoute(
           path: '/web_shell',
-          builder: (_, _) =>
-              const Scaffold(body: Text('synthetic authenticated shell')),
+          builder: (_, _) => const Scaffold(body: Text('signed-in shell')),
         ),
         GoRoute(
           path: '/bottom_navigation',
           builder: (_, _) =>
-              const Scaffold(body: Text('synthetic native shell')),
+              const Scaffold(body: Text('signed-in native shell')),
         ),
       ],
     );
+    addTearDown(router.dispose);
     await tester.pumpWidget(
-      ProviderScope(
-        overrides: [
-          qRLoginProvider.overrideWith(() => qr),
-          passportProvider.overrideWith(_Passport.new),
-        ],
-        child: TranslationProvider(
-          child: MaterialApp.router(routerConfig: router),
-        ),
-      ),
+      TranslationProvider(child: MaterialApp.router(routerConfig: router)),
     );
     await tester.pump();
     await tester.pump();
@@ -122,7 +125,6 @@ void main() {
     await tester.pumpWidget(const SizedBox.shrink());
     await tester.pump();
     expect(sessions.hasSessionListeners, isFalse);
-    router.dispose();
     sessions.dispose();
   }
 
@@ -270,11 +272,14 @@ void main() {
         qr.confirming();
         sessions.publish((uid: '123', generation: 2, transitioning: true));
         sessions.publish((uid: '123', generation: 2, transitioning: false));
-        // GoRouter updates its page stack on a subsequent frame. Let the
-        // committed-owner navigation settle before asserting the destination.
-        await tester.pumpAndSettle();
         expect(qr.calls, 1);
-        expect(find.text('synthetic authenticated shell'), findsOneWidget);
+        expect(qr.status, QRLoginStatus.confirming);
+        await tester.pumpAndSettle();
+        expect(router.routeInformationProvider.value.uri.path, '/web_shell');
+        expect(find.text('signed-in shell'), findsOneWidget);
+        expect(find.byType(WebLoginPage), findsNothing);
+        expect(sessions.hasSessionListeners, isFalse);
+        expect(qr.disposed, isTrue);
         await retire(tester);
       },
     );
@@ -282,18 +287,22 @@ void main() {
       'profile pending owner revocation cancels confirming and allows anonymous QR',
       (tester) async {
         await mount(tester);
-        // Keep the owner in transition: a fully committed owner correctly
-        // navigates away, so revocation must race the pending transition.
         sessions.publish((
           uid: 'synthetic-hydration-owner',
           generation: 2,
-          transitioning: true,
+          transitioning: false,
         ));
         qr.profilePending = true;
         qr.confirming();
-        await tester.pump();
         expect(qr.status, QRLoginStatus.confirming);
         expect(qr.calls, 0);
+        final committedQr = qr;
+        await tester.pumpAndSettle();
+        expect(router.routeInformationProvider.value.uri.path, '/web_shell');
+        expect(find.text('signed-in shell'), findsOneWidget);
+        expect(sessions.hasSessionListeners, isFalse);
+        expect(committedQr.disposed, isTrue);
+        expect(committedQr.hasPendingProfile, isFalse);
         // Host transport fixture covers actual HTTP401-driven owned logout.
         sessions.publish((
           uid: 'synthetic-hydration-owner',
@@ -302,8 +311,13 @@ void main() {
         ));
         sessions.publish((uid: '', generation: 3, transitioning: true));
         sessions.publish((uid: '', generation: 3, transitioning: false));
+        // Auth landing leaves the old page. Logout returns through a new login
+        // route; the disposed page must not keep receiving owner notifications.
+        router.go('/sign_in');
         await tester.pump();
         await tester.pump();
+        expect(identical(qr, committedQr), isFalse);
+        expect(committedQr.calls, 0);
         expect(qr.status, QRLoginStatus.waiting);
         expect(qr.hasPendingProfile, isFalse);
         expect(qr.calls, 1);

@@ -29,6 +29,11 @@ from urllib.parse import unquote, urlparse
 from .machine_events import parse_machine_events
 from .result import classify_attempts, overall_exit_code
 from .w09_fixture import W09Fixture, FixtureFailure, TARGET as W09_TARGET, TARGETS as W09_TARGETS, FIXTURE as W09_FIXTURE
+from .web_control_fixture import WebControlFixture, TARGETS as WEB_CONTROL_TARGETS, FIXTURE as WEB_CONTROL_FIXTURE, PLATFORMS as WEB_CONTROL_PLATFORMS
+from .browser_sqlite_fixture import (TARGETS as BROWSER_SQLITE_TARGETS, PreparationFailure,
+                                     DEFINE_NAMES as BROWSER_SQLITE_DEFINE_NAMES,
+                                     prepare as prepare_browser_sqlite, served_unchanged,
+                                     validate_preparation_binding, validate_preparation_evidence)
 
 IDENTITY = ('id', 'commit', 'profile', 'suite', 'target', 'platform',
             'product_profile', 'role', 'variant', 'selected')
@@ -74,6 +79,11 @@ def _verdict(attempts):
             _validate_context_binding(attempt)
         except (ValueError, KeyError, TypeError):
             return dict(verdict, test_status='BLOCKED', reason_code='EXECUTION_CONTEXT_MISSING_OR_INVALID')
+        try:
+            validate_preparation_binding(attempt['instance'], attempt.get('browser_sqlite_preparation'),
+                attempt.get('related_evidence'), attempt.get('command'), attempt.get('process_receipt'))
+        except PreparationFailure as error:
+            return dict(verdict, test_status='BLOCKED', reason_code=str(error))
     for attempt in attempts:
         if (isinstance(attempt, dict) and isinstance(attempt.get('instance'), dict) and
                 attempt['instance'].get('suite') == 'backend-contract'):
@@ -432,6 +442,9 @@ def _display_command(command):
     safe_defines = {'SMOKE_INCLUDE_QUARANTINED', 'RUN_DEVICE_INTEGRATION', 'CHANNEL_ENABLED',
                     'TEST_CHANNEL_ENABLED', 'CHANNEL_FEATURE_ENABLED', 'TEST_GOLDEN',
                     'APP_ENV', 'KILL_PHASE', 'KILL_ATTEMPT'}
+    # Public integrity digests must survive collection so replay can bind the
+    # actual Flutter defines to the required preparation. No credential is added.
+    safe_defines |= BROWSER_SQLITE_DEFINE_NAMES
     display = []
     for argument in command:
         if argument.startswith('--dart-define='):
@@ -449,7 +462,7 @@ def _file_sha256(path):
 def _persist_process_receipt(receipt, evidence_dir):
     """Bind the original process outcome to its saved output before adapting it."""
     payload = {key: receipt.get(key) for key in ('command', 'exit_code', 'log', 'machine', 'error', 'execution_context',
-            'backend_manifest_evidence', 'product_artifact')}
+            'backend_manifest_evidence', 'product_artifact', 'browser_sqlite_preparation')}
     for key in ('log', 'machine'):
         payload[key + '_sha256'] = _file_sha256(payload[key])
     path = Path(evidence_dir) / 'process.json'
@@ -484,6 +497,14 @@ def execute_process(command, env, evidence_dir, *, cwd=None, timeout=900, log_pa
             safe_command = receipt['command']
             for secret in secrets:
                 safe_command = [arg.replace(secret, '<redacted>') for arg in safe_command]
+            context = receipt.get('execution_context')
+            if context is not None:
+                # Keep the original pre-spawn measurement after the private
+                # directory is reaped; measuring again would change its meaning.
+                context_path = evidence_dir / 'execution-context.json'
+                context_path.write_bytes(Path(context['path']).read_bytes())
+                os.chmod(context_path, 0o600)
+                receipt['execution_context'] = dict(context, path=str(context_path))
             receipt.update(log=str(final_log), machine=str(final_machine), command=safe_command,
                            lines=final_machine.read_text(encoding='utf-8').splitlines())
             return _persist_process_receipt(receipt, evidence_dir)
@@ -592,6 +613,16 @@ def _record_attempt(root, plan, instance, receipt, lines):
         related.append({'path': meta.get('path'), 'sha256': meta.get('sha256')})
     product = receipt.get('product_artifact', {})
     backend_meta = receipt.get('backend_manifest_evidence')
+    sqlite_meta = receipt.get('browser_sqlite_preparation')
+    if instance.get('target') in BROWSER_SQLITE_TARGETS or sqlite_meta is not None:
+        try:
+            validate_preparation_evidence(instance, sqlite_meta, related, receipt.get('command'),
+                                          receipt.get('process_receipt'), Path)
+            saved = json.loads(Path(receipt['process_receipt']).read_text())
+            if saved.get('browser_sqlite_preparation') != sqlite_meta:
+                raise ValueError('BROWSER_SQLITE_PROCESS_ATTEMPT_MISMATCH')
+        except (OSError, ValueError, KeyError, TypeError):
+            execution_errors.append('BROWSER_SQLITE_PREPARATION_EVIDENCE_MISSING_OR_INVALID')
     if instance.get('suite') == 'backend-contract':
         try:
             from .execution_adapters import validate_backend_manifest_evidence
@@ -622,6 +653,7 @@ def _record_attempt(root, plan, instance, receipt, lines):
             'command': receipt.get('command', []),
             'product_artifact': receipt.get('product_artifact', {}),
             'backend_manifest_evidence': backend_meta,
+            'browser_sqlite_preparation': json.loads(json.dumps(sqlite_meta)),
             'coverage': receipt.get('coverage'), 'coverage_sha256': receipt.get('coverage_sha256'),
             'native_evidence': receipt.get('native_evidence'),
             'native_evidence_sha256': receipt.get('native_evidence_sha256'),
@@ -682,6 +714,9 @@ def _default_preflight(root, instance, env):
     if instance.get('target') in W09_TARGETS:
         if not shutil.which('node', path=env.get('PATH')) or not (root / W09_FIXTURE).is_file():
             missing.append('w09-fixture: Node and owned fixture required')
+    if instance.get('target') in WEB_CONTROL_TARGETS:
+        if not shutil.which('node', path=env.get('PATH')) or not (root / WEB_CONTROL_FIXTURE).is_file():
+            missing.append('web-control-fixture: Node and owned fixture required')
     dependencies = instance.get('dependencies', [])
     if 'backend-source' in dependencies:
         backend = Path(env.get('IMBOY_BACKEND_ROOT', root.parent / 'imboy'))
@@ -881,7 +916,8 @@ def run_plan(root, plan, artifact_dir, *, env=None, worker_platform=None, covera
                    instance.get('variant'), instance.get('role'), instance.get('test_name'),
                    json.dumps(instance.get('dart_defines', {}), sort_keys=True),
                    tuple(sorted(instance.get('dependencies', []))), bool(coverage and instance.get('coverage')))
-            if runner != 'flutter-machine' or instance.get('suite') == 'route-smoke' or instance['target'] in W09_TARGETS:
+            if (runner != 'flutter-machine' or instance.get('suite') == 'route-smoke'
+                    or instance['target'] in W09_TARGETS | WEB_CONTROL_TARGETS | BROWSER_SQLITE_TARGETS):
                 key += (instance['id'],)
             groups[key].append(instance)
     batches = list(_execution_batches(groups.values()))
@@ -938,23 +974,54 @@ def run_plan(root, plan, artifact_dir, *, env=None, worker_platform=None, covera
                         results.append(row)
                     pending = []
                     break
-                fixture = None
-                if group[0]['target'] in W09_TARGETS:
+                sqlite_preparation = None
+                if group[0]['target'] in BROWSER_SQLITE_TARGETS:
                     if len(pending) != 1 or group[0]['platform'] != 'web':
-                        row = _base(plan, pending[0], 'BLOCKED', 'W09_FIXTURE_SCOPE_INVALID')
+                        results.append(_base(plan, pending[0], 'BLOCKED', 'BROWSER_SQLITE_PREPARATION_SCOPE_INVALID'))
+                        pending = []
+                        break
+                    try:
+                        sqlite_preparation = prepare_browser_sqlite(root, runtime_env, output, execute_process)
+                    except PreparationFailure as error:
+                        row = _base(plan, pending[0], 'BLOCKED', 'BROWSER_SQLITE_PREPARATION_FAILED')
+                        row['environment_missing'] = [str(error)]
+                        results.append(row)
+                        pending = []
+                        break
+                    prefixes = tuple('--dart-define=' + name + '=' for name in sqlite_preparation['defines'])
+                    invocation['command'] = [arg for arg in invocation['command'] if not arg.startswith(prefixes)]
+                    invocation['command'] += ['--dart-define=' + name + '=' + value
+                                              for name, value in sorted(sqlite_preparation['defines'].items())]
+                    invocation.setdefault('evidence_artifacts', []).extend(sqlite_preparation['evidence'])
+                fixture, fixture_prefix = None, None
+                if group[0]['target'] in W09_TARGETS | WEB_CONTROL_TARGETS:
+                    is_web_control = group[0]['target'] in WEB_CONTROL_TARGETS
+                    fixture_type = WebControlFixture if is_web_control else W09Fixture
+                    fixture_prefix = 'WEB_CONTROL_FIXTURE' if is_web_control else 'W09_FIXTURE'
+                    fixture_platforms = WEB_CONTROL_PLATFORMS[group[0]['target']] if is_web_control else {'web'}
+                    if len(pending) != 1 or group[0]['platform'] not in fixture_platforms:
+                        row = _base(plan, pending[0], 'BLOCKED', fixture_prefix + '_SCOPE_INVALID')
                         results.append(row)
                         pending = []
                         break
                     try:
-                        fixture = W09Fixture(root, runtime_env).start()
+                        fixture = fixture_type(root, runtime_env).start()
                     except FixtureFailure:
-                        row = _base(plan, pending[0], 'BLOCKED', 'W09_FIXTURE_START_FAILED')
+                        row = _base(plan, pending[0], 'BLOCKED', fixture_prefix + '_START_FAILED')
                         results.append(row)
                         pending = []
                         break
                     stack.callback(fixture.stop)
-                    invocation['command'] += [f'--dart-define=W09_CANCEL_ORIGIN={fixture.origin}',
-                                               f'--dart-define=W09_CANCEL_NONCE={fixture.nonce}']
+                    if is_web_control:
+                        # The listener belongs to this attempt; never reuse a frozen
+                        # or caller-supplied origin and its accumulated oracle rows.
+                        define = '--dart-define=WEB_CONTROL_TEST_ORIGIN='
+                        invocation['command'] = [arg for arg in invocation['command']
+                                                 if not arg.startswith(define)]
+                        invocation['command'].append(define + fixture.origin)
+                    else:
+                        invocation['command'] += [f'--dart-define=W09_CANCEL_ORIGIN={fixture.origin}',
+                                                  f'--dart-define=W09_CANCEL_NONCE={fixture.nonce}']
                 if (output / 'lcov.info').is_file():
                     (output / 'lcov.info').unlink()
                 receipt = execute_process(invocation['command'], invocation.get('env', runtime_env), output,
@@ -964,7 +1031,14 @@ def run_plan(root, plan, artifact_dir, *, env=None, worker_platform=None, covera
                                               f for item in pending for f in item.get('required_features', [])})), **invocation}
                                               if pending[0].get('suite') == 'backend-contract' else None),
                                           **({'observer': fixture.observer, 'redactions': [fixture.nonce]} if fixture else {}))
-                fixture_ok = not fixture or (fixture.observer(None) is None and fixture.stop())
+                fixture_ok = True
+                if fixture:
+                    fixture_alive = fixture.observer(None) is None
+                    fixture_ok = fixture.stop() and fixture_alive
+                preparation_ok = not sqlite_preparation or served_unchanged(root, sqlite_preparation)
+                if sqlite_preparation:
+                    receipt['browser_sqlite_preparation'] = dict(sqlite_preparation['binding'],
+                                                                served_unchanged=preparation_ok)
                 # build_invocation 已按实例计算 product_artifact（backend-contract 捕获
                 # 证据在构建期替换）；此处直接传播，未命中时回退 adapters 现算。
                 receipt['product_artifact'] = (invocation.get('product_artifact')
@@ -982,7 +1056,9 @@ def run_plan(root, plan, artifact_dir, *, env=None, worker_platform=None, covera
                 for instance in pending:
                     attempt = _record_attempt(root, plan, instance, receipt, streams[instance['target']])
                     if not fixture_ok:
-                        attempt['execution_errors'].append('W09_FIXTURE_CLEANUP_OR_EXIT_FAILED')
+                        attempt['execution_errors'].append(fixture_prefix + '_CLEANUP_OR_EXIT_FAILED')
+                    if not preparation_ok:
+                        attempt['execution_errors'].append('BROWSER_SQLITE_PREPARED_BYTES_CHANGED')
                     if instance.get('coverage') and not receipt.get('coverage') and attempt['parsed'].get('test_status') == 'PASS':
                         attempt['execution_errors'].append('MISSING_COVERAGE_RESULT')
                     attempt_records[instance['id']].append(attempt)

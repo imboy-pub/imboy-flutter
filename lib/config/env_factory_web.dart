@@ -20,12 +20,10 @@ String validateWebApiBaseUrl(String value, {bool releaseMode = kReleaseMode}) {
       value != value.trim() ||
       RegExp(r'\s').hasMatch(value) ||
       uri == null ||
-      // Uri normalizes invalid explicit ports (e.g. :0) to the default
-      // origin. Reject non-canonical input instead of silently accepting it.
-      value != uri.origin ||
       !uri.hasAuthority ||
       uri.host.isEmpty ||
-      uri.authority.contains('@') ||
+      // Uri normalizes away empty userinfo; validate the configured text.
+      value.contains('@') ||
       uri.path.isNotEmpty ||
       uri.hasQuery ||
       uri.hasFragment ||
