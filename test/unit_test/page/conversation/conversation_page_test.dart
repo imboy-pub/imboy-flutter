@@ -1062,8 +1062,11 @@ void main() {
               SqliteService.setDbForTest(null);
               await tester.runAsync(() async {
                 try {
-                  await ownedDatabase?.close();
-                  await sqlite.databaseFactory.deleteDatabase(databaseName);
+                  await _closeOwnedConversationDatabase(
+                    tester,
+                    ownedDatabase,
+                    databaseName,
+                  );
                 } finally {
                   await StorageService.to.setString(
                     Keys.currentUid,

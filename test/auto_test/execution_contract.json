@@ -1803,7 +1803,7 @@
         "web/sqlite3.wasm"
       ],
       "basis": [
-        "Browser-only offline-message contract uses an in-memory SQLite WASM database, synthetic credentials and an HTTP adapter that rejects unexpected requests. The shared runner supplies the same tracked same-origin application WASM as the FTS migration target; no backend, account or externally hosted WASM is required."
+        "Browser-only offline-message contract uses the admitted SQLite WASM bridge with an environment/UID-named synthetic database and cleans up that database after use. Synthetic credentials and a strict HTTP adapter exercise the real Web offline GET and ACK POST aliases while rejecting unexpected paths and methods. The shared runner supplies the same tracked same-origin application WASM as the FTS migration target; no backend, external account or externally hosted WASM is required."
       ]
     },
     "integration_test/sqlcipher_encryption_acceptance_test.dart": {

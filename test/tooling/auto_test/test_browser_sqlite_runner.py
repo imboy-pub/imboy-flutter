@@ -1,4 +1,5 @@
 """Prepare browser probes and replay their complete per-attempt evidence."""
+import contextlib
 import copy
 import hashlib
 import json
@@ -32,6 +33,8 @@ class BrowserSqliteRunnerTest(unittest.TestCase):
     def setUp(self):
         project = fixture_support.BrowserSqliteFixtureTest('runTest').project()
         self.root, _, self.env = self.enterContext(project)
+        # Match the runner's artifact root when temporary paths use symlink aliases.
+        self.root = self.root.resolve()
         self.env.update(CI='true', FLUTTER_SUPPRESS_ANALYTICS='true')
         self.output = self.root / 'evidence'
         self.helper = support.RunnerTest('runTest')
@@ -66,7 +69,8 @@ class BrowserSqliteRunnerTest(unittest.TestCase):
         declared, report = self.run_targets(sorted(TARGETS)[0])
         self.assertEqual(report['status'], 'PASS', report)
         row = report['results'][0]
-        self.assertEqual(self.verify(row)['status'], 'PASS')
+        verified = self.verify(row)
+        self.assertEqual(verified['status'], 'PASS', verified)
         return declared, row
 
     def verify(self, row, directory=None):
@@ -85,6 +89,24 @@ class BrowserSqliteRunnerTest(unittest.TestCase):
         verified = self.verify(row)
         self.assertEqual(verified['status'], 'BLOCKED', verified)
         self.assertEqual(runner.reconcile(declared, [verified])['status'], 'BLOCKED')
+
+    def test_symlinked_temporary_project_uses_recorded_artifact_root(self):
+        project = fixture_support.BrowserSqliteFixtureTest.project
+
+        @contextlib.contextmanager
+        def aliased_project(helper):
+            with project(helper) as (root, _, env), tempfile.TemporaryDirectory() as directory:
+                alias = Path(directory) / 'project'
+                alias.symlink_to(root, target_is_directory=True)
+                yield alias, alias / 'attempt', env
+
+        nested = BrowserSqliteRunnerTest('runTest')
+        self.addCleanup(nested.doCleanups)
+        with patch.object(fixture_support.BrowserSqliteFixtureTest, 'project', aliased_project):
+            nested.setUp()
+        nested.prepared_result()
+        payload = json.loads((nested.output / 'results.json').read_bytes())
+        self.assertEqual(payload['artifact_root'], str(nested.output))
 
     def test_each_probe_prepares_its_own_batch_and_binds_evidence(self):
         _, report = self.run_targets(*sorted(TARGETS | {'test/b_test.dart'}))
@@ -112,7 +134,8 @@ class BrowserSqliteRunnerTest(unittest.TestCase):
                 self.assertEqual(evidence['sha256'], hashlib.sha256(Path(evidence['path']).read_bytes()).hexdigest())
             process = json.loads(Path(attempt['process_receipt']).read_bytes())
             self.assertEqual(process['browser_sqlite_preparation'], meta)
-            self.assertEqual(self.verify(row)['status'], 'PASS')
+            verified = self.verify(row)
+            self.assertEqual(verified['status'], 'PASS', verified)
 
     def test_preparation_failure_blocks_before_flutter(self):
         self.env['SQLITE_COMPILER_FIXTURE'] = 'failure'

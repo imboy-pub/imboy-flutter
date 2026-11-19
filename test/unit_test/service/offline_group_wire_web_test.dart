@@ -27,7 +27,10 @@ import 'package:imboy/service/web_writer_gate.dart';
 import 'package:imboy/store/repository/message_repo_sqlite.dart';
 
 class OfflineAdapter implements HttpClientAdapter {
+  static const offlinePath = '/api/v1/web/msg/offline';
+  static const ackPath = '/api/v1/web/msg/offline_ack';
   final paths = <String>[];
+  Map<String, dynamic>? ackPayload;
   @override
   Future<ResponseBody> fetch(
     RequestOptions options,
@@ -36,7 +39,8 @@ class OfflineAdapter implements HttpClientAdapter {
   ) async {
     final path = options.uri.path;
     paths.add(path);
-    if (path == API.msgOfflineAck) {
+    if (path == ackPath && options.method == 'POST') {
+      ackPayload = Map<String, dynamic>.from(options.data as Map);
       return ResponseBody.fromString(
         '{"code":0,"payload":{}}',
         200,
@@ -45,8 +49,8 @@ class OfflineAdapter implements HttpClientAdapter {
         },
       );
     }
-    if (path != API.msgOffline) {
-      throw StateError('unexpected request $path');
+    if (path != offlinePath || options.method != 'GET') {
+      throw StateError('unexpected request ${options.method} $path');
     }
     return ResponseBody.fromString(
       '{"code":0,"payload":{"s2c":{"list":[{"msg_id":"synthetic-offline-role","action":"group_member_role","from":"1","to":"995011","payload":{"gid":9007199254740993,"user_id":9007199254740995,"role":3,"updated_at":42}}],"has_more":false,"next_last_msg_at":1}}}',
@@ -127,7 +131,12 @@ void main() {
           expect(rows.single['role'], 3);
           expect(events.single.gid, '9007199254740993');
           expect(events.single.userId, '9007199254740995');
-          expect(adapter.paths, contains(API.msgOfflineAck));
+          expect(adapter.paths, [
+            OfflineAdapter.offlinePath,
+            OfflineAdapter.ackPath,
+          ]);
+          expect(adapter.ackPayload, containsPair('type', 'S2C'));
+          expect(adapter.ackPayload?['msg_ids'], ['synthetic-offline-role']);
         } finally {
           await sub.cancel();
           service.onDispose();

@@ -1,5 +1,49 @@
 part of '../conversation_page_test.dart';
 
+// Called after unmount, inside runAsync: earlier title queries still need the
+// fake microtask queue pumped while their real browser I/O finishes.
+Future<void> _closeOwnedConversationDatabase(
+  WidgetTester tester,
+  sqlite.Database? database,
+  String databaseName,
+) async {
+  var finished = false;
+  Object? failure;
+  StackTrace? failureStack;
+  final cleanup =
+      (() async {
+        if (database != null && database.isOpen) {
+          // This query shares the title reads' FIFO lock; drain them before close.
+          await database.rawQuery('SELECT 1');
+        }
+        await database?.close();
+        await sqlite.databaseFactory.deleteDatabase(databaseName);
+      })().then<void>(
+        (_) {
+          finished = true;
+        },
+        onError: (Object error, StackTrace stack) {
+          failure = error;
+          failureStack = stack;
+          finished = true;
+        },
+      );
+  const timeout = Duration(seconds: 5);
+  final elapsed = Stopwatch()..start();
+  while (!finished && elapsed.elapsed < timeout) {
+    await tester.pump();
+    await Future<void>.delayed(const Duration(milliseconds: 10));
+  }
+  if (!finished) {
+    throw TestFailure(
+      'Owned conversation database cleanup did not finish within $timeout',
+    );
+  }
+  await cleanup;
+  if (failure != null) Error.throwWithStackTrace(failure!, failureStack!);
+  await tester.pump();
+}
+
 class _StateOverrideNotifier extends ConversationNotifier {
   _StateOverrideNotifier(this._initial);
   final ConversationState _initial;
