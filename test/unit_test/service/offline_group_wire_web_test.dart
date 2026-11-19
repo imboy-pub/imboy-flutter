@@ -22,6 +22,7 @@ import 'package:imboy/service/events/common_events.dart';
 import 'package:imboy/service/message_offline.dart';
 import 'package:imboy/service/sqlite.dart';
 import 'package:imboy/service/storage.dart';
+import 'package:imboy/service/web_writer_gate.dart';
 import 'package:imboy/store/repository/message_repo_sqlite.dart';
 
 class OfflineAdapter implements HttpClientAdapter {
@@ -60,6 +61,7 @@ class OfflineAdapter implements HttpClientAdapter {
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
+  setUpAll(prepareWebWriter);
   testWidgets(
     'raw offline group role updates exact member and dispatches event',
     (tester) async {
