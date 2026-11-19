@@ -234,7 +234,10 @@ void main() {
     try {
       await _openPage(tester);
       final node = tester.getSemantics(find.text('好友乙'));
-      tester.binding.rootPipelineOwner.semanticsOwner!.performAction(
+      // The test's semantics handle owns this pipeline; using the root owner
+      // changes the target of activation and fails the selection contract.
+      // ignore: deprecated_member_use
+      tester.binding.pipelineOwner.semanticsOwner!.performAction(
         node.id,
         SemanticsAction.tap,
       );
