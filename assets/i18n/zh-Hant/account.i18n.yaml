@@ -44,7 +44,7 @@ recoverPassword: 找回密碼
 birthday: 出生日期
 region: 地區
 retypePassword: 重新輸入密碼
-scanQrCode: 掃描二維碼
+scanQrCode: 掃一掃
 setNickname: 設定暱稱
 signature: 個性簽名
 signup: 註冊
@@ -93,7 +93,7 @@ payMethodComingSoon: 此付款方式即將開通，敬請期待
 payCancelled: 付款已取消
 e2eeDeviceIdLabel: 裝置 ID
 webQRLoginTitle: 掃碼登入
-webQRLoginHint: 使用 ImBoy 手機版掃描二維碼
+webQRLoginHint: 使用 ImBoy 手機版掃一掃
 webSwitchToPassword: 使用帳號密碼登入
 webPasswordLoginTitle: 帳號登入
 webAccountHint: 請輸入帳號/手機號/郵箱

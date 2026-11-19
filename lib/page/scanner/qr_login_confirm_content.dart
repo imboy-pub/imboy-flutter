@@ -216,10 +216,14 @@ class QrLoginConfirmContent extends StatelessWidget {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        const Icon(
-          CupertinoIcons.checkmark_circle_fill,
-          size: 80,
-          color: AppColors.success,
+        // DESIGN.md §79 语义色：成功 = iosGreen(#34C759)/暗色 #30D158
+        // （2026-11-19 属主反馈与设计资产不一致，原误用 Material success 深绿）
+        Builder(
+          builder: (context) => Icon(
+            CupertinoIcons.checkmark_circle_fill,
+            size: 80,
+            color: AppColors.getIosGreen(Theme.of(context).brightness),
+          ),
         ),
         AppSpacing.verticalXLarge,
         Text(

@@ -129,7 +129,7 @@ class Translations$account$zh_Hant extends Translations$account$zh_CN {
 	@override String get birthday => '出生日期';
 	@override String get region => '地區';
 	@override String get retypePassword => '重新輸入密碼';
-	@override String get scanQrCode => '掃描二維碼';
+	@override String get scanQrCode => '掃一掃';
 	@override String get setNickname => '設定暱稱';
 	@override String get signature => '個性簽名';
 	@override String get signup => '註冊';
@@ -178,7 +178,7 @@ class Translations$account$zh_Hant extends Translations$account$zh_CN {
 	@override String get payCancelled => '付款已取消';
 	@override String get e2eeDeviceIdLabel => '裝置 ID';
 	@override String get webQRLoginTitle => '掃碼登入';
-	@override String get webQRLoginHint => '使用 ImBoy 手機版掃描二維碼';
+	@override String get webQRLoginHint => '使用 ImBoy 手機版掃一掃';
 	@override String get webSwitchToPassword => '使用帳號密碼登入';
 	@override String get webPasswordLoginTitle => '帳號登入';
 	@override String get webAccountHint => '請輸入帳號/手機號/郵箱';
@@ -690,7 +690,7 @@ class Translations$chat$zh_Hant extends Translations$chat$zh_CN {
 	@override String get reply => '回覆';
 	@override String get resendCode => '重發驗證碼';
 	@override String get revoke => '收回';
-	@override String get scanQrCodeBusinessCard => '掃描二維碼卡片';
+	@override String get scanQrCodeBusinessCard => '掃一掃名片';
 	@override String get scanQrEntry => '掃一掃';
 	@override String get privateChat => '私訊';
 	@override String get sendFriendRequest => '傳送新增好友申請';
@@ -4202,7 +4202,7 @@ extension on TranslationsZhHant {
 			'account.birthday' => '出生日期',
 			'account.region' => '地區',
 			'account.retypePassword' => '重新輸入密碼',
-			'account.scanQrCode' => '掃描二維碼',
+			'account.scanQrCode' => '掃一掃',
 			'account.setNickname' => '設定暱稱',
 			'account.signature' => '個性簽名',
 			'account.signup' => '註冊',
@@ -4251,7 +4251,7 @@ extension on TranslationsZhHant {
 			'account.payCancelled' => '付款已取消',
 			'account.e2eeDeviceIdLabel' => '裝置 ID',
 			'account.webQRLoginTitle' => '掃碼登入',
-			'account.webQRLoginHint' => '使用 ImBoy 手機版掃描二維碼',
+			'account.webQRLoginHint' => '使用 ImBoy 手機版掃一掃',
 			'account.webSwitchToPassword' => '使用帳號密碼登入',
 			'account.webPasswordLoginTitle' => '帳號登入',
 			'account.webAccountHint' => '請輸入帳號/手機號/郵箱',
@@ -4710,7 +4710,7 @@ extension on TranslationsZhHant {
 			'chat.reply' => '回覆',
 			'chat.resendCode' => '重發驗證碼',
 			'chat.revoke' => '收回',
-			'chat.scanQrCodeBusinessCard' => '掃描二維碼卡片',
+			'chat.scanQrCodeBusinessCard' => '掃一掃名片',
 			'chat.scanQrEntry' => '掃一掃',
 			'chat.privateChat' => '私訊',
 			'chat.sendFriendRequest' => '傳送新增好友申請',

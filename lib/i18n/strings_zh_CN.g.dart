@@ -224,8 +224,8 @@ class Translations$account$zh_CN {
 	/// zh-CN: '重新输入密码'
 	String get retypePassword => '重新输入密码';
 
-	/// zh-CN: '扫描二维码'
-	String get scanQrCode => '扫描二维码';
+	/// zh-CN: '扫一扫'
+	String get scanQrCode => '扫一扫';
 
 	/// zh-CN: '设置昵称'
 	String get setNickname => '设置昵称';
@@ -371,8 +371,8 @@ class Translations$account$zh_CN {
 	/// zh-CN: '扫码登录'
 	String get webQRLoginTitle => '扫码登录';
 
-	/// zh-CN: '使用 ImBoy 手机版扫描二维码'
-	String get webQRLoginHint => '使用 ImBoy 手机版扫描二维码';
+	/// zh-CN: '使用 ImBoy 手机版扫一扫'
+	String get webQRLoginHint => '使用 ImBoy 手机版扫一扫';
 
 	/// zh-CN: '使用账号密码登录'
 	String get webSwitchToPassword => '使用账号密码登录';
@@ -1783,8 +1783,8 @@ class Translations$chat$zh_CN {
 	/// zh-CN: '撤回'
 	String get revoke => '撤回';
 
-	/// zh-CN: '扫描二维码名片'
-	String get scanQrCodeBusinessCard => '扫描二维码名片';
+	/// zh-CN: '扫一扫名片'
+	String get scanQrCodeBusinessCard => '扫一扫名片';
 
 	/// zh-CN: '扫一扫'
 	String get scanQrEntry => '扫一扫';
@@ -11289,7 +11289,7 @@ extension on Translations {
 			'account.birthday' => '生日',
 			'account.region' => '地区',
 			'account.retypePassword' => '重新输入密码',
-			'account.scanQrCode' => '扫描二维码',
+			'account.scanQrCode' => '扫一扫',
 			'account.setNickname' => '设置昵称',
 			'account.signature' => '个性签名',
 			'account.signup' => '注册',
@@ -11338,7 +11338,7 @@ extension on Translations {
 			'account.payCancelled' => '支付已取消',
 			'account.e2eeDeviceIdLabel' => '设备 ID',
 			'account.webQRLoginTitle' => '扫码登录',
-			'account.webQRLoginHint' => '使用 ImBoy 手机版扫描二维码',
+			'account.webQRLoginHint' => '使用 ImBoy 手机版扫一扫',
 			'account.webSwitchToPassword' => '使用账号密码登录',
 			'account.webPasswordLoginTitle' => '账号登录',
 			'account.webAccountHint' => '请输入账号/手机号/邮箱',
@@ -11798,7 +11798,7 @@ extension on Translations {
 			'chat.reply' => '回复',
 			'chat.resendCode' => '重发验证码',
 			'chat.revoke' => '撤回',
-			'chat.scanQrCodeBusinessCard' => '扫描二维码名片',
+			'chat.scanQrCodeBusinessCard' => '扫一扫名片',
 			'chat.scanQrEntry' => '扫一扫',
 			'chat.privateChat' => '私聊',
 			'chat.sendFriendRequest' => '发送添加朋友申请',

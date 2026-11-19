@@ -45,7 +45,7 @@ recoverPassword: 找回密码
 birthday: 生日
 region: 地区
 retypePassword: 重新输入密码
-scanQrCode: 扫描二维码
+scanQrCode: 扫一扫
 setNickname: 设置昵称
 signature: 个性签名
 signup: 注册
@@ -97,7 +97,7 @@ payMethodComingSoon: 该支付方式即将开通，敬请期待
 payCancelled: 支付已取消
 e2eeDeviceIdLabel: 设备 ID
 webQRLoginTitle: 扫码登录
-webQRLoginHint: 使用 ImBoy 手机版扫描二维码
+webQRLoginHint: 使用 ImBoy 手机版扫一扫
 webSwitchToPassword: 使用账号密码登录
 webPasswordLoginTitle: 账号登录
 webAccountHint: 请输入账号/手机号/邮箱
