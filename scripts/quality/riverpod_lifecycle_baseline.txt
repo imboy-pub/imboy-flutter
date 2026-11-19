@@ -40,7 +40,6 @@ lib/page/mine/storage_space/storage_space_provider.dart:class:StorageSpaceNotifi
 lib/page/mine/user_collect/user_collect_provider.dart:class:UserCollectNotifier
 lib/page/mine/user_device/user_device_provider.dart:class:UserDeviceNotifier
 lib/page/passport/passport_notifier.dart:class:PassportNotifier
-lib/page/passport/web_login_page.dart:class:QRLogin
 lib/page/personal_info/personal_info/personal_info_provider.dart:class:PersonalInfoNotifier
 lib/page/personal_info/profile/profile_provider.dart:class:ProfileNotifier
 lib/page/personal_info/set_gender/set_gender_provider.dart:class:SetGenderNotifier

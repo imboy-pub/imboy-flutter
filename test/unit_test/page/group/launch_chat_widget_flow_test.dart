@@ -234,10 +234,7 @@ void main() {
     try {
       await _openPage(tester);
       final node = tester.getSemantics(find.text('好友乙'));
-      tester.binding.pipelineOwner.semanticsOwner!.performAction(
-        node.id,
-        SemanticsAction.tap,
-      );
+      node.owner!.performAction(node.id, SemanticsAction.tap);
       await tester.pump();
 
       expect(find.textContaining('(1)'), findsOneWidget);

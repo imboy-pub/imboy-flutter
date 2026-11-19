@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:go_router/go_router.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/passport/passport_notifier.dart';
 import 'package:imboy/page/passport/passport_state.dart';
@@ -45,6 +46,7 @@ class _Qr extends QRLogin {
 
   int calls = 0;
   bool fail = false;
+  bool disposed = false;
   @override
   QRLoginState build() => const QRLoginState();
   @override
@@ -61,6 +63,13 @@ class _Qr extends QRLogin {
   QRLoginStatus get status => state.status;
   void confirming() =>
       state = const QRLoginState(status: QRLoginStatus.confirming);
+
+  @override
+  void dispose() {
+    disposed = true;
+    profilePending = false;
+    super.dispose();
+  }
 }
 
 class _Passport extends PassportNotifier {
@@ -77,21 +86,31 @@ void main() {
   setUpAll(prepareWebWriter);
   late _Sessions sessions;
   late _Qr qr;
+  late GoRouter router;
   Future<void> mount(WidgetTester tester) async {
     sessions = _Sessions();
-    qr = _Qr(sessions);
-    await tester.pumpWidget(
-      ProviderScope(
-        overrides: [
-          qRLoginProvider.overrideWith(() => qr),
-          passportProvider.overrideWith(_Passport.new),
-        ],
-        child: MaterialApp(
-          home: TranslationProvider(
+    router = GoRouter(
+      initialLocation: '/sign_in',
+      routes: [
+        GoRoute(
+          path: '/sign_in',
+          builder: (_, _) => ProviderScope(
+            overrides: [
+              qRLoginProvider.overrideWith(() => qr = _Qr(sessions)),
+              passportProvider.overrideWith(_Passport.new),
+            ],
             child: WebLoginPage(sessionReader: sessions),
           ),
         ),
-      ),
+        GoRoute(
+          path: '/web_shell',
+          builder: (_, _) => const Scaffold(body: Text('signed-in shell')),
+        ),
+      ],
+    );
+    addTearDown(router.dispose);
+    await tester.pumpWidget(
+      TranslationProvider(child: MaterialApp.router(routerConfig: router)),
     );
     await tester.pump();
     await tester.pump();
@@ -248,9 +267,14 @@ void main() {
         qr.confirming();
         sessions.publish((uid: '123', generation: 2, transitioning: true));
         sessions.publish((uid: '123', generation: 2, transitioning: false));
-        await tester.pump();
         expect(qr.calls, 1);
         expect(qr.status, QRLoginStatus.confirming);
+        await tester.pumpAndSettle();
+        expect(router.routeInformationProvider.value.uri.path, '/web_shell');
+        expect(find.text('signed-in shell'), findsOneWidget);
+        expect(find.byType(WebLoginPage), findsNothing);
+        expect(sessions.hasSessionListeners, isFalse);
+        expect(qr.disposed, isTrue);
         await retire(tester);
       },
     );
@@ -265,9 +289,15 @@ void main() {
         ));
         qr.profilePending = true;
         qr.confirming();
-        await tester.pump();
         expect(qr.status, QRLoginStatus.confirming);
         expect(qr.calls, 0);
+        final committedQr = qr;
+        await tester.pumpAndSettle();
+        expect(router.routeInformationProvider.value.uri.path, '/web_shell');
+        expect(find.text('signed-in shell'), findsOneWidget);
+        expect(sessions.hasSessionListeners, isFalse);
+        expect(committedQr.disposed, isTrue);
+        expect(committedQr.hasPendingProfile, isFalse);
         // Host transport fixture covers actual HTTP401-driven owned logout.
         sessions.publish((
           uid: 'synthetic-hydration-owner',
@@ -276,8 +306,13 @@ void main() {
         ));
         sessions.publish((uid: '', generation: 3, transitioning: true));
         sessions.publish((uid: '', generation: 3, transitioning: false));
+        // Auth landing leaves the old page. Logout returns through a new login
+        // route; the disposed page must not keep receiving owner notifications.
+        router.go('/sign_in');
         await tester.pump();
         await tester.pump();
+        expect(identical(qr, committedQr), isFalse);
+        expect(committedQr.calls, 0);
         expect(qr.status, QRLoginStatus.waiting);
         expect(qr.hasPendingProfile, isFalse);
         expect(qr.calls, 1);

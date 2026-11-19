@@ -429,9 +429,13 @@
     "test/fixtures/browser_sqlite_bridge_probe.dart": {
       "kind": "driver",
       "basis": [
-        "Exact RPC bootstrap client compiled only for test/unit_test/service/browser_sqlite_storage_bridge_chrome_test.dart; the unique Chrome parent owns case execution and PASS/FAIL counts.",
+        "Exact RPC bootstrap client compiled for the two existing multi-document Chrome SQLite consumers; each parent owns its case execution and PASS/FAIL counts.",
         "main() only registers same-origin message RPC and readiness; no Flutter test/testWidgets invocation. This executable auxiliary is explicitly owned and is not a separate product test target.",
         "Keep the existing host-fixtures support rule and EXECUTABLE_IN_SUPPORT_RULE guard unchanged; this override applies only to this one path."
+      ],
+      "included_by": [
+        "test/unit_test/service/browser_sqlite_storage_bridge_chrome_test.dart",
+        "test/service/web_writer_startup_busy_chrome_test.dart"
       ]
     },
     "test/fixtures/web_profile_io_fence.dart": {
@@ -480,10 +484,11 @@
         "web"
       ],
       "offline": true,
-      "dart_defines": {
-        "WEB_CONTROL_TEST_ORIGIN": "http://127.0.0.1:65438"
-      },
       "source_dependencies": [
+        "scripts/auto_test_lib/owned_node_fixture.py",
+        "scripts/auto_test_lib/web_control_fixture.py",
+        "scripts/auto_test_lib/execution_runner.py",
+        "scripts/auto_test_lib/execution_catalog.py",
         "lib/component/chat/message.dart",
         "lib/component/chat/message_file_builder.dart",
         "lib/component/extension/imboy_cache_manager.dart",
@@ -517,9 +522,13 @@
       ],
       "basis": [
         "Actual Chrome Fetch/reader, production owned cache/provider and Blob/anchor with synthetic authorization URL; controlled loopback server only.",
-        "Only one real writer target in this plan. No shared backend/Garage/account; no OS file save because click default is cancelled. No pre-primed cookie jar proof.",
-        "Fixture origin is ephemeral and bound to owned PID/start/listen; explicit fresh preparation required after release. Normal PR gates preserved.",
-        "Runtime fix: safe metadata before provider budget; actual local PNG selection with real writer/production SQLite, only OS picker substituted; no ImageDescriptor encoded width/height on Web. Budget-only preview refusal is distinct from valid upload intent."
+        "Each consumer runs in its own Chrome batch and private origin. No shared backend/Garage/account; no OS file save because click default is cancelled. No pre-primed cookie jar proof.",
+        "Fixture origin is ephemeral and bound to owned PID/start/listen; the runner prepares a fresh service for every attempt. Normal PR gates preserved.",
+        "Runtime fix: safe metadata before provider budget; actual local PNG selection with real writer/production SQLite, only OS picker substituted; no ImageDescriptor encoded width/height on Web. Budget-only preview refusal is distinct from valid upload intent.",
+        "The existing execution runner owns a fresh loopback Node fixture for each Chrome attempt, verifies its nonce identity, injects WEB_CONTROL_TEST_ORIGIN, observes process exit and reaps the fixture. No fixed port or manual preparation."
+      ],
+      "dependencies": [
+        "node"
       ]
     },
     "test/service/env_web_factory_chrome_test.dart": {
@@ -633,6 +642,7 @@
         "lib/service/sqlite.dart",
         "lib/service/web_writer_gate.dart",
         "lib/store/repository/attachment_upload_task_repo_sqlite.dart",
+        "test/service/fixtures/web_attachment_input_fixture.dart",
         "test/service/sqlite3.wasm",
         "web/sqlite3.wasm",
         "test/env_test_pin.dart",
@@ -684,10 +694,11 @@
         "web"
       ],
       "offline": true,
-      "dart_defines": {
-        "WEB_CONTROL_TEST_ORIGIN": "http://127.0.0.1:53371"
-      },
       "source_dependencies": [
+        "scripts/auto_test_lib/owned_node_fixture.py",
+        "scripts/auto_test_lib/web_control_fixture.py",
+        "scripts/auto_test_lib/execution_runner.py",
+        "scripts/auto_test_lib/execution_catalog.py",
         "lib/component/http/web_control_fetch_adapter.dart",
         "lib/component/http/web_control_fetch_adapter_stub.dart",
         "lib/component/http/web_control_fetch_adapter_web.dart",
@@ -699,8 +710,12 @@
         "test/env_test_pin.dart"
       ],
       "basis": [
-        "Task-owned ephemeral loopback Node fixture, synthetic bytes/IDs; actual request-arrival oracle and transport. Explicit preparation required; no real backend/account or shared resource.",
-        "Nearest test/flutter_test_config.dart does not initialize Storage or replace HttpClient; Chrome explicitly acquires real browser writer. Engine-only tests; production caller activation and complete poison acceptance remain separate."
+        "Task-owned ephemeral loopback Node fixture, synthetic bytes/IDs; actual request-arrival oracle and transport. no real backend/account or shared resource.",
+        "Nearest test/flutter_test_config.dart does not initialize Storage or replace HttpClient; Chrome explicitly acquires real browser writer. Engine-only tests; production caller activation and complete poison acceptance remain separate.",
+        "The existing execution runner owns a fresh loopback Node fixture for each Chrome attempt, verifies its nonce identity, injects WEB_CONTROL_TEST_ORIGIN, observes process exit and reaps the fixture. No fixed port or manual preparation."
+      ],
+      "dependencies": [
+        "node"
       ]
     },
     "test/service/web_control_fixture_oracle_test.dart": {
@@ -710,10 +725,14 @@
         "linux"
       ],
       "offline": true,
-      "dart_defines": {
-        "WEB_CONTROL_TEST_ORIGIN": "http://127.0.0.1:65311"
-      },
+      "dependencies": [
+        "node"
+      ],
       "source_dependencies": [
+        "scripts/auto_test_lib/owned_node_fixture.py",
+        "scripts/auto_test_lib/web_control_fixture.py",
+        "scripts/auto_test_lib/execution_runner.py",
+        "scripts/auto_test_lib/execution_catalog.py",
         "lib/component/http/web_control_fetch_adapter.dart",
         "lib/component/http/web_control_fetch_adapter_stub.dart",
         "lib/component/http/web_control_fetch_adapter_web.dart",
@@ -722,8 +741,9 @@
         "pubspec.lock"
       ],
       "basis": [
-        "Task-owned ephemeral loopback Node fixture, synthetic bytes/IDs; actual request-arrival oracle and transport. Explicit preparation required; no real backend/account or shared resource.",
-        "Nearest test/flutter_test_config.dart does not initialize Storage or replace HttpClient; Chrome explicitly acquires real browser writer. Engine-only tests; production caller activation and complete poison acceptance remain separate."
+        "VM oracle for the synthetic loopback Node fixture; no real backend/account or shared resource.",
+        "The existing execution runner owns a fresh ephemeral listener for each attempt, verifies its nonce identity, injects WEB_CONTROL_TEST_ORIGIN, observes process exit and reaps the fixture. No fixed port or manual service preparation.",
+        "Four fixture behavior checks only; not Chrome transport, production caller activation or product acceptance."
       ]
     },
     "test/service/web_control_production_wrapper_chrome_test.dart": {
@@ -733,6 +753,10 @@
       ],
       "offline": true,
       "source_dependencies": [
+        "scripts/auto_test_lib/owned_node_fixture.py",
+        "scripts/auto_test_lib/web_control_fixture.py",
+        "scripts/auto_test_lib/execution_runner.py",
+        "scripts/auto_test_lib/execution_catalog.py",
         "lib/component/http/http_client.dart",
         "lib/component/http/web_control_fetch_adapter_web.dart",
         "lib/component/http/http_request_policy.dart",
@@ -750,11 +774,12 @@
       "basis": [
         "Two actual production HttpClient wrapper→network cases; no handler.resolve/adapter injection or owner=true mock.",
         "Use existing controlled loopback fixture and Web public bootstrap alias and manifest endpoints. bind actual fresh WEB_CONTROL_TEST_ORIGIN; no new service/runner or product_independent field.",
-        "HTTP wrapper transport/session proof, not real backend authentication acceptance."
+        "HTTP wrapper transport/session proof, not real backend authentication acceptance.",
+        "The existing execution runner owns a fresh loopback Node fixture for each Chrome attempt, verifies its nonce identity, injects WEB_CONTROL_TEST_ORIGIN, observes process exit and reaps the fixture. No fixed port or manual preparation."
       ],
-      "dart_defines": {
-        "WEB_CONTROL_TEST_ORIGIN": "http://127.0.0.1:64596"
-      }
+      "dependencies": [
+        "node"
+      ]
     },
     "test/service/web_conversation_lossless_chrome_test.dart": {
       "runner": "flutter-machine",
@@ -868,12 +893,14 @@
       "offline": true,
       "dependencies": [
         "chrome",
-        "sqlite-wasm"
+        "sqlite-wasm",
+        "node"
       ],
-      "dart_defines": {
-        "WEB_CONTROL_TEST_ORIGIN": "http://127.0.0.1:61239"
-      },
       "source_dependencies": [
+        "scripts/auto_test_lib/owned_node_fixture.py",
+        "scripts/auto_test_lib/web_control_fixture.py",
+        "scripts/auto_test_lib/execution_runner.py",
+        "scripts/auto_test_lib/execution_catalog.py",
         "lib/page/web_shell/web_message_content.dart",
         "lib/component/helper/func.dart",
         "lib/component/ui/imboy_cached_image_provider.dart",
@@ -908,7 +935,8 @@
       ],
       "basis": [
         "Task-owned loopback fixture observes Markdown image requests; Web plugin is installed in test and window.open intercepted.",
-        "Synthetic browser proof only; not real external navigation or product acceptance."
+        "Synthetic browser proof only; not real external navigation or product acceptance.",
+        "The existing execution runner owns a fresh loopback Node fixture for each Chrome attempt, verifies its nonce identity, injects WEB_CONTROL_TEST_ORIGIN, observes process exit and reaps the fixture. No fixed port or manual preparation."
       ]
     },
     "test/service/web_profile_readonly_chrome_test.dart": {
@@ -970,34 +998,37 @@
         "sqlite-wasm"
       ],
       "source_dependencies": [
+        ".github/scripts/ci_prepare_chrome.sh",
+        "scripts/auto_test_lib/browser_sqlite_fixture.py",
+        "scripts/auto_test_lib/execution_runner.py",
+        "scripts/auto_test_lib/execution_catalog.py",
+        "lib/service/browser_sqlite_storage_bridge_web.dart",
+        "lib/service/sqflite_init_web.dart",
+        "pubspec.lock",
+        "test/fixtures/browser_sqlite_bridge_probe.dart",
+        "test/fixtures/browser_sqlite_bridge_probe.html",
+        "test/fixtures/browser_sqlite_bridge_probe.htm",
+        "test/fixtures/browser_sqlite_bridge_host.html",
+        "test/fixtures/browser_sqlite_bridge_host.htm",
+        "test/fixtures/browser_sqlite_bridge_probe.js",
+        "test/fixtures/startup_busy_counter.js",
+        "test/fixtures/sqlite3.wasm",
+        "web/sqlite3.wasm",
         "lib/config/init.dart",
         "lib/config/local_external_services_policy.dart",
         "lib/service/web_writer_gate.dart",
         "lib/service/web_writer_gate_web.dart",
         "lib/service/web_writer_gate_types.dart",
-        "lib/service/browser_sqlite_storage_bridge_web.dart",
         "test/flutter_test_config.dart",
         "test/env_test_pin.dart",
-        "test/secure_storage_test_pin.dart",
-        "test/fixtures/startup_busy_counter.js",
-        "test/fixtures/browser_sqlite_bridge_probe.dart",
-        "test/fixtures/browser_sqlite_bridge_probe.html",
-        "test/fixtures/browser_sqlite_bridge_probe.htm",
-        "test/fixtures/browser_sqlite_bridge_probe.js",
-        "test/fixtures/sqlite3.wasm",
-        "web/sqlite3.wasm",
-        "pubspec.lock"
+        "test/secure_storage_test_pin.dart"
       ],
       "basis": [
         "Actual AppInitializer in a second document and current real SQLite bridge writer; owned private Chrome origin with synthetic UID.",
         "Same-document instrumented subset of Storage, IDB open/delete and network APIs; secure-storage test pin and other channels remain outside this proof.",
-        "Pinned current probe JS SRI and immutable preparation receipt are required; normal ownership, product and PR gates remain required."
-      ],
-      "dart_defines": {
-        "BROWSER_SQLITE_PROBE_SRI": "sha256-XeyanX+bME9ToQ3wR9LhwWUKXdovonphrnY3ETl0ExQ=",
-        "BROWSER_SQLITE_PREPARATION_SHA256": "a7b4f7ea18d807f5dbf703b83c49ade8ca41fbadee54a66500ea108c43d1121e",
-        "STARTUP_BUSY_COUNTER_SRI": "sha256-xeXpd/n16a+IZYm2KO9sP5bB9A9GetOUXc4lb0EE20o="
-      }
+        "Pinned current probe JS SRI and immutable preparation receipt are required; normal ownership, product and PR gates remain required.",
+        "The existing execution runner compiles the current probe for this isolated Chrome attempt, verifies compiler/source/artifact receipts, injects fresh JS SRI and preparation SHA256, and retains all evidence. Changed served bytes or failed preparation blocks execution; generated JS is not a frozen source input."
+      ]
     },
     "test/unit_test/api/w09_inflight_cancel_chrome_test.dart": {
       "runner": "flutter-machine",
@@ -1122,6 +1153,7 @@
         "test/unit_test/page/web_shell/fixtures/chat_input_io_fence.dart",
         "test/unit_test/page/web_shell/fixtures/chat_input_platform_fence_stub.dart",
         "test/unit_test/page/web_shell/fixtures/chat_input_platform_fence_web.dart",
+        "test/unit_test/page/conversation/fixtures/conversation_page_fixture.dart",
         "test/unit_test/page/conversation/sqlite3.wasm",
         "web/sqlite3.wasm",
         "lib/component/ui/resource_page_layout.dart",
@@ -1314,6 +1346,7 @@
         "lib/service/account_preferences.dart",
         "lib/service/storage.dart",
         "lib/store/repository/user_repo_local.dart",
+        "test/unit_test/page/web_shell/fixtures/web_chat_lifecycle_fixture.dart",
         "test/flutter_test_config.dart",
         "test/unit_test/flutter_test_config.dart",
         "test/env_test_pin.dart",
@@ -1648,22 +1681,32 @@
       ],
       "offline": true,
       "source_dependencies": [
+        ".github/scripts/ci_prepare_chrome.sh",
+        "scripts/auto_test_lib/browser_sqlite_fixture.py",
+        "scripts/auto_test_lib/execution_runner.py",
+        "scripts/auto_test_lib/execution_catalog.py",
         "lib/service/browser_sqlite_storage_bridge_web.dart",
         "lib/service/sqflite_init_web.dart",
         "pubspec.lock",
         "test/fixtures/browser_sqlite_bridge_probe.dart",
         "test/fixtures/browser_sqlite_bridge_probe.html",
+        "test/fixtures/browser_sqlite_bridge_probe.htm",
         "test/fixtures/browser_sqlite_bridge_host.html",
-        "test/fixtures/browser_sqlite_bridge_probe.js",
-        "test/fixtures/sqlite3.wasm",
-        "web/sqlite3.wasm",
         "test/fixtures/browser_sqlite_bridge_host.htm",
-        "test/fixtures/browser_sqlite_bridge_probe.htm"
+        "test/fixtures/browser_sqlite_bridge_probe.js",
+        "test/fixtures/startup_busy_counter.js",
+        "test/fixtures/sqlite3.wasm",
+        "web/sqlite3.wasm"
       ],
       "basis": [
         "Actual separate browsing contexts, real SQLite WASM and real IndexedDB; no storage mock.",
         "IDB abort is a real aborted browser transaction, injected only by the isolated fixture.",
-        "Exact .htm symlink aliases serve the existing host/probe HTML without the Flutter test server .html wrapper; link text and final HTML bytes remain preparation inputs. Parent reads the existing report pre text as JSON across realms, preserving all seven oracles and pinned probe SRI."
+        "Exact .htm symlink aliases serve the existing host/probe HTML without the Flutter test server .html wrapper; link text and final HTML bytes remain preparation inputs. Parent reads the existing report pre text as JSON across realms, preserving all seven oracles and pinned probe SRI.",
+        "The existing execution runner compiles the current probe for this isolated Chrome attempt, verifies compiler/source/artifact receipts, injects fresh JS SRI and preparation SHA256, and retains all evidence. Changed served bytes or failed preparation blocks execution; generated JS is not a frozen source input."
+      ],
+      "dependencies": [
+        "chrome",
+        "sqlite-wasm"
       ]
     },
     "test/unit_test/service/e2ee/e2ee_secret_inventory_test.dart": {
@@ -1760,7 +1803,7 @@
         "web/sqlite3.wasm"
       ],
       "basis": [
-        "Browser-only offline-message contract uses an in-memory SQLite WASM database, synthetic credentials and an HTTP adapter that rejects unexpected requests. The shared runner supplies the same tracked same-origin application WASM as the FTS migration target; no backend, account or externally hosted WASM is required."
+        "Browser-only offline-message contract uses the admitted SQLite WASM bridge with an environment/UID-named synthetic database and cleans up that database after use. Synthetic credentials and a strict HTTP adapter exercise the real Web offline GET and ACK POST aliases while rejecting unexpected paths and methods. The shared runner supplies the same tracked same-origin application WASM as the FTS migration target; no backend, external account or externally hosted WASM is required."
       ]
     },
     "integration_test/sqlcipher_encryption_acceptance_test.dart": {

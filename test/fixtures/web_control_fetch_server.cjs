@@ -1,6 +1,7 @@
 // Explicitly prepared, isolated loopback fixture; never a product server.
 const http = require('node:http');
 const crypto = require('node:crypto');
+const nonce = crypto.randomBytes(32).toString('hex');
 const records = new Map();
 const port = Number(process.env.IMBOY_CONTROL_FETCH_PORT || '0');
 if (!Number.isInteger(port) || port < 0 || port > 65535) throw Error('invalid fixture port');
@@ -42,6 +43,15 @@ const server = http.createServer((req, res) => {
   let target;
   try { target = new URL(req.url, 'http://127.0.0.1'); }
   catch { res.writeHead(400).end(); return; }
+  if (target.pathname === '/identity') {
+    if (req.method !== 'GET' || target.searchParams.getAll('nonce').length !== 1 ||
+        target.searchParams.get('nonce') !== nonce) {
+      res.writeHead(403).end(); return;
+    }
+    res.writeHead(200, {'Content-Type': 'application/json'}).end(
+      JSON.stringify({fixture: 'web-control-fetch-v1', nonce}));
+    return;
+  }
   const api = target.pathname.startsWith('/api/v1/');
   // OPTIONS is CORS negotiation, not the actual API request counted by /stats.
   const resource = target.pathname.startsWith('/resource/');
@@ -131,5 +141,5 @@ const server = http.createServer((req, res) => {
   });
 });
 server.listen(port, '127.0.0.1', () => {
-  process.stdout.write(JSON.stringify({ready: true, origin: `http://127.0.0.1:${server.address().port}`}) + '\n');
+  process.stdout.write(JSON.stringify({ready: true, origin: `http://127.0.0.1:${server.address().port}`, nonce}) + '\n');
 });

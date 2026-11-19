@@ -23,6 +23,7 @@ import 'package:imboy/page/web_shell/web_shell_state.dart';
 import 'package:imboy/service/account_draft_store.dart';
 import 'package:imboy/service/pending_text_send.dart';
 import 'package:imboy/service/storage.dart';
+import 'package:imboy/service/web_writer_gate.dart';
 import 'package:imboy/utils/chat_draft_keys.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shared_preferences_platform_interface/shared_preferences_platform_interface.dart';
@@ -97,6 +98,7 @@ void main() {
     HttpClient.adapterForTest = _NoNetwork();
     SharedPreferences.setMockInitialValues({Keys.currentUid: uid});
     await StorageService.init();
+    await prepareWebWriter();
     messages = TextSendMessages();
     chat = TextSendChat(messages);
     container = ProviderContainer(
