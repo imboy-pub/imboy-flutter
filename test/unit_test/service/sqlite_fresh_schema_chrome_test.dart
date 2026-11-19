@@ -3,7 +3,7 @@ library;
 
 import 'dart:convert';
 
-import 'package:flutter/foundation.dart' show debugPrintSynchronously;
+import 'package:flutter/foundation.dart' show debugPrintSynchronously, kIsWeb;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/config/init.dart' show currentEnv;
