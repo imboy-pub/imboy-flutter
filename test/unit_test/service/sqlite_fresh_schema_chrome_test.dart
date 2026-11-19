@@ -28,7 +28,8 @@ import 'package:web/web.dart' as web;
 import '../../env_test_pin.dart';
 
 // Independent inventory: released v36 golden has these 25 application tables;
-// registered v39 adds local channel preferences, and production creation adds
+// registered v39 adds local channel preferences, while v40 makes FTS contentful;
+// production creation adds
 // schema metadata. v38 trigger changes remain an unregistered draft.
 const _tables = {
   'attachment_upload_task',
@@ -66,7 +67,7 @@ Future<List<Map<String, Object?>>> _objects(common.Database db) => db.rawQuery(
 );
 
 Future<void> _verifyProductionSchema(common.Database db) async {
-  expect(await db.getVersion(), 39);
+  expect(await db.getVersion(), 40);
   final objects = await _objects(db);
   final tables = {
     for (final row in objects)
@@ -100,16 +101,16 @@ Future<void> _verifyProductionSchema(common.Database db) async {
   expect(
     objects.where((row) => row['type'] == 'trigger'),
     isEmpty,
-    reason: 'Fresh v39 must not silently activate the unregistered v38 draft',
+    reason: 'Fresh v40 must not silently activate the unregistered v38 draft',
   );
   final idColumn = (await db.rawQuery('PRAGMA table_info(msg_c2c)'))
       .singleWhere((row) => row['name'] == 'id');
   expect(idColumn['type'], 'TEXT');
-  expect(await SchemaContract.verifyInvariants(db, version: 39), isEmpty);
+  expect(await SchemaContract.verifyInvariants(db, version: 40), isEmpty);
   final meta = await ImboySchemaMeta.readAll(db);
-  expect(meta['schema_version'], '39');
+  expect(meta['schema_version'], '40');
   expect(meta['migration_state'], 'ok');
-  expect(meta['last_migration_id'], 'baseline_create_v39');
+  expect(meta['last_migration_id'], 'baseline_create_v40');
   expect(meta['schema_hash'], matches(RegExp(r'^[0-9a-f]{64}$')));
   expect(
     (await db.rawQuery('PRAGMA application_id')).single.values.single,
