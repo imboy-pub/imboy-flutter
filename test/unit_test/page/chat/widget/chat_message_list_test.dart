@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:flutter_chat_core/flutter_chat_core.dart';
 
 import 'package:material_ui/material_ui.dart';
+import 'package:flutter/foundation.dart' show debugPrintSynchronously;
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:imboy/page/chat/widget/chat_message_list.dart';
@@ -222,8 +223,7 @@ void main() {
       final box = f.viewport.currentContext!.findRenderObject() as RenderBox;
       samples.add(f.rect(id).top - box.localToGlobal(Offset.zero).dy);
     }
-    // ignore: avoid_print
-    print(
+    debugPrintSynchronously(
       'READING_SUBPIXEL_ORACLE ${jsonEncode({'id': id, 'before': before, 'after': samples.last, 'samples': samples, 'heightBefore': 300, 'heightAfter': f.height})}',
     );
     expect(samples.last, closeTo(before, 1));
