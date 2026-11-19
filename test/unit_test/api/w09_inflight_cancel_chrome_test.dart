@@ -109,6 +109,7 @@ Future<void> _cleanup(String id, bool arrived, bool failed) async {
   } catch (_) {
     if (!failed) rethrow;
     // Preserve the primary failure, while making cleanup failure visible.
+    // ignore: avoid_print
     print('fixture cleanup failed');
   }
 }
