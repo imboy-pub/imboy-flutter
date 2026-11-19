@@ -21,7 +21,6 @@ import 'package:imboy/service/storage.dart';
 import 'package:imboy/service/websocket.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:integration_test/integration_test.dart';
-import 'package:material_ui/material_ui.dart';
 
 import '../enterprise/macos_storage_isolation.dart';
 import '../flows/test_utils.dart'

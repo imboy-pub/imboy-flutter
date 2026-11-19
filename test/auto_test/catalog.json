@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "generated_from": {
-    "app_head": "54fa35088a88195b178bdb6c73425724366bdd5b",
+    "app_head": "8c6f00caf2bcb5a1583ad48b32fb08d3a61827df",
     "backend_head": "79ee792212fe34665b1939986fb4b928efec98c1",
     "integration_test_count": 210,
     "lib_page_count": 172,
@@ -2194,7 +2194,7 @@
     {
       "id": "test:integration_test/passport/native_qr_session_lifecycle_test.dart",
       "target": "integration_test/passport/native_qr_session_lifecycle_test.dart",
-      "target_sha256": "a63af99d8a188a0e9beb6108f1dc6ffdfda0c12f20f91812e6a327b0ad987b14",
+      "target_sha256": "9fba9878952837ef6161926ebaae38d31100988a3982d6f16926795f18b7a274",
       "sources": [],
       "dependencies": [],
       "risk": "device-readonly",

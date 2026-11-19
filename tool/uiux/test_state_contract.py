@@ -163,17 +163,18 @@ def state_example_cannot_replace_live():
     try:
         store = StateStore(d, session_id="case5")
         seed(store, n=2)
-        # overwrite live state with STATE.example-like content
-        example = json.load(open(os.path.join(HERE, "..", "..",
-                                              "docs", "plans", "enterprise-uiux-v1",
-                                              "STATE.example.json")))
+        # Keep the example fixture local: archived planning documents are not
+        # test inputs. A template must not replace an already committed state.
+        example = {"schema_version": 2, "plan_id": None, "revision": 0,
+                   "last_txid": None, "tasks": {}, "example_only": True,
+                   "status": "NOT_INITIALIZED"}
         with open(store.state_path, "w") as f:
             json.dump(example, f)
         try:
             store.load_state(write_mode=True)
             raise AssertionError("example must not replace live state")
         except StateCorruption as e:
-            assert "example" in str(e) or "hash" in str(e), str(e)
+            assert "STATE.example" in str(e), str(e)
     finally:
         shutil.rmtree(d, ignore_errors=True)
 
