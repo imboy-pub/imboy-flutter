@@ -29,6 +29,7 @@ from urllib.parse import unquote, urlparse
 from .machine_events import parse_machine_events
 from .result import classify_attempts, overall_exit_code
 from .w09_fixture import W09Fixture, FixtureFailure, TARGET as W09_TARGET, TARGETS as W09_TARGETS, FIXTURE as W09_FIXTURE
+from .web_control_fixture import WebControlFixture, TARGETS as WEB_CONTROL_TARGETS, FIXTURE as WEB_CONTROL_FIXTURE
 
 IDENTITY = ('id', 'commit', 'profile', 'suite', 'target', 'platform',
             'product_profile', 'role', 'variant', 'selected')
@@ -484,6 +485,14 @@ def execute_process(command, env, evidence_dir, *, cwd=None, timeout=900, log_pa
             safe_command = receipt['command']
             for secret in secrets:
                 safe_command = [arg.replace(secret, '<redacted>') for arg in safe_command]
+            context = receipt.get('execution_context')
+            if context is not None:
+                # Keep the original pre-spawn measurement after the private
+                # directory is reaped; measuring again would change its meaning.
+                context_path = evidence_dir / 'execution-context.json'
+                context_path.write_bytes(Path(context['path']).read_bytes())
+                os.chmod(context_path, 0o600)
+                receipt['execution_context'] = dict(context, path=str(context_path))
             receipt.update(log=str(final_log), machine=str(final_machine), command=safe_command,
                            lines=final_machine.read_text(encoding='utf-8').splitlines())
             return _persist_process_receipt(receipt, evidence_dir)
@@ -682,6 +691,9 @@ def _default_preflight(root, instance, env):
     if instance.get('target') in W09_TARGETS:
         if not shutil.which('node', path=env.get('PATH')) or not (root / W09_FIXTURE).is_file():
             missing.append('w09-fixture: Node and owned fixture required')
+    if instance.get('target') in WEB_CONTROL_TARGETS:
+        if not shutil.which('node', path=env.get('PATH')) or not (root / WEB_CONTROL_FIXTURE).is_file():
+            missing.append('web-control-fixture: Node and owned fixture required')
     dependencies = instance.get('dependencies', [])
     if 'backend-source' in dependencies:
         backend = Path(env.get('IMBOY_BACKEND_ROOT', root.parent / 'imboy'))
@@ -881,7 +893,8 @@ def run_plan(root, plan, artifact_dir, *, env=None, worker_platform=None, covera
                    instance.get('variant'), instance.get('role'), instance.get('test_name'),
                    json.dumps(instance.get('dart_defines', {}), sort_keys=True),
                    tuple(sorted(instance.get('dependencies', []))), bool(coverage and instance.get('coverage')))
-            if runner != 'flutter-machine' or instance.get('suite') == 'route-smoke' or instance['target'] in W09_TARGETS:
+            if (runner != 'flutter-machine' or instance.get('suite') == 'route-smoke'
+                    or instance['target'] in W09_TARGETS | WEB_CONTROL_TARGETS):
                 key += (instance['id'],)
             groups[key].append(instance)
     batches = list(_execution_batches(groups.values()))
@@ -938,23 +951,35 @@ def run_plan(root, plan, artifact_dir, *, env=None, worker_platform=None, covera
                         results.append(row)
                     pending = []
                     break
-                fixture = None
-                if group[0]['target'] in W09_TARGETS:
-                    if len(pending) != 1 or group[0]['platform'] != 'web':
-                        row = _base(plan, pending[0], 'BLOCKED', 'W09_FIXTURE_SCOPE_INVALID')
+                fixture, fixture_prefix = None, None
+                if group[0]['target'] in W09_TARGETS | WEB_CONTROL_TARGETS:
+                    is_web_control = group[0]['target'] in WEB_CONTROL_TARGETS
+                    fixture_type = WebControlFixture if is_web_control else W09Fixture
+                    fixture_prefix = 'WEB_CONTROL_FIXTURE' if is_web_control else 'W09_FIXTURE'
+                    fixture_platforms = {'linux', 'macos'} if is_web_control else {'web'}
+                    if len(pending) != 1 or group[0]['platform'] not in fixture_platforms:
+                        row = _base(plan, pending[0], 'BLOCKED', fixture_prefix + '_SCOPE_INVALID')
                         results.append(row)
                         pending = []
                         break
                     try:
-                        fixture = W09Fixture(root, runtime_env).start()
+                        fixture = fixture_type(root, runtime_env).start()
                     except FixtureFailure:
-                        row = _base(plan, pending[0], 'BLOCKED', 'W09_FIXTURE_START_FAILED')
+                        row = _base(plan, pending[0], 'BLOCKED', fixture_prefix + '_START_FAILED')
                         results.append(row)
                         pending = []
                         break
                     stack.callback(fixture.stop)
-                    invocation['command'] += [f'--dart-define=W09_CANCEL_ORIGIN={fixture.origin}',
-                                               f'--dart-define=W09_CANCEL_NONCE={fixture.nonce}']
+                    if is_web_control:
+                        # The listener belongs to this attempt; never reuse a frozen
+                        # or caller-supplied origin and its accumulated oracle rows.
+                        define = '--dart-define=WEB_CONTROL_TEST_ORIGIN='
+                        invocation['command'] = [arg for arg in invocation['command']
+                                                 if not arg.startswith(define)]
+                        invocation['command'].append(define + fixture.origin)
+                    else:
+                        invocation['command'] += [f'--dart-define=W09_CANCEL_ORIGIN={fixture.origin}',
+                                                  f'--dart-define=W09_CANCEL_NONCE={fixture.nonce}']
                 if (output / 'lcov.info').is_file():
                     (output / 'lcov.info').unlink()
                 receipt = execute_process(invocation['command'], invocation.get('env', runtime_env), output,
@@ -964,7 +989,10 @@ def run_plan(root, plan, artifact_dir, *, env=None, worker_platform=None, covera
                                               f for item in pending for f in item.get('required_features', [])})), **invocation}
                                               if pending[0].get('suite') == 'backend-contract' else None),
                                           **({'observer': fixture.observer, 'redactions': [fixture.nonce]} if fixture else {}))
-                fixture_ok = not fixture or (fixture.observer(None) is None and fixture.stop())
+                fixture_ok = True
+                if fixture:
+                    fixture_alive = fixture.observer(None) is None
+                    fixture_ok = fixture.stop() and fixture_alive
                 # build_invocation 已按实例计算 product_artifact（backend-contract 捕获
                 # 证据在构建期替换）；此处直接传播，未命中时回退 adapters 现算。
                 receipt['product_artifact'] = (invocation.get('product_artifact')
@@ -982,7 +1010,7 @@ def run_plan(root, plan, artifact_dir, *, env=None, worker_platform=None, covera
                 for instance in pending:
                     attempt = _record_attempt(root, plan, instance, receipt, streams[instance['target']])
                     if not fixture_ok:
-                        attempt['execution_errors'].append('W09_FIXTURE_CLEANUP_OR_EXIT_FAILED')
+                        attempt['execution_errors'].append(fixture_prefix + '_CLEANUP_OR_EXIT_FAILED')
                     if instance.get('coverage') and not receipt.get('coverage') and attempt['parsed'].get('test_status') == 'PASS':
                         attempt['execution_errors'].append('MISSING_COVERAGE_RESULT')
                     attempt_records[instance['id']].append(attempt)

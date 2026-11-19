@@ -17,6 +17,7 @@ from pathlib import Path, PurePosixPath
 
 from .discovery import git_head
 from .w09_fixture import TARGETS as W09_TARGETS
+from .web_control_fixture import TARGETS as WEB_CONTROL_TARGETS
 
 CONTRACT_PATH = 'test/auto_test/execution_contract.json'
 SCHEMA_VERSION = 1
@@ -686,12 +687,21 @@ def build_plan(root: Path, profile: str = 'pr', platforms: list[str] | None = No
     fingerprint_inputs = {'contract': cfg, 'entries': catalog['entries']}
     if any(i['target'] in W09_TARGETS for i in selected):
         paths = ['scripts/auto_test_lib/execution_runner.py', 'scripts/auto_test_lib/w09_fixture.py',
+                 'scripts/auto_test_lib/owned_node_fixture.py',
                  'test/fixtures/w09_cancel/slow-put.cjs']
         try:
             fingerprint_inputs['w09_fixture_inputs'] = {
                 path: hashlib.sha256((Path(root) / path).read_bytes()).hexdigest() for path in paths}
         except OSError as error:
             raise ContractError(['W09_FIXTURE_INPUT_MISSING']) from error
+    if any(i['target'] in WEB_CONTROL_TARGETS for i in selected):
+        paths = ['scripts/auto_test_lib/execution_runner.py', 'scripts/auto_test_lib/web_control_fixture.py',
+                 'scripts/auto_test_lib/owned_node_fixture.py', 'test/fixtures/web_control_fetch_server.cjs']
+        try:
+            fingerprint_inputs['web_control_fixture_inputs'] = {
+                path: hashlib.sha256((Path(root) / path).read_bytes()).hexdigest() for path in paths}
+        except OSError as error:
+            raise ContractError(['WEB_CONTROL_FIXTURE_INPUT_MISSING']) from error
     digest = hashlib.sha256(json.dumps(fingerprint_inputs, sort_keys=True).encode() + diff).hexdigest()
     return {'schema_version': SCHEMA_VERSION, 'commit': catalog['commit'],
             'profile': profile, 'scope': 'scoped' if scoped else profile,

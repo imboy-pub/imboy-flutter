@@ -710,10 +710,14 @@
         "linux"
       ],
       "offline": true,
-      "dart_defines": {
-        "WEB_CONTROL_TEST_ORIGIN": "http://127.0.0.1:65311"
-      },
+      "dependencies": [
+        "node"
+      ],
       "source_dependencies": [
+        "scripts/auto_test_lib/owned_node_fixture.py",
+        "scripts/auto_test_lib/web_control_fixture.py",
+        "scripts/auto_test_lib/execution_runner.py",
+        "scripts/auto_test_lib/execution_catalog.py",
         "lib/component/http/web_control_fetch_adapter.dart",
         "lib/component/http/web_control_fetch_adapter_stub.dart",
         "lib/component/http/web_control_fetch_adapter_web.dart",
@@ -722,8 +726,9 @@
         "pubspec.lock"
       ],
       "basis": [
-        "Task-owned ephemeral loopback Node fixture, synthetic bytes/IDs; actual request-arrival oracle and transport. Explicit preparation required; no real backend/account or shared resource.",
-        "Nearest test/flutter_test_config.dart does not initialize Storage or replace HttpClient; Chrome explicitly acquires real browser writer. Engine-only tests; production caller activation and complete poison acceptance remain separate."
+        "VM oracle for the synthetic loopback Node fixture; no real backend/account or shared resource.",
+        "The existing execution runner owns a fresh ephemeral listener for each attempt, verifies its nonce identity, injects WEB_CONTROL_TEST_ORIGIN, observes process exit and reaps the fixture. No fixed port or manual service preparation.",
+        "Four fixture behavior checks only; not Chrome transport, production caller activation or product acceptance."
       ]
     },
     "test/service/web_control_production_wrapper_chrome_test.dart": {
