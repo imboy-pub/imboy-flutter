@@ -1664,7 +1664,11 @@
         "Actual separate browsing contexts, real SQLite WASM and real IndexedDB; no storage mock.",
         "IDB abort is a real aborted browser transaction, injected only by the isolated fixture.",
         "Exact .htm symlink aliases serve the existing host/probe HTML without the Flutter test server .html wrapper; link text and final HTML bytes remain preparation inputs. Parent reads the existing report pre text as JSON across realms, preserving all seven oracles and pinned probe SRI."
-      ]
+      ],
+      "dart_defines": {
+        "BROWSER_SQLITE_PROBE_SRI": "sha256-XeyanX+bME9ToQ3wR9LhwWUKXdovonphrnY3ETl0ExQ=",
+        "BROWSER_SQLITE_PREPARATION_SHA256": "a7b4f7ea18d807f5dbf703b83c49ade8ca41fbadee54a66500ea108c43d1121e"
+      }
     },
     "test/unit_test/service/e2ee/e2ee_secret_inventory_test.dart": {
       "runner": "flutter-machine",
