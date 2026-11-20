@@ -1088,6 +1088,13 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  geo_regions:
+    dependency: "direct main"
+    description:
+      path: "../geo_regions"
+      relative: true
+    source: path
+    version: "0.1.0-wip.1"
   geoclue:
     dependency: transitive
     description:

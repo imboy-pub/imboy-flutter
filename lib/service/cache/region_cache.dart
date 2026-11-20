@@ -2,7 +2,10 @@ import 'package:imboy/service/web_writer_gate.dart';
 
 import 'dart:convert';
 
+import 'package:geo_regions/geo_regions.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import '../account_preferences.dart';
 
 import 'package:imboy/component/helper/datetime.dart';
 
@@ -207,5 +210,28 @@ class RegionCache {
           : 'Never',
       'isCacheExpired': await isCacheExpired(),
     };
+  }
+}
+
+/// Capture once for each page/session so delayed writes cannot cross accounts.
+class AccountGeoSelectionCache {
+  AccountGeoSelectionCache() : _preferences = AccountPreferences.capture();
+
+  static const preferenceKey = 'geo_structured_selection';
+  final AccountPreferences _preferences;
+
+  GeoSelection? read() {
+    if (_preferences.owner.uid.isEmpty) return null;
+    final saved = _preferences.readList(preferenceKey);
+    return saved.isEmpty ? null : parseSelection(jsonDecode(saved.single));
+  }
+
+  Future<void> write(GeoSelection selection) async {
+    if (_preferences.owner.uid.isEmpty) {
+      throw StateError('Geo selection requires an authenticated account');
+    }
+    await _preferences.writeList(preferenceKey, [
+      jsonEncode(selection.toMap()),
+    ]);
   }
 }

@@ -18,6 +18,8 @@ import 'package:imboy/service/account_local_files.dart';
 import 'package:imboy/service/account_database_inventory.dart';
 import 'package:imboy/service/account_local_task_registry.dart';
 import 'package:imboy/service/account_media_cache_store.dart';
+import 'package:imboy/service/cache/region_cache.dart'
+    show AccountGeoSelectionCache;
 import 'package:imboy/service/database_snapshot_service.dart';
 import 'package:imboy/service/e2ee/attachment_open_registry.dart';
 import 'package:imboy/service/e2ee/e2ee_secret_inventory.dart';
@@ -346,6 +348,7 @@ class AccountLocalDataService {
           'chat_search_history',
           'user_collect_pinned_ids',
           'imboy.deleted_message_ids.v1',
+          AccountGeoSelectionCache.preferenceKey,
         ])
           AccountLocalTaskOwner(
             uid: uid,
