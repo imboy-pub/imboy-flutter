@@ -30,6 +30,37 @@ SWIFTPM_ERROR = (
     "150.7871.04/WebRTC.xcframework.zip' which is required by binary target "
     "'WebRTC': badResponseStatusCode(504)"
 )
+MAVEN_RATE_LIMIT = (
+    "Could not GET 'https://repo.maven.apache.org/maven2/org/jetbrains/kotlin/"
+    "kotlin-gradle-plugins-bom/2.2.20/kotlin-gradle-plugins-bom-2.2.20.pom'. "
+    'Received status code 429 from server: Too Many Requests'
+)
+GRADLE_MAVEN_ERROR = '\n'.join([
+    'FAILURE: Build failed with an exception.',
+    '',
+    '* What went wrong:',
+    "Error resolving plugin [id: 'dev.flutter.flutter-plugin-loader', version: '1.0.0']",
+    "> A problem occurred configuring project ':gradle'.",
+    "   > Could not resolve all artifacts for configuration 'classpath'.",
+    '      > Could not resolve org.jetbrains.kotlin:kotlin-stdlib:2.3.20.',
+    '         > Repository Gradle Central Plugin Repository is disabled due to earlier error below:',
+    '            > Could not resolve org.jetbrains.kotlin:kotlin-gradle-plugins-bom:2.2.20.',
+    "               > Could not get resource 'https://plugins.gradle.org/m2/org/jetbrains/kotlin/"
+    "kotlin-gradle-plugins-bom/2.2.20/kotlin-gradle-plugins-bom-2.2.20.pom'.",
+    '                  > ' + MAVEN_RATE_LIMIT,
+    '> There are 5 more failures with identical causes.',
+    '',
+    '* Try:',
+    '> Run with --stacktrace option to get the stack trace.',
+    '',
+    'BUILD FAILED in 26s',
+])
+FLUTTER_RETRY = 'Retrying Gradle Build: #1, wait time: 100ms'
+# The observed Flutter invocation reports two failed Gradle attempts before exit 1.
+FLUTTER_MAVEN_ERROR = '\n'.join([
+    GRADLE_MAVEN_ERROR, FLUTTER_RETRY, GRADLE_MAVEN_ERROR,
+    'Gradle task assembleStandardRelease failed with exit code 1',
+])
 GIT_DNS_ERROR = (
     "fatal: unable to access 'https://gitee.com/imboy-tripartite-deps/azlistview.git/': "
     'Could not resolve host: gitee.com'
@@ -84,6 +115,39 @@ GIT_CURL18_EOF_ERROR = '\n'.join([
 ])
 GIT_TRANSPORT_ERRORS = (GIT_DNS_ERROR, GIT_TLS_ERROR, GIT_OPENSSL_TLS_ERROR,
                         GIT_EOF_ERROR, GIT_CURL18_EOF_ERROR)
+POD_SOURCE = 'https://mirrors.tuna.tsinghua.edu.cn/git/CocoaPods/Specs.git'
+# Keep the complete observed CocoaPods stderr, including its project message.
+# Retry eligibility comes from the separate source/clone/transport error chain.
+POD_CLONE_ERROR = f"""Running pod install...                                            228.3s
+CocoaPods' output:
+↳
+    Cloning spec repo `tsinghua-git-cocoapods` from `{POD_SOURCE}`
+      $ /usr/local/bin/git clone {POD_SOURCE} -- tsinghua-git-cocoapods
+    [!] Unable to add a source with url `{POD_SOURCE}` named `tsinghua-git-cocoapods`.
+    (/usr/local/bin/git clone {POD_SOURCE} -- tsinghua-git-cocoapods
+
+    Cloning into 'tsinghua-git-cocoapods'...
+    error: RPC failed; curl 56 Recv failure: Connection reset by peer
+    error: 2422 bytes of body are still expected
+    fetch-pack: unexpected disconnect while reading sideband packet
+    fatal: early EOF
+    fatal: fetch-pack: invalid index-pack output
+    )
+    You can try adding it manually in `/Users/runner/.cocoapods/repos` or via `pod repo add`.
+    /usr/local/lib/ruby/gems/3.4.0/gems/cocoapods-1.17.0/lib/cocoapods/sources_manager.rb:55:in 'Pod::Source::Manager#create_source_with_url'
+
+Error output from CocoaPods:
+↳
+    Must provide a project directory and project name.
+      Cloning into 'tsinghua-git-cocoapods'...
+      error: RPC failed; curl 56 Recv failure: Connection reset by peer
+      error: 2422 bytes of body are still expected
+      fetch-pack: unexpected disconnect while reading sideband packet
+      fatal: early EOF
+      fatal: fetch-pack: invalid index-pack output
+
+Error running pod install
+"""
 
 COMMAND = r'''#!/usr/bin/env python3
 import json
@@ -241,6 +305,232 @@ class BuildDownloadRetryTest(unittest.TestCase):
                     self.assertEqual(result.returncode, 65)
                     self.assertEqual(len(calls), 1)
                     self.assertEqual(delays, [])
+
+    def test_android_maven_rate_limit_recovers_with_unchanged_arguments(self):
+        self.command = self.command.rename(self.bin_dir / 'flutter')
+        for kind in ('apk', 'appbundle'):
+            with self.subTest(kind=kind):
+                result, calls, delays = self.run_build([
+                    {'stderr': FLUTTER_MAVEN_ERROR, 'exit_code': 1},
+                    {'stdout': 'build complete'},
+                ], args=('build', kind, '--release', '--flavor', 'standard',
+                         '--dart-define=SENTRY_DSN=private fixture'))
+                self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+                self.assertEqual(len(calls), 2)
+                self.assertEqual(delays, ['10'])
+                self.assertIn('build complete', result.stdout)
+
+    def test_android_maven_rate_limit_preserves_exhausted_failure(self):
+        self.command = self.command.rename(self.bin_dir / 'flutter')
+        result, calls, delays = self.run_build([
+            {'stderr': FLUTTER_MAVEN_ERROR, 'exit_code': 1},
+        ], args=('build', 'apk'))
+        self.assertEqual(result.returncode, 1)
+        self.assertEqual(len(calls), 3)
+        self.assertEqual(delays, ['10', '20'])
+        self.assertIn('failed after 3 attempts (exit 1)', result.stderr)
+
+    def test_maven_rate_limit_requires_android_flutter_build_exit_one(self):
+        result, calls, delays = self.run_build([
+            {'stderr': FLUTTER_MAVEN_ERROR, 'exit_code': 1}, {},
+        ], args=('build', 'apk'))
+        self.assertEqual(result.returncode, 1)
+        self.assertEqual(len(calls), 1)
+        self.assertEqual(delays, [])
+        self.command = self.command.rename(self.bin_dir / 'flutter')
+        for args, status in (
+                (('build', 'ios'), 1), (('build', 'web'), 1),
+                (('pub', 'get'), 1), (('test',), 1),
+                (('build', 'apk'), 65), (('build', 'apk'), 69),
+                (('build', 'apk'), 130), (('build', 'apk'), 137)):
+            with self.subTest(args=args, status=status):
+                result, calls, delays = self.run_build([
+                    {'stderr': FLUTTER_MAVEN_ERROR, 'exit_code': status}, {},
+                ], args=args)
+                self.assertEqual(result.returncode, status)
+                self.assertEqual(len(calls), 1)
+                self.assertEqual(delays, [])
+
+    def test_android_maven_rate_limit_requires_exact_official_get_diagnostic(self):
+        self.command = self.command.rename(self.bin_dir / 'flutter')
+        errors = [
+            FLUTTER_MAVEN_ERROR.replace('repo.maven.apache.org', 'example.invalid'),
+            FLUTTER_MAVEN_ERROR.replace('repo.maven.apache.org', 'repo.maven.apache.org.example.invalid'),
+            FLUTTER_MAVEN_ERROR.replace('https://repo.maven.apache.org', 'http://repo.maven.apache.org'),
+            FLUTTER_MAVEN_ERROR.replace('/maven2/', '/unrelated/'),
+            FLUTTER_MAVEN_ERROR.replace('Could not GET', 'Could not HEAD'),
+            MAVEN_RATE_LIMIT,
+        ]
+        errors.extend(FLUTTER_MAVEN_ERROR.replace('429', str(code))
+                      for code in (401, 403, 404, 408, 500, 502, 503))
+        for permanent in ('error: compilation failed', 'Code signing failed',
+                          'checksum mismatch', MAVEN_RATE_LIMIT.replace('429', '401'),
+                          'Could not find com.example:missing:1.0.',
+                          'Could not resolve dependencies: incompatible package versions'):
+            errors.append(FLUTTER_MAVEN_ERROR.replace(
+                '\n* Try:', '\n> ' + permanent + '\n* Try:'))
+            errors.append(FLUTTER_MAVEN_ERROR.replace(
+                '\n* What went wrong:', '\n* What went wrong:\n> ' + permanent))
+        for error in errors:
+            with self.subTest(error=error):
+                result, calls, delays = self.run_build([
+                    {'stderr': error, 'exit_code': 1}, {},
+                ], args=('build', 'apk'))
+                self.assertEqual(result.returncode, 1)
+                self.assertEqual(len(calls), 1)
+                self.assertEqual(delays, [])
+
+    def test_flutter_recovered_maven_error_does_not_retry_terminal_failure(self):
+        self.command = self.command.rename(self.bin_dir / 'flutter')
+        for error in (
+                "Execution failed for task ':app:compileFlutterBuildStandardRelease'.\n"
+                '> error: compilation failed',
+                'Code signing failed', 'checksum mismatch',
+                'Could not resolve dependencies: incompatible package versions',
+                MAVEN_RATE_LIMIT.replace('429', '401'),
+                MAVEN_RATE_LIMIT.replace('429', '404')):
+            for complete_gradle_failure in (True, False):
+                with self.subTest(error=error, complete=complete_gradle_failure):
+                    terminal = ('FAILURE: Build failed with an exception.\n\n'
+                                '* What went wrong:\n' + error + '\n\n* Try:\n'
+                                if complete_gradle_failure else error)
+                    output = '\n'.join([GRADLE_MAVEN_ERROR, FLUTTER_RETRY, terminal])
+                    result, calls, delays = self.run_build([
+                        {'stderr': output, 'exit_code': 1}, {},
+                    ], args=('build', 'apk'))
+                    self.assertEqual(result.returncode, 1)
+                    self.assertEqual(len(calls), 1)
+                    self.assertEqual(delays, [])
+
+    def test_android_maven_rate_limit_rejects_ambiguous_gradle_failure_reports(self):
+        self.command = self.command.rename(self.bin_dir / 'flutter')
+        for permanent in ('error: compilation failed', 'Code signing failed', 'checksum mismatch'):
+            for causes in ((permanent, MAVEN_RATE_LIMIT), (MAVEN_RATE_LIMIT, permanent)):
+                for heading in ('FAILURE: Build completed with 2 failures.',
+                                'FAILURE: Build failed with an exception.'):
+                    with self.subTest(causes=causes, heading=heading):
+                        # A new report must invalidate an earlier rate limit even
+                        # if no Flutter retry banner separates the reports.
+                        output = '\n'.join([
+                            GRADLE_MAVEN_ERROR, heading,
+                            '* What went wrong:', '> ' + causes[0], '* Try:',
+                            '* What went wrong:', '> ' + causes[1], '* Try:',
+                        ])
+                        result, calls, delays = self.run_build([
+                            {'stderr': output, 'exit_code': 1}, {},
+                        ], args=('build', 'apk'))
+                        self.assertEqual(result.returncode, 1)
+                        self.assertEqual(len(calls), 1)
+                        self.assertEqual(delays, [])
+            with self.subTest(trailing_failure=permanent):
+                result, calls, delays = self.run_build([
+                    {'stderr': FLUTTER_MAVEN_ERROR + '\n' + permanent, 'exit_code': 1}, {},
+                ], args=('build', 'apk'))
+                self.assertEqual(result.returncode, 1)
+                self.assertEqual(len(calls), 1)
+                self.assertEqual(delays, [])
+
+    def test_previous_maven_rate_limit_does_not_retry_later_permanent_failure(self):
+        self.command = self.command.rename(self.bin_dir / 'flutter')
+        for error in ('error: compilation failed', 'Code signing failed',
+                      'checksum mismatch', 'Unable to satisfy pubspec.yaml using pubspec.lock.'):
+            with self.subTest(error=error):
+                result, calls, delays = self.run_build([
+                    {'stderr': FLUTTER_MAVEN_ERROR, 'exit_code': 1},
+                    {'stderr': error, 'exit_code': 65}, {},
+                ], args=('build', 'apk'))
+                self.assertEqual(result.returncode, 65)
+                self.assertEqual(len(calls), 2)
+                self.assertEqual(delays, ['10'])
+
+    def test_ios_config_only_specs_clone_transport_recovers(self):
+        self.command = self.command.rename(self.bin_dir / 'flutter')
+        for args in (('build', 'ios', '--config-only', '--release', '--no-codesign',
+                      '--dart-define=SENTRY_DSN=private fixture'),
+                     ('build', 'ios', '--release', '--no-codesign', '--config-only')):
+            with self.subTest(args=args):
+                result, calls, delays = self.run_build([
+                    {'stderr': POD_CLONE_ERROR, 'exit_code': 1}, {'stdout': 'configuration ready'},
+                ], args=args)
+                self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+                self.assertEqual(len(calls), 2)
+                self.assertEqual(delays, ['10'])
+
+    def test_ios_specs_clone_budget_and_permanent_followup(self):
+        self.command = self.command.rename(self.bin_dir / 'flutter')
+        first = {'stderr': POD_CLONE_ERROR, 'exit_code': 1}
+        for steps, expected, attempts, waits in (
+                ([first], 1, 3, ['10', '20']),
+                ([first, {'stderr': 'error: compilation failed', 'exit_code': 1}, {}], 1, 2, ['10']),
+                ([first, {'stderr': 'Code signing failed', 'exit_code': 65}, {}], 65, 2, ['10']),
+                ([first, {'stderr': 'Error running pod install', 'exit_code': 1}, {}], 1, 2, ['10'])):
+            with self.subTest(expected=expected, steps=steps):
+                result, calls, delays = self.run_build(steps, args=('build', 'ios', '--config-only'))
+                self.assertEqual(result.returncode, expected)
+                self.assertEqual(len(calls), attempts)
+                self.assertEqual(delays, waits)
+
+    def test_ios_specs_clone_requires_exact_config_only_command(self):
+        result, calls, delays = self.run_build([
+            {'stderr': POD_CLONE_ERROR, 'exit_code': 1}, {},
+        ], args=('build', 'ios', '--config-only'))
+        self.assertEqual((result.returncode, len(calls), delays), (1, 1, []))
+        self.command = self.command.rename(self.bin_dir / 'flutter')
+        commands = [
+            ('build', 'ios'), ('build', 'apk', '--config-only'), ('pub', 'get', '--config-only'),
+            ('build', 'ios', '--config-only=true'), ('build', 'ios', '--config-only=false'),
+            ('build', 'ios', '--dart-define=MODE=--config-only'),
+            ('build', 'ios', '--dart-define=MODE=x\n--config-only'),
+            ('build', 'ios', '--', '--config-only'),
+        ]
+        for flag in ('--no-config-only', '--config-only=false', '--config-only=true'):
+            commands.extend((('build', 'ios', '--config-only', flag),
+                             ('build', 'ios', flag, '--config-only')))
+        for args, status in ([(args, 1) for args in commands] +
+                             [(('build', 'ios', '--config-only'), code) for code in (65, 69, 130, 137)]):
+            with self.subTest(args=args, status=status):
+                result, calls, delays = self.run_build([
+                    {'stderr': POD_CLONE_ERROR, 'exit_code': status}, {},
+                ], args=args)
+                self.assertEqual((result.returncode, len(calls), delays), (status, 1, []))
+
+    def test_ios_specs_clone_requires_complete_terminal_transport(self):
+        self.command = self.command.rename(self.bin_dir / 'flutter')
+        required = (
+            f'[!] Unable to add a source with url `{POD_SOURCE}` named `tsinghua-git-cocoapods`.',
+            f'(/usr/local/bin/git clone {POD_SOURCE} -- tsinghua-git-cocoapods',
+            'Error output from CocoaPods:', "Cloning into 'tsinghua-git-cocoapods'...",
+            'error: RPC failed; curl 56 Recv failure: Connection reset by peer',
+            'error: 2422 bytes of body are still expected',
+            'fetch-pack: unexpected disconnect while reading sideband packet',
+            'fatal: early EOF', 'fatal: fetch-pack: invalid index-pack output',
+            'Error running pod install',
+        )
+        errors = [''.join(POD_CLONE_ERROR.rsplit(marker, 1)) for marker in required]
+        errors.extend(POD_CLONE_ERROR.replace(POD_SOURCE, url) for url in (
+            'https://example.invalid/CocoaPods/Specs.git', POD_SOURCE.replace('https:', 'http:'),
+            POD_SOURCE.replace('.edu.cn/', '.edu.cn.example.invalid/'), POD_SOURCE + '.extra'))
+        errors.append(POD_CLONE_ERROR.replace('curl 56 Recv failure: Connection reset by peer',
+                                             'curl 60 SSL certificate problem: certificate has expired'))
+        for permanent in ('error: compilation failed', 'Code signing failed', 'checksum mismatch',
+                          'fatal: Authentication failed', 'fatal: HTTP 404 Not Found',
+                          '[!] CocoaPods could not find compatible versions for pod Foo'):
+            errors.extend((permanent + '\n' + POD_CLONE_ERROR,
+                           POD_CLONE_ERROR.replace('Error output from CocoaPods:',
+                                                  permanent + '\nError output from CocoaPods:'),
+                           POD_CLONE_ERROR.replace('Error running pod install',
+                                                  permanent + '\nError running pod install'),
+                           POD_CLONE_ERROR + permanent))
+        for boundary in ('Pod installation complete!', 'Running pod install...', "CocoaPods' output:"):
+            errors.append(POD_CLONE_ERROR.replace('Error output from CocoaPods:',
+                                                 boundary + '\nError output from CocoaPods:'))
+            errors.append(POD_CLONE_ERROR + boundary + '\nError running pod install')
+        for error in errors:
+            with self.subTest(error=error):
+                result, calls, delays = self.run_build([
+                    {'stderr': error, 'exit_code': 1}, {},
+                ], args=('build', 'ios', '--config-only'))
+                self.assertEqual((result.returncode, len(calls), delays), (1, 1, []))
 
     def test_locked_pub_get_git_transport_failure_recovers_with_unchanged_arguments(self):
         self.command = self.command.rename(self.bin_dir / 'flutter')
