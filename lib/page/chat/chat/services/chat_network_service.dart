@@ -33,6 +33,7 @@ import 'package:imboy/service/e2ee/e2ee_protocol.dart';
 import 'package:imboy/service/e2ee/policy_gate.dart';
 import 'package:imboy/service/encryption_mode.dart';
 import 'package:imboy/service/events/events.dart';
+import 'package:imboy/service/protocol/outbound_message.dart';
 import 'package:imboy/service/message_retry.dart';
 import 'package:imboy/service/olm_session_service.dart';
 import 'package:imboy/store/model/conversation_model.dart';
@@ -734,6 +735,8 @@ class ChatNetworkService {
       'created_at': obj.createdAt,
     };
 
+    OutboundMessage.attachPersonalQuoteReference(msg, payloadWithTs);
+
     if (obj.id.isEmpty) {
       iPrint('消息ID为空，无法发送');
       return false;
@@ -785,6 +788,7 @@ class ChatNetworkService {
 
     if (originalPayload is Map<String, dynamic>) {
       final payload = Map<String, dynamic>.from(originalPayload);
+      OutboundMessage.attachPersonalQuoteReference(msg, payload);
 
       final bool needEncrypt;
       try {

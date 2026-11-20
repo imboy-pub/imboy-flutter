@@ -1201,6 +1201,12 @@ class MessageActions {
         }, txn: txn);
         checkSession();
         if (rows != 1) throw StateError('revoke target update failed');
+        await repo.redactRevokedPersonalQuote(
+          sourceId: current.id,
+          conversationKey: current.conversationUk3,
+          txn: txn,
+        );
+        checkSession();
         final peerId =
             current.type == 'C2C' && current.fromId.toString() != ownerUid
             ? current.fromId.toString()

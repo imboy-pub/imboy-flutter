@@ -20,6 +20,7 @@ import 'package:imboy/service/e2ee_service.dart';
 import 'package:imboy/service/events/events.dart';
 import 'package:imboy/service/event_subscription_manager.dart';
 import 'package:imboy/service/group_session_service.dart';
+import 'package:imboy/service/protocol/outbound_message.dart';
 import 'package:imboy/service/retry_policy.dart';
 import 'package:imboy/store/model/message_model.dart';
 import 'package:imboy/store/model/channel_decimal_id.dart';
@@ -794,9 +795,11 @@ class MessageRetry with EventSubscriptionManager {
         'msg_type': msg.msgType ?? '',
         'action': msg.action ?? '',
         'e2ee': msg.e2ee, // Map 类型（如果存在）
-        'payload': msg.payload,
+        'payload': OutboundMessage.retryPayload(msg.payload, msg.e2ee),
         'created_at': msg.createdAt,
       };
+
+      OutboundMessage.attachPersonalQuoteReference(messageData, msg.payloadMap);
 
       if (!await _claimAttachmentDispatch(msg, () => _isCurrentRetry(info)) ||
           !_isCurrentRetry(info)) {
@@ -952,9 +955,11 @@ class MessageRetry with EventSubscriptionManager {
         'msg_type': msg.msgType ?? '',
         'action': msg.action ?? '',
         'e2ee': msg.e2ee, // Map 类型（如果存在）
-        'payload': msg.payload,
+        'payload': OutboundMessage.retryPayload(msg.payload, msg.e2ee),
         'created_at': msg.createdAt,
       };
+
+      OutboundMessage.attachPersonalQuoteReference(messageData, msg.payloadMap);
 
       if (!await _claimAttachmentDispatch(msg, sessionValid) ||
           !sessionValid()) {

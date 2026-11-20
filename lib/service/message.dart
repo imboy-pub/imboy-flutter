@@ -36,6 +36,7 @@ import 'package:imboy/store/model/contact_model.dart';
 import 'package:imboy/store/model/channel_decimal_id.dart';
 import 'package:imboy/store/model/conversation_model.dart';
 import 'package:imboy/store/model/group_model.dart';
+import 'package:imboy/store/repository/offline_message_payload.dart';
 import 'package:imboy/store/model/message_model.dart';
 import 'package:imboy/store/api/msg_api.dart';
 import 'package:imboy/store/model/model_parse_utils.dart';
@@ -619,7 +620,8 @@ class MessageService with EventSubscriptionManager {
     // legacy/普通消息没有 PFv3 持久信封身份，只能沿用消息行幂等语义。
     // PFv3 必须继续验证 crypto_inbox_digest，禁止同 ID 篡改帧绕过认证后获 ACK。
     if (existing != null && e2ee?['meta_version'] != 3) {
-      return true;
+      if (existing.e2ee?['meta_version'] == 3) return false;
+      return _refreshExistingQuoteDenial(repo, data, notificationSession);
     }
 
     // v2.0: 处理 E2EE 消息（payload 为字符串）
@@ -690,7 +692,12 @@ class MessageService with EventSubscriptionManager {
         return false;
       }
       if (reason == 'already_processed') {
-        return true;
+        return _refreshExistingQuoteDenial(
+          repo,
+          data,
+          notificationSession,
+          verifyProtectedIdentity: true,
+        );
       }
       // 发生率度量（唯一持久化计数点）：占位行即将落库；幂等重投已在
       // 上方拦截、不落占位故不计数（口径见 E2EEDecryptFailureMetrics）
@@ -749,7 +756,14 @@ class MessageService with EventSubscriptionManager {
     }
 
     // 确保 payload 为 non-nullable（用于后续调用）
-    final nonNullPayload = payload;
+    final nonNullPayload =
+        chatType == 'C2C' && data['msg_type'] == MessageType.quote
+        ? OfflineMessagePayload.checkReplySource(
+            payload,
+            data,
+            OfflineMessagePayload.replySourceWireKey,
+          )
+        : payload;
     // === 去重检查（廉价内存检查优先，昂贵的数据库查询放最后） ===
 
     // 1. 检查消息是否正在接收中（TTL 5 秒，内存 Map<String, dynamic>）
@@ -911,6 +925,9 @@ class MessageService with EventSubscriptionManager {
       await CryptoStore(db).completeInbound(data['id'].toString());
       requireCurrent();
       if (visible) {
+        if (data['msg_type'] == MessageType.quote) {
+          SqliteService.to.clearQueryCache(repo.tableName);
+        }
         final updated = await repo.find(data['id'].toString());
         requireCurrent();
         if (updated == null) return false;
@@ -938,12 +955,21 @@ class MessageService with EventSubscriptionManager {
     if (current == null || !_matchesInboundRecovery(current, data)) {
       throw StateError('inbound recovery target changed');
     }
+    final denied = await _persistDeniedQuote(repo, txn, current, data);
+    requireCurrent();
+    final authority = current.e2ee;
+    if (denied ||
+        (authority?.containsKey(OfflineMessagePayload.localReplySourceKey) ==
+                true &&
+            authority?[OfflineMessagePayload.localReplySourceKey] == null)) {
+      payload = OfflineMessagePayload.withoutQuoteSnapshot(payload);
+    }
     final old = current.payloadMap;
     final restored = {
       ...payload,
       if (old.containsKey('burn_read_at')) 'burn_read_at': old['burn_read_at'],
     };
-    if (_isProtectedRecovery(current, restored)) return false;
+    if (_isProtectedRecovery(current, restored)) return denied;
     final emptySealed =
         current.e2ee?['meta_version'] == 3 &&
         (current.payload == null ||
@@ -958,6 +984,67 @@ class MessageService with EventSubscriptionManager {
       if (rows != 1) throw StateError('inbound recovery update failed');
     }
     // A previous completion may have failed after the payload committed.
+    return true;
+  }
+
+  Future<bool> _refreshExistingQuoteDenial(
+    MessageRepo repo,
+    Map<String, dynamic> data,
+    AuthSessionScope session, {
+    bool verifyProtectedIdentity = false,
+  }) async {
+    if (repo.tableName != MessageRepo.c2cTable ||
+        data['msg_type'] != MessageType.quote ||
+        !data.containsKey(OfflineMessagePayload.replySourceWireKey) ||
+        data[OfflineMessagePayload.replySourceWireKey] != null) {
+      return true;
+    }
+    if (!authSessionReader.isCurrent(session)) return false;
+    final db = await SqliteService.to.db;
+    if (db == null || !authSessionReader.isCurrent(session)) return false;
+    final id = data['id'].toString();
+    final changed = await db.transaction((txn) async {
+      final current = await repo.find(id, txn: txn);
+      if (!authSessionReader.isCurrent(session)) {
+        throw StateError('quote update session changed');
+      }
+      if (current == null ||
+          (verifyProtectedIdentity &&
+              !_matchesInboundRecovery(current, data))) {
+        return false;
+      }
+      return _persistDeniedQuote(repo, txn, current, data);
+    });
+    if (!authSessionReader.isCurrent(session)) return false;
+    if (changed) {
+      SqliteService.to.clearQueryCache(repo.tableName);
+      final updated = await repo.find(id);
+      final message = await updated?.toTypeMessage();
+      if (!authSessionReader.isCurrent(session)) return false;
+      if (message != null) AppEventBus.fireData([message], 'messages');
+    }
+    return true;
+  }
+
+  Future<bool> _persistDeniedQuote(
+    MessageRepo repo,
+    Transaction txn,
+    MessageModel current,
+    Map<String, dynamic> envelope,
+  ) async {
+    if (repo.tableName != MessageRepo.c2cTable) return false;
+    final update = OfflineMessagePayload.deniedReplyUpdate(
+      current.toJson(),
+      envelope,
+    );
+    if (update.isEmpty) return false;
+    final rows = await txn.update(
+      MessageRepo.c2cTable,
+      update,
+      where: 'id = ?',
+      whereArgs: [current.id],
+    );
+    if (rows != 1) throw StateError('quote visibility update failed');
     return true;
   }
 
@@ -987,7 +1074,12 @@ class MessageService with EventSubscriptionManager {
       current.senderDid == data['sender_did'] &&
       current.createdAt == parseModelInt(data['created_at']) &&
       listEquals(
-        CanonicalCbor.encode(current.e2ee),
+        CanonicalCbor.encode(
+          current.e2ee == null
+              ? null
+              : (Map<String, dynamic>.of(current.e2ee!)
+                  ..remove(OfflineMessagePayload.localReplySourceKey)),
+        ),
         CanonicalCbor.encode(_parseE2eeMetadata(data['e2ee'])),
       );
 
@@ -1009,12 +1101,17 @@ class MessageService with EventSubscriptionManager {
   }
 
   Map<String, dynamic>? _parseE2eeMetadata(Object? raw) {
-    if (raw is Map<String, dynamic>) return raw;
-    if (raw is Map) return Map<String, dynamic>.from(raw);
+    if (raw is Map) {
+      return Map<String, dynamic>.from(raw)
+        ..remove(OfflineMessagePayload.localReplySourceKey);
+    }
     if (raw is! String || raw.isEmpty) return null;
     try {
       final decoded = jsonDecode(raw);
-      return decoded is Map ? Map<String, dynamic>.from(decoded) : null;
+      return decoded is Map
+          ? (Map<String, dynamic>.from(decoded)
+              ..remove(OfflineMessagePayload.localReplySourceKey))
+          : null;
     } on Object {
       return null;
     }

@@ -125,17 +125,32 @@ class SqliteChatService
     }
   }
 
+  static const _quoteSnapshotHidden = '_quote_snapshot_hidden';
+
+  static CustomMessage hideQuoteSnapshot(CustomMessage message) {
+    final metadata = <String, dynamic>{...?message.metadata}
+      ..remove('quote_msg')
+      ..remove('quote_msg_author_name')
+      ..[_quoteSnapshotHidden] = true;
+    return message.copyWith(metadata: metadata);
+  }
+
   /// 更新消息
   @override
   Future<void> updateMessage(Message oldMessage, Message newMessage) async {
     if (_isDisposed) return;
     final index = _messages.indexWhere((m) => m.id == oldMessage.id);
     if (index == -1) return;
-    if (_messages[index] == newMessage) return;
-    _messages[index] = newMessage;
-    _operationsController.add(
-      ChatOperation.update(oldMessage, newMessage, index),
-    );
+    final stored = _messages[index];
+    final replacement =
+        stored.metadata?[_quoteSnapshotHidden] == true &&
+            newMessage is CustomMessage &&
+            newMessage.metadata?['msg_type'] == 'quote'
+        ? hideQuoteSnapshot(newMessage)
+        : newMessage;
+    if (stored == replacement) return;
+    _messages[index] = replacement;
+    _operationsController.add(ChatOperation.update(stored, replacement, index));
   }
 
   /// 设置/重置消息列表（自动去重，按传入顺序覆盖）

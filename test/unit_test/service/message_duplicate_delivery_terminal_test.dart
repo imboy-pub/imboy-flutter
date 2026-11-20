@@ -72,6 +72,30 @@ const String _sendAttemptDdl = '''
   )
 ''';
 
+const String _contactDDL = '''
+  CREATE TABLE contact (
+    auto_id INTEGER PRIMARY KEY,
+    user_id INTEGER NOT NULL,
+    peer_id INTEGER NOT NULL,
+    nickname TEXT NOT NULL DEFAULT '',
+    avatar TEXT NOT NULL DEFAULT '',
+    gender INTEGER NOT NULL DEFAULT 0,
+    account TEXT NOT NULL DEFAULT '',
+    status TEXT NOT NULL DEFAULT '',
+    remark TEXT DEFAULT '',
+    tag TEXT DEFAULT '',
+    region TEXT DEFAULT '',
+    sign TEXT NOT NULL DEFAULT '',
+    source TEXT NOT NULL DEFAULT '',
+    updated_at INTEGER NOT NULL DEFAULT 0,
+    is_friend INTEGER NOT NULL DEFAULT 0,
+    is_from INTEGER NOT NULL DEFAULT 0,
+    category_id INTEGER NOT NULL DEFAULT 0,
+    account_type INTEGER,
+    last_seen_at INTEGER
+  )
+''';
+
 const String _ownerUid = '1001';
 const String _peerUid = '2002';
 
@@ -150,6 +174,7 @@ void main() {
     await StorageService.init();
     db = await databaseFactoryFfi.openDatabase(inMemoryDatabasePath);
     await db.execute(_msgC2cDdl);
+    await db.execute(_contactDDL);
     await db.execute(_msgC2cFtsDdl);
     await db.execute(_sendAttemptDdl);
     // 与 ServerAckReceipts.persistReceipt 同源建表（setUp 需要清空该表）
@@ -181,6 +206,50 @@ void main() {
   });
 
   group('M02 行 2：重复内容投递不得倒退终态（倒序：撤回终态先落、内容投递后到）', () {
+    test('实时重复投递遮蔽已有引用且保留回复正文', () async {
+      const id = 'be08-live-duplicate-quote';
+      final repo = MessageRepo(tableName: MessageRepo.c2cTable);
+      await db.insert('contact', {
+        'user_id': _ownerUid,
+        'peer_id': _peerUid,
+        'nickname': 'Synthetic peer',
+        'is_friend': 1,
+      });
+      final payload = {
+        'quote_msg': {'id': 'source', 'text': 'cached original'},
+        'quote_text': 'reply body',
+      };
+      await db.insert('msg_c2c', {
+        'id': id,
+        'type': 'C2C',
+        'msg_type': 'quote',
+        'from_id': _peerUid,
+        'to_id': _ownerUid,
+        'conversation_uk3': 'C2C_${_ownerUid}_$_peerUid',
+        'status': IMBoyMessageStatus.delivered,
+        'created_at': 1751850000000,
+        'payload': jsonEncode(payload),
+      });
+      final frame = <String, dynamic>{
+        'id': id,
+        'type': 'C2C',
+        'msg_type': 'quote',
+        'from': _peerUid,
+        'to': _ownerUid,
+        'created_at': 1751850000000,
+        'payload': payload,
+      };
+      await MessageService.to.processMessage('C2C', {
+        ...frame,
+        'reply_source_id': null,
+      });
+      await MessageService.to.processMessage('C2C', {
+        ...frame,
+        'reply_source_id': 'source',
+      });
+      expect((await repo.find(id))?.payloadMap, {'quote_text': 'reply body'});
+    });
+
     test('已撤回终态消息收到同 msg_id 重复投递×3：单条记录、终态与终态行内容不回退、逐次 ACK', () async {
       const msgId = 'm02dup00000000000001';
       await _seedPeerRevokedTerminal(db, msgId);

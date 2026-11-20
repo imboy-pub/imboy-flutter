@@ -4,6 +4,30 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/service/protocol/outbound_message.dart';
 
 void main() {
+  test('v3 retry omits the locally retained plaintext payload', () {
+    final local = {'quote_text': 'private response'};
+    expect(OutboundMessage.retryPayload(local, {'meta_version': 3}), '');
+    expect(OutboundMessage.retryPayload(local, null), same(local));
+    expect(
+      OutboundMessage.retryPayload('legacy ciphertext', {'meta_version': 2}),
+      'legacy ciphertext',
+    );
+  });
+
+  test('retains only the quote source ID outside an encrypted C2C payload', () {
+    final wire = <String, dynamic>{
+      'type': 'C2C',
+      'msg_type': 'quote',
+      'payload': '',
+    };
+    OutboundMessage.attachPersonalQuoteReference(wire, {
+      'quote_msg': {'id': 'source-id', 'text': 'private original'},
+      'quote_text': 'private response',
+    });
+    expect(wire['reply_to'], {'msg_id': 'source-id'});
+    expect(wire['payload'], '');
+  });
+
   test('preserves untouched JSON bytes and string message identity', () {
     const wire = ' { "id": "cxyz123", "type": "C2G", "msg_type": "text" }';
     final message = OutboundMessage.parse(wire);

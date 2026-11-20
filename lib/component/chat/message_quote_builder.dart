@@ -2,6 +2,7 @@ import 'package:cupertino_ui/cupertino_ui.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart';
 import 'package:imboy/store/model/model_parse_utils.dart';
+import 'package:imboy/store/model/message_model.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/plugins/contracts/message_type_plugin.dart';
 import 'package:imboy/service/message_type_constants.dart';
@@ -16,12 +17,14 @@ class QuoteMessageBuilder extends StatelessWidget {
     required this.user,
     required this.message,
     this.onQuoteTap,
+    this.conversationMessages,
   });
 
   final String type;
   final User user;
   final CustomMessage message;
   final void Function(String quoteMessageId)? onQuoteTap;
+  final List<dynamic>? conversationMessages;
 
   @override
   Widget build(BuildContext context) {
@@ -30,12 +33,24 @@ class QuoteMessageBuilder extends StatelessWidget {
     Map<String, dynamic> quoteMsgMap =
         message.metadata?['quote_msg'] as Map<String, dynamic>? ?? {};
 
-    if (quoteMsgMap.isEmpty) {
+    final sourceId = quoteMsgMap['id'];
+    final sourceRevoked =
+        sourceId is String &&
+        (conversationMessages?.whereType<Message>().any(
+              (source) =>
+                  source.id == sourceId &&
+                  IMBoyMessageStatus.isRevokedStatus(
+                    parseModelNullableInt(source.metadata?['status']),
+                  ),
+            ) ??
+            false);
+    if (quoteMsgMap.isEmpty || sourceRevoked) {
       return _buildQuoteErrorWidget(context, userIsAuthor, isDark);
     }
-    if (!quoteMsgMap.containsKey('authorId')) {
-      quoteMsgMap['authorId'] = message.authorId;
-    }
+    quoteMsgMap = <String, dynamic>{
+      'authorId': message.authorId,
+      ...quoteMsgMap,
+    };
 
     late Message quoteMsg;
     try {
@@ -157,32 +172,49 @@ class QuoteMessageBuilder extends StatelessWidget {
     bool isDark,
   ) {
     final errorColor = AppColors.getIosRed(Theme.of(context).brightness);
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: errorColor.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Row(
-        children: [
-          Icon(
-            CupertinoIcons.exclamationmark_circle,
-            size: 16,
-            color: errorColor,
-          ),
-          const SizedBox(width: 8),
-          Expanded(
+    final reply = parseModelString(message.metadata?['quote_text']);
+    final textColor = userIsAuthor
+        ? AppColors.sentMessageText
+        : (isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        if (reply.isNotEmpty)
+          Padding(
+            padding: const EdgeInsets.fromLTRB(4, 4, 4, 8),
             child: Text(
-              t.common.quoteMessageNotAvailable,
-              style: context.textStyle(
-                FontSizeType.small,
-                color: errorColor,
-                fontWeight: FontWeight.w500,
-              ),
+              reply,
+              style: context.textStyle(FontSizeType.medium, color: textColor),
             ),
           ),
-        ],
-      ),
+        Container(
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: errorColor.withValues(alpha: 0.1),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Row(
+            children: [
+              Icon(
+                CupertinoIcons.exclamationmark_circle,
+                size: 16,
+                color: errorColor,
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  t.common.quoteMessageNotAvailable,
+                  style: context.textStyle(
+                    FontSizeType.small,
+                    color: errorColor,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 
@@ -274,5 +306,6 @@ class QuoteMessageTypePlugin implements MessageTypePlugin {
         message: message,
         user: context.user,
         onQuoteTap: context.onQuoteTap,
+        conversationMessages: context.messages,
       );
 }

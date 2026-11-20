@@ -11,6 +11,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart'
     hide CustomMessageBuilder;
 import 'package:imboy/component/chat/message.dart' show CustomMessageBuilder;
+import 'package:imboy/service/message_type_constants.dart';
 import 'package:imboy/page/chat/chat/utils/message_status_icon_rules.dart';
 import 'package:imboy/page/chat/widget/message_bubble_style.dart'
     as bubble_style;
@@ -377,7 +378,16 @@ class _ChatMessageListState extends State<ChatMessageList> {
           // （状态回执/撤回/编辑）时才重新构建。
           final cachedContent = _contentCache[message.id];
           final Widget? messageContent;
-          if (cachedContent != null &&
+          if (message is CustomMessage &&
+              message.metadata?['msg_type'] == MessageType.quote &&
+              widget.messageContentBuilder == null) {
+            messageContent = CustomMessageBuilder(
+              type: message.metadata?['type']?.toString() ?? 'C2C',
+              message: message,
+              messages: widget.messages,
+              registry: widget.messageTypeRegistry,
+            );
+          } else if (cachedContent != null &&
               identical(cachedContent.message, message)) {
             messageContent = cachedContent.content;
           } else {

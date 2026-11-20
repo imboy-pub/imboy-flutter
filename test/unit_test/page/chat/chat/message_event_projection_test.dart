@@ -8,6 +8,7 @@ import 'package:imboy/page/chat/chat/mixin/chat_event_subscription_manager.dart'
 import 'package:imboy/page/chat/chat/sqlite_chat_service.dart';
 import 'package:imboy/page/chat/widget/chat_input.dart';
 import 'package:imboy/service/events/events.dart';
+import 'package:imboy/service/auth_session_scope.dart';
 import 'package:imboy/service/storage.dart';
 import 'package:imboy/store/model/conversation_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -107,6 +108,79 @@ void main() {
       expect(notifier.service.messages.map((message) => message.id), [
         second.id,
       ]);
+      const reply = CustomMessage(
+        id: 'reply',
+        authorId: '100',
+        metadata: {
+          'msg_type': 'quote',
+          'quote_msg': {'id': 'off-window-source', 'text': 'cached original'},
+          'quote_text': 'reply body',
+        },
+      );
+      const revoked = TextMessage(
+        id: 'off-window-source',
+        authorId: '200',
+        text: '',
+      );
+      await notifier.service.setMessages([reply]);
+      AppEventBus.fireData([
+        revoked.copyWith(
+          metadata: {'conversation_uk3': 'another-conversation', 'status': 30},
+        ),
+      ], 'List<Message>');
+      await tester.pump();
+      expect(
+        notifier.service.messages.single.metadata?['quote_msg'],
+        isNotNull,
+      );
+
+      AppEventBus.fireData([
+        revoked.copyWith(
+          metadata: {'conversation_uk3': conversation.uk3, 'status': 30},
+        ),
+      ], 'List<Message>');
+      await tester.pump();
+      final projected = notifier.service.messages.single;
+      expect(projected.id, reply.id);
+      expect(projected.metadata?['quote_msg'], isNull);
+      expect(projected.metadata?['quote_text'], 'reply body');
+      await notifier.service.setMessages([reply]);
+      final session = authSessionReader.current;
+      AppEventBus.fire(
+        StoredQuoteHiddenEvent(reply.id, conversation.uk3, (
+          uid: session.uid,
+          generation: session.generation + 1,
+          transitioning: false,
+        )),
+      );
+      await tester.pump();
+      expect(
+        notifier.service.messages.single.metadata?['quote_msg'],
+        isNotNull,
+      );
+
+      await notifier.service.setMessages([
+        reply.copyWith(
+          metadata: {'msg_type': 'quote', 'quote_text': 'reply body'},
+        ),
+      ]);
+      AppEventBus.fire(
+        StoredQuoteHiddenEvent(reply.id, conversation.uk3, session),
+      );
+      await tester.pump();
+      expect(notifier.service.messages.single.metadata?['quote_msg'], isNull);
+      expect(
+        notifier.service.messages.single.metadata?['quote_text'],
+        'reply body',
+      );
+      AppEventBus.fireData([
+        reply.copyWith(status: MessageStatus.seen),
+      ], 'List<Message>');
+      await tester.pump();
+      final afterLateStatus = notifier.service.messages.single;
+      expect(afterLateStatus.status, MessageStatus.seen);
+      expect(afterLateStatus.metadata?['quote_msg'], isNull);
+      expect(afterLateStatus.metadata?['quote_text'], 'reply body');
       subscriptions!.dispose();
       await tester.pumpWidget(const SizedBox.shrink());
     },

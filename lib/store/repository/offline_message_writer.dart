@@ -10,6 +10,7 @@ import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/page/conversation/conversation_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:imboy/service/event_bus.dart';
+import 'package:imboy/service/events/message_events.dart';
 import 'package:imboy/service/message_preview_text.dart';
 import 'package:imboy/service/message_type_normalizer.dart';
 import 'package:imboy/service/sqlite.dart';
@@ -94,6 +95,7 @@ class OfflineMessageWriter {
 
     final List<InsertedOfflineMessage> inserted = [];
     final conversations = <ConversationModel>[];
+    final hiddenQuotes = <String, String>{};
     try {
       // 先收集 S2C 消息，在事务外处理
       final List<Map<String, dynamic>> s2cMessages = [];
@@ -149,7 +151,7 @@ class OfflineMessageWriter {
             'SELECT ${MessageColumns.payload}, ${MessageColumns.e2ee}, '
             'CAST(${MessageColumns.from} AS TEXT) AS ${MessageColumns.from}, '
             'CAST(${MessageColumns.to} AS TEXT) AS ${MessageColumns.to}, ${MessageColumns.type}, '
-            '${MessageColumns.msgType} '
+            '${MessageColumns.msgType}, ${MessageColumns.conversationUk3} '
             'FROM $tableName WHERE id = ?',
             [msgId],
           );
@@ -164,6 +166,26 @@ class OfflineMessageWriter {
                   existing.single,
                   msgData,
                 );
+            if (type == 'C2C') {
+              final denied = OfflineMessagePayload.deniedReplyUpdate(
+                existing.single,
+                msgData,
+              );
+              if (denied.isNotEmpty) {
+                await txn.update(
+                  tableName,
+                  denied,
+                  where: '${MessageColumns.id} = ?',
+                  whereArgs: [msgId],
+                );
+                requireCurrent();
+                final conversation =
+                    existing.single[MessageColumns.conversationUk3];
+                if (conversation is String && conversation.isNotEmpty) {
+                  hiddenQuotes[msgId] = conversation;
+                }
+              }
+            }
             // R07-phase2 去重分支：已有 msg_id 收到带权威序号/接受时间的
             // 可信 offline/archive/ACK 数据时，调 backfillServerOrderFacts
             // 补齐缺失的 conv_seq/accepted_at（COALESCE 仅写 NULL 列，
@@ -206,7 +228,7 @@ class OfflineMessageWriter {
             msgData,
             trustedArchive: trustedArchive,
           );
-          final payload = decoded.payload;
+          var payload = decoded.payload;
           final rawPayloadCipher = decoded.rawCipher;
           final e2ee = decoded.encryption;
 
@@ -265,6 +287,19 @@ class OfflineMessageWriter {
             currentUserId: currentUid,
             peerId: peerId,
           );
+
+          if (type == 'C2C' && msgType == 'quote' && rawPayloadCipher == null) {
+            payload = OfflineMessagePayload.checkReplySource(
+              payload,
+              msgData,
+              OfflineMessagePayload.replySourceWireKey,
+            );
+            payload = await OfflineMessagePayload.redactQuoteForStoredSource(
+              txn,
+              payload,
+              conversationUk3,
+            );
+          }
 
           Map<String, dynamic> insertData = {
             MessageColumns.id: msgId,
@@ -354,6 +389,20 @@ class OfflineMessageWriter {
         requireCurrent();
       });
       requireCurrent();
+
+      if (hiddenQuotes.isNotEmpty) {
+        db.clearQueryCache(resolveTable('C2C'));
+        for (final entry in hiddenQuotes.entries) {
+          requireCurrent();
+          AppEventBus.fire(
+            StoredQuoteHiddenEvent(entry.key, entry.value, (
+              uid: ownerUid,
+              generation: generation,
+              transitioning: false,
+            )),
+          );
+        }
+      }
 
       if (inserted.isNotEmpty) {
         db.clearQueryCache(ConversationRepo.tableName);

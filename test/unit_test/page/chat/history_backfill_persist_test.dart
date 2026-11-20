@@ -20,6 +20,8 @@ import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 import 'package:imboy/config/const.dart';
 import 'package:imboy/page/chat/chat/services/chat_archive_service.dart';
+import 'package:imboy/service/event_bus.dart';
+import 'package:imboy/service/events/message_events.dart';
 import 'package:imboy/service/sqlite.dart';
 import 'package:imboy/service/storage.dart';
 import 'package:imboy/store/repository/message_repo_sqlite.dart';
@@ -234,6 +236,73 @@ void main() {
       );
       expect(items.first.payload, isA<Map<String, dynamic>>());
       expect((items.first.payload as Map)['text'], '你好');
+    });
+
+    test('离线与历史批写不恢复已撤回的本地引用副本', () async {
+      const sourceId = '1817128709888508123';
+      final uk3 = ConversationUk3Generator.generateSmart(
+        type: 'C2C',
+        currentUserId: _currentUid,
+        peerId: _peerUid,
+      );
+      await db.insert('msg_c2c', {
+        'id': int.parse(sourceId),
+        'msg_type': 'text',
+        'conversation_uk3': uk3,
+        'status': 30,
+        'payload': '{}',
+      });
+      final repo = MessageRepo(tableName: MessageRepo.c2cTable);
+      for (final (sequence, trustedArchive) in [(201, false), (202, true)]) {
+        final row = c2cHistoryRow(
+          convSeq: sequence,
+          from: int.parse(_peerUid),
+          to: int.parse(_currentUid),
+          payload: jsonEncode({
+            'quote_msg': {'id': sourceId, 'text': 'cached original'},
+            'quote_text': 'reply body',
+          }),
+        )..['msg_type'] = 'quote';
+        final wire = archiveRowToOfflineShape(row);
+        await repo.batchInsertOfflineMessages([
+          wire,
+        ], trustedArchive: trustedArchive);
+        final stored = await repo.find(row['msg_id'].toString());
+        expect(stored?.payloadMap, {'quote_text': 'reply body'});
+      }
+    });
+
+    test('重复归档撤掉旧引用授权且重放旧可见帧不会恢复', () async {
+      const sourceId = '1817128709888508123';
+      final row =
+          c2cHistoryRow(
+              convSeq: 290,
+              from: int.parse(_peerUid),
+              to: int.parse(_currentUid),
+              payload: jsonEncode({
+                'quote_msg': {'id': sourceId, 'text': 'cached original'},
+                'quote_text': 'reply body',
+              }),
+            )
+            ..['msg_type'] = 'quote'
+            ..['reply_source_id'] = sourceId;
+      final repo = MessageRepo(tableName: MessageRepo.c2cTable);
+      final wire = archiveRowToOfflineShape(row);
+      final id = row['msg_id'].toString();
+      await repo.batchInsertOfflineMessages([wire], trustedArchive: true);
+      expect((await repo.find(id))?.payloadMap['quote_msg'], isNotNull);
+      final notifications = <StoredQuoteHiddenEvent>[];
+      final subscription = AppEventBus.on<StoredQuoteHiddenEvent>().listen(
+        notifications.add,
+      );
+      addTearDown(subscription.cancel);
+      await repo.batchInsertOfflineMessages([
+        {...wire, 'reply_source_id': null},
+      ], trustedArchive: true);
+      await repo.batchInsertOfflineMessages([wire], trustedArchive: true);
+      await pumpEventQueue();
+      expect(notifications.map((event) => event.messageId), [id]);
+      expect((await repo.find(id))?.payloadMap, {'quote_text': 'reply body'});
     });
 
     test('C2G history 行（to 为空、group_id 兜底）落库后能查到', () async {

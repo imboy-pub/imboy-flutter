@@ -15,7 +15,8 @@ import 'package:imboy/store/model/message_model.dart'
     show IMBoyMessageStatus, MessageModel;
 import 'package:imboy/service/event_bus.dart' show AppEventBus;
 import 'package:imboy/service/events/common_events.dart';
-import 'package:imboy/service/events/message_events.dart' show MessageSentEvent;
+import 'package:imboy/service/events/message_events.dart'
+    show MessageSentEvent, StoredQuoteHiddenEvent;
 import 'package:imboy/service/auth_session_scope.dart';
 import 'package:imboy/service/server_ack_receipts.dart';
 import 'package:imboy/service/sqlite.dart';
@@ -25,6 +26,7 @@ import 'package:flutter_chat_core/flutter_chat_core.dart';
 import 'package:imboy/store/model/model_parse_utils.dart';
 
 import '../chat_provider.dart';
+import '../sqlite_chat_service.dart';
 import '../../widget/chat_input.dart';
 
 import 'package:imboy/page/chat/chat/agent_task_ephemeral_state_notifier.dart';
@@ -464,6 +466,7 @@ class ChatEventSubscriptionManager {
   StreamSubscription<ChatExtendEvent>? _ssMsgExt;
   StreamSubscription<DataWrapperEvent<dynamic>>? _ssMsg;
   StreamSubscription<DataWrapperEvent<dynamic>>? _ssMsgState;
+  StreamSubscription<StoredQuoteHiddenEvent>? _ssHiddenQuote;
   StreamSubscription<DataWrapperEvent<dynamic>>? _ssStreamDelta;
   StreamSubscription<DataWrapperEvent<dynamic>>? _ssAgentTask;
   StreamSubscription<ReEditMessageEvent>? _ssReEdit;
@@ -776,6 +779,23 @@ class ChatEventSubscriptionManager {
 
   /// 监听消息状态更新事件；已读同步可以一次广播多个消息。
   void _setupMessageStateListener(VoidCallback onMountedStateChanged) {
+    _ssHiddenQuote ??= AppEventBus.on<StoredQuoteHiddenEvent>().listen((event) {
+      if (_disposed ||
+          isCurrent?.call() == false ||
+          !authSessionReader.isCurrent(event.session) ||
+          event.conversationKey != conversationUk3) {
+        return;
+      }
+      final chat = widgetRef.read(chatProvider.notifier).chatService;
+      if (chat == null) return;
+      for (final message in chat.messages.whereType<CustomMessage>()) {
+        if (message.id == event.messageId) {
+          final hidden = _withoutQuoteSnapshot(message);
+          if (hidden != null) unawaited(chat.updateMessage(message, hidden));
+          break;
+        }
+      }
+    });
     _ssMsgState = AppEventBus.on<DataWrapperEvent<dynamic>>().listen((event) {
       // 检查数据类型，只处理消息列表类型的事件。
       // 'List<Message>' 是全仓 12 处 fire 点（重试确认/撤回/编辑/阅后即焚/
@@ -804,6 +824,23 @@ class ChatEventSubscriptionManager {
       for (final value in updates) {
         try {
           if (isCurrent?.call() == false) return;
+          if (value.metadata?['conversation_uk3'] == conversationUk3 &&
+              IMBoyMessageStatus.isRevokedStatus(
+                parseModelNullableInt(value.metadata?['status']),
+              )) {
+            for (final message in chat.messages.whereType<CustomMessage>()) {
+              final metadata = message.metadata;
+              final quote = metadata?['quote_msg'];
+              if (metadata?['msg_type'] != 'quote' ||
+                  quote is! Map ||
+                  quote['id'] != value.id) {
+                continue;
+              }
+              final hidden = _withoutQuoteSnapshot(message);
+              if (hidden != null)
+                unawaited(chat.updateMessage(message, hidden));
+            }
+          }
           final index = chat.messages.indexWhere((item) => item.id == value.id);
           // A batch may include messages outside the visible history window.
           if (index < 0) continue;
@@ -828,6 +865,11 @@ class ChatEventSubscriptionManager {
         }
       }
     }, onError: (Object error) {});
+  }
+
+  CustomMessage? _withoutQuoteSnapshot(CustomMessage message) {
+    if (message.metadata?['msg_type'] != 'quote') return null;
+    return SqliteChatService.hideQuoteSnapshot(message);
   }
 
   /// 监听重新编辑消息事件
@@ -890,6 +932,7 @@ class ChatEventSubscriptionManager {
     _ssMsgExt?.cancel();
     _ssMsg?.cancel();
     _ssMsgState?.cancel();
+    _ssHiddenQuote?.cancel();
     _ssStreamDelta?.cancel();
     _ssAgentTask?.cancel();
     _ssReEdit?.cancel();

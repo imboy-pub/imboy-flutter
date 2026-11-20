@@ -1,5 +1,7 @@
 import 'base_event.dart';
 
+import 'package:imboy/service/auth_session_scope.dart';
+
 import 'package:imboy/store/model/message_model.dart';
 
 /// 消息相关事件
@@ -679,4 +681,19 @@ enum MessageProgressType {
 
   /// 失败
   failed,
+}
+
+final class StoredQuoteHiddenEvent extends AppEvent {
+  const StoredQuoteHiddenEvent(
+    this.messageId,
+    this.conversationKey,
+    this.session,
+  );
+
+  final String messageId;
+  final String conversationKey;
+  final AuthSessionScope session;
+
+  @override
+  List<Object> get props => [messageId, conversationKey, session];
 }

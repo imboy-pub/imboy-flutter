@@ -7,6 +7,8 @@ import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/service/assets.dart' show AssetsService;
 import 'package:imboy/service/e2ee/attachment_open_registry.dart';
 import 'package:imboy/service/e2ee/attachment_opener.dart';
+import 'package:imboy/service/sqlite.dart';
+import 'package:imboy/store/repository/offline_message_payload.dart';
 import 'package:imboy/service/e2ee_service.dart';
 import 'package:imboy/service/message_type_constants.dart';
 import 'package:imboy/store/model/contact_model.dart';
@@ -171,6 +173,10 @@ extension MessageModelMapper on MessageModel {
 
   Future<Message> _toTypeMessage() async {
     // WebSocket API v2.0: payload 可能是 Map 或 String（E2EE 场景）
+    final checkQuote = type == 'C2C' && msgType == MessageType.quote;
+    final quoteSession = checkQuote ? UserRepoLocal.to : null;
+    final quoteOwner = quoteSession?.currentUid;
+    final quoteGeneration = quoteSession?.sessionGeneration;
     Map<String, dynamic> payloadData;
 
     final localPayload = await loadLocalAttachmentPayload(this);
@@ -275,6 +281,34 @@ extension MessageModelMapper on MessageModel {
         'type=${payload.runtimeType}',
       );
       return _invalidPayloadMessage();
+    }
+
+    if (checkQuote) {
+      payloadData = OfflineMessagePayload.checkReplySource(
+        payloadData,
+        e2ee,
+        OfflineMessagePayload.localReplySourceKey,
+      );
+    }
+    if (quoteSession != null && payloadData['quote_msg'] is Map) {
+      bool current() =>
+          quoteOwner?.isNotEmpty == true &&
+          quoteSession.currentUid == quoteOwner &&
+          quoteSession.sessionGeneration == quoteGeneration &&
+          !quoteSession.isClearingSession;
+      try {
+        final database = current() ? await SqliteService.to.db : null;
+        payloadData = await OfflineMessagePayload.redactQuoteForStoredSource(
+          current() ? database : null,
+          payloadData,
+          conversationUk3,
+        );
+      } on Object {
+        payloadData = OfflineMessagePayload.withoutQuoteSnapshot(payloadData);
+      }
+      if (!current()) {
+        payloadData = OfflineMessagePayload.withoutQuoteSnapshot(payloadData);
+      }
     }
 
     // E2EE-061 Slice 6：payload 此刻已是**明文**，若带 attachment_descriptor

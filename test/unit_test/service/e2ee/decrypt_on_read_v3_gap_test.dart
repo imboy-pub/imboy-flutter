@@ -122,10 +122,15 @@ void main() {
   const body = 'offline v3 body';
 
   /// 复刻 `_encryptC2COlmFanOut` 的产出：v3 信封 + 外层 payload 空串。
-  Future<Map<String, dynamic>> buildV3Row() async {
+  Future<Map<String, dynamic>> buildV3Row({
+    String messageType = 'text',
+    Map<String, dynamic>? plaintext,
+  }) async {
     final encrypted = await E2eeOutboundRouter.encryptV3(
       suite: ProtocolSuite.olm,
-      plaintext: jsonEncode({'msg_type': 'text', 'body': body}),
+      plaintext: jsonEncode(
+        plaintext ?? {'msg_type': messageType, 'body': body},
+      ),
       recipients: [
         RecipientDevice(deviceId: deviceId, keyId: 'k1', publicKey: 'pk-1'),
       ],
@@ -138,7 +143,7 @@ void main() {
       senderUid: _senderUid,
       senderDid: _senderDid,
       destination: _myUid,
-      messageType: 'text',
+      messageType: messageType,
       action: 'message',
       sessionRef: _sessionId,
       createdAtMs: 1753500000000,
@@ -363,6 +368,57 @@ void main() {
         reason: '明文内容必须逐字还原（与实时路径 _handleE2EEMessage 返回 v3Result 同形状）',
       );
       expect(message.metadata?['msg_type'], equals('text'));
+    });
+
+    test('离线密文解密后隐藏本地已撤回的引用', () async {
+      final database = (await SqliteService.to.db)!;
+      const conversation = 'C2C_${_senderUid}_$_myUid';
+      await database.execute(
+        'CREATE TABLE msg_c2c (id TEXT, conversation_uk3 TEXT, status INTEGER)',
+      );
+      await database.insert('msg_c2c', {
+        'id': 'revoked-source',
+        'conversation_uk3': conversation,
+        'status': IMBoyMessageStatus.peerRevoked,
+      });
+      final row = await buildV3Row(
+        messageType: 'quote',
+        plaintext: {
+          'msg_type': 'quote',
+          'quote_msg': {'id': 'revoked-source', 'text': 'cached original'},
+          'quote_text': 'reply body',
+        },
+      );
+      final model = MessageModel(
+        'offline-v3-001',
+        autoId: 1,
+        type: 'C2C',
+        status: IMBoyMessageStatus.delivered,
+        fromId: int.parse(_senderUid),
+        toId: int.parse(_myUid),
+        payload: row['payload'],
+        isAuthor: 0,
+        conversationUk3: conversation,
+        createdAt: 1753500000000,
+        msgType: 'quote',
+        action: 'message',
+        e2ee: row['e2ee'] as Map<String, dynamic>,
+        senderDid: _senderDid,
+      );
+      final message = await model.toTypeMessage();
+      expect(message.metadata?['quote_text'], 'reply body');
+      expect(message.metadata?['quote_msg'], isNull);
+      expect(model.payload, '');
+
+      await database.delete('msg_c2c');
+      model.e2ee = {...model.e2ee!, '_local_reply_source_id': null};
+      final hidden = await model.toTypeMessage();
+      expect(hidden.metadata?['quote_text'], 'reply body');
+      expect(hidden.metadata?['quote_msg'], isNull);
+      model.e2ee = {...model.e2ee!, '_local_reply_source_id': 'another-source'};
+      expect((await model.toTypeMessage()).metadata?['quote_msg'], isNull);
+      model.e2ee = {...model.e2ee!, '_local_reply_source_id': 'revoked-source'};
+      expect((await model.toTypeMessage()).metadata?['quote_msg'], isNotNull);
     });
 
     // 负向：sender_did 缺失（迁移 v25 之前落库的旧行）必须 fail-closed，

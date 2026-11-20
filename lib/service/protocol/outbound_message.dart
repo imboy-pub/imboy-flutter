@@ -19,13 +19,40 @@ class OutboundMessage {
       // Plain-text ACKs and malformed frames retain their existing handling.
     }
     final metadata = data?['e2ee'];
-    if (metadata is Map && metadata.containsKey(localSenderDidKey)) {
+    if (metadata is Map &&
+        (metadata.containsKey(localSenderDidKey) ||
+            metadata.containsKey('_local_reply_source_id'))) {
       final publicMetadata = Map<String, dynamic>.from(metadata)
-        ..remove(localSenderDidKey);
+        ..remove(localSenderDidKey)
+        ..remove('_local_reply_source_id');
       data = {...data!, 'e2ee': publicMetadata};
       message = jsonEncode(data);
     }
     return OutboundMessage._(message, data);
+  }
+
+  /// Protected Frame v3 carries ciphertext in its metadata, not in payload.
+  static Object? retryPayload(
+    Object? storedPayload,
+    Map<String, dynamic>? e2ee,
+  ) => e2ee?['meta_version'] == 3 ? '' : storedPayload;
+
+  static void attachPersonalQuoteReference(
+    Map<String, dynamic> envelope,
+    Map<String, dynamic> plaintext,
+  ) {
+    if (envelope['type']?.toString().toUpperCase() != 'C2C' ||
+        envelope['msg_type'] != 'quote' ||
+        envelope.containsKey('reply_to')) {
+      return;
+    }
+    final quote = plaintext['quote_msg'];
+    final sourceId = quote is Map ? quote['id'] : null;
+    if (sourceId is String &&
+        sourceId.isNotEmpty &&
+        utf8.encode(sourceId).length <= 50) {
+      envelope['reply_to'] = {'msg_id': sourceId};
+    }
   }
 
   String? get id => data?['id']?.toString();

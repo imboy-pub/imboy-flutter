@@ -1,3 +1,4 @@
+import 'package:imboy/store/repository/offline_message_payload.dart';
 import 'package:imboy/store/repository/message_query_reader.dart';
 import 'package:imboy/store/repository/message_repo_schema.dart';
 import 'package:imboy/store/repository/offline_message_writer.dart';
@@ -271,6 +272,7 @@ class MessageRepo implements MessageRepository {
         }
       }
     }
+    await _redactQuoteForStoredSource(msg, txn);
     if (count == 0) {
       Map<String, dynamic> insert = {
         'auto_id': null,
@@ -583,6 +585,11 @@ class MessageRepo implements MessageRepository {
   // 存在就更新，不存在就插入
   @override
   Future<int?> save(MessageModel obj, {Transaction? txn}) async {
+    if (txn == null && obj.type == 'C2C' && obj.msgType == 'quote') {
+      final result = await _db.transaction((tx) => save(obj, txn: tx));
+      _db.clearQueryCache();
+      return result;
+    }
     int? count;
     if (txn != null) {
       final result = await txn.rawQuery(
@@ -600,6 +607,7 @@ class MessageRepo implements MessageRepository {
     if (count == null || count == 0) {
       await insert(obj, txn: txn);
     } else {
+      if (txn != null) await _redactQuoteForStoredSource(obj, txn);
       Map<String, dynamic> data = obj.toJson();
       data.remove(MessageRepo.autoId);
       await update(data, txn: txn);
@@ -791,6 +799,39 @@ class MessageRepo implements MessageRepository {
   }
 
   //
+  Future<void> _redactQuoteForStoredSource(
+    MessageModel message,
+    Transaction txn,
+  ) async {
+    if (message.type != 'C2C' || message.msgType != 'quote') return;
+    final payload = message.payloadMap;
+    final redacted = await OfflineMessagePayload.redactQuoteForStoredSource(
+      txn,
+      payload,
+      message.conversationUk3,
+    );
+    if (!identical(redacted, payload)) message.payload = redacted;
+  }
+
+  Future<void> redactRevokedPersonalQuote({
+    required String sourceId,
+    required String conversationKey,
+    required Transaction txn,
+  }) async {
+    if (tableName != c2cTable || conversationKey.isEmpty) return;
+    await txn.rawUpdate(
+      'UPDATE $c2cTable '
+      r"""
+         SET payload = json_remove(payload, '$.quote_msg', '$.quote_msg_author_name')
+       WHERE conversation_uk3 = ? AND msg_type = 'quote'
+         AND CASE WHEN json_valid(payload)
+                  THEN json_extract(payload, '$.quote_msg.id') = ?
+                  ELSE 0 END
+      """,
+      [conversationKey, sourceId],
+    );
+  }
+
   @override
   Future<MessageModel?> find(String id, {Transaction? txn}) async {
     final message = await _reader.find(id, txn: txn);

@@ -59,6 +59,66 @@ void main() {
   Future<Map<String, Object?>> fetchRow() async =>
       (await db.rawQuery('SELECT * FROM msg_c2c WHERE id = ?', [_msgId])).first;
 
+  test('撤回永久移除同会话引用副本并保留回复正文', () async {
+    for (final key in [_uk3, 'other-conversation']) {
+      await db.insert('msg_c2c', {
+        ..._row(),
+        'id': key,
+        'msg_type': 'quote',
+        'conversation_uk3': key,
+        'payload': jsonEncode({
+          'quote_msg': {'id': 'revoked-source', 'text': 'cached original'},
+          'quote_msg_author_name': 'source author',
+          'quote_text': 'reply body',
+        }),
+      });
+    }
+    for (var attempt = 0; attempt < 2; attempt++) {
+      await db.transaction(
+        (txn) => repo.redactRevokedPersonalQuote(
+          sourceId: 'revoked-source',
+          conversationKey: _uk3,
+          txn: txn,
+        ),
+      );
+    }
+    final current = await repo.find(_uk3);
+    final other = await repo.find('other-conversation');
+    expect(current?.payloadMap, {'quote_text': 'reply body'});
+    expect(other?.payloadMap['quote_msg'], isNotNull);
+  });
+
+  test('晚到和重复落库的引用从撤回原消息记录继承遮蔽', () async {
+    await db.insert('msg_c2c', {
+      ..._row(),
+      'id': 'revoked-source',
+      'status': IMBoyMessageStatus.peerRevoked,
+    });
+    MessageModel incoming() => MessageModel(
+      'late-quote',
+      autoId: 0,
+      type: 'C2C',
+      status: 20,
+      fromId: 990001,
+      toId: 990002,
+      payload: {
+        'quote_msg': {'id': 'revoked-source', 'text': 'cached original'},
+        'quote_text': 'reply body',
+      },
+      isAuthor: 0,
+      conversationUk3: _uk3,
+      createdAt: _createdAt,
+      msgType: 'quote',
+    );
+
+    final inserted = await repo.insert(incoming());
+    expect(inserted.payloadMap, {'quote_text': 'reply body'});
+    await repo.save(incoming());
+    expect((await repo.find(inserted.id))?.payloadMap, {
+      'quote_text': 'reply body',
+    });
+  });
+
   for (final direction in ['C2C', 'C2G', 'C2S', 'S2C']) {
     test('$direction 重复 save 保持设备标识的实际表合同', () async {
       await db.close();
