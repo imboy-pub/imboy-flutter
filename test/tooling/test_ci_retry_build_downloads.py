@@ -115,6 +115,39 @@ GIT_CURL18_EOF_ERROR = '\n'.join([
 ])
 GIT_TRANSPORT_ERRORS = (GIT_DNS_ERROR, GIT_TLS_ERROR, GIT_OPENSSL_TLS_ERROR,
                         GIT_EOF_ERROR, GIT_CURL18_EOF_ERROR)
+POD_SOURCE = 'https://mirrors.tuna.tsinghua.edu.cn/git/CocoaPods/Specs.git'
+# Keep the complete observed CocoaPods stderr, including its project message.
+# Retry eligibility comes from the separate source/clone/transport error chain.
+POD_CLONE_ERROR = f"""Running pod install...                                            228.3s
+CocoaPods' output:
+↳
+    Cloning spec repo `tsinghua-git-cocoapods` from `{POD_SOURCE}`
+      $ /usr/local/bin/git clone {POD_SOURCE} -- tsinghua-git-cocoapods
+    [!] Unable to add a source with url `{POD_SOURCE}` named `tsinghua-git-cocoapods`.
+    (/usr/local/bin/git clone {POD_SOURCE} -- tsinghua-git-cocoapods
+
+    Cloning into 'tsinghua-git-cocoapods'...
+    error: RPC failed; curl 56 Recv failure: Connection reset by peer
+    error: 2422 bytes of body are still expected
+    fetch-pack: unexpected disconnect while reading sideband packet
+    fatal: early EOF
+    fatal: fetch-pack: invalid index-pack output
+    )
+    You can try adding it manually in `/Users/runner/.cocoapods/repos` or via `pod repo add`.
+    /usr/local/lib/ruby/gems/3.4.0/gems/cocoapods-1.17.0/lib/cocoapods/sources_manager.rb:55:in 'Pod::Source::Manager#create_source_with_url'
+
+Error output from CocoaPods:
+↳
+    Must provide a project directory and project name.
+      Cloning into 'tsinghua-git-cocoapods'...
+      error: RPC failed; curl 56 Recv failure: Connection reset by peer
+      error: 2422 bytes of body are still expected
+      fetch-pack: unexpected disconnect while reading sideband packet
+      fatal: early EOF
+      fatal: fetch-pack: invalid index-pack output
+
+Error running pod install
+"""
 
 COMMAND = r'''#!/usr/bin/env python3
 import json
@@ -409,6 +442,95 @@ class BuildDownloadRetryTest(unittest.TestCase):
                 self.assertEqual(result.returncode, 65)
                 self.assertEqual(len(calls), 2)
                 self.assertEqual(delays, ['10'])
+
+    def test_ios_config_only_specs_clone_transport_recovers(self):
+        self.command = self.command.rename(self.bin_dir / 'flutter')
+        for args in (('build', 'ios', '--config-only', '--release', '--no-codesign',
+                      '--dart-define=SENTRY_DSN=private fixture'),
+                     ('build', 'ios', '--release', '--no-codesign', '--config-only')):
+            with self.subTest(args=args):
+                result, calls, delays = self.run_build([
+                    {'stderr': POD_CLONE_ERROR, 'exit_code': 1}, {'stdout': 'configuration ready'},
+                ], args=args)
+                self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+                self.assertEqual(len(calls), 2)
+                self.assertEqual(delays, ['10'])
+
+    def test_ios_specs_clone_budget_and_permanent_followup(self):
+        self.command = self.command.rename(self.bin_dir / 'flutter')
+        first = {'stderr': POD_CLONE_ERROR, 'exit_code': 1}
+        for steps, expected, attempts, waits in (
+                ([first], 1, 3, ['10', '20']),
+                ([first, {'stderr': 'error: compilation failed', 'exit_code': 1}, {}], 1, 2, ['10']),
+                ([first, {'stderr': 'Code signing failed', 'exit_code': 65}, {}], 65, 2, ['10']),
+                ([first, {'stderr': 'Error running pod install', 'exit_code': 1}, {}], 1, 2, ['10'])):
+            with self.subTest(expected=expected, steps=steps):
+                result, calls, delays = self.run_build(steps, args=('build', 'ios', '--config-only'))
+                self.assertEqual(result.returncode, expected)
+                self.assertEqual(len(calls), attempts)
+                self.assertEqual(delays, waits)
+
+    def test_ios_specs_clone_requires_exact_config_only_command(self):
+        result, calls, delays = self.run_build([
+            {'stderr': POD_CLONE_ERROR, 'exit_code': 1}, {},
+        ], args=('build', 'ios', '--config-only'))
+        self.assertEqual((result.returncode, len(calls), delays), (1, 1, []))
+        self.command = self.command.rename(self.bin_dir / 'flutter')
+        commands = [
+            ('build', 'ios'), ('build', 'apk', '--config-only'), ('pub', 'get', '--config-only'),
+            ('build', 'ios', '--config-only=true'), ('build', 'ios', '--config-only=false'),
+            ('build', 'ios', '--dart-define=MODE=--config-only'),
+            ('build', 'ios', '--dart-define=MODE=x\n--config-only'),
+            ('build', 'ios', '--', '--config-only'),
+        ]
+        for flag in ('--no-config-only', '--config-only=false', '--config-only=true'):
+            commands.extend((('build', 'ios', '--config-only', flag),
+                             ('build', 'ios', flag, '--config-only')))
+        for args, status in ([(args, 1) for args in commands] +
+                             [(('build', 'ios', '--config-only'), code) for code in (65, 69, 130, 137)]):
+            with self.subTest(args=args, status=status):
+                result, calls, delays = self.run_build([
+                    {'stderr': POD_CLONE_ERROR, 'exit_code': status}, {},
+                ], args=args)
+                self.assertEqual((result.returncode, len(calls), delays), (status, 1, []))
+
+    def test_ios_specs_clone_requires_complete_terminal_transport(self):
+        self.command = self.command.rename(self.bin_dir / 'flutter')
+        required = (
+            f'[!] Unable to add a source with url `{POD_SOURCE}` named `tsinghua-git-cocoapods`.',
+            f'(/usr/local/bin/git clone {POD_SOURCE} -- tsinghua-git-cocoapods',
+            'Error output from CocoaPods:', "Cloning into 'tsinghua-git-cocoapods'...",
+            'error: RPC failed; curl 56 Recv failure: Connection reset by peer',
+            'error: 2422 bytes of body are still expected',
+            'fetch-pack: unexpected disconnect while reading sideband packet',
+            'fatal: early EOF', 'fatal: fetch-pack: invalid index-pack output',
+            'Error running pod install',
+        )
+        errors = [''.join(POD_CLONE_ERROR.rsplit(marker, 1)) for marker in required]
+        errors.extend(POD_CLONE_ERROR.replace(POD_SOURCE, url) for url in (
+            'https://example.invalid/CocoaPods/Specs.git', POD_SOURCE.replace('https:', 'http:'),
+            POD_SOURCE.replace('.edu.cn/', '.edu.cn.example.invalid/'), POD_SOURCE + '.extra'))
+        errors.append(POD_CLONE_ERROR.replace('curl 56 Recv failure: Connection reset by peer',
+                                             'curl 60 SSL certificate problem: certificate has expired'))
+        for permanent in ('error: compilation failed', 'Code signing failed', 'checksum mismatch',
+                          'fatal: Authentication failed', 'fatal: HTTP 404 Not Found',
+                          '[!] CocoaPods could not find compatible versions for pod Foo'):
+            errors.extend((permanent + '\n' + POD_CLONE_ERROR,
+                           POD_CLONE_ERROR.replace('Error output from CocoaPods:',
+                                                  permanent + '\nError output from CocoaPods:'),
+                           POD_CLONE_ERROR.replace('Error running pod install',
+                                                  permanent + '\nError running pod install'),
+                           POD_CLONE_ERROR + permanent))
+        for boundary in ('Pod installation complete!', 'Running pod install...', "CocoaPods' output:"):
+            errors.append(POD_CLONE_ERROR.replace('Error output from CocoaPods:',
+                                                 boundary + '\nError output from CocoaPods:'))
+            errors.append(POD_CLONE_ERROR + boundary + '\nError running pod install')
+        for error in errors:
+            with self.subTest(error=error):
+                result, calls, delays = self.run_build([
+                    {'stderr': error, 'exit_code': 1}, {},
+                ], args=('build', 'ios', '--config-only'))
+                self.assertEqual((result.returncode, len(calls), delays), (1, 1, []))
 
     def test_locked_pub_get_git_transport_failure_recovers_with_unchanged_arguments(self):
         self.command = self.command.rename(self.bin_dir / 'flutter')

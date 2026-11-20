@@ -144,6 +144,25 @@ The iOS job records the actual host architecture, Xcode and iphoneos SDK, and
 still performs the full unsigned Release build. Host CI does not replace physical
 device acceptance, Apple Silicon host testing, or release signing.
 
+### CI CocoaPods Specs 下载中断 / CI CocoaPods Specs transport failures
+
+iOS 的配置阶段通过同一下载脚本运行 `flutter build ios --config-only`。
+新增的 CocoaPods 重试仅限该命令返回 1、含独立 `--config-only` 参数，且终止于
+`Error running pod install`。日志必须同时证明创建当前清华 Specs HTTPS 源失败，
+以及 Git clone 的 `curl 56` connection reset、剩余 body、sideband 中断、
+early EOF 和 invalid index-pack；单独的 EOF 或任意 pod install 失败不足以重试。
+沿用最多三次尝试、10/20 秒间隔，持续失败保留最后退出码；认证、证书、规格版本、
+编译或签名错误仍须失败。Podfile、锁文件、源配置和原命令参数保持不变。
+配置成功后仍须执行完整 iOS Release 构建，配置阶段成功不能替代构建通过。
+
+The CocoaPods retry is limited to the iOS configuration command with a standalone
+`--config-only` argument and exit code 1. It requires the exact configured Specs
+HTTPS source failure, the complete observed Git connection-reset/truncated-pack
+evidence, and terminal `Error running pod install`. The existing three-attempt
+10/20-second budget preserves the final failure code and rejects permanent or
+mixed failures. Podfile, lockfile, source settings and arguments stay intact;
+successful configuration still requires the subsequent full iOS Release build.
+
 ## Web Shell 验证
 
 ```bash

@@ -482,6 +482,8 @@ CI uses bounded retries for observed Git transport failures during package prepa
 arguments and final failure codes, and never retries test assertions through this helper.
 Android APK/AAB 的 Maven Central 429 重试边界见
 [构建说明](../build-and-release.md#ci-maven-下载限流--ci-maven-download-rate-limiting)。
+iOS 配置阶段的 Specs Git 传输重试见
+[CocoaPods 边界](../build-and-release.md#ci-cocoapods-specs-下载中断--ci-cocoapods-specs-transport-failures)。
 Build download retries do not count as business test execution or Native QR acceptance evidence.
 专用测试 checkout 可用 `.github/scripts/ci_gen_env.sh` 生成合成 loopback 配置，不复制真实配置。
 SQLite FFI 需可加载的宿主动态库；Linux 需让动态加载器找到 `libsqlite3.so`，例如安装
