@@ -480,6 +480,9 @@ CI 的依赖准备复用 `ci_retry_build_downloads.sh`：`flutter pub get` 返�
 这只恢复执行前的依赖下载，不重跑测试或改变 FLAKY 判定。
 CI uses bounded retries for observed Git transport failures during package preparation, preserves
 arguments and final failure codes, and never retries test assertions through this helper.
+Android APK/AAB 的 Maven Central 429 重试边界见
+[构建说明](../build-and-release.md#ci-maven-下载限流--ci-maven-download-rate-limiting)。
+Build download retries do not count as business test execution or Native QR acceptance evidence.
 专用测试 checkout 可用 `.github/scripts/ci_gen_env.sh` 生成合成 loopback 配置，不复制真实配置。
 SQLite FFI 需可加载的宿主动态库；Linux 需让动态加载器找到 `libsqlite3.so`，例如安装
 `libsqlite3-dev`。加密库沿用 `.github/scripts/ci_build_vod.sh` 按锁定插件构建，

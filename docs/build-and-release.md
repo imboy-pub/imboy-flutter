@@ -1,7 +1,7 @@
 # 构建 / 发布（Build & Release）
 
-> **最后更新 / Last updated**: 2026-11-16
-> **真源 / Source of truth**: `scripts/build_play_aab.sh` · `scripts/check_play_release.sh` · `scripts/verify_web_shell.sh` · `scripts/build_android_apk.sh` · `android/app/build.gradle.kts` · `android/settings.gradle.kts` · `.github/workflows/ci.yml` · `.github/workflows/uiux-full-offline.yml` · `scripts/auto_test_lib/execution_runner.py`
+> **最后更新 / Last updated**: 2026-11-20
+> **真源 / Source of truth**: `scripts/build_play_aab.sh` · `scripts/check_play_release.sh` · `scripts/verify_web_shell.sh` · `scripts/build_android_apk.sh` · `android/app/build.gradle.kts` · `android/settings.gradle.kts` · `.github/scripts/ci_retry_build_downloads.sh` · `.github/workflows/ci.yml` · `.github/workflows/uiux-full-offline.yml` · `scripts/auto_test_lib/execution_runner.py`
 > 本文由脚本内容提取生成；脚本改动后须同步本页。
 
 ## Android
@@ -56,6 +56,22 @@ python3 .github/scripts/ci_check_android_repositories.py --gradle /path/to/gradl
 检查覆盖官方模式绕开镜像 502、默认镜像优先、镜像故障仍失败及非法开关值失败；
 GitHub APK job 在 APK/AAB 构建后执行同一检查。合成依赖与缓存隔离于临时目录，
 不会替换实际 APK/AAB 构建依赖；该检查不能替代真实 Android 构建或原生功能验收。
+
+### CI Maven 下载限流 / CI Maven download rate limiting
+
+CI 的 APK/AAB 构建复用 `.github/scripts/ci_retry_build_downloads.sh`。
+针对 Maven Central 的 429 限流，仅当 `flutter build apk` 或 `flutter build appbundle`
+返回 1，且最后一次 Gradle
+失败诊断明确记录从 `https://repo.maven.apache.org/maven2/` GET 构件收到
+`429 Too Many Requests` 时，才进入现有三次尝试、间隔 10/20 秒的重试预算。
+Flutter 内部先前尝试的 429 不得使后续编译、签名、证书、校验和或依赖解析错误重试。
+持续限流仍返回最后一次失败码；构建参数、锁文件、依赖版本和仓库来源保持原值。
+
+For Maven Central 429 rate limits, CI retries an Android APK/AAB command only
+when it exits 1 and its final Gradle failure reports the explicit HTTPS GET error. The existing budget
+remains three attempts with 10/20-second delays. Earlier internal attempts do
+not make a later permanent failure retryable; exhaustion preserves the final
+exit code. Arguments, dependency locks, versions and repository sources stay intact.
 
 ### 正式 Play AAB（发布上架用）
 

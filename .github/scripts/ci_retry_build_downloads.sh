@@ -9,8 +9,8 @@ fi
 
 log="$(mktemp "${TMPDIR:-/tmp}/imboy-build-download.XXXXXX")"
 trap 'rm -f "$log"' EXIT
-# Only the observed 504 failures are handled here. Flutter already retries
-# other errors such as 502; those can precede a terminal compiler failure.
+# These 504 download formats remain separate from the scoped Gradle 429 rule
+# below. Flutter can recover one error before reporting a terminal build error.
 retryable_http='504'
 
 for attempt in 1 2 3; do
@@ -35,6 +35,31 @@ for attempt in 1 2 3; do
       -e "Server returned HTTP response code: $retryable_http for URL: https://" \
       -e "failed downloading 'https://[^']+'.*badResponseStatusCode\($retryable_http\)" \
       "$log"; then
+    retryable=true
+  elif [[ "$status" == 1 && "${1##*/}" == flutter && "${2:-}" == build &&
+          ( "${3:-}" == apk || "${3:-}" == appbundle ) ]] &&
+      awk -v diagnostic="^[[:space:]]*> Could not GET 'https://repo[.]maven[.]apache[.]org/maven2/[^']+'[.] Received status code 429 from server: Too Many Requests$" '
+        # Inspect the terminal Gradle report, not an earlier internal retry.
+        /^FAILURE:/ || /^Retrying Gradle Build:/ {
+          single = ($0 == "FAILURE: Build failed with an exception.")
+          in_cause = causes = limited = other_failure = 0
+          next
+        }
+        /^\* What went wrong:/ { in_cause = single; causes++; next }
+        /^\* / { in_cause = 0 }
+        in_cause {
+          if ($0 ~ diagnostic) limited = 1
+          else if ($0 ~ /Received status code [0-9]+ from server:/) other_failure = 1
+        }
+        # Keep mixed or trailing permanent failures terminal as well.
+        single && (tolower($0) ~ /(^|[[:space:]>])error:|compilation failed|code signing failed|checksum mismatch|verification failed/ ||
+                   tolower($0) ~ /could not find |incompatible package versions/) {
+          other_failure = 1
+        }
+        END { exit !(single && causes == 1 && limited && !other_failure) }
+      ' "$log"; then
+    # Only the observed official Maven Central GET failure is admitted. Other
+    # hosts, statuses, commands and ambiguous multi-failure reports stay fatal.
     retryable=true
   elif [[ "$status" == 69 && "${1##*/}" == flutter && "${2:-}" == pub && "${3:-}" == get ]]; then
     # Pub reports unavailable (69) for Git transport failures. Restrict these
