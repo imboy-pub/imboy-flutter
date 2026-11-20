@@ -12,6 +12,7 @@ import 'package:imboy/service/e2ee_service.dart';
 import 'package:imboy/service/encrypter.dart';
 import 'package:imboy/service/group_session_service.dart';
 import 'package:imboy/service/olm_session_service.dart';
+import 'package:imboy/service/personal_history_key_service.dart';
 import 'package:imboy/service/storage_secure.dart';
 
 /// E2EE 秘密清理失败（E2EE-015）。
@@ -113,6 +114,7 @@ class E2eeSecretInventory {
       readAll: StorageSecureService.to.readAll,
       deleteKey: (key) => StorageSecureService.to.delete(key: key),
       clearMemoryCaches: [
+        () => PersonalHistoryKeyService.clearAccount(capturedOwner),
         E2EEService.clearCache,
         EncrypterService.clearKeyCache,
         ComplianceKeyService.instance.clearCache,
