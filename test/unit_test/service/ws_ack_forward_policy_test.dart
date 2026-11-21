@@ -8,10 +8,89 @@
 ///   - 非 ACK action（含空串）：一律放行。
 library;
 
+import 'dart:typed_data';
+
 import 'package:flutter_test/flutter_test.dart';
+import 'package:imboy/service/event_bus.dart';
+import 'package:imboy/service/protocol/imboy.pb.dart';
+import 'package:imboy/service/protocol/imboy_frame.dart';
+import 'package:imboy/service/websocket.dart';
+import 'package:imboy/service/websocket_events.dart';
 import 'package:imboy/service/ws_ack_forward_policy.dart';
 
 void main() {
+  test('按协议边界接收正文和 v2 封包', () {
+    const max = ImboyFrame.maxPayload;
+    const framedMax = max + ImboyFrame.headerSize;
+    final bytes = Uint8List(framedMax + 1);
+    final nakedAtLimit = Uint8List.sublistView(bytes, 0, max);
+    final nakedOverLimit = Uint8List.sublistView(bytes, 0, max + 1);
+    expect(isInboundFrameSizeAllowed(nakedAtLimit, usesV2Frame: true), isTrue);
+    expect(
+      isInboundFrameSizeAllowed(nakedOverLimit, usesV2Frame: true),
+      isFalse,
+    );
+    ByteData.sublistView(bytes).setUint16(0, ImboyFrame.magic);
+    final framedAtLimit = Uint8List.sublistView(bytes, 0, framedMax);
+    expect(isInboundFrameSizeAllowed(framedAtLimit, usesV2Frame: true), isTrue);
+    expect(
+      isInboundFrameSizeAllowed(framedAtLimit, usesV2Frame: false),
+      isFalse,
+    );
+    expect(isInboundFrameSizeAllowed(bytes, usesV2Frame: true), isFalse);
+  });
+
+  test('文本边界按 UTF-8 字节计入多字节字符', () {
+    const max = ImboyFrame.maxPayload;
+    final atLimit = '${'a' * (max - 9)}é你💬';
+    expect(isInboundTextSizeAllowed(atLimit), isTrue);
+    expect(isInboundTextSizeAllowed('${atLimit}a'), isFalse);
+  });
+
+  test('已通过传输层限额的 protobuf 可以扩张成更大的 JSON', () async {
+    const max = ImboyFrame.maxPayload;
+    const action = 'protobuf_size_boundary';
+    final payload = IMBoyMessage(
+      type: MsgDirection.C2S,
+      action: action,
+      payload: Uint8List(max - max ~/ 8),
+    ).writeToBuffer();
+    expect(payload.length, lessThan(max));
+
+    WebSocketService.resetForTest();
+    addTearDown(WebSocketService.resetForTest);
+    final socket = WebSocketService.to..framingForTest = FramingMode.v2;
+    final events = <WebSocketMessageReceivedEvent>[];
+    final subscription = AppEventBus.on<WebSocketMessageReceivedEvent>().listen(
+      (event) {
+        if (event.data['action'] == action) events.add(event);
+      },
+    );
+    addTearDown(subscription.cancel);
+    final bytes = ImboyFrame.encode(
+      type: FrameType.msgC2S,
+      flags: 0,
+      payload: payload,
+    );
+    socket.handleV2BinaryForTest(bytes);
+    socket.handleV2BinaryForTest(payload);
+    await pumpEventQueue();
+    expect(events, hasLength(2));
+    for (final event in events) {
+      expect((event.data['payload'] as String).length, greaterThan(max));
+    }
+  });
+
+  test('流式增量免收据，而 S2C/C2S 终态及新业务继续确认', () {
+    for (final type in ['S2C', 'C2S']) {
+      expect(shouldAcknowledgeBusinessFrame(type, 'stream_delta'), isFalse);
+      expect(shouldAcknowledgeBusinessFrame(type, 'text'), isTrue);
+      expect(shouldAcknowledgeBusinessFrame(type, null), isTrue);
+      expect(shouldAcknowledgeBusinessFrame(type, 'future_business'), isTrue);
+    }
+    expect(shouldAcknowledgeBusinessFrame('FUTURE_TYPE', null), isFalse);
+  });
+
   group('isAckSwallowedByTransport — 入站收据确认', () {
     test('CLIENT_ACK_CONFIRM 终止', () {
       expect(isAckSwallowedByTransport('CLIENT_ACK_CONFIRM'), isTrue);

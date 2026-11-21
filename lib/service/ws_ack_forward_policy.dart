@@ -6,6 +6,43 @@
 /// 必须放行——否则发送方气泡在服务端已确认后仍永不更新（J18.c 真机复现）。
 library;
 
+import 'package:imboy/service/protocol/imboy_frame.dart';
+
+/// 限制二进制帧总长，v2 封包额度包含固定头部。
+bool isInboundFrameSizeAllowed(List<int> bytes, {required bool usesV2Frame}) {
+  if (bytes.length <= ImboyFrame.maxPayload) return true;
+  return usesV2Frame &&
+      bytes.length <= ImboyFrame.maxPayload + ImboyFrame.headerSize &&
+      bytes[0] == (ImboyFrame.magic >> 8) &&
+      bytes[1] == (ImboyFrame.magic & 0xFF);
+}
+
+/// 按 UTF-8 字节数限制原始文本帧，无需分配编码后的副本。
+bool isInboundTextSizeAllowed(String text) {
+  if (text.length <= ImboyFrame.maxPayload ~/ 3) return true;
+  if (text.length > ImboyFrame.maxPayload) return false;
+
+  var byteCount = 0;
+  for (final rune in text.runes) {
+    if (rune <= 0x7F) {
+      byteCount++;
+    } else if (rune <= 0x7FF) {
+      byteCount += 2;
+    } else if (rune <= 0xFFFF) {
+      byteCount += 3;
+    } else {
+      byteCount += 4;
+    }
+    if (byteCount > ImboyFrame.maxPayload) return false;
+  }
+  return true;
+}
+
+/// 流式增量是瞬态帧。其他 S2C/C2S 业务帧仍遵循收据合同。
+bool shouldAcknowledgeBusinessFrame(String messageType, Object? messageKind) =>
+    (messageType == 'S2C' || messageType == 'C2S') &&
+    messageKind != 'stream_delta';
+
 /// 需放行到 MessageService 的 action-ACK（与 [isAckSwallowedByTransport] 的
 /// 入参一样按大写归一比较）。
 const Set<String> kActionAcksWithLocalEffect = {

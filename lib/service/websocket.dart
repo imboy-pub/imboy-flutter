@@ -172,9 +172,12 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
   Uint8List encodeV2BusinessFrameForTest(String message) =>
       _encodeV2BusinessFrame(OutboundMessage.parse(message));
 
-  /// 【测试】暴露 v2 二进制帧处理
+  /// 【测试】经接收入口处理 v2 二进制帧
   @visibleForTesting
-  void handleV2BinaryForTest(Uint8List bytes) => _handleV2Binary(bytes);
+  void handleV2BinaryForTest(Uint8List bytes) => _onMessage(bytes);
+
+  @visibleForTesting
+  void handleInboundForTest(Object message) => _onMessage(message);
 
   /// 【测试】重置单例（仅测试使用）
   @visibleForTesting
@@ -815,35 +818,35 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
   /// 一条字段全为默认值的空消息。
   void _dispatchFramePayload(Uint8List payload) {
     if (payload.isNotEmpty && payload.first == 0x7B /* '{' */ ) {
-      _onMessage(utf8.decode(payload, allowMalformed: true));
+      _dispatchBusinessMessage(utf8.decode(payload, allowMalformed: true));
       return;
     }
     final pbMap = ImboyPbCodec.tryDecode(payload);
     if (pbMap != null) {
       // Protobuf decoded successfully → re-encode as JSON for downstream
-      _onMessage(jsonEncode(pbMap));
+      _dispatchBusinessMessage(jsonEncode(pbMap));
     } else {
-      _onMessage(utf8.decode(payload, allowMalformed: true));
+      _dispatchBusinessMessage(utf8.decode(payload, allowMalformed: true));
     }
   }
 
   /// 尝试把「无 v2 帧头」的字节按裸 protobuf / JSON 业务消息解析并分发。
-  /// 成功返回 true（已交给 _onMessage 走正常 S2C/C2C 管道），否则 false。
+  /// 成功返回 true（已交给业务分发），否则 false。
   bool _tryDecodeUnframedPayload(Uint8List bytes) {
     try {
       if (bytes.isNotEmpty && bytes.first == 0x7B /* '{' */ ) {
-        _onMessage(utf8.decode(bytes, allowMalformed: true));
+        _dispatchBusinessMessage(utf8.decode(bytes, allowMalformed: true));
         return true;
       }
       final pbMap = ImboyPbCodec.tryDecode(bytes);
       if (pbMap != null) {
-        _onMessage(jsonEncode(pbMap));
+        _dispatchBusinessMessage(jsonEncode(pbMap));
         return true;
       }
       final text = utf8.decode(bytes, allowMalformed: false);
       final trimmed = text.trimLeft();
       if (trimmed.startsWith('{') || trimmed.startsWith('[')) {
-        _onMessage(text);
+        _dispatchBusinessMessage(text);
         return true;
       }
     } on FormatException {
@@ -852,15 +855,34 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
     return false;
   }
 
-  /// 处理接收到的消息（优化版：非阻塞立即分发）
-  /// Process received messages (optimized: non-blocking immediate dispatch)
+  /// 检查来自传输层的原始帧，再解码和分发。
   void _onMessage(dynamic message) {
     if (!isWebWriterReady) return;
+    final usesV2Frame = _framing == FramingMode.v2 && message is List<int>;
+    final sizeAllowed = switch (message) {
+      String text => isInboundTextSizeAllowed(text),
+      List<int> bytes => isInboundFrameSizeAllowed(
+        bytes,
+        usesV2Frame: usesV2Frame,
+      ),
+      _ => true,
+    };
+    if (!sizeAllowed) {
+      iPrint('[WS] 入站帧超过解析上限');
+      return;
+    }
     // v2 路径：binary 数据走 frame 解码
-    if (_framing == FramingMode.v2 && message is List<int>) {
+    if (usesV2Frame) {
       _handleV2Binary(
         message is Uint8List ? message : Uint8List.fromList(message),
       );
+      return;
+    }
+
+    if (message is List<int> &&
+        _tryDecodeUnframedPayload(
+          message is Uint8List ? message : Uint8List.fromList(message),
+        )) {
       return;
     }
 
@@ -869,7 +891,11 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
     if (_framing == FramingMode.v2 && message is String) {
       iPrint('[WS] v2 收到 text frame (${message.length} chars)，降级 JSON');
     }
+    _dispatchBusinessMessage(message);
+  }
 
+  /// 分发已经过原始帧长度检查的业务数据。
+  void _dispatchBusinessMessage(dynamic message) {
     // 快速空值检查
     if (message == null || (message is String && message.trim().isEmpty)) {
       return;
@@ -932,10 +958,10 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
           // no-op：见上方注释
         } else if (messageType.startsWith('WEBRTC_')) {
           _sendAckDirectSafe('WEBRTC', messageId);
-        } else if (['S2C', 'C2S'].contains(messageType) &&
-            msg['msg_type'] != 'stream_delta') {
-          // stream_delta 是 AI 流式 ephemeral 帧（后端不追踪 ACK），
-          // 每帧回 ACK 纯浪费网络 + DB 空操作，排除。
+        } else if (shouldAcknowledgeBusinessFrame(
+          messageType,
+          msg['msg_type'],
+        )) {
           _sendAckSafe(messageType, messageId);
         }
         _handleMessageAck(action, messageId, reason: msg['reason']?.toString());
