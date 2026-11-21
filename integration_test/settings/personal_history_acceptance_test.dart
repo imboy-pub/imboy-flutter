@@ -53,7 +53,7 @@ void main() {
   const password = 'device-acceptance-fixture';
 
   test('AT-PH01 设备端封包/恢复往返（平台 KDF 真实参与）', () async {
-    final sealing = _service();
+    final sealing = _service()..rotate(1);
     final wire = await sealing.sealPackage(1, password);
     expect(
       wire.keys,
@@ -70,7 +70,7 @@ void main() {
   });
 
   test('AT-PH02 错误口令可分辨失败，不污染既有密钥', () async {
-    final sealing = _service();
+    final sealing = _service()..rotate(1);
     final wire = await sealing.sealPackage(1, password);
     final stranger = _service();
     expect(
@@ -84,7 +84,7 @@ void main() {
 
   test('AT-PH03 会话退出阻断迟到工作（安全退出清理）', () async {
     final session = _DeviceSession();
-    final client = _service(session: session);
+    final client = _service(session: session)..rotate(1);
     await client.sealPackage(1, password);
     session.logout();
     expect(
@@ -94,7 +94,7 @@ void main() {
   });
 
   test('AT-PH04 封包线格式无口令/裸密钥', () async {
-    final wire = await _service().sealPackage(1, password);
+    final wire = await (_service()..rotate(1)).sealPackage(1, password);
     final blob = wire['wrapped_key']! as String;
     expect(blob.contains(password), isFalse);
     expect(blob.length, greaterThan(40));
