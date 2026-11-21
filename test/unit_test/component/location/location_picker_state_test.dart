@@ -6,6 +6,7 @@ import 'package:easy_refresh/easy_refresh.dart';
 import 'package:cupertino_ui/cupertino_ui.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:imboy/component/location/amap_helper.dart';
 import 'package:imboy/component/location/widget.dart';
 import 'package:imboy/i18n/strings.g.dart';
 // Exercise the installed platform boundary without a native map or network.
@@ -123,7 +124,15 @@ class _Response extends Stream<List<int>> implements HttpClientResponse {
 
 void main() {
   final network = _MapNetwork();
-  setUpAll(() => HttpOverrides.global = network);
+  // FL-17：host 无 Android/iOS 平台守卫内的真实授权，经 visibleForTesting
+  // 缝隙注入固定合成授权，覆盖「已授权」路径；未注入即「关闭/未授权」
+  // 路径（见 optional_service_consumers_test）。生产语义不变。
+  final syntheticMapGrant = Object();
+  setUpAll(() {
+    AMapHelper.grantOverrideForTest = syntheticMapGrant;
+    HttpOverrides.global = network;
+  });
+  tearDownAll(() => AMapHelper.grantOverrideForTest = null);
   setUp(() {
     network.requests.clear();
     WebViewPlatform.instance = FakeWebViewPlatform();

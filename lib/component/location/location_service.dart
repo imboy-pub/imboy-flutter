@@ -78,18 +78,23 @@ class LocationService {
     bool preferLastKnown = false,
   }) async {
     if (LocalExternalServicesPolicy.mapsSuppressed) return null;
+    // FL-17 修复：preferLastKnown 的契约（docblock「先返回系统缓存的最后
+    // 已知位置」）是平台无关的，此前仅 iOS/Android 分支生效，macOS/Web
+    // 静默忽略并直接发起实时定位。统一在平台分派前查缓存；
+    // _lastKnownAsPosition 内部 catch 后返回 null，失败安全回落实时路径，
+    // 生产平台 getLastKnownPosition 的权限由 OS 强制，不放宽任何权限边界。
+    if (preferLastKnown) {
+      final cached = await _lastKnownAsPosition();
+      if (cached != null) {
+        debugPrint('[PeopleNearbyPerf]   1a.命中系统缓存位置，跳过实时定位');
+        return cached;
+      }
+    }
     if (kIsWeb) {
       return _getCurrentPositionGeolocator();
     } else if (Platform.isMacOS) {
       return _getCurrentPositionGeolocator();
     } else if (Platform.isIOS || Platform.isAndroid) {
-      if (preferLastKnown) {
-        final cached = await _lastKnownAsPosition();
-        if (cached != null) {
-          debugPrint('[PeopleNearbyPerf]   1a.命中系统缓存位置，跳过实时定位');
-          return cached;
-        }
-      }
       // iOS/Android: 优先高德，失败时降级到 geolocator(系统定位)
       // iOS 此前只用高德、无兜底；高德 Key/Bundle 绑定或网络异常时彻底拿不到坐标。
       return await _getCurrentPositionWithFallback();

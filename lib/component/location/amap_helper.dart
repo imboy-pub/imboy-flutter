@@ -10,7 +10,8 @@ import 'package:amap_flutter_base_plus/amap_flutter_base_plus.dart';
 import 'package:amap_flutter_location_plus/amap_flutter_location_plus.dart';
 import 'package:amap_flutter_location_plus/amap_location_option.dart';
 import 'package:dio/dio.dart';
-import 'package:flutter/foundation.dart' show kIsWeb, debugPrint;
+import 'package:flutter/foundation.dart'
+    show kIsWeb, debugPrint, visibleForTesting;
 
 import 'package:imboy/component/helper/permission.dart';
 import 'package:imboy/component/helper/func.dart';
@@ -24,12 +25,26 @@ class AMapHelper {
   late Completer<AMapPosition?> completer;
 
   static AMapHelper? _active;
-  static Object? get grant =>
-      LocalExternalServicesPolicy.mapsSuppressed ||
-          kIsWeb ||
-          (!Platform.isAndroid && !Platform.isIOS)
-      ? null
-      : OptionalSdkConsent.instance.grant(OptionalSdkPurpose.maps);
+
+  /// 测试注入的合成 maps 授权（仅测试可见；生产恒 null）。
+  ///
+  /// host 单测（macOS VM）无法满足下方 Android/iOS 平台守卫——[grant] 对
+  /// 非移动平台恒 null，「已授权」路径的 picker/POI 合同因此无法在单测
+  /// 覆盖（FL-17 基线：location_picker_state_test 因缺此缝隙 29 例全红）。
+  /// 注入的固定对象只进内存判定，不读取真实同意存储，也不触达原生插件；
+  /// 生产语义（平台守卫 + OptionalSdkConsent 授权 + mapsSuppressed）不变。
+  @visibleForTesting
+  static Object? grantOverrideForTest;
+
+  static Object? get grant {
+    final override = grantOverrideForTest;
+    if (override != null) return override;
+    return LocalExternalServicesPolicy.mapsSuppressed ||
+            kIsWeb ||
+            (!Platform.isAndroid && !Platform.isIOS)
+        ? null
+        : OptionalSdkConsent.instance.grant(OptionalSdkPurpose.maps);
+  }
 
   factory AMapHelper() {
     final current = grant;
