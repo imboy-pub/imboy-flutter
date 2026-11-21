@@ -1,5 +1,7 @@
 // B.1 守护测试：OlmProtocol 参数校验 + 接口契约（纯测，不触发 vodozemac）。
 // 真实 X3DH + Double Ratchet round-trip 需原生库，留真机集成测试。
+import 'dart:io';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/service/e2ee/e2ee_protocol.dart';
 import 'package:imboy/service/e2ee/olm_protocol.dart';
@@ -86,4 +88,78 @@ void main() {
       );
     });
   });
+
+  group('OlmProtocol.encrypt metadata 白名单（源码合同，S-01:LOCAL:01）', () {
+    // encrypt 写入消息顶层 e2ee 字段的 metadata 随帧出网（服务端与被动
+    // 观察者可见）。新增字段 = 扩大可见元数据面；塞入明文/密钥字段则
+    // 直接破坏 E2EE 承诺。锁死 metadata map 字面量的键集合。
+    test('e2ee metadata 字段锁定为路由三元组 + peer 视角，无明文/密钥字段', () {
+      final source = File('lib/service/e2ee/olm_protocol.dart')
+          .readAsStringSync();
+      const opening = 'E2eeCiphertext(res.ciphertext, {';
+      final anchor = source.indexOf(opening);
+      expect(anchor, greaterThan(0), reason: 'encrypt metadata 锚点漂移，请同步本守护');
+      final keys = _topLevelMapKeys(
+        source,
+        anchor + 'E2eeCiphertext(res.ciphertext, '.length,
+      );
+      expect(keys, {
+        'protocol',
+        'version',
+        'e2ee_suite',
+        'peer_uid',
+        'peer_device_id',
+        'message_type',
+        'session_id',
+      });
+    });
+  });
+}
+
+/// 从 [source] 中位置 [openBraceIndex]（指向 `{`）起做花括号配对，
+/// 收集顶层（depth==1）的 `'key':` 形式键名。
+Set<String> _topLevelMapKeys(String source, int openBraceIndex) {
+  var depth = 0;
+  var i = openBraceIndex;
+  var inString = false;
+  var stringQuote = '';
+  var stringStart = -1;
+  final keys = <String>{};
+  while (i < source.length) {
+    final c = source[i];
+    if (inString) {
+      if (c == r'\') {
+        i += 2;
+        continue;
+      }
+      if (c == stringQuote) {
+        inString = false;
+        if (depth == 1) {
+          final content = source.substring(stringStart + 1, i);
+          final tailEnd = i + 6 < source.length ? i + 6 : source.length;
+          final tail = source.substring(i + 1, tailEnd);
+          if (RegExp(r'^[A-Za-z_][A-Za-z0-9_]*$').hasMatch(content) &&
+              RegExp(r'^\s*:').hasMatch(tail)) {
+            keys.add(content);
+          }
+        }
+      }
+      i++;
+      continue;
+    }
+    if (c == "'" || c == '"') {
+      inString = true;
+      stringQuote = c;
+      stringStart = i;
+      i++;
+      continue;
+    }
+    if (c == '{') depth++;
+    if (c == '}') {
+      depth--;
+      if (depth == 0) break;
+    }
+    i++;
+  }
+  return keys;
 }

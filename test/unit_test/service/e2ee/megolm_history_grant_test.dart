@@ -1,10 +1,14 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/service/e2ee/e2ee_bootstrap.dart';
+import 'package:imboy/service/e2ee/e2ee_protocol.dart';
 import 'package:imboy/service/e2ee/megolm_backup_section.dart';
+import 'package:imboy/service/e2ee/megolm_protocol.dart';
+import 'package:imboy/service/e2ee/vodozemac_init.dart';
 import 'package:imboy/service/e2ee_local_backup_service.dart';
 import 'package:imboy/service/e2ee_service.dart';
 import 'package:imboy/service/group_session_service.dart';
@@ -336,4 +340,157 @@ void main() {
     expect(result['_e2ee_failed'], isTrue);
     expect(result['_e2ee_reason'], 'group_scope_mismatch');
   });
+
+  group('缺密钥明确不可恢复（S-01:LOCAL:02）', () {
+    setUp(() async {
+      // 与「可信 conv_seq 贯穿解密链」测试同款 headless 前置：真实
+      // secure-storage mock、SQLCipher 不可用、跳过 Olm 网络注册、
+      // vodozemac 就绪标记（缺 key 路径在 native import 之前 fail-closed，
+      // 不触发原生库）。
+      SharedPreferences.setMockInitialValues({Keys.currentUid: '100'});
+      await StorageService.init();
+      SqliteService.setDbUnavailableForTest();
+      E2eeBootstrap.debugMarkReadyForTest('100');
+      GroupSessionService.debugMarkVodReady();
+    });
+
+    tearDown(() async {
+      SqliteService.setDbForTest(null);
+      SharedPreferences.setMockInitialValues({});
+      await StorageService.init();
+      VodozemacInit.debugReset();
+    });
+
+    test('群消息缺 megolm session key 时明确失败占位，不产出明文', () async {
+      // 本地（内存 + secure storage mock）没有任何 inbound session key：
+      // 解密必须明确失败（_e2ee_failed + decrypt_error），占位文案不得
+      // 把密文当明文回显，也不得静默跳过或伪造解密成功。
+      const fakeCiphertext = 'Tk9LRVk6U0hPUlRISVNJU05PVEFFRUFMSUFLWVk';
+      final result = await E2EEService.decryptIncomingPayload(
+        payload: {
+          'type': 'C2G',
+          'to': '100',
+          'e2ee': {
+            'protocol': 'megolm',
+            'version': 1,
+            'gid': '100',
+            'session_id': 'session-nokey',
+          },
+          'payload': fakeCiphertext,
+          'conv_seq': 481,
+        },
+      );
+      expect(result['_e2ee_failed'], isTrue);
+      expect(result['_e2ee_reason'], 'decrypt_error');
+      expect(
+        result['text']?.toString() ?? '',
+        isNot(contains(fakeCiphertext)),
+        reason: '缺密钥的失败占位不得把密文当明文回显',
+      );
+    });
+
+    test('C2C megolm 消息缺 session key 时 fail-closed 抛 decrypt_error', () async {
+      final p = MegolmProtocol();
+      await expectLater(
+        p.decrypt(
+          ciphertext: 'ct',
+          metadata: const {
+            'protocol': 'megolm',
+            'version': 1,
+            'session_id': 'session-nokey',
+          },
+        ),
+        throwsA(
+          isA<E2eeDecryptException>().having(
+            (e) => e.reason,
+            'reason',
+            'decrypt_error',
+          ),
+        ),
+      );
+    });
+  });
+
+  group('MegolmProtocol.encrypt metadata 白名单（源码合同，S-01:LOCAL:01）', () {
+    // metadata 会随消息顶层出网（服务端可见）：新增字段等于扩大服务端
+    // 可见元数据面，明文/密钥字段更不可接受。锁死 _meta 的键集合。
+    test('e2ee metadata 字段锁定为路由字段，不得新增明文/密钥字段', () {
+      final source = File('lib/service/e2ee/megolm_protocol.dart')
+          .readAsStringSync();
+      final anchor = source.indexOf("Map<String, dynamic> _meta(");
+      expect(anchor, greaterThan(0), reason: '_meta 锚点漂移，请同步本守护');
+      final body = source.substring(anchor);
+      final literalAnchor = body.indexOf('final m = <String, dynamic>{');
+      expect(literalAnchor, greaterThan(0), reason: '_meta map 字面量锚点漂移');
+      // gid/scope 为字面量后的条件赋值（m['gid'] = gid），一并纳入白名单。
+      final fnWindowEnd = literalAnchor + 800 < body.length
+          ? literalAnchor + 800
+          : body.length;
+      final fnBody = body.substring(literalAnchor, fnWindowEnd);
+      final keys = _topLevelMapKeys(
+        fnBody,
+        'final m = <String, dynamic>'.length,
+      );
+      keys.addAll(
+        RegExp(r"m\['([a-z_]+)'\]").allMatches(fnBody).map((m) => m.group(1)!),
+      );
+      expect(keys, {
+        'protocol',
+        'version',
+        'e2ee_suite',
+        'session_id',
+        'gid',
+        'scope',
+      });
+    });
+  });
+}
+
+/// 从 [source] 中位置 [openBraceIndex]（指向 `{`）起做花括号配对，
+/// 收集顶层（depth==1）的 `'key':` 形式键名。
+Set<String> _topLevelMapKeys(String source, int openBraceIndex) {
+  var depth = 0;
+  var i = openBraceIndex;
+  var inString = false;
+  var stringQuote = '';
+  var stringStart = -1;
+  final keys = <String>{};
+  while (i < source.length) {
+    final c = source[i];
+    if (inString) {
+      if (c == r'\') {
+        i += 2;
+        continue;
+      }
+      if (c == stringQuote) {
+        inString = false;
+        // 字符串刚结束：若是简单标识符且后随 `:`，则识别为 map 键。
+        if (depth == 1) {
+          final content = source.substring(stringStart + 1, i);
+          final tailEnd = i + 6 < source.length ? i + 6 : source.length;
+          final tail = source.substring(i + 1, tailEnd);
+          if (RegExp(r'^[A-Za-z_][A-Za-z0-9_]*$').hasMatch(content) &&
+              RegExp(r'^\s*:').hasMatch(tail)) {
+            keys.add(content);
+          }
+        }
+      }
+      i++;
+      continue;
+    }
+    if (c == "'" || c == '"') {
+      inString = true;
+      stringQuote = c;
+      stringStart = i;
+      i++;
+      continue;
+    }
+    if (c == '{') depth++;
+    if (c == '}') {
+      depth--;
+      if (depth == 0) break;
+    }
+    i++;
+  }
+  return keys;
 }
