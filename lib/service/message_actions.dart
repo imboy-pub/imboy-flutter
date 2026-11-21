@@ -153,12 +153,27 @@ class MessageActions {
           return await GroupSessionService.to.handleRoomKeyMessage(data);
         default:
           iPrint('⚠️ [handleActionMessage] 未知的action类型: $action');
+          // FL-02（LOCAL:04）：未知 action 且携带内容 msg_type（历史事故：
+          // msg_type=forward + action=forward，整条消息被 action 分发吞掉且
+          // 照常回 ACK）→ 返回 false 不确认：调用方不发 transport ACK，保留
+          // 服务端 pending 重投/离线补拉恢复路径，不再静默丢关键内容事件。
+          // 纯控制型未知 action（无内容 msg_type）维持向前兼容「忽略并回
+          // ACK」既定设计（见 inbound_ack_ordering_test 的
+          // future-compatible-action 用例）。
+          if (isContentMsgType(data['msg_type']?.toString() ?? '')) {
+            iPrint(
+              '🚫 [FL-02] 未知关键 action 不确认（保留服务端待重投）: '
+              'action=$action, msg_type=${data['msg_type']}, '
+              'msgId=${data['id']}',
+            );
+            return false;
+          }
       }
       return true;
     } on Object catch (e) {
       iPrint(
         '❌ [handleActionMessage] 处理action消息异常: '
-        'action=$action, error=${e.runtimeType}',
+        'action=$action, error=$e',
       );
       return false;
     }

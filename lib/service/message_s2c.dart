@@ -125,6 +125,100 @@ class MessageS2CService {
     return true;
   }
 
+  /// FL-02（LOCAL:04）：_processS2C switch 已实现的 action 全集。
+  ///
+  /// 必须与 switch 分支逐项对齐（同 MessageActions.knownActions 的维护
+  /// 约定）：新增分支同步加入，否则该 action 会被当成「未知」。
+  /// 用于「未知且携带内容 msg_type 的 S2C 帧不确认」裁决：
+  ///   - 未知 + 内容 msg_type = 关键事件 → 不 ACK（保留服务端 pending
+  ///     重投/离线补拉恢复，不静默丢）；
+  ///   - 未知纯控制帧 → 维持向前兼容「忽略并回 ACK」既定设计；
+  ///   - 已知但明确「暂不处理」的 action（显式 case）= 有意忽略 → ACK。
+  @visibleForTesting
+  static const Set<String> knownS2CActions = <String>{
+    'pull_offline_msg',
+    'message_read_sync',
+    'c2c_revoke',
+    'c2c_del_everyone',
+    'c2g_del_everyone',
+    'c2g_del_for_me',
+    'group_member_join',
+    'group_dissolve',
+    'group_member_leave',
+    'group_e2ee_mode',
+    'group_member_alias',
+    'user_cancel',
+    'apply_friend',
+    'apply_friend_confirm',
+    'in_denylist',
+    'not_a_friend',
+    'logged_another_device',
+    'please_refresh_token',
+    'app_upgrade',
+    'device_force_offline',
+    'device_kicked',
+    'online',
+    'offline',
+    'hide',
+    'e2ee_device_key_changed',
+    'e2ee_trust_changed',
+    'policy_violation',
+    'channel_message',
+    'channel_subscribed',
+    'channel_unsubscribed',
+    'channel_updated',
+    'channel_message_deleted',
+    'channel_message_revoked',
+    'channel_message_edited',
+    'channel_deleted',
+    'channel_invitation_created',
+    'channel_invitation_accepted',
+    'channel_order_paid',
+    'channel_unread_count',
+    'user_muted',
+    'group_member_mute',
+    'group_edit',
+    'group_member_role',
+    'group_transfer',
+    'group_notice_published',
+    'user_unmuted',
+    'moment_new',
+    'moment_like',
+    'moment_comment',
+    'moment_deleted',
+    'moment_updated',
+    'manifest_updated',
+  };
+
+  /// FL-02：未知且携带内容 msg_type 的 S2C 帧 = 关键事件，不确认。
+  @visibleForTesting
+  static bool isUnackedUnknownS2C(
+    String actionLower,
+    Map<String, dynamic> data,
+  ) =>
+      !knownS2CActions.contains(actionLower) &&
+      MessageActions.isContentMsgType(data['msg_type']?.toString() ?? '');
+
+  /// FL-02 测试钩子：清空 S2C 去重层静态状态（用例间隔离）。
+  @visibleForTesting
+  static void resetS2CDedupForTest() {
+    _processedS2CIds.clear();
+    _pendingS2CFrames.clear();
+  }
+
+  /// FL-02 测试钩子：把现存去重标记整体前移 [ageMs]，模拟 TTL 过期后的
+  /// 旧事件重放（不直接可操作真实时钟）。
+  @visibleForTesting
+  static void ageS2CDedupForTest(int ageMs) {
+    final aged = <String, int>{
+      for (final entry in _processedS2CIds.entries)
+        entry.key: entry.value - ageMs,
+    };
+    _processedS2CIds
+      ..clear()
+      ..addAll(aged);
+  }
+
   /// 构建 S2C 去重 key：优先用帧 id；id 为空时回退到 action+from+to+server_ts 复合 key
   @visibleForTesting
   static String buildS2CDedupKey(
@@ -291,8 +385,13 @@ class MessageS2CService {
       final lastSeen = _processedS2CIds[dedupKey];
       if (lastSeen != null && now - lastSeen < ttl) {
         iPrint('🟡 [S2C dedup] 重复 S2C 已处理，跳过 action=$action key=$dedupKey');
-        // 重复也必须 ACK，否则服务端在重发窗口内继续重投
-        _sendS2CAck(msgId.toString(), autoAck);
+        // 重复也必须 ACK，否则服务端在重发窗口内继续重投；
+        // FL-02：未知且携带内容 msg_type 的关键帧除外——重投同样不确认，
+        // 保留 pending 直至客户端版本可处理或服务端修复。
+        _sendS2CAck(
+          msgId.toString(),
+          autoAck && !isUnackedUnknownS2C(actionLower, data),
+        );
         return;
       }
       _processedS2CIds[dedupKey] = now;
@@ -488,6 +587,16 @@ class MessageS2CService {
           await RuntimeFeatureRecovery.refreshNow();
           break;
         default:
+          // FL-02（LOCAL:04）：未知关键 S2C（携带内容 msg_type）不确认——
+          // 保留服务端 pending 重投/离线补拉恢复路径，不静默丢关键事件；
+          // 纯控制型未知 action 维持向前兼容「忽略并回 ACK」既定设计。
+          if (isUnackedUnknownS2C(actionLower, data)) {
+            autoAck = false;
+            iPrint(
+              '🚫 [FL-02] 未知关键 S2C 不确认（保留服务端待重投）: '
+              'action=$action, msg_type=${data['msg_type']}, msgId=$msgId',
+            );
+          }
           break;
       }
 
