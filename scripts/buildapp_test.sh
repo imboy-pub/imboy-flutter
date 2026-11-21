@@ -25,6 +25,7 @@ CUSTOMERS_ROOT="$WORKSPACE_ROOT/customers"
 BUILDAPP="$SCRIPT_DIR/buildapp.sh"
 FIXTURE="$SCRIPT_DIR/buildapp_fixture.sh"
 SCHEME_TOOL="$SCRIPT_DIR/buildapp_scheme_tools.py"
+APP_GROUP_TOOL="$SCRIPT_DIR/buildapp_ios_app_group_tools.py"
 PNG_TOOL="$SCRIPT_DIR/buildapp_png_tools.py"
 LOCK_ROOT="$WORKSPACE_ROOT/.buildapp-locks"
 WT_ROOT="$WORKSPACE_ROOT/.buildapp-worktrees"
@@ -297,8 +298,42 @@ else
 fi
 check "T4d-inject-refuses-double" nonzero python3 "$SCHEME_TOOL" inject-android "$TT/m-alpha.xml" betaapp
 
-# T5 ShareExtension plist: no URL registration, never modified by the pipeline
+# T5 ShareExtension: no URL registration, but AppGroupId is customer-scoped.
 if ! grep -q "CFBundleURLTypes" "$TT/se-before.plist"; then ok "T5-shareextension-no-url-registration"; else bad "T5-shareextension-no-url-registration" "unexpected CFBundleURLTypes"; fi
+mkdir -p "$TT/ag-alpha/Runner" "$TT/ag-alpha/ShareExtension" "$TT/ag-beta/Runner" "$TT/ag-beta/ShareExtension"
+for customer in alpha beta; do
+  cp "$FLUTTER_ROOT/ios/ShareExtension/Info.plist" "$TT/ag-$customer/ShareExtension/Info.plist"
+  for ent in "$FLUTTER_ROOT"/ios/Runner/*.entitlements; do cp "$ent" "$TT/ag-$customer/Runner/"; done
+  cp "$FLUTTER_ROOT/ios/ShareExtension/ShareExtension.entitlements" "$TT/ag-$customer/ShareExtension/"
+done
+if python3 "$APP_GROUP_TOOL" inject "$TT/ag-alpha/ShareExtension/Info.plist" group.com.example.alpha "$TT"/ag-alpha/Runner/*.entitlements "$TT"/ag-alpha/ShareExtension/*.entitlements \
+   && python3 "$APP_GROUP_TOOL" verify "$TT/ag-alpha/ShareExtension/Info.plist" group.com.example.alpha "$TT"/ag-alpha/Runner/*.entitlements "$TT"/ag-alpha/ShareExtension/*.entitlements \
+   && python3 "$APP_GROUP_TOOL" inject "$TT/ag-beta/ShareExtension/Info.plist" group.com.example.beta "$TT"/ag-beta/Runner/*.entitlements "$TT"/ag-beta/ShareExtension/*.entitlements \
+   && python3 "$APP_GROUP_TOOL" verify "$TT/ag-beta/ShareExtension/Info.plist" group.com.example.beta "$TT"/ag-beta/Runner/*.entitlements "$TT"/ag-beta/ShareExtension/*.entitlements \
+   && ! grep -R -q 'group.com.example.beta' "$TT/ag-alpha" \
+   && ! grep -R -q 'group.com.example.alpha' "$TT/ag-beta" \
+   && ! grep -R -q 'group.pub.imboy.app' "$TT/ag-alpha" "$TT/ag-beta"; then
+  ok "T5a-share-app-group-customer-isolation"
+else
+  bad "T5a-share-app-group-customer-isolation" "AppGroupId/entitlements mismatch or cross-customer residue"
+fi
+cp "$TT/ag-alpha/ShareExtension/Info.plist" "$TT/ag-alpha/mismatch.plist"
+python3 - "$TT/ag-alpha/mismatch.plist" <<'PY'
+import plistlib, sys
+with open(sys.argv[1], "rb") as f: data = plistlib.load(f)
+data["AppGroupId"] = "group.pub.imboy.app"
+with open(sys.argv[1], "wb") as f: plistlib.dump(data, f)
+PY
+if python3 "$APP_GROUP_TOOL" verify "$TT/ag-alpha/mismatch.plist" group.com.example.alpha "$TT"/ag-alpha/Runner/*.entitlements "$TT"/ag-alpha/ShareExtension/*.entitlements >/dev/null 2>&1; then
+  bad "T5b-stale-share-app-group-rejected" "stale vendor AppGroupId was accepted"
+else
+  ok "T5b-stale-share-app-group-rejected"
+fi
+if grep -q 'group.pub.imboy.app' "$FLUTTER_ROOT/ios/ShareExtension/Info.plist" && grep -q 'group.pub.imboy.app' "$FLUTTER_ROOT/ios/ShareExtension/ShareExtension.entitlements"; then
+  ok "T5c-source-vendor-baseline-unchanged"
+else
+  bad "T5c-source-vendor-baseline-unchanged" "shared vendor source files were mutated"
+fi
 
 # T6 png fallback resizer round-trip (pure-python path)
 if python3 "$PNG_TOOL" resize "$FLUTTER_ROOT/web/icons/Icon-192.png" "$TT/r64.png" 64 64 2>&1 \
