@@ -53,6 +53,7 @@ LOCK_ROOT="$WORKSPACE_ROOT/.buildapp-locks"
 WT_ROOT="$WORKSPACE_ROOT/.buildapp-worktrees"
 SCRIPTS_DIR="$FLUTTER_ROOT/scripts"
 SCHEME_TOOL="$SCRIPTS_DIR/buildapp_scheme_tools.py"
+APP_GROUP_TOOL="$SCRIPTS_DIR/buildapp_ios_app_group_tools.py"
 PNG_TOOL="$SCRIPTS_DIR/buildapp_png_tools.py"
 
 CUSTOMER_ID=""
@@ -554,14 +555,21 @@ inject_ios_identity() {
   plist_set_string "$WORKTREE/ios/ShareExtension/Info.plist" CFBundleDisplayName "$APP_NAME" \
     || die "ShareExtension display name injection failed"
   sedi "s|$VENDOR_BUNDLE_ID|$BUNDLE_ID|g" "$WORKTREE/ios/Runner.xcodeproj/project.pbxproj"
-  local ent
-  for ent in "$WORKTREE"/ios/Runner/*.entitlements "$WORKTREE"/ios/ShareExtension/*.entitlements; do
-    [ -f "$ent" ] || continue
-    sedi "s|group\.$VENDOR_BUNDLE_ID|group.$BUNDLE_ID|g" "$ent"
-  done
+  # share_handler_ios reads AppGroupId from ShareExtension/Info.plist.
+  # Inject one customer-owned group into the extension plist and both targets.
+  python3 "$APP_GROUP_TOOL" inject \
+    "$WORKTREE/ios/ShareExtension/Info.plist" "group.$BUNDLE_ID" \
+    "$WORKTREE"/ios/Runner/*.entitlements \
+    "$WORKTREE"/ios/ShareExtension/*.entitlements \
+    || die "iOS App Group injection failed — stale or mismatched target groups"
   [ "$(plist_get_string "$WORKTREE/ios/Runner/Info.plist" CFBundleDisplayName)" = "$APP_NAME" ] || die "iOS display name injection failed"
   [ "$(plist_get_string "$WORKTREE/ios/ShareExtension/Info.plist" CFBundleDisplayName)" = "$APP_NAME" ] || die "ShareExtension display name injection failed"
   grep -q "$BUNDLE_ID" "$WORKTREE/ios/Runner.xcodeproj/project.pbxproj" || die "iOS bundle id injection failed"
+  python3 "$APP_GROUP_TOOL" verify \
+    "$WORKTREE/ios/ShareExtension/Info.plist" "group.$BUNDLE_ID" \
+    "$WORKTREE"/ios/Runner/*.entitlements \
+    "$WORKTREE"/ios/ShareExtension/*.entitlements \
+    || die "iOS App Group cross-verification failed — vendor/cross-customer group remains"
   # F11: rewrite ONLY the IMBoy deeplink URL type's CFBundleURLSchemes
   # (CFBundleURLName == "imboy.pub"); weixin/alipay/ShareMedia URL types,
   # E2EE backup registrations and every other plist key stay untouched.
@@ -573,7 +581,7 @@ inject_ios_identity() {
   echo "$js" | python3 -c 'import json,sys
 d = json.load(sys.stdin)
 print("[buildapp] ios url scheme: replaced=%(replaced)s vendor_inherited=%(vendor_inherited)s deeplink=%(deeplink_schemes)s preserved=%(other_url_types_preserved)s" % d)' >> "$LOG"
-  info "ios identity injected: bundle=$BUNDLE_ID display=$APP_NAME url_scheme=$RESOLVED_SCHEME (ShareExtension display name only; no URL registration there)"
+  info "ios identity injected: bundle=$BUNDLE_ID display=$APP_NAME url_scheme=$RESOLVED_SCHEME customer App Group shared by Runner + ShareExtension; no URL registration in extension)"
 }
 
 verify_ios_scheme() { # F12: read registration back from the injected file
