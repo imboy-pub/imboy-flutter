@@ -14,6 +14,7 @@ import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/config/error_code.dart';
 import 'package:imboy/service/active_conversation_notifier.dart';
 import 'package:imboy/service/account_local_task_registry.dart';
+import 'package:imboy/service/account_preferences.dart';
 import 'package:imboy/service/auth_session_scope.dart';
 import 'package:imboy/service/e2ee_service.dart';
 import 'package:imboy/service/ack_manager.dart';
@@ -55,6 +56,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:imboy/page/conversation/conversation_provider.dart';
 import 'package:imboy/page/group/group_detail/group_detail_service.dart';
+import 'package:imboy/page/chat/chat/services/chat_burn_service.dart';
 import 'package:imboy/modules/messaging/infrastructure/message_model_mapper.dart';
 
 import 'message_actions.dart';
@@ -609,6 +611,18 @@ class MessageService with EventSubscriptionManager {
 
     final repo = getMessageRepo(chatType);
     final existing = await repo.find(msgId);
+
+    // L-02 防复活守卫（LOCAL-CARD-L-02 §5-A，协调者例外授权）：已焚毁/删除
+    // （墓账本保留期内命中）的消息不得因服务端重投/离线补拉重新入库。
+    // 删除是本机既定事实，按已处理返回（上游照常 ACK，阻断服务端重投）。
+    // 仅作用 fresh-insert 路径；PFv3 已有行恢复（_isProtectedRecovery）原样。
+    if (existing == null &&
+        await ChatBurnService.isMessageDeleted(
+          msgId,
+          AccountPreferences.capture(),
+        )) {
+      return true;
+    }
 
     // v2.0: 从顶层读取 e2ee 字段（可能是字符串形式的 JSON）
     final e2eeRaw = data['e2ee'];
