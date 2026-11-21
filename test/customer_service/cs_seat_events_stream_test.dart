@@ -85,6 +85,136 @@ class _OpenerHarness {
 }
 
 void main() {
+  test(
+    'reconnect discards an unfinished frame and resumes the complete ID',
+    () {
+      fakeAsync((async) {
+        final first = envelopeJson(eventId: '100');
+        final resumed = envelopeJson(eventId: '102');
+        final envelopes = <CsSseEnvelope>[];
+        final h = _OpenerHarness(
+          (i) async => i == 0
+              ? bytesOf([
+                  frame(first),
+                  frame(resumed, id: '101').trimRight(),
+                  '\n',
+                ])
+              : bytesOf([frame(resumed)]),
+        );
+        final stream = CsSeatEventsStream(
+          orgId: kOrgId,
+          workspaceId: kWsId,
+          opener: h.open,
+        );
+        stream.start(onEvent: envelopes.add);
+        async.flushMicrotasks();
+        expect(stream.lastEventId, '100');
+        async.elapse(const Duration(seconds: 2));
+        async.flushMicrotasks();
+        expect(h.lastEventIds, ['', '100']);
+        expect(envelopes.map((e) => e.eventId), ['100', '102']);
+        expect(stream.lastEventId, '102');
+        stream.dispose();
+      });
+    },
+  );
+
+  test('resync resets an obsolete high cursor and its dedup window', () {
+    fakeAsync((async) {
+      final envelopes = <CsSseEnvelope>[];
+      final harness = _OpenerHarness(
+        (i) async => switch (i) {
+          0 => bytesOf([
+            frame(envelopeJson(eventId: '100')),
+            frame(envelopeJson(eventId: '200')),
+          ]),
+          1 => bytesOf([
+            frame(
+              envelopeJson(
+                eventId: '0',
+                type: CsSseEnvelope.typeResyncRequired,
+              ),
+            ),
+          ]),
+          _ => bytesOf([
+            frame(envelopeJson(eventId: '100')),
+            frame(
+              envelopeJson(
+                eventId: '0',
+                type: CsSseEnvelope.typeAssignmentChanged,
+                reason: 'revoked',
+              ),
+            ),
+          ]),
+        },
+      );
+      final stream = CsSeatEventsStream(
+        orgId: kOrgId,
+        workspaceId: kWsId,
+        opener: harness.open,
+      );
+      stream.start(onEvent: envelopes.add);
+      async.flushMicrotasks();
+      expect(stream.lastEventId, '200');
+      async.elapse(const Duration(seconds: 2));
+      async.flushMicrotasks();
+      expect(stream.lastEventId, '0');
+      async.elapse(const Duration(seconds: 2));
+      async.flushMicrotasks();
+      expect(harness.lastEventIds, ['', '200', '0']);
+      expect(envelopes.map((e) => e.eventId), ['100', '200', '0', '100', '0']);
+      expect(stream.lastEventId, '100');
+      stream.dispose();
+    });
+  });
+
+  test('only current workspace frames advance the resume cursor', () {
+    fakeAsync((async) {
+      final envelopes = <CsSseEnvelope>[];
+      final harness = _OpenerHarness(
+        (i) async => i == 0
+            ? bytesOf([
+                frame(envelopeJson(eventId: '100')),
+                frame(envelopeJson(eventId: '999', ws: '14')),
+                frame(envelopeJson(eventId: '101'), id: '998'),
+              ])
+            : bytesOf([
+                frame(
+                  envelopeJson(
+                    eventId: '100',
+                    type: CsSseEnvelope.typeResyncRequired,
+                  ),
+                ),
+                frame(
+                  envelopeJson(
+                    eventId: '0',
+                    type: CsSseEnvelope.typeAssignmentChanged,
+                    reason: 'revoked',
+                  ),
+                ),
+              ]),
+      );
+      final stream = CsSeatEventsStream(
+        orgId: kOrgId,
+        workspaceId: kWsId,
+        opener: harness.open,
+      );
+      stream.start(onEvent: envelopes.add);
+      async.flushMicrotasks();
+      expect(stream.lastEventId, '100');
+      async.elapse(const Duration(seconds: 2));
+      async.flushMicrotasks();
+      expect(harness.lastEventIds, ['', '100']);
+      expect(envelopes.map((e) => e.type), [
+        CsSseEnvelope.typeMessageAppended,
+        CsSseEnvelope.typeResyncRequired,
+        CsSseEnvelope.typeAssignmentChanged,
+      ]);
+      expect(stream.lastEventId, '100');
+      stream.dispose();
+    });
+  });
+
   test('帧解析：id/event/data 下发；retry 行生效；心跳注释不占 event_id', () {
     fakeAsync((async) {
       final envelopes = <CsSseEnvelope>[];

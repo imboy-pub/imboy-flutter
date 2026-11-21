@@ -12,6 +12,19 @@ class MutationApi extends CsApi {
   CsApiException? error;
   int sends = 0, uploads = 0;
   Completer<EnterpriseAsset>? pendingUpload;
+  final detailResponses = <Completer<CsSessionDetail>>[];
+
+  @override
+  Future<CsSessionDetail> sessionDetail(
+    String orgId,
+    String sessionId, {
+    String workspaceId = '',
+  }) {
+    final response = Completer<CsSessionDetail>();
+    detailResponses.add(response);
+    return response.future;
+  }
+
   @override
   Future<void> close(
     String orgId,
@@ -69,6 +82,71 @@ class MutationApi extends CsApi {
 }
 
 void main() {
+  test('a late older snapshot cannot replace the closed version', () async {
+    final api = MutationApi();
+    final flow = CsSessionFlow(
+      orgId: '1',
+      sessionId: '3',
+      identityId: '6',
+      csApi: api,
+    );
+    addTearDown(flow.dispose);
+    final old = flow.refreshSessionState();
+    final fresh = flow.refreshSessionState();
+    api.detailResponses[1].complete(
+      const CsSessionDetail(sessionId: '3', status: 'closed', version: 7),
+    );
+    expect((await fresh)?.version, 7);
+    api.detailResponses[0].complete(
+      const CsSessionDetail(sessionId: '3', status: 'active', version: 6),
+    );
+    await old;
+    expect(flow.detail?.version, 7);
+    expect(flow.detail?.status, 'closed');
+    expect(flow.machine.canSend, isFalse);
+  });
+
+  test(
+    'confirmed transfer clears projection and fences a pending refresh',
+    () async {
+      final api = MutationApi();
+      final flow =
+          CsSessionFlow(orgId: '1', sessionId: '3', identityId: '6', csApi: api)
+            ..detail = const CsSessionDetail(
+              sessionId: '3',
+              status: 'active',
+              version: 5,
+            )
+            ..messages = [
+              const EnterpriseMessage(
+                id: '10',
+                conversationId: '4',
+                organizationId: '1',
+                content: 'synthetic body',
+              ),
+            ]
+            ..messageAssets = {
+              '10': [CsMessageAsset(id: '11')],
+            };
+      addTearDown(flow.dispose);
+      final refresh = flow.refreshSessionState();
+      final transfer = flow.transferTo('9');
+      expect(await flow.closeSession(), CsSeatFailureKind.other);
+      api.pending.complete();
+      expect(await transfer, isNull);
+      api.detailResponses.single.complete(
+        const CsSessionDetail(sessionId: '3', status: 'active', version: 6),
+      );
+      expect(await refresh, isNull);
+      expect(flow.readRevoked, isTrue);
+      expect(flow.detail, isNull);
+      expect(flow.messages, isEmpty);
+      expect(flow.messageAssets, isEmpty);
+      expect(flow.machine.canDownload, isFalse);
+      expect(api.calls, 1);
+    },
+  );
+
   test('same-scope concurrent close dispatches only one CAS', () async {
     final api = MutationApi();
     final flow =

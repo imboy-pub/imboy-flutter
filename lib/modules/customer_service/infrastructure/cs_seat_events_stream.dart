@@ -118,6 +118,8 @@ class CsSseDedupWindow {
 
   bool contains(String id) => _seen.contains(id);
 
+  void clear() => _seen.clear();
+
   /// 已见过返回 true（重复，丢弃）；否则记录并返回 false。
   bool seenAndAdd(String id) {
     if (_seen.contains(id)) return true;
@@ -272,6 +274,7 @@ class CsSeatEventsStream {
   void _onStreamClosed() {
     _requestCancelToken?.cancel();
     _sub = null;
+    _resetFrame();
     _scheduleReconnect();
   }
 
@@ -321,14 +324,10 @@ class CsSeatEventsStream {
     final data = _frameData.toString().trim();
     final id = _frameId;
     final frameEvent = _frameEvent;
-    _frameId = '';
-    _frameEvent = '';
-    _frameData = StringBuffer();
+    _resetFrame();
     // 契约：业务帧必带 id 与 JSON data；无 id（纯心跳）/无 data 不下发、
     // 不进游标、不进去重窗口。
     if (id.isEmpty || data.isEmpty) return;
-    if (_dedup.seenAndAdd(id)) return;
-    _lastEventId = id;
     Map<String, dynamic>? json;
     try {
       final decoded = jsonDecode(data);
@@ -345,12 +344,32 @@ class CsSeatEventsStream {
       json['type'] = frameEvent;
     }
     final envelope = CsSseEnvelope.fromJson(json);
-    // 跨租户防御：非本 Org 信封静默丢弃（流是 org 作用域，双保险）。
-    if (envelope.organizationId.isNotEmpty &&
-        envelope.organizationId != orgId) {
+    if (envelope.organizationId != orgId ||
+        envelope.workspaceId != _resolvedWorkspaceId ||
+        _resolvedWorkspaceId.isEmpty ||
+        envelope.eventId != id) {
       return;
     }
+    final sequence = BigInt.tryParse(id);
+    if (sequence == null || sequence.isNegative) return;
+    if (envelope.isResyncRequired) {
+      // The server's replacement snapshot may rewind an obsolete cursor.
+      _dedup.clear();
+      _lastEventId = id;
+    } else if (sequence == BigInt.zero) {
+      if (!envelope.isRevocation) return;
+    } else {
+      if (_dedup.seenAndAdd(id)) return;
+      final previous = BigInt.tryParse(_lastEventId);
+      if (previous == null || sequence > previous) _lastEventId = id;
+    }
     _onEvent?.call(envelope);
+  }
+
+  void _resetFrame() {
+    _frameId = '';
+    _frameEvent = '';
+    _frameData = StringBuffer();
   }
 
   static const int _minRetryMs = 1000;

@@ -184,17 +184,24 @@ class CsSessionFlow {
         workspaceId: workspaceId,
       );
       if (!_same(scope)) return null;
+      if (d.version < (detail?.version ?? 0)) return detail;
+      if (!d.isClosed &&
+          (machine.phase == CsSeatSessionPhase.closed ||
+              machine.phase == CsSeatSessionPhase.rated)) {
+        return detail;
+      }
+      if (identityId.isNotEmpty &&
+          d.assigneeIdentityId.isNotEmpty &&
+          d.assigneeIdentityId != identityId) {
+        invalidateReadScope(transferredAway: true);
+        return null;
+      }
       detail = d;
       if (d.conversationId.isNotEmpty) {
         conversationId = d.conversationId;
       }
       if (identityId.isEmpty && d.assigneeIdentityId.isNotEmpty) {
-        // 种子缺失：采纳服务端权威回显（APP-M01-A04）。
         identityId = d.assigneeIdentityId;
-      } else if (d.assigneeIdentityId.isNotEmpty &&
-          d.assigneeIdentityId != identityId) {
-        // 服务端权威：经办人已非当前坐席（被转接/接管）→ 立即只读。
-        machine.markTransferredAway();
       }
       if (d.isClosed && d.evaluationState == CsEvaluationState.rated) {
         machine.markRated();
@@ -419,10 +426,11 @@ class CsSessionFlow {
   }
 
   /// Invalidates only this flow's obsolete read projection, including auth loss.
-  void invalidateReadScope() {
+  void invalidateReadScope({bool transferredAway = false}) {
     deliveryLedger?.invalidateScope(_scope());
     readRevoked = true;
     machine.revokeReadAuthority();
+    if (transferredAway) machine.markTransferredAway();
     _events?.dispose();
     assetOperation?.cancel();
     detail = null;

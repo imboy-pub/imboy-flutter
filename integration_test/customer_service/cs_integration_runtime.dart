@@ -15,9 +15,11 @@ import 'package:imboy/config/const.dart';
 
 import 'package:crypto/crypto.dart';
 import 'package:dio/dio.dart';
+import 'package:dio/io.dart';
 import 'package:imboy/component/extension/device_ext.dart';
 import 'package:imboy/component/http/http_retry_interceptor.dart';
 import 'package:imboy/component/http/http_config.dart';
+import 'package:imboy/component/http/http_client.dart' as app_http;
 import 'package:imboy/config/env.dart';
 import 'package:imboy/config/init.dart';
 import 'package:imboy/service/auth_session_scope.dart';
@@ -64,6 +66,65 @@ class CsRunEnvironment implements Env {
   bool get aiTestEnabled => original.aiTestEnabled;
 }
 
+/// Trust only this run's CA and connect only to the admitted IPv4 endpoint.
+class CsLoopbackHttpOverrides extends GlobalHttpOverrides {
+  CsLoopbackHttpOverrides(CsIntegrationFixture fixture)
+    : origin = fixture.apiBase,
+      _context = SecurityContext(withTrustedRoots: false) {
+    try {
+      final ca = fixture.loopbackCa;
+      if (ca == null) {
+        CsIntegrationFixture.refuse(CsIntegrationAdmissionFailure.tls);
+      }
+      _context.setTrustedCertificatesBytes(ca);
+    } on TlsException {
+      CsIntegrationFixture.refuse(CsIntegrationAdmissionFailure.tls);
+    }
+  }
+
+  final Uri origin;
+  final SecurityContext _context;
+
+  @override
+  HttpClient createHttpClient(SecurityContext? context) {
+    final client = super.createHttpClient(_context);
+    client.badCertificateCallback = null;
+    client.findProxy = (_) => 'DIRECT';
+    client.connectionFactory = (uri, proxyHost, proxyPort) {
+      if (uri.origin != origin.origin ||
+          uri.userInfo.isNotEmpty ||
+          proxyHost != null ||
+          proxyPort != null) {
+        throw StateError('CS_TLS_ORIGIN_REFUSED');
+      }
+      return SecureSocket.startConnect(uri.host, uri.port, context: _context);
+    };
+    return client;
+  }
+}
+
+/// App clients share this real transport. The fixture owns its lifetime.
+class _RunHttpAdapter implements HttpClientAdapter {
+  _RunHttpAdapter(CsLoopbackHttpOverrides overrides)
+    : _adapter = IOHttpClientAdapter(
+        createHttpClient: () => overrides.createHttpClient(null),
+      );
+
+  final IOHttpClientAdapter _adapter;
+
+  @override
+  Future<ResponseBody> fetch(
+    RequestOptions options,
+    Stream<Uint8List>? requestStream,
+    Future<void>? cancelFuture,
+  ) => _adapter.fetch(options, requestStream, cancelFuture);
+
+  @override
+  void close({bool force = false}) {}
+
+  void dispose() => _adapter.close(force: true);
+}
+
 class CsIntegrationRuntime {
   CsIntegrationRuntime(this.fixture) : ownedFiles = CsOwnedDeviceFiles(fixture);
   final CsIntegrationFixture fixture;
@@ -72,12 +133,18 @@ class CsIntegrationRuntime {
   Env? _original;
   String? _previousEnvironment;
   HttpOverrides? _previousHttpOverrides;
+  HttpClientAdapter? _previousAdapter;
+  _RunHttpAdapter? _runAdapter;
 
   Future<void> initialize() async {
     if (_original != null) throw StateError('CS_RUNTIME_ALREADY_INITIALIZED');
+    final ca = fixture.loopbackCa;
+    final owned = ca == null
+        ? GlobalHttpOverrides()
+        : CsLoopbackHttpOverrides(fixture);
     final previous = Zone.root.run(() => HttpOverrides.current);
     try {
-      _installHttpOverrides();
+      _installHttpOverrides(owned);
     } finally {
       HttpOverrides.global = previous;
     }
@@ -94,7 +161,13 @@ class CsIntegrationRuntime {
     }
     final actualDid = await _requireDeviceProfile();
     await ownedFiles.readInput();
-    _previousHttpOverrides = _installHttpOverrides();
+    _previousHttpOverrides = _installHttpOverrides(owned);
+    if (owned is CsLoopbackHttpOverrides) {
+      _previousAdapter = app_http.HttpClient.adapterForTest;
+      final adapter = _RunHttpAdapter(owned);
+      _runAdapter = adapter;
+      app_http.HttpClient.adapterForTest = adapter;
+    }
     _original = original;
     _previousEnvironment = currentEnv;
     currentEnv = fixture.environment;
@@ -102,12 +175,11 @@ class CsIntegrationRuntime {
     deviceId = actualDid;
   }
 
-  HttpOverrides? _installHttpOverrides() {
+  HttpOverrides? _installHttpOverrides(GlobalHttpOverrides owned) {
     final previous = Zone.root.run(() => HttpOverrides.current);
     if (!identical(HttpOverrides.current, previous)) {
       throw StateError('CS_RUNTIME_HTTP_OVERRIDE_ZONE_REFUSED');
     }
-    final owned = GlobalHttpOverrides();
     HttpOverrides.global = owned;
     // A zone can shadow global with the very same previous object.
     if (!identical(HttpOverrides.current, owned)) {
@@ -247,6 +319,12 @@ class CsIntegrationRuntime {
     if (_original == null) return;
     envMap[fixture.environment] = _original!;
     currentEnv = _previousEnvironment!;
+    if (_runAdapter case final adapter?) {
+      app_http.HttpClient.adapterForTest = _previousAdapter;
+      adapter.dispose();
+      _runAdapter = null;
+      _previousAdapter = null;
+    }
     HttpOverrides.global = _previousHttpOverrides;
     _original = null;
     _previousEnvironment = null;

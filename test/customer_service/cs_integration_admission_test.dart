@@ -1,6 +1,8 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 
+import 'package:crypto/crypto.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/config/env.dart';
 import 'package:imboy/config/init.dart';
@@ -267,6 +269,101 @@ void main() {
       );
     },
   );
+  test(
+    'test CA is paired, fingerprinted, and limited to explicit loopback',
+    () {
+      final pem = utf8.encode(
+        '-----BEGIN CERTIFICATE-----\nYWJj\n-----END CERTIFICATE-----\n',
+      );
+      final values = validFixture()
+        ..['API_BASE'] = 'https://127.0.0.1:8445'
+        ..['TLS_CA_PEM_BASE64'] = base64Encode(pem)
+        ..['TLS_CA_SHA'] = sha256.convert(pem).toString();
+      expect(CsIntegrationFixture.parse(validFixture()).loopbackCa, isNull);
+      expect(CsIntegrationFixture.parse(values).loopbackCa, orderedEquals(pem));
+      for (final mutation in [
+        ('TLS_CA_PEM_BASE64', ''),
+        ('TLS_CA_PEM_BASE64', '!'),
+        ('TLS_CA_SHA', ''),
+        ('TLS_CA_SHA', '0' * 64),
+        ('API_BASE', 'https://127.0.0.1'),
+        ('API_BASE', 'https://127.0.0.1:0'),
+        ('API_BASE', 'https://localhost:8445'),
+      ]) {
+        expect(
+          () => CsIntegrationFixture.parse(
+            Map.of(values)..[mutation.$1] = mutation.$2,
+          ),
+          throwsA(isA<CsIntegrationAdmissionRefused>()),
+          reason: mutation.$1,
+        );
+      }
+      expect(
+        () => CsLoopbackHttpOverrides(CsIntegrationFixture.parse(values)),
+        throwsA(isA<CsIntegrationAdmissionRefused>()),
+      );
+    },
+  );
+
+  const tlsDirectory = String.fromEnvironment('CS_E2E_TLS_HOST_FIXTURE_DIR');
+  if (tlsDirectory.isNotEmpty) {
+    test('real loopback TLS enforces CA, SAN and admitted port', () async {
+      final ca = File('$tlsDirectory/ca.crt').readAsBytesSync();
+      final otherCa = File('$tlsDirectory/other-ca.crt').readAsBytesSync();
+      for (final (certificate, acceptedCa, succeeds) in [
+        ('server', ca, true),
+        ('server', otherCa, false),
+        ('wrong-san', ca, false),
+      ]) {
+        final context = SecurityContext()
+          ..useCertificateChain('$tlsDirectory/$certificate.crt')
+          ..usePrivateKey('$tlsDirectory/$certificate.key');
+        final server = await HttpServer.bindSecure(
+          InternetAddress.loopbackIPv4,
+          0,
+          context,
+        );
+        server.listen((request) async {
+          request.response.write('owned TLS endpoint');
+          await request.response.close();
+        });
+        final origin = Uri.parse('https://127.0.0.1:${server.port}');
+        final fixture = CsIntegrationFixture.parse(
+          validFixture()
+            ..['API_BASE'] = origin.toString()
+            ..['TLS_CA_PEM_BASE64'] = base64Encode(acceptedCa)
+            ..['TLS_CA_SHA'] = sha256.convert(acceptedCa).toString(),
+        );
+        final client = CsLoopbackHttpOverrides(fixture).createHttpClient(null);
+        try {
+          if (succeeds) {
+            final response = await (await client.getUrl(origin)).close();
+            expect(response.statusCode, HttpStatus.ok);
+            expect(
+              await utf8.decoder.bind(response).join(),
+              'owned TLS endpoint',
+            );
+            await expectLater(
+              () => client.getUrl(
+                origin.replace(
+                  port: server.port == 65535 ? 65534 : server.port + 1,
+                ),
+              ),
+              throwsA(isA<StateError>()),
+            );
+          } else {
+            await expectLater(
+              client.getUrl(origin),
+              throwsA(isA<HandshakeException>()),
+            );
+          }
+        } finally {
+          client.close(force: true);
+          await server.close(force: true);
+        }
+      }
+    });
+  }
   test(
     'foreign transfer identity, duplicate scope and signed64 overflow refuse',
     () {

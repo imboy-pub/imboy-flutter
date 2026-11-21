@@ -1,3 +1,8 @@
+import 'dart:convert';
+import 'dart:typed_data';
+
+import 'package:crypto/crypto.dart';
+
 enum CsIntegrationAdmissionFailure {
   missing,
   origin,
@@ -5,6 +10,7 @@ enum CsIntegrationAdmissionFailure {
   history,
   lease,
   execution,
+  tls,
 }
 
 class CsIntegrationAdmissionRefused implements Exception {
@@ -23,10 +29,16 @@ typedef CsRunSeat = ({
 
 /// Syntactic admission only. Root must independently verify the live resource lease.
 class CsIntegrationFixture {
-  CsIntegrationFixture._(this._values, this.apiBase, this.historyIds);
+  CsIntegrationFixture._(
+    this._values,
+    this.apiBase,
+    this.historyIds,
+    this.loopbackCa,
+  );
   final Map<String, String> _values;
   final Uri apiBase;
   final List<String> historyIds;
+  final Uint8List? loopbackCa;
   static const buildDefines = {
     'RUN_ID': String.fromEnvironment('CS_E2E_RUN_ID'),
     'API_BASE': String.fromEnvironment('CS_E2E_API_BASE'),
@@ -68,8 +80,13 @@ class CsIntegrationFixture {
     'ASSET_MIME': String.fromEnvironment('CS_E2E_ASSET_MIME'),
     'RATING_SCORE': String.fromEnvironment('CS_E2E_RATING_SCORE'),
   };
-  factory CsIntegrationFixture.fromBuild() =>
-      CsIntegrationFixture.parse(buildDefines);
+  factory CsIntegrationFixture.fromBuild() => CsIntegrationFixture.parse({
+    ...buildDefines,
+    'TLS_CA_PEM_BASE64': const String.fromEnvironment(
+      'CS_E2E_TLS_CA_PEM_BASE64',
+    ),
+    'TLS_CA_SHA': const String.fromEnvironment('CS_E2E_TLS_CA_SHA'),
+  });
   factory CsIntegrationFixture.parse(Map<String, String> values) {
     final copied = Map<String, String>.unmodifiable(values);
     for (final key in buildDefines.keys) {
@@ -89,6 +106,7 @@ class CsIntegrationFixture {
         (origin.path.isNotEmpty && origin.path != '/')) {
       refuse(CsIntegrationAdmissionFailure.origin);
     }
+    final ca = _loopbackCa(copied, origin);
     final history = copied['HISTORY_IDS']!.split(',');
     _history(history);
     _asset(copied);
@@ -97,8 +115,38 @@ class CsIntegrationFixture {
       copied,
       origin.replace(path: ''),
       List.unmodifiable(history),
+      ca,
     );
   }
+  static Uint8List? _loopbackCa(Map<String, String> values, Uri origin) {
+    final encoded = values['TLS_CA_PEM_BASE64'] ?? '';
+    final fingerprint = values['TLS_CA_SHA'] ?? '';
+    if (encoded.isEmpty && fingerprint.isEmpty) return null;
+    if (origin.host != '127.0.0.1' ||
+        !origin.hasPort ||
+        origin.port < 1 ||
+        origin.port > 65535) {
+      refuse(CsIntegrationAdmissionFailure.origin);
+    }
+    if (encoded.isEmpty ||
+        encoded.length > 16384 ||
+        !RegExp(r'^[a-f0-9]{64}$').hasMatch(fingerprint)) {
+      refuse(CsIntegrationAdmissionFailure.tls);
+    }
+    try {
+      final ca = base64Decode(encoded);
+      if (sha256.convert(ca).toString() != fingerprint ||
+          !RegExp(
+            r'^-----BEGIN CERTIFICATE-----[\r\n]+[A-Za-z0-9+/=\r\n]+-----END CERTIFICATE-----[\r\n]*$',
+          ).hasMatch(ascii.decode(ca))) {
+        refuse(CsIntegrationAdmissionFailure.tls);
+      }
+      return ca.asUnmodifiableView();
+    } on FormatException {
+      refuse(CsIntegrationAdmissionFailure.tls);
+    }
+  }
+
   static Never refuse(CsIntegrationAdmissionFailure reason) =>
       throw CsIntegrationAdmissionRefused(reason);
   static bool positiveId(String value) {

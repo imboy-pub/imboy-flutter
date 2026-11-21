@@ -95,8 +95,7 @@ extension CsSessionMutations on CsSessionFlow {
         workspaceId: workspaceId,
       );
       if (!_same(scope)) return CsSeatFailureKind.other;
-      machine.markTransferredAway();
-      unreadCount = null;
+      invalidateReadScope(transferredAway: true);
       lastFailureKind = null;
       return null;
     } on CsApiException catch (e) {
