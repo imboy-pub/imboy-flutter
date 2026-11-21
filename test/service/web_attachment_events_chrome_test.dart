@@ -116,9 +116,9 @@ void main() {
     },
   );
 
-  test(
-    'owner change between files rejects remaining files in same drop',
-    () async {
+  for (final disposeListener in [false, true]) {
+    test('${disposeListener ? 'listener disposal' : 'owner change'} '
+        'between files rejects remaining files in same drop', () async {
       var generation = 1;
       final firstRead = Completer<void>();
       final release = Completer<void>();
@@ -144,7 +144,11 @@ void main() {
           _drop(_files(['first.bin', 'old-second.bin'])),
         );
         await firstRead.future.timeout(const Duration(seconds: 3));
-        generation++;
+        if (disposeListener) {
+          remove();
+        } else {
+          generation++;
+        }
         release.complete();
         await finished.future.timeout(const Duration(seconds: 3));
         await Future<void>.delayed(Duration.zero);
@@ -153,6 +157,6 @@ void main() {
         if (!release.isCompleted) release.complete();
         remove();
       }
-    },
-  );
+    });
+  }
 }

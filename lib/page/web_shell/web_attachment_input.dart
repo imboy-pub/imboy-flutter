@@ -243,16 +243,16 @@ class _WebAttachmentInputState extends State<WebAttachmentInput> {
       return;
     }
     final revision = _revision;
+    final uid = widget.currentUserId;
     setState(() => _restoring = true);
     try {
+      final owner = AccountLocalTaskOwner.capture(uid: uid);
       final repo = AttachmentUploadTaskRepo();
       await BrowserAttachmentMaterialStore.forCurrentBrowserSession(repo)
           .ensureDurable();
-      final owner = AccountLocalTaskOwner.capture();
-      final rows = await repo.listBusinessPending(widget.currentUserId);
-      if (!_active || revision != _revision) {
-        return;
-      }
+      if (!_ready || revision != _revision) return;
+      final rows = await repo.listBusinessPending(uid);
+      if (!_ready || revision != _revision) return;
       var restored = false;
       for (final dispatchOnly in [true, false]) {
         for (final row in rows) {

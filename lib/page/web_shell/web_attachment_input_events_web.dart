@@ -11,6 +11,8 @@ void Function() listenWebAttachmentInput({
   required Future<void> Function(String, int, Future<Uint8List> Function())
   onFile,
 }) {
+  var listening = true;
+
   Future<void> receive(web.FileList files) async {
     final isCurrent = captureInput();
     final selected = <web.File>[];
@@ -19,7 +21,7 @@ void Function() listenWebAttachmentInput({
       if (file != null) selected.add(file);
     }
     for (final file in selected) {
-      if (!isCurrent()) return;
+      if (!listening || !isCurrent()) return;
       await onFile(file.name, file.size, () async {
         final buffer = await file.arrayBuffer().toDart;
         return buffer.toDart.asUint8List();
@@ -59,6 +61,7 @@ void Function() listenWebAttachmentInput({
   web.document.addEventListener('drop', drop);
   web.document.addEventListener('paste', paste);
   return () {
+    listening = false;
     web.document.removeEventListener('dragover', over);
     web.document.removeEventListener('drop', drop);
     web.document.removeEventListener('paste', paste);
