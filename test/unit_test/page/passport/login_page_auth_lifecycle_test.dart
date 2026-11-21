@@ -83,6 +83,43 @@ class _SpyPassportNotifier extends PassportNotifier {
   }
 }
 
+/// UX-01:LOCAL:01 spy：预置账号历史（alice/bob），用于切换身份时
+/// 钉住「无旧身份/凭据投影」。initLoginHistory 置空以免真实实现把
+/// mock 存储里的空列表覆盖掉预置历史。
+class _HistorySpyPassportNotifier extends PassportNotifier {
+  _HistorySpyPassportNotifier(this.gate, this.calls, this.snackbars);
+
+  final _LoginGate gate;
+  final List<String> calls;
+  final List<String> snackbars;
+
+  @override
+  PassportState build() {
+    return PassportState(
+      loginAccountCtl: TextEditingController(),
+      accountHistory: const ['alice_acct', 'bob_acct'],
+    );
+  }
+
+  @override
+  void initLoginHistory() {}
+
+  @override
+  Future<String?> loginUser(
+    String accountType,
+    String account,
+    String password,
+  ) async {
+    calls.add(account);
+    return gate.future;
+  }
+
+  @override
+  void snackBar(dynamic message, {Icon? icon}) {
+    snackbars.add(message?.toString() ?? '');
+  }
+}
+
 GoRouter _stubRouter() {
   Widget stub(String label) => Scaffold(body: Center(child: Text(label)));
   return GoRouter(
@@ -366,6 +403,231 @@ void main() {
       expect(snacks, isEmpty, reason: '卸载后的历史保存失败不得再弹提示');
       expect(StorageService.to.getStringList(Keys.loginHistoryAccount), isNull);
       _expectNoAuthStateOnDisk();
+    });
+  });
+
+  group('LoginPage keyboard completion (UX-01:LOCAL:02 键盘可完成)', () {
+    setUp(() async {
+      SharedPreferences.setMockInitialValues(<String, Object>{});
+      await StorageService.init();
+    });
+
+    testWidgets('键盘 done 提交：password 字段动作直接发起登录并成功导航', (tester) async {
+      final calls = <String>[];
+      final snacks = <String>[];
+      final gate = _LoginGate();
+      _SpyPassportNotifier spyFactory() =>
+          _SpyPassportNotifier(gate, calls, snacks);
+      await _pump(tester, notifier: spyFactory);
+
+      // 纯键盘路径：enterText 模拟键盘输入，全程不点击提交按钮
+      await tester.enterText(_accountField, 'kate_account');
+      await tester.enterText(_passwordField, 'kbd_secret');
+      await tester.pump();
+
+      await tester.testTextInput.receiveAction(TextInputAction.done);
+      await tester.pump();
+
+      expect(calls, ['kate_account'], reason: '键盘 done 必须能完成登录提交');
+      gate.completeWith(null);
+      await tester.pump();
+      await tester.pump();
+      expect(
+        find.text('bottom_nav stub'),
+        findsOneWidget,
+        reason: '键盘提交成功后与触控提交同权，正常进入主界面',
+      );
+
+      await _unmount(tester);
+    });
+
+    testWidgets('键盘连按 done：在途门闸拦截，不得重复发起登录请求', (tester) async {
+      final calls = <String>[];
+      final snacks = <String>[];
+      final gate = _LoginGate();
+      _SpyPassportNotifier spyFactory() =>
+          _SpyPassportNotifier(gate, calls, snacks);
+      await _pump(tester, notifier: spyFactory);
+
+      await tester.enterText(_accountField, 'kbd_dup_account');
+      await tester.enterText(_passwordField, 'kbd_secret');
+      await tester.pump();
+
+      // 连按两次 done：第二次发生在第一次 setState(_isLoading=true) 之后、
+      // 重建之前，验证键盘路径不能绕过按钮禁用态
+      await tester.testTextInput.receiveAction(TextInputAction.done);
+      await tester.testTextInput.receiveAction(TextInputAction.done);
+      await tester.pump();
+
+      expect(calls.length, 1, reason: '键盘重复 done 与双击同罪，必须被门闸拦下');
+
+      gate.completeWith('密码错误');
+      await tester.pump();
+      await tester.pump();
+      expect(find.text('bottom_nav stub'), findsNothing);
+
+      await _unmount(tester);
+    });
+  });
+
+  group('LoginPage error recovery (UX-01:LOCAL:02 错误状态真实恢复入口)', () {
+    setUp(() async {
+      SharedPreferences.setMockInitialValues(<String, Object>{});
+      await StorageService.init();
+    });
+
+    testWidgets('登录失败：输入保留、按钮恢复，修正后重试成功', (tester) async {
+      final calls = <String>[];
+      final snacks = <String>[];
+      final gate = _LoginGate();
+      _SpyPassportNotifier spyFactory() =>
+          _SpyPassportNotifier(gate, calls, snacks);
+      await _pump(tester, notifier: spyFactory);
+
+      await tester.enterText(_accountField, 'retain_account');
+      await tester.enterText(_passwordField, 'typed_wrong_pwd');
+      await tester.pump();
+      await tester.testTextInput.receiveAction(TextInputAction.done);
+      await tester.pump();
+      gate.completeWith('账号或密码错误');
+      await tester.pump();
+      await tester.pump();
+
+      expect(snacks, isNotEmpty, reason: '失败必须反馈用户');
+      expect(find.byType(LoginPage), findsOneWidget, reason: '失败停留登录页');
+      String fieldText(Finder f) => tester
+          .widget<EditableText>(
+            find.descendant(of: f, matching: find.byType(EditableText)),
+          )
+          .controller
+          .text;
+      expect(
+        fieldText(find.byKey(const Key('login_phone_input'))),
+        'retain_account',
+        reason: '恢复入口：失败后账号输入必须保留（免全部重输）',
+      );
+      expect(
+        fieldText(_passwordField),
+        'typed_wrong_pwd',
+        reason: '恢复入口：失败后密码输入必须保留',
+      );
+      final afterFail = tester.widget<CupertinoButton>(_submitBtn);
+      expect(afterFail.onPressed, isNotNull, reason: '失败后立即可重试');
+
+      // 真实恢复：只修正密码，重试即成功
+      await tester.enterText(_passwordField, 'typed_right_pwd');
+      await tester.pump();
+      await tester.tap(_submitBtn);
+      await tester.pump();
+      expect(calls, ['retain_account', 'retain_account']);
+      gate.completeWith(null);
+      await tester.pump();
+      await tester.pump();
+      expect(find.text('bottom_nav stub'), findsOneWidget, reason: '重试成功进入主界面');
+
+      await _unmount(tester);
+    });
+  });
+
+  group('LoginPage stale identity projection (UX-01:LOCAL:01 切账号)', () {
+    setUp(() async {
+      SharedPreferences.setMockInitialValues(<String, Object>{});
+      await StorageService.init();
+    });
+
+    testWidgets('切换历史账号：无凭据注入/自动登录，提交身份=当前字段值', (tester) async {
+      final calls = <String>[];
+      final snacks = <String>[];
+      final gate = _LoginGate();
+      _HistorySpyPassportNotifier spyFactory() =>
+          _HistorySpyPassportNotifier(gate, calls, snacks);
+      await _pump(tester, notifier: spyFactory);
+
+      // alice 的输入现场（旧身份）
+      await tester.enterText(_accountField, 'alice_acct');
+      await tester.enterText(_passwordField, 'alice_typed_pwd');
+      await tester.pump();
+
+      // 打开历史下拉切换到 bob（账号切换）
+      await tester.tap(find.byKey(const Key('login_history_toggle')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key('login_history_item_bob_acct')));
+      await tester.pump();
+
+      String fieldText(Finder f) => tester
+          .widget<EditableText>(
+            find.descendant(of: f, matching: find.byType(EditableText)),
+          )
+          .controller
+          .text;
+      expect(
+        fieldText(find.byKey(const Key('login_phone_input'))),
+        'bob_acct',
+        reason: '切换后账号字段必须是新选身份',
+      );
+      expect(
+        fieldText(_passwordField),
+        'alice_typed_pwd',
+        reason: '密码字段只能保留用户亲手输入的内容，不得注入任何缓存凭据投影',
+      );
+      expect(calls, isEmpty, reason: '切换身份本身不得自动发起登录');
+      expect(
+        find.text('bottom_nav stub'),
+        findsNothing,
+        reason: '切换不得触发导航（假成功）',
+      );
+
+      // 键盘提交：提交的必须是当前字段中的 bob，不得串用旧身份 alice
+      await tester.enterText(_passwordField, 'alice_typed_pwd');
+      await tester.testTextInput.receiveAction(TextInputAction.done);
+      await tester.pump();
+      expect(calls, ['bob_acct'], reason: '提交身份取当前字段值，无旧身份串用');
+
+      gate.completeWith('密码错误');
+      await tester.pump();
+      await tester.pump();
+      _expectNoAuthStateOnDisk();
+
+      await _unmount(tester);
+    });
+  });
+
+  group('LoginPage alipay interrupted residue (UX-01:LOCAL:01 假成功)', () {
+    testWidgets('支付宝登录被杀残留：提示重试而非假成功，标记清除', (tester) async {
+      SharedPreferences.setMockInitialValues(<String, Object>{
+        Keys.alipayLoginInProgress: true,
+      });
+      await StorageService.init();
+      final calls = <String>[];
+      final snacks = <String>[];
+      final gate = _LoginGate();
+      _SpyPassportNotifier spyFactory() =>
+          _SpyPassportNotifier(gate, calls, snacks);
+      await _pump(tester, notifier: spyFactory);
+      await tester.pump();
+
+      expect(snacks, isNotEmpty, reason: '中断残留必须给出重试提示，而非静默假成功');
+      expect(
+        find.text('bottom_nav stub'),
+        findsNothing,
+        reason: '残留标记不得造成假登录导航',
+      );
+      expect(
+        StorageService.to.getBool(Keys.alipayLoginInProgress),
+        isNot(true),
+        reason: '提示一次后标记必须清除（再次进入不得重复投影旧中断）',
+      );
+      expect(calls, isEmpty, reason: '恢复提示不等于自动登录');
+      _expectNoAuthStateOnDisk();
+
+      // 真实恢复入口：中断提示不锁死表单，输入后即可正常提交
+      await tester.enterText(_accountField, 'retry_after_interrupt');
+      await tester.enterText(_passwordField, 'secret123');
+      await tester.pump();
+      final btn = tester.widget<CupertinoButton>(_submitBtn);
+      expect(btn.onPressed, isNotNull, reason: '提示后登录表单保持可用（真实恢复入口）');
+
+      await _unmount(tester);
     });
   });
 }

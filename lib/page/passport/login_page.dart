@@ -263,6 +263,94 @@ class _LoginPageState extends ConsumerState<LoginPage>
     _emailCodeController.clear();
   }
 
+  /// 统一提交门闸：触控（按钮）与键盘（textInputAction.done）共用，
+  /// 在途/清理中重复触发一律拒绝，防止键盘路径绕过按钮禁用态。
+  bool get _submitLocked => _isLoading || _isClearingHistory;
+
+  Future<void> _submitAccountLogin(PassportNotifier notifier) async {
+    if (_submitLocked) return;
+    final account = _accountController.text;
+    final pwd = _passwordController.text;
+    if (account.isEmpty || pwd.isEmpty) {
+      notifier.setError(
+        t.common.errorEmptyDirectory(
+          param: "${t.account.account}/${t.account.password}",
+        ),
+      );
+      return;
+    }
+    final accountType = account.contains('@') ? 'email' : 'account';
+    setState(() => _isLoading = true);
+    try {
+      final err = await notifier.loginUser(accountType, account, pwd);
+      if (err == null) {
+        await _finishLogin(notifier, 'account', account);
+      } else {
+        notifier.snackBar(err);
+      }
+    } catch (_) {
+      if (mounted) {
+        notifier.snackBar(t.common.operationFailedAgainLater);
+      }
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  Future<void> _submitMobileLogin(PassportNotifier notifier) async {
+    if (_submitLocked) return;
+    if (_fullMobile.isEmpty || _mobileCodeController.text.isEmpty) {
+      return;
+    }
+    setState(() => _isLoading = true);
+    try {
+      final mobile = _fullMobile;
+      final err = await notifier.loginUserByCode(
+        'mobile',
+        mobile,
+        _mobileCodeController.text,
+      );
+      if (err == null) {
+        await _finishLogin(notifier, 'mobile', mobile);
+      } else {
+        notifier.snackBar(err);
+      }
+    } catch (_) {
+      if (mounted) {
+        notifier.snackBar(t.common.operationFailedAgainLater);
+      }
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  Future<void> _submitEmailLogin(PassportNotifier notifier) async {
+    if (_submitLocked) return;
+    if (_emailController.text.isEmpty || _emailCodeController.text.isEmpty) {
+      return;
+    }
+    setState(() => _isLoading = true);
+    try {
+      final email = _emailController.text;
+      final err = await notifier.loginUserByCode(
+        'email',
+        email,
+        _emailCodeController.text,
+      );
+      if (err == null) {
+        await _finishLogin(notifier, 'email', email);
+      } else {
+        notifier.snackBar(err);
+      }
+    } catch (_) {
+      if (mounted) {
+        notifier.snackBar(t.common.operationFailedAgainLater);
+      }
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
   Future<void> _finishLogin(
     PassportNotifier notifier,
     String type,
@@ -314,6 +402,8 @@ class _LoginPageState extends ConsumerState<LoginPage>
             controller: _passwordController,
             obscureText: state.loginPwdObscure,
             readOnly: _isLoading,
+            textInputAction: TextInputAction.done,
+            onSubmitted: (_) => _submitAccountLogin(notifier),
             autofillHints: const [AutofillHints.password],
             decoration: _getInputDecoration(
               hintText: t.account.password,
@@ -336,34 +426,10 @@ class _LoginPageState extends ConsumerState<LoginPage>
             ),
           ),
           AppSpacing.verticalXXLarge,
-          _buildLoginButton(() async {
-            final account = _accountController.text;
-            final pwd = _passwordController.text;
-            if (account.isEmpty || pwd.isEmpty) {
-              notifier.setError(
-                t.common.errorEmptyDirectory(
-                  param: "${t.account.account}/${t.account.password}",
-                ),
-              );
-              return;
-            }
-            final accountType = account.contains('@') ? 'email' : 'account';
-            setState(() => _isLoading = true);
-            try {
-              final err = await notifier.loginUser(accountType, account, pwd);
-              if (err == null) {
-                await _finishLogin(notifier, 'account', account);
-              } else {
-                notifier.snackBar(err);
-              }
-            } catch (_) {
-              if (mounted) {
-                notifier.snackBar(t.common.operationFailedAgainLater);
-              }
-            } finally {
-              if (mounted) setState(() => _isLoading = false);
-            }
-          }, isEnabled: isEnabled),
+          _buildLoginButton(
+            () => _submitAccountLogin(notifier),
+            isEnabled: isEnabled,
+          ),
         ],
       ),
     );
@@ -408,6 +474,7 @@ class _LoginPageState extends ConsumerState<LoginPage>
             controller: _mobileCodeController,
             buttonText: t.common.getVerificationCode,
             isDark: isDark,
+            onSubmitted: () => _submitMobileLogin(notifier),
             onPressed: () {
               if (_fullMobile.isNotEmpty) {
                 notifier.sendCode('mobile', _fullMobile, 'login');
@@ -419,31 +486,10 @@ class _LoginPageState extends ConsumerState<LoginPage>
             },
           ),
           AppSpacing.verticalXXLarge,
-          _buildLoginButton(() async {
-            if (_fullMobile.isEmpty || _mobileCodeController.text.isEmpty) {
-              return;
-            }
-            setState(() => _isLoading = true);
-            try {
-              final mobile = _fullMobile;
-              final err = await notifier.loginUserByCode(
-                'mobile',
-                mobile,
-                _mobileCodeController.text,
-              );
-              if (err == null) {
-                await _finishLogin(notifier, 'mobile', mobile);
-              } else {
-                notifier.snackBar(err);
-              }
-            } catch (_) {
-              if (mounted) {
-                notifier.snackBar(t.common.operationFailedAgainLater);
-              }
-            } finally {
-              if (mounted) setState(() => _isLoading = false);
-            }
-          }, isEnabled: isEnabled),
+          _buildLoginButton(
+            () => _submitMobileLogin(notifier),
+            isEnabled: isEnabled,
+          ),
         ],
       ),
     );
@@ -482,6 +528,7 @@ class _LoginPageState extends ConsumerState<LoginPage>
             controller: _emailCodeController,
             buttonText: t.passport.getVerifyCode,
             isDark: isDark,
+            onSubmitted: () => _submitEmailLogin(notifier),
             onPressed: () {
               if (_emailController.text.isNotEmpty) {
                 notifier.sendCode('email', _emailController.text, 'login');
@@ -493,32 +540,10 @@ class _LoginPageState extends ConsumerState<LoginPage>
             },
           ),
           AppSpacing.verticalXXLarge,
-          _buildLoginButton(() async {
-            if (_emailController.text.isEmpty ||
-                _emailCodeController.text.isEmpty) {
-              return;
-            }
-            setState(() => _isLoading = true);
-            try {
-              final email = _emailController.text;
-              final err = await notifier.loginUserByCode(
-                'email',
-                email,
-                _emailCodeController.text,
-              );
-              if (err == null) {
-                await _finishLogin(notifier, 'email', email);
-              } else {
-                notifier.snackBar(err);
-              }
-            } catch (_) {
-              if (mounted) {
-                notifier.snackBar(t.common.operationFailedAgainLater);
-              }
-            } finally {
-              if (mounted) setState(() => _isLoading = false);
-            }
-          }, isEnabled: isEnabled),
+          _buildLoginButton(
+            () => _submitEmailLogin(notifier),
+            isEnabled: isEnabled,
+          ),
         ],
       ),
     );
@@ -528,6 +553,7 @@ class _LoginPageState extends ConsumerState<LoginPage>
     required TextEditingController controller,
     required String buttonText,
     required VoidCallback onPressed,
+    required VoidCallback onSubmitted,
     required bool isDark,
   }) {
     final brightness = isDark ? Brightness.dark : Brightness.light;
@@ -565,6 +591,8 @@ class _LoginPageState extends ConsumerState<LoginPage>
           autocorrect: false,
           controller: controller,
           readOnly: _isLoading,
+          textInputAction: TextInputAction.done,
+          onSubmitted: (_) => onSubmitted(),
           autofillHints: const [AutofillHints.oneTimeCode],
           decoration: _getInputDecoration(
             hintText: t.passport.hintVerifyCode,

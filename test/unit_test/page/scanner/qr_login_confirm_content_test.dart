@@ -123,6 +123,51 @@ void main() {
     });
   });
 
+  group('QrLoginConfirmContent — 终态无假成功投影（UX-01:LOCAL:01）', () {
+    // 错误/取消终态绝不允许出现成功元素：绿勾、"已登录"、"我知道了"。
+    // 任何一项泄漏都构成「假登录成功」投影。
+    final errorTerminals = <String, QrLoginConfirmState>{
+      'Expired': const QrLoginConfirmExpired(),
+      'AlreadyUsed': const QrLoginConfirmAlreadyUsed(),
+      'CancelledByOther': const QrLoginConfirmCancelledByOther(),
+      'Failed': const QrLoginConfirmFailed('服务器错误'),
+    };
+
+    for (final entry in errorTerminals.entries) {
+      testWidgets('${entry.key} → 无成功图标/已登录/我知道了，保留关闭恢复入口', (tester) async {
+        await tester.pumpWidget(wrap(build(entry.value)));
+        expect(
+          find.byIcon(CupertinoIcons.checkmark_circle_fill),
+          findsNothing,
+          reason: '${entry.key} 是错误终态，不得出现成功勾',
+        );
+        expect(
+          find.text('已登录'),
+          findsNothing,
+          reason: '${entry.key} 不得显示已登录（假登录成功）',
+        );
+        expect(find.text('我知道了'), findsNothing);
+        expect(
+          find.text('确认登录'),
+          findsNothing,
+          reason: '${entry.key} 已终态，不得再提供确认入口',
+        );
+        expect(
+          find.text('关闭'),
+          findsOneWidget,
+          reason: '${entry.key} 必须保留真实恢复入口（关闭后可重扫码）',
+        );
+      });
+    }
+
+    testWidgets('CancelledByMe → 无成功元素（用户主动取消不是成功）', (tester) async {
+      await tester.pumpWidget(wrap(build(const QrLoginConfirmCancelledByMe())));
+      expect(find.byIcon(CupertinoIcons.checkmark_circle_fill), findsNothing);
+      expect(find.text('已登录'), findsNothing);
+      expect(find.text('我知道了'), findsNothing);
+    });
+  });
+
   group('QrLoginConfirmContent — 交互回调', () {
     testWidgets('AwaitingConfirm tap "确认登录" → onConfirm 被调用', (tester) async {
       var called = 0;
