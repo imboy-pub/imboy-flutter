@@ -2,11 +2,91 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:fixnum/fixnum.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter_test/flutter_test.dart';
+import 'package:imboy/service/event_bus.dart';
 import 'package:imboy/service/protocol/imboy.pb.dart';
 import 'package:imboy/service/protocol/imboy_pb_codec.dart';
+import 'package:imboy/service/web_writer_gate.dart';
+import 'package:imboy/service/websocket.dart';
+import 'package:imboy/service/websocket_events.dart';
+import 'package:imboy/service/websocket_message_parser.dart';
 
 void main() {
+  const encodedWire = String.fromEnvironment('FL05_ERLANG_WIRE_BASE64');
+  if (encodedWire.isNotEmpty) {
+    if (kIsWeb) setUpAll(prepareWebWriter);
+    final fixture = jsonDecode(
+      utf8.decode(base64Decode(encodedWire)),
+    ) as Map<String, dynamic>;
+    final vectors = (fixture['vectors'] as List).cast<Map<String, dynamic>>();
+    test('Erlang wire fixture contains the entire matrix', () {
+      expect(fixture['producer'], 'imboy_codec:encode_ws_msg/4');
+      expect(vectors, hasLength(12));
+      expect(
+        vectors.map((v) => (v['direction'], v['framing'], v['expected_kind'])),
+        unorderedEquals([
+          for (final direction in ['C2C', 'C2G'])
+            for (final framing in ['none', 'v2'])
+              for (final kind in ['explicit_zero', 'missing', 'nonzero'])
+                (direction, framing, kind),
+        ]),
+      );
+    });
+    for (final vector in vectors) {
+      final direction = vector['direction'];
+      final framing = vector['framing'];
+      final kind = vector['expected_kind'];
+      test(
+        'Erlang wire reaches normal dispatch: $direction/$framing/$kind',
+        () async {
+          final isOlm = direction == 'C2C';
+          final id = isOlm ? 'msg-olm-001' : 'msg-megolm-001';
+          final field = isOlm ? 'message_type' : 'message_index';
+          final bytes = base64Decode(vector['wire_base64'] as String);
+          expect(vector['field'], field);
+          expect(vector['expected_present'], kind != 'missing');
+          final expectedValue = switch (kind) {
+            'explicit_zero' => 0,
+            'nonzero' => isOlm ? 1 : 42,
+            'missing' => null,
+            _ => throw StateError('Unknown wire case: $kind'),
+          };
+          expect(vector['expected_value'], expectedValue);
+
+          WebSocketService.resetForTest();
+          addTearDown(WebSocketService.resetForTest);
+          final socket = WebSocketService.to
+            ..framingForTest = framing == 'v2'
+                ? FramingMode.v2
+                : FramingMode.none;
+          final events = <WebSocketMessageReceivedEvent>[];
+          final subscription = AppEventBus.on<WebSocketMessageReceivedEvent>()
+              .listen((event) {
+                if (event.data['id'] == id) events.add(event);
+              });
+          addTearDown(subscription.cancel);
+          socket.handleInboundForTest(
+            vector['opcode'] == 'text' ? utf8.decode(bytes) : bytes,
+          );
+          await pumpEventQueue();
+          expect(events, hasLength(1));
+          final message = events.single.data;
+          expect(events.single.type, direction);
+          expect(message['from'], '111222333');
+          expect(message['to'], isOlm ? '444555666' : '999888777');
+          expect(
+            message['payload'],
+            isOlm ? 'olm-ciphertext-binary' : 'megolm-ciphertext-binary',
+          );
+          final e2ee = message['e2ee'] as Map;
+          expect(e2ee.containsKey(field), kind != 'missing');
+          expect(e2ee[field], expectedValue);
+        },
+      );
+    }
+  }
+
   group('ImboyPbCodec', () {
     group('tryDecode', () {
       test(
@@ -39,6 +119,9 @@ void main() {
           expect(result['type'], 'S2C');
           expect(result['from'], 0);
           expect(result['to'], 1000000051);
+          final dispatched = parseWebSocketMessage(jsonEncode(result));
+          expect(dispatched['from'], '0');
+          expect(dispatched['to'], '1000000051');
           expect(result['action'], 'logged_another_device');
           expect(result['server_ts'], 1746300000100);
 
@@ -56,20 +139,15 @@ void main() {
         expect(result, isNull);
       });
 
-      test(
-        'falls back gracefully for valid protobuf but missing required fields',
-        () {
-          // Minimal protobuf message (only id field)
-          final msg = IMBoyMessage(id: 'minimal');
-          final bytes = msg.writeToBuffer();
+      test('leaves protobuf without an application direction unclassified', () {
+        // Minimal protobuf message (only id field)
+        final msg = IMBoyMessage(id: 'minimal');
+        final bytes = msg.writeToBuffer();
 
-          final result = ImboyPbCodec.tryDecode(Uint8List.fromList(bytes));
+        final result = ImboyPbCodec.tryDecode(Uint8List.fromList(bytes));
 
-          expect(result, isNotNull);
-          expect(result!['id'], 'minimal');
-          expect(result['action'], isEmpty);
-        },
-      );
+        expect(result, isNull);
+      });
     });
 
     group('tryDecodeJsonFallback', () {
@@ -104,6 +182,95 @@ void main() {
     });
 
     group('round-trip: protobuf encode -> decode', () {
+      for (final direction in [
+        MsgDirection.C2C,
+        MsgDirection.C2G,
+        MsgDirection.S2C,
+        MsgDirection.C2S,
+      ]) {
+        test(
+          '${direction.name} preserves TSIDs and opaque payload across encodings',
+          () {
+            const from = '18382940179824651';
+            const to = '18382940179824659';
+            const payload = {
+              'text': '会话🗨️ résumé',
+              'reply_to': {'msg_id': 'original_001', 'from_id': from},
+              'snippet': null,
+            };
+            final json = parseWebSocketMessage(
+              '{"id":"quoted_001","type":"${direction.name}",'
+              '"from":$from,"to":$to,"payload":${jsonEncode(payload)}}',
+            );
+            final protobuf = ImboyPbCodec.tryDecode(
+              IMBoyMessage(
+                id: 'quoted_001',
+                type: direction,
+                from: Int64.parseInt(from),
+                to: Int64.parseInt(to),
+                payload: utf8.encode(jsonEncode(payload)),
+              ).writeToBuffer(),
+            )!;
+            expect(protobuf['from'], from);
+            expect(protobuf['to'], to);
+            final dispatched = parseWebSocketMessage(jsonEncode(protobuf));
+            for (final decoded in [json, dispatched]) {
+              expect(decoded['id'], 'quoted_001');
+              expect(decoded['from'], from);
+              expect(decoded['to'], to);
+              expect(decoded['payload'], payload);
+              expect(decoded['e2ee'], isNull);
+            }
+          },
+        );
+      }
+
+      test('JSON fallback retains unsupported protobuf correlation fields', () {
+        final result = parseWebSocketMessage(
+          '{"type":"C2S","id":"result_1","action":"sync_resp",'
+          '"in_reply_to":"request_1","payload":{"results":[]}}',
+        );
+        expect(result['in_reply_to'], 'request_1');
+        expect(result['payload'], {'results': <Object>[]});
+        expect(result.containsKey('to'), isFalse);
+      });
+
+      test('legacy encrypted payload remains the original opaque string', () {
+        const ciphertext = 'bm9uY2U=.Y2lwaGVydGV4dA==';
+        const suite = 'RSA-OAEP-256+AES-256-GCM';
+        final result = ImboyPbCodec.tryDecode(
+          IMBoyMessage(
+            id: 'encrypted_1',
+            type: MsgDirection.C2C,
+            msgType: ContentType.E2EE,
+            e2ee: E2EEMeta(ver: 1, suite: suite),
+            payload: utf8.encode(ciphertext),
+          ).writeToBuffer(),
+        )!;
+        expect(result['payload'], ciphertext);
+        expect(result['e2ee'], containsPair('e2ee_ver', 1));
+        expect(result['e2ee'], containsPair('e2ee_suite', suite));
+      });
+
+      test(
+        'protobuf distinguishes explicit zero from absent routing fields',
+        () {
+          final message = IMBoyMessage(
+            id: 'encrypted_2',
+            type: MsgDirection.C2C,
+            msgType: ContentType.E2EE,
+            e2ee: E2EEMeta(protocol: 'olm', messageType: 0),
+            payload: utf8.encode('Y2lwaGVydGV4dA=='),
+          );
+          final explicit = ImboyPbCodec.tryDecode(message.writeToBuffer())!;
+          expect(explicit['e2ee'], containsPair('message_type', 0));
+          message.e2ee.clearMessageType();
+          final omitted = ImboyPbCodec.tryDecode(message.writeToBuffer())!;
+          final metadata = omitted['e2ee'] as Map<String, dynamic>;
+          expect(metadata.containsKey('message_type'), isFalse);
+        },
+      );
+
       test('logged_another_device message survives round-trip', () {
         final innerPayload = PayloadLoggedAnotherDevice(
           did: 'dev-rt-001',

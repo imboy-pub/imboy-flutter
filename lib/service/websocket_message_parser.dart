@@ -23,7 +23,8 @@ Map<String, dynamic> parseWebSocketMessage(dynamic message) {
     // _requireReadOwner 与 owner.uid 不等 → StateError 被 switchS2C 吞
     // → markAsRead 永不执行。与 trust/deviceKey/group socket 同款：解码
     // 前对原始文本保真 top-level from/to（只动这条 S2C 解码路径）。
-    if (decoded['type']?.toString().toUpperCase() == 'S2C') {
+    final type = decoded['type']?.toString().toUpperCase();
+    if (type == 'S2C') {
       return jsonDecode(
         rewriteChannelIds(message, ChannelResponseShape.s2cSocket),
       ) as Map<String, dynamic>;
@@ -33,8 +34,8 @@ Map<String, dynamic> parseWebSocketMessage(dynamic message) {
         ) ||
         decoded['action'] == 'apply_friend' ||
         decoded['action'] == 'apply_friend_confirm' ||
-        decoded['type']?.toString().toUpperCase() == 'C2G' ||
-        decoded['type']?.toString().toUpperCase() == 'C2C') {
+        type == 'C2G' ||
+        type == 'C2C') {
       return jsonDecode(
         rewriteChannelIds(message, ChannelResponseShape.groupSocket),
       ) as Map<String, dynamic>;
@@ -42,9 +43,14 @@ Map<String, dynamic> parseWebSocketMessage(dynamic message) {
     if ((decoded['action']?.toString().toLowerCase() ?? '').startsWith(
           'channel_',
         ) ||
-        (decoded['type']?.toString().toUpperCase() == 'C2CH_SERVER_ACK')) {
+        type == 'C2CH_SERVER_ACK') {
       return jsonDecode(rewriteChannelIds(message, ChannelResponseShape.socket))
           as Map<String, dynamic>;
+    }
+    if (type == 'C2S') {
+      return jsonDecode(
+        rewriteChannelIds(message, ChannelResponseShape.s2cSocket),
+      ) as Map<String, dynamic>;
     }
     return decoded;
   } else if (message is Map<String, dynamic>) {

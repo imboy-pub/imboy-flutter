@@ -1,8 +1,9 @@
 import 'dart:convert';
 import 'dart:typed_data';
 
-import 'package:imboy/service/protocol/imboy.pb.dart';
+import 'package:fixnum/fixnum.dart';
 import 'package:imboy/component/http/channel_id_response_decoder.dart';
+import 'package:imboy/service/protocol/imboy.pb.dart';
 
 /// Codec for decoding v2 binary WebSocket frame payloads.
 ///
@@ -12,11 +13,15 @@ import 'package:imboy/component/http/channel_id_response_decoder.dart';
 class ImboyPbCodec {
   ImboyPbCodec._();
 
+  static final _maxSafeJsonInteger = Int64(9007199254740991);
+  static final _minSafeJsonInteger = -_maxSafeJsonInteger;
+
   /// Try to decode [bytes] as a protobuf [IMBoyMessage].
   /// Returns a Map matching the existing JSON message format, or null on failure.
   static Map<String, dynamic>? tryDecode(Uint8List bytes) {
     try {
       final msg = IMBoyMessage.fromBuffer(bytes);
+      if (msg.type == MsgDirection.MSG_DIRECTION_UNSPECIFIED) return null;
       return _pbMessageToMap(msg);
     } catch (_) {
       return null;
@@ -38,31 +43,20 @@ class ImboyPbCodec {
 
   /// Convert protobuf [IMBoyMessage] to the Map format expected by downstream.
   static Map<String, dynamic> _pbMessageToMap(IMBoyMessage msg) {
+    final preserveIdentity =
+        msg.type == MsgDirection.C2C ||
+        msg.type == MsgDirection.C2G ||
+        msg.action.startsWith('channel_') ||
+        msg.action.startsWith('group_') ||
+        msg.action == 'apply_friend' ||
+        msg.action == 'apply_friend_confirm' ||
+        msg.action == 'e2ee_trust_changed' ||
+        msg.action == 'e2ee_device_key_changed';
     final map = <String, dynamic>{
       'id': msg.id,
       'type': msg.type.name,
-      'from':
-          (msg.action.startsWith('channel_') ||
-              msg.action.startsWith('group_') ||
-              msg.action == 'apply_friend' ||
-              msg.action == 'apply_friend_confirm' ||
-              msg.action == 'e2ee_trust_changed' ||
-              msg.action == 'e2ee_device_key_changed' ||
-              msg.type == MsgDirection.C2G ||
-              msg.type == MsgDirection.C2C)
-          ? msg.from.toString()
-          : msg.from.toInt(),
-      'to':
-          (msg.action.startsWith('channel_') ||
-              msg.action.startsWith('group_') ||
-              msg.action == 'apply_friend' ||
-              msg.action == 'apply_friend_confirm' ||
-              msg.action == 'e2ee_trust_changed' ||
-              msg.action == 'e2ee_device_key_changed' ||
-              msg.type == MsgDirection.C2G ||
-              msg.type == MsgDirection.C2C)
-          ? msg.to.toString()
-          : msg.to.toInt(),
+      'from': _messageEndpoint(msg.from, alwaysString: preserveIdentity),
+      'to': _messageEndpoint(msg.to, alwaysString: preserveIdentity),
       'msg_type': _contentTypeToName(msg.msgType),
       'action': msg.action,
       'created_at': msg.createdAt.toInt(),
@@ -83,10 +77,31 @@ class ImboyPbCodec {
 
     // Decode inner payload bytes
     if (msg.payload.isNotEmpty) {
-      map['payload'] = _decodeInnerPayload(msg.payload, msg.action);
+      map['payload'] = msg.hasE2ee()
+          ? _decodeCiphertext(msg.payload)
+          : _decodeInnerPayload(msg.payload, msg.action);
     }
 
     return map;
+  }
+
+  /// The transport serializes this map as JSON before business dispatch.
+  static Object _messageEndpoint(Int64 value, {required bool alwaysString}) {
+    if (alwaysString ||
+        value < _minSafeJsonInteger ||
+        value > _maxSafeJsonInteger) {
+      return value.toString();
+    }
+    return value.toInt();
+  }
+
+  /// The backend puts its existing ciphertext string directly into payload.
+  static String _decodeCiphertext(List<int> bytes) {
+    try {
+      return utf8.decode(bytes, allowMalformed: false);
+    } on FormatException {
+      return base64Encode(bytes);
+    }
   }
 
   /// Decode the inner payload bytes.
@@ -190,8 +205,8 @@ class ImboyPbCodec {
 
   static Map<String, dynamic> _e2eeMetaToMap(E2EEMeta e2ee) {
     final map = <String, dynamic>{
-      'ver': e2ee.ver,
-      'suite': e2ee.suite,
+      'e2ee_ver': e2ee.ver,
+      'e2ee_suite': e2ee.suite,
       'nonce': base64Encode(e2ee.nonce),
       'keys': e2ee.keys
           .map(
@@ -214,11 +229,11 @@ class ImboyPbCodec {
     if (e2ee.peerDeviceId.isNotEmpty) {
       map['peer_device_id'] = e2ee.peerDeviceId;
     }
-    if (e2ee.messageType != 0) map['message_type'] = e2ee.messageType;
+    if (e2ee.hasMessageType()) map['message_type'] = e2ee.messageType;
     if (e2ee.sessionId.isNotEmpty) map['session_id'] = e2ee.sessionId;
 
     // Megolm suite
-    if (e2ee.messageIndex != 0) map['message_index'] = e2ee.messageIndex;
+    if (e2ee.hasMessageIndex()) map['message_index'] = e2ee.messageIndex;
     if (e2ee.groupId.isNotEmpty) map['group_id'] = e2ee.groupId;
 
     // v3 Protected Frame
