@@ -853,6 +853,30 @@ verify_ios_app_schemes() { # $1=Runner.app dir -> sets IOS_APP_SCHEMES
   record_check IOS_APP_SCHEMES "$IOS_APP_SCHEMES"
 }
 
+# ---------- gradle proxy hygiene (worktree copy only) ----------
+prepare_gradle_proxy() {
+  # The tracked android/gradle.properties carries the developer's local proxy
+  # (systemProp.{http,https}.proxyHost=127.0.0.1 / proxyPort=7897). On hosts
+  # where that proxy is not listening (e.g. CI), gradle dies within a second
+  # with "java.net.ConnectException: Connection refused". The main CI strips
+  # those lines unconditionally before building; here the strip is
+  # environment-adaptive and confined to the ISOLATED worktree copy — the
+  # shared checkout is never modified, and a live local proxy is preserved.
+  local gp="$WORKTREE/android/gradle.properties"
+  [ -f "$gp" ] || return 0
+  local host port
+  host="$(awk -F= '/^systemProp\.http\.proxyHost=/{print $2; exit}' "$gp" | tr -d '\r')"
+  port="$(awk -F= '/^systemProp\.http\.proxyPort=/{print $2; exit}' "$gp" | tr -d '\r')"
+  [ -n "$host" ] && [ -n "$port" ] || return 0
+  if (exec 3<>"/dev/tcp/$host/$port") 2>/dev/null; then
+    exec 3>&- 3<&- 2>/dev/null || true
+    info "gradle proxy $host:$port reachable; kept in worktree gradle.properties"
+  else
+    sedi '/^systemProp\.http\.proxy/d;/^systemProp\.https\.proxy/d' "$gp"
+    info "gradle proxy $host:$port unreachable; stripped proxy lines from worktree gradle.properties (shared checkout untouched)"
+  fi
+}
+
 # ---------- builds (into the run-private staging dir; F02/F03) ----------
 DEMO_SIGNING_DISCLOSURE=""
 ensure_android_demo_signing() {
@@ -933,6 +957,7 @@ BUILD_STATUS="PASS"
 # prepare signing in the MAIN shell (build functions run in pipeline subshells;
 # their variable assignments would not propagate to the manifest block)
 if [ "$DRY_RUN" = "0" ] && has_platform android; then
+  prepare_gradle_proxy
   if [ "$ENV_NAME" = "production" ]; then
     [ -f "$CUSTOMER_DIR/signing/key.properties" ] || die "production android requires customers/$CUSTOMER_ID/signing/key.properties (customer-supplied signing)"
     cp "$CUSTOMER_DIR/signing/key.properties" "$WORKTREE/android/key.properties"

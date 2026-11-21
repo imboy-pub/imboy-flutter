@@ -43,8 +43,13 @@ jobs:
       - name: Checkout pinned submodules (bounded retry)
         timeout-minutes: 10
         run: bash .github/scripts/ci_checkout_submodules.sh
-      - name: Install pinned python tooling (defusedxml, hashed)
-        run: "python3 -m pip install --disable-pip-version-check --require-hashes --only-binary=:all: -r scripts/requirements-tooling.txt"
+      - name: Install pinned python tooling (defusedxml, hashed, venv)
+        run: |
+          set -euo pipefail
+          python_env="$(mktemp -d "$RUNNER_TEMP/buildapp-python.XXXXXX")"
+          python3 -m venv "$python_env"
+          "$python_env/bin/python3" -m pip install --disable-pip-version-check --require-hashes --only-binary=:all: -r scripts/requirements-tooling.txt
+          printf '%s\n' "$python_env/bin" >> "$GITHUB_PATH"
       - name: Run buildapp test suite
         run: bash scripts/buildapp_test.sh
 
@@ -59,8 +64,13 @@ jobs:
       - name: Checkout pinned submodules (bounded retry)
         timeout-minutes: 10
         run: bash .github/scripts/ci_checkout_submodules.sh
-      - name: Install pinned python tooling (defusedxml, hashed)
-        run: "python3 -m pip install --disable-pip-version-check --require-hashes --only-binary=:all: -r scripts/requirements-tooling.txt"
+      - name: Install pinned python tooling (defusedxml, hashed, venv)
+        run: |
+          set -euo pipefail
+          python_env="$(mktemp -d "$RUNNER_TEMP/buildapp-python.XXXXXX")"
+          python3 -m venv "$python_env"
+          "$python_env/bin/python3" -m pip install --disable-pip-version-check --require-hashes --only-binary=:all: -r scripts/requirements-tooling.txt
+          printf '%s\n' "$python_env/bin" >> "$GITHUB_PATH"
       - name: Run buildapp test suite
         run: bash scripts/buildapp_test.sh
 
@@ -75,8 +85,13 @@ jobs:
       - name: Checkout pinned submodules (bounded retry)
         timeout-minutes: 10
         run: bash .github/scripts/ci_checkout_submodules.sh
-      - name: Install pinned python tooling (defusedxml, hashed)
-        run: "python3 -m pip install --disable-pip-version-check --require-hashes --only-binary=:all: -r scripts/requirements-tooling.txt"
+      - name: Install pinned python tooling (defusedxml, hashed, venv)
+        run: |
+          set -euo pipefail
+          python_env="$(mktemp -d "$RUNNER_TEMP/buildapp-python.XXXXXX")"
+          python3 -m venv "$python_env"
+          "$python_env/bin/python3" -m pip install --disable-pip-version-check --require-hashes --only-binary=:all: -r scripts/requirements-tooling.txt
+          printf '%s\n' "$python_env/bin" >> "$GITHUB_PATH"
       - name: Setup JDK 17
         uses: actions/setup-java@d1374f8ac74474200d16ef8ecee22c7ae7a51880 # v6
         with:
@@ -119,8 +134,13 @@ jobs:
       - name: Checkout pinned submodules (bounded retry)
         timeout-minutes: 10
         run: bash .github/scripts/ci_checkout_submodules.sh
-      - name: Install pinned python tooling (defusedxml, hashed)
-        run: "python3 -m pip install --disable-pip-version-check --require-hashes --only-binary=:all: -r scripts/requirements-tooling.txt"
+      - name: Install pinned python tooling (defusedxml, hashed, venv)
+        run: |
+          set -euo pipefail
+          python_env="$(mktemp -d "$RUNNER_TEMP/buildapp-python.XXXXXX")"
+          python3 -m venv "$python_env"
+          "$python_env/bin/python3" -m pip install --disable-pip-version-check --require-hashes --only-binary=:all: -r scripts/requirements-tooling.txt
+          printf '%s\n' "$python_env/bin" >> "$GITHUB_PATH"
       - name: Setup Flutter
         uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2
         with:
