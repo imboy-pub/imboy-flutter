@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/services.dart';
+import 'package:geo_regions/geo_regions.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import 'package:imboy/component/helper/func.dart';
@@ -22,11 +23,16 @@ class SetRegionState {
   final bool hasChanged;
   final List<String> regionPath;
 
+  /// 已确认的结构化草稿（geo_regions 选择器下钻产生，pathIds 来自
+  /// pinned 数据集）。`null` 表示尚未确认结构化选择。
+  final GeoSelection? geoSelection;
+
   const SetRegionState({
     this.regionList = const [],
     this.selectedRegion = '',
     this.hasChanged = false,
     this.regionPath = const [],
+    this.geoSelection,
   });
 
   SetRegionState copyWith({
@@ -34,12 +40,14 @@ class SetRegionState {
     String? selectedRegion,
     bool? hasChanged,
     List<String>? regionPath,
+    GeoSelection? geoSelection,
   }) {
     return SetRegionState(
       regionList: regionList ?? this.regionList,
       selectedRegion: selectedRegion ?? this.selectedRegion,
       hasChanged: hasChanged ?? this.hasChanged,
       regionPath: regionPath ?? this.regionPath,
+      geoSelection: geoSelection ?? this.geoSelection,
     );
   }
 }
@@ -164,21 +172,55 @@ class SetRegionNotifier extends _$SetRegionNotifier {
     );
   }
 
+  /// Geo 选择器确认的结构化草稿（geo_regions 协议 §8）。
+  ///
+  /// [selection] 的 pathIds 来自数据集真实下钻/搜索，绝不由展示串反推；
+  /// 展示串只取权威 displaySnapshot。快照缺失或含空白名时，无法构造
+  /// 后端可接受的 region 展示串（协议本地拒绝语义），页面不得进入
+  /// 可保存状态，也不猜测展示串。
+  void updateSelectionFromGeo(GeoSelection selection) {
+    final snapshot = selection.displaySnapshot;
+    final complete =
+        snapshot != null &&
+        snapshot.isNotEmpty &&
+        snapshot.every((name) => name.trim().isNotEmpty);
+    if (!complete) {
+      state = state.copyWith(
+        geoSelection: selection,
+        selectedRegion: '',
+        regionPath: const [],
+        hasChanged: false,
+      );
+      return;
+    }
+    final value = snapshot.join(' ');
+    state = state.copyWith(
+      geoSelection: selection,
+      selectedRegion: value,
+      regionPath: List<String>.of(snapshot),
+      hasChanged: value != _initialValue,
+    );
+  }
+
   /// 服务端保存成功后，持久化地区字符串与完整路径。
   Future<void> persistSelection() {
     return RegionCache.saveSelection(state.selectedRegion, state.regionPath);
   }
 
-  /// 回滚到初始选择值；未提交的选择不会污染持久化缓存。
+  /// 回滚到初始选择值；未提交的选择（含结构化草稿）不会污染持久化缓存。
   void revertToInitial() {
     final initialPath = _initialValue
         .split(' ')
         .where((e) => e.trim().isNotEmpty)
         .toList(growable: false);
-    state = state.copyWith(
+    // 直接构造而非 copyWith：结构化草稿需显式清空（copyWith 的
+    // `??` 语义无法把可空字段置回 null）。
+    state = SetRegionState(
+      regionList: state.regionList,
       selectedRegion: _initialValue,
-      regionPath: initialPath,
       hasChanged: false,
+      regionPath: initialPath,
+      geoSelection: null,
     );
   }
 }
