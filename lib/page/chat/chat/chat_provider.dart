@@ -44,7 +44,12 @@ import 'package:imboy/page/chat/chat/providers/chat_audio_handler.dart';
 import 'package:imboy/page/chat/chat/chat_state.dart';
 import 'package:imboy/modules/messaging/infrastructure/message_model_mapper.dart';
 import 'package:imboy/service/message_type_constants.dart';
-export 'package:imboy/page/chat/chat/chat_state.dart' show ChatState;
+export 'package:imboy/page/chat/chat/chat_state.dart'
+    show
+        ChatState,
+        PersonalHistoryDeletionPhase,
+        PersonalHistorySyncStatus,
+        PersonalHistoryVisibility;
 
 part 'chat_provider.g.dart';
 part 'chat_local_preferences.dart';
@@ -1476,6 +1481,44 @@ class ChatNotifier extends _$ChatNotifier {
     } finally {
       _historySyncing = false;
     }
+  }
+
+  /// FL-04（MH-01 §10.9）：按个人云端历史同步结果更新四维状态投影。
+  ///
+  /// 与 msg_store 归档回填（historySyncFailed/historyUnavailable）正交：
+  /// 本状态只描述个人云端副本通道（opt-in、账号级、默认 OFF）。
+  /// 真服务接线（PersonalHistorySyncEngine 的生产 wiring）随 MH-06；
+  /// 本方法把引擎/合同 fixture 的结果投影为 UI 可见的优先级横幅。
+  void updatePersonalHistoryState(
+    PersonalHistorySyncOutcome outcome, {
+    bool? cloudEnabled,
+    bool? localPresent,
+  }) {
+    if (_isDisposed) return;
+    final sync = switch (outcome.kind) {
+      PersonalHistorySyncOutcomeKind.synced => PersonalHistorySyncStatus.idle,
+      PersonalHistorySyncOutcomeKind.cloudOff => PersonalHistorySyncStatus.idle,
+      PersonalHistorySyncOutcomeKind.waitingKey =>
+        PersonalHistorySyncStatus.waitingKey,
+      PersonalHistorySyncOutcomeKind.durabilityFailed ||
+      PersonalHistorySyncOutcomeKind.ackFailed ||
+      PersonalHistorySyncOutcomeKind.uploadPartial ||
+      PersonalHistorySyncOutcomeKind.failed => PersonalHistorySyncStatus.failed,
+      PersonalHistorySyncOutcomeKind.aborted => PersonalHistorySyncStatus.idle,
+    };
+    final resolvedCloud =
+        cloudEnabled ??
+        switch (outcome.kind) {
+          PersonalHistorySyncOutcomeKind.cloudOff => false,
+          PersonalHistorySyncOutcomeKind.synced => true,
+          _ => null,
+        };
+    state = state.copyWith(
+      personalHistorySyncStatus: sync,
+      personalHistoryCloudEnabled: resolvedCloud,
+      personalHistoryLocalPresent:
+          localPresent ?? (outcome.applied > 0 ? true : null),
+    );
   }
 
   Future<void> scrollToMessage(String chatType, String messageId) async {

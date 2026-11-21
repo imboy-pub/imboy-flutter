@@ -1542,3 +1542,412 @@ class ChatNetworkService {
     };
   }
 }
+
+// =============================================================================
+// 个人云端历史域 API 客户端（MH-01 合同 v1.1 §2/§10.1/§10.2；FL-04 接入层）
+//
+// - 原生面 /api/v1/personal-history/*；Web N1 面 /api/v1/web/personal-history/*
+//   （§10.1 两面同合同；Web 认证链只收 GET/POST，opt-in/key-package 走 POST）。
+// - 错误 fail-closed（§2.7）：任何未知 envelope/错误码都抛
+//   [PersonalHistoryApiException]，绝不静默吞掉或降级为「无数据」。
+// - 传输层可注入（transport），真服务合验在 MH-06；本层只做合同级编解码。
+// =============================================================================
+
+/// 个人历史域机器错误码（§2.7 错误总表 + §10.2 补充）。
+enum PersonalHistoryErrorCode {
+  unauthenticated,
+  identityRejected,
+  notEnabled,
+  notParticipant,
+  generationStale,
+  purgeInProgress,
+  versionConflict,
+  generationExpired,
+  pageTokenExpired,
+  rescanBoundExceeded,
+  keyPackageMissing,
+  malformedPackage,
+  malformedPackageRequest,
+  malformedRequest,
+  nonceReused,
+  transientFailure,
+
+  /// 服务端返回了合同外错误：按不可重试处理并如实上抛（fail-closed）。
+  unknown,
+}
+
+class PersonalHistoryApiException implements Exception {
+  const PersonalHistoryApiException(this.code, this.httpStatus);
+
+  final PersonalHistoryErrorCode code;
+  final int httpStatus;
+
+  /// §2.3/§2.7：仅 transient_failure 可安全重试。
+  bool get retryable => code == PersonalHistoryErrorCode.transientFailure;
+
+  @override
+  String toString() =>
+      'PersonalHistoryApiException: ${code.name} (http $httpStatus)';
+}
+
+/// 一次传输调用的原始结果（transport 注入面）。
+class PersonalHistoryTransportResult {
+  const PersonalHistoryTransportResult({
+    required this.httpStatus,
+    this.body,
+    this.headers = const {},
+  });
+
+  final int httpStatus;
+  final Map<String, dynamic>? body;
+  final Map<String, String> headers;
+}
+
+/// 传输抽象：真服务（Dio）/ 合同 fixture（chrome 测试）共用同一编解码。
+typedef PersonalHistoryTransport =
+    Future<PersonalHistoryTransportResult> Function(
+      String method,
+      String path, {
+      Map<String, dynamic>? queryParameters,
+      Object? data,
+    });
+
+PersonalHistoryErrorCode _errorCodeFromName(String? name) {
+  return switch (name) {
+    'unauthenticated' => PersonalHistoryErrorCode.unauthenticated,
+    'identity_rejected' => PersonalHistoryErrorCode.identityRejected,
+    'not_enabled' => PersonalHistoryErrorCode.notEnabled,
+    'not_participant' => PersonalHistoryErrorCode.notParticipant,
+    'generation_stale' => PersonalHistoryErrorCode.generationStale,
+    'purge_in_progress' => PersonalHistoryErrorCode.purgeInProgress,
+    'version_conflict' => PersonalHistoryErrorCode.versionConflict,
+    'generation_expired' => PersonalHistoryErrorCode.generationExpired,
+    'page_token_expired' => PersonalHistoryErrorCode.pageTokenExpired,
+    'rescan_bound_exceeded' => PersonalHistoryErrorCode.rescanBoundExceeded,
+    'key_package_missing' => PersonalHistoryErrorCode.keyPackageMissing,
+    'malformed_package' => PersonalHistoryErrorCode.malformedPackage,
+    'malformed_package_request' =>
+      PersonalHistoryErrorCode.malformedPackageRequest,
+    'malformed_request' => PersonalHistoryErrorCode.malformedRequest,
+    'nonce_reused' => PersonalHistoryErrorCode.nonceReused,
+    'transient_failure' => PersonalHistoryErrorCode.transientFailure,
+    _ => PersonalHistoryErrorCode.unknown,
+  };
+}
+
+/// `/personal-history/status` 投影（§2.1）。
+class PersonalHistoryStatus {
+  const PersonalHistoryStatus({
+    required this.state,
+    required this.generation,
+    this.uploadCursor,
+  });
+
+  final String state; // OFF | ON | OFF_PURGE_PENDING | OFF_PURGED
+  final int generation;
+  final int? uploadCursor;
+
+  bool get enabled => state == 'ON';
+}
+
+/// `/personal-history/changes` 单事件（§2.4：稳定合并版本 + tombstone）。
+class PersonalHistoryEvent {
+  const PersonalHistoryEvent({
+    required this.seq,
+    required this.conversationId,
+    required this.msgId,
+    required this.actionVersion,
+    required this.convSeq,
+    required this.keyVersion,
+    required this.ciphertext,
+    required this.envelopeMeta,
+    required this.deleted,
+    required this.createdAt,
+  });
+
+  final int seq;
+  final String conversationId;
+  final String msgId;
+  final int actionVersion;
+  final int convSeq;
+  final int keyVersion;
+  final String ciphertext; // b64
+  final Map<String, dynamic> envelopeMeta; // {alg, key_version, nonce, aad}
+  final bool deleted; // tombstone（MSG-H15）
+  final int createdAt;
+}
+
+class PersonalHistoryChangesPage {
+  const PersonalHistoryChangesPage({
+    required this.events,
+    this.nextCursor,
+    this.resetHint = false,
+  });
+
+  final List<PersonalHistoryEvent> events;
+  final int? nextCursor;
+  final bool resetHint;
+}
+
+/// key-package 读取响应（mh04 addendum：当前 generation 同域数字校验）。
+class PersonalHistoryKeyPackageRead {
+  const PersonalHistoryKeyPackageRead({
+    required this.generation,
+    required this.keyVersion,
+    required this.wrappedKey,
+    required this.kdfMeta,
+    required this.integrityHash,
+  });
+
+  final int generation;
+  final int keyVersion;
+  final String wrappedKey; // b64 原样
+  final Map<String, dynamic> kdfMeta;
+  final String integrityHash;
+}
+
+/// 合同级 /personal-history/* 客户端。
+class PersonalHistoryApiClient {
+  PersonalHistoryApiClient({required this.transport, this.webFace = false});
+
+  final PersonalHistoryTransport transport;
+  final bool webFace;
+
+  static const String _nativeBase = '/api/v1/personal-history';
+  static const String _webBase = '/api/v1/web/personal-history';
+
+  /// JS 安全整数上界（与 276-279 DDL / mh04 addendum 同域）。
+  static const int maxSafeInteger = 9007199254740991;
+
+  String get _base => webFace ? _webBase : _nativeBase;
+
+  /// §10.1：Web 认证链只收 GET/POST；原生面 opt-in/key-package 为 PUT。
+  String get _optInMethod => webFace ? 'POST' : 'PUT';
+  String get _keyPackagePutMethod => webFace ? 'POST' : 'PUT';
+
+  Map<String, dynamic> _successBody(PersonalHistoryTransportResult result) {
+    final body = result.body;
+    if (result.httpStatus < 200 ||
+        result.httpStatus >= 300 ||
+        body == null ||
+        body['code'] != 0) {
+      throw _toException(result);
+    }
+    final payload = body['payload'];
+    if (payload is Map<String, dynamic>) return payload;
+    if (payload == null) return const {};
+    throw const PersonalHistoryApiException(
+      PersonalHistoryErrorCode.unknown,
+      0,
+    );
+  }
+
+  PersonalHistoryApiException _toException(
+    PersonalHistoryTransportResult result,
+  ) {
+    final body = result.body;
+    final Map<Object?, Object?>? envelope = body is Map
+        ? body as Map<Object?, Object?>
+        : null;
+    final payload = envelope?['payload'];
+    final errorName = payload is Map
+        ? payload['error']?.toString()
+        : envelope?['error']?.toString();
+    return PersonalHistoryApiException(
+      _errorCodeFromName(errorName),
+      result.httpStatus,
+    );
+  }
+
+  Future<Map<String, dynamic>> _send(
+    String method,
+    String path, {
+    Map<String, dynamic>? queryParameters,
+    Object? data,
+  }) async {
+    PersonalHistoryTransportResult result;
+    try {
+      result = await transport(
+        method,
+        path,
+        queryParameters: queryParameters,
+        data: data,
+      );
+    } on PersonalHistoryApiException {
+      rethrow;
+    } on Object {
+      // 网络层异常：合同未定义具体码，按不可归类 fail-closed 上抛。
+      throw const PersonalHistoryApiException(
+        PersonalHistoryErrorCode.unknown,
+        0,
+      );
+    }
+    return _successBody(result);
+  }
+
+  /// §2.1 GET /status。
+  Future<PersonalHistoryStatus> status() async {
+    final payload = await _send('GET', '$_base/status');
+    final state = payload['state']?.toString() ?? '';
+    final generation = payload['generation'];
+    if (state.isEmpty ||
+        generation is! int ||
+        generation < 0 ||
+        generation > maxSafeInteger) {
+      throw const PersonalHistoryApiException(
+        PersonalHistoryErrorCode.malformedRequest,
+        0,
+      );
+    }
+    return PersonalHistoryStatus(
+      state: state,
+      generation: generation,
+      uploadCursor: payload['upload_cursor'] is int
+          ? payload['upload_cursor'] as int
+          : null,
+    );
+  }
+
+  /// §2.2 PUT /opt-in（幂等：同 generation 重复返回同状态）。
+  Future<PersonalHistoryStatus> optIn(String clientInstanceId) async {
+    final payload = await _send(
+      _optInMethod,
+      '$_base/opt-in',
+      data: {'client_instance_id': clientInstanceId},
+    );
+    final generation = payload['generation'];
+    return PersonalHistoryStatus(
+      state: payload['state']?.toString() ?? 'ON',
+      generation: generation is int ? generation : 0,
+    );
+  }
+
+  /// §2.3 POST /upload（幂等键 = account+domain+conversation+msg_id，由服务端裁决）。
+  Future<Map<String, dynamic>> upload(Map<String, dynamic> item) =>
+      _send('POST', '$_base/upload', data: item);
+
+  /// §2.4 GET /changes。
+  Future<PersonalHistoryChangesPage> changes({
+    required int cursor,
+    int limit = 50,
+  }) async {
+    final payload = await _send(
+      'GET',
+      '$_base/changes',
+      queryParameters: {'cursor': cursor, 'limit': limit},
+    );
+    final rawEvents = payload['events'];
+    if (rawEvents is! List) {
+      throw const PersonalHistoryApiException(
+        PersonalHistoryErrorCode.malformedRequest,
+        0,
+      );
+    }
+    final events = <PersonalHistoryEvent>[];
+    for (final raw in rawEvents) {
+      if (raw is! Map) {
+        throw const PersonalHistoryApiException(
+          PersonalHistoryErrorCode.malformedRequest,
+          0,
+        );
+      }
+      final envelopeMeta = raw['envelope_meta'];
+      events.add(
+        PersonalHistoryEvent(
+          seq: raw['seq'] as int,
+          conversationId: raw['conversation_id']?.toString() ?? '',
+          msgId: raw['msg_id']?.toString() ?? '',
+          actionVersion: raw['action_version'] as int? ?? 0,
+          convSeq: raw['conv_seq'] as int? ?? 0,
+          keyVersion: raw['key_version'] as int? ?? 0,
+          ciphertext: raw['ciphertext']?.toString() ?? '',
+          envelopeMeta: envelopeMeta is Map<String, dynamic>
+              ? envelopeMeta
+              : const {},
+          deleted: raw['deleted'] == true,
+          createdAt: raw['created_at'] as int? ?? 0,
+        ),
+      );
+    }
+    return PersonalHistoryChangesPage(
+      events: events,
+      nextCursor: payload['next_cursor'] as int?,
+      resetHint: payload['reset_hint'] == true,
+    );
+  }
+
+  /// §2.4 GET /page（分页快照；空页≠归档齐全）。
+  Future<Map<String, dynamic>> page({
+    required String conversationId,
+    int before = 0,
+    String? pageToken,
+  }) => _send(
+    'GET',
+    '$_base/page',
+    queryParameters: {
+      'conversation_id': conversationId,
+      if (before > 0) 'before': before,
+      if (pageToken != null && pageToken.isNotEmpty) 'page_token': pageToken,
+    },
+  );
+
+  /// §10.2 POST /ack-cursor（幂等；仅推进 ≤ 服务端已发放最大值）。
+  Future<Map<String, dynamic>> ackCursor(int cursor) =>
+      _send('POST', '$_base/ack-cursor', data: {'cursor': cursor});
+
+  /// §2.5 PUT /key-package。
+  Future<Map<String, dynamic>> putKeyPackage(Map<String, dynamic> package) =>
+      _send(_keyPackagePutMethod, '$_base/key-package', data: package);
+
+  /// mh04 addendum GET /key-package：查询参数恰好一份 key_version 与一份
+  /// generation，十进制 ASCII 数字（无符号/前导零/指数/浮点），同域校验。
+  Future<PersonalHistoryKeyPackageRead> getKeyPackage({
+    required int keyVersion,
+    required int generation,
+  }) async {
+    if (keyVersion < 1 ||
+        keyVersion > maxSafeInteger ||
+        generation < 0 ||
+        generation > maxSafeInteger) {
+      throw const PersonalHistoryApiException(
+        PersonalHistoryErrorCode.malformedPackageRequest,
+        422,
+      );
+    }
+    final payload = await _send(
+      'GET',
+      '$_base/key-package',
+      queryParameters: {'key_version': keyVersion, 'generation': generation},
+    );
+    final respGeneration = payload['generation'];
+    final respVersion = payload['key_version'];
+    final wrapped = payload['wrapped_key']?.toString();
+    if (respGeneration is! int ||
+        respVersion is! int ||
+        respGeneration > maxSafeInteger ||
+        respVersion > maxSafeInteger ||
+        wrapped == null ||
+        wrapped.isEmpty) {
+      throw const PersonalHistoryApiException(
+        PersonalHistoryErrorCode.malformedPackage,
+        0,
+      );
+    }
+    final kdfMeta = payload['kdf_meta'];
+    return PersonalHistoryKeyPackageRead(
+      generation: respGeneration,
+      keyVersion: respVersion,
+      wrappedKey: wrapped,
+      kdfMeta: kdfMeta is Map<String, dynamic> ? kdfMeta : const {},
+      integrityHash: payload['integrity_hash']?.toString() ?? '',
+    );
+  }
+
+  /// §2.6 POST /disable（202 受理）。
+  Future<Map<String, dynamic>> disable() =>
+      _send('POST', '$_base/disable', data: const {});
+
+  /// §2.6 GET /delete-status。
+  Future<Map<String, dynamic>> deleteStatus() =>
+      _send('GET', '$_base/delete-status');
+}

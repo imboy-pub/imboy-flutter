@@ -1141,3 +1141,344 @@ class ServerOrderBackfillResult {
       'ServerOrderBackfillResult(rowExists: $rowExists, '
       'convSeqApplied: $convSeqApplied, acceptedAtApplied: $acceptedAtApplied)';
 }
+
+// =============================================================================
+// 个人云端历史本地载体（FL-04；MH-01 §10.8：ack-cursor/检查点必须落账号 SQL DB，
+// 禁用 SharedPreferences 存本域游标；§5 同一 SQLite 提交 = 消息+tombstone+检查点）。
+//
+// 表结构按需幂等建表（CREATE TABLE IF NOT EXISTS），不动 _dbVersion/迁移清单：
+// 个人历史域是账号级独立存储，与投递队列平行的独立表族（§0）。
+// =============================================================================
+
+/// 个人历史域本地事件（存储层最小形状；业务解密在引擎层完成）。
+class PersonalHistoryLocalEvent {
+  const PersonalHistoryLocalEvent({
+    required this.seq,
+    required this.conversationId,
+    required this.msgId,
+    required this.actionVersion,
+    required this.deleted,
+    required this.plaintext,
+  });
+
+  final int seq;
+  final String conversationId;
+  final String msgId;
+  final int actionVersion;
+
+  /// tombstone 事件（MSG-H15 稳定删除表达）。
+  final bool deleted;
+
+  /// 引擎解密后的明文行（deleted 事件为空）。
+  final Map<String, dynamic>? plaintext;
+}
+
+/// 一次事务化合并的结果。
+class PersonalHistoryApplyResult {
+  const PersonalHistoryApplyResult({
+    required this.applied,
+    required this.duplicates,
+    required this.cursor,
+    required this.generation,
+  });
+
+  /// 实际生效（新 seq）事件数。
+  final int applied;
+
+  /// 晚到/重复（seq 已合并过）被幂等跳过的事件数。
+  final int duplicates;
+
+  /// 事务提交后的持久检查点（单调，只进不退）。
+  final int cursor;
+
+  final int generation;
+}
+
+/// 个人历史域 SQL 载体（唯一 writer 事务边界由 sqflite Database 提供；
+/// Web 平台的 VFS 持久确认在引擎层注入，见 PersonalHistorySyncEngine）。
+class PersonalHistoryLocalStore {
+  PersonalHistoryLocalStore(this._dbOpener);
+
+  final Future<Database?> Function() _dbOpener;
+
+  static const String stateTable = 'personal_history_sync_state';
+  static const String mergedEventTable = 'personal_history_merged_event';
+  static const String tombstoneTable = 'personal_history_tombstone';
+  static const String uploadQueueTable = 'personal_history_upload_queue';
+
+  /// JS 安全整数上界（与 276-279 DDL 同域）。
+  static const int maxSafeInteger = 9007199254740991;
+
+  Future<Database?> _db() async {
+    final db = await _dbOpener();
+    if (db != null && db.isOpen) {
+      // §10.8：本域检查点载体=账号 SQL DB；按 domain 主键（同账号可同时
+      // 挂多部署实例，§0 三元隔离），代次+游标随行。
+      await db.execute(
+        'CREATE TABLE IF NOT EXISTS $stateTable ('
+        'domain TEXT PRIMARY KEY, '
+        'generation INTEGER NOT NULL, '
+        'acked_cursor INTEGER NOT NULL DEFAULT 0, '
+        'updated_at INTEGER NOT NULL)',
+      );
+      // §2.4：change log 按 账号/实例/代次 隔离且单调——去重账本以
+      // (domain, generation, seq) 为主键（跨代次重开是全新日志，不共享 seq 账）。
+      await db.execute(
+        'CREATE TABLE IF NOT EXISTS $mergedEventTable ('
+        'domain TEXT NOT NULL, '
+        'generation INTEGER NOT NULL, '
+        'seq INTEGER NOT NULL, '
+        'conversation_id TEXT NOT NULL, '
+        'msg_id TEXT NOT NULL, '
+        'action_version INTEGER NOT NULL, '
+        'merged_at INTEGER NOT NULL, '
+        'PRIMARY KEY (domain, generation, seq))',
+      );
+      await db.execute(
+        'CREATE TABLE IF NOT EXISTS $tombstoneTable ('
+        'conversation_id TEXT NOT NULL, '
+        'msg_id TEXT NOT NULL, '
+        'deleted_at INTEGER NOT NULL, '
+        'PRIMARY KEY (conversation_id, msg_id))',
+      );
+      await db.execute(
+        'CREATE TABLE IF NOT EXISTS '
+        'personal_history_restored_row ('
+        'domain TEXT NOT NULL, '
+        'generation INTEGER NOT NULL, '
+        'conversation_id TEXT NOT NULL, '
+        'msg_id TEXT NOT NULL, '
+        'action_version INTEGER NOT NULL, '
+        'row TEXT NOT NULL, '
+        'merged_at INTEGER NOT NULL, '
+        'PRIMARY KEY (domain, generation, conversation_id, msg_id, action_version))',
+      );
+      await db.execute(
+        'CREATE TABLE IF NOT EXISTS $uploadQueueTable ('
+        'idempotency_key TEXT PRIMARY KEY, '
+        'conversation_id TEXT NOT NULL, '
+        'msg_id TEXT NOT NULL, '
+        'action_version INTEGER NOT NULL, '
+        'conv_seq INTEGER NOT NULL, '
+        'ciphertext TEXT NOT NULL, '
+        'envelope_meta TEXT NOT NULL, '
+        'domain TEXT NOT NULL, '
+        'generation INTEGER NOT NULL, '
+        'client_ts INTEGER NOT NULL, '
+        'attempts INTEGER NOT NULL DEFAULT 0)',
+      );
+    }
+    return db;
+  }
+
+  /// 当前持久检查点（域+代次）；无记录返回 null。
+  Future<({int generation, int cursor})?> readCheckpoint(String domain) async {
+    final db = await _db();
+    if (db == null) return null;
+    final rows = await db.query(
+      stateTable,
+      columns: ['generation', 'acked_cursor'],
+      where: 'domain = ?',
+      whereArgs: [domain],
+      limit: 1,
+    );
+    if (rows.isEmpty) return null;
+    return (
+      generation: rows.first['generation'] as int,
+      cursor: rows.first['acked_cursor'] as int,
+    );
+  }
+
+  /// 事务化合并：业务行、tombstone、去重账与检查点在同一 SQLite 提交。
+  ///
+  /// - seq 主键去重：晚到/重复事件幂等跳过，不回退持久进度（§8.2）。
+  /// - 代次围栏：域内已记录代次与本次不符 → StateError 回滚（无游标串用）。
+  /// - 检查点单调：仅当 proposedCursor 大于现值才推进。
+  Future<PersonalHistoryApplyResult> applyEvents({
+    required String domain,
+    required int generation,
+    required List<PersonalHistoryLocalEvent> events,
+    required int proposedCursor,
+    required Future<void> Function(
+      Transaction txn,
+      PersonalHistoryLocalEvent event,
+      String domain,
+      int generation,
+    )
+    applyEvent,
+  }) async {
+    final db = await _db();
+    if (db == null) {
+      throw StateError('personal history store unavailable');
+    }
+    if (generation < 0 ||
+        generation > maxSafeInteger ||
+        proposedCursor < 0 ||
+        proposedCursor > maxSafeInteger) {
+      throw ArgumentError('personal history cursor out of domain');
+    }
+    return db.transaction((txn) async {
+      final state = await txn.query(
+        stateTable,
+        columns: ['generation', 'acked_cursor'],
+        where: 'domain = ?',
+        whereArgs: [domain],
+        limit: 1,
+      );
+      int currentCursor;
+      if (state.isEmpty) {
+        currentCursor = 0;
+        await txn.insert(stateTable, {
+          'domain': domain,
+          'generation': generation,
+          'acked_cursor': 0,
+          'updated_at': DateTime.now().millisecondsSinceEpoch,
+        });
+      } else {
+        final recordedGeneration = state.first['generation'] as int;
+        if (recordedGeneration != generation) {
+          // 代次变更：本批属于旧任务，整体回滚（账号/撤销后中止旧任务）。
+          throw StateError(
+            'personal history generation changed: '
+            '$recordedGeneration != $generation',
+          );
+        }
+        currentCursor = state.first['acked_cursor'] as int;
+      }
+
+      var applied = 0;
+      var duplicates = 0;
+      final now = DateTime.now().millisecondsSinceEpoch;
+      for (final event in events) {
+        final dedup = await txn.insert(mergedEventTable, {
+          'domain': domain,
+          'generation': generation,
+          'seq': event.seq,
+          'conversation_id': event.conversationId,
+          'msg_id': event.msgId,
+          'action_version': event.actionVersion,
+          'merged_at': now,
+          // 晚到/重复 seq：账本主键冲突 → 幂等跳过，不重复应用业务效果。
+        }, conflictAlgorithm: ConflictAlgorithm.ignore);
+        if (dedup == 0) {
+          duplicates++;
+          continue;
+        }
+        applied++;
+        if (event.deleted) {
+          await txn.insert(tombstoneTable, {
+            'conversation_id': event.conversationId,
+            'msg_id': event.msgId,
+            'deleted_at': now,
+          }, conflictAlgorithm: ConflictAlgorithm.replace);
+        } else {
+          await applyEvent(txn, event, domain, generation);
+        }
+      }
+
+      final nextCursor = proposedCursor > currentCursor
+          ? proposedCursor
+          : currentCursor;
+      if (nextCursor != currentCursor || state.isEmpty) {
+        await txn.update(
+          stateTable,
+          {
+            'generation': generation,
+            'acked_cursor': nextCursor,
+            'updated_at': now,
+          },
+          where: 'domain = ?',
+          whereArgs: [domain],
+        );
+      }
+      return PersonalHistoryApplyResult(
+        applied: applied,
+        duplicates: duplicates,
+        cursor: nextCursor,
+        generation: generation,
+      );
+    });
+  }
+
+  /// 本地 tombstone 查询（删除进度/可恢复范围提示）。
+  Future<bool> isTombstoned(String conversationId, String msgId) async {
+    final db = await _db();
+    if (db == null) return false;
+    final rows = await db.query(
+      tombstoneTable,
+      columns: ['deleted_at'],
+      where: 'conversation_id = ? AND msg_id = ?',
+      whereArgs: [conversationId, msgId],
+      limit: 1,
+    );
+    return rows.isNotEmpty;
+  }
+
+  /// 入待上传队列（幂等键 = domain|generation|conversation|msg_id 主键去重）。
+  Future<void> enqueueUpload({
+    required String domain,
+    required int generation,
+    required String conversationId,
+    required String msgId,
+    required int actionVersion,
+    required int convSeq,
+    required String ciphertext,
+    required Map<String, dynamic> envelopeMeta,
+    required int clientTs,
+  }) async {
+    final db = await _db();
+    if (db == null) {
+      throw StateError('personal history store unavailable');
+    }
+    await db.insert(uploadQueueTable, {
+      'idempotency_key': '$domain|$generation|$conversationId|$msgId',
+      'conversation_id': conversationId,
+      'msg_id': msgId,
+      'action_version': actionVersion,
+      'conv_seq': convSeq,
+      'ciphertext': ciphertext,
+      'envelope_meta': jsonEncode(envelopeMeta),
+      'domain': domain,
+      'generation': generation,
+      'client_ts': clientTs,
+      'attempts': 0,
+    }, conflictAlgorithm: ConflictAlgorithm.ignore);
+  }
+
+  /// 只取当前代次的待上行项（账号切换/撤销后旧代次行不再重试）。
+  Future<List<Map<String, Object?>>> pendingUploads(
+    String domain,
+    int generation, {
+    int limit = 32,
+  }) async {
+    final db = await _db();
+    if (db == null) return const [];
+    return db.query(
+      uploadQueueTable,
+      where: 'domain = ? AND generation = ?',
+      whereArgs: [domain, generation],
+      orderBy: 'client_ts ASC',
+      limit: limit,
+    );
+  }
+
+  Future<void> markUploadAttempted(String idempotencyKey) async {
+    final db = await _db();
+    if (db == null) return;
+    await db.rawUpdate(
+      'UPDATE $uploadQueueTable SET attempts = attempts + 1 '
+      'WHERE idempotency_key = ?',
+      [idempotencyKey],
+    );
+  }
+
+  Future<void> removeUpload(String idempotencyKey) async {
+    final db = await _db();
+    if (db == null) return;
+    await db.delete(
+      uploadQueueTable,
+      where: 'idempotency_key = ?',
+      whereArgs: [idempotencyKey],
+    );
+  }
+}

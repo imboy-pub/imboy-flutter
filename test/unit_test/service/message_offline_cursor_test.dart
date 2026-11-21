@@ -68,6 +68,41 @@ void main() {
       expect(MessageOfflineService.extractNextCursor('not-a-map'), isNull);
       expect(MessageOfflineService.extractNextCursor(null), isNull);
     });
+
+    test('FL-04:LOCAL:03 同时间戳（next==当前游标）不构成推进条件', () {
+      // 游标只进不退：next_last_msg_at 与现存游标相等时由调用侧
+      // （next > local 才推进）判无进展；解析层仅负责还原数值。
+      const current = 1780286400500;
+      final next = MessageOfflineService.extractNextCursor({
+        'next_last_msg_at': current,
+      });
+      expect(next, current);
+      // 消费侧语义：next > current 为假 → 不推进 → 分页守卫判定无进展。
+      expect(next! > current, isFalse);
+      // 零/负值同样不得作为推进依据（持久化层非正值拒写）。
+      expect(
+        MessageOfflineService.extractNextCursor({'next_last_msg_at': 0}),
+        0,
+      );
+      expect(
+        MessageOfflineService.extractNextCursor({'next_last_msg_at': '0'}),
+        0,
+      );
+    });
+
+    test('FL-04:LOCAL:04 C2G 分页游标持久键按 env+uid 组合隔离', () async {
+      // 键格式合同：`${offlineCursorC2gPage}_${currentEnv}_${uid}`。
+      // 不同 env/uid 的键互不覆盖（值各归其位），旧作用域键不被读取方
+      // 当作新作用域游标（见 offline_cursor_recovery_test 行为级断言）。
+      const keyA = '${Keys.offlineCursorC2gPage}_devA_100';
+      const keyB = '${Keys.offlineCursorC2gPage}_devB_100';
+      const keyOtherAccount = '${Keys.offlineCursorC2gPage}_devA_200';
+      MessageOfflineService.persistCursor(Keys.offlineCursorC2c, 1780286400500);
+      await Future<void>.delayed(const Duration(milliseconds: 10));
+      expect(MessageOfflineService.readStoredCursor(keyA), 0);
+      expect(MessageOfflineService.readStoredCursor(keyB), 0);
+      expect(MessageOfflineService.readStoredCursor(keyOtherAccount), 0);
+    });
   });
 
   group('游标持久化', () {
