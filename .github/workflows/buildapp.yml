@@ -125,8 +125,12 @@ jobs:
 
   ios-app-plist:
     name: real Runner.app plist scheme check (F13, macOS)
-    runs-on: macos-15
-    timeout-minutes: 90
+    # macos-26-intel: same image the main CI iOS build uses. On macos-15 the
+    # pinned video_player_avfoundation 2.12.3 fails Swift compilation
+    # (VideoPlayer.swift:568 Generic parameter 'B' could not be inferred) —
+    # an image/Xcode compatibility issue, not a buildapp.sh defect.
+    runs-on: macos-26-intel
+    timeout-minutes: 120
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
