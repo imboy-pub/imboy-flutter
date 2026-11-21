@@ -1,3 +1,6 @@
+import 'dart:convert';
+
+import 'package:geo_regions/geo_regions.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/store/model/model_parse_utils.dart';
 
@@ -109,6 +112,19 @@ class UserModel {
   String background;
   int gender;
   String region;
+
+  /// 结构化地区身份（geo_regions 协议 §8，后端 user_agg 的 regionSelection）。
+  ///
+  /// 后端未提供、数据无效或协议版本不支持时为 null：不得假定该字段存在，
+  /// [region] 旧字符串保持唯一权威展示（不猜测映射、不丢资料）。
+  GeoSelection? regionSelection;
+
+  /// 后端读侧状态机原值（user_agg:region_selection_status/2）：
+  /// `resolved` / `empty` / `unresolved`；空串表示后端未提供该字段。
+  ///
+  /// 结构化数据存在但无法按当前协议解析时标 `unresolved`（保留旧字符串
+  /// 原值并显式标记，等价后端对无效 selection 的读侧行为）。
+  String regionSelectionStatus;
   int? role;
   String sign;
   Map<String, dynamic>? setting;
@@ -129,6 +145,8 @@ class UserModel {
     this.background = '',
     this.gender = 0,
     this.region = "",
+    this.regionSelection,
+    this.regionSelectionStatus = '',
     this.role,
     this.sign = '',
     this.setting,
@@ -151,6 +169,9 @@ class UserModel {
 
   factory UserModel.fromJson(Map<String, dynamic> json) {
     final roleValue = json['role'];
+    final rawRegionSelection = json['regionSelection'];
+    final parsedRegionSelection = _parseRegionSelection(rawRegionSelection);
+    final selectionStatus = parseModelString(json['regionSelectionStatus']);
     return UserModel(
       uid: parseModelString(json['user_id'] ?? json['uid'] ?? json['id']),
       account: parseModelString(json['account']),
@@ -162,6 +183,14 @@ class UserModel {
       role: roleValue == null ? null : parseModelInt(roleValue),
       gender: parseModelInt(json['gender']),
       region: parseModelString(json['region']),
+      regionSelection: parsedRegionSelection,
+      // 保留后端状态原值；仅当结构化数据存在但无法按当前协议解析时
+      // 标 unresolved（旧字符串原值不动，不猜测映射、不丢资料）。
+      regionSelectionStatus: selectionStatus.isNotEmpty
+          ? selectionStatus
+          : (rawRegionSelection != null && parsedRegionSelection == null
+                ? 'unresolved'
+                : ''),
       sign: parseModelString(json['sign']),
       setting: parseModelJsonMap(json['setting']) ?? <String, dynamic>{},
       birthday: parseModelString(json['birthday']),
@@ -169,6 +198,24 @@ class UserModel {
       school: parseModelString(json['school']),
       interests: parseModelString(json['interests']),
     );
+  }
+
+  /// 结构化地区身份解析：接受协议 JSON map，或旧缓存中的 JSON 字符串
+  /// （后端 decode_region_selection/1 两种形态都可能出现）。
+  ///
+  /// 无效/不支持版本 → null：不猜测、不崩溃、不丢资料，
+  /// 由 [regionSelectionStatus] 标 unresolved。
+  static GeoSelection? _parseRegionSelection(dynamic raw) {
+    if (raw == null) return null;
+    try {
+      final decoded = raw is String ? jsonDecode(raw) : raw;
+      if (decoded is! Map) return null;
+      return parseSelection(Map<String, dynamic>.from(decoded));
+    } on Exception {
+      return null;
+    } on Error {
+      return null;
+    }
   }
 
   Map<String, dynamic> toMap() {
@@ -183,6 +230,9 @@ class UserModel {
     data["role"] = role;
     data["gender"] = gender;
     data["region"] = region;
+    // 结构化身份以协议 map 形态序列化（JSON 安全），无则不虚构。
+    data["regionSelection"] = regionSelection?.toMap();
+    data["regionSelectionStatus"] = regionSelectionStatus;
     data["sign"] = sign;
     data["setting"] = setting;
     data["birthday"] = birthday;

@@ -8,7 +8,6 @@ import 'package:imboy/component/ui/common_bar.dart';
 import '../update/update_page.dart';
 import '../set_gender/set_gender_page.dart';
 import '../set_region/set_region_page.dart';
-import '../personal_info/personal_info_provider.dart';
 
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/theme/default/app_colors.dart';
@@ -16,6 +15,7 @@ import 'package:imboy/theme/default/app_radius.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/store/repository/user_repo_provider.dart';
+import 'package:imboy/store/service/user_profile_service.dart';
 
 class MorePage extends ConsumerStatefulWidget {
   const MorePage({super.key, this.readOnly = kIsWeb});
@@ -185,18 +185,11 @@ class _MorePageState extends ConsumerState<MorePage> {
         builder: (_) => SetRegionPage(
           title: t.account.region,
           currentValue: UserRepoLocal.to.current.region,
-          onSave: (val) async {
-            final success = await ref
-                .read(personalInfoProvider.notifier)
-                .changeInfo({"field": "region", "value": val});
-            if (success) {
-              final payload = UserRepoLocal.to.current.toMap();
-              payload['region'] = val;
-              UserRepoLocal.to.changeInfo(payload);
-              return true;
-            }
-            return false;
-          },
+          // 统一走 UserProfileService：PUT + 账号保存围栏 + 本地缓存同步 +
+          // 后端错误透出，消除与 ProfilePage 的双入口漂移。
+          // 资产树地区列表没有数据集身份（pathIds），按合同仍写 legacy
+          // `region` 字段；结构化 regionSelection 只能由 geo_regions 选择器发起。
+          onSave: (val) => UserProfileService.updateField('region', val),
         ),
       ),
     );
@@ -212,18 +205,8 @@ class _MorePageState extends ConsumerState<MorePage> {
           value: UserRepoLocal.to.current.sign,
           field: 'input',
           maxLength: 200,
-          callback: (val) async {
-            final success = await ref
-                .read(personalInfoProvider.notifier)
-                .changeInfo({"field": "sign", "value": val});
-            if (success) {
-              final payload = UserRepoLocal.to.current.toMap();
-              payload['sign'] = val;
-              UserRepoLocal.to.changeInfo(payload);
-              return true;
-            }
-            return false;
-          },
+          // 同上：围栏统一在 UserProfileService.updateField。
+          callback: (val) => UserProfileService.updateField('sign', val),
         ),
       ),
     );
