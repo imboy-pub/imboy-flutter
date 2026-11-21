@@ -63,6 +63,55 @@ class _DisabledInputArea extends StatelessWidget {
   }
 }
 
+Widget _buildShell(ProviderContainer container) {
+  return UncontrolledProviderScope(
+    container: container,
+    child: MaterialApp(
+      // 对齐 lib/run.dart：Cupertino 页面中的输入组件使用导航器上方的 Material。
+      builder: (_, child) =>
+          Material(type: MaterialType.transparency, child: child),
+      home: WebShellPage(
+        tabMessageLabel: 'Messages',
+        tabContactLabel: 'Contacts',
+        tabChannelLabel: 'Channels',
+        tabMineLabel: 'Me',
+        welcomeTitle: 'WelcomeTitle',
+        welcomeSubtitle: 'WelcomeSub',
+        navigationLeading: const Text('SPACE', key: ValueKey('space-entry')),
+        messageTab: _kMessageTab,
+        contactTab: _kContactTab,
+        channelTab: _kChannelTab,
+        mineTab: _kMineTab,
+        chatBuilder: (sel) => ChatPanel(
+          peerId: sel.peerId,
+          chatType: sel.chatType,
+          title: 'Peer ${sel.peerId}',
+          closeTooltip: 'Close',
+          onClose: () =>
+              container.read(webShellProvider.notifier).clearSelection(),
+          inputArea: const _DisabledInputArea(),
+        ),
+        contactBuilder: (sel) => Center(
+          key: const ValueKey('contact-panel'),
+          child: Text('CONT:${sel.uid}'),
+        ),
+        channelBuilder: (sel) => Center(
+          key: const ValueKey('channel-panel'),
+          child: Text('CHA:${sel.channelId}'),
+        ),
+        mineBuilder: (sel) => Center(
+          key: const ValueKey('mine-panel'),
+          child: Text('MINE:${sel.section ?? "ov"}'),
+        ),
+        mobileFallback: const Material(
+          key: ValueKey('mobile-fallback'),
+          child: Center(child: Text('MOBILE')),
+        ),
+      ),
+    ),
+  );
+}
+
 Future<ProviderContainer> _pumpShell(
   WidgetTester tester, {
   Size size = const Size(1400, 800),
@@ -79,54 +128,7 @@ Future<ProviderContainer> _pumpShell(
   // 保活订阅，避免 Riverpod 3 auto-dispose 测试陷阱（参考 channel_list_state_sync_test 修复经验）
   container.listen(webShellProvider, (_, _) {});
 
-  await tester.pumpWidget(
-    UncontrolledProviderScope(
-      container: container,
-      child: MaterialApp(
-        // 对齐 lib/run.dart：Cupertino 页面中的输入组件使用导航器上方的 Material。
-        builder: (_, child) =>
-            Material(type: MaterialType.transparency, child: child),
-        home: WebShellPage(
-          tabMessageLabel: 'Messages',
-          tabContactLabel: 'Contacts',
-          tabChannelLabel: 'Channels',
-          tabMineLabel: 'Me',
-          welcomeTitle: 'WelcomeTitle',
-          welcomeSubtitle: 'WelcomeSub',
-          navigationLeading: const Text('SPACE', key: ValueKey('space-entry')),
-          messageTab: _kMessageTab,
-          contactTab: _kContactTab,
-          channelTab: _kChannelTab,
-          mineTab: _kMineTab,
-          chatBuilder: (sel) => ChatPanel(
-            peerId: sel.peerId,
-            chatType: sel.chatType,
-            title: 'Peer ${sel.peerId}',
-            closeTooltip: 'Close',
-            onClose: () =>
-                container.read(webShellProvider.notifier).clearSelection(),
-            inputArea: const _DisabledInputArea(),
-          ),
-          contactBuilder: (sel) => Center(
-            key: const ValueKey('contact-panel'),
-            child: Text('CONT:${sel.uid}'),
-          ),
-          channelBuilder: (sel) => Center(
-            key: const ValueKey('channel-panel'),
-            child: Text('CHA:${sel.channelId}'),
-          ),
-          mineBuilder: (sel) => Center(
-            key: const ValueKey('mine-panel'),
-            child: Text('MINE:${sel.section ?? "ov"}'),
-          ),
-          mobileFallback: const Material(
-            key: ValueKey('mobile-fallback'),
-            child: Center(child: Text('MOBILE')),
-          ),
-        ),
-      ),
-    ),
-  );
+  await tester.pumpWidget(_buildShell(container));
   expect(tester.takeException(), isNull);
   return container;
 }
@@ -278,6 +280,112 @@ void main() {
       expect(container.read(webShellProvider).selectedItem, isNull);
       expect(find.byType(ChatPanel), findsNothing);
       expect(find.text('WelcomeTitle'), findsOneWidget);
+    });
+
+    // ----------------------------------------------------------
+    // FL-16:LOCAL:01 原生/Web 密集接收、分页及恢复（Web 面）
+    // ----------------------------------------------------------
+    testWidgets(
+      'FL-16:LOCAL:01 密集会话切换下 selection 一致、chatBuilder 不串号、列表 element 稳定',
+      (tester) async {
+        final container = await _pumpShell(tester);
+        final listBefore = tester.element(
+          find.byKey(const ValueKey('msg-tab')),
+        );
+
+        // 密集事件：12 次连续 selectItem，帧间隔内不 settle，
+        // 模拟 Web 端密集 S2C/用户操作交错到达的负载形态。
+        const burst = 12;
+        for (var i = 0; i < burst; i++) {
+          container
+              .read(webShellProvider.notifier)
+              .selectItem(
+                ChatSelection(
+                  peerId: 'u-burst-${i.toString().padLeft(2, '0')}',
+                  chatType: i.isEven ? 'C2C' : 'C2G',
+                ),
+              );
+          await tester.pump(const Duration(milliseconds: 16));
+        }
+        await tester.pumpAndSettle(const Duration(milliseconds: 350));
+        expect(tester.takeException(), isNull);
+
+        // 业务状态一致：selection 是最后一次更新，没有丢更新/串号。
+        final selected = container.read(webShellProvider).selectedItem;
+        expect(selected, isA<ChatSelection>());
+        final chat = selected as ChatSelection;
+        expect(chat.peerId, 'u-burst-11');
+        expect(chat.chatType, 'C2G');
+
+        // chatBuilder 收到当前 selection：标题即最后 peer，无 stale 残留。
+        expect(find.byType(ChatPanel), findsOneWidget);
+        expect(find.text('Peer u-burst-11'), findsOneWidget);
+        expect(find.text('Peer u-burst-00'), findsNothing);
+
+        // 列表稳定：左栏 element 在整段密集负载前后是同一实例。
+        expect(
+          tester.element(find.byKey(const ValueKey('msg-tab'))),
+          same(listBefore),
+        );
+      },
+    );
+
+    // ----------------------------------------------------------
+    // FL-16:LOCAL:02 浏览器刷新（容器重建）后无跨容器残留
+    // ----------------------------------------------------------
+    testWidgets('FL-16:LOCAL:02 容器重建=浏览器刷新等价：selection 不残留、恢复范围明确', (
+      tester,
+    ) async {
+      tester.view.devicePixelRatio = 1.0;
+      tester.view.physicalSize = const Size(1400, 800);
+      addTearDown(() {
+        tester.view.resetPhysicalSize();
+        tester.view.resetDevicePixelRatio();
+      });
+
+      // 刷新前：容器 A 选中一个会话。
+      final containerA = ProviderContainer();
+      addTearDown(containerA.dispose);
+      containerA.listen(webShellProvider, (_, _) {});
+      await tester.pumpWidget(_buildShell(containerA));
+      containerA
+          .read(webShellProvider.notifier)
+          .selectItem(
+            const ChatSelection(peerId: 'u-refresh-old', chatType: 'C2C'),
+          );
+      await tester.pumpAndSettle(const Duration(milliseconds: 350));
+      expect(tester.takeException(), isNull);
+      expect(find.byType(ChatPanel), findsOneWidget);
+      expect(find.text('Peer u-refresh-old'), findsOneWidget);
+
+      // 浏览器刷新等价：整树以全新 ProviderContainer 冷启动，
+      // 内存态清零（webShellProvider 回初始态）。
+      final containerB = ProviderContainer();
+      addTearDown(containerB.dispose);
+      containerB.listen(webShellProvider, (_, _) {});
+      await tester.pumpWidget(_buildShell(containerB));
+      await tester.pumpAndSettle(const Duration(milliseconds: 350));
+      expect(tester.takeException(), isNull);
+
+      // 恢复范围明确：刷新回到欢迎屏，选中态不跨容器残留（无假成功）。
+      expect(containerB.read(webShellProvider).selectedItem, isNull);
+      expect(find.text('WelcomeTitle'), findsOneWidget);
+      expect(find.byType(ChatPanel), findsNothing);
+      // 旧容器状态不被新容器清掉（容器间隔离，无跨账号式污染）。
+      final oldSelection = containerA.read(webShellProvider).selectedItem;
+      expect(oldSelection, isA<ChatSelection>());
+      expect((oldSelection as ChatSelection).peerId, 'u-refresh-old');
+
+      // 刷新后功能可用：新会话正常选中，旧会话不复活。
+      containerB
+          .read(webShellProvider.notifier)
+          .selectItem(
+            const ChatSelection(peerId: 'u-refresh-new', chatType: 'C2C'),
+          );
+      await tester.pumpAndSettle(const Duration(milliseconds: 350));
+      expect(find.text('Peer u-refresh-new'), findsOneWidget);
+      expect(find.text('Peer u-refresh-old'), findsNothing);
+      expect(tester.takeException(), isNull);
     });
   });
 }
