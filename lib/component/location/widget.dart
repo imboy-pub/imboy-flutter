@@ -7,6 +7,8 @@ import 'package:material_ui/material_ui.dart';
 import 'package:cupertino_ui/cupertino_ui.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:imboy/config/env.dart';
+import 'package:imboy/service/auth_session_scope.dart';
+import 'package:imboy/service/optional_sdk_consent.dart';
 import 'package:imboy/component/http/http_response.dart';
 import 'package:imboy/component/ui/async_state_view.dart';
 import 'package:imboy/component/ui/cell_pressable.dart';
@@ -71,7 +73,21 @@ class _MapLocationPickerState extends State<MapLocationPicker> with _BLoCMixin {
   final _searchQueryController = TextEditingController();
   // 地图当前居中的坐标（默认=设备当前定位，拖动地图/选中 POI/点「我的位置」时更新）
   LatLng _currentCenterCoordinate = const LatLng(39.909187, 116.397451);
-  late final WebViewController _webViewController;
+  WebViewController? _webViewController;
+  Object? _mapGrant;
+  bool get _mapAllowed => _mapGrant != null && _mapGrant == AMapHelper.grant;
+
+  void _recheckMapConsent() {
+    if (_mapGrant == null || _mapAllowed) return;
+    final controller = _webViewController;
+    setState(() {
+      _mapGrant = null;
+      _webViewController = null;
+      _generation++;
+    });
+    unawaited(controller?.loadHtmlString('<html></html>'));
+  }
+
   void _onSheetExtentChanged() {
     if (!mounted || !_sheetController.isAttached) return;
     final screenH = MediaQuery.of(context).size.height;
@@ -88,6 +104,8 @@ class _MapLocationPickerState extends State<MapLocationPicker> with _BLoCMixin {
   @override
   void dispose() {
     _generation++;
+    OptionalSdkConsent.instance.removeListener(_recheckMapConsent);
+    authSessionReader.removeListener(_recheckMapConsent);
     focusNode.dispose();
     _searchQueryController.dispose();
     _sheetController.removeListener(_onSheetExtentChanged);
@@ -121,9 +139,13 @@ class _MapLocationPickerState extends State<MapLocationPicker> with _BLoCMixin {
         );
       }
     });
-    _initWebViewMap();
-    // 不再有原生地图 onMapCreated 回调来触发首次搜索，这里直接调
-    _search(widget.latLng!);
+    _mapGrant = AMapHelper.grant;
+    OptionalSdkConsent.instance.addListener(_recheckMapConsent);
+    authSessionReader.addListener(_recheckMapConsent);
+    if (_mapAllowed) {
+      _initWebViewMap();
+      unawaited(_search(widget.latLng!));
+    }
   }
 
   // 官方 JS 地图经 WebView 渲染，与 POI 搜索使用相同的 GCJ-02 坐标系。
@@ -143,6 +165,7 @@ class _MapLocationPickerState extends State<MapLocationPicker> with _BLoCMixin {
   }
 
   void _onWebViewMessage(JavaScriptMessage message) {
+    if (!_mapAllowed) return;
     if (!mounted) return;
     try {
       final payload = jsonDecode(message.message) as Map<String, dynamic>;
@@ -212,6 +235,36 @@ class _MapLocationPickerState extends State<MapLocationPicker> with _BLoCMixin {
 
   @override
   Widget build(BuildContext context) {
+    final controller = _webViewController;
+    if (!_mapAllowed || controller == null) {
+      final coordinates = widget.latLng!;
+      return CupertinoPageScaffold(
+        navigationBar: CupertinoNavigationBar(
+          middle: Text(t.groupSchedule.location),
+        ),
+        child: Center(
+          child: CupertinoButton(
+            onPressed: () => Navigator.pop(
+              context,
+              widget.isMapImage
+                  ? null
+                  : {
+                      'id': '',
+                      'image': null,
+                      'address': '',
+                      'title': t.groupSchedule.location,
+                      'latitude': coordinates.latitude,
+                      'longitude': coordinates.longitude,
+                      'adCode': '',
+                    },
+            ),
+            child: Text(
+              widget.isMapImage ? t.common.cancel : t.common.buttonConfirm,
+            ),
+          ),
+        ),
+      );
+    }
     final widthMax = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
     return CupertinoPageScaffold(
@@ -225,7 +278,7 @@ class _MapLocationPickerState extends State<MapLocationPicker> with _BLoCMixin {
                   children: [
                     // 地图渲染与拖动由官方 JS API 处理。
                     Positioned.fill(
-                      child: WebViewWidget(controller: _webViewController),
+                      child: WebViewWidget(controller: controller),
                     ),
                     // 定位针不依赖内嵌 HTML 中可能失效的 SDK 默认图片。
                     Positioned.fill(
@@ -541,13 +594,14 @@ class _MapLocationPickerState extends State<MapLocationPicker> with _BLoCMixin {
       'adCode': position.adCode,
     };
     try {
+      if (!_mapAllowed) return;
       if (widget.isMapImage) {
         map['image'] = await AMapApi.fetchStaticMapBytes(
           latitude: position.latLng.latitude,
           longitude: position.latLng.longitude,
         );
       }
-      if (mounted) Navigator.pop(context, map);
+      if (mounted && _mapAllowed) Navigator.pop(context, map);
     } catch (_) {
       if (mounted) AppLoading.showToast(t.common.selectLocationFailed);
     } finally {
@@ -573,7 +627,8 @@ class _MapLocationPickerState extends State<MapLocationPicker> with _BLoCMixin {
   /// 程序化移动 JS 地图中心（我的位置 / 点击 POI 列表项），
   /// 对应 HTML 里挂在 window 上的 setMapCenter
   void _panMapTo(LatLng target) {
-    _webViewController.runJavaScript(
+    if (!_mapAllowed) return;
+    _webViewController?.runJavaScript(
       'window.setMapCenter && window.setMapCenter(${target.latitude}, ${target.longitude});',
     );
   }
@@ -605,7 +660,11 @@ class _MapLocationPickerState extends State<MapLocationPicker> with _BLoCMixin {
   Future<void> _handleLoadMore() => _loadPoi(more: true);
 
   Future<void> _loadPoi({bool more = false}) async {
-    if (_sending || (more && (_loading || _loadingMore || !_hasMore))) return;
+    if (!_mapAllowed ||
+        _sending ||
+        (more && (_loading || _loadingMore || !_hasMore))) {
+      return;
+    }
     final generation = more ? _generation : ++_generation;
     final nextPage = more ? page + 1 : 1;
     final keyword = _searchQueryController.text.trim();
@@ -624,7 +683,7 @@ class _MapLocationPickerState extends State<MapLocationPicker> with _BLoCMixin {
     poiStream.add(List.unmodifiable(poiInfoList));
     try {
       final incoming = await _requestPoi(keyword, center, nextPage);
-      if (!mounted || generation != _generation) return;
+      if (!mounted || !_mapAllowed || generation != _generation) return;
       setState(() {
         poiInfoList = more ? [...poiInfoList, ...incoming] : incoming;
         page = nextPage;

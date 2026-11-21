@@ -32,6 +32,9 @@ import 'package:imboy/store/model/user_model.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/store/repository/user_repo_provider.dart';
 import 'package:imboy/service/storage.dart';
+import 'package:imboy/service/optional_sdk_consent.dart';
+import 'package:imboy/service/push_notification_service.dart';
+import 'package:imboy/component/location/amap_helper.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:imboy/theme/default/font_types.dart';
@@ -96,6 +99,56 @@ class _SettingPageState extends ConsumerState<SettingPage> {
   bool _isUpdatingAllowSearch = false;
   bool _isRefreshingKeys = false;
   bool _isLoggingOut = false;
+  bool _isUpdatingSdkConsent = false;
+  final _sdkWithdrawalRetries = <OptionalSdkPurpose>{};
+
+  Future<void> _updateSdkConsent(
+    OptionalSdkPurpose purpose,
+    bool granted,
+  ) async {
+    setState(() => _isUpdatingSdkConsent = true);
+    try {
+      if (purpose == OptionalSdkPurpose.push) {
+        await PushNotificationService.instance.updateConsent(granted);
+      } else {
+        try {
+          await OptionalSdkConsent.instance.setGranted(purpose, granted);
+        } finally {
+          if (!granted) AMapHelper.stopForConsent();
+        }
+      }
+      _sdkWithdrawalRetries.remove(purpose);
+    } on Object {
+      if (!granted) _sdkWithdrawalRetries.add(purpose);
+      if (mounted) AppLoading.showInfo(t.common.operationFailedAgainLater);
+    } finally {
+      if (mounted) setState(() => _isUpdatingSdkConsent = false);
+    }
+  }
+
+  Widget _sdkConsentTile(
+    OptionalSdkPurpose purpose,
+    Brightness brightness, {
+    required String title,
+    required String disclosure,
+  }) {
+    final retry = _sdkWithdrawalRetries.contains(purpose);
+    return DetailSettingsTile(
+      title: Text(title),
+      subtitle: Text(disclosure),
+      value: retry ? t.common.retry : null,
+      onTap: retry && !_isUpdatingSdkConsent
+          ? () => _updateSdkConsent(purpose, false)
+          : null,
+      trailing: CupertinoSwitch(
+        value: OptionalSdkConsent.instance.grant(purpose) != null,
+        activeTrackColor: AppColors.getIosBlue(brightness),
+        onChanged: _isUpdatingSdkConsent || retry
+            ? null
+            : (value) => _updateSdkConsent(purpose, value),
+      ),
+    );
+  }
 
   /// 获取主题类型提示文字
   String themeTypeTips(WidgetRef ref) {
@@ -160,6 +213,7 @@ class _SettingPageState extends ConsumerState<SettingPage> {
     final userRepo = ref.watch(userRepoProvider);
     final themeState = ref.watch(themeProvider);
     final brightness = Theme.of(context).brightness;
+    final chinese = Localizations.localeOf(context).languageCode == 'zh';
 
     return IosPageTemplate(
       title: t.main.setting,
@@ -213,6 +267,25 @@ class _SettingPageState extends ConsumerState<SettingPage> {
           child: ImBoySettingsSection(
             header: Text(t.common.sectionPrivacySecurity.toUpperCase()),
             children: [
+              if (!widget.webMode &&
+                  !kIsWeb &&
+                  (Platform.isAndroid || Platform.isIOS) &&
+                  userRepo.isLoggedIn) ...[
+                _sdkConsentTile(
+                  OptionalSdkPurpose.push,
+                  brightness,
+                  title: chinese ? '远程消息通知' : 'Remote notifications',
+                  disclosure: chinese
+                      ? '允许 Firebase 或极光处理推送设备标识，以便在应用未打开时接收通知。'
+                      : 'Allow Firebase or JPush to process push device identifiers for notifications when the app is closed.',
+                ),
+                _sdkConsentTile(
+                  OptionalSdkPurpose.maps,
+                  brightness,
+                  title: chinese ? '高德地图与地点搜索' : 'AMap and place search',
+                  disclosure: chinese ? '使用地图或查找地点时，允许高德处理位置和搜索词。' : 'Allow AMap to process locations and search terms when you use its map or place search.',
+                ),
+              ],
               DetailSettingsTile(
                 title: Text(t.common.allowSearchMe),
                 subtitle: Text(

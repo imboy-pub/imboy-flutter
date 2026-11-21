@@ -25,7 +25,7 @@ import 'dart:io' show Platform;
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 
-import 'package:flutter/foundation.dart' show visibleForTesting;
+import 'package:flutter/foundation.dart' show kIsWeb, visibleForTesting;
 import 'package:go_router/go_router.dart';
 
 import 'package:imboy/config/const.dart' show Keys;
@@ -36,13 +36,24 @@ import 'package:imboy/service/account_local_task_registry.dart';
 import 'package:imboy/service/auth_session_scope.dart';
 import 'package:imboy/service/notification.dart';
 import 'package:imboy/service/notification_payload_rules.dart';
+import 'package:imboy/service/optional_sdk_consent.dart';
+import 'package:imboy/service/jpush_flutter_binding.dart';
 import 'package:imboy/service/storage.dart';
 import 'package:imboy/store/api/push_api.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 
 /// 推送通知管理服务
 class PushNotificationService {
-  PushNotificationService._();
+  PushNotificationService._({this.startNativeForTest, this.stopNativeForTest});
+
+  @visibleForTesting
+  PushNotificationService.forLifecycleTest({
+    required Future<void> Function() start,
+    required Future<void> Function() stop,
+  }) : this._(startNativeForTest: start, stopNativeForTest: stop);
+
+  final Future<void> Function()? startNativeForTest;
+  final Future<void> Function()? stopNativeForTest;
 
   static final PushNotificationService _instance = PushNotificationService._();
   static PushNotificationService get instance => _instance;
@@ -68,6 +79,92 @@ class PushNotificationService {
 
   /// FCM 是否初始化成功
   bool _fcmEnabled = false;
+  bool _fcmStarted = false;
+  Object? _startingFcm;
+  Future<void>? _registration;
+  Future<void> _lifecycle = Future.value();
+  Object? _activeConsent;
+
+  Object? get _consent =>
+      OptionalSdkConsent.instance.grant(OptionalSdkPurpose.push);
+
+  Future<void> updateConsent(bool granted) async {
+    final preference = OptionalSdkConsent.instance.setGranted(
+      OptionalSdkPurpose.push,
+      granted,
+    );
+    if (granted) {
+      await preference;
+      await synchronizeConsent();
+      return;
+    }
+    // Invalidate the prior consent immediately, even when persistence fails.
+    _invalidateActiveConsent();
+    await Future.wait<void>([
+      preference,
+      _queueLifecycle(_stopOptionalPush),
+      () async {
+        if (!await _unbindToken()) throw StateError('Push token unbind failed');
+      }(),
+    ]);
+  }
+
+  Future<void> _queueLifecycle(Future<void> Function() operation) {
+    final result = _lifecycle.then((_) => operation());
+    _lifecycle = result.then<void>(
+      (_) {},
+      onError: (Object _, StackTrace _) {},
+    );
+    return result;
+  }
+
+  void _invalidateActiveConsent() {
+    _activeConsent = null;
+    _pushToken = null;
+    _providerId = null;
+  }
+
+  Future<void> synchronizeConsent() {
+    final current = _consent;
+    final previous = _activeConsent;
+    final mustStop = previous != null && previous != current;
+    if (mustStop) _invalidateActiveConsent();
+    return _queueLifecycle(() async {
+      if (mustStop) await _stopOptionalPush();
+      if (current == null || current != _consent) return;
+      _activeConsent = current;
+      final start = startNativeForTest;
+      if (start != null) {
+        await start();
+      } else {
+        await Future.wait<void>([
+          initialize(),
+          JPushSdkWiring.instance.initialize(),
+        ]);
+      }
+    });
+  }
+
+  Future<void> _stopOptionalPush() async {
+    _fcmEnabled = false;
+    dispose();
+    final stop = stopNativeForTest;
+    if (stop != null) {
+      await stop();
+      return;
+    }
+    final operations = <Future<void>>[JPushSdkWiring.instance.stop()];
+    if (_fcmStarted) {
+      final messaging = FirebaseMessaging.instance;
+      operations.add(() async {
+        await messaging.setAutoInitEnabled(false);
+        await messaging.deleteToken();
+        _fcmStarted = false;
+      }());
+    }
+    await Future.wait(operations);
+  }
+
   bool get fcmEnabled => _fcmEnabled;
 
   /// 测试专用：重置 token 注册状态（单例跨用例复用，防状态串扰；
@@ -95,12 +192,19 @@ class PushNotificationService {
   /// - 有配置：初始化 FCM，获取远程推送 token
   /// - 无配置：graceful skip，仅使用本地通知
   Future<void> initialize() async {
-    if (LocalExternalServicesPolicy.suppressed) return;
+    if (LocalExternalServicesPolicy.suppressed ||
+        kIsWeb ||
+        (!Platform.isAndroid && !Platform.isIOS)) {
+      return;
+    }
+    final grant = _consent;
+    if (grant == null || _fcmEnabled || _startingFcm != null) return;
+    _startingFcm = grant;
     iPrint('[Push] 推送服务初始化...');
 
     // 整体加 15 秒超时：Huawei/中国设备访问 Google FCM 可能无限等待
     try {
-      await _tryInitFcm().timeout(
+      await _tryInitFcm(grant).timeout(
         const Duration(seconds: 15),
         onTimeout: () {
           AppLogger.warning('[Push] FCM 初始化超时 (15s)，降级为本地通知模式');
@@ -110,6 +214,8 @@ class PushNotificationService {
     } catch (e) {
       AppLogger.warning('[Push] FCM 初始化异常降级: $e');
       _fcmEnabled = false;
+    } finally {
+      _startingFcm = null;
     }
 
     if (_fcmEnabled) {
@@ -123,10 +229,12 @@ class PushNotificationService {
   ///
   /// 如果 Firebase 配置文件不存在（开发环境），
   /// 会捕获异常并 graceful skip，不影响应用正常运行。
-  Future<void> _tryInitFcm() async {
+  Future<void> _tryInitFcm(Object grant) async {
     try {
       await Firebase.initializeApp().timeout(const Duration(seconds: 5));
+      if (_consent != grant || _startingFcm != grant) return;
       final messaging = FirebaseMessaging.instance;
+      _fcmStarted = true;
 
       // 请求推送权限 (iOS 必需，Android 13+ 也需要)
       final settings = await messaging
@@ -134,19 +242,23 @@ class PushNotificationService {
           .timeout(const Duration(seconds: 5));
       iPrint('[Push] 权限状态: ${settings.authorizationStatus}');
 
+      if (_consent != grant || _startingFcm != grant) return;
       if (settings.authorizationStatus == AuthorizationStatus.denied) {
+        await messaging.setAutoInitEnabled(false);
         iPrint('[Push] 用户拒绝推送权限，跳过 FCM');
         return;
       }
 
       // 获取 FCM token（华为设备访问 Google 服务器可能超时）
-      _pushToken = await messaging.getToken().timeout(
+      final token = await messaging.getToken().timeout(
         const Duration(seconds: 10),
         onTimeout: () {
           iPrint('[Push] FCM token 获取超时，降级为本地通知模式');
           return null;
         },
       );
+      if (_consent != grant || _startingFcm != grant) return;
+      _pushToken = token;
       iPrint('[Push] FCM token 获取成功: ${_pushToken != null}');
       _providerId = _pushToken != null
           ? fcmProviderId(isIOS: Platform.isIOS)
@@ -154,6 +266,7 @@ class PushNotificationService {
 
       // 监听 token 刷新
       _tokenRefreshSub = messaging.onTokenRefresh.listen((newToken) {
+        if (_consent != grant) return;
         iPrint('[Push] Token 已刷新');
         _pushToken = newToken;
         _providerId = fcmProviderId(isIOS: Platform.isIOS);
@@ -166,16 +279,19 @@ class PushNotificationService {
       });
 
       // 前台消息处理
-      _onMessageSub = FirebaseMessaging.onMessage.listen(
-        _handleForegroundMessage,
-      );
+      _onMessageSub = FirebaseMessaging.onMessage.listen((message) {
+        if (_consent == grant) _handleForegroundMessage(message);
+      });
 
       // 后台消息处理 (点击通知打开 app)
-      _onMessageOpenedSub = FirebaseMessaging.onMessageOpenedApp.listen(
-        _handleNotificationTap,
-      );
+      _onMessageOpenedSub = FirebaseMessaging.onMessageOpenedApp.listen((
+        message,
+      ) {
+        if (_consent == grant) _handleNotificationTap(message);
+      });
 
       _fcmEnabled = true;
+      await registerToken();
     } catch (e) {
       // Firebase 未配置或初始化失败 — graceful skip
       // 常见原因: 缺少 google-services.json / GoogleService-Info.plist
@@ -224,21 +340,31 @@ class PushNotificationService {
   /// 判据因此改为 [hasServerBinding]（进程内状态 **或** 持久化注册记录），
   /// 同时保留「从未注册过则不发多余请求」的幂等语义。
   Future<void> unregisterToken() async {
-    if (!hasServerBinding()) return;
-    if (!UserRepoLocal.to.isLoggedIn) {
-      iPrint('[Push] 未登录，跳过 token 注销');
-      return;
-    }
+    _invalidateActiveConsent();
+    await Future.wait<void>([
+      _queueLifecycle(_stopOptionalPush).catchError((Object _) {
+        iPrint('[Push] 远程推送服务停止失败');
+      }),
+      _unbindToken().then<void>((_) {}),
+    ]);
+  }
 
+  Future<bool> _unbindToken() async {
+    final scope = (authSessionReader.current.uid, currentEnv, deviceId);
+    await _registration;
+    if (scope != (authSessionReader.current.uid, currentEnv, deviceId)) {
+      return false;
+    }
+    if (!hasServerBinding()) return true;
+    if (scope.$1.isEmpty) return false;
     try {
-      final success = await _api.unregister(deviceId: deviceId);
-      if (success) {
-        _isRegistered = false;
-        await _clearPersistedRegistration();
-        iPrint('[Push] Token 注销成功');
-      }
-    } catch (e) {
-      iPrint('[Push] Token 注销失败: $e');
+      if (!await _api.unregister(deviceId: scope.$3)) return false;
+      _isRegistered = false;
+      await _clearPersistedRegistration();
+      return true;
+    } on Object {
+      iPrint('[Push] Token 注销失败');
+      return false;
     }
   }
 
@@ -254,6 +380,7 @@ class PushNotificationService {
   /// [providerId] 为该通道在后端的 platform 值（jpush 等），
   /// 缺省按 [jpushProviderId] 处理（一期非 FCM 通道仅 JPush）。
   Future<void> setToken(String token, {String? providerId}) async {
+    if (_consent == null) return;
     _pushToken = token;
     _providerId = providerId ?? jpushProviderId;
     if (UserRepoLocal.to.isLoggedIn) {
@@ -269,8 +396,28 @@ class PushNotificationService {
   Future<void> _registerTokenToServer(
     String token, {
     required String providerId,
-  }) async {
+  }) {
+    final pending = _registration;
+    final grant = _consent;
+    final sessionDevice = deviceId;
+    final current = () async {
+      await pending;
+      if (grant == null ||
+          _consent != grant ||
+          deviceId != sessionDevice ||
+          _pushToken != token ||
+          _providerId != providerId) {
+        return;
+      }
+      await _sendTokenRegistration(token, providerId);
+    }();
+    _registration = current;
+    return current;
+  }
+
+  Future<void> _sendTokenRegistration(String token, String providerId) async {
     try {
+      final scope = (authSessionReader.current.uid, currentEnv, deviceId);
       final deviceType = deviceTypeId(isIOS: Platform.isIOS);
       final success = await _api.register(
         token: token,
@@ -278,7 +425,8 @@ class PushNotificationService {
         platform: providerId,
         deviceId: deviceId,
       );
-      if (success) {
+      if (success &&
+          scope == (authSessionReader.current.uid, currentEnv, deviceId)) {
         _isRegistered = true;
         await _persistRegistration();
         iPrint('[Push] Token 注册成功: platform=$providerId');

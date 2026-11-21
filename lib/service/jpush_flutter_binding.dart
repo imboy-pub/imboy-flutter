@@ -21,11 +21,7 @@
 ///
 /// 日志红线：RegistrationID / AppKey / MasterSecret 不落日志。
 ///
-/// **W3 形态注**：本桥为独立新文件（未改 A7 的 push 模块源文件）；
-/// 启动期调用点已于 Q09/G2（2026-10-07）接入 `lib/config/init.dart`
-/// `_initializeServices`——在 `PushNotificationService.initialize()` 之后
-/// `unawaited(JPushSdkWiring().initialize())`（一期 phase1 profile 语义：
-/// `IMBOY_JPUSH_ENABLED` 缺省 false，standard 构建零行为变化）。
+/// 启动由 PushNotificationService 按当前账号的明确授权调度。
 library;
 
 import 'package:imboy/config/local_external_services_policy.dart';
@@ -41,6 +37,7 @@ import 'package:go_router/go_router.dart';
 import 'package:imboy/component/helper/func.dart' show iPrint;
 import 'package:imboy/config/init.dart' show navigatorKey;
 import 'package:imboy/service/notification_payload_rules.dart';
+import 'package:imboy/service/optional_sdk_consent.dart';
 import 'package:imboy/service/push_notification_service.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 // jpush_flutter 3.5.8 主库无 export：JPush 在 jpush_flutter.dart，
@@ -123,6 +120,16 @@ class JPushFlutterPluginChannel implements JPushPluginChannel {
   @override
   Future<String> fetchRegistrationId() => _plugin.getRegistrationID();
 
+  Future<void> stop() async {
+    final result = await _plugin.turnOffPush();
+    if (result['code'] != 0) throw StateError('JPush stop failed');
+  }
+
+  Future<void> resume() async {
+    final result = await _plugin.turnOnPushWithResult();
+    if (result['code'] != 0) throw StateError('JPush resume failed');
+  }
+
   @override
   Future<Map<dynamic, dynamic>> fetchLaunchNotification() =>
       _plugin.getLaunchAppNotification();
@@ -160,27 +167,58 @@ Future<void> _defaultJPushTokenInjector(String registrationId) =>
 /// JPush SDK 接线（一次性 initialize；幂等，重复调用直接返回）。
 class JPushSdkWiring {
   /// 生产形态（全部默认出口；测试用 [JPushSdkWiring.withDefaults] 注入）。
-  JPushSdkWiring() : this.withDefaults();
+  JPushSdkWiring()
+    : this.withDefaults(
+        readConsent: () =>
+            OptionalSdkConsent.instance.grant(OptionalSdkPurpose.push),
+      );
+
+  static final instance = JPushSdkWiring();
 
   JPushSdkWiring.withDefaults({
     JPushPluginChannel? plugin,
     Future<void> Function(String registrationId)? tokenInjector,
     void Function(NotificationParseResult result)? tapRouter,
     bool Function()? enabledCheck,
+    Object? Function()? readConsent,
     int registrationIdPollAttempts = _registrationIdPollAttempts,
   }) : _plugin = plugin ?? JPushFlutterPluginChannel(),
        _tokenInjector = tokenInjector ?? _defaultJPushTokenInjector,
-       _tapRouter = tapRouter ?? routeNotificationTapLikePushService,
+       _tapRouter =
+           tapRouter ??
+           ((result) => routeNotificationTapLikePushService(
+             result,
+             0,
+             OptionalSdkConsent.instance.grant(OptionalSdkPurpose.push),
+           )),
        _enabledCheck = enabledCheck ?? defaultJPushEnabledCheck,
+       _readConsent =
+           readConsent ??
+           (plugin == null
+               ? () =>
+                     OptionalSdkConsent.instance.grant(OptionalSdkPurpose.push)
+               : () => true),
        _pollAttempts = registrationIdPollAttempts;
 
   final JPushPluginChannel _plugin;
   final Future<void> Function(String registrationId) _tokenInjector;
   final void Function(NotificationParseResult result) _tapRouter;
   final bool Function() _enabledCheck;
+  final Object? Function() _readConsent;
   final int _pollAttempts;
 
   bool _initialized = false;
+  Object? _activeGrant;
+  bool _stopRequired = false;
+
+  Future<void> stop() async {
+    if (!_stopRequired) return;
+    _activeGrant = null;
+    _lastInjectedRid = null;
+    final plugin = _plugin;
+    if (plugin is JPushFlutterPluginChannel) await plugin.stop();
+    _stopRequired = false;
+  }
 
   /// 最近一次成功注入的 RegistrationID（只用于**本地去重**，绝不落日志/存储）。
   /// FULL-06：判据从「注入过一次就永久跳过」改为「与上次相同才跳过」——
@@ -192,53 +230,70 @@ class JPushSdkWiring {
   /// 初始化：setup + 事件挂接 + RegistrationID 预热 + 冷启动点击补投。
   Future<void> initialize() async {
     if (LocalExternalServicesPolicy.suppressed) return;
-    if (_initialized) return;
-    _initialized = true;
-
     if (!_enabledCheck()) {
       iPrint('[JPush] 未启用（构建开关关闭或非 Android），跳过初始化');
       return;
     }
 
+    final grant = _readConsent();
+    if (grant == null || _activeGrant == grant) return;
+    final firstStart = !_initialized;
+    _activeGrant = grant;
+    _stopRequired = true;
     try {
-      _plugin.setup(production: !kDebugMode, channel: _jpushChannel);
+      if (firstStart) {
+        _initialized = true;
+        _plugin.setup(production: !kDebugMode, channel: _jpushChannel);
+      }
       _plugin.registerHandlers(
-        onOpenNotification: handleOpenNotification,
-        onReceiveNotification: (Map<String, dynamic> event) async {
-          // 前台到达：JPush 原生自行决定展示（厂商通道默认行为），
-          // Flutter 侧仅观测，不重建本地通知。
-          iPrint('[JPush] 前台通知到达（不路由）');
+        onOpenNotification: (event) async {
+          if (_activeGrant == grant && _readConsent() == grant) {
+            await handleOpenNotification(event);
+          }
         },
-        onConnected: (Map<String, dynamic> event) async {
-          await _tryInjectRegistrationId();
+        onReceiveNotification: (_) async {
+          if (_activeGrant == grant && _readConsent() == grant) {
+            iPrint('[JPush] 前台通知到达（不路由）');
+          }
+        },
+        onConnected: (_) async {
+          if (_activeGrant == grant && _readConsent() == grant) {
+            await _tryInjectRegistrationId(grant);
+          }
         },
       );
-
-      // 冷启动点击补投：通知拉起 App 时 onOpenNotification 不会再来。
-      await _replayColdStartTap();
-
-      // RegistrationID 预热（先立即取一次，再延迟轮询；onConnected 回调
-      // 为主信号，轮询兜底）。
-      unawaited(_warmUpRegistrationId());
-    } on Exception catch (e) {
-      // 原生层异常不拖垮启动（降级语义：无推送，不影响其余功能）。
-      iPrint('[JPush] 初始化异常降级: $e');
+      final plugin = _plugin;
+      if (plugin is JPushFlutterPluginChannel) {
+        await plugin.resume();
+      }
+      if (_activeGrant != grant || _readConsent() != grant) return;
+      if (firstStart) await _replayColdStartTap(grant);
+      unawaited(_warmUpRegistrationId(grant));
+    } on Object {
+      if (_activeGrant == grant) {
+        _activeGrant = null;
+        if (firstStart) _initialized = false;
+      }
+      iPrint('[JPush] 初始化失败，保留应用内通信');
     }
   }
 
   /// 通知点击（后台/前台）→ 解析 → 登录守卫路由。
   Future<void> handleOpenNotification(Map<String, dynamic> event) async {
+    if (_readConsent() == null) return;
     iPrint('[JPush] 通知点击');
     final Map<String, dynamic> payload = extractJPushRoutingPayload(event);
     _tapRouter(parseNotificationPayload(payload));
   }
 
   /// 冷启动通知补投（getLaunchAppNotification；非通知拉起时为空 map）。
-  Future<void> _replayColdStartTap() async {
+  Future<void> _replayColdStartTap(Object grant) async {
     try {
       final Map<dynamic, dynamic> launch = await _plugin
           .fetchLaunchNotification();
-      if (launch.isNotEmpty) {
+      if (_activeGrant == grant &&
+          _readConsent() == grant &&
+          launch.isNotEmpty) {
         iPrint('[JPush] 冷启动通知点击补投');
         final Map<String, dynamic> payload = extractJPushRoutingPayload(launch);
         _tapRouter(parseNotificationPayload(payload));
@@ -248,10 +303,14 @@ class JPushSdkWiring {
     }
   }
 
-  Future<void> _warmUpRegistrationId() async {
+  Future<void> _warmUpRegistrationId(Object grant) async {
     for (int i = 0; i < _pollAttempts; i++) {
-      if (_registrationIdInjected) return;
-      await _tryInjectRegistrationId();
+      if (_activeGrant != grant ||
+          _readConsent() != grant ||
+          _registrationIdInjected) {
+        return;
+      }
+      await _tryInjectRegistrationId(grant);
       if (_registrationIdInjected || i == _pollAttempts - 1) return;
       await Future<void>.delayed(_registrationIdPollInterval);
     }
@@ -262,13 +321,17 @@ class JPushSdkWiring {
   /// rid 与上次相同 → 幂等跳过（onConnected 会反复触发，不去重就会持续重复
   /// 注册）；rid 变化 → 重新注入（JPush 重新签发路径）。
   /// 日志只打布尔结论，不落 rid 明文（秘密红线）。
-  Future<void> _tryInjectRegistrationId() async {
+  Future<void> _tryInjectRegistrationId(Object grant) async {
     try {
       final String rid = await _plugin.fetchRegistrationId();
-      if (rid.isEmpty) return;
+      if (_activeGrant != grant || _readConsent() != grant || rid.isEmpty) {
+        return;
+      }
       if (rid == _lastInjectedRid) return;
       await _tokenInjector(rid);
-      _lastInjectedRid = rid;
+      if (_activeGrant == grant && _readConsent() == grant) {
+        _lastInjectedRid = rid;
+      }
       iPrint('[JPush] RegistrationID 已注入推送服务');
     } on Exception catch (e) {
       iPrint('[JPush] RegistrationID 获取失败: $e');
@@ -286,7 +349,13 @@ class JPushSdkWiring {
 void routeNotificationTapLikePushService(
   NotificationParseResult result, [
   int retry = 0,
+  Object? expectedGrant,
 ]) {
+  if (expectedGrant != null &&
+      OptionalSdkConsent.instance.grant(OptionalSdkPurpose.push) !=
+          expectedGrant) {
+    return;
+  }
   if (tapNavigationGuardSkip()) {
     iPrint('[JPush] 用户未登录，忽略通知点击导航');
     return;
@@ -295,7 +364,7 @@ void routeNotificationTapLikePushService(
   if (context == null || !context.mounted) {
     if (retry < 5) {
       Future<dynamic>.delayed(const Duration(milliseconds: 500), () {
-        routeNotificationTapLikePushService(result, retry + 1);
+        routeNotificationTapLikePushService(result, retry + 1, expectedGrant);
       });
       return;
     }

@@ -19,6 +19,7 @@
 // 运行：flutter test test/unit_test/service/push_token_lifecycle_test.dart
 library;
 
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
@@ -27,12 +28,14 @@ import 'package:dio/dio.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:shared_preferences_platform_interface/shared_preferences_platform_interface.dart';
 
 import 'package:imboy/component/http/http_client.dart';
 import 'package:imboy/config/const.dart';
-import 'package:imboy/config/init.dart' show deviceId;
+import 'package:imboy/config/init.dart' show currentEnv, deviceId;
 import 'package:imboy/service/push_notification_service.dart';
 import 'package:imboy/service/storage.dart';
+import 'package:imboy/service/optional_sdk_consent.dart';
 import 'package:imboy/store/api/push_api.dart';
 
 const Set<String> kContractDeviceTypes = {'android', 'ios', 'web'};
@@ -73,6 +76,18 @@ class _RecordingAdapter implements HttpClientAdapter {
   void close({bool force = false}) {}
 }
 
+class _RejectConsentWrite extends InMemorySharedPreferencesStore {
+  _RejectConsentWrite(super.data) : super.withData();
+
+  @override
+  Future<bool> setValue(String type, String key, Object value) async {
+    if (key.startsWith('flutter.optional_sdk:') && value == 'denied') {
+      return false;
+    }
+    return super.setValue(type, key, value);
+  }
+}
+
 Map<String, dynamic> okEnvelope({dynamic payload}) => {
   'code': 0,
   'msg': 'success',
@@ -101,6 +116,7 @@ void main() {
     TestWidgetsFlutterBinding.ensureInitialized();
     SharedPreferences.setMockInitialValues({});
     await StorageService.init();
+    currentEnv = 'local';
     deviceId = 'did-android-1';
     // 铁律：adapterForTest 只在 HttpClient 构造时绑定——必须先设 adapter，
     // 再触碰 PushNotificationService.instance（其字段初始化即构造 PushApi/Dio）。
@@ -116,8 +132,14 @@ void main() {
   });
 
   /// 写入/清除登录态（mock storage）
-  Future<void> loginAs(int uid) async {
+  Future<void> loginAs(int uid, {bool pushConsent = true}) async {
     await StorageService.to.setString(Keys.currentUid, uid.toString());
+    if (pushConsent) {
+      await OptionalSdkConsent.instance.setGranted(
+        OptionalSdkPurpose.push,
+        true,
+      );
+    }
   }
 
   Future<void> logoutLocal() async {
@@ -225,11 +247,85 @@ void main() {
   // 2. token 生命周期合同（J1/J2：注册、刷新、注销）
   // ---------------------------------------------------------------------------
   group('token 生命周期', () {
-    test('未登录时 setToken 只存不注册（守卫保留：静默跳过）', () async {
+    test('未登录时忽略迟到的推送 token', () async {
       // adapter 由 setUp 注入（见 setUp 铁律注释）
       await PushNotificationService.instance.setToken('rid-jpush-001');
       expect(adapter.requests, isEmpty);
-      expect(PushNotificationService.instance.pushToken, 'rid-jpush-001');
+      expect(PushNotificationService.instance.pushToken, isNull);
+    });
+
+    test('没有推送同意时不缓存或登记 token', () async {
+      await loginAs(1001, pushConsent: false);
+      final service = PushNotificationService.instance;
+      await service.setToken('rid-for-rejected-grant');
+      expect(service.pushToken, isNull);
+      expect(adapter.requests, isEmpty);
+    });
+
+    test('撤回写入失败也立即禁用并解绑已注册 token', () async {
+      await loginAs(1001);
+      final service = PushNotificationService.instance;
+      await service.setToken('rid-withdrawal-test');
+      final previousStore = SharedPreferencesStorePlatform.instance;
+      addTearDown(
+        () => SharedPreferencesStorePlatform.instance = previousStore,
+      );
+      SharedPreferencesStorePlatform.instance = _RejectConsentWrite(
+        await previousStore.getAll(),
+      );
+
+      final withdrawal = service.updateConsent(false);
+      expect(service.pushToken, isNull);
+      expect(
+        OptionalSdkConsent.instance.grant(OptionalSdkPurpose.push),
+        isNull,
+      );
+      await expectLater(withdrawal, throwsStateError);
+      expect(adapter.requests.last.$2, '/api/v1/push/unregister');
+      expect(service.isRegistered, isFalse);
+      await service.setToken('rid-late-after-withdrawal');
+      expect(adapter.requests, hasLength(2));
+    });
+
+    test('旧账号的停止完成前不能启动新账号推送', () async {
+      await loginAs(1001);
+      final events = <String>[];
+      final stopStarted = Completer<void>();
+      final releaseStop = Completer<void>();
+      final service = PushNotificationService.forLifecycleTest(
+        start: () async => events.add('start'),
+        stop: () async {
+          events.add('stop');
+          stopStarted.complete();
+          await releaseStop.future;
+          events.add('stopped');
+        },
+      );
+      await service.synchronizeConsent();
+      final withdrawal = service.updateConsent(false);
+      await stopStarted.future;
+      await loginAs(2002);
+      final startNew = service.synchronizeConsent();
+      await pumpEventQueue();
+      expect(events, ['start', 'stop']);
+      releaseStop.complete();
+      await Future.wait<void>([withdrawal, startNew]);
+      expect(events, ['start', 'stop', 'stopped', 'start']);
+    });
+
+    test('当前同意的显式同步可以重试启动', () async {
+      await loginAs(1001);
+      var starts = 0;
+      final service = PushNotificationService.forLifecycleTest(
+        start: () async {
+          starts++;
+          if (starts == 1) throw StateError('synthetic startup failure');
+        },
+        stop: () async {},
+      );
+      await expectLater(service.synchronizeConsent(), throwsStateError);
+      await service.synchronizeConsent();
+      expect(starts, 2);
     });
 
     test('无 token 时 registerToken 静默跳过（不注册、不炸）', () async {
@@ -300,10 +396,16 @@ void main() {
         hasLength(1),
       );
 
-      // 账号 B 登录：loginAfter → registerToken，同一 rid 必须重新上报
-      // （否则服务端仍按 A 的绑定投递，B 收不到推送）
-      await loginAs(2002);
+      // B 不沿用 A 的回调或 token，完成自身授权后由 SDK 回调重新上报。
+      await loginAs(2002, pushConsent: false);
       await svc.registerToken();
+      await svc.setToken('rid-shared-device', providerId: 'jpush');
+      expect(adapter.requests, hasLength(2));
+      await OptionalSdkConsent.instance.setGranted(
+        OptionalSdkPurpose.push,
+        true,
+      );
+      await svc.setToken('rid-shared-device', providerId: 'jpush');
       final registers = adapter.requests
           .where((r) => r.$2 == '/api/v1/push/register')
           .toList();

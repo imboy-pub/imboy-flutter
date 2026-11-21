@@ -1,5 +1,6 @@
 import 'package:imboy/component/http/web_writer_http_adapter.dart';
 import 'package:imboy/config/local_external_services_policy.dart';
+import 'package:imboy/service/optional_sdk_consent.dart';
 
 import 'dart:async';
 import 'dart:io';
@@ -22,14 +23,47 @@ class AMapHelper {
   late AMapFlutterLocation location;
   late Completer<AMapPosition?> completer;
 
-  // 保存单例
-  static final AMapHelper _to = AMapHelper._internal();
+  static AMapHelper? _active;
+  static Object? get grant =>
+      LocalExternalServicesPolicy.mapsSuppressed ||
+          kIsWeb ||
+          (!Platform.isAndroid && !Platform.isIOS)
+      ? null
+      : OptionalSdkConsent.instance.grant(OptionalSdkPurpose.maps);
 
-  /// 工厂构造函数
-  factory AMapHelper() => _to;
+  factory AMapHelper() {
+    final current = grant;
+    if (current == null) return AMapHelper._internal(null);
+    if (_active?._grant != current) {
+      stopForConsent();
+      init();
+      setApiKey();
+      _active = AMapHelper._internal(current);
+    }
+    return _active!;
+  }
+
+  final Object? _grant;
+  StreamSubscription<Map<String, Object>>? _subscription;
+
+  static void clearIfScopeChanged() {
+    final active = _active;
+    if (active != null && active._grant != grant) stopForConsent();
+  }
+
+  static void stopForConsent() {
+    final active = _active;
+    _active = null;
+    if (active == null) return;
+    if (!active.completer.isCompleted) active.completer.complete(null);
+    unawaited(active._subscription?.cancel());
+    active.stopLocation(active.location);
+    active.destroy(active.location);
+    AMapFlutterLocation.updatePrivacyAgree(false);
+  }
 
   static void init() {
-    if (LocalExternalServicesPolicy.mapsSuppressed) return;
+    if (grant == null) return;
     // 仅在 iOS/Android 平台初始化高德地图隐私协议
     if (kIsWeb || Platform.isMacOS || Platform.isWindows || Platform.isLinux) {
       return;
@@ -41,7 +75,7 @@ class AMapHelper {
   /// AMapHelper.setApiKey()
   /// 设置Android和iOS的apikey
   static void setApiKey() {
-    if (LocalExternalServicesPolicy.mapsSuppressed) return;
+    if (grant == null) return;
     // 仅支持 iOS/Android
     if (kIsWeb || Platform.isMacOS || Platform.isWindows || Platform.isLinux) {
       return;
@@ -56,8 +90,8 @@ class AMapHelper {
   }
 
   // 私有构造函数
-  AMapHelper._internal() {
-    if (LocalExternalServicesPolicy.mapsSuppressed) return;
+  AMapHelper._internal(this._grant) {
+    if (_grant == null) return;
     completer = Completer<AMapPosition?>();
 
     // Web 平台不支持高德地图原生插件，跳过初始化
@@ -67,7 +101,11 @@ class AMapHelper {
 
     location = AMapFlutterLocation();
     Stream<Map<String, Object>> stream = onLocationChanged(location);
-    stream.listen((Map<String, Object> result) {
+    _subscription = stream.listen((Map<String, Object> result) {
+      if (grant != _grant || !identical(_active, this)) {
+        if (identical(_active, this)) stopForConsent();
+        return;
+      }
       // https://lbs.amap.com/api/android-location-sdk/guide/utilities/location-type
       // https://lbs.amap.com/api/flutter/guide/positioning-flutter-plug-in/interface-info
 
@@ -124,7 +162,9 @@ class AMapHelper {
     if (kIsWeb || Platform.isMacOS || Platform.isWindows || Platform.isLinux) {
       return;
     }
-    AMapFlutterLocation.updatePrivacyShow(hasContains, hasShow);
+    if (grant != null) {
+      AMapFlutterLocation.updatePrivacyShow(hasContains, hasShow);
+    }
   }
 
   /// 设置是否已经取得用户同意，如果未取得用户同意，高德定位SDK将不会工作
@@ -134,7 +174,9 @@ class AMapHelper {
     if (kIsWeb || Platform.isMacOS || Platform.isWindows || Platform.isLinux) {
       return;
     }
-    AMapFlutterLocation.updatePrivacyAgree(hasAgree);
+    if (!hasAgree || grant != null) {
+      AMapFlutterLocation.updatePrivacyAgree(hasAgree);
+    }
   }
 
   // 初始化
@@ -177,7 +219,7 @@ class AMapHelper {
 
   /// 开始定位
   Future<AMapPosition?> startLocation() async {
-    if (LocalExternalServicesPolicy.mapsSuppressed) return null;
+    if (_grant == null || grant != _grant) return null;
     // Web 平台不支持高德地图定位
     if (kIsWeb) {
       return null;
@@ -189,13 +231,8 @@ class AMapHelper {
     debugPrint(
       '[PeopleNearbyPerf]     权限检查 ${swPerm.elapsedMilliseconds}ms 结果=$p',
     );
-    if (!p) {
-      return null;
-    }
+    if (!p || grant != _grant) return null;
     final swFix = Stopwatch()..start();
-
-    // 2. 初始化隐私协议（如果未初始化）
-    init();
 
     // 3. 设置定位参数
     setLocationOption(location);
@@ -206,15 +243,13 @@ class AMapHelper {
     }
 
     // 5. 添加超时保护（15秒）
-    final Future<AMapPosition?> timeoutFuture =
-        Future<dynamic>.delayed(const Duration(seconds: 15), () => null).then((
-          _,
-        ) {
-          if (!completer.isCompleted) {
-            completer.complete(null);
-          }
-          return null;
-        });
+    final request = completer;
+    final timeout = Timer(const Duration(seconds: 15), () {
+      if (!request.isCompleted) {
+        request.complete(null);
+        stopLocation(location);
+      }
+    });
 
     // 6. 开启定位
     try {
@@ -226,13 +261,14 @@ class AMapHelper {
     }
 
     // 7. 等待定位结果或超时
-    final result = await Future.any([completer.future, timeoutFuture]);
+    final result = await request.future;
+    timeout.cancel();
     debugPrint(
       '[PeopleNearbyPerf]     高德SDK出坐标 ${swFix.elapsedMilliseconds}ms '
       '${result == null ? '(超时/失败)' : '成功'}',
     );
 
-    return result;
+    return grant == _grant ? result : null;
   }
 
   /// 停止定位
@@ -285,6 +321,7 @@ class AMapApi {
     int page,
     int size,
   ) async {
+    if (AMapHelper.grant == null) throw StateError('AMap consent required');
     Map<String, dynamic> queryParameters = {
       "key": Env().aMapWebKey,
       "location": location,
@@ -307,6 +344,7 @@ class AMapApi {
     int page,
     int size,
   ) async {
+    if (AMapHelper.grant == null) throw StateError('AMap consent required');
     Map<String, dynamic> queryParameters = {
       "key": Env().aMapWebKey,
       "keywords": keywords,
@@ -354,6 +392,7 @@ class AMapApi {
     required double latitude,
     required double longitude,
   }) async {
+    if (AMapHelper.grant == null) return null;
     try {
       guardWebWriterDio(_dio);
       final resp = await _dio.get<List<int>>(

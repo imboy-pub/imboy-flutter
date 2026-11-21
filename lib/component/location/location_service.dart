@@ -127,7 +127,9 @@ class LocationService {
     // 光第一段就能吃掉十几秒。分段计时用于判断真机「首次 3 秒+」到底
     // 是高德慢、还是高德失败后又重定位了一次。
     final swAmap = Stopwatch()..start();
-    AMapPosition? amapResult = await AMapHelper().startLocation();
+    final amapResult = AMapHelper.grant == null
+        ? null
+        : await AMapHelper().startLocation();
     final msAmap = swAmap.elapsedMilliseconds;
 
     // 检查高德定位结果是否有效
@@ -191,7 +193,9 @@ class LocationService {
     if (kIsWeb || Platform.isMacOS) {
       return _getPositionStreamGeolocator();
     } else if (Platform.isIOS) {
-      return _getPositionStreamAMap();
+      return AMapHelper.grant == null
+          ? _getPositionStreamGeolocator()
+          : _getPositionStreamAMap();
     } else if (Platform.isAndroid) {
       // Android: 使用带降级逻辑的高德定位流
       return _getPositionStreamAndroid();
@@ -202,20 +206,25 @@ class LocationService {
   /// iOS 平台：使用高德地图定位流
   Stream<AMapPosition> _getPositionStreamAMap() {
     final amapHelper = AMapHelper();
-    return amapHelper.onLocationChanged(amapHelper.location).map((result) {
-      final longitude = double.tryParse(result['longitude'].toString()) ?? 0;
-      final latitude = double.tryParse(result['latitude'].toString()) ?? 0;
-      final address = result['address'].toString();
+    final grant = AMapHelper.grant;
+    return amapHelper
+        .onLocationChanged(amapHelper.location)
+        .where((_) => AMapHelper.grant == grant)
+        .map((result) {
+          final longitude =
+              double.tryParse(result['longitude'].toString()) ?? 0;
+          final latitude = double.tryParse(result['latitude'].toString()) ?? 0;
+          final address = result['address'].toString();
 
-      return AMapPosition(
-        latLng: LatLng(latitude, longitude),
-        id: '',
-        name: '',
-        address: address,
-        adCode: result['adCode'].toString(),
-        distance: '',
-      );
-    });
+          return AMapPosition(
+            latLng: LatLng(latitude, longitude),
+            id: '',
+            name: '',
+            address: address,
+            adCode: result['adCode'].toString(),
+            distance: '',
+          );
+        });
   }
 
   /// Android 平台：高德优先，失败时降级到 geolocator 流
