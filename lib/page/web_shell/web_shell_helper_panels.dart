@@ -21,17 +21,23 @@ class WebMineMinPanel extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final settings = switch (section) {
+      null || 'profile' => false,
+      'setting' || 'settings' || 'privacy' => true,
+      _ => null,
+    };
+    if (settings == null) return const SizedBox.shrink();
+
     final user = ref.watch(currentUserProvider);
     if (user == null) {
       return Center(child: Text(context.t.common.notLoggedIn));
     }
-    return switch (section) {
-      'setting' || 'settings' => const SettingPage(webMode: true),
-      _ => PersonalInfoPage(
-        key: ValueKey('web-personal-info:${user.uid}'),
-        readOnly: true,
-      ),
-    };
+    return settings
+        ? SettingPage(key: ValueKey('web-settings:${user.uid}'), webMode: true)
+        : PersonalInfoPage(
+            key: ValueKey('web-personal-info:${user.uid}'),
+            readOnly: true,
+          );
   }
 }
 
