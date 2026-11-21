@@ -85,6 +85,7 @@ WEB_TITLE="" ; PUSH_DEMO="unset"
 RESOLVED_SCHEME="" ; SCHEME_RESOLUTION="" ; SCHEME_INHERITED=0
 ANDROID_REGISTERED_SCHEMES="not-injected" ; IOS_REGISTERED_SCHEMES="not-injected"
 IOS_ALL_URL_SCHEMES="not-injected"
+IOS_APP_GROUP_STATUS="not-applicable"
 URL_SCHEME_VALIDATION="not-applicable"
 ANDROID_APK_SCHEMES="not-built" ; ANDROID_APK_TOOL="none" ; IOS_APP_SCHEMES="not-built"
 
@@ -570,6 +571,7 @@ inject_ios_identity() {
     "$WORKTREE"/ios/Runner/*.entitlements \
     "$WORKTREE"/ios/ShareExtension/*.entitlements \
     || die "iOS App Group cross-verification failed — vendor/cross-customer group remains"
+  IOS_APP_GROUP_STATUS="verified"
   # F11: rewrite ONLY the IMBoy deeplink URL type's CFBundleURLSchemes
   # (CFBundleURLName == "imboy.pub"); weixin/alipay/ShareMedia URL types,
   # E2EE backup registrations and every other plist key stay untouched.
@@ -1030,6 +1032,9 @@ MANIFEST="$STAGING_DIR/build-manifest.yaml"
   echo "  android_application_id: $APP_ID"
   echo "  ios_bundle_id: $BUNDLE_ID"
   echo "  display_name: $APP_NAME"
+  echo "  ios_app_group_id: group.$BUNDLE_ID"
+  echo "ios_app_group_validation_status: $IOS_APP_GROUP_STATUS"
+  echo "ios_app_group_evidence_source: ShareExtension-Info.plist + Runner/ShareExtension-entitlements"
   echo "  url_scheme: $URL_SCHEME_NOTE"
   echo "url_scheme:"
   echo "  configured_url_scheme: $RESOLVED_SCHEME"
