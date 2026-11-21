@@ -760,6 +760,21 @@ class MessageActions {
         throw StateError('edit target changed or revoked');
       }
       final payload = Map<String, dynamic>.from(current.payloadMap);
+      // FL-03（LOCAL:01 反序/旧设备重放、LOCAL:03 时间倒挂）：
+      // edited_at 是编辑版本的权威时戳（服务端回执字段优先）。旧版本编辑
+      // 晚到（incoming < existing）不得回退正文——保持权威最新状态，按
+      // 已处理收敛（幂等确认，不触发第二次会话刷新/未读联动）。
+      final existingEditedAt = parseModelInt(payload['edited_at']);
+      final incomingEditedAt = parseModelInt(editedAt);
+      if (existingEditedAt > 0 &&
+          incomingEditedAt > 0 &&
+          incomingEditedAt < existingEditedAt) {
+        iPrint(
+          '🟡 [FL-03] 旧版本编辑到达，保持权威最新状态: msgId=${current.id}, '
+          'incoming_edited_at=$incomingEditedAt < existing_edited_at=$existingEditedAt',
+        );
+        return 1;
+      }
       payload['text'] = content;
       payload['edited_at'] = editedAt ?? DateTimeHelper.millisecond();
       payload['is_edited'] = true;
