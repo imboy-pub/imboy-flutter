@@ -756,7 +756,16 @@ if [ "$DRY_RUN" = "0" ] && { has_platform android || has_platform ios; }; then
   # them, so native Dart compilation fails on undefined names (_Env). Regenerate
   # inside the disposable worktree from the copied .env files.
   info "regenerating build_runner artifacts (envied etc.) inside isolated worktree"
-  ( cd "$WORKTREE" && dart run build_runner build ) || die "build_runner codegen failed"
+  # Use flutter-driven pub resolution: a fresh worktree has no
+  # .dart_tool/package_config.json, and `dart run` would implicitly run
+  # `dart pub get`, which cannot resolve `sdk: flutter` dependencies
+  # (flutter_secure_storage_platform_interface) — "Flutter users should use
+  # `flutter pub`". This is an SDK-dependency resolution error, NOT a network
+  # error. flutter pub get --enforce-lockfile resolves the tracked
+  # pubspec.lock without upgrading; matches .github/scripts/ci_gen_env.sh.
+  ( cd "$WORKTREE" && flutter pub get --enforce-lockfile \
+      && flutter pub run build_runner build --delete-conflicting-outputs ) \
+    || die "build_runner codegen failed (stage: flutter pub get / build_runner; see log above for resolution-vs-network-vs-codegen)"
   CODEGEN_DISCLOSURE="envied/build_runner codegen regenerated in-worktree from vendor .env files; demo artifacts embed vendor demo client-side credentials (client-extractable by design, same disclosure posture as inherited demo API)"
 fi
 

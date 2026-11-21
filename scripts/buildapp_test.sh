@@ -331,6 +331,54 @@ else
   bad "T7-parse-aapt2" "$(python3 "$SCHEME_TOOL" parse-aapt2 "$TT/xmltree.txt" 2>&1)"
 fi
 
+echo "== T8: XXE / hostile-XML fail-closed (defusedxml) =="
+# T8a normal manifest still parses + verifies after the parser swap
+if python3 "$SCHEME_TOOL" verify-android "$TT/m-base.xml" imboy --allow-vendor-imboy >/dev/null 2>&1; then
+  ok "T8a-normal-manifest-parses"
+else
+  bad "T8a-normal-manifest-parses" "normal AndroidManifest failed to parse under defusedxml"
+fi
+# XXE fixtures: DOCTYPE is banned outright (forbid_dtd), so every hostile
+# variant fails closed BEFORE any entity/network/file access can happen.
+NS='xmlns:android="http://schemas.android.com/apk/res/android"'
+mk_xxe() { # $1=outfile $2=doctype-body $3=scheme-value
+  cat > "$1" <<EOF
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE manifest [$2]>
+<manifest $NS>
+  <application>
+    <activity android:name=".MainActivity" android:exported="true">
+      <intent-filter>
+        <action android:name="android.intent.action.VIEW"/>
+        <category android:name="android.intent.category.DEFAULT"/>
+        <category android:name="android.intent.category.BROWSABLE"/>
+        <data android:scheme="$3"/>
+      </intent-filter>
+    </activity>
+  </application>
+</manifest>
+EOF
+}
+mk_xxe "$TT/xxe-file.xml" '<!ENTITY xxe SYSTEM "file:///etc/passwd">' '&xxe;'
+mk_xxe "$TT/xxe-net.xml" '<!ENTITY xxe SYSTEM "http://169.254.169.254/latest/meta-data/">' '&xxe;'
+mk_xxe "$TT/xxe-bomb.xml" '<!ENTITY a "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"><!ENTITY b "&a;&a;&a;&a;&a;&a;&a;&a;&a;&a;"><!ENTITY c "&b;&b;&b;&b;&b;&b;&b;&b;&b;&b;"><!ENTITY d "&c;&c;&c;&c;&c;&c;&c;&c;&c;&c;"><!ENTITY e "&d;&d;&d;&d;&d;&d;&d;&d;&d;&d;"><!ENTITY f "&e;&e;&e;&e;&e;&e;&e;&e;&e;&e;"><!ENTITY g "&f;&f;&f;&f;&f;&f;&f;&f;&f;&f;"><!ENTITY h "&g;&g;&g;&g;&g;&g;&g;&g;&g;&g;"><!ENTITY i "&h;&h;&h;&h;&h;&h;&h;&h;&h;&h;">' '&i;'
+printf '<?xml version="1.0"?><manifest %s><application><activity' "$NS" > "$TT/xxe-trunc.xml"
+XXE_OK=1
+for x in xxe-file xxe-net xxe-bomb xxe-trunc; do
+  out=$(python3 "$SCHEME_TOOL" verify-android "$TT/$x.xml" alphaapp 2>&1); rc=$?
+  if [ "$rc" -eq 0 ]; then bad "T8-xxe-$x" "hostile XML was ACCEPTED (rc=0)"; XXE_OK=0
+  elif ! echo "$out" | grep -Eqi 'forbidden|not well-formed|ParseError|cap|DTD'; then bad "T8-xxe-$x" "failed but without a fail-closed reason: $out"; XXE_OK=0
+  else ok "T8-xxe-$x-fail-closed"; fi
+done
+# T8f: the file-entity variant must NOT leak the referenced file's content
+if ! python3 "$SCHEME_TOOL" verify-android "$TT/xxe-file.xml" alphaapp 2>&1 | grep -q 'root:'; then
+  ok "T8f-file-entity-content-not-leaked"
+else
+  bad "T8f-file-entity-content-not-leaked" "/etc/passwd content leaked through the parse error path"
+  XXE_OK=0
+fi
+[ "$XXE_OK" = "1" ] || true
+
 echo "== S: URL-scheme end-to-end (dry-run receipts, F09-F12) =="
 # S1 android: customer scheme registered, vendor scheme gone
 run_capture "S1-android-alpha" customer-alpha development android --dry-run

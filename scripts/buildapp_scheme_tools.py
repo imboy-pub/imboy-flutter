@@ -31,16 +31,36 @@ Subcommands:
 """
 
 import json
+import os
 import plistlib
 import re
 import sys
-import xml.etree.ElementTree as ET
+
+# XXE-safe XML parsing (scripts/requirements-tooling.txt, pinned+hashed).
+# AndroidManifest.xml / apkanalyzer manifest dumps carry no DTD and never
+# legitimately reference entities, so the parser runs with the strictest
+# switches (forbid_dtd/forbid_entities/forbid_external): any DTD, entity or
+# external reference fails closed instead of being resolved. Parsing is also
+# size-capped to bound resource consumption from hostile/oversized files.
+# This replaces xml.etree.ElementTree per python.lang.security.use-defused-xml.
+import defusedxml.ElementTree as SafeET
 
 VENDOR_SCHEME = "imboy"
 VENDOR_DEEPLINK_HOST = "imboy.pub"
 IOS_DEEPLINK_URL_NAME = "imboy.pub"
 SCHEME_RE = re.compile(r"^[a-z][a-z0-9+.\-]{0,39}$")
 ANDROID_NS = "{http://schemas.android.com/apk/res/android}"
+MAX_XML_BYTES = 10 * 1024 * 1024  # 10 MB; largest real manifest here is ~15 KB
+
+
+def parse_xml(path):
+    size = os.path.getsize(path)
+    if size > MAX_XML_BYTES:
+        fail("XML file exceeds the %d-byte parse cap: %s (%d bytes)" % (MAX_XML_BYTES, path, size))
+    parser = SafeET.DefusedXMLParser(
+        forbid_dtd=True, forbid_entities=True, forbid_external=True
+    )
+    return SafeET.parse(path, parser).getroot()
 
 
 def out(payload):
@@ -125,7 +145,7 @@ def _filter_summary(flt):
 
 
 def _android_state(path):
-    root = ET.parse(path).getroot()
+    root = parse_xml(path)
     filters = [
         {"activity": name, **_filter_summary(flt)}
         for name, flt in _activity_filters(root)
@@ -418,7 +438,9 @@ def main(argv):
         else:
             print(__doc__, file=sys.stderr)
             return 64
-    except (OSError, ET.ParseError, plistlib.InvalidFileException) as exc:
+    except Exception as exc:  # fail-closed: parse errors, DTD/entity/external
+        # reference bans (DTDForbidden/EntitiesForbidden/
+        # ExternalReferenceForbidden), plist errors, IO errors
         fail("%s: %s" % (type(exc).__name__, exc))
     return 0
 
