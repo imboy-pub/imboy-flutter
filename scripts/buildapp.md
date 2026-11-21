@@ -82,7 +82,7 @@ macOS 保留已验证的原生工具（sips 重采样为交付已验证路径）
 ## 测试与 CI
 
 ```bash
-bash scripts/buildapp_test.sh     # 86 项断言 / 四层（01-20 原契约 + T 工具级 + S scheme 端到端 + R 收据隔离）
+bash scripts/buildapp_test.sh     # 91 项断言 / 四层（01-20 原契约 + T 工具级 + S scheme 端到端 + R 收据隔离）
 ```
 
 - fixture 由 `scripts/buildapp_fixture.sh` 生成（`selftest-*` / `customer-alpha` scheme=alphaapp / `customer-beta` scheme=betaapp / `customer-prod` 等），全部取材仓内中性 vendor 图标，运行后自清理，不使用任何真实客户资源。
