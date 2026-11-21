@@ -58,6 +58,10 @@ class WebChatPanelState extends ConsumerState<WebChatPanel> {
   ChatEventSubscriptionManager? _events;
   StreamSubscription<ChatOperation>? _operations;
   StreamSubscription<ConversationAuthoritySyncEvent>? _authority;
+  // FL-06：编辑/引用意图（接既有 send_mode_rules/编辑权威模型）与
+  // 撤回后「重新编辑」事件订阅（共享 manager 的 setText 对 web 无作用）。
+  StreamSubscription<dynamic>? _reEdit;
+  WebComposerIntentController? _composerIntents;
   String? _claimedConversation;
   var _request = 0;
   var _loading = true;
@@ -147,6 +151,15 @@ class WebChatPanelState extends ConsumerState<WebChatPanel> {
     final authority = _authority;
     _authority = null;
     if (authority != null) unawaited(authority.cancel());
+    final reEdit = _reEdit;
+    _reEdit = null;
+    if (reEdit != null) unawaited(reEdit.cancel());
+    final composerIntents = _composerIntents;
+    _composerIntents = null;
+    if (composerIntents != null) {
+      composerIntents.removeListener(_onComposerIntentsChanged);
+      composerIntents.dispose();
+    }
     _events?.dispose();
     _events = null;
     final operations = _operations;
@@ -157,6 +170,12 @@ class WebChatPanelState extends ConsumerState<WebChatPanel> {
       MessageRepo.setCurrentActiveConversationUk3(null);
     }
     _claimedConversation = null;
+  }
+
+  /// FL-06：意图跃迁 → 面板刷新（意图条/菜单可达性随状态收敛）。
+  void _onComposerIntentsChanged() {
+    if (!mounted) return;
+    setState(() {});
   }
 
   void _onAuthChanged() {
@@ -242,6 +261,11 @@ class WebChatPanelState extends ConsumerState<WebChatPanel> {
         notifier.syncMessagesToState();
       }
     });
+    // FL-06：真实编辑/引用意图控制器（替代此前 no-op 编辑 setter 的占位）。
+    final composerIntents = WebComposerIntentController();
+    composerIntents.addListener(_onComposerIntentsChanged);
+    _composerIntents = composerIntents;
+    _reEdit = webBindReEditEvents(controller: composerIntents);
     _events = ChatEventSubscriptionManager(
       widgetRef: ref,
       peerId: selection.peerId,
@@ -249,7 +273,7 @@ class WebChatPanelState extends ConsumerState<WebChatPanel> {
       chatType: selection.chatType,
       conversationUk3: key,
       msgIds: <String>{},
-      editingMessageIdSetter: (_) {},
+      editingMessageIdSetter: _handleEditingMessageIdEvent,
       chatInputKey: GlobalKey<ChatInputState>(),
       isBurnMessageChecker: (message) =>
           _conversation != null && ChatPageUtils.isBurnMessage(message),
@@ -260,6 +284,19 @@ class WebChatPanelState extends ConsumerState<WebChatPanel> {
     )..setupCoreMessageListeners();
     _claimedConversation = key;
     MessageRepo.setCurrentActiveConversationUk3(key);
+  }
+
+  /// FL-06：共享订阅管理器的真实编辑 setter（UX 合同：Web 不以 no-op
+  /// 编辑 setter 冒充能力）。id 非空 → 设置编辑目标；null/空 → 取消编辑。
+  /// 快照文本由 [webBindReEditEvents] 的事件订阅补充。
+  void _handleEditingMessageIdEvent(String? messageId) {
+    final controller = _composerIntents;
+    if (controller == null || !mounted) return;
+    if (messageId == null || messageId.isEmpty) {
+      controller.cancelIntent();
+      return;
+    }
+    controller.beginReEdit(messageId);
   }
 
   Future<void> _resolvePeerTitle(
@@ -515,6 +552,10 @@ class WebChatPanelState extends ConsumerState<WebChatPanel> {
         .length;
     final readingRevision = _readingRevision;
     final conversationKey = _conversationKey;
+    // FL-06：多选激活态（flag 关闭时恒 false，零 UI 变化）+ 编辑失权守卫。
+    final multiSelectActive =
+        webMultiSelectEnabled() && webMultiSelectActiveOf(ref, conversationKey);
+    _guardEditingIntent();
     bool readingCurrent() =>
         mounted &&
         _readingOwned &&
@@ -522,7 +563,7 @@ class WebChatPanelState extends ConsumerState<WebChatPanel> {
         readingRevision == _readingRevision &&
         conversationKey == _conversationKey &&
         ref.read(chatProvider).currentConversationId == conversationKey;
-    return ChatPanel(
+    final panel = ChatPanel(
       scrollController: _messageScrollController,
       preserveReadingPosition: true,
       initialReadingAnchor: _savedReading,
@@ -630,8 +671,18 @@ class WebChatPanelState extends ConsumerState<WebChatPanel> {
           context: context,
         ),
       ),
-      messageItemWrapper: (context, message, child) =>
-          _wrapWebMessage(context, message, child, readPolicy),
+      messageItemWrapper: (context, message, child) {
+        final wrapped = _wrapWebMessage(context, message, child, readPolicy);
+        // FL-06：多选激活 → 勾选框行包装（mobile chat_message_item 同语义）。
+        if (!multiSelectActive) return wrapped;
+        return webMultiSelectRowWrapper(
+          context,
+          ref: ref,
+          conversationUk3: conversationKey,
+          message: message,
+          child: wrapped,
+        );
+      },
       messageStatusBuilder: (context, message) {
         final theme = ref.read(themeProvider.notifier);
         return webMessageStatus(
@@ -642,6 +693,11 @@ class WebChatPanelState extends ConsumerState<WebChatPanel> {
       },
       onMessageTap: (message) {
         if (!mounted || !_active) return;
+        // FL-06：多选模式点消息 = 切换勾选（mobile onMessageTap 同语义）。
+        if (multiSelectActive) {
+          webToggleMessageSelection(ref, conversationKey, message);
+          return;
+        }
         if (message is ImageMessage) {
           _previewImage(message);
           return;
@@ -660,6 +716,15 @@ class WebChatPanelState extends ConsumerState<WebChatPanel> {
       },
       inputArea: peerMissing
           ? const SizedBox.shrink()
+          : multiSelectActive
+          // FL-06：多选模式底部动作栏替换 composer（mobile 同语义）；
+          // 进入前草稿已 await 落盘，退出后 composer 从草稿恢复。
+          ? WebMultiSelectActionBar(
+              conversationUk3: conversationKey,
+              sourceChatType: widget.selection.chatType,
+              conversationTitle: title,
+              peerId: widget.selection.peerId,
+            )
           : (widget.selection.chatType == 'C2G'
                 ? WebGroupComposerGate(
                     groupId: widget.selection.peerId,
@@ -669,6 +734,11 @@ class WebChatPanelState extends ConsumerState<WebChatPanel> {
                   )
                 : widget.inputArea),
     );
+    // FL-06：编辑/引用意图注入面（inputArea 在 ChatPanel 子树内，
+    // WebChatInput 经 scope 读取意图并注册草稿落盘钩子）。
+    final intents = _composerIntents;
+    if (intents == null) return panel;
+    return WebComposerIntentScope(controller: intents, child: panel);
   }
 
   void _previewImage(ImageMessage message) {
@@ -698,28 +768,34 @@ class WebChatPanelState extends ConsumerState<WebChatPanel> {
     }
   }
 
-  /// Phase 2.1.b-5a/c — 长按消息：弹底部菜单
+  /// Phase 2.1.b-5a/c + FL-06 — 长按消息：弹底部菜单
   ///
-  /// 当前菜单项（按可见性条件）：
-  /// - 复制（resolveCopyableText 非 null 时）— 真实写入 Clipboard
-  /// - 撤回（canShowRecallAction true 时，即自己发的 + 时间窗内）— 已接 _revokeMessage
-  /// - 取消
-  ///
-  /// 后续切片可扩展：转发 / 收藏 / 删除 / 引用回复。
+  /// 菜单项可见性统一由 [resolveWebLongPressMenuPlan] 决策（最低 UX 合同
+  /// 决策点，chrome 测试钉矩阵）：复制 / 引用 / 编辑 / 撤回 / 删除 / 多选。
+  /// 动作全部接既有模型：
+  /// - 引用 → WebComposerIntentController.beginQuote（发送走 mobile
+  ///   `_sendQuoteMessage` 同 metadata 合同，快照/撤回隐藏由共享模型管）；
+  /// - 编辑 → beginEdit（ChatPageUtils.canEditMessage 过滤，发送走
+  ///   MessagingFacade.sendEditMessage 权威模型）；
+  /// - 撤回 → _revokeMessage（既有）；
+  /// - 删除 → _deleteMessageForMe（mobile deleteMessageForMe 同合同）；
+  /// - 多选 → _enterMultiSelect（messageSelectionProvider 既有模型）。
   void _handleLongPress(Message message) {
     final request = _request;
     final selection = widget.selection;
     final owner = _owner;
     if (owner == null || !_current(request, selection, owner)) return;
     final copyable = resolveCopyableText(message);
-    final canRecall = canShowRecallAction(
+    final plan = resolveWebLongPressMenuPlan(
       message: message,
       currentUserId: widget.currentUserId,
       nowMs: DateTime.now().millisecondsSinceEpoch,
+      multiSelectFlagEnabled: webMultiSelectEnabled(),
+      conversationAvailable: _conversationKey.isNotEmpty,
     );
 
     // 没有任何可操作项时不弹菜单（避免空白菜单困惑用户）
-    if (copyable == null && !canRecall) return;
+    if (plan.isEmpty) return;
 
     final ctx = context;
     final t = Translations.of(ctx);
@@ -730,7 +806,7 @@ class WebChatPanelState extends ConsumerState<WebChatPanel> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              if (copyable != null)
+              if (plan.canCopy && copyable != null)
                 ListTile(
                   key: const ValueKey('web-msg-action-copy'),
                   leading: const Icon(CupertinoIcons.doc_on_doc),
@@ -746,7 +822,29 @@ class WebChatPanelState extends ConsumerState<WebChatPanel> {
                     );
                   },
                 ),
-              if (canRecall)
+              if (plan.canQuote)
+                ListTile(
+                  key: const ValueKey('web-msg-action-quote'),
+                  leading: const Icon(CupertinoIcons.reply),
+                  title: Text(t.chat.reply),
+                  onTap: () {
+                    Navigator.of(sheetCtx).pop();
+                    if (!_current(request, selection, owner)) return;
+                    _composerIntents?.beginQuote(message);
+                  },
+                ),
+              if (plan.canEdit)
+                ListTile(
+                  key: const ValueKey('web-msg-action-edit'),
+                  leading: const Icon(CupertinoIcons.pencil),
+                  title: Text(t.common.edit),
+                  onTap: () {
+                    Navigator.of(sheetCtx).pop();
+                    if (!_current(request, selection, owner)) return;
+                    _composerIntents?.beginEdit(message, widget.currentUserId);
+                  },
+                ),
+              if (plan.canRecall)
                 ListTile(
                   key: const ValueKey('web-msg-action-recall'),
                   leading: const Icon(CupertinoIcons.arrow_counterclockwise),
@@ -755,6 +853,28 @@ class WebChatPanelState extends ConsumerState<WebChatPanel> {
                     Navigator.of(sheetCtx).pop();
                     if (!_current(request, selection, owner)) return;
                     unawaited(_revokeMessage(message));
+                  },
+                ),
+              if (plan.canDelete)
+                ListTile(
+                  key: const ValueKey('web-msg-action-delete'),
+                  leading: const Icon(CupertinoIcons.delete),
+                  title: Text(t.common.buttonDelete),
+                  onTap: () {
+                    Navigator.of(sheetCtx).pop();
+                    if (!_current(request, selection, owner)) return;
+                    unawaited(_deleteMessageForMe(message));
+                  },
+                ),
+              if (plan.canMultiSelect)
+                ListTile(
+                  key: const ValueKey('web-msg-action-multiselect'),
+                  leading: const Icon(CupertinoIcons.checkmark_circle),
+                  title: Text(t.chat.multiSelect),
+                  onTap: () {
+                    Navigator.of(sheetCtx).pop();
+                    if (!_current(request, selection, owner)) return;
+                    unawaited(_enterMultiSelect(message));
                   },
                 ),
               ListTile(
@@ -768,6 +888,64 @@ class WebChatPanelState extends ConsumerState<WebChatPanel> {
         );
       },
     );
+  }
+
+  /// FL-06：多选进入 —— 先 await 草稿落盘（mobile flushDraft 契约；落盘
+  /// 失败不卸载输入框避免丢草稿），再走既有 messageSelectionProvider.enter。
+  Future<void> _enterMultiSelect(Message message) async {
+    final controller = _composerIntents;
+    if (controller == null || !mounted) return;
+    final flusher = controller.draftFlusher;
+    if (flusher != null) {
+      final flushed = await flusher();
+      if (!flushed || !mounted) return;
+    }
+    webEnterMultiSelect(ref, _conversationKey, message);
+  }
+
+  /// FL-06：删除（仅自己）—— 接 mobile MessageActionHandler.deleteMessageForMe
+  /// 同合同：C2G 先发 S2C DEL_FOR_ME，随后 removeMessage（DB/会话联动）+
+  /// chatService.removeMessageById（UI 移除）。会话行缺失时失败提示，
+  /// 不做静默成功（刷新后结果一致）。
+  Future<void> _deleteMessageForMe(Message message) async {
+    final request = _request;
+    final selection = widget.selection;
+    final owner = _owner;
+    if (owner == null || !_current(request, selection, owner)) return;
+    final notifier = ref.read(chatProvider.notifier);
+    if (widget.selection.chatType == 'C2G') {
+      await notifier.sendMessage(
+        webDeleteForMePayload(
+          message: message,
+          chatType: widget.selection.chatType,
+          currentUserId: widget.currentUserId,
+        ),
+      );
+    }
+    final conversation = _conversation;
+    if (conversation == null) {
+      AppLoading.showToast(t.common.operationFailedAgainLater);
+      return;
+    }
+    final removed = await notifier.removeMessage(conversation, message);
+    if (!_current(request, selection, owner)) return;
+    if (!removed) {
+      AppLoading.showToast(t.common.operationFailedAgainLater);
+      return;
+    }
+    await notifier.chatService?.removeMessageById(message.id);
+  }
+
+  /// FL-06：编辑意图失权守卫（撤回先到/消息离列表 → 隐藏摘要，无权限旁路）。
+  /// 无法判定（服务消息列表为空）时不猜，避免瞬态镜像误伤编辑态。
+  void _guardEditingIntent() {
+    final controller = _composerIntents;
+    if (controller == null || !controller.intent.isEditing) return;
+    final live = ref.read(chatProvider.notifier).chatService?.messages;
+    if (live == null || live.isEmpty) return;
+    if (webEditIntentInvalidated(controller.intent, live)) {
+      controller.invalidateEditing();
+    }
   }
 
   /// Phase 2.1.b-5d — 撤回消息（接 MessagingFacade.sendRevokeMessage）
