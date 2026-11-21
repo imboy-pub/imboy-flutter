@@ -1,8 +1,8 @@
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:cupertino_ui/cupertino_ui.dart';
 import 'package:material_ui/material_ui.dart';
+import 'package:flutter/foundation.dart';
 import 'package:go_router/go_router.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/app_loading.dart';
@@ -10,6 +10,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:imboy/component/ui/ios_settings_ui.dart';
 import 'package:intl/intl.dart';
 import 'package:imboy/i18n/strings.g.dart';
+import 'package:imboy/service/account_export_download.dart';
 import 'package:imboy/service/account_local_files.dart';
 import 'package:imboy/service/account_local_task_registry.dart';
 import 'package:imboy/service/auth_session_scope.dart';
@@ -95,14 +96,20 @@ class LogoutAccountNotifier extends _$LogoutAccountNotifier {
           final data = await userApi.exportUserData();
           ensureCurrent();
           if (data == null) throw StateError('Account export failed');
-          final tempDir = await AccountLocalFiles.directory(task);
-          ensureCurrent();
-          final timestamp = DateTime.now().millisecondsSinceEpoch;
-          final file = File('${tempDir.path}/imboy_data_$timestamp.json');
           final jsonStr = const JsonEncoder.withIndent('  ').convert(data);
-          await file.writeAsString(jsonStr, flush: true);
+          final timestamp = DateTime.now().millisecondsSinceEpoch;
+          // FL-13：Web 走浏览器下载（无本地路径承诺）；原生写入账号隔离目录。
+          final tempDir = kIsWeb
+              ? null
+              : await AccountLocalFiles.directory(task);
           ensureCurrent();
-          return file.path;
+          final saved = await saveAccountExportJson(
+            fileName: 'imboy_data_$timestamp.json',
+            jsonContent: jsonStr,
+            intoDirectoryPath: tempDir?.path,
+          );
+          ensureCurrent();
+          return saved.location;
         },
       );
     } on Object catch (e) {
@@ -245,12 +252,16 @@ class LogoutAccountPage extends ConsumerWidget {
                             .exportUserData();
                         AppLoading.dismiss();
                         if (filePath == null) return;
-                        await SharePlus.instance.share(
-                          ShareParams(
-                            files: [XFile(filePath)],
-                            text: t.chat.exportMyData,
-                          ),
-                        );
+                        // FL-13：Web 下载已由 saveAccountExportJson 完成
+                        // （浏览器落点），不再走本地文件分享。
+                        if (!kIsWeb) {
+                          await SharePlus.instance.share(
+                            ShareParams(
+                              files: [XFile(filePath)],
+                              text: t.chat.exportMyData,
+                            ),
+                          );
+                        }
                       },
               ),
             ],
