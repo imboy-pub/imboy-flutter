@@ -1,6 +1,7 @@
 import 'package:imboy/service/explicit_web_logout.dart';
 
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter/foundation.dart' show debugPrintSynchronously;
 import 'package:shared_preferences/shared_preferences.dart';
@@ -33,6 +34,8 @@ import 'package:imboy/config/routes.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/modules/organization/presentation/organization_routes.dart';
 import 'package:imboy/page/mine/setting/setting_page.dart';
+import 'package:imboy/page/mine/account_security/account_security_page.dart';
+import 'package:imboy/page/single/markdown_page.dart';
 import 'package:imboy/service/storage.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/service/auth_session_scope.dart';
@@ -113,6 +116,14 @@ GoRouter _stubRouter({
         builder: (_, _) => stub('account_security stub'),
       ),
       GoRoute(path: '/language', builder: (_, _) => stub('language stub')),
+      GoRoute(
+        path: '/terms_of_service',
+        builder: (_, _) => stub('terms_of_service stub'),
+      ),
+      GoRoute(
+        path: '/logout_account',
+        builder: (_, _) => stub('logout_account stub'),
+      ),
       GoRoute(
         path: '/dark_model',
         builder: (_, _) => realPreferencePages
@@ -1272,5 +1283,121 @@ void main() {
       await StorageService.to.setString(Keys.currentUid, previousUid);
       init.deviceId = previousDid;
     }
+  });
+
+  group('隐私政策与联系入口契约（UX-03:LOCAL:01/02）', () {
+    final contactPattern = RegExp(
+      r'[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}'
+      r'|1[3-9]\d{9}'
+      r'|mailto:'
+      r'|tel:',
+    );
+
+    testWidgets('隐私政策与服务条款入口可达：政策走离线审定文档，条款走注册路由', (tester) async {
+      await _pumpSetting(tester);
+      await tester.scrollUntilVisible(find.text(t.main.privacyPolicy), 220);
+
+      await tester.tap(find.text(t.main.privacyPolicy));
+      await tester.pumpAndSettle();
+      final policy = tester.widget<MarkdownPage>(find.byType(MarkdownPage));
+      expect(policy.url, 'asset://docs/privacy-policy.md');
+      expect(policy.title, t.main.privacyPolicy);
+      // 联系渠道（第 9 节）随政策文档一起可发现，本页不自行另设联系方式
+      await tester.tap(find.byType(GlassBackButton));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text(t.main.termsOfService));
+      await tester.pumpAndSettle();
+      expect(find.text('terms_of_service stub'), findsOneWidget);
+
+      await _unmount(tester);
+    });
+
+    testWidgets('设置页不擅自填充联系方式（渲染面无任何联系方式字面量）', (tester) async {
+      await _pumpSetting(tester);
+      // 顶部（通用+隐私安全 section）
+      for (final text in tester.widgetList<Text>(find.byType(Text))) {
+        final content = text.data ?? '';
+        expect(
+          contactPattern.hasMatch(content),
+          isFalse,
+          reason: '设置页渲染面不得出现自填联系方式（发现: "$content"）',
+        );
+      }
+      // 滚到底部（帮助/环境/退出 section）再扫一遍
+      await tester.scrollUntilVisible(find.text(t.account.logOut), 220);
+      for (final text in tester.widgetList<Text>(find.byType(Text))) {
+        final content = text.data ?? '';
+        expect(
+          contactPattern.hasMatch(content),
+          isFalse,
+          reason: '设置页渲染面不得出现自填联系方式（发现: "$content"）',
+        );
+      }
+
+      await _unmount(tester);
+    });
+
+    testWidgets('账号安全页绑定信息脱敏显示，不泄漏原始联系方式', (tester) async {
+      final previousUser = StorageService.getMap(Keys.currentUser);
+      await StorageService.setMap(Keys.currentUser, {
+        ...previousUser,
+        'email': 'person@example.com',
+        'mobile': '13800138000',
+      });
+      addTearDown(() async {
+        await StorageService.setMap(Keys.currentUser, previousUser);
+        UserRepoLocal.to.notifyListeners();
+      });
+
+      await tester.pumpWidget(
+        ProviderScope(
+          child: TranslationProvider(
+            child: MaterialApp(home: AccountSecurityPage()),
+          ),
+        ),
+      );
+      await tester.pump();
+
+      // 原始联系方式不得明文出现
+      expect(
+        find.text('person@example.com'),
+        findsNothing,
+        reason: '原始邮箱不得明文显示',
+      );
+      expect(find.text('13800138000'), findsNothing, reason: '原始手机号不得明文显示');
+      // 只出现脱敏形态
+      expect(find.textContaining('pe***@example.com'), findsOneWidget);
+      expect(find.textContaining('138****8000'), findsOneWidget);
+      // 凭据/权利管理入口完整在场
+      expect(find.text(t.account.bindEmail), findsOneWidget);
+      expect(find.text(t.account.bindMobile), findsOneWidget);
+      expect(find.text(t.account.bindAlipay), findsOneWidget);
+      expect(find.text(t.account.changeLoginPassword), findsOneWidget);
+
+      await _unmount(tester);
+    });
+
+    test('三个在册页面源码均不硬编码联系方式字面量（含未渲染分支）', () {
+      // 无引号锚点的强负例：邮箱/CN 手机号字面量在任何位置（含注释）出现
+      // 都算自填联系方式；本断言比“仅字符串字面量内”更严格。
+      final literalPattern = RegExp(
+        r'mailto:|tel:[0-9]'
+        r'|[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}'
+        r'|1[3-9]\d{9}',
+      );
+      for (final path in [
+        'lib/page/mine/setting/setting_page.dart',
+        'lib/page/personal_info/profile/widgets/privacy_settings_page.dart',
+        'lib/page/mine/account_security/account_security_page.dart',
+      ]) {
+        final source = File(path).readAsStringSync();
+        expect(
+          literalPattern.hasMatch(source),
+          isFalse,
+          reason: '$path 不得硬编码联系方式；联系渠道由外部审定的政策文档承载',
+        );
+      }
+    });
   });
 }
