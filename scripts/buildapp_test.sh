@@ -430,6 +430,8 @@ S2_ART="$RECV_DIR"
 expect_file_grep "S2a-ios-schemes" "$S2_ART/build-manifest.yaml" 'ios_registered_url_schemes: "alphaapp"'
 expect_file_grep "S2b-ios-all-types" "$S2_ART/build-manifest.yaml" 'ShareMedia-pub.imboy.app'
 expect_file_grep "S2c-ios-alipay-kept" "$S2_ART/build-manifest.yaml" 'alipay'
+expect_file_grep "S2e-customer-app-group" "$S2_ART/build-manifest.yaml" 'ios_app_group_id: group.pub.imboy.app.demo.customer_alpha'
+expect_file_grep "S2f-app-group-verified" "$S2_ART/build-manifest.yaml" 'ios_app_group_validation_status: verified'
 if [ -f "$S2_ART/build-manifest.yaml" ] && grep -q 'build_status: DRY_RUN' "$S2_ART/build-manifest.yaml"; then ok "S2d-dryrun-status"; else bad "S2d-dryrun-status" "dry-run receipt must not claim PASS"; fi
 
 # S3 beta unaffected by alpha runs (separate receipts, own scheme)
