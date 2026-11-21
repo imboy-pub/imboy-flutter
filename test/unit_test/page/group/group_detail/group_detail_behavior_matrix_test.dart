@@ -76,6 +76,43 @@ class _FixedStateNotifier extends GroupDetailNotifier {
   void removeMember(String userId) {}
 }
 
+/// UX-02:LOCAL:01：仅放行 role 迁移的状态注入。其余 setter 与
+/// [_FixedStateNotifier] 同款 no-op（防 initData 异步回写污染注入态、
+/// 防 setLoading 翻转把页面钉在加载态）；setRoleInfo 走真实 copyWith，
+/// 用「撤权/授权」状态迁移驱动页面即时收回/恢复治理动作（与 initData
+/// 服务回写 role 同一条 UI 出口）。
+class _RoleTransitionNotifier extends GroupDetailNotifier {
+  _RoleTransitionNotifier(this.initial);
+  final GroupDetailState initial;
+
+  @override
+  GroupDetailState build() => initial;
+
+  @override
+  void setLoading(bool value) {}
+  @override
+  void setTitle(String title) {}
+  @override
+  void setMemberCount(int count) {}
+  @override
+  void setRoleInfo(int role, bool isAdmin) {
+    state = state.copyWith(role: role, isAdmin: isAdmin);
+  }
+
+  @override
+  void setMemberList(List<PeopleModel> list) {}
+  @override
+  void setMyGroupAlias(String? alias) {}
+  @override
+  void setGroupRemark(String? remark) {}
+  @override
+  void setGroup(GroupModel group) {}
+  @override
+  void addMember(PeopleModel member) {}
+  @override
+  void removeMember(String userId) {}
+}
+
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
@@ -693,6 +730,113 @@ void main() {
       );
       expect(find.text('矩阵测试群'), findsWidgets);
       await unmount(tester);
+    });
+  });
+
+  group('UX-02:LOCAL:01 撤权/授权即时迁移与世代隔离', () {
+    Future<_RoleTransitionNotifier> pumpMutable(
+      WidgetTester tester,
+      GroupDetailState state,
+    ) async {
+      tester.view.devicePixelRatio = 1.0;
+      tester.view.physicalSize = const Size(390, 844);
+      addTearDown(() {
+        tester.view.resetDevicePixelRatio();
+        tester.view.resetPhysicalSize();
+      });
+      final notifier = _RoleTransitionNotifier(state);
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [groupDetailProvider.overrideWith(() => notifier)],
+          child: TranslationProvider(
+            child: MaterialApp(
+              builder: AppLoading.init(),
+              home: GroupDetailPage(
+                groupId: '1001',
+                title: '矩阵测试群',
+                memberCount: state.memberCount,
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 50));
+      return notifier;
+    }
+
+    testWidgets('撤权（owner→member）：转让/解散及时收回，只剩退出群聊', (tester) async {
+      final notifier = await pumpMutable(
+        tester,
+        GroupDetailState(role: 4, title: '矩阵测试群', memberCount: 3),
+      );
+      expect(find.text(t.group.transferAndLeave), findsOneWidget);
+      expect(find.text(t.group.groupDissolve), findsOneWidget);
+
+      // 撤权旅程：服务端角色回写（同 initData 出口）驱动 provider 迁移。
+      notifier.setRoleInfo(1, false);
+      await tester.pump(const Duration(milliseconds: 50));
+
+      expect(
+        find.text(t.group.transferAndLeave),
+        findsNothing,
+        reason: '撤权后转让群主动作必须及时收回',
+      );
+      expect(
+        find.text(t.group.groupDissolve),
+        findsNothing,
+        reason: '撤权后解散动作必须及时收回',
+      );
+      expect(find.text(t.group.groupLeave), findsOneWidget);
+      await unmount(tester);
+    });
+
+    testWidgets('授权/晋升（member→owner）：治理动作恢复出现', (tester) async {
+      final notifier = await pumpMutable(
+        tester,
+        GroupDetailState(role: 1, title: '矩阵测试群', memberCount: 3),
+      );
+      expect(find.text(t.group.groupLeave), findsOneWidget);
+      expect(find.text(t.group.groupDissolve), findsNothing);
+
+      notifier.setRoleInfo(4, true);
+      await tester.pump(const Duration(milliseconds: 50));
+
+      expect(find.text(t.group.transferAndLeave), findsOneWidget);
+      expect(find.text(t.group.groupDissolve), findsOneWidget);
+      expect(find.text(t.group.groupLeave), findsNothing);
+      await unmount(tester);
+    });
+
+    testWidgets('免打扰账号世代隔离：重入不继承另一账号的开关状态', (tester) async {
+      await StorageService.to.setBool('group_notice_disabled:90001:1001', true);
+      await pumpPage(
+        tester,
+        state: GroupDetailState(role: 1, title: '矩阵测试群', memberCount: 3),
+      );
+      expect(
+        switchUnderLabel(tester, t.common.muteNotifications).value,
+        isTrue,
+      );
+      await unmount(tester);
+
+      // 换账号重入：新账号不得继承旧账号的免打扰偏好。
+      await StorageService.to.setString(Keys.currentUid, '90002');
+      await pumpPage(
+        tester,
+        state: GroupDetailState(role: 1, title: '矩阵测试群', memberCount: 3),
+      );
+      expect(
+        switchUnderLabel(tester, t.common.muteNotifications).value,
+        isFalse,
+        reason: '重入不得继承另一账号的免打扰世代',
+      );
+      await unmount(tester);
+      // 旧账号 KV 未被串写。
+      expect(
+        StorageService.to.getBool('group_notice_disabled:90001:1001'),
+        isTrue,
+      );
     });
   });
 }

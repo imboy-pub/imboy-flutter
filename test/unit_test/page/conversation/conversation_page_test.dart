@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:flutter/services.dart' show MethodChannel;
 import 'package:flutter_chat_core/flutter_chat_core.dart';
 import 'package:imboy/page/chat/chat/chat_provider.dart';
 import 'package:imboy/page/chat/chat/chat_panel.dart';
@@ -31,10 +32,26 @@ import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/conversation/conversation_page.dart';
 import 'package:imboy/page/conversation/conversation_provider.dart';
 import 'package:imboy/page/conversation/widget/conversation_item.dart';
+import 'package:imboy/service/event_bus.dart';
+import 'package:imboy/service/events/common_events.dart' show ChatExtendEvent;
 import 'package:imboy/service/storage.dart';
 import 'package:imboy/service/sqlite.dart';
+import 'package:imboy/service/websocket_events.dart'
+    show WebSocketStatusChangedEvent;
+import 'package:imboy/store/api/conversation_api.dart';
 import 'package:imboy/store/model/conversation_model.dart';
+import 'package:imboy/store/model/message_model.dart' show IMBoyMessageStatus;
+import 'package:imboy/store/repository/conversation_repo_sqlite.dart'
+    show ConversationRepo;
+import 'package:imboy/store/repository/message_repo_sqlite.dart'
+    show MessageRepo;
+import 'package:imboy/store/repository/user_repo_local.dart' show UserRepoLocal;
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite_common/sqflite.dart' as sqlite;
+import 'package:sqflite_common_ffi/sqflite_ffi.dart'
+    show Database, databaseFactory, databaseFactoryFfiNoIsolate, sqfliteFfiInit;
+
+import '../../../fixtures/sqlite_migration/sqlite_migration_fixtures.dart';
 
 part 'fixtures/conversation_page_fixture.dart';
 
@@ -100,6 +117,138 @@ Future<void> _unmount(WidgetTester tester) async {
   await tester.pumpWidget(const SizedBox.shrink());
   await tester.pumpAndSettle();
 }
+
+// ---------------------------------------------------------------------------
+// UX-02 页面旅程（真实事件驱动 + ffi 内存库）：
+//   LOCAL:01 权限变化及时收回正文/发送能力且重入不继承旧世代；
+//   LOCAL:02 未读、预览和历史与权威终态一致。
+// ---------------------------------------------------------------------------
+
+const _ux02Uid = '995011';
+
+/// 服务端按登录账号回数据：切号后 listMine 换一份（防伪真源）。
+class _Ux02JourneyApi extends ConversationApi {
+  final Map<String, List<Map<String, dynamic>>> byAccount = {};
+
+  @override
+  Future<List<Map<String, dynamic>>> listMine({int? lastServerTs}) async =>
+      byAccount[UserRepoLocal.to.currentUid] ?? const [];
+
+  @override
+  Future<List<Map<String, dynamic>>> manualPendingList() async => const [];
+}
+
+Future<ConversationModel> _seedUx02Conversation(
+  Database db, {
+  required int peerId,
+  required String type,
+  required String title,
+  required String subtitle,
+  required int lastTime,
+  int unreadNum = 0,
+  String avatar = '',
+}) async {
+  final repo = ConversationRepo();
+  final id = await repo.insert(
+    ConversationModel(
+      id: 0,
+      peerId: peerId,
+      avatar: avatar,
+      title: title,
+      subtitle: subtitle,
+      type: type,
+      msgType: 'text',
+      lastTime: lastTime,
+      lastMsgId: 'msg-$peerId',
+      unreadNum: unreadNum,
+      isShow: 1,
+      payload: const {},
+    ),
+  );
+  return (await repo.findById(id))!;
+}
+
+Future<void> _seedUx02Message(
+  Database db, {
+  required String type,
+  required String uk3,
+  required int autoId,
+  required int status,
+  required bool own,
+}) async {
+  await db.insert(MessageRepo.getTableName(type), {
+    MessageRepo.autoId: autoId,
+    MessageRepo.id: autoId,
+    'msg_type': 'text',
+    MessageRepo.from: own ? int.parse(_ux02Uid) : 8000,
+    MessageRepo.to: own ? 8000 : int.parse(_ux02Uid),
+    MessageRepo.conversationUk3: uk3,
+    'e2ee': '',
+    MessageRepo.payload: '{"text":"m-$autoId"}',
+    MessageRepo.createdAt: autoId,
+    MessageRepo.topicId: 0,
+    MessageRepo.status: status,
+    MessageRepo.isAuthor: own ? 1 : 0,
+    MessageRepo.type: type,
+    'action': '',
+  });
+}
+
+/// 真实页面 + 真实 notifier（仅网络出口换成 per-account 假 API）。
+Future<ProviderContainer> _pumpUx02Journey(
+  WidgetTester tester, {
+  required _Ux02JourneyApi api,
+}) async {
+  tester.view.devicePixelRatio = 1.0;
+  tester.view.physicalSize = const Size(390, 844);
+  addTearDown(() {
+    tester.view.resetDevicePixelRatio();
+    tester.view.resetPhysicalSize();
+  });
+  final container = ProviderContainer(
+    overrides: [
+      conversationProvider.overrideWith(
+        () => ConversationNotifier(conversationApi: api),
+      ),
+    ],
+  );
+  addTearDown(container.dispose);
+  await tester.pumpWidget(
+    UncontrolledProviderScope(
+      container: container,
+      child: TranslationProvider(
+        child: const MaterialApp(home: ConversationPage()),
+      ),
+    ),
+  );
+  await tester.pump();
+  return container;
+}
+
+/// 等待条件出现（real-async 拉取/事件链在 runAsync 内冲刷，帧随 pump 走）。
+Future<bool> _ux02Wait(
+  WidgetTester tester,
+  bool Function() condition, {
+  int rounds = 200,
+}) async {
+  var ok = false;
+  await tester.runAsync(() async {
+    for (var i = 0; i < rounds; i++) {
+      if (condition()) {
+        ok = true;
+        break;
+      }
+      await Future<void>.delayed(const Duration(milliseconds: 10));
+      await tester.pump();
+    }
+  });
+  await tester.pump();
+  return ok;
+}
+
+Finder _ux02Row(ConversationModel model) => find.byWidgetPredicate(
+  (widget) => widget is ConversationItem && widget.model.uk3 == model.uk3,
+);
 
 ConversationModel _conv({
   required int id,
@@ -1308,6 +1457,357 @@ void main() {
         reason: '3 行会话应该只有 2 条分隔线',
       );
       await _unmount(tester);
+    });
+  });
+
+  group('UX-02 群与会话权限·未读页面旅程（真实事件驱动）', () {
+    late Database db;
+
+    setUp(() async {
+      SharedPreferences.setMockInitialValues(<String, Object>{});
+      await StorageService.init();
+      await StorageService.to.setString(Keys.currentUid, _ux02Uid);
+      sqfliteFfiInit();
+      databaseFactory = databaseFactoryFfiNoIsolate;
+      db = await openFixtureDatabaseAtVersion(version: 37);
+      SqliteService.setDbForTest(db);
+      // connectivity：固定在线，隔绝宿主环境差异（断网反馈已由
+      // connectDesc/NetworkFailureTips 既有用例覆盖）。onConnectivityChanged
+      // 走 EventChannel（connectivity_status），一并 mock 掉 listen。
+      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+          .setMockMethodCallHandler(
+            const MethodChannel('dev.fluttercommunity.plus/connectivity'),
+            (call) async => <String>['wifi'],
+          );
+      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+          .setMockMethodCallHandler(
+            const MethodChannel(
+              'dev.fluttercommunity.plus/connectivity_status',
+            ),
+            (call) async => null,
+          );
+    });
+
+    tearDown(() async {
+      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+          .setMockMethodCallHandler(
+            const MethodChannel('dev.fluttercommunity.plus/connectivity'),
+            null,
+          );
+      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+          .setMockMethodCallHandler(
+            const MethodChannel(
+              'dev.fluttercommunity.plus/connectivity_status',
+            ),
+            null,
+          );
+      SqliteService.setDbForTest(null);
+      await db.close();
+      await StorageService.to.remove(Keys.currentUid);
+    });
+
+    testWidgets('LOCAL:01 退群撤权：会话行及时收回且重入不复活', (tester) async {
+      final api = _Ux02JourneyApi();
+      final group = await _seedUx02Conversation(
+        db,
+        peerId: 6601,
+        type: 'C2G',
+        title: '权限旅程群',
+        subtitle: '群最新一条',
+        lastTime: 1750000002000,
+        avatar: 'group-avatar-ref', // 已设头像的群不预热成员拼图（产品规则）
+      );
+      await _seedUx02Conversation(
+        db,
+        peerId: 6602,
+        type: 'C2C',
+        title: '权限旅程同事',
+        subtitle: '同事最新一条',
+        lastTime: 1750000001000,
+      );
+      // 服务端按账号回列表：C2C 同事在权威列表内（不会被 hide 裁掉）。
+      api.byAccount[_ux02Uid] = [
+        {
+          'conversation_id': '6602',
+          'conversation_type': 'c2c',
+          'server_ts': 1750000001000,
+          'last_msg_id': 16602,
+          'last_msg': {'text': '同事最新一条'},
+          'is_pinned': 0,
+        },
+      ];
+
+      final container = await _pumpUx02Journey(tester, api: api);
+      expect(
+        await _ux02Wait(tester, () => find.text('权限旅程群').evaluate().isNotEmpty),
+        isTrue,
+        reason: '旅程起点：群会话行必须先可见',
+      );
+      expect(find.text('权限旅程同事'), findsOneWidget);
+
+      // 退群 cleanData 管线：先删消息行，再删会话行，随后广播
+      // refresh_conversations（uk3 寻址）——页面监听该事件及时收回入口。
+      await db.delete('conversation', where: 'id = ?', whereArgs: [group.id]);
+      AppEventBus.fire(
+        ChatExtendEvent(
+          type: 'refresh_conversations',
+          payload: {'uk3': group.uk3},
+        ),
+      );
+      expect(
+        await _ux02Wait(tester, () => find.text('权限旅程群').evaluate().isEmpty),
+        isTrue,
+        reason: '退群后群会话入口必须及时收回（正文/发送能力的列表侧闸门）',
+      );
+      expect(find.text('权限旅程同事'), findsOneWidget, reason: '无关会话不受影响');
+      expect(
+        container.read(conversationProvider).conversationMap[group.uk3],
+        isNull,
+      );
+
+      // 重入（全新容器+页面，模拟重新进入）：不继承被撤权的旧世代条目。
+      await _unmount(tester);
+      final reentered = await _pumpUx02Journey(tester, api: api);
+      expect(
+        await _ux02Wait(
+          tester,
+          () => find.text('权限旅程同事').evaluate().isNotEmpty,
+        ),
+        isTrue,
+        reason: '重入后仍属账号的会话照常可见',
+      );
+      expect(find.text('权限旅程群'), findsNothing, reason: '重入不得复活已撤权的群会话');
+      expect(
+        reentered.read(conversationProvider).conversationMap[group.uk3],
+        isNull,
+      );
+    });
+
+    testWidgets('LOCAL:01 世代守卫：切号后长按「标为已读」不落库', (tester) async {
+      final api = _Ux02JourneyApi();
+      final peer = await _seedUx02Conversation(
+        db,
+        peerId: 6702,
+        type: 'C2C',
+        title: '世代守卫对象',
+        subtitle: '世代守卫预览',
+        lastTime: 1750000001200,
+      );
+      await _seedUx02Message(
+        db,
+        type: 'C2C',
+        uk3: peer.uk3,
+        autoId: 271,
+        status: IMBoyMessageStatus.delivered,
+        own: false,
+      );
+      await _seedUx02Message(
+        db,
+        type: 'C2C',
+        uk3: peer.uk3,
+        autoId: 272,
+        status: IMBoyMessageStatus.delivered,
+        own: false,
+      );
+      api.byAccount[_ux02Uid] = [
+        {
+          'conversation_id': '6702',
+          'conversation_type': 'c2c',
+          'server_ts': 1750000001200,
+          'last_msg_id': 16702,
+          'last_msg': {'text': '世代守卫预览'},
+          'is_pinned': 0,
+        },
+      ];
+
+      await _pumpUx02Journey(tester, api: api);
+      expect(
+        await _ux02Wait(
+          tester,
+          () => find.text('世代守卫对象').evaluate().isNotEmpty,
+        ),
+        isTrue,
+      );
+      final row = _ux02Row(peer);
+      expect(row, findsOneWidget);
+      expect(
+        find.descendant(of: row, matching: find.text('2')),
+        findsOneWidget,
+      );
+
+      // 账号世代变化：行操作必须被 isCurrentRow 守卫拦下，不写任何库。
+      await StorageService.to.setString(Keys.currentUid, 'ux02-other-account');
+      // 仿按账号供库（新账号打开自己的库），防止 uid 漂移哨兵关闭注入句柄。
+      SqliteService.setDbForTest(db);
+      await tester.longPress(row);
+      await tester.pumpAndSettle();
+      expect(find.text(t.chat.markRead), findsOneWidget);
+      await tester.tap(find.text(t.chat.markRead));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 800));
+
+      var statuses = <int>[];
+      var unread = -1;
+      await tester.runAsync(() async {
+        for (var i = 0; i < 15; i++) {
+          await Future<void>.delayed(const Duration(milliseconds: 10));
+        }
+        final rows = await db.query(
+          'msg_c2c',
+          columns: ['status'],
+          where: 'conversation_uk3 = ?',
+          whereArgs: [peer.uk3],
+        );
+        statuses = rows.map((r) => r['status'] as int).toList();
+        final conv = await db.query(
+          'conversation',
+          columns: ['unread_num'],
+          where: 'id = ?',
+          whereArgs: [peer.id],
+        );
+        unread = conv.single['unread_num'] as int;
+      });
+      expect(
+        statuses,
+        everyElement(IMBoyMessageStatus.delivered),
+        reason: '旧世代的行操作不得把消息写成已读',
+      );
+      expect(unread, 2, reason: '旧世代的行操作不得改写未读水位');
+    });
+
+    testWidgets('LOCAL:02 权威同步与标已读：预览/未读/历史落到终态', (tester) async {
+      final api = _Ux02JourneyApi();
+      final peer = await _seedUx02Conversation(
+        db,
+        peerId: 6801,
+        type: 'C2C',
+        title: '权威同步对象',
+        subtitle: 'local-preview',
+        lastTime: 1750000001000,
+      );
+      await _seedUx02Message(
+        db,
+        type: 'C2C',
+        uk3: peer.uk3,
+        autoId: 281,
+        status: IMBoyMessageStatus.delivered,
+        own: false,
+      );
+      await _seedUx02Message(
+        db,
+        type: 'C2C',
+        uk3: peer.uk3,
+        autoId: 282,
+        status: IMBoyMessageStatus.delivered,
+        own: false,
+      );
+      // 首帧先与本地一致（服务端仍回旧预览），随后服务端推进、重连拉新。
+      api.byAccount[_ux02Uid] = [
+        {
+          'conversation_id': '6801',
+          'conversation_type': 'c2c',
+          'server_ts': 1750000001000,
+          'last_msg_id': 16800,
+          'last_msg': {'text': 'local-preview'},
+          'is_pinned': 0,
+        },
+      ];
+
+      await _pumpUx02Journey(tester, api: api);
+      expect(
+        await _ux02Wait(
+          tester,
+          () => find.text('local-preview').evaluate().isNotEmpty,
+        ),
+        isTrue,
+      );
+      final row = _ux02Row(peer);
+      expect(
+        find.descendant(of: row, matching: find.text('2')),
+        findsOneWidget,
+      );
+
+      // 断网恢复热点：WS 重连事件驱动权威重拉，预览推进到服务端终态。
+      api.byAccount[_ux02Uid] = [
+        {
+          'conversation_id': '6801',
+          'conversation_type': 'c2c',
+          'server_ts': 1750000003000,
+          'last_msg_id': 16801,
+          'last_msg': {'text': 'authoritative-final-preview'},
+          'is_pinned': 0,
+        },
+      ];
+      AppEventBus.fire(const WebSocketStatusChangedEvent(status: 'connected'));
+      expect(
+        await _ux02Wait(
+          tester,
+          () => find.text('authoritative-final-preview').evaluate().isNotEmpty,
+        ),
+        isTrue,
+        reason: '重连后预览必须与权威终态一致',
+      );
+      var persisted = await db.query(
+        'conversation',
+        where: 'id = ?',
+        whereArgs: [peer.id],
+      );
+      expect(persisted.single['subtitle'], 'authoritative-final-preview');
+      expect(persisted.single['last_time'], 1750000003000);
+      expect(persisted.single['last_msg_id'], '16801');
+      // 未读不受权威预览旅程影响（2 条未确认消息仍在）。
+      expect(
+        find.descendant(of: row, matching: find.text('2')),
+        findsOneWidget,
+      );
+
+      // 标已读（当前世代，正面对照）：未读/消息状态/水位落到持久终态。
+      await tester.longPress(row);
+      await tester.pumpAndSettle();
+      await tester.tap(find.text(t.chat.markRead));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 700));
+      var finalUnread = -1;
+      var finalStatuses = <int>[];
+      var watermark = -1;
+      await tester.runAsync(() async {
+        for (var i = 0; i < 50; i++) {
+          final conv = await db.query(
+            'conversation',
+            columns: ['unread_num', 'payload'],
+            where: 'id = ?',
+            whereArgs: [peer.id],
+          );
+          finalUnread = conv.single['unread_num'] as int;
+          if (finalUnread == 0) break;
+          await Future<void>.delayed(const Duration(milliseconds: 10));
+        }
+        final msgs = await db.query(
+          'msg_c2c',
+          columns: ['status'],
+          where: 'conversation_uk3 = ?',
+          whereArgs: [peer.uk3],
+        );
+        finalStatuses = msgs.map((r) => r['status'] as int).toList();
+        final conv = await db.query(
+          'conversation',
+          columns: ['payload'],
+          where: 'id = ?',
+          whereArgs: [peer.id],
+        );
+        final decoded = jsonDecode(
+          conv.single['payload'] as String,
+        ) as Map<String, dynamic>;
+        watermark = decoded['last_read_auto_id'] as int;
+      });
+      expect(finalUnread, 0, reason: '标已读后未读必须持久归零');
+      expect(finalStatuses, everyElement(IMBoyMessageStatus.seen));
+      expect(watermark, 282, reason: '已读水位必须推进到来自对方的最新消息');
+      expect(
+        find.descendant(of: row, matching: find.text('2')),
+        findsNothing,
+        reason: '未读角标必须随终态消失',
+      );
     });
   });
 }
