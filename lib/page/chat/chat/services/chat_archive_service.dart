@@ -1047,6 +1047,11 @@ class PersonalHistorySyncEngine {
             continue;
           }
           final plaintext = await decrypt(event);
+          if (!isCurrent()) {
+            return const PersonalHistorySyncOutcome(
+              kind: PersonalHistorySyncOutcomeKind.aborted,
+            );
+          }
           if (plaintext == null) {
             return PersonalHistorySyncOutcome(
               kind: PersonalHistorySyncOutcomeKind.waitingKey,
@@ -1073,6 +1078,7 @@ class PersonalHistorySyncEngine {
           events: localEvents,
           proposedCursor: nextCursor,
           applyEvent: _applyMergedRow,
+          isCurrent: isCurrent,
         );
         totalApplied += result.applied;
         totalDuplicates += result.duplicates;

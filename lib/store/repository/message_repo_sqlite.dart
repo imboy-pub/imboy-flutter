@@ -1306,6 +1306,7 @@ class PersonalHistoryLocalStore {
       int generation,
     )
     applyEvent,
+    bool Function()? isCurrent,
   }) async {
     final db = await _db();
     if (db == null) {
@@ -1318,6 +1319,9 @@ class PersonalHistoryLocalStore {
       throw ArgumentError('personal history cursor out of domain');
     }
     return db.transaction((txn) async {
+      if (isCurrent?.call() == false) {
+        throw StateError('personal history session changed');
+      }
       final state = await txn.query(
         stateTable,
         columns: ['generation', 'acked_cursor'],
@@ -1390,6 +1394,9 @@ class PersonalHistoryLocalStore {
           where: 'domain = ?',
           whereArgs: [domain],
         );
+      }
+      if (isCurrent?.call() == false) {
+        throw StateError('personal history session changed during merge');
       }
       return PersonalHistoryApplyResult(
         applied: applied,

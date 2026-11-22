@@ -18,6 +18,8 @@ library;
 /// 真服务（/personal-history/*）全链路合验在 MH-06；本文件按冻结合同
 /// （mh01-personal-history-contract v1.1 §2/§10）驱动合同级 fixture。
 
+import 'dart:async';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/page/chat/chat/chat_state.dart';
@@ -236,6 +238,32 @@ void main() {
       [conversationId],
     );
   }
+
+  test('session change during decryption aborts before persisting', () async {
+    const conversationId = 'conv-logout-during-decrypt';
+    server.events.add(_event(1, conversationId, 'm-1'));
+    final decryptStarted = Completer<void>();
+    final decryptResult = Completer<Map<String, dynamic>?>();
+    var isCurrent = true;
+    final pending = PersonalHistorySyncEngine(
+      client: PersonalHistoryApiClient(transport: server.call),
+      store: store,
+      domain: domain,
+      decrypt: (event) {
+        decryptStarted.complete();
+        return decryptResult.future;
+      },
+      isCurrent: () => isCurrent,
+    ).syncOnce();
+    await decryptStarted.future;
+    isCurrent = false;
+    decryptResult.complete({'text': 'late result'});
+
+    expect((await pending).kind, PersonalHistorySyncOutcomeKind.aborted);
+    expect(await store.readCheckpoint(domain), isNull);
+    expect(await restoredRows(conversationId), isEmpty);
+    expect(server.ackedCursors, isEmpty);
+  });
 
   test(
     ':07.2 VFS confirm failure refuses ACK; confirm success then acks once',
