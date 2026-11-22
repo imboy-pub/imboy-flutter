@@ -509,8 +509,11 @@ jobs:
         run: |
           echo "$GOOGLE_SERVICE_INFO_PLIST_B64" | base64 -d > ios/Runner/GoogleService-Info.plist
 
-      - name: Update CocoaPods specs repo (Agora 等依赖要求最新 specs)
-        run: pod repo update
+      - name: Prefetch CocoaPods specs mirror (bounded retry)
+        # pod install 对未配置 source 会现场 clone tuna Specs（排队+curl56
+        # 竞态，2026-11-21 run 44938305238 实测 188s 失败且不在既有重试窗内）；
+        # 预取 + 带界重试，pod repo update 语义保留。
+        run: bash .github/scripts/ci_pod_specs_prefetch.sh
 
       - name: Build iOS (Release)
         env:
