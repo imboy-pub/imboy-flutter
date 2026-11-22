@@ -1679,11 +1679,13 @@ class PersonalHistoryEvent {
 
 class PersonalHistoryChangesPage {
   const PersonalHistoryChangesPage({
+    required this.generation,
     required this.events,
     this.nextCursor,
     this.resetHint = false,
   });
 
+  final int generation;
   final List<PersonalHistoryEvent> events;
   final int? nextCursor;
   final bool resetHint;
@@ -1836,27 +1838,46 @@ class PersonalHistoryApiClient {
       '$_base/changes',
       queryParameters: {'cursor': cursor, 'limit': limit},
     );
+    const malformed = PersonalHistoryApiException(
+      PersonalHistoryErrorCode.malformedRequest,
+      0,
+    );
+    final generation = payload['generation'];
     final rawEvents = payload['events'];
-    if (rawEvents is! List) {
-      throw const PersonalHistoryApiException(
-        PersonalHistoryErrorCode.malformedRequest,
-        0,
-      );
+    final nextCursor = payload['next_cursor'];
+    final resetHint = payload['reset_hint'];
+    if (generation is! int ||
+        generation < 0 ||
+        generation > maxSafeInteger ||
+        rawEvents is! List ||
+        (nextCursor != null &&
+            (nextCursor is! int ||
+                nextCursor < 0 ||
+                nextCursor > maxSafeInteger)) ||
+        resetHint is! bool) {
+      throw malformed;
     }
     final events = <PersonalHistoryEvent>[];
     for (final raw in rawEvents) {
-      if (raw is! Map) {
-        throw const PersonalHistoryApiException(
-          PersonalHistoryErrorCode.malformedRequest,
-          0,
-        );
+      if (raw is! Map) throw malformed;
+      final eventSeq = raw['event_seq'];
+      final conversationId = raw['conversation_id'];
+      final msgId = raw['msg_id'];
+      if (eventSeq is! int ||
+          eventSeq <= 0 ||
+          eventSeq > maxSafeInteger ||
+          conversationId is! String ||
+          conversationId.isEmpty ||
+          msgId is! String ||
+          msgId.isEmpty) {
+        throw malformed;
       }
       final envelopeMeta = raw['envelope_meta'];
       events.add(
         PersonalHistoryEvent(
-          seq: raw['seq'] as int,
-          conversationId: raw['conversation_id']?.toString() ?? '',
-          msgId: raw['msg_id']?.toString() ?? '',
+          seq: eventSeq,
+          conversationId: conversationId,
+          msgId: msgId,
           actionVersion: raw['action_version'] as int? ?? 0,
           convSeq: raw['conv_seq'] as int? ?? 0,
           keyVersion: raw['key_version'] as int? ?? 0,
@@ -1870,9 +1891,10 @@ class PersonalHistoryApiClient {
       );
     }
     return PersonalHistoryChangesPage(
+      generation: generation,
       events: events,
-      nextCursor: payload['next_cursor'] as int?,
-      resetHint: payload['reset_hint'] == true,
+      nextCursor: nextCursor as int?,
+      resetHint: resetHint,
     );
   }
 
@@ -1892,8 +1914,26 @@ class PersonalHistoryApiClient {
   );
 
   /// §10.2 POST /ack-cursor（幂等；仅推进 ≤ 服务端已发放最大值）。
-  Future<Map<String, dynamic>> ackCursor(int cursor) =>
-      _send('POST', '$_base/ack-cursor', data: {'cursor': cursor});
+  Future<void> ackCursor(int cursor, {required int generation}) async {
+    final payload = await _send(
+      'POST',
+      '$_base/ack-cursor',
+      data: {'cursor': cursor, 'generation': generation},
+    );
+    final acknowledgedGeneration = payload['generation'];
+    if (acknowledgedGeneration is int && acknowledgedGeneration != generation) {
+      throw const PersonalHistoryApiException(
+        PersonalHistoryErrorCode.generationExpired,
+        0,
+      );
+    }
+    if (acknowledgedGeneration is! int || payload['accepted'] != true) {
+      throw const PersonalHistoryApiException(
+        PersonalHistoryErrorCode.malformedRequest,
+        0,
+      );
+    }
+  }
 
   /// §2.5 PUT /key-package。
   Future<Map<String, dynamic>> putKeyPackage(Map<String, dynamic> package) =>

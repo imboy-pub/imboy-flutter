@@ -923,6 +923,9 @@ enum PersonalHistorySyncOutcomeKind {
   /// 解密密钥未就绪：云端有事件但暂不可用（四维状态 → waitingKey）。
   waitingKey,
 
+  /// 变更游标已超出服务端窗口，需要有界重扫。
+  rescanRequired,
+
   /// VFS 持久确认失败：旧持久状态与游标保留，ACK 被拒绝。
   durabilityFailed,
 
@@ -1022,14 +1025,18 @@ class PersonalHistorySyncEngine {
           );
         }
         final page = await client.changes(cursor: cursor);
-        if (!isCurrent()) {
+        if (!isCurrent() || page.generation != status.generation) {
           return const PersonalHistorySyncOutcome(
             kind: PersonalHistorySyncOutcomeKind.aborted,
           );
         }
         if (page.resetHint) {
-          // §10.2：显式重扫信号——保守起见本趟停止推进，等待上层重扫调度。
-          break;
+          return PersonalHistorySyncOutcome(
+            kind: PersonalHistorySyncOutcomeKind.rescanRequired,
+            applied: totalApplied,
+            duplicates: totalDuplicates,
+            cursor: cursor,
+          );
         }
         final localEvents = <PersonalHistoryLocalEvent>[];
         for (final event in page.events) {
@@ -1105,7 +1112,7 @@ class PersonalHistorySyncEngine {
           kind: PersonalHistorySyncOutcomeKind.aborted,
         );
       }
-      await client.ackCursor(cursor);
+      await client.ackCursor(cursor, generation: status.generation);
       return PersonalHistorySyncOutcome(
         kind: PersonalHistorySyncOutcomeKind.synced,
         applied: totalApplied,

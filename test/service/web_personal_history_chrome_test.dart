@@ -49,10 +49,14 @@ class _FixtureServer {
 
   final calls = <String>[];
   final ackedCursors = <int>[];
+  final ackedGenerations = <int>[];
   final uploadedKeys = <String>[];
   final uploadedBodies = <Map<String, dynamic>>[];
   int maxIssuedCursor = 0;
+  int? changesGeneration;
+  int? ackResponseGeneration;
   bool offline = false;
+  bool resetHint = false;
 
   Map<String, dynamic> _ok([Map<String, dynamic>? payload]) => {
     'code': 0,
@@ -91,20 +95,36 @@ class _FixtureServer {
     if (path.endsWith('/changes')) {
       final cursor = (queryParameters?['cursor'] as int? ?? 0);
       final pending =
-          events.where((event) => (event['seq'] as int) > cursor).toList()
-            ..sort((a, b) => (a['seq'] as int).compareTo(b['seq'] as int));
+          events.where((event) => (event['event_seq'] as int) > cursor).toList()
+            ..sort(
+              (a, b) =>
+                  (a['event_seq'] as int).compareTo(b['event_seq'] as int),
+            );
       final page = pending.take(3).toList();
-      final nextCursor = page.isEmpty ? null : page.last['seq'] as int;
+      final nextCursor = page.isEmpty ? null : page.last['event_seq'] as int;
       if (nextCursor != null && nextCursor > maxIssuedCursor) {
         maxIssuedCursor = nextCursor;
       }
       return PersonalHistoryTransportResult(
         httpStatus: 200,
-        body: _ok({'events': page, 'next_cursor': nextCursor}),
+        body: _ok({
+          'generation': changesGeneration ?? generation,
+          'events': page,
+          'next_cursor': nextCursor,
+          'reset_hint': resetHint,
+        }),
       );
     }
     if (path.endsWith('/ack-cursor')) {
-      final cursor = (data as Map)['cursor'] as int;
+      final body = data as Map;
+      final cursor = body['cursor'] as int;
+      final requestedGeneration = body['generation'];
+      if (requestedGeneration != generation) {
+        return PersonalHistoryTransportResult(
+          httpStatus: 410,
+          body: _error('generation_expired'),
+        );
+      }
       if (cursor > maxIssuedCursor) {
         return PersonalHistoryTransportResult(
           httpStatus: 409,
@@ -112,9 +132,14 @@ class _FixtureServer {
         );
       }
       ackedCursors.add(cursor);
+      ackedGenerations.add(requestedGeneration as int);
       return PersonalHistoryTransportResult(
         httpStatus: 200,
-        body: _ok({'accepted': true, 'advanced_to': cursor}),
+        body: _ok({
+          'accepted': true,
+          'advanced_to': cursor,
+          'generation': ackResponseGeneration ?? generation,
+        }),
       );
     }
     if (path.endsWith('/upload')) {
@@ -148,7 +173,7 @@ Map<String, dynamic> _event(
   bool deleted = false,
   int actionVersion = 0,
 }) => {
-  'seq': seq,
+  'event_seq': seq,
   'conversation_id': conversationId,
   'msg_id': msgId,
   'action_version': actionVersion,
@@ -266,6 +291,54 @@ void main() {
   });
 
   test(
+    'changes page from a different generation is neither merged nor acked',
+    () async {
+      const conversationId = 'conv-generation-changed';
+      server.changesGeneration = 4;
+      server.events.add(_event(1, conversationId, 'm-1'));
+
+      expect(
+        (await engine.syncOnce()).kind,
+        PersonalHistorySyncOutcomeKind.aborted,
+      );
+      expect(await store.readCheckpoint(domain), isNull);
+      expect(await restoredRows(conversationId), isEmpty);
+      expect(server.ackedCursors, isEmpty);
+    },
+  );
+
+  test('reset hint asks for rescan without acknowledging a cursor', () async {
+    server.resetHint = true;
+
+    expect(
+      (await engine.syncOnce()).kind,
+      PersonalHistorySyncOutcomeKind.rescanRequired,
+    );
+    expect(await store.readCheckpoint(domain), isNull);
+    expect(server.ackedCursors, isEmpty);
+  });
+
+  test(
+    'acknowledgement with a different generation does not sign off sync',
+    () async {
+      server.ackResponseGeneration = 4;
+      server.events.add(_event(1, 'conv-ack-generation', 'm-1'));
+
+      final result = await engine.syncOnce();
+      expect(result.kind, PersonalHistorySyncOutcomeKind.failed);
+      expect(
+        result.error,
+        isA<PersonalHistoryApiException>().having(
+          (error) => error.code,
+          'code',
+          PersonalHistoryErrorCode.generationExpired,
+        ),
+      );
+      expect(server.ackedGenerations, [3]);
+    },
+  );
+
+  test(
     ':07.2 VFS confirm failure refuses ACK; confirm success then acks once',
     () async {
       server.events.addAll([
@@ -305,6 +378,7 @@ void main() {
       final outcome = await engine.syncOnce();
       expect(outcome.kind, PersonalHistorySyncOutcomeKind.synced);
       expect(server.ackedCursors, [4]);
+      expect(server.ackedGenerations, [3]);
       final checkpoint = await store.readCheckpoint(domain);
       expect(checkpoint, (generation: 3, cursor: 4));
       final convARows = await restoredRows('conv-a');

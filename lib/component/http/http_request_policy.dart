@@ -19,6 +19,15 @@ const _webHumanMethods = <String, String>{
   'msg/history': 'GET',
   'msg': 'GET',
   'msg/result': 'GET',
+  'personal-history/status': 'GET',
+  'personal-history/opt-in': 'POST',
+  'personal-history/upload': 'POST',
+  'personal-history/changes': 'GET',
+  'personal-history/ack-cursor': 'POST',
+  'personal-history/page': 'GET',
+  'personal-history/key-package': 'POST',
+  'personal-history/disable': 'POST',
+  'personal-history/delete-status': 'GET',
   'conversation/mine': 'GET',
   'conversation/pin': 'POST',
   'conversation/unpin': 'POST',
@@ -152,7 +161,10 @@ Uri webHumanRequestUri(String method, Uri input, Uri apiRoot) {
     final dynamicRead = RegExp(
       r'^(workspaces/[1-9][0-9]*(/(branding|channels|groups))?|channel/[1-9][0-9]*(/messages)?)$',
     ).hasMatch(suffix);
-    if (_webHumanMethods[suffix] != verb && !(dynamicRead && verb == 'GET')) {
+    final readAllowed =
+        verb == 'GET' &&
+        (dynamicRead || suffix == 'personal-history/key-package');
+    if (_webHumanMethods[suffix] != verb && !readAllowed) {
       throw rejected;
     }
     return uri.replace(path: '/api/v1/web/$suffix');

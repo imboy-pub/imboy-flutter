@@ -141,6 +141,38 @@ void main() {
     }
   });
 
+  test('personal history uses only private Web Human alias methods', () {
+    const aliases = {
+      'status': {'GET'},
+      'opt-in': {'POST'},
+      'upload': {'POST'},
+      'changes': {'GET'},
+      'ack-cursor': {'POST'},
+      'page': {'GET'},
+      'key-package': {'GET', 'POST'},
+      'disable': {'POST'},
+      'delete-status': {'GET'},
+    };
+    for (final entry in aliases.entries) {
+      final suffix = 'personal-history/${entry.key}';
+      final webPath = '/api/v1/web/$suffix';
+      expect(webHumanPublicPaths, isNot(contains(webPath)));
+      for (final path in ['/api/v1/$suffix', webPath]) {
+        for (final method in ['GET', 'POST', 'PUT', 'DELETE']) {
+          if (entry.value.contains(method)) {
+            expect(map(method, path).path, webPath);
+          } else {
+            expect(() => map(method, path), throwsFormatException);
+          }
+        }
+      }
+    }
+    expect(
+      () => map('GET', '/api/v1/web/personal-history/changes/'),
+      throwsFormatException,
+    );
+  });
+
   test('Web Human relative, absolute and alias preserve query exactly', () {
     for (final value in [
       '/api/v1/passport/qr_login/status?session_token=synthetic%2Bcap&x=1&x=2',

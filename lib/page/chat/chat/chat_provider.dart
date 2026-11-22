@@ -1500,6 +1500,7 @@ class ChatNotifier extends _$ChatNotifier {
       PersonalHistorySyncOutcomeKind.cloudOff => PersonalHistorySyncStatus.idle,
       PersonalHistorySyncOutcomeKind.waitingKey =>
         PersonalHistorySyncStatus.waitingKey,
+      PersonalHistorySyncOutcomeKind.rescanRequired ||
       PersonalHistorySyncOutcomeKind.durabilityFailed ||
       PersonalHistorySyncOutcomeKind.ackFailed ||
       PersonalHistorySyncOutcomeKind.uploadPartial ||
