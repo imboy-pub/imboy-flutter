@@ -318,7 +318,13 @@ Future<void> _checkCoveredApplyCompletion(
   _FriendResponseAdapter adapter,
   Completer<void> gate,
 ) async {
-  for (var i = 0; i < 100 && adapter.completed == 0; i++) {
+  // 请求发出即挂起在 responseGate 上：真实异步（dio 握手）可能不止一跳
+  // 微任务。对齐 _waitForApplyAndReturn 的 Stopwatch 预算式轮询，避免固定
+  // 跳数在 CI 慢机上超窗（2026-11-21 scheduled run 44956962746 实测连坐
+  // 64 target 的根因）。
+  final requested = Stopwatch()..start();
+  while (requested.elapsed < const Duration(seconds: 30) &&
+      adapter.completed == 0) {
     await tester.runAsync(() => Future<void>.delayed(Duration.zero));
     await _checkedFrames(tester, 1);
   }
@@ -347,7 +353,13 @@ Future<void> _checkCoveredApplyCompletion(
     matching: find.text(t.common.buttonSend, skipOffstage: false),
     skipOffstage: false,
   );
-  for (var i = 0; i < 100 && restoredSend.evaluate().isEmpty; i++) {
+  // gate 释放后的成功链路穿过真实异步（dio 解析 → NewFriendRepo 落库
+  // （sqlite ffi 隔离线程）→ finally setState）。固定 100 跳 ≈1s 在 CI
+  // 负载下偶发不够（同上 run 实测 0 命中）；对齐 _waitForApplyAndReturn
+  // 的 30s Stopwatch 真实预算，帧推进与异常断言不变。
+  final restored = Stopwatch()..start();
+  while (restored.elapsed < const Duration(seconds: 30) &&
+      restoredSend.evaluate().isEmpty) {
     await tester.runAsync(() => Future<void>.delayed(Duration.zero));
     await _checkedFrames(tester, 1);
   }
