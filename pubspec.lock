@@ -1091,9 +1091,11 @@ packages:
   geo_regions:
     dependency: "direct main"
     description:
-      path: "../geo_regions"
-      relative: true
-    source: path
+      path: "."
+      ref: d22f89578175e95e74b95640bf9d7410de140b0a
+      resolved-ref: d22f89578175e95e74b95640bf9d7410de140b0a
+      url: "https://github.com/imboy-pub/geo_regions.git"
+    source: git
     version: "0.1.0-wip.1"
   geoclue:
     dependency: transitive

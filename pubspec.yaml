@@ -177,7 +177,9 @@ dependencies:
   pointycastle: ^4.0.0               # Cryptographic algorithms (inspired by BouncyCastle)
   asn1lib: ^1.6.5                   # ASN.1 encoding/decoding
   geo_regions:
-    path: ../geo_regions
+    git:
+      url: https://github.com/imboy-pub/geo_regions.git
+      ref: d22f89578175e95e74b95640bf9d7410de140b0a
   crypto: ^3.0.6                    # Cryptographic hashing utilities
   convert: ^3.1.2                   # Data conversion utilities
   permission_handler: ^13.0.2       # Permission requests (updated: 12.0.3 → 13.0.2)
