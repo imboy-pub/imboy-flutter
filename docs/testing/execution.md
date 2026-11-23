@@ -480,6 +480,11 @@ CI 的依赖准备复用 `ci_retry_build_downloads.sh`：`flutter pub get` 返�
 这只恢复执行前的依赖下载，不重跑测试或改变 FLAKY 判定。
 CI uses bounded retries for observed Git transport failures during package preparation, preserves
 arguments and final failure codes, and never retries test assertions through this helper.
+Android APK/AAB 的 Maven Central 429 重试边界见
+[构建说明](../build-and-release.md#ci-maven-下载限流--ci-maven-download-rate-limiting)。
+iOS 配置阶段的 Specs Git 传输重试见
+[CocoaPods 边界](../build-and-release.md#ci-cocoapods-specs-下载中断--ci-cocoapods-specs-transport-failures)。
+Build download retries do not count as business test execution or Native QR acceptance evidence.
 专用测试 checkout 可用 `.github/scripts/ci_gen_env.sh` 生成合成 loopback 配置，不复制真实配置。
 SQLite FFI 需可加载的宿主动态库；Linux 需让动态加载器找到 `libsqlite3.so`，例如安装
 `libsqlite3-dev`。加密库沿用 `.github/scripts/ci_build_vod.sh` 按锁定插件构建，
@@ -523,6 +528,114 @@ export IMBOY_WS_URL_OVERRIDE=ws://127.0.0.1:9800/api/v1/ws
 
 写操作另需允许合成数据写入，按目标 required_env 准备会话/群组/成员/peer 身份。
 WS 缺密钥、账号、后端在执行前阻塞；运行时 skip 也不能变绿。
+
+### Native QR 登录验收 / Native QR acceptance
+
+Native QR 的合成组件测试与真实集成入口属于不同证据等级。
+`test/unit_test/service/qr_login_persistence_test.dart` 使用合成 HTTP/SSE、内存偏好与安全存储替身；
+其成功不能证明真实后端、Keychain、冷启动或 WebSocket 已通过。
+首批真实 Native 入口限定 macOS 宽屏与隔离后端；没有把这些目标加入离线 `pr` profile。
+
+| 入口 / Entry | 验证范围 / Scope |
+| --- | --- |
+| `integration_test/passport/web_login_acceptance_test.dart`，`AT-WL01`–`AT-WL07` | 每个 variant 独立 App 进程，避免前置密码登录留下的单例状态掩盖 QR 问题。 |
+| 同一入口的 `AT-WL06` | 页面自动出码；API 模拟扫码者调用真实 scan/confirm；App 自己轮询领取；同一 QR token 的真实安全存储写读、资料、生产受保护 HTTP、自动真实 WS 握手。 |
+| `integration_test/passport/native_qr_session_lifecycle_test.dart` | 同一 owned storage 的 `prepare` → `restore-logout` → `post-logout` 三进程恢复与本地退出持久性。 |
+
+`AT-WL06` 的扫码者使用独立 DID 和显式 Android 平台标识，但仍是 API 测试客户端，
+**不能写成真实手机相机扫码通过**。App 端保留真实设备 ID、Native OS、生产 HTTP/WS 与存储。
+测试仅观察 App 的 status 领取响应，不额外领取一次性 QR 结果；不会替产品生成初始二维码、
+注入资料、换用密码登录 token 或手动打开 WebSocket。资料、HTTP 与握手分别出结果，
+有效 QR 凭据下的资料缺失不能阻止另外两项取证，也不能放宽成“有 UID 就通过”。
+
+环境沿用上文 loopback、`APP_ENV=local`、签名材料与隔离账号合同，另需：
+
+```bash
+export IMBOY_EXECUTION_DEVICE_MACOS=macos
+export TEST_ALLOW_BUSINESS_WRITES=true
+export NQR_RUN_TAG="nqr-$(date -u +%Y%m%dT%H%M%SZ)"
+# 显式提供 TEST_PHONE、TEST_PASSWORD、TEST_EXPECTED_UID、
+# TEST_EXPECTED_NICKNAME、TEST_EXPECTED_AVATAR；资料期望必须非空。
+# 此入口使用 type=account；TEST_PHONE 在这里承载隔离账号别名。
+# 生命周期三个阶段还需固定以下两个值：
+export NQR_CLIENT_SHA="$(git rev-parse HEAD)"
+# NQR_BACKEND_SHA 必须来自已核实的实际部署收据，而非仅取源码 main。
+```
+
+后端必须实际部署包含 Native OS/DID token 合同的版本（至少包含后端 PR #72），
+账号资料、设备注册和签名版本须匹配。写入范围包括 QR session、扫码登录和目标设备注册；
+退出按真实页面行为执行。不得使用生产账号或把 `IMBOY_TEST_ISOLATED=true` 本身当成隔离证明。
+测试不会自动部署后端，也不会创建合成账号。`NQR_CLIENT_SHA` / `NQR_BACKEND_SHA` 只防阶段间声明漂移；
+它们不是运行二进制来源的证明，仍须归档 runner 源码指纹、产品指纹及实际后端部署收据。
+
+使用既有执行器，报告目录在仓外。下列是已准备环境下的执行示例，不是执行证明：
+
+```bash
+python3 scripts/auto_test.py execution-plan --profile device-single --platform macos \
+  --product-profile phase1_delivery \
+  --target integration_test/passport/web_login_acceptance_test.dart \
+  --variant AT-WL06 --output "$REPORT_DIR/native-qr-login-plan.json"
+python3 scripts/auto_test.py execution-run --plan "$REPORT_DIR/native-qr-login-plan.json" \
+  --artifact-dir "$REPORT_DIR/native-qr-login"
+
+# 生命周期：先只运行 prepare，确认成功且旧 App PID 已退出后，
+# 将 variant 与对应计划/报告名中的 prepare 改为 restore-logout，
+# 最后改为 post-logout，依次执行。
+# 三阶段保持同一 NQR_RUN_TAG、账号、客户端 SHA、后端部署与产品配置。
+python3 scripts/auto_test.py execution-plan --profile device-single --platform macos \
+  --product-profile phase1_delivery \
+  --target integration_test/passport/native_qr_session_lifecycle_test.dart \
+  --variant prepare --output "$REPORT_DIR/native-qr-prepare-plan.json"
+python3 scripts/auto_test.py execution-run --plan "$REPORT_DIR/native-qr-prepare-plan.json" \
+  --artifact-dir "$REPORT_DIR/native-qr-prepare"
+```
+
+`--variant` 是筛选器，不是阶段依赖编排器；不要把一次全 variant 批跑当成受控重启。
+生命周期复用 `isolateH2NativeStorage` 的 owned scope、真实 Keychain/prefs/SQLCipher，
+恢复时不会先调用退出或清缓存。成功收据仅保存身份/凭据摘要、阶段、SHA 声明与 PID；
+后一阶段要求匹配且在 1 小时内的前序收据，并只读检查旧 PID 已不存在。
+准备与恢复之间不能卸载 App、换 scope 或清理 owned storage；各阶段仍须正常 dispose App 并关闭 DB。
+最后一次冷启动验证已退出后才清理 owned scope。
+归档各阶段原始机器事件、退出码及脱敏收据；prepare 成功不是整条恢复/退出验收成功。
+这证明独立进程冷启动；强制终止需要另行记录专用 App PID 的终止方式和恢复证据，不能由重复 `app.main()` 推导。
+
+| 判定 / Verdict | 必要条件 / Required evidence |
+| --- | --- |
+| PASS | 所选检查点确实执行，真实响应与当前凭据/设备一致，断言成功；生命周期阶段与来源证据完整。 |
+| FAIL | 环境完整而自动出码、资料、凭据、导航、HTTP、自动握手或真实退出行为不符合断言。不能通过测试主动补状态消除失败。 |
+| BLOCKED | 缺环境、签名/账号未就绪、缺前序收据、旧进程仍活跃或无法验证等使目标行为未被执行。运行时环境中止由 unexpected skip 保留为 BLOCKED，零执行与全跳过均不能 PASS。 |
+
+HTTP 正例使用生产 `/api/v1/user_device/page`，核对实际请求的 QR token、DID 与 Native OS。
+负例用独立传输保留正确设备签名，只移除或替换 Authorization，避免 App 的 401 拦截器主动退出：
+无 Authorization 应为 HTTP 401 / code 401；畸形 token 应为 HTTP 401 / code 706。
+HTTP 200 / code 902 是先行设备签名门失败，不能代替 token 鉴权负例通过。
+自动 WS 的 connected 必须来自 App 自己等待真实 channel ready 后的状态；此检查尚不证明业务帧往返。
+
+下列验收仍需独立执行并保留证据，不能由上述目标的 PASS 代替：
+
+- **真实手机确认**：相机扫码、确认账号/目标设备、成功页“已登录”与“我知道了”返回；错误账号、取消和过期码拒绝。
+- **WS 业务往返与重连**：第二个隔离账号/服务端帧追踪证明同一 Native 身份真实收发；不以本地 connected 状态替代业务消息。
+- **设备/token 撤销**：先证明同一未过期 token 可访问 HTTP/WS，再从另一活跃设备删除 Native DID；核对在线连接关闭、旧 HTTP 401/code 401、新 WS 握手 HTTP 401 且 `x-token-error: device_revoked`。保留另一设备正例/后端健康证据。`kick` 仅断开连接，不能代替删除或撤销。
+- **撤销后同 DID 再登录**：新 token 可用，旧 token 仍必须拒绝，单独检验设备重新注册后的旧凭据复活风险。
+- **退出后的服务器凭据状态**：本地退出清除 UID/token/资料及关闭 socket，并不证明服务器已撤销旧 token；必须重放退出前的旧 token 核验。不要用无 token 请求、fixture teardown 或测试额外 delete 来冒充产品退出行为。
+- **有效期与账户隔离**：有效期内跨进程恢复和 token 真正过期后的处理分别执行；保留 A→B 及迟到响应不回填旧账户的真实证据。
+
+The macOS targets use the real application, native namespaced storage and an isolated
+backend. Each AT-WL case has its own process. AT-WL06 uses an API-driven scanner identity;
+it does not exercise a phone camera. The test observes the App's single-use QR claim and
+checks credential persistence, a nonempty fixture profile, protected HTTP and an automatic
+real WebSocket handshake without repairing application state. These are separate checkpoints.
+
+Run the lifecycle variants explicitly in order with one owned scope and unchanged source,
+product and backend identity. A preceding successful receipt and an absent old PID are
+required before the next process. Cleanup follows the post-logout assertions. Declared SHAs
+bind stages but do not attest the deployed binaries. Preserve runner/deployment receipts,
+machine events and exit codes. Missing prerequisites or skipped checks remain BLOCKED;
+application mismatches are FAIL. No result here establishes forced-kill recovery, physical
+camera scanning, WebSocket message roundtrips, revocation or server-side logout invalidation.
+Those require the separate scenarios above, including replay of the original token after
+device deletion, re-registration and logout. Never substitute fixture cleanup or a missing
+token request for product revocation evidence.
 
 ### 设备、双端、Patrol
 

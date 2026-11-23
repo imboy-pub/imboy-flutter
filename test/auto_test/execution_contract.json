@@ -4066,6 +4066,129 @@
           ]
         }
       ]
+    },
+    "integration_test/passport/web_login_acceptance_test.dart": {
+      "suite": "device-single",
+      "runner": "flutter-device",
+      "platforms": [
+        "macos"
+      ],
+      "products": [
+        "phase1_delivery"
+      ],
+      "dependencies": [
+        "isolated-backend",
+        "isolated-accounts",
+        "business-writes",
+        "native-crypto"
+      ],
+      "required_env": [
+        "NQR_RUN_TAG",
+        "TEST_PHONE",
+        "TEST_PASSWORD",
+        "TEST_EXPECTED_UID",
+        "TEST_EXPECTED_NICKNAME",
+        "TEST_EXPECTED_AVATAR"
+      ],
+      "required_true_env": [
+        "IMBOY_TEST_ISOLATED",
+        "TEST_ALLOW_BUSINESS_WRITES"
+      ],
+      "process_isolation": "variant",
+      "variants": [
+        {
+          "variant": "AT-WL01",
+          "test_name": "AT-WL01"
+        },
+        {
+          "variant": "AT-WL02",
+          "test_name": "AT-WL02"
+        },
+        {
+          "variant": "AT-WL03",
+          "test_name": "AT-WL03"
+        },
+        {
+          "variant": "AT-WL04",
+          "test_name": "AT-WL04"
+        },
+        {
+          "variant": "AT-WL05",
+          "test_name": "AT-WL05"
+        },
+        {
+          "variant": "AT-WL06",
+          "test_name": "AT-WL06"
+        },
+        {
+          "variant": "AT-WL07",
+          "test_name": "AT-WL07"
+        }
+      ],
+      "basis": [
+        "Wide Native login acceptance runs on macOS with real namespaced Keychain/preferences/SQLCipher and an explicitly isolated backend; one test per App process prevents password-login singleton state from masking QR startup defects.",
+        "AT-WL06 observes automatic QR creation and the App status claim, then checks the same QR token in secure storage, production protected HTTP and an automatically established real WebSocket. The scanner is an API-driven Android identity, not a physical-phone camera test.",
+        "Profile, HTTP and WebSocket checkpoints remain independent; no test-generated QR, injected profile, credential replacement or manual socket open may satisfy the product behavior. This target is outside the offline PR profile."
+      ]
+    },
+    "integration_test/passport/native_qr_session_lifecycle_test.dart": {
+      "suite": "device-single",
+      "runner": "flutter-device",
+      "platforms": [
+        "macos"
+      ],
+      "products": [
+        "phase1_delivery"
+      ],
+      "dependencies": [
+        "isolated-backend",
+        "isolated-accounts",
+        "business-writes",
+        "native-crypto"
+      ],
+      "required_env": [
+        "NQR_RUN_TAG",
+        "TEST_PHONE",
+        "TEST_PASSWORD",
+        "TEST_EXPECTED_UID",
+        "TEST_EXPECTED_NICKNAME",
+        "TEST_EXPECTED_AVATAR",
+        "NQR_CLIENT_SHA",
+        "NQR_BACKEND_SHA"
+      ],
+      "required_true_env": [
+        "IMBOY_TEST_ISOLATED",
+        "TEST_ALLOW_BUSINESS_WRITES"
+      ],
+      "process_isolation": "variant",
+      "variants": [
+        {
+          "variant": "prepare",
+          "test_name": "NQR lifecycle prepare",
+          "dart_defines": {
+            "NQR_PHASE": "prepare"
+          }
+        },
+        {
+          "variant": "restore-logout",
+          "test_name": "NQR lifecycle restore and logout",
+          "dart_defines": {
+            "NQR_PHASE": "restore-logout"
+          }
+        },
+        {
+          "variant": "post-logout",
+          "test_name": "NQR lifecycle post logout",
+          "dart_defines": {
+            "NQR_PHASE": "post-logout"
+          }
+        }
+      ],
+      "basis": [
+        "Three explicitly ordered macOS App processes reuse the existing owned Native storage helper. The prepare receipt is required before restore/logout, and the logout receipt before post-logout; variant selection itself does not orchestrate dependencies.",
+        "Receipts bind scope, declared source/deployment SHAs and credential digests without plaintext tokens. Actual runner source and deployed-backend identity must also be verified externally; declaring an SHA is not deployment evidence.",
+        "Cold-start recovery and the normal Native settings logout are checked before fixture teardown. This establishes neither forced-kill recovery nor server-side revocation, real-camera scanning or WebSocket message roundtrips."
+      ]
     }
   },
   "profiles": {

@@ -1,7 +1,7 @@
 # 构建 / 发布（Build & Release）
 
-> **最后更新 / Last updated**: 2026-11-16
-> **真源 / Source of truth**: `scripts/build_play_aab.sh` · `scripts/check_play_release.sh` · `scripts/verify_web_shell.sh` · `scripts/build_android_apk.sh` · `android/app/build.gradle.kts` · `android/settings.gradle.kts` · `.github/workflows/ci.yml` · `.github/workflows/uiux-full-offline.yml` · `scripts/auto_test_lib/execution_runner.py`
+> **最后更新 / Last updated**: 2026-11-20
+> **真源 / Source of truth**: `scripts/build_play_aab.sh` · `scripts/check_play_release.sh` · `scripts/verify_web_shell.sh` · `scripts/build_android_apk.sh` · `android/app/build.gradle.kts` · `android/settings.gradle.kts` · `.github/scripts/ci_retry_build_downloads.sh` · `.github/workflows/ci.yml` · `.github/workflows/uiux-full-offline.yml` · `scripts/auto_test_lib/execution_runner.py`
 > 本文由脚本内容提取生成；脚本改动后须同步本页。
 
 ## Android
@@ -56,6 +56,22 @@ python3 .github/scripts/ci_check_android_repositories.py --gradle /path/to/gradl
 检查覆盖官方模式绕开镜像 502、默认镜像优先、镜像故障仍失败及非法开关值失败；
 GitHub APK job 在 APK/AAB 构建后执行同一检查。合成依赖与缓存隔离于临时目录，
 不会替换实际 APK/AAB 构建依赖；该检查不能替代真实 Android 构建或原生功能验收。
+
+### CI Maven 下载限流 / CI Maven download rate limiting
+
+CI 的 APK/AAB 构建复用 `.github/scripts/ci_retry_build_downloads.sh`。
+针对 Maven Central 的 429 限流，仅当 `flutter build apk` 或 `flutter build appbundle`
+返回 1，且最后一次 Gradle
+失败诊断明确记录从 `https://repo.maven.apache.org/maven2/` GET 构件收到
+`429 Too Many Requests` 时，才进入现有三次尝试、间隔 10/20 秒的重试预算。
+Flutter 内部先前尝试的 429 不得使后续编译、签名、证书、校验和或依赖解析错误重试。
+持续限流仍返回最后一次失败码；构建参数、锁文件、依赖版本和仓库来源保持原值。
+
+For Maven Central 429 rate limits, CI retries an Android APK/AAB command only
+when it exits 1 and its final Gradle failure reports the explicit HTTPS GET error. The existing budget
+remains three attempts with 10/20-second delays. Earlier internal attempts do
+not make a later permanent failure retryable; exhaustion preserves the final
+exit code. Arguments, dependency locks, versions and repository sources stay intact.
 
 ### 正式 Play AAB（发布上架用）
 
@@ -127,6 +143,25 @@ source-binding gates; the label does not guarantee immediate runner availability
 The iOS job records the actual host architecture, Xcode and iphoneos SDK, and
 still performs the full unsigned Release build. Host CI does not replace physical
 device acceptance, Apple Silicon host testing, or release signing.
+
+### CI CocoaPods Specs 下载中断 / CI CocoaPods Specs transport failures
+
+iOS 的配置阶段通过同一下载脚本运行 `flutter build ios --config-only`。
+新增的 CocoaPods 重试仅限该命令返回 1、含独立 `--config-only` 参数，且终止于
+`Error running pod install`。日志必须同时证明创建当前清华 Specs HTTPS 源失败，
+以及 Git clone 的 `curl 56` connection reset、剩余 body、sideband 中断、
+early EOF 和 invalid index-pack；单独的 EOF 或任意 pod install 失败不足以重试。
+沿用最多三次尝试、10/20 秒间隔，持续失败保留最后退出码；认证、证书、规格版本、
+编译或签名错误仍须失败。Podfile、锁文件、源配置和原命令参数保持不变。
+配置成功后仍须执行完整 iOS Release 构建，配置阶段成功不能替代构建通过。
+
+The CocoaPods retry is limited to the iOS configuration command with a standalone
+`--config-only` argument and exit code 1. It requires the exact configured Specs
+HTTPS source failure, the complete observed Git connection-reset/truncated-pack
+evidence, and terminal `Error running pod install`. The existing three-attempt
+10/20-second budget preserves the final failure code and rejects permanent or
+mixed failures. Podfile, lockfile, source settings and arguments stay intact;
+successful configuration still requires the subsequent full iOS Release build.
 
 ## Web Shell 验证
 

@@ -1,0 +1,171 @@
+name: buildapp receipts & url schemes
+
+# F08/F13 CI lane for scripts/buildapp.sh V2:
+#   * shell tests (original 20 + T/S/R layers) on macOS AND Linux — the
+#     macOS-only tools (sips) are only exercised on macOS; every other code
+#     path is portable and must stay green on Linux too
+#   * real-build artifact checks: the final APK's merged manifest (aapt2/
+#     apkanalyzer) and the built Runner.app Info.plist (plistlib) are verified
+#     by buildapp.sh itself; these jobs exist to make that path actually run
+#     against real flutter builds in CI
+on:
+  pull_request:
+    paths:
+      - 'scripts/buildapp*.sh'
+      - 'scripts/buildapp*.py'
+      - '.github/workflows/buildapp.yml'
+      - 'android/app/src/main/AndroidManifest.xml'
+      - 'ios/Runner/Info.plist'
+      - 'ios/ShareExtension/Info.plist'
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+concurrency:
+  group: buildapp-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions:
+  contents: read
+
+env:
+  FLUTTER_VERSION: '3.50.0'
+
+jobs:
+  shell-macos:
+    name: buildapp shell tests (macOS, sips paths)
+    runs-on: macos-15
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          submodules: false
+      - name: Checkout pinned submodules (bounded retry)
+        timeout-minutes: 10
+        run: bash .github/scripts/ci_checkout_submodules.sh
+      - name: Install pinned python tooling (defusedxml, hashed, venv)
+        run: |
+          set -euo pipefail
+          python_env="$(mktemp -d "$RUNNER_TEMP/buildapp-python.XXXXXX")"
+          python3 -m venv "$python_env"
+          "$python_env/bin/python3" -m pip install --disable-pip-version-check --require-hashes --only-binary=:all: -r scripts/requirements-tooling.txt
+          printf '%s\n' "$python_env/bin" >> "$GITHUB_PATH"
+      - name: Run buildapp test suite
+        run: bash scripts/buildapp_test.sh
+
+  shell-linux:
+    name: buildapp shell tests (Linux, portable paths)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          submodules: false
+      - name: Checkout pinned submodules (bounded retry)
+        timeout-minutes: 10
+        run: bash .github/scripts/ci_checkout_submodules.sh
+      - name: Install pinned python tooling (defusedxml, hashed, venv)
+        run: |
+          set -euo pipefail
+          python_env="$(mktemp -d "$RUNNER_TEMP/buildapp-python.XXXXXX")"
+          python3 -m venv "$python_env"
+          "$python_env/bin/python3" -m pip install --disable-pip-version-check --require-hashes --only-binary=:all: -r scripts/requirements-tooling.txt
+          printf '%s\n' "$python_env/bin" >> "$GITHUB_PATH"
+      - name: Run buildapp test suite
+        run: bash scripts/buildapp_test.sh
+
+  android-apk-manifest:
+    name: real APK merged-manifest scheme check (F13)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          submodules: false
+      - name: Checkout pinned submodules (bounded retry)
+        timeout-minutes: 10
+        run: bash .github/scripts/ci_checkout_submodules.sh
+      - name: Install pinned python tooling (defusedxml, hashed, venv)
+        run: |
+          set -euo pipefail
+          python_env="$(mktemp -d "$RUNNER_TEMP/buildapp-python.XXXXXX")"
+          python3 -m venv "$python_env"
+          "$python_env/bin/python3" -m pip install --disable-pip-version-check --require-hashes --only-binary=:all: -r scripts/requirements-tooling.txt
+          printf '%s\n' "$python_env/bin" >> "$GITHUB_PATH"
+      - name: Setup JDK 17
+        uses: actions/setup-java@d1374f8ac74474200d16ef8ecee22c7ae7a51880 # v6
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Setup Flutter
+        uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: 'stable'
+          cache: true
+      - name: Generate CI env files (dummy values)
+        run: bash .github/scripts/ci_gen_env.sh
+      - name: Create synthetic customer fixture
+        run: bash scripts/buildapp_fixture.sh customer-alpha alphaapp --gate-skip
+      - name: Real android build via buildapp.sh (throwaway demo keystore)
+        run: bash scripts/buildapp.sh customer-alpha development android
+      - name: Assert receipt + merged-manifest scheme evidence
+        run: |
+          set -euo pipefail
+          ART="$(find ../customers/customer-alpha/builds/development -maxdepth 1 -mindepth 1 -type d | head -1)"
+          echo "receipt: $ART"
+          grep -q 'build_status: PASS' "$ART/build-manifest.yaml"
+          grep -q 'android_registered_url_schemes: "alphaapp, https"' "$ART/build-manifest.yaml"
+          grep -q 'configured_url_scheme: alphaapp' "$ART/build-manifest.yaml"
+          grep -qE 'android_apk_url_schemes: "(alphaapp, https|https, alphaapp)"' "$ART/build-manifest.yaml"
+          grep -q 'device_coexistence_test_status: DEVICE_TEST_PENDING' "$ART/build-manifest.yaml"
+          [ -f "$ART/android/app-release.apk" ]
+          ( cd "$ART" && (shasum -a 256 -c SHA256SUMS --status || sha256sum -c SHA256SUMS --status) )
+          echo "APK merged-manifest evidence recorded in receipt"
+
+  ios-app-plist:
+    name: real Runner.app plist scheme check (F13, macOS)
+    # macos-26-intel: same image the main CI iOS build uses. On macos-15 the
+    # pinned video_player_avfoundation 2.12.3 fails Swift compilation
+    # (VideoPlayer.swift:568 Generic parameter 'B' could not be inferred) —
+    # an image/Xcode compatibility issue, not a buildapp.sh defect.
+    runs-on: macos-26-intel
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          submodules: false
+      - name: Checkout pinned submodules (bounded retry)
+        timeout-minutes: 10
+        run: bash .github/scripts/ci_checkout_submodules.sh
+      - name: Install pinned python tooling (defusedxml, hashed, venv)
+        run: |
+          set -euo pipefail
+          python_env="$(mktemp -d "$RUNNER_TEMP/buildapp-python.XXXXXX")"
+          python3 -m venv "$python_env"
+          "$python_env/bin/python3" -m pip install --disable-pip-version-check --require-hashes --only-binary=:all: -r scripts/requirements-tooling.txt
+          printf '%s\n' "$python_env/bin" >> "$GITHUB_PATH"
+      - name: Setup Flutter
+        uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: 'stable'
+          cache: true
+      - name: Generate CI env files (dummy values)
+        run: bash .github/scripts/ci_gen_env.sh
+      - name: Create synthetic customer fixture
+        run: bash scripts/buildapp_fixture.sh customer-alpha alphaapp --gate-skip
+      - name: Real unsigned iOS build via buildapp.sh
+        run: bash scripts/buildapp.sh customer-alpha development ios
+      - name: Assert receipt + built-plist scheme evidence
+        run: |
+          set -euo pipefail
+          ART="$(find ../customers/customer-alpha/builds/development -maxdepth 1 -mindepth 1 -type d | head -1)"
+          echo "receipt: $ART"
+          grep -q 'build_status: PASS' "$ART/build-manifest.yaml"
+          grep -q 'ios_registered_url_schemes: "alphaapp"' "$ART/build-manifest.yaml"
+          grep -q 'ios_app_url_schemes: "alphaapp"' "$ART/build-manifest.yaml"
+          grep -q 'device_coexistence_test_status: DEVICE_TEST_PENDING' "$ART/build-manifest.yaml"
+          [ -f "$ART/ios/Runner-unsigned.app.zip" ]
+          ( cd "$ART" && shasum -a 256 -c SHA256SUMS --status )
+          echo "Runner.app plist evidence recorded in receipt"
