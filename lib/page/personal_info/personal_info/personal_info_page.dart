@@ -32,9 +32,16 @@ import '../widget/more_page.dart';
 
 /// 个人信息页面 - 像素级对齐 iOS 17 Premium 风格
 class PersonalInfoPage extends ConsumerStatefulWidget {
-  const PersonalInfoPage({super.key, this.readOnly = kIsWeb});
+  const PersonalInfoPage({
+    super.key,
+    this.readOnly = kIsWeb,
+    this.allowLocalGeoPreview = false,
+  });
 
   final bool readOnly;
+
+  /// Set only by the signed-in Web “Me” panel.
+  final bool allowLocalGeoPreview;
 
   @override
   ConsumerState<PersonalInfoPage> createState() => _PersonalInfoPageState();
@@ -122,12 +129,22 @@ class _PersonalInfoPageState extends ConsumerState<PersonalInfoPage> {
               ),
               ImBoySettingsTile(
                 title: Text(t.common.moreInfo),
-                onTap: () => Navigator.push(
-                  context,
-                  CupertinoPageRoute<dynamic>(
-                    builder: (_) => MorePage(readOnly: widget.readOnly),
-                  ),
-                ),
+                onTap: () {
+                  final session = widget.allowLocalGeoPreview
+                      ? UserProfileService.readSessionSnapshot()
+                      : null;
+                  Navigator.push(
+                    context,
+                    CupertinoPageRoute<dynamic>(
+                      builder: (_) => MorePage(
+                        readOnly: widget.readOnly,
+                        geoPreviewOwner: session?.uid == user.uid
+                            ? session
+                            : null,
+                      ),
+                    ),
+                  );
+                },
               ),
             ],
           ),

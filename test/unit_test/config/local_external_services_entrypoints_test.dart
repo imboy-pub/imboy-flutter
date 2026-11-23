@@ -5,8 +5,10 @@ import 'package:imboy/component/helper/ntp.dart';
 import 'package:imboy/component/location/amap_helper.dart';
 import 'package:imboy/component/location/location_service.dart';
 import 'package:imboy/config/local_external_services_policy.dart';
+import 'package:imboy/page/passport/passport_notifier.dart';
 import 'package:imboy/service/jpush_flutter_binding.dart';
 import 'package:imboy/service/push_notification_service.dart';
+import 'package:jverify/jverify.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -36,6 +38,7 @@ void main() {
       'amap_flutter_location',
       'plugins.flutter.io/firebase_core',
       'plugins.flutter.io/firebase_messaging',
+      'jverify',
     ]) {
       TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
           .setMockMethodCallHandler(MethodChannel(channel), (_) async {
@@ -48,6 +51,7 @@ void main() {
         'amap_flutter_location',
         'plugins.flutter.io/firebase_core',
         'plugins.flutter.io/firebase_messaging',
+        'jverify',
       ]) {
         TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
             .setMockMethodCallHandler(MethodChannel(channel), null);
@@ -91,6 +95,11 @@ void main() {
         return true;
       },
     ).initialize();
+    final passport = PassportNotifier();
+    expect(await passport.initPlatformState(), isFalse);
+    expect(passport.jverify, isNull);
+    passport.jverify = Jverify();
+    expect(await passport.loginAuth(false), isNull);
     expect(enabledChecks, 0);
     expect(calls, 0);
     expect(PushNotificationService.instance.fcmEnabled, isFalse);

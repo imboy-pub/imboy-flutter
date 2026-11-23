@@ -11,6 +11,7 @@ import 'package:imboy/config/env.dart';
 import 'package:imboy/config/init.dart';
 import 'package:imboy/config/routes.dart';
 import 'package:imboy/service/assets.dart';
+import 'package:imboy/service/geo_regions/geo_regions_host.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/store/service/user_profile_service.dart';
 import 'package:imboy/i18n/strings.g.dart';
@@ -738,17 +739,18 @@ GoRouter createAppRouter({
             path: '/set_region',
             name: 'set_region',
             pageBuilder: (context, state) {
+              final androidQa = isAndroidGeoQaRequested();
               final title = state.uri.queryParameters['title'] ?? '';
-              final currentValue =
-                  state.uri.queryParameters['currentValue'] ?? '';
 
               return CupertinoPage(
                 key: state.pageKey,
                 child: SetRegionPage(
                   title: title.isNotEmpty ? title : t.common.setRegion,
-                  currentValue: currentValue,
-                  onSave: (val) =>
-                      UserProfileService.updateField('region', val),
+                  currentValue: UserRepoLocal.to.currentUser?.region ?? '',
+                  androidGeoQa: androidQa,
+                  onSave: androidQa
+                      ? (_) async => false
+                      : (val) => UserProfileService.updateField('region', val),
                 ),
               );
             },

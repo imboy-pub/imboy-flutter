@@ -92,6 +92,40 @@ void main() {
     },
   );
 
+  test('self region selection is a private loopback-only exact Web POST', () {
+    final local = Uri.parse('http://127.0.0.1:9814');
+    final route = Uri.parse(webSelfRegionSelectionPath);
+    expect(webHumanRequestUri('POST', route, local), local.resolveUri(route));
+    expect(webHumanPublicPaths, isNot(contains(webSelfRegionSelectionPath)));
+    expect(
+      () => webHumanRequestUri('POST', route, root),
+      throwsFormatException,
+    );
+    for (final path in [
+      '/api/v1/user/region-selection',
+      '/api/v1/user/update',
+      '/api/v1/web/user/update',
+      '$webSelfRegionSelectionPath?uid=2',
+    ]) {
+      expect(
+        () => webHumanRequestUri('POST', Uri.parse(path), local),
+        throwsFormatException,
+      );
+    }
+    for (final path in ['/api/v1/user/update', '/api/v1/web/user/update']) {
+      expect(
+        () => webHumanRequestUri('PUT', Uri.parse(path), local),
+        throwsFormatException,
+      );
+    }
+    for (final verb in ['GET', 'PUT', 'PATCH', 'DELETE']) {
+      expect(
+        () => webHumanRequestUri(verb, route, local),
+        throwsFormatException,
+      );
+    }
+  });
+
   test('organizations mine is one private exact GET-only Web Human alias', () {
     for (final value in [
       '/api/v1/organizations/mine?page=1&size=10',

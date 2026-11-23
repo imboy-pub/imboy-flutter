@@ -20,62 +20,38 @@ class RegionCache {
   static const String _keyDataVersion = 'region_data_version';
   static const String _keyLastUpdateTime = 'region_last_update_time';
 
-  /// 同步保存已提交的地区字符串与完整路径。
-  /// 写入失败时尽力恢复旧值，避免两个缓存键长期不一致。
-  static Future<void> saveSelection(String value, List<String> path) async {
-    final prefs = await SharedPreferences.getInstance();
-    final oldValue = prefs.getString(_keySelectedRegion);
-    final oldPath = prefs.getString(_keyRegionPath);
-    final savedValue = await prefs.setString(_keySelectedRegion, value);
-    final savedPath = await prefs.setString(_keyRegionPath, path.join(' '));
-    if (!savedValue || !savedPath) {
-      if (oldValue == null) {
-        await prefs.remove(_keySelectedRegion);
-      } else {
-        await prefs.setString(_keySelectedRegion, oldValue);
-      }
-      if (oldPath == null) {
-        await prefs.remove(_keyRegionPath);
-      } else {
-        await prefs.setString(_keyRegionPath, oldPath);
-      }
-      throw StateError('保存地区缓存失败');
+  static const legacySelectionPreferenceKey = 'geo_legacy_selection';
+
+  /// 保存同一账号会话已提交的 legacy 值和原始路径分段。
+  static Future<void> saveSelection(
+    AccountPreferences preferences,
+    String value,
+    List<String> path,
+  ) => preferences.writeList(legacySelectionPreferenceKey, [value, ...path]);
+
+  /// 账号缓存只补充与当前资料精确匹配的路径。
+  static List<String>? readSelectionPath(
+    AccountPreferences preferences,
+    String profileRegion,
+  ) {
+    if (profileRegion.isEmpty) return null;
+    try {
+      final saved = preferences.readList(legacySelectionPreferenceKey);
+      if (saved.length < 2 || saved.first != profileRegion) return null;
+      final path = saved.sublist(1);
+      return path.join(' ') == profileRegion ? path : null;
+    } on TypeError {
+      return null;
     }
   }
 
-  /// 保存选中的地区字符串
-  /// 参数：value 地区字符串（如"中国大陆 北京 朝阳区"）
-  /// 返回：`Future<void>`
-  /// 异常：SharedPreferences 操作异常
-  static Future<void> saveSelectedRegion(String value) async {
-    final prefs = await SharedPreferences.getInstance();
-    requireWebWriter();
-    await prefs.setString(_keySelectedRegion, value);
-  }
-
-  /// 加载选中的地区字符串
-  /// 参数：无
-  /// 返回：`Future<String>` 地区字符串，无缓存时返回空字符串
-  /// 异常：SharedPreferences 操作异常
+  /// 读取尚无归属的旧值供诊断，编辑器不消费它。
   static Future<String> loadSelectedRegion() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getString(_keySelectedRegion) ?? '';
   }
 
-  /// 保存地区路径列表
-  /// 参数：path 路径列表（如["中国大陆", "北京", "朝阳区"]）
-  /// 返回：`Future<void>`
-  /// 异常：SharedPreferences 操作异常
-  static Future<void> saveRegionPath(List<String> path) async {
-    final prefs = await SharedPreferences.getInstance();
-    requireWebWriter();
-    await prefs.setString(_keyRegionPath, path.join(' '));
-  }
-
-  /// 加载地区路径列表
-  /// 参数：无
-  /// 返回：`Future<List<String>>` 路径列表，无缓存时返回空列表
-  /// 异常：SharedPreferences 操作异常
+  /// 读取尚无归属的旧路径供诊断，编辑器不消费它。
   static Future<List<String>> loadRegionPath() async {
     final prefs = await SharedPreferences.getInstance();
     final s = prefs.getString(_keyRegionPath) ?? '';
@@ -148,8 +124,7 @@ class RegionCache {
     return prefs.getInt(_keyLastUpdateTime) ?? 0;
   }
 
-  /// 清除所有地区相关缓存
-  /// 用途：在数据异常或用户主动清理时清空所有缓存
+  /// 清除可重建的公共地区资源缓存。
   /// 参数：无
   /// 返回：`Future<void>`
   /// 异常：SharedPreferences 操作异常
@@ -157,8 +132,6 @@ class RegionCache {
     final prefs = await SharedPreferences.getInstance();
     requireWebWriter();
     await Future.wait([
-      prefs.remove(_keySelectedRegion),
-      prefs.remove(_keyRegionPath),
       prefs.remove(_keyRegionList),
       prefs.remove(_keyDataVersion),
       prefs.remove(_keyLastUpdateTime),

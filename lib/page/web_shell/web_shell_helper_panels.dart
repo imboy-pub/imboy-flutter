@@ -37,6 +37,7 @@ class WebMineMinPanel extends ConsumerWidget {
         : PersonalInfoPage(
             key: ValueKey('web-personal-info:${user.uid}'),
             readOnly: true,
+            allowLocalGeoPreview: true,
           );
   }
 }

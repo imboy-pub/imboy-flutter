@@ -40,6 +40,64 @@ void main() {
     loader: loader,
   );
 
+  test('Android QA requires debug Android opt-in and the isolated API', () {
+    bool requested({
+      bool enabled = true,
+      bool web = false,
+      bool debug = true,
+      TargetPlatform platform = TargetPlatform.android,
+    }) => androidGeoQaRequested(
+      enabled: enabled,
+      isWeb: web,
+      isDebug: debug,
+      platform: platform,
+    );
+
+    expect(requested(), isTrue);
+    expect(requested(enabled: false), isFalse);
+    expect(requested(web: true), isFalse);
+    expect(requested(debug: false), isFalse);
+    expect(requested(platform: TargetPlatform.iOS), isFalse);
+    expect(requested(platform: TargetPlatform.macOS), isFalse);
+    expect(
+      androidGeoQaEndpointAllowed(
+        environment: 'local',
+        endpoint: 'http://127.0.0.1:9814',
+      ),
+      isTrue,
+    );
+    expect(
+      androidGeoQaEndpointAllowed(
+        environment: 'pro',
+        endpoint: 'http://127.0.0.1:9814',
+      ),
+      isFalse,
+    );
+    expect(
+      androidGeoQaEndpointAllowed(
+        environment: 'local',
+        endpoint: 'http://127.0.0.1:9815',
+      ),
+      isFalse,
+    );
+  });
+
+  test('Android QA resource paths stay in the exact pinned loopback root', () {
+    bool allowed(String value) => androidGeoQaResourceAllowed(Uri.parse(value));
+    expect(allowed('http://127.0.0.1:9815/geo/i18n/ar/JP.json'), isTrue);
+    for (final invalid in [
+      '/geo/manifest.json',
+      'http://localhost:9815/geo/manifest.json',
+      'http://127.0.0.1:9814/geo/manifest.json',
+      'http://127.0.0.1:9815/geo-other/manifest.json',
+      'http://127.0.0.1:9815/geo/%2e%2e/manifest.json',
+      'http://127.0.0.1:9815/geo/%2freports/manifest.json',
+      'http://127.0.0.1:9815/geo/manifest.json?alternate=true',
+    ]) {
+      expect(allowed(invalid), isFalse, reason: invalid);
+    }
+  });
+
   test('cache reopens on the platform and preserves the full key', () async {
     final store = GeoPlatformCacheStore();
     await store.clear();
@@ -628,6 +686,19 @@ void main() {
       final fresh = buildGeoSelection(index, 'stat:JP-13001');
       validateGeoSelection(fresh, index);
       expect(fresh.pathIds, ['cc:JP', 'iso3166-2:JP-13', 'stat:JP-13001']);
+      final localized = buildGeoSelection(
+        index,
+        'stat:JP-13001',
+        displayLocale: 'ar',
+        displaySnapshot: ['اليابان', 'طوكيو', 'منطقة'],
+      );
+      final nativePayload = androidGeoQaSourceSelection(localized, index);
+      expect(nativePayload, localized);
+      expect(nativePayload.displayLocale, isNull);
+      expect(nativePayload.displaySnapshot, [
+        for (final id in fresh.pathIds) index.requireNode(id).name.trim(),
+      ]);
+      expect(nativePayload.displaySnapshot, isNot(localized.displaySnapshot));
 
       // A selection pinned to a superseded revision is refused, not remapped.
       final stale = GeoSelection(

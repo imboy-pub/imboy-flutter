@@ -12,6 +12,8 @@ import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_localizations/flutter_localizations.dart'
     show GlobalWidgetsLocalizations;
+import 'package:flutter_localizations/flutter_localizations.dart'
+    as picker_l10n;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -435,6 +437,9 @@ class _IMBoyAppState extends ConsumerState<IMBoyApp> {
           // 配置本地化代理
           localizationsDelegates: const [
             GlobalMaterialLocalizations.delegate,
+            // Geo 的官方 DialogRoute 从根 Navigator 读取这个代理。
+            // ignore: deprecated_member_use
+            picker_l10n.GlobalMaterialLocalizations.delegate,
             GlobalWidgetsLocalizations.delegate,
             GlobalCupertinoLocalizations.delegate,
           ],

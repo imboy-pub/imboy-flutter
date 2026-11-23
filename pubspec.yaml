@@ -439,6 +439,12 @@ flutter:
         - asset: assets/fonts/NotoSansSC-Regular-subset.otf
         - asset: assets/fonts/NotoSansSC-Bold-subset.otf
           weight: 700
+    - family: IMBoyGeoCjk
+      fonts:
+        - asset: assets/fonts/IMBoyGeoCjk-Regular.otf
+    - family: NotoSansArabicGeo
+      fonts:
+        - asset: assets/fonts/NotoSansArabic-Geo-Regular.ttf
 
   # ┌─ Assets & Resources ────────────────────────────────────────────┐
   assets:
@@ -450,6 +456,9 @@ flutter:
     - docs/about.md
     - assets/example10.db                  # 示例数据库
     - assets/data/region.json              # 地区数据
+    - assets/fonts/licenses/OFL-Geo-CJK.txt
+    - assets/fonts/licenses/OFL-Geo-Arabic.txt
+    - assets/fonts/licenses/geo-preview-fonts.md
     - assets/images/                       # 通用图片资源
     # 数据库迁移脚本
     - assets/migrations/upgrade.sql        # 升级迁移脚本

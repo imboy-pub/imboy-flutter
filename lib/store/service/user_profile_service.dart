@@ -153,7 +153,10 @@ class UserProfileService {
   ///
   /// 返回 (region, selection)；结构上不可能被后端接受的输入返回 null
   /// （本地拒绝，不发必败请求，不猜测展示串）。
-  static (String, GeoSelection)? normalizeRegionSelectionValue(dynamic value) {
+  static (String, GeoSelection)? normalizeRegionSelectionValue(
+    dynamic value, {
+    bool serverCanonicalizesDisplay = false,
+  }) {
     String? region;
     GeoSelection? selection;
     if (value is GeoSelection) {
@@ -191,7 +194,10 @@ class UserProfileService {
     final sent = region ?? derived;
     // 后端以数据集重算展示并精确比对，与快照不一致的 region 必败。
     if (sent != derived) return null;
-    if (sent.runes.length > 80 || sent.contains('\u0000')) return null;
+    if (sent.contains('\u0000') ||
+        (!serverCanonicalizesDisplay && sent.runes.length > 80)) {
+      return null;
+    }
     return (sent, selection);
   }
 
@@ -206,6 +212,8 @@ class UserProfileService {
   /// `field = 'regionSelection'` 时 [value] 为
   /// `{region: String, selection: GeoSelection|Map|String}` 或 [GeoSelection]，
   /// 本地缓存同步 region + regionSelection + regionSelectionStatus。
+  /// 专用 Web 预览传入 POST transport 和 requireAuthoritativeRegion，只发送
+  /// 结构化 selection，等服务端返回同一身份与权威展示后才提交本地。
   static Future<bool> updateField(
     String field,
     dynamic value, {
@@ -213,7 +221,12 @@ class UserProfileService {
     Map<String, dynamic> Function()? readCurrent,
     Future<bool> Function(Map<String, dynamic> payload)? saveLocal,
     UserProfileSessionSnapshot Function()? readSession,
+    bool requireAuthoritativeRegion = false,
   }) async {
+    if (requireAuthoritativeRegion &&
+        (field != 'regionSelection' || httpPut == null)) {
+      return false;
+    }
     final readSes = readSession ?? readSessionSnapshot;
     final put =
         httpPut ?? (data) => HttpClient.client.put(API.userUpdate, data: data);
@@ -233,7 +246,10 @@ class UserProfileService {
 
     (String, GeoSelection)? normalizedRegion;
     if (field == 'regionSelection') {
-      normalizedRegion = normalizeRegionSelectionValue(value);
+      normalizedRegion = normalizeRegionSelectionValue(
+        value,
+        serverCanonicalizesDisplay: requireAuthoritativeRegion,
+      );
       if (normalizedRegion == null) {
         // 结构上必败：本地拒绝，不猜测、不发请求、不落缓存。
         return false;
@@ -247,7 +263,10 @@ class UserProfileService {
       value = value ? 1 : 2;
     }
 
-    final resp = await put({'field': field, 'value': value});
+    final request = requireAuthoritativeRegion
+        ? <String, dynamic>{'selection': normalizedRegion!.$2.toMap()}
+        : <String, dynamic>{'field': field, 'value': value};
+    final resp = await put(request);
     if (!resp.ok) {
       // 透出后端中文原因（隐私开关链路：privacy_settings_page 只拿到 bool，
       // 不在这里弹出，用户只能看到与原因无关的兜底文案）。
@@ -264,7 +283,11 @@ class UserProfileService {
     try {
       final payload = readCur();
       if (field == 'regionSelection') {
-        final (region, selection) = normalizedRegion!;
+        final confirmed = requireAuthoritativeRegion
+            ? _authoritativeRegionReply(resp.payload, normalizedRegion!.$2)
+            : normalizedRegion;
+        if (confirmed == null) return false;
+        final (region, selection) = confirmed;
         // 后端仅在权威校验通过后才接受 → 读侧状态为 resolved；
         // 本地 region 字符串与结构化身份一致同步（不猜测、不丢资料）。
         payload['region'] = region;
@@ -288,6 +311,27 @@ class UserProfileService {
     }
   }
 
+  static (String, GeoSelection)? _authoritativeRegionReply(
+    dynamic response,
+    GeoSelection submitted,
+  ) {
+    if (response is! Map || response['regionSelectionStatus'] != 'resolved') {
+      return null;
+    }
+    final region = response['region'];
+    final rawSelection = response['regionSelection'];
+    if (region is! String ||
+        region.trim().isEmpty ||
+        region.runes.length > 80 ||
+        region.contains('\u0000') ||
+        rawSelection is! Map) {
+      return null;
+    }
+    final selection = parseSelection(Map<String, dynamic>.from(rawSelection));
+    // GeoSelection equality is the protocol, dataset, country, revision and ID path.
+    return selection == submitted ? (region, selection) : null;
+  }
+
   /// 结构化地区身份保存（geo_regions 协议 §8）。
   ///
   /// [selection] 必须携带 [GeoSelection.displaySnapshot]（后端以 pinned
@@ -299,6 +343,7 @@ class UserProfileService {
     Map<String, dynamic> Function()? readCurrent,
     Future<bool> Function(Map<String, dynamic> payload)? saveLocal,
     UserProfileSessionSnapshot Function()? readSession,
+    bool requireAuthoritativeRegion = false,
   }) {
     return updateField(
       'regionSelection',
@@ -312,6 +357,7 @@ class UserProfileService {
       readCurrent: readCurrent,
       saveLocal: saveLocal,
       readSession: readSession,
+      requireAuthoritativeRegion: requireAuthoritativeRegion,
     );
   }
 }

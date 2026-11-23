@@ -21,6 +21,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:jverify/jverify.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:imboy/config/env.dart';
+import 'package:imboy/config/local_external_services_policy.dart';
 import 'package:imboy/service/login_account_history_service.dart';
 import 'package:imboy/page/bottom_navigation/bottom_navigation_page.dart';
 import 'package:imboy/store/api/user_api.dart';
@@ -852,6 +853,7 @@ class PassportNotifier extends _$PassportNotifier {
 
   /// 初始化极光认证SDK
   Future<bool> initPlatformState() async {
+    if (LocalExternalServicesPolicy.suppressed) return false;
     // Web 平台不支持 JVerify 一键登录
     if (kIsWeb) {
       return false;
@@ -1091,6 +1093,7 @@ class PassportNotifier extends _$PassportNotifier {
 
   /// 初始化极光认证 SDK 并设置 UI 配置
   Future<String?> loginAuth(bool isSms) async {
+    if (LocalExternalServicesPolicy.suppressed) return null;
     // Web 平台不支持 JVerify 一键登录
     if (kIsWeb) {
       snackBar(t.passport.oneKeyNotSupportedWeb);

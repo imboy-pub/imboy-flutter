@@ -6,6 +6,8 @@ import 'package:geo_regions/geo_regions.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import 'package:imboy/component/helper/func.dart';
+import 'package:imboy/service/account_preferences.dart';
+import 'package:imboy/service/auth_session_scope.dart';
 import 'package:imboy/service/cache/region_cache.dart';
 
 part 'set_region_provider.g.dart';
@@ -56,6 +58,8 @@ class SetRegionState {
 @riverpod
 class SetRegionNotifier extends _$SetRegionNotifier {
   String _initialValue = '';
+  List<String> _initialPath = const [];
+  AccountPreferences? _preferences;
   List<dynamic> _fullRegionList = [];
 
   @override
@@ -63,21 +67,6 @@ class SetRegionNotifier extends _$SetRegionNotifier {
     Future<dynamic>.delayed(Duration.zero, () async {
       await _loadRegionData();
       if (!ref.mounted) return;
-
-      final cachedSelected = await RegionCache.loadSelectedRegion();
-      if (!ref.mounted) return;
-      // 缓存加载是异步的：若用户此时已做出新选择（hasChanged=true），
-      // initData 会把 selectedRegion/hasChanged 整体重置，静默吞掉刚点的
-      // 选择，且「完成」按钮随之失活（批次125 地区保存场景实证）。
-      if (cachedSelected.isNotEmpty && !state.hasChanged) {
-        initData(cachedSelected);
-      }
-
-      final cachedPath = await RegionCache.loadRegionPath();
-      if (!ref.mounted) return;
-      if (cachedPath.isNotEmpty && !state.hasChanged) {
-        state = state.copyWith(regionPath: cachedPath);
-      }
 
       final cachedList = await RegionCache.loadRegionList();
       if (!ref.mounted) return;
@@ -90,20 +79,30 @@ class SetRegionNotifier extends _$SetRegionNotifier {
     return const SetRegionState();
   }
 
-  /// 初始化数据
-  void initData(String currentValue) {
-    _initialValue = currentValue;
-    state = state.copyWith(selectedRegion: currentValue, hasChanged: false);
-
-    if (state.selectedRegion.isNotEmpty) {
-      final path = state.selectedRegion
-          .split(' ')
-          .where((e) => e.trim().isNotEmpty)
-          .toList();
-      state = state.copyWith(regionPath: path);
-    } else {
-      state = state.copyWith(regionPath: []);
+  /// 以当前账号资料初始化，缓存只补齐原始路径分段。
+  void initData(String currentValue, AccountPreferences preferences) {
+    if (_preferences == null) {
+      authSessionReader.addListener(_clearRevokedSelection);
+      ref.onDispose(
+        () => authSessionReader.removeListener(_clearRevokedSelection),
+      );
     }
+    _preferences = preferences;
+    _initialValue = preferences.isCurrent ? currentValue : '';
+    _initialPath =
+        RegionCache.readSelectionPath(preferences, _initialValue) ??
+        _initialValue
+            .split(' ')
+            .where((part) => part.trim().isNotEmpty)
+            .toList();
+    revertToInitial();
+  }
+
+  void _clearRevokedSelection() {
+    if (!ref.mounted || _preferences?.isCurrent != false) return;
+    _initialValue = '';
+    _initialPath = const [];
+    revertToInitial();
   }
 
   /// 加载 assets/data/region.json
@@ -203,23 +202,24 @@ class SetRegionNotifier extends _$SetRegionNotifier {
   }
 
   /// 服务端保存成功后，持久化地区字符串与完整路径。
-  Future<void> persistSelection() {
-    return RegionCache.saveSelection(state.selectedRegion, state.regionPath);
-  }
+  Future<void> persistSelection(
+    AccountPreferences preferences,
+    SetRegionState saved,
+  ) => RegionCache.saveSelection(
+    preferences,
+    saved.selectedRegion,
+    saved.regionPath,
+  );
 
   /// 回滚到初始选择值；未提交的选择（含结构化草稿）不会污染持久化缓存。
   void revertToInitial() {
-    final initialPath = _initialValue
-        .split(' ')
-        .where((e) => e.trim().isNotEmpty)
-        .toList(growable: false);
     // 直接构造而非 copyWith：结构化草稿需显式清空（copyWith 的
     // `??` 语义无法把可空字段置回 null）。
     state = SetRegionState(
       regionList: state.regionList,
       selectedRegion: _initialValue,
       hasChanged: false,
-      regionPath: initialPath,
+      regionPath: _initialPath,
       geoSelection: null,
     );
   }

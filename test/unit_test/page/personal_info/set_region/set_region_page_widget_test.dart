@@ -6,12 +6,50 @@ import 'package:geo_regions/geo_regions.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+// ignore: deprecated_member_use
+import 'package:flutter/material.dart' as picker_material;
+import 'package:flutter_localizations/flutter_localizations.dart'
+    show GlobalWidgetsLocalizations;
+import 'package:flutter_localizations/flutter_localizations.dart'
+    as picker_l10n;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:shared_preferences_platform_interface/shared_preferences_platform_interface.dart';
 
+import 'package:imboy/config/const.dart';
+import 'package:imboy/config/env.dart' show envMap;
+import 'package:imboy/config/init.dart' show currentEnv;
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/personal_info/set_region/set_region_page.dart';
 import 'package:imboy/page/personal_info/set_region/set_region_provider.dart';
+import 'package:imboy/service/account_preferences.dart';
+import 'package:imboy/service/auth_session_scope.dart';
+import 'package:imboy/service/login_account_history_service.dart';
 import 'package:imboy/service/cache/region_cache.dart';
+import 'package:imboy/service/storage.dart';
+import 'package:imboy/service/web_writer_gate.dart';
+import 'package:imboy/service/geo_regions/geo_regions_host.dart';
+import 'package:imboy/store/repository/user_repo_local.dart';
+import 'package:imboy/store/repository/user_repo_provider.dart';
+import 'package:imboy/store/service/user_profile_service.dart';
+import 'package:imboy/theme/default/font_types.dart';
+
+class _RejectLoginRegistry extends InMemorySharedPreferencesStore {
+  _RejectLoginRegistry()
+    : super.withData({'flutter.${Keys.currentUid}': '1001'});
+
+  final registryEntered = Completer<void>();
+  final releaseRegistry = Completer<void>();
+
+  @override
+  Future<bool> setValue(String valueType, String key, Object value) async {
+    if (key == 'flutter.${LoginAccountHistoryService.storageKey}') {
+      registryEntered.complete();
+      await releaseRegistry.future;
+      return false;
+    }
+    return super.setValue(valueType, key, value);
+  }
+}
 
 const _regionFixture = [
   {
@@ -33,6 +71,12 @@ const _regionFixture = [
 class _FixtureRegionNotifier extends SetRegionNotifier {
   @override
   SetRegionState build() => const SetRegionState(regionList: _regionFixture);
+}
+
+class _UnusedLegacyRegionNotifier extends SetRegionNotifier {
+  @override
+  SetRegionState build() =>
+      throw StateError('preview used the legacy provider');
 }
 
 /// 测试根壳：镜像 run.dart:198 的语言切换重建机制。应用使用全局 `t`
@@ -71,7 +115,18 @@ class _LocaleRebuildHarnessState extends State<_LocaleRebuildHarness> {
   @override
   Widget build(BuildContext context) {
     return TranslationProvider(
-      child: MaterialApp(locale: _locale.flutterLocale, home: widget.child),
+      child: MaterialApp(
+        locale: _locale.flutterLocale,
+        supportedLocales: AppLocaleUtils.supportedLocales,
+        localizationsDelegates: const [
+          GlobalMaterialLocalizations.delegate,
+          // ignore: deprecated_member_use
+          picker_l10n.GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        home: widget.child,
+      ),
     );
   }
 }
@@ -85,18 +140,37 @@ Future<void> _pumpEditorHarness(
   required SetRegionPage Function() editorBuilder,
   Map<String, Object>? mockPreferences,
   bool useProductionProvider = false,
+  bool reusePreferences = false,
+  Future<GeoRegionDataSource?> Function()? previewSource,
+  Future<GeoRegionDataSource?> Function()? androidQaSource,
+  bool rejectLegacyProvider = false,
+  bool noCurrentAccount = false,
 }) async {
   // 前一测试可能仍停留在递归子页面。显式卸载 Navigator 和
   // autoDispose Provider，避免第二、第三个 Widget 测试复用旧状态。
   await tester.pumpWidget(const SizedBox.shrink());
   await tester.pump();
-  SharedPreferences.setMockInitialValues(mockPreferences ?? <String, Object>{});
+  if (!reusePreferences) {
+    SharedPreferences.setMockInitialValues({
+      Keys.currentUid: 'geo-test-A',
+      ...?mockPreferences,
+    });
+    await StorageService.init();
+  }
   await tester.pumpWidget(
     ProviderScope(
       key: UniqueKey(),
-      overrides: useProductionProvider
-          ? const []
-          : [setRegionProvider.overrideWith(_FixtureRegionNotifier.new)],
+      overrides: [
+        if (noCurrentAccount) currentUserProvider.overrideWithValue(null),
+        if (rejectLegacyProvider)
+          setRegionProvider.overrideWith(_UnusedLegacyRegionNotifier.new)
+        else if (!useProductionProvider)
+          setRegionProvider.overrideWith(_FixtureRegionNotifier.new),
+        if (previewSource != null)
+          geoRegionPreviewSourceProvider.overrideWith((_) => previewSource()),
+        if (androidQaSource != null)
+          androidGeoQaSourceProvider.overrideWith((_) => androidQaSource()),
+      ],
       child: _LocaleRebuildHarness(
         child: Builder(
           builder: (context) => Scaffold(
@@ -170,6 +244,9 @@ ProviderContainer _container(WidgetTester tester) {
     tester.element(find.byType(SetRegionPage, skipOffstage: false)),
   );
 }
+
+String _legacySelectionKey() => AccountPreferences.capture().owner
+    .preferenceKey(RegionCache.legacySelectionPreferenceKey);
 
 /// geo_regions 选择器的内存数据源：pathIds 只从这份固定数据集产生，
 /// 页面/Provider 绝不反推 ID。标签表按包内 alias 规范键控（kGeoLocaleAliases）。
@@ -356,6 +433,280 @@ Future<void> _drillToShibuya(WidgetTester tester) async {
 }
 
 void main() {
+  setUpAll(prepareWebWriter);
+
+  // Start the singleton auth write queue inside this widget test's zone.
+  testWidgets(
+    'preview clears prior region and draft when the auth generation changes',
+    (tester) async {
+      const previousRegion = 'Previous session region';
+      final repo = UserRepoLocal.to;
+      await _pumpEditorHarness(
+        tester,
+        editorBuilder: () => SetRegionPage(
+          title: t.common.setRegion,
+          currentValue: previousRegion,
+          onSave: (_) async => throw StateError('legacy save is disabled'),
+          onSaveSelection: (_) async =>
+              throw StateError('revoked preview must not save'),
+          canSavePreview: () => true,
+        ),
+        previewSource: () async => _FakeGeoSource(),
+        rejectLegacyProvider: true,
+        mockPreferences: const {Keys.currentUid: '1001'},
+      );
+      expect(find.text(previousRegion), findsWidgets);
+      await _drillToShibuya(tester);
+      await _tapPickerRow(tester, 'confirm-selection');
+      expect(find.text('日本 東京都 渋谷区'), findsWidgets);
+
+      // Reject the first durable login write on the same in-memory
+      // preferences seam as qr_login_persistence_test, before plugin I/O.
+      final previousStore = SharedPreferencesStorePlatform.instance;
+      final store = _RejectLoginRegistry();
+      SharedPreferencesStorePlatform.instance = store;
+      addTearDown(() {
+        SharedPreferencesStorePlatform.instance = previousStore;
+        if (!store.releaseRegistry.isCompleted) {
+          store.releaseRegistry.complete();
+        }
+        if (repo.isAuthTransitionFailed) {
+          repo.clearAuthTransitionFailureForTest();
+        }
+      });
+      final owner = authSessionReader.current;
+      expect(authSessionReader.isCurrent(owner), isTrue);
+      final replacing = repo.loginAfterQr(
+        uid: owner.uid,
+        token: 'synthetic-geo-session-token',
+      );
+      expect(repo.sessionGeneration, owner.generation + 1);
+      expect(authSessionReader.current.transitioning, isTrue);
+      final rejected = expectLater(
+        replacing,
+        throwsA(
+          isA<StateError>().having(
+            (error) => error.message,
+            'message',
+            'Could not save preference',
+          ),
+        ),
+      );
+      // The auth listener must schedule a repaint without an extra UI action.
+      expect(tester.binding.hasScheduledFrame, isTrue);
+      await tester.pumpAndSettle();
+      expect(store.registryEntered.isCompleted, isTrue);
+      expect(authSessionReader.current.uid, owner.uid);
+      expect(authSessionReader.current.transitioning, isTrue);
+
+      expect(find.text(previousRegion), findsNothing);
+      expect(find.text('日本 東京都 渋谷区'), findsNothing);
+      expect(find.byType(GeoRegionPicker), findsNothing);
+      final done = find.ancestor(
+        of: find.text(t.common.buttonAccomplish),
+        matching: find.byType(CupertinoButton),
+      );
+      expect(tester.widget<CupertinoButton>(done).onPressed, isNull);
+
+      store.releaseRegistry.complete();
+      await tester.pump();
+      expect(authSessionReader.transitionFailed, isTrue);
+      await rejected;
+    },
+  );
+
+  testWidgets(
+    'legacy cache only enriches the current profile in the owning environment',
+    (tester) async {
+      final previousEnv = currentEnv;
+      final previousLocal = envMap['local']!;
+      envMap['local'] = envMap['dev']!;
+      addTearDown(() {
+        envMap['local'] = previousLocal;
+        currentEnv = previousEnv;
+      });
+      currentEnv = 'local';
+      const sameProfile = 'New South Wales Sydney';
+      const savedPath = ['New South Wales', 'Sydney'];
+      Future<void> open(String profile, {bool reuse = true}) =>
+          _pumpEditorHarness(
+            tester,
+            editorBuilder: () => SetRegionPage(
+              title: '地区',
+              currentValue: profile,
+              onSave: (_) async => true,
+            ),
+            reusePreferences: reuse,
+            mockPreferences: const {
+              'region_selected': '无归属的旧地区',
+              'region_path': '无归属 旧路径',
+            },
+          );
+      await open(sameProfile, reuse: false);
+      final owner = AccountPreferences.capture();
+      await RegionCache.saveSelection(owner, sameProfile, savedPath);
+      await open(sameProfile);
+      expect(_container(tester).read(setRegionProvider).regionPath, savedPath);
+
+      await StorageService.to.setString(Keys.currentUid, 'geo-test-B');
+      await open('中国香港 中西区');
+      final b = _container(tester).read(setRegionProvider);
+      expect(b.selectedRegion, '中国香港 中西区');
+      expect(b.regionPath, ['中国香港', '中西区']);
+      expect(
+        AccountPreferences.capture().readList(
+          RegionCache.legacySelectionPreferenceKey,
+        ),
+        isEmpty,
+      );
+
+      await StorageService.to.setString(Keys.currentUid, 'geo-test-A');
+      currentEnv = 'dev';
+      await open(sameProfile);
+      expect(_container(tester).read(setRegionProvider).regionPath, [
+        'New',
+        'South',
+        'Wales',
+        'Sydney',
+      ]);
+      expect(
+        AccountPreferences.capture().readList(
+          RegionCache.legacySelectionPreferenceKey,
+        ),
+        isEmpty,
+      );
+
+      currentEnv = 'local';
+      await open(sameProfile);
+      expect(_container(tester).read(setRegionProvider).regionPath, savedPath);
+      expect(await RegionCache.loadSelectedRegion(), '无归属的旧地区');
+      expect(await RegionCache.loadRegionPath(), ['无归属', '旧路径']);
+    },
+  );
+
+  testWidgets(
+    'legacy save completion from a revoked editor cannot write into either account',
+    (tester) async {
+      final response = Completer<bool>();
+      var saves = 0;
+      await _pumpRegionFlow(
+        tester,
+        onSave: (_) {
+          saves++;
+          return response.future;
+        },
+      );
+      final owner = AccountPreferences.capture().owner;
+      await _selectBeijingDongcheng(tester);
+      final save = find.text(t.common.buttonAccomplish);
+      await tester.tap(save);
+      await tester.pump();
+      expect(saves, 1);
+
+      await StorageService.to.setString(Keys.currentUid, 'geo-test-B');
+      response.complete(true);
+      await tester.pumpAndSettle();
+      await tester.tap(save);
+      await tester.pumpAndSettle();
+      expect(saves, 1);
+      expect(find.byType(SetRegionPage, skipOffstage: false), findsOneWidget);
+      expect(
+        StorageService.to.getStringList(
+          owner.preferenceKey(RegionCache.legacySelectionPreferenceKey),
+        ),
+        isNull,
+      );
+      expect(
+        AccountPreferences.capture().readList(
+          RegionCache.legacySelectionPreferenceKey,
+        ),
+        isEmpty,
+      );
+      expect(await RegionCache.loadSelectedRegion(), isEmpty);
+    },
+  );
+
+  test(
+    'account-scoped Geo entry requires opt-in and the same self session',
+    () {
+      const owner = UserProfileSessionSnapshot(
+        uid: '10',
+        generation: 1,
+        environment: 'local',
+        endpoint: 'http://127.0.0.1:9814',
+      );
+      const relogin = UserProfileSessionSnapshot(
+        uid: '10',
+        generation: 2,
+        environment: 'local',
+        endpoint: 'http://127.0.0.1:9814',
+      );
+
+      bool canOpen({
+        UserProfileSessionSnapshot? entry = owner,
+        UserProfileSessionSnapshot current = owner,
+        String displayedUid = '10',
+        bool ready = true,
+        bool configured = true,
+      }) => canOpenSelfGeoPreview(
+        owner: entry,
+        current: current,
+        displayedUid: displayedUid,
+        sessionReady: ready,
+        previewConfigured: configured,
+      );
+
+      expect(canOpen(), isTrue);
+      expect(canOpen(entry: null), isFalse);
+      expect(canOpen(configured: false), isFalse);
+      expect(canOpen(ready: false), isFalse);
+      expect(canOpen(displayedUid: '11'), isFalse);
+      expect(
+        canOpen(
+          current: const UserProfileSessionSnapshot(
+            uid: '10',
+            generation: 1,
+            environment: 'local',
+            endpoint: 'http://127.0.0.1:9819',
+          ),
+        ),
+        isFalse,
+      );
+      expect(canOpen(current: relogin), isFalse);
+    },
+  );
+
+  test(
+    'Web preview stays disabled by default and rejects non-loopback origins',
+    () {
+      final local = Uri.parse('http://127.0.0.1:9817/app/');
+      final remote = Uri.parse('https://app.example.test/app/');
+      expect(
+        localGeoPreviewRequested(
+          enabled: false,
+          isWeb: true,
+          environment: 'local',
+          appUri: local,
+        ),
+        isFalse,
+      );
+      expect(
+        localGeoPreviewRequested(
+          enabled: true,
+          isWeb: true,
+          environment: 'local',
+          appUri: remote,
+        ),
+        isFalse,
+      );
+      expect(isLoopbackGeoPreviewUri(remote), isFalse);
+      expect(
+        isLoopbackGeoPreviewUri(Uri.parse('http://127.0.0.1:9816')),
+        isTrue,
+      );
+    },
+  );
+
   testWidgets('递归下钻保留完整父级路径，切换地区不残留旧路径', (tester) async {
     await _pumpRegionFlow(tester, onSave: (_) async => true);
     await _selectBeijingDongcheng(tester);
@@ -399,6 +750,7 @@ void main() {
     expect(find.text('东城'), findsOneWidget);
     expect(await RegionCache.loadSelectedRegion(), isEmpty);
     expect(await RegionCache.loadRegionPath(), isEmpty);
+    expect(StorageService.to.getStringList(_legacySelectionKey()), isNull);
   });
 
   testWidgets('保存成功退出所有递归页面并提交一致的地区缓存', (tester) async {
@@ -418,8 +770,14 @@ void main() {
     expect(savedValue, '中国大陆 北京 东城');
     expect(find.byType(SetRegionPage, skipOffstage: false), findsNothing);
     expect(find.text('MorePage'), findsOneWidget);
-    expect(await RegionCache.loadSelectedRegion(), '中国大陆 北京 东城');
-    expect(await RegionCache.loadRegionPath(), ['中国大陆', '北京', '东城']);
+    expect(
+      AccountPreferences.capture().readList(
+        RegionCache.legacySelectionPreferenceKey,
+      ),
+      ['中国大陆 北京 东城', '中国大陆', '北京', '东城'],
+    );
+    expect(await RegionCache.loadSelectedRegion(), isEmpty);
+    expect(await RegionCache.loadRegionPath(), isEmpty);
   });
 
   // ── FL-11 负例（先证明既有合同，再决定允许路径改动）──────────────────
@@ -449,6 +807,7 @@ void main() {
       reason: '取消不得写已提交缓存',
     );
     expect(await RegionCache.loadRegionPath(), isEmpty);
+    expect(StorageService.to.getStringList(_legacySelectionKey()), isNull);
   });
 
   testWidgets('切语言不触发保存：编辑中切换语言，草稿保留且不提交缓存', (tester) async {
@@ -499,7 +858,8 @@ void main() {
 
     final state = _container(tester).read(setRegionProvider);
     expect(state.regionList, isNotEmpty, reason: '损坏缓存不得使页面失数据');
-    expect(state.selectedRegion, '中国大陆 北京 东城', reason: '缓存回显保持');
+    expect(state.selectedRegion, isEmpty, reason: '无归属旧选择不能替代空资料');
+    expect(await RegionCache.loadSelectedRegion(), '中国大陆 北京 东城');
 
     // 损坏字节被权威资产覆盖自愈：回写内容可解析为列表。
     final prefs = await SharedPreferences.getInstance();
@@ -509,6 +869,280 @@ void main() {
   });
 
   // ── FL-11 结构化模式：geo_regions 选择器接入（AC-88/89/91）─────────────
+
+  testWidgets('Geo discard dialog cancels or clears a draft without saving', (
+    tester,
+  ) async {
+    final previousLocale = LocaleSettings.currentLocale;
+    LocaleSettings.setLocaleSync(AppLocale.zhCn);
+    addTearDown(() => LocaleSettings.setLocaleSync(previousLocale));
+    var saves = 0;
+    Future<bool> recordSave(Object _) async {
+      saves++;
+      return true;
+    }
+
+    await _pumpEditorHarness(
+      tester,
+      editorBuilder: () => SetRegionPage(
+        title: t.common.setRegion,
+        currentValue: '',
+        onSave: recordSave,
+        onSaveSelection: recordSave,
+        canSavePreview: () => true,
+      ),
+      rejectLegacyProvider: true,
+      previewSource: () async => _FakeGeoSource(),
+    );
+    await _drillToShibuya(tester);
+
+    final draft = find.text('cc:JP / jp:13 / jp:13103');
+    final dialog = find.byType(picker_material.AlertDialog);
+    Finder dialogAction(String label) =>
+        find.descendant(of: dialog, matching: find.text(label));
+
+    expect(draft, findsOneWidget);
+    await _tapPickerRow(tester, 'discard-button');
+    expect(tester.takeException(), isNull);
+    expect(dialogAction('放弃尚未确认的选择？'), findsOneWidget);
+    await tester.tap(dialogAction('继续选择'));
+    await tester.pumpAndSettle();
+    expect(dialog, findsNothing);
+    expect(draft, findsOneWidget);
+
+    await _tapPickerRow(tester, 'discard-button');
+    await tester.tap(dialogAction('放弃修改'));
+    await tester.pumpAndSettle();
+    expect(tester.takeException(), isNull);
+    expect(dialog, findsNothing);
+    expect(draft, findsNothing);
+    expect(
+      find.byKey(const ValueKey('country-${_FakeGeoSource.rootId}')),
+      findsOneWidget,
+    );
+    expect(saves, 0);
+  });
+
+  testWidgets('默认数据源打开结构化预览，错误 pin 阻止保存', (tester) async {
+    var saveCalls = 0;
+
+    SetRegionPage editor() => SetRegionPage(
+      title: t.common.setRegion,
+      currentValue: '',
+      onSave: (_) async {
+        saveCalls++;
+        return true;
+      },
+      onSaveSelection: (_) async {
+        saveCalls++;
+        return true;
+      },
+      canSavePreview: () => true,
+    );
+
+    await _pumpEditorHarness(
+      tester,
+      editorBuilder: editor,
+      previewSource: () async => _FakeGeoSource(),
+    );
+    final picker = find.byType(GeoRegionPicker);
+    expect(picker, findsOneWidget);
+    final pickerTheme = picker_material.Theme.of(tester.element(picker));
+    final previewFontFallback = [
+      kAppFontFamilyFallback.first,
+      'IMBoyGeoCjk',
+      'NotoSansArabicGeo',
+      ...kAppFontFamilyFallback.skip(1),
+    ];
+    expect(
+      pickerTheme.textTheme.bodyMedium?.fontFamilyFallback,
+      previewFontFallback,
+    );
+    expect(
+      pickerTheme.primaryTextTheme.bodyMedium?.fontFamilyFallback,
+      previewFontFallback,
+    );
+    await _drillToShibuya(tester);
+    await _tapPickerRow(tester, 'confirm-selection');
+    expect(find.text('日本 東京都 渋谷区'), findsWidgets);
+
+    await _pumpEditorHarness(
+      tester,
+      editorBuilder: editor,
+      previewSource: () async {
+        throw const GeoIntegrityMismatchError('invalid preview pin');
+      },
+    );
+    expect(find.byType(GeoRegionPicker), findsNothing);
+    expect(
+      find.text('${t.common.setRegion} · ${t.common.error}'),
+      findsOneWidget,
+    );
+    final saveButton = find.ancestor(
+      of: find.text(t.common.buttonAccomplish),
+      matching: find.byType(CupertinoButton),
+    );
+    expect(tester.widget<CupertinoButton>(saveButton).onPressed, isNull);
+    expect(saveCalls, 0);
+  });
+
+  testWidgets('只读资料预览无数据源不降级，切号后旧草稿不得保存', (tester) async {
+    const previousRegion = 'Previous account region';
+    var ownerStillCurrent = true;
+    var saveCalls = 0;
+    SetRegionPage editor() => SetRegionPage(
+      title: t.common.setRegion,
+      currentValue: previousRegion,
+      onSave: (_) async {
+        saveCalls++;
+        return true;
+      },
+      onSaveSelection: (_) async {
+        saveCalls++;
+        return true;
+      },
+      canSavePreview: () => ownerStillCurrent,
+    );
+
+    await _pumpEditorHarness(
+      tester,
+      editorBuilder: editor,
+      previewSource: () async => null,
+    );
+    expect(find.byType(GeoRegionPicker), findsNothing);
+    expect(find.text('中国大陆'), findsNothing);
+    expect(
+      find.text('${t.common.setRegion} · ${t.common.error}'),
+      findsOneWidget,
+    );
+
+    await _pumpEditorHarness(
+      tester,
+      editorBuilder: editor,
+      previewSource: () async => _FakeGeoSource(),
+    );
+    expect(find.text(previousRegion), findsWidgets);
+    await _drillToShibuya(tester);
+    await _tapPickerRow(tester, 'confirm-selection');
+    expect(find.text('日本 東京都 渋谷区'), findsWidgets);
+    ownerStillCurrent = false;
+    await tester.tap(find.text(t.common.buttonAccomplish));
+    await tester.pumpAndSettle();
+    expect(saveCalls, 0);
+    expect(find.text(previousRegion), findsNothing);
+    expect(find.text('日本 東京都 渋谷区'), findsNothing);
+    expect(find.byType(GeoRegionPicker), findsNothing);
+    expect(
+      find.text('${t.common.setRegion} · ${t.common.error}'),
+      findsOneWidget,
+    );
+  });
+
+  testWidgets(
+    'Android QA direct route without a self session never loads or falls back',
+    (tester) async {
+      const previousRegion = 'Previous account region';
+      var legacySaves = 0;
+      var webLoads = 0;
+      var androidLoads = 0;
+      await _pumpEditorHarness(
+        tester,
+        editorBuilder: () => SetRegionPage(
+          title: t.common.setRegion,
+          currentValue: previousRegion,
+          androidGeoQa: true,
+          onSave: (_) async {
+            legacySaves++;
+            return true;
+          },
+        ),
+        rejectLegacyProvider: true,
+        noCurrentAccount: true,
+        androidQaSource: () async {
+          androidLoads++;
+          return _FakeGeoSource();
+        },
+        previewSource: () async {
+          webLoads++;
+          return _FakeGeoSource();
+        },
+      );
+      expect(find.byType(GeoRegionPicker), findsNothing);
+      expect(find.text('中国大陆'), findsNothing);
+      expect(find.text(previousRegion), findsNothing);
+      expect(find.text(t.common.selectedRegion.toUpperCase()), findsNothing);
+      expect(find.byIcon(CupertinoIcons.refresh), findsNothing);
+      expect(
+        find.text('${t.common.setRegion} · ${t.common.error}'),
+        findsOneWidget,
+      );
+      final done = find.ancestor(
+        of: find.text(t.common.buttonAccomplish),
+        matching: find.byType(CupertinoButton),
+      );
+      expect(tester.widget<CupertinoButton>(done).onPressed, isNull);
+      expect(legacySaves, 0);
+      expect(webLoads, 0);
+      expect(androidLoads, 0);
+    },
+  );
+
+  testWidgets('Web 结构化保存及切号不读写全局 legacy 地区缓存', (tester) async {
+    const legacySelection = '旧的全局地区';
+    const legacyPath = '旧的 全局 地区';
+    const legacyCache = {
+      'region_selected': legacySelection,
+      'region_path': legacyPath,
+    };
+    final accountSelections = <String, GeoSelection>{};
+
+    Future<void> open(
+      String uid,
+      String currentValue, {
+      Map<String, Object>? preferences,
+    }) => _pumpEditorHarness(
+      tester,
+      editorBuilder: () => SetRegionPage(
+        title: t.common.setRegion,
+        currentValue: currentValue,
+        onSave: (_) async => throw StateError('legacy save is disabled'),
+        onSaveSelection: (selection) async {
+          accountSelections[uid] = selection;
+          return true;
+        },
+        canSavePreview: () => true,
+      ),
+      previewSource: () async => _FakeGeoSource(),
+      mockPreferences: preferences,
+      rejectLegacyProvider: true,
+    );
+
+    await open('A', '账号 A 的地区', preferences: legacyCache);
+    expect(find.text('账号 A 的地区'), findsWidgets);
+    expect(find.text(legacySelection), findsNothing);
+    await _drillToShibuya(tester);
+    await _tapPickerRow(tester, 'confirm-selection');
+    await tester.tap(find.text(t.common.buttonAccomplish));
+    await tester.pumpAndSettle();
+    expect(accountSelections['A']?.pathIds, ['cc:JP', 'jp:13', 'jp:13103']);
+
+    final prefs = await SharedPreferences.getInstance();
+    expect(prefs.getString('region_selected'), legacySelection);
+    expect(prefs.getString('region_path'), legacyPath);
+
+    await open(
+      'B',
+      '账号 B 的地区',
+      preferences: {
+        'region_selected': prefs.getString('region_selected')!,
+        'region_path': prefs.getString('region_path')!,
+      },
+    );
+    expect(find.text('账号 B 的地区'), findsWidgets);
+    expect(find.text(legacySelection), findsNothing);
+    expect(find.text('日本 東京都 渋谷区'), findsNothing);
+    expect(accountSelections.keys, ['A']);
+  });
 
   testWidgets('结构化保存：pathIds 来自数据集，服务端成功后才提交缓存并退出', (tester) async {
     final source = _FakeGeoSource();
@@ -520,7 +1154,9 @@ void main() {
       source: source,
       onSaveSelection: (selection) async {
         saveCalls++;
-        cacheAtSaveTime = await RegionCache.loadSelectedRegion();
+        cacheAtSaveTime = AccountPreferences.capture()
+            .readList(RegionCache.legacySelectionPreferenceKey)
+            .join(' ');
         savedSelection = selection;
         return true;
       },
@@ -553,8 +1189,14 @@ void main() {
     expect(find.byType(SetRegionPage, skipOffstage: false), findsNothing);
     expect(find.text('MorePage'), findsOneWidget);
     // 保存成功后的回显缓存：只含权威展示串/标签，不含猜测内容。
-    expect(await RegionCache.loadSelectedRegion(), '日本 東京都 渋谷区');
-    expect(await RegionCache.loadRegionPath(), ['日本', '東京都', '渋谷区']);
+    expect(
+      AccountPreferences.capture().readList(
+        RegionCache.legacySelectionPreferenceKey,
+      ),
+      ['日本 東京都 渋谷区', '日本', '東京都', '渋谷区'],
+    );
+    expect(await RegionCache.loadSelectedRegion(), isEmpty);
+    expect(await RegionCache.loadRegionPath(), isEmpty);
   });
 
   testWidgets('结构化拒绝：快照缺失/含空白名时不得进入可保存状态，不猜展示串', (tester) async {
@@ -590,6 +1232,7 @@ void main() {
     expect(saveCalls, 0, reason: '结构化本地拒绝：不发必败请求');
     expect(await RegionCache.loadSelectedRegion(), isEmpty);
     expect(await RegionCache.loadRegionPath(), isEmpty);
+    expect(StorageService.to.getStringList(_legacySelectionKey()), isNull);
     expect(find.byType(SetRegionPage, skipOffstage: false), findsOneWidget);
   });
 
@@ -622,6 +1265,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(saveCalls, 0);
     expect(await RegionCache.loadSelectedRegion(), isEmpty);
+    expect(StorageService.to.getStringList(_legacySelectionKey()), isNull);
   });
 
   testWidgets('结构化失败恢复：保存失败保留草稿、留在页面、不写缓存', (tester) async {
@@ -634,6 +1278,12 @@ void main() {
         saveCalls++;
         return false;
       },
+    );
+    const previousSelection = ['中国香港 中西区', '中国香港', '中西区'];
+    final scopedKey = _legacySelectionKey();
+    expect(
+      await StorageService.to.setList(scopedKey, previousSelection),
+      isTrue,
     );
     await _drillToShibuya(tester);
     await _tapPickerRow(tester, 'confirm-selection');
@@ -654,6 +1304,7 @@ void main() {
     expect(state.geoSelection!.pathIds, ['cc:JP', 'jp:13', 'jp:13103']);
     expect(await RegionCache.loadSelectedRegion(), isEmpty, reason: '失败不写缓存');
     expect(await RegionCache.loadRegionPath(), isEmpty);
+    expect(StorageService.to.getStringList(scopedKey), previousSelection);
   });
 
   testWidgets('结构化取消：确认草稿后直接退出，不触发保存不写缓存', (tester) async {
@@ -677,6 +1328,7 @@ void main() {
     expect(saveCalls, 0, reason: '取消不得触发结构化保存');
     expect(await RegionCache.loadSelectedRegion(), isEmpty);
     expect(await RegionCache.loadRegionPath(), isEmpty);
+    expect(StorageService.to.getStringList(_legacySelectionKey()), isNull);
     expect(find.text('MorePage'), findsOneWidget);
   });
 
@@ -731,6 +1383,47 @@ void main() {
     expect(state.geoSelection!.displayLocale, 'en-US');
     expect(state.selectedRegion, 'Japan Tokyo Shibuya');
     expect(saveCalls, 0, reason: '切语言本身从未触发保存，保存只由完成发起');
+  });
+
+  testWidgets('Web Geo 预览继承阿语方向，页面文案使用地区字体', (tester) async {
+    await tester.runAsync(() => LocaleSettings.setLocale(AppLocale.arSa));
+    addTearDown(() => LocaleSettings.setLocaleSync(AppLocale.zhCn));
+    const title = 'إعداد منطقة المعاينة';
+    await _pumpEditorHarness(
+      tester,
+      editorBuilder: () => SetRegionPage(
+        title: title,
+        currentValue: '',
+        onSave: (_) async => false,
+        canSavePreview: () => true,
+      ),
+      previewSource: () async => _FakeGeoSource(),
+    );
+    final page = tester.element(find.byType(SetRegionPage));
+    final picker = tester.element(find.byType(GeoRegionPicker));
+    expect(Directionality.of(page), TextDirection.rtl);
+    expect(Directionality.of(picker), Directionality.of(page));
+
+    await _drillToShibuya(tester);
+    await _tapPickerRow(tester, 'confirm-selection');
+    final selected = find.textContaining('شيبويا').evaluate().where((element) {
+      final widget = element.widget;
+      return widget is Text &&
+          widget.style?.fontFamilyFallback?.contains('NotoSansArabicGeo') ==
+              true;
+    });
+    expect(selected, isNotEmpty, reason: '选中条使用真实 Geo 字体回退');
+    for (final text in [
+      title,
+      t.common.selectedRegion.toUpperCase(),
+      t.common.buttonAccomplish,
+    ]) {
+      final label = tester.widget<Text>(find.text(text));
+      expect(
+        label.style?.fontFamilyFallback,
+        containsAllInOrder(['IMBoyGeoCjk', 'NotoSansArabicGeo']),
+      );
+    }
   });
 
   testWidgets('阿语 RTL 可用性：ar-SA 显式映射，长 Unicode 名称完整渲染', (tester) async {

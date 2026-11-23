@@ -434,6 +434,104 @@ void main() {
       expect(saved!['regionSelectionStatus'], 'resolved');
     });
 
+    const webSelection = GeoSelection(
+      protocolVersion: '1.0',
+      datasetId: 'geo-regions-seed',
+      countryCode: 'JP',
+      dataRevision: 's-0000000000000000',
+      pathIds: ['cc:JP'],
+      displaySnapshot: ['Japan'],
+      displayLocale: 'en',
+    );
+
+    test(
+      'Web preview sends only selection and saves the canonical reply',
+      () async {
+        Map<String, dynamic>? stored;
+        final selection = webSelection.toMap();
+        final result = await UserProfileService.updateRegionSelection(
+          webSelection,
+          requireAuthoritativeRegion: true,
+          httpPut: (body) async {
+            expect(body, {'selection': selection});
+            return IMBoyHttpResponse.success({
+              'region': '日本',
+              'regionSelection': selection,
+              'regionSelectionStatus': 'resolved',
+            });
+          },
+          readCurrent: () => {'uid': '510001', 'region': 'old'},
+          readSession: () => session('510001'),
+          saveLocal: (profile) async {
+            stored = profile;
+            return true;
+          },
+        );
+        expect(result, isTrue);
+        expect(stored?['region'], '日本');
+        expect(stored?['regionSelection'], selection);
+        expect(stored?['regionSelectionStatus'], 'resolved');
+      },
+    );
+
+    test(
+      'Web preview rejects missing or mismatched replies and stale accounts',
+      () async {
+        final selection = webSelection.toMap();
+        final cases = <(Map<String, dynamic>, bool)>[
+          ({}, false),
+          (
+            {
+              'region': '日本',
+              'regionSelectionStatus': 'resolved',
+              'regionSelection': {
+                ...selection,
+                'dataRevision': 's-1111111111111111',
+              },
+            },
+            false,
+          ),
+          ({'region': '日本', 'regionSelection': selection}, false),
+          (
+            {
+              'region': '日本',
+              'regionSelection': selection,
+              'regionSelectionStatus': 'unresolved',
+            },
+            false,
+          ),
+          (
+            {
+              'region': '日本',
+              'regionSelection': selection,
+              'regionSelectionStatus': 'resolved',
+            },
+            true,
+          ),
+        ];
+        for (final (response, switchAccount) in cases) {
+          var uid = '510001';
+          var writes = 0;
+          final result = await UserProfileService.updateRegionSelection(
+            webSelection,
+            requireAuthoritativeRegion: true,
+            httpPut: (_) async {
+              if (switchAccount) uid = '510002';
+              return IMBoyHttpResponse.success(response);
+            },
+            readCurrent: () => {'uid': uid, 'region': 'old'},
+            saveLocal: (_) async {
+              writes++;
+              return true;
+            },
+            readSession: () => session(uid),
+          );
+          expect(result, isFalse);
+          expect(writes, 0);
+        }
+      },
+    );
+
     test('无展示快照：本地拒绝，不猜测展示串、不发请求', () async {
       var putCalled = false;
       final ok = await UserProfileService.updateRegionSelection(

@@ -6,6 +6,7 @@ const httpNoAutoRetry = 'http_no_auto_retry';
 const httpSuppressErrorToast = 'http_suppress_error_toast';
 const httpRequestGuard = 'http_request_guard';
 const webFeatureSnapshotPath = '/api/v1/app/features';
+const webSelfRegionSelectionPath = '/api/v1/web/user/region-selection';
 
 const _webHumanMethods = <String, String>{
   'bootstrap': 'GET',
@@ -155,6 +156,14 @@ Uri webHumanRequestUri(String method, Uri input, Uri apiRoot) {
     }
     final verb = method.toUpperCase();
     if (_webPublicAppConfigPaths.contains(uri.path) && verb == 'GET') {
+      return uri;
+    }
+    if (uri.path == webSelfRegionSelectionPath) {
+      if (verb != 'POST' ||
+          uri.hasQuery ||
+          !const {'localhost', '127.0.0.1', '::1'}.contains(apiRoot.host)) {
+        throw rejected;
+      }
       return uri;
     }
     final web = uri.path.startsWith('/api/v1/web/');

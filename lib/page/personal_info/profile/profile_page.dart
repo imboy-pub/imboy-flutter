@@ -29,9 +29,12 @@ import 'widgets/profile_identity_header.dart';
 
 /// 个人资料页面 - iOS 17 Premium 风格重构
 class ProfilePage extends ConsumerStatefulWidget {
-  const ProfilePage({super.key, this.readOnly = kIsWeb});
+  const ProfilePage({super.key, bool? readOnly})
+    : readOnly = readOnly ?? kIsWeb,
+      _allowLocalGeoPreview = readOnly == null;
 
   final bool readOnly;
+  final bool _allowLocalGeoPreview;
 
   @override
   ConsumerState<ProfilePage> createState() => _ProfilePageState();
@@ -72,7 +75,12 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
 
   @override
   Widget build(BuildContext context) {
-    if (widget.readOnly) return const PersonalInfoPage(readOnly: true);
+    if (widget.readOnly) {
+      return PersonalInfoPage(
+        readOnly: true,
+        allowLocalGeoPreview: widget._allowLocalGeoPreview,
+      );
+    }
     final profileState = ref.watch(profileProvider);
     final profileNotifier = ref.read(profileProvider.notifier);
 

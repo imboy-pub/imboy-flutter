@@ -10,6 +10,7 @@ import '../set_gender/set_gender_page.dart';
 import '../set_region/set_region_page.dart';
 
 import 'package:imboy/i18n/strings.g.dart';
+import 'package:imboy/service/geo_regions/geo_regions_host.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_radius.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
@@ -18,9 +19,10 @@ import 'package:imboy/store/repository/user_repo_provider.dart';
 import 'package:imboy/store/service/user_profile_service.dart';
 
 class MorePage extends ConsumerStatefulWidget {
-  const MorePage({super.key, this.readOnly = kIsWeb});
+  const MorePage({super.key, this.readOnly = kIsWeb, this.geoPreviewOwner});
 
   final bool readOnly;
+  final UserProfileSessionSnapshot? geoPreviewOwner;
 
   @override
   ConsumerState<MorePage> createState() => _MorePageState();
@@ -78,9 +80,9 @@ class _MorePageState extends ConsumerState<MorePage> {
                 iconColor: AppColors.iosGreen,
                 title: t.account.region,
                 value: user.region.isEmpty ? t.common.notFilled : user.region,
-                onPressed: widget.readOnly
-                    ? null
-                    : () => _handleRegionUpdate(context),
+                onPressed: !widget.readOnly || _canOpenRegionPreview(user.uid)
+                    ? () => _handleRegionUpdate(context)
+                    : null,
               ),
 
               // 个性签名设置项
@@ -178,7 +180,26 @@ class _MorePageState extends ConsumerState<MorePage> {
     if (mounted) setState(() {});
   }
 
+  bool _canOpenRegionPreview(String displayedUid) {
+    final owner = widget.geoPreviewOwner;
+    if (owner == null) return false;
+    final repo = ref.read(userRepoProvider);
+    return canOpenSelfGeoPreview(
+      owner: owner,
+      current: UserProfileService.readSessionSnapshot(),
+      displayedUid: displayedUid,
+      sessionReady: repo.isLoggedIn && !repo.isAuthTransitioning,
+      previewConfigured: isLocalGeoPreviewConfigured(),
+    );
+  }
+
   Future<void> _handleRegionUpdate(BuildContext context) async {
+    final readonlyPreview = widget.readOnly;
+    if (readonlyPreview &&
+        !_canOpenRegionPreview(ref.read(currentUserProvider)?.uid ?? '')) {
+      return;
+    }
+    final androidQa = !readonlyPreview && isAndroidGeoQaRequested();
     await Navigator.push(
       context,
       CupertinoPageRoute<dynamic>(
@@ -189,7 +210,17 @@ class _MorePageState extends ConsumerState<MorePage> {
           // 后端错误透出，消除与 ProfilePage 的双入口漂移。
           // 资产树地区列表没有数据集身份（pathIds），按合同仍写 legacy
           // `region` 字段；结构化 regionSelection 只能由 geo_regions 选择器发起。
-          onSave: (val) => UserProfileService.updateField('region', val),
+          onSave: readonlyPreview || androidQa
+              ? (_) async => false
+              : (val) => UserProfileService.updateField('region', val),
+          androidGeoQa: androidQa,
+          canSavePreview: readonlyPreview
+              ? () =>
+                    mounted &&
+                    _canOpenRegionPreview(
+                      ref.read(currentUserProvider)?.uid ?? '',
+                    )
+              : null,
         ),
       ),
     );
