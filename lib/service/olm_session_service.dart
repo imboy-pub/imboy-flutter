@@ -8,7 +8,9 @@ import 'package:vodozemac/vodozemac.dart' as vod;
 
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/config/init.dart';
+import 'package:imboy/service/account_local_task_registry.dart';
 import 'package:imboy/service/app_logger.dart';
+import 'package:imboy/service/auth_session_scope.dart';
 import 'package:imboy/service/e2ee/crypto_store.dart';
 import 'package:imboy/service/e2ee/fallback_key_signature.dart';
 import 'package:imboy/service/e2ee/fallback_rotation_policy.dart';
@@ -95,6 +97,7 @@ class OlmSessionService {
 
   /// Account 操作串行锁（identity 上报、OTK 补传等）
   final Lock _accountLock = Lock();
+  final Lock _accountLoadLock = Lock();
 
   /// S2.3: 事务性密码存储（SQLCipher DB）。懒加载，DB 不可用时回退 SecureStorage。
   CryptoStore? _cryptoStore;
@@ -124,6 +127,12 @@ class OlmSessionService {
 
   /// 获取 CryptoStore 实例（懒初始化）。DB 不可用返回 null。
   Future<CryptoStore?> get cryptoStore async {
+    if (kIsWeb) {
+      final session = authSessionReader.current;
+      if (session.uid.isEmpty || session.transitioning) return null;
+    }
+    final guard = _captureWebSessionGuard();
+    guard();
     // 登出旁路防御：底层 DB 已被关闭（purgeAll/迁移回滚）而本缓存未清时，
     // 丢弃缓存让下次访问走 SqliteService.to.db 的 isOpen 自动重开——
     // 否则登出→登入后首次加密抛 database_closed（真机黑盒实测 2026-08-25）。
@@ -133,10 +142,12 @@ class OlmSessionService {
       _cryptoStore = null;
     }
     final db = await SqliteService.to.db;
+    guard();
     if (db == null) return null;
-    _cryptoStore = CryptoStore(db);
-    await _cryptoStore!.ensureSchema();
-    return _cryptoStore;
+    final store = CryptoStore(db);
+    await store.ensureSchema();
+    guard();
+    return _cryptoStore = store;
   }
 
   // ===== 原生库懒加载（与 GroupSessionService 同模式）=====
@@ -152,10 +163,44 @@ class OlmSessionService {
 
   // ===== pickle 加密密钥（设备级，与身份私钥同级）=====
 
-  Future<Uint8List> _pickleKey() async {
+  final _pickleKeyLock = Lock();
+  (AccountLocalTaskOwner, int, String)? _webOlmOwner;
+
+  void Function() _captureWebSessionGuard([AuthSessionScope? expected]) {
+    if (!kIsWeb) return () {};
+    final session = expected ?? authSessionReader.current;
+    final owner = AccountLocalTaskOwner.capture(uid: session.uid);
+    final instance = deviceId;
+    final storage = StorageSecureService.to;
+    final generation = storage.e2eeKeyGeneration;
+    return () {
+      if (instance.isEmpty ||
+          instance != deviceId ||
+          !authSessionReader.isCurrent(session) ||
+          authSessionReader.transitionFailed ||
+          owner != AccountLocalTaskOwner.capture() ||
+          generation != storage.e2eeKeyGeneration) {
+        throw StateError('Web Olm session changed');
+      }
+      final scope = (owner, session.generation, instance);
+      if (_webOlmOwner != scope) {
+        _clearOlmMemoryAfterLocalDataRemoval(this);
+        _webOlmOwner = scope;
+      }
+    };
+  }
+
+  Future<Uint8List> _pickleKey([void Function()? sessionGuard]) {
+    final guard = sessionGuard ?? _captureWebSessionGuard();
+    return _pickleKeyLock.synchronized(() => _loadPickleKey(guard));
+  }
+
+  Future<Uint8List> _loadPickleKey(void Function() guard) async {
+    guard();
     final existing = await StorageSecureService.to.read(
       key: _pickleKeyStorageKey,
     );
+    guard();
     if (existing != null && existing.isNotEmpty) {
       final bytes = base64.decode(base64.normalize(existing));
       // Olm pickle key 固定 32 字节
@@ -168,6 +213,7 @@ class OlmSessionService {
       key: _pickleKeyStorageKey,
       value: base64.encode(key),
     );
+    guard();
     return key;
   }
 
@@ -190,12 +236,19 @@ class OlmSessionService {
 
   /// 加载或创建本设备的 Olm Account。
   /// 首次调用会生成新身份键并触发服务端上报。
-  Future<vod.Account> _loadOrCreateAccount() async {
+  Future<vod.Account> _loadOrCreateAccount([void Function()? sessionGuard]) {
+    final guard = sessionGuard ?? _captureWebSessionGuard();
+    return _accountLoadLock.synchronized(() => _loadAccount(guard));
+  }
+
+  Future<vod.Account> _loadAccount(void Function() guard) async {
+    guard();
     if (_account != null) return _account!;
-    final pickleKey = await _pickleKey();
+    final pickleKey = await _pickleKey(guard);
     final stored = await StorageSecureService.to.read(
       key: _accountPickleStorageKey,
     );
+    guard();
     if (stored != null && stored.isNotEmpty) {
       try {
         _account = vod.Account.fromPickleEncrypted(
@@ -213,21 +266,39 @@ class OlmSessionService {
         // pickle 损坏：重建身份（旧 Session 因依赖旧身份将失效，符合密钥重置语义）
       }
     }
-    // 首次生成
-    _account = vod.Account();
+    // A new local identity cannot be used or published before its encrypted
+    // pickle commits. A failed write leaves no provisional cached identity.
+    final account = vod.Account();
+    await _writeAccountPickle(account, pickleKey, guard);
+    guard();
+    _account = account;
     _accountCreatedThisLoad = true;
-    await _persistAccount(pickleKey);
-    return _account!;
+    return account;
   }
 
-  Future<void> _persistAccount(Uint8List pickleKey) async {
+  Future<void> _persistAccount(
+    Uint8List pickleKey, [
+    void Function()? sessionGuard,
+  ]) async {
+    final guard = sessionGuard ?? _captureWebSessionGuard();
+    guard();
     final account = _account;
     if (account == null) return;
+    await _writeAccountPickle(account, pickleKey, guard);
+  }
+
+  Future<void> _writeAccountPickle(
+    vod.Account account,
+    Uint8List pickleKey,
+    void Function() guard,
+  ) async {
+    guard();
     final pickle = account.toPickleEncrypted(pickleKey);
     await StorageSecureService.to.write(
       key: _accountPickleStorageKey,
       value: pickle,
     );
+    guard();
   }
 
   /// 本端 Olm identity curve25519 公钥（base64）。
@@ -273,11 +344,14 @@ class OlmSessionService {
   Future<void> publishIdentityAndPrekeys({
     String? deviceType,
     @visibleForTesting OlmApi? api,
+    AuthSessionScope? expectedWebSession,
   }) async {
+    final guard = _captureWebSessionGuard(expectedWebSession);
     await ensureInitialized();
     final olm = api ?? OlmApi();
     await _accountLock.synchronized(() async {
-      final account = await _loadOrCreateAccount();
+      final account = await _loadOrCreateAccount(guard);
+      guard();
       final identityKeys = account.identityKeys;
       final ed25519 = identityKeys.ed25519.toBase64();
       final curve25519 = identityKeys.curve25519.toBase64();
@@ -292,6 +366,7 @@ class OlmSessionService {
         curve25519Key: curve25519,
         signature: signature,
       );
+      guard();
 
       // ⚠️ 本函数**每次登录都会被调用**（passport_notifier + olm_protocol），
       // 不只是首次注册。只有**本次加载中新建**的账号才能断定服务端一把 OTK 都没有、
@@ -302,7 +377,9 @@ class OlmSessionService {
         account,
         seed: _accountCreatedThisLoad,
         api: olm,
+        sessionGuard: guard,
       );
+      guard();
 
       // 生成并上报 fallback key
       account.generateFallbackKey();
@@ -321,16 +398,20 @@ class OlmSessionService {
           keyId: entry.key,
           keyBase64: fbKeyB64,
         );
+        if (kIsWeb) await _persistAccount(await _pickleKey(guard), guard);
+        guard();
         await olm.reportFallbackKey(
           deviceId: deviceId,
           keyId: entry.key,
           keyBase64: fbKeyB64,
           signature: account.sign(fbCanonical).toBase64(),
         );
+        guard();
         await _recordFallbackRotation();
       }
+      guard();
       account.markKeysAsPublished();
-      await _persistAccount(await _pickleKey());
+      await _persistAccount(await _pickleKey(guard), guard);
     });
   }
 
@@ -344,10 +425,14 @@ class OlmSessionService {
     vod.Account account, {
     bool seed = false,
     OlmApi? api,
+    void Function()? sessionGuard,
   }) async {
+    final guard = sessionGuard ?? _captureWebSessionGuard();
+    guard();
     final olm = api ?? OlmApi();
     // 查询剩余（服务端计数，确保多端一致）。null = 未知，**不是** 0。
     final remaining = seed ? null : await olm.countPrekeys();
+    guard();
     final need = otkRefillCount(
       remaining: remaining,
       lowWaterMark: _otkLowWaterMark,
@@ -362,7 +447,10 @@ class OlmSessionService {
       keys.add({'key_id': entry.key, 'key_base64': entry.value.toBase64()});
     }
     if (keys.isEmpty) return 0;
+    if (kIsWeb) await _persistAccount(await _pickleKey(guard), guard);
+    guard();
     final uploaded = await olm.reportPrekeys(deviceId: deviceId, keys: keys);
+    guard();
     account.markKeysAsPublished();
     iPrint(
       '[olm] OTK refill: remaining=${remaining ?? "unknown"} uploaded=$uploaded',
@@ -398,9 +486,14 @@ class OlmSessionService {
   ///
   /// 返回是否确实轮换了（供测试与日志）。
   @visibleForTesting
-  Future<bool> maybeRotateFallbackKey({OlmApi? api}) async {
-    final account = await _loadOrCreateAccount();
+  Future<bool> maybeRotateFallbackKey({
+    OlmApi? api,
+    void Function()? sessionGuard,
+  }) async {
+    final guard = sessionGuard ?? _captureWebSessionGuard();
+    final account = await _loadOrCreateAccount(guard);
     final lastMs = await _readLastFallbackRotation();
+    guard();
     final due = shouldRotateFallbackKey(
       lastRotatedAtMs: lastMs,
       nowMs: DateTime.now().millisecondsSinceEpoch,
@@ -419,15 +512,18 @@ class OlmSessionService {
       keyId: entry.key,
       keyBase64: fbKeyB64,
     );
+    if (kIsWeb) await _persistAccount(await _pickleKey(guard), guard);
+    guard();
     await olm.reportFallbackKey(
       deviceId: deviceId,
       keyId: entry.key,
       keyBase64: fbKeyB64,
       signature: account.sign(canonical).toBase64(),
     );
+    guard();
     account.markKeysAsPublished();
     await _recordFallbackRotation();
-    await _persistAccount(await _pickleKey());
+    await _persistAccount(await _pickleKey(guard), guard);
     iPrint('[olm] fallback key rotated');
     return true;
   }
@@ -469,6 +565,7 @@ class OlmSessionService {
   }
 
   Future<vod.Session?> _loadSession(String peerUid, String peerDeviceId) async {
+    _captureWebSessionGuard()();
     final user = UserRepoLocal.to;
     final owner = user.currentUid;
     final generation = user.sessionGeneration;
@@ -617,15 +714,17 @@ class OlmSessionService {
     String peerUid,
     String peerDeviceId,
     vod.Session session,
+    void Function() guard,
   ) async {
     final store = await _requireStore(peerUid, peerDeviceId);
-    final pickleKey = await _pickleKey();
+    final pickleKey = await _pickleKey(guard);
     try {
       await store.persistSession(
         peerUid: peerUid,
         peerDeviceId: peerDeviceId,
         pickle: session.toPickleEncrypted(pickleKey),
       );
+      guard();
     } on Object {
       _sessions.remove(_sessionKey(peerUid, peerDeviceId));
       rethrow;
@@ -657,11 +756,14 @@ class OlmSessionService {
   /// ⚠️ 副作用：对某设备**首次**发消息时，claim prekey 的网络请求会发生在
   /// 本方法内（而非 encrypt 内），时序比改动前提前一步。
   Future<String> ensureSessionId(String peerUid, String peerDeviceId) async {
+    final guard = _captureWebSessionGuard();
     await ensureInitialized();
     final lockKey = '$peerUid:$peerDeviceId';
     final lock = _sessionLocks.putIfAbsent(lockKey, () => Lock());
     return lock.synchronized(() async {
+      guard();
       final loaded = await _loadSession(peerUid, peerDeviceId);
+      guard();
       if (loaded != null) return loaded.sessionId;
 
       // 新建会话必须**立即持久化**：`_establishOutboundSession` 只返回 session，
@@ -670,8 +772,13 @@ class OlmSessionService {
       // 结果是：① 再 claim 一个对端 OTK（无谓消耗，助长 OTK 耗尽）；
       // ② 拿到**另一个** session id，与已写进 header 的 `session_ref` 必然不符，
       // 每条首发消息都会被接收侧判 `context_mismatch_session_id`。
-      final session = await _establishOutboundSession(peerUid, peerDeviceId);
-      await _persistSession(peerUid, peerDeviceId, session);
+      final session = await _establishOutboundSession(
+        peerUid,
+        peerDeviceId,
+        guard,
+      );
+      guard();
+      await _persistSession(peerUid, peerDeviceId, session, guard);
       return session.sessionId;
     });
   }
@@ -692,20 +799,23 @@ class OlmSessionService {
     String? outboxId,
     String? outboxPayload,
   }) async {
+    final guard = _captureWebSessionGuard();
     await ensureInitialized();
     final lockKey = '$peerUid:$peerDeviceId';
     final lock = _sessionLocks.putIfAbsent(lockKey, () => Lock());
     return lock.synchronized(() async {
+      guard();
       // 首次（无本地 session）：claim prekey + X3DH 协商
       final session =
           await _loadSession(peerUid, peerDeviceId) ??
-          await _establishOutboundSession(peerUid, peerDeviceId);
+          await _establishOutboundSession(peerUid, peerDeviceId, guard);
+      guard();
       final result = session.encrypt(plaintext);
 
       // S2.3: 原子 ratchet + outbox
       if (outboxId != null && outboxPayload != null) {
         final store = await _requireStore(peerUid, peerDeviceId);
-        final pickleKey = await _pickleKey();
+        final pickleKey = await _pickleKey(guard);
         try {
           await store.persistSessionWithOutbox(
             peerUid: peerUid,
@@ -714,6 +824,7 @@ class OlmSessionService {
             outboxId: outboxId,
             payload: outboxPayload,
           );
+          guard();
         } on Object {
           // AC-16 原子性：事务失败（ratchet 与 outbox 均未落盘）→ 驱逐已
           // 推进的内存 ratchet 副本，不得带着分叉状态继续（同 _persistSession）。
@@ -722,7 +833,7 @@ class OlmSessionService {
         }
         _sessions[_sessionKey(peerUid, peerDeviceId)] = session;
       } else {
-        await _persistSession(peerUid, peerDeviceId, session);
+        await _persistSession(peerUid, peerDeviceId, session, guard);
       }
 
       return (
@@ -765,8 +876,10 @@ class OlmSessionService {
   Future<vod.Session> _establishOutboundSession(
     String peerUid,
     String peerDeviceId,
+    void Function() guard,
   ) async {
-    final account = await _loadOrCreateAccount();
+    final account = await _loadOrCreateAccount(guard);
+    guard();
     // E2EE-062：幂等键。同一次建会话尝试的重投（MessageRetry 退避重发会重新
     // 进入本方法）带同一个 id，服务端只消费一条 OTK；成功后丢弃换新。
     final requestId = OlmClaimRequestId.issue(peerUid, peerDeviceId);
@@ -776,6 +889,7 @@ class OlmSessionService {
       deviceId: peerDeviceId,
       requestId: requestId,
     );
+    guard();
     final identity = claim['identity'] as Map<String, dynamic>;
     final theirCurve25519 = identity['curve25519_key'] as String;
     final oneTimeKey = claim['key_base64'] as String;
@@ -785,6 +899,7 @@ class OlmSessionService {
 
     // S3 TOFU: 首次固定 fingerprint，后续比对（变化 → fail-closed）
     await _enforceTofu(peerUid, peerDeviceId, theirCurve25519);
+    guard();
 
     final session = account.createOutboundSession(
       identityKey: vod.Curve25519PublicKey.fromBase64(theirCurve25519),
@@ -877,10 +992,12 @@ class OlmSessionService {
     String? inboxScope,
     String? ciphertextDigest,
   }) async {
+    final guard = _captureWebSessionGuard();
     await ensureInitialized();
     final lockKey = '$peerUid:$peerDeviceId';
     final lock = _sessionLocks.putIfAbsent(lockKey, () => Lock());
     return lock.synchronized(() async {
+      guard();
       // S2.3: 快速 dedupe 前置检查（避免无谓解密开销）
       if (messageId != null) {
         final store = await cryptoStore;
@@ -889,13 +1006,14 @@ class OlmSessionService {
         }
       }
 
-      final account = await _loadOrCreateAccount();
+      final account = await _loadOrCreateAccount(guard);
       var session = await _loadSession(peerUid, peerDeviceId);
+      guard();
 
       String? preKeyPlaintext;
       if (messageType == 0 && session != null) {
         // 在副本上试解，认证失败不能改变既有 ratchet；新会话仍走身份校验。
-        final pickleKey = await _pickleKey();
+        final pickleKey = await _pickleKey(guard);
         final candidate = vod.Session.fromPickleEncrypted(
           pickle: session.toPickleEncrypted(pickleKey),
           pickleKey: pickleKey,
@@ -917,6 +1035,7 @@ class OlmSessionService {
           peerUid,
           peerDeviceId,
         );
+        guard();
         late final dynamic result;
         try {
           result = account.createInboundSession(
@@ -937,20 +1056,20 @@ class OlmSessionService {
           peerDeviceId,
           session,
           messageId,
+          guard: guard,
           decryptedPayload: result.plaintext as String,
           inboxScope: inboxScope,
           ciphertextDigest: ciphertextDigest,
         );
+        guard();
         // 入站会话建立后，本端可能需补传 OTK
         unawaited(
-          _refillOneTimeKeys(account)
-              // E2EE-062：顺带做 fallback key 的周期轮换。挂在这里是因为
-              // "长期不登录"正是缺口成因，绑登录等于没修。
-              .then((_) => maybeRotateFallbackKey())
-              .then((_) async {
-                final pickleKey = await _pickleKey();
-                await _persistAccount(pickleKey);
-              }),
+          _accountLock.synchronized(() async {
+            await _refillOneTimeKeys(account, sessionGuard: guard);
+            // E2EE-062：入站建会话后补传并检查 fallback 周期轮换。
+            await maybeRotateFallbackKey(sessionGuard: guard);
+            await _persistAccount(await _pickleKey(guard), guard);
+          }),
         );
         return result.plaintext as String;
       }
@@ -975,6 +1094,7 @@ class OlmSessionService {
         peerDeviceId,
         session,
         messageId,
+        guard: guard,
         decryptedPayload: plaintext,
         inboxScope: inboxScope,
         ciphertextDigest: ciphertextDigest,
@@ -990,13 +1110,14 @@ class OlmSessionService {
     String peerDeviceId,
     vod.Session session,
     String? messageId, {
+    required void Function() guard,
     String? decryptedPayload,
     String? inboxScope,
     String? ciphertextDigest,
   }) async {
     if (messageId != null) {
       final store = await _requireStore(peerUid, peerDeviceId);
-      final pickleKey = await _pickleKey();
+      final pickleKey = await _pickleKey(guard);
       final hasRecoveryContext =
           inboxScope != null &&
           inboxScope.isNotEmpty &&
@@ -1013,6 +1134,7 @@ class OlmSessionService {
           ciphertextDigest: hasRecoveryContext ? ciphertextDigest : null,
           decryptedPayload: hasRecoveryContext ? decryptedPayload : null,
         );
+        guard();
       } on Object {
         _sessions.remove(_sessionKey(peerUid, peerDeviceId));
         rethrow;
@@ -1023,7 +1145,7 @@ class OlmSessionService {
       }
       _sessions[_sessionKey(peerUid, peerDeviceId)] = session;
     } else {
-      await _persistSession(peerUid, peerDeviceId, session);
+      await _persistSession(peerUid, peerDeviceId, session, guard);
     }
   }
 

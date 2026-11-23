@@ -1,10 +1,15 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:crypto/crypto.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart' show PlatformException;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:imboy/config/init.dart' show deviceId;
+import 'package:imboy/service/account_local_task_registry.dart';
+import 'package:imboy/service/auth_session_scope.dart';
 import 'package:imboy/service/e2ee/e2ee_secret_inventory.dart';
+import 'package:imboy/service/e2ee/web_e2ee_secret_store.dart';
 import 'package:imboy/service/web_writer_gate.dart';
 
 class _E2eeWriteScope {
@@ -54,6 +59,98 @@ class StorageSecureService {
   /// 获取单例实例（推荐使用）
   /// Get singleton instance (recommended)
   static StorageSecureService get to => _instance;
+
+  final _browserE2ee = WebE2eeSecretStore();
+
+  String? _browserE2eePurpose(String key) {
+    if (!kIsWeb) return null;
+    if (key.startsWith('olm_')) return 'olm';
+    if (const {
+          'e2ee_private_key',
+          'e2ee_public_key',
+          'e2ee_device_id',
+          'e2ee_key_id',
+          'e2ee_key_created_at',
+        }.contains(key) ||
+        key.startsWith('e2ee_private_key_history_')) {
+      return 'rsa';
+    }
+    return null;
+  }
+
+  String _browserE2eeScope(AccountLocalTaskOwner owner, String purpose) {
+    final did = sha256.convert(utf8.encode(deviceId));
+    return '${owner.storageDigest}/$purpose/$did';
+  }
+
+  Future<T> _withBrowserE2ee<T>(
+    String purpose,
+    Future<T> Function(String scope, void Function() guard) operation, {
+    AuthSessionScope? expectedSession,
+  }) {
+    final session = expectedSession ?? authSessionReader.current;
+    final owner = AccountLocalTaskOwner.capture(uid: session.uid);
+    final instance = deviceId;
+    final keyGeneration = _e2eeKeyGeneration;
+    void guard() {
+      requireWebWriter();
+      if (instance.isEmpty ||
+          instance != deviceId ||
+          !authSessionReader.isCurrent(session) ||
+          authSessionReader.transitionFailed ||
+          owner != AccountLocalTaskOwner.capture() ||
+          keyGeneration != _e2eeKeyGeneration) {
+        throw StateError('Web E2EE key owner changed');
+      }
+    }
+
+    guard();
+    return operation(_browserE2eeScope(owner, purpose), guard);
+  }
+
+  Future<void> purgeBrowserE2ee(
+    AccountLocalTaskOwner owner, {
+    bool rsaOnly = false,
+  }) async {
+    if (!kIsWeb) return;
+    requireWebWriter();
+    if (owner.uid.isEmpty) {
+      await _browserE2ee.requireEmpty();
+      return;
+    }
+    final purpose = rsaOnly ? 'rsa/' : '';
+    await _browserE2ee.purge('${owner.storageDigest}/$purpose');
+  }
+
+  Future<void> saveWebDeviceKeyBundle({
+    required AuthSessionScope session,
+    required String did,
+    required String keyId,
+    required String privateKey,
+    required String publicKey,
+    required String createdAt,
+  }) {
+    if (!kIsWeb || did != deviceId) {
+      throw StateError('Invalid Web E2EE device key owner');
+    }
+    return _withBrowserE2ee('rsa', (scope, guard) async {
+      final oldPrivate = await _browserE2ee.read(
+        scope,
+        'e2ee_private_key',
+        guard,
+      );
+      final oldKeyId = await _browserE2ee.read(scope, 'e2ee_key_id', guard);
+      await _browserE2ee.writeAll(scope, {
+        if (oldPrivate != null && (oldKeyId?.isNotEmpty ?? false))
+          'e2ee_private_key_history_$oldKeyId': oldPrivate,
+        'e2ee_private_key': privateKey,
+        'e2ee_public_key': publicKey,
+        'e2ee_key_id': keyId,
+        'e2ee_device_id': did,
+        'e2ee_key_created_at': createdAt,
+      }, guard);
+    }, expectedSession: session);
+  }
 
   int _e2eeKeyGeneration = 0;
   Future<void> _e2eeKeyWrites = Future<void>.value();
@@ -175,6 +272,21 @@ class StorageSecureService {
   }) async {
     try {
       requireWebWriter();
+      final purpose = _browserE2eePurpose(key);
+      if (purpose != null) {
+        await _withBrowserE2ee(purpose, (scope, guard) {
+          return writeE2eeKeys(_e2eeKeyGeneration, () async {
+            guard();
+            if (value == null) {
+              await _browserE2ee.delete(scope, key);
+            } else {
+              await _browserE2ee.write(scope, key, value, guard);
+            }
+            guard();
+          });
+        });
+        return;
+      }
       return await _self.write(
         key: key,
         value: value,
@@ -239,6 +351,15 @@ class StorageSecureService {
     WindowsOptions? wOptions,
   }) async {
     requireWebWriter();
+    final purpose = _browserE2eePurpose(key);
+    if (purpose != null) {
+      // Unscoped legacy Web values cannot establish whose private key they
+      // hold. Keep them available to the existing explicit purge inventory.
+      return _withBrowserE2ee(
+        purpose,
+        (scope, guard) => _browserE2ee.read(scope, key, guard),
+      );
+    }
     final generation = key.startsWith('e2ee_') ? _e2eeKeyGeneration : null;
     bool current() => generation == null || generation == _e2eeKeyGeneration;
     final value = await _self.read(
@@ -312,6 +433,14 @@ class StorageSecureService {
   }) async {
     requireWebWriter();
     try {
+      final purpose = _browserE2eePurpose(key);
+      if (purpose != null && authSessionReader.current.uid.isNotEmpty) {
+        final scope = _browserE2eeScope(
+          AccountLocalTaskOwner.capture(),
+          purpose,
+        );
+        await _serializeE2eeKeys(() => _browserE2ee.delete(scope, key));
+      }
       return await _self.delete(
         key: key,
         iOptions: iOptions,

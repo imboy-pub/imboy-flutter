@@ -124,6 +124,8 @@ class E2eeSecretInventory {
       purgeArtifacts: [
         // 清 Olm 内存 Account/Session（其存储键由下方前缀清理兜底复核）
         OlmSessionService.to.clearAll,
+        if (kIsWeb)
+          () => StorageSecureService.to.purgeBrowserE2ee(capturedOwner),
         // 车道侧 web 语义：web 不做 Native 文件系统清理
         if (!web) () => _purgeLocalBackupTempFiles(capturedOwner),
         if (!web) _purgeUploadCacheFiles,
@@ -145,7 +147,11 @@ class E2eeSecretInventory {
         E2EEService.clearCache,
         EncrypterService.clearKeyCache,
       ],
-      purgeArtifacts: [() => _purgeLocalBackupTempFiles(owner)],
+      purgeArtifacts: [
+        if (kIsWeb)
+          () => StorageSecureService.to.purgeBrowserE2ee(owner, rsaOnly: true),
+        if (!kIsWeb) () => _purgeLocalBackupTempFiles(owner),
+      ],
       runPurge: StorageSecureService.to.purgeE2eeKeys,
     );
   }

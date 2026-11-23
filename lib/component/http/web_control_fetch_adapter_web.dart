@@ -250,9 +250,14 @@ class _ControlFetch implements HttpClientAdapter {
     Uint8List bytes,
     _Request request,
   ) {
+    final publicFeatureSnapshot =
+        intent.method == 'GET' && intent.uri.path == webFeatureSnapshotPath;
     final headers = web.Headers();
     intent.headers.forEach((name, value) {
-      if (name.toLowerCase() != Headers.contentLengthHeader) {
+      final lowerName = name.toLowerCase();
+      if (lowerName != Headers.contentLengthHeader &&
+          (!publicFeatureSnapshot ||
+              webHumanMetadataHeaders.contains(lowerName))) {
         headers.set(name, value);
       }
     });
@@ -261,8 +266,10 @@ class _ControlFetch implements HttpClientAdapter {
       method: intent.method,
       headers: headers,
       body: bytes.isEmpty ? null : bytes.toJS,
-      credentials: member ? 'omit' : 'same-origin',
-      redirect: member || !intent.followRedirects ? 'error' : 'follow',
+      credentials: member || publicFeatureSnapshot ? 'omit' : 'same-origin',
+      redirect: member || publicFeatureSnapshot || !intent.followRedirects
+          ? 'error'
+          : 'follow',
       signal: request.controller.signal,
     );
     return (url, init);

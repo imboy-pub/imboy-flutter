@@ -4,7 +4,7 @@ library;
 import 'dart:convert';
 
 import 'package:sqflite_sqlcipher/sqflite.dart'
-    show Database, DatabaseExecutor, ConflictAlgorithm;
+    show Database, DatabaseExecutor, ConflictAlgorithm, Transaction;
 import 'package:imboy/store/repository/message_repo_sqlite.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/service/sqlite.dart';
@@ -100,6 +100,7 @@ class ServerAckReceipts {
     required String expectedPeerId,
     bool requireAttempt = true,
     required bool Function() isCurrent,
+    Future<void> Function(Transaction)? persistAcceptedC2c,
   }) async {
     final match = RegExp(r'^(C2C|C2G|C2S)_SERVER_ACK$').firstMatch(ackType);
     if (match == null || ackId.isEmpty || ownerUid.isEmpty || !isCurrent()) {
@@ -240,6 +241,9 @@ class ServerAckReceipts {
         chatType,
         row['conversation_uk3'] as String,
       );
+      if (chatType == 'C2C' && persistAcceptedC2c != null) {
+        await persistAcceptedC2c(tx);
+      }
       if (!isCurrent()) throw StateError('ack session changed');
       return true;
     });

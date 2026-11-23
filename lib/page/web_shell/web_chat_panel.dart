@@ -490,6 +490,7 @@ class WebChatPanelState extends ConsumerState<WebChatPanel> {
     final selection = widget.selection;
     bool current() => _readingOwned && _current(request, selection, session);
     setState(() => _personalHistoryBusy = true);
+    var continueRequested = false;
     try {
       final outcome = await syncWebPersonalHistory(
         session: session,
@@ -499,8 +500,8 @@ class WebChatPanelState extends ConsumerState<WebChatPanel> {
       );
       if (!current()) return;
       notifier.updatePersonalHistoryState(outcome);
-      if (outcome.recoveredText.isNotEmpty) {
-        await _showRestoredHistory(outcome.recoveredText, current);
+      if (outcome.recoveredText.isNotEmpty || outcome.canContinueSnapshot) {
+        continueRequested = await _showRestoredHistory(outcome, current);
         return;
       }
       final enable =
@@ -522,21 +523,22 @@ class WebChatPanelState extends ConsumerState<WebChatPanel> {
       );
       if (!current()) return;
       notifier.updatePersonalHistoryState(restored);
-      if (restored.recoveredText.isNotEmpty) {
-        await _showRestoredHistory(restored.recoveredText, current);
+      if (restored.recoveredText.isNotEmpty || restored.canContinueSnapshot) {
+        continueRequested = await _showRestoredHistory(restored, current);
       }
     } finally {
       if (mounted) setState(() => _personalHistoryBusy = false);
+      if (continueRequested && current()) unawaited(_restorePersonalHistory());
     }
   }
 
-  Future<void> _showRestoredHistory(
-    List<String> texts,
+  Future<bool> _showRestoredHistory(
+    PersonalHistorySyncOutcome outcome,
     bool Function() isCurrent,
   ) async {
     final t = Translations.of(context);
     final isChinese = Localizations.localeOf(context).languageCode == 'zh';
-    await showCupertinoDialog<void>(
+    final continued = await showCupertinoDialog<bool>(
       context: context,
       builder: (dialogContext) => AnimatedBuilder(
         animation: _sessions,
@@ -552,7 +554,7 @@ class WebChatPanelState extends ConsumerState<WebChatPanel> {
                     child: Column(
                       key: const ValueKey('web-personal-history-restored-text'),
                       children: [
-                        for (final text in texts)
+                        for (final text in outcome.recoveredText)
                           Padding(
                             padding: AppSpacing.allSmall,
                             child: Text(text),
@@ -563,13 +565,19 @@ class WebChatPanelState extends ConsumerState<WebChatPanel> {
                 ),
           actions: [
             CupertinoDialogAction(
-              onPressed: () => Navigator.of(dialogContext).pop(),
+              onPressed: () => Navigator.of(dialogContext).pop(false),
               child: Text(t.common.buttonClose),
             ),
+            if (outcome.canContinueSnapshot && isCurrent())
+              CupertinoDialogAction(
+                onPressed: () => Navigator.of(dialogContext).pop(true),
+                child: Text(isChinese ? '继续' : 'Continue'),
+              ),
           ],
         ),
       ),
     );
+    return continued == true;
   }
 
   Future<String?> _requestHistoryPassphrase({required bool enable}) {

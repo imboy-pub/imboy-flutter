@@ -5,6 +5,7 @@ import 'package:imboy/service/web_writer_gate.dart';
 const httpNoAutoRetry = 'http_no_auto_retry';
 const httpSuppressErrorToast = 'http_suppress_error_toast';
 const httpRequestGuard = 'http_request_guard';
+const webFeatureSnapshotPath = '/api/v1/app/features';
 
 const _webHumanMethods = <String, String>{
   'bootstrap': 'GET',
@@ -19,6 +20,15 @@ const _webHumanMethods = <String, String>{
   'msg/history': 'GET',
   'msg': 'GET',
   'msg/result': 'GET',
+  'e2ee/user_keys': 'GET',
+  'e2ee/report_device_key': 'POST',
+  'e2ee/devices': 'GET',
+  'e2ee/olm/identity': 'POST',
+  'e2ee/olm/prekeys': 'POST',
+  'e2ee/olm/fallback_key': 'POST',
+  'e2ee/olm/get_identity': 'GET',
+  'e2ee/olm/prekey_count': 'GET',
+  'e2ee/olm/claim': 'POST',
   'personal-history/status': 'GET',
   'personal-history/opt-in': 'POST',
   'personal-history/upload': 'POST',
@@ -68,6 +78,12 @@ const _webHumanMethods = <String, String>{
   'channels/unread/summary': 'GET',
 };
 
+const _webPublicAppConfigPaths = <String>{
+  webFeatureSnapshotPath,
+  '/api/v1/app/manifest',
+  '/api/v1/app/policy',
+};
+
 const webHumanPublicPaths = <String>{
   '/api/v1/init',
   '/api/v1/passport/login',
@@ -81,8 +97,7 @@ const webHumanPublicPaths = <String>{
   '/api/v1/web/passport/qr_login/status',
   '/api/v1/web/passport/qr_login/cancel',
   '/api/v1/web/passport/qr_login/subscribe',
-  '/api/v1/app/manifest',
-  '/api/v1/app/policy',
+  ..._webPublicAppConfigPaths,
 };
 
 /// Metadata allowed by Web Human CORS; credentials are added per request.
@@ -139,11 +154,7 @@ Uri webHumanRequestUri(String method, Uri input, Uri apiRoot) {
       throw rejected;
     }
     final verb = method.toUpperCase();
-    if (const {
-          '/api/v1/app/manifest',
-          '/api/v1/app/policy',
-        }.contains(uri.path) &&
-        verb == 'GET') {
+    if (_webPublicAppConfigPaths.contains(uri.path) && verb == 'GET') {
       return uri;
     }
     final web = uri.path.startsWith('/api/v1/web/');

@@ -55,6 +55,9 @@ class CanonicalCbor {
   static const int maxDepth = 16;
   static const int maxMapEntries = 128;
   static const int maxArrayEntries = 4096;
+  static const int _uint32Span = 0x100000000;
+  // Dart JavaScript numbers have 53 exact integer bits. Other targets use signed int64.
+  static const int _maxUintHigh = identical(1, 1.0) ? 0x1FFFFF : 0x7FFFFFFF;
 
   // ─── Encode ───────────────────────────────────────────────────────────────
 
@@ -118,23 +121,26 @@ class CanonicalCbor {
       out.addByte(mt | 25);
       out.addByte((argument >> 8) & 0xFF);
       out.addByte(argument & 0xFF);
-    } else if (argument < 0x100000000) {
+    } else if (argument < _uint32Span) {
       out.addByte(mt | 26);
-      out.addByte((argument >> 24) & 0xFF);
-      out.addByte((argument >> 16) & 0xFF);
-      out.addByte((argument >> 8) & 0xFF);
-      out.addByte(argument & 0xFF);
+      _appendUint32(out, argument);
     } else {
+      // Web JavaScript 的位运算只处理低 32 位，先把整数拆成两个字。
+      final high = argument ~/ _uint32Span;
+      if (high > _maxUintHigh) {
+        throw CborParseException('integer exceeds exact runtime range');
+      }
       out.addByte(mt | 27);
-      out.addByte((argument >> 56) & 0xFF);
-      out.addByte((argument >> 48) & 0xFF);
-      out.addByte((argument >> 40) & 0xFF);
-      out.addByte((argument >> 32) & 0xFF);
-      out.addByte((argument >> 24) & 0xFF);
-      out.addByte((argument >> 16) & 0xFF);
-      out.addByte((argument >> 8) & 0xFF);
-      out.addByte(argument & 0xFF);
+      _appendUint32(out, high);
+      _appendUint32(out, argument % _uint32Span);
     }
+  }
+
+  static void _appendUint32(BytesBuilder out, int word) {
+    out.addByte((word >> 24) & 0xFF);
+    out.addByte((word >> 16) & 0xFF);
+    out.addByte((word >> 8) & 0xFF);
+    out.addByte(word & 0xFF);
   }
 
   static void _encodeText(BytesBuilder out, String value) {
@@ -351,18 +357,15 @@ class _CborReader {
       value = (_readByte() << 8) | _readByte();
       byteCount = 2;
     } else if (additionalInfo == 26) {
-      value =
-          (_readByte() << 24) |
-          (_readByte() << 16) |
-          (_readByte() << 8) |
-          _readByte();
+      value = _readUint32();
       byteCount = 4;
     } else if (additionalInfo == 27) {
-      // 64-bit — Dart int 在 64-bit 平台上足够
-      value = 0;
-      for (var i = 0; i < 8; i++) {
-        value = (value << 8) | _readByte();
+      final high = _readUint32();
+      final low = _readUint32();
+      if (high > CanonicalCbor._maxUintHigh) {
+        throw CborParseException('integer exceeds exact runtime range');
       }
+      value = high * CanonicalCbor._uint32Span + low;
       byteCount = 8;
     } else {
       throw CborParseException('invalid additional info: $additionalInfo');
@@ -393,6 +396,14 @@ class _CborReader {
     }
 
     return value;
+  }
+
+  int _readUint32() {
+    var word = 0;
+    for (var i = 0; i < 4; i++) {
+      word = word * 256 + _readByte();
+    }
+    return word;
   }
 
   int _readByte() {

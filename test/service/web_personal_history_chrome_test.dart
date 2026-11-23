@@ -34,6 +34,7 @@ import 'package:imboy/config/init.dart' as init;
 import 'package:imboy/config/env.dart';
 import 'package:imboy/store/repository/message_repo_sqlite.dart';
 import 'package:imboy/service/web_writer_gate.dart';
+import 'package:imboy/service/web_personal_history_upload_refs.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite_common/sqlite_api.dart' as common;
 
@@ -56,6 +57,7 @@ class _FixtureServer {
   final ackedCursors = <int>[];
   final ackedGenerations = <int>[];
   final changeInstances = <Object?>[];
+  final changeQueries = <Map<String, dynamic>>[];
   final ackInstances = <Object?>[];
   final uploadedKeys = <String>[];
   final uploadedBodies = <Map<String, dynamic>>[];
@@ -64,6 +66,12 @@ class _FixtureServer {
   int? ackResponseGeneration;
   bool offline = false;
   bool resetHint = false;
+  int? resetBefore;
+  final snapshotPages = <String?, Map<String, dynamic>>{};
+  final snapshotRequests = <String?>[];
+  final completionAcks = <Map<String, dynamic>>[];
+  Future<void> Function()? beforeCompletionAck;
+  bool rejectCompletionAck = false;
 
   Map<String, dynamic> _ok([Map<String, dynamic>? payload]) => {
     'code': 0,
@@ -102,7 +110,18 @@ class _FixtureServer {
     }
     if (path.endsWith('/changes')) {
       changeInstances.add(queryParameters?['client_instance']);
+      changeQueries.add(Map<String, dynamic>.from(queryParameters ?? const {}));
       final cursor = (queryParameters?['cursor'] as int? ?? 0);
+      if (cursor < (resetBefore ?? 0)) {
+        return PersonalHistoryTransportResult(
+          httpStatus: 200,
+          body: _ok({
+            'generation': generation,
+            'events': <Object?>[],
+            'reset_hint': true,
+          }),
+        );
+      }
       final pending =
           events.where((event) => (event['event_seq'] as int) > cursor).toList()
             ..sort(
@@ -125,6 +144,15 @@ class _FixtureServer {
         }),
       );
     }
+    if (path.endsWith('/page') && queryParameters?['snapshot'] == 'account') {
+      expect(queryParameters?['client_instance'], 'test-snapshot-did');
+      final token = queryParameters?['page_token'] as String?;
+      snapshotRequests.add(token);
+      return PersonalHistoryTransportResult(
+        httpStatus: 200,
+        body: _ok(snapshotPages[token]!),
+      );
+    }
     if (path.endsWith('/ack-cursor')) {
       final body = data as Map;
       ackInstances.add(body['client_instance']);
@@ -135,6 +163,21 @@ class _FixtureServer {
           httpStatus: 410,
           body: _error('generation_expired'),
         );
+      }
+      if (body['completion_token'] != null) {
+        final completion = Map<String, dynamic>.from(body);
+        completionAcks.add(completion);
+        await beforeCompletionAck?.call();
+        final last = snapshotPages.values.last;
+        if (rejectCompletionAck ||
+            cursor != last['recovery_cursor'] ||
+            body['completion_token'] != last['completion_token']) {
+          return PersonalHistoryTransportResult(
+            httpStatus: 503,
+            body: _error('transient_failure'),
+          );
+        }
+        issuedByScope[(generation, body['client_instance'])] = cursor;
       }
       if (cursor >
           (issuedByScope[(generation, body['client_instance'])] ?? 0)) {
@@ -276,6 +319,138 @@ void main() {
     );
   }
 
+  test(
+    'locked references share the accepted row transaction and retry',
+    () async {
+      final scope = owner.preferenceKey(domain);
+      final refs = WebPersonalHistoryUploadRefs(db, scope, () {});
+      const first = (messageId: 'c2c-retry', sequence: null, outbound: true);
+      const second = (messageId: 'c2c-locked', sequence: 7, outbound: false);
+      expect(
+        await refs.observe(enabled: false, domain: domain, generation: 0),
+        isFalse,
+      );
+      expect(
+        await WebPersonalHistoryUploadRefs.enqueue(db, scope, first, () {}),
+        isFalse,
+      );
+      expect(
+        await db.rawQuery(
+          "SELECT name FROM sqlite_master WHERE name LIKE 'web_personal_history_upload_%'",
+        ),
+        isEmpty,
+      );
+
+      expect(
+        await refs.observe(enabled: true, domain: domain, generation: 3),
+        isTrue,
+      );
+      await expectLater(
+        db.transaction((txn) async {
+          expect(
+            await WebPersonalHistoryUploadRefs.enqueue(
+              txn,
+              scope,
+              first,
+              () {},
+            ),
+            isTrue,
+          );
+          throw StateError('ordinary source transaction rolled back');
+        }),
+        throwsStateError,
+      );
+      expect(await refs.pending(domain, 3), isEmpty);
+
+      await db.transaction((txn) async {
+        expect(
+          await WebPersonalHistoryUploadRefs.enqueue(txn, scope, first, () {}),
+          isTrue,
+        );
+        expect(
+          await WebPersonalHistoryUploadRefs.enqueue(txn, scope, first, () {}),
+          isFalse,
+        );
+        expect(
+          await WebPersonalHistoryUploadRefs.enqueue(txn, scope, second, () {}),
+          isTrue,
+        );
+      });
+      await browserSqliteStorageBridge.durableAccountBarrier(
+        db,
+        databaseName: databaseName,
+      );
+      final reopened = WebPersonalHistoryUploadRefs(db, scope, () {});
+      expect(await reopened.pending(domain, 3), [first, second]);
+      await reopened.defer(domain, 3, first.messageId);
+      expect(await reopened.pending(domain, 3), [second, first]);
+      await reopened.remove(domain, 3, second.messageId);
+      expect(await reopened.pending(domain, 3), [first]);
+    },
+  );
+
+  test(
+    'authoritative generation rotation isolates local upload references',
+    () async {
+      final scope = owner.preferenceKey(domain);
+      final refs = WebPersonalHistoryUploadRefs(db, scope, () {});
+      final other = WebPersonalHistoryUploadRefs(db, 'other-$scope', () {});
+      const ref = (messageId: 'c2c-accepted', sequence: 3, outbound: true);
+      expect(
+        await refs.observe(enabled: true, domain: domain, generation: 3),
+        isTrue,
+      );
+      expect(
+        await other.observe(enabled: true, domain: domain, generation: 3),
+        isTrue,
+      );
+      expect(
+        await WebPersonalHistoryUploadRefs.enqueue(db, scope, ref, () {}),
+        isTrue,
+      );
+      expect(
+        await WebPersonalHistoryUploadRefs.enqueue(
+          db,
+          'other-$scope',
+          ref,
+          () {},
+        ),
+        isTrue,
+      );
+      expect(
+        await refs.observe(enabled: false, domain: domain, generation: 4),
+        isTrue,
+      );
+      expect(
+        await refs.observe(enabled: true, domain: domain, generation: 3),
+        isFalse,
+      );
+      expect(
+        await refs.observe(enabled: true, domain: domain, generation: 4),
+        isFalse,
+      );
+      expect(
+        await WebPersonalHistoryUploadRefs.enqueue(db, scope, ref, () {}),
+        isFalse,
+      );
+      expect(await refs.pending(domain, 3), isEmpty);
+      expect(await other.pending(domain, 3), [ref]);
+
+      expect(
+        await refs.observe(enabled: true, domain: domain, generation: 5),
+        isTrue,
+      );
+      expect(await refs.pending(domain, 5), isEmpty);
+      expect(
+        await WebPersonalHistoryUploadRefs.enqueue(db, scope, ref, () {}),
+        isTrue,
+      );
+      expect(await refs.pending(domain, 5), [ref]);
+      await refs.remove(domain, 3, ref.messageId);
+      expect(await refs.pending(domain, 5), [ref]);
+    },
+  );
+
   test('session change during decryption aborts before persisting', () async {
     const conversationId = 'conv-logout-during-decrypt';
     server.events.add(_event(1, conversationId, 'm-1'));
@@ -343,7 +518,17 @@ void main() {
       clientInstance: 'new-browser-device',
     );
     final status = await client.status();
-    server.events.add(_event(1, 'conv-device-cursor', 'm-1'));
+    // 账号恢复模式（设备实例 + 期望授权）下服务端按账号快照形状下发事件，
+    // 必带 accepted_message；旧形状会被客户端判为 malformedRequest。
+    server.events.add(
+      _event(1, 'conv-device-cursor', 'm-1')
+        ..['accepted_message'] = {
+          'from_id': '1',
+          'to_id': '2',
+          'conv_seq': 1,
+          'action_version': 0,
+        },
+    );
     final outcome = await PersonalHistorySyncEngine(
       client: client,
       store: store,
@@ -357,7 +542,11 @@ void main() {
     ).syncOnce(expectedAuthorization: status);
 
     expect(status.domain, domain);
-    expect(outcome.kind, PersonalHistorySyncOutcomeKind.synced);
+    expect(
+      outcome.kind,
+      PersonalHistorySyncOutcomeKind.synced,
+      reason: 'outcome.error=${outcome.error}',
+    );
     expect(server.changeInstances, everyElement('new-browser-device'));
     expect(server.changeInstances, isNotEmpty);
     expect(server.ackInstances, ['new-browser-device']);
@@ -503,6 +692,23 @@ void main() {
       );
       expect(rows.single['msg_id'], 'edited');
       expect(rows.single['action_version'], 1);
+      final requested = await store.readRestoredRowsForPage(
+        domain: domain,
+        generation: 3,
+        conversationId: conv,
+        messageIds: ['edited', 'removed', 'unrelated'],
+      );
+      expect(requested.single['msg_id'], 'edited');
+      expect(requested.single['action_version'], 1);
+      expect(
+        await store.readRestoredRowsForPage(
+          domain: domain,
+          generation: 3,
+          conversationId: conv,
+          messageIds: ['removed', 'unrelated'],
+        ),
+        isEmpty,
+      );
       expect(
         await store.readRestoredRows(
           domain: domain,
@@ -514,6 +720,58 @@ void main() {
     },
   );
 
+  test('snapshot page selects older durable rows by requested IDs', () async {
+    const conv = 'conv-paginated-restored-copy';
+    server.events.addAll([
+      for (var seq = 1; seq <= 51; seq++) _event(seq, conv, 'message-$seq'),
+    ]);
+    expect(
+      (await engine.syncOnce()).kind,
+      PersonalHistorySyncOutcomeKind.synced,
+    );
+    final olderPage = await store.readRestoredRowsForPage(
+      domain: domain,
+      generation: 3,
+      conversationId: conv,
+      messageIds: ['message-1'],
+    );
+    expect(olderPage.single['msg_id'], 'message-1');
+    final before = olderPage.single['row'] as String;
+    final stamped = await store.stampRestoredRowsForPage(
+      domain: domain,
+      generation: 3,
+      conversationId: conv,
+      stamps: [
+        (
+          msgId: 'message-1',
+          actionVersion: 0,
+          previous: before,
+          stamped: '{"_personal_history_verified_conv_seq":1}',
+        ),
+        (
+          msgId: 'message-51',
+          actionVersion: 0,
+          previous: 'stale',
+          stamped: '{"_personal_history_verified_conv_seq":51}',
+        ),
+      ],
+      requireCurrent: () {},
+    );
+    expect(stamped, {'message-1'});
+    expect(
+      (await store.readRestoredRowsForPage(
+        domain: domain,
+        generation: 3,
+        conversationId: conv,
+        messageIds: ['message-1'],
+      )).single['row'],
+      '{"_personal_history_verified_conv_seq":1}',
+    );
+    final checkpoint = await store.readCheckpoint(domain);
+    expect(checkpoint?.cursor, 51);
+    expect(server.ackedCursors, [51]);
+  });
+
   test('reset hint asks for rescan without acknowledging a cursor', () async {
     server.resetHint = true;
 
@@ -524,6 +782,405 @@ void main() {
     expect(await store.readCheckpoint(domain), isNull);
     expect(server.ackedCursors, isEmpty);
   });
+
+  const accountSnapshotConv = 'c2c:1:2';
+  Map<String, dynamic> snapshotEvent(
+    int seq,
+    String id, {
+    bool deleted = false,
+    int actionVersion = 0,
+    int? convSeq,
+  }) =>
+      _event(
+          seq,
+          accountSnapshotConv,
+          id,
+          deleted: deleted,
+          actionVersion: actionVersion,
+        )
+        ..['conv_seq'] = convSeq ?? seq
+        ..['accepted_message'] = {
+          'from_id': '1',
+          'to_id': '2',
+          'conv_seq': convSeq ?? seq,
+          'action_version': actionVersion,
+        };
+
+  Map<String, dynamic> suppressedSnapshotEvent(
+    int seq,
+    String id, {
+    int actionVersion = 0,
+    int? convSeq,
+  }) => {
+    'event_seq': seq,
+    'conversation_id': accountSnapshotConv,
+    'msg_id': id,
+    'conv_seq': convSeq ?? seq,
+    'action_version': actionVersion,
+    'deleted': false,
+    'suppressed': true,
+  };
+
+  void prepareAccountSnapshot() {
+    server.resetBefore = 100;
+    server.snapshotPages.addAll({
+      null: {
+        'generation': 3,
+        'events': [snapshotEvent(120, 'early-merged')],
+        'has_more': true,
+        'page_token': 'second-page-token',
+      },
+      'second-page-token': {
+        'generation': 3,
+        'events': [snapshotEvent(102, 'deleted', deleted: true)],
+        'has_more': false,
+        'recovery_cursor': 100,
+        'completion_token': 'finished-token',
+      },
+    });
+    server.events.addAll([
+      snapshotEvent(102, 'deleted', deleted: true),
+      snapshotEvent(110, 'concurrent-unseen'),
+      snapshotEvent(120, 'early-merged'),
+    ]);
+  }
+
+  PersonalHistorySyncEngine accountRecoveryEngine({
+    Future<void> Function()? durable,
+  }) => PersonalHistorySyncEngine(
+    client: PersonalHistoryApiClient(
+      transport: server.call,
+      webFace: true,
+      clientInstance: 'test-snapshot-did',
+    ),
+    store: store,
+    domain: domain,
+    decrypt: (event) async => {'text': event.msgId},
+    isCurrent: () => true,
+    durableConfirm:
+        durable ??
+        () => browserSqliteStorageBridge.durableAccountBarrier(
+          db,
+          databaseName: databaseName,
+        ),
+  );
+
+  PersonalHistoryStatus accountSnapshotScope() =>
+      PersonalHistoryStatus(state: 'ON', generation: 3, domain: domain);
+
+  test('account reset commits snapshot before exact ACK and resumes below an already merged event', () async {
+    prepareAccountSnapshot();
+    var durable = false;
+    server.beforeCompletionAck = () async {
+      expect(durable, isTrue);
+      expect(await store.readCheckpoint(domain), isNull);
+      expect(await store.isTombstoned(accountSnapshotConv, 'deleted'), isTrue);
+    };
+    final recovery = accountRecoveryEngine(
+      durable: () async {
+        await browserSqliteStorageBridge.durableAccountBarrier(
+          db,
+          databaseName: databaseName,
+        );
+        durable = true;
+      },
+    );
+    final outcome = await recovery.syncOnce(
+      expectedAuthorization: accountSnapshotScope(),
+    );
+    expect(outcome.kind, PersonalHistorySyncOutcomeKind.synced);
+    expect(server.snapshotRequests, [null, 'second-page-token']);
+    expect(server.completionAcks.single, {
+      'cursor': 100,
+      'generation': 3,
+      'client_instance': 'test-snapshot-did',
+      'completion_token': 'finished-token',
+    });
+    expect(server.ackedCursors, [100, 120]);
+    expect((await store.readCheckpoint(domain))?.cursor, 120);
+    expect(
+      await store
+          .readRestoredRows(
+            domain: domain,
+            generation: 3,
+            conversationId: accountSnapshotConv,
+          )
+          .then((rows) => rows.map((row) => row['msg_id']).toSet()),
+      {'early-merged', 'concurrent-unseen'},
+    );
+    expect(outcome.duplicates, 2);
+  });
+
+  test('account reset rejects a non-adjacent continuation cycle', () async {
+    server.resetBefore = 100;
+    server.snapshotPages.addAll({
+      null: {
+        'generation': 3,
+        'events': [snapshotEvent(88, 'first')],
+        'has_more': true,
+        'page_token': 'token-a',
+      },
+      'token-a': {
+        'generation': 3,
+        'events': [snapshotEvent(89, 'second')],
+        'has_more': true,
+        'page_token': 'token-b',
+      },
+      'token-b': {
+        'generation': 3,
+        'events': [snapshotEvent(90, 'repeated-continuation')],
+        'has_more': true,
+        'page_token': 'token-a',
+      },
+    });
+    final outcome = await accountRecoveryEngine().syncOnce(
+      expectedAuthorization: accountSnapshotScope(),
+    );
+    expect(outcome.kind, PersonalHistorySyncOutcomeKind.failed);
+    expect(
+      outcome.error,
+      isA<PersonalHistoryApiException>().having(
+        (error) => error.code,
+        'code',
+        PersonalHistoryErrorCode.malformedRequest,
+      ),
+    );
+    expect(server.snapshotRequests, [null, 'token-a', 'token-b']);
+    expect(server.completionAcks, isEmpty);
+    expect(server.ackedCursors, isEmpty);
+    expect(await store.readCheckpoint(domain), isNull);
+    final rows = await store.readRestoredRows(
+      domain: domain,
+      generation: 3,
+      conversationId: accountSnapshotConv,
+    );
+    expect(
+      rows.map((row) => row['msg_id']),
+      unorderedEquals(['first', 'second']),
+    );
+  });
+
+  test('account reset hides only suppressed versions and accepts a later proven edit', () async {
+    final recovery = accountRecoveryEngine();
+    final scope = accountSnapshotScope();
+    server.events.addAll([
+      snapshotEvent(1, 'loses-proof'),
+      snapshotEvent(2, 'keep-newer', actionVersion: 3),
+    ]);
+    expect((await recovery.syncOnce(expectedAuthorization: scope)).cursor, 2);
+    server.resetBefore = 100;
+    server.events
+      ..clear()
+      ..add(snapshotEvent(110, 'loses-proof', actionVersion: 2, convSeq: 1));
+    server.snapshotPages[null] = {
+      'generation': 3,
+      'events': [
+        suppressedSnapshotEvent(1, 'loses-proof'),
+        suppressedSnapshotEvent(3, 'keep-newer', actionVersion: 1, convSeq: 2),
+        snapshotEvent(4, 'other-live-copy'),
+      ],
+      'has_more': false,
+      'recovery_cursor': 100,
+      'completion_token': 'finished-token',
+    };
+    Future<Map<Object?, Object?>> versions() async => {
+      for (final row in await store.readRestoredRows(
+        domain: domain,
+        generation: 3,
+        conversationId: accountSnapshotConv,
+      ))
+        row['msg_id']: row['action_version'],
+    };
+    server.beforeCompletionAck = () async {
+      expect((await store.readCheckpoint(domain))?.cursor, 2);
+      expect(await versions(), {'keep-newer': 3, 'other-live-copy': 0});
+      expect(
+        await store.isTombstoned(accountSnapshotConv, 'loses-proof'),
+        isFalse,
+      );
+    };
+    final outcome = await recovery.syncOnce(expectedAuthorization: scope);
+    expect(outcome.kind, PersonalHistorySyncOutcomeKind.synced);
+    expect(outcome.cursor, 110);
+    expect(await versions(), {
+      'keep-newer': 3,
+      'other-live-copy': 0,
+      'loses-proof': 2,
+    });
+    expect(
+      await store.isTombstoned(accountSnapshotConv, 'loses-proof'),
+      isFalse,
+    );
+  });
+
+  test(
+    'account reset rejects proofless bodies and mixed suppression events',
+    () async {
+      server.resetBefore = 100;
+      final recovery = accountRecoveryEngine();
+      final scope = accountSnapshotScope();
+      for (final row in [
+        snapshotEvent(1, 'missing-proof')..remove('accepted_message'),
+        suppressedSnapshotEvent(2, 'mixed')..['ciphertext'] = 'unexpected',
+      ]) {
+        server.snapshotPages[null] = {
+          'generation': 3,
+          'events': [row],
+          'has_more': false,
+          'recovery_cursor': 100,
+          'completion_token': 'finished-token',
+        };
+        final outcome = await recovery.syncOnce(expectedAuthorization: scope);
+        expect(outcome.kind, PersonalHistorySyncOutcomeKind.failed);
+        expect(
+          outcome.error,
+          isA<PersonalHistoryApiException>().having(
+            (error) => error.code,
+            'code',
+            PersonalHistoryErrorCode.malformedRequest,
+          ),
+        );
+        expect(await store.readCheckpoint(domain), isNull);
+        expect(server.completionAcks, isEmpty);
+      }
+    },
+  );
+
+  test('account reset consumes suppressed tail after watermark and keeps later changes', () async {
+    server.resetBefore = 100;
+    server.snapshotPages[null] = {
+      'generation': 3,
+      'events': [
+        snapshotEvent(
+          105,
+          'proof-lost-after-scan',
+          actionVersion: 1,
+          convSeq: 5,
+        ),
+      ],
+      'has_more': false,
+      'recovery_cursor': 100,
+      'completion_token': 'finished-token',
+    };
+    server.events.addAll([
+      suppressedSnapshotEvent(
+        105,
+        'proof-lost-after-scan',
+        actionVersion: 1,
+        convSeq: 5,
+      ),
+      snapshotEvent(112, 'next-live', convSeq: 6),
+    ]);
+    Future<Map<Object?, Object?>> versions() async => {
+      for (final row in await store.readRestoredRows(
+        domain: domain,
+        generation: 3,
+        conversationId: accountSnapshotConv,
+      ))
+        row['msg_id']: row['action_version'],
+    };
+    server.beforeCompletionAck = () async {
+      expect(await store.readCheckpoint(domain), isNull);
+      expect(await versions(), {'proof-lost-after-scan': 1});
+    };
+    final recovery = accountRecoveryEngine();
+    final scope = accountSnapshotScope();
+    final outcome = await recovery.syncOnce(expectedAuthorization: scope);
+    expect(outcome.kind, PersonalHistorySyncOutcomeKind.synced);
+    expect(outcome.cursor, 112);
+    expect(await versions(), {'next-live': 0});
+    expect(
+      await store.isTombstoned(accountSnapshotConv, 'proof-lost-after-scan'),
+      isFalse,
+    );
+    expect(server.ackedCursors, [100, 112]);
+    expect(server.changeQueries.map((query) => query['cursor']), [0, 100, 112]);
+    expect(
+      server.changeQueries.every(
+        (query) =>
+            query['snapshot'] == 'account' &&
+            query['client_instance'] == 'test-snapshot-did',
+      ),
+      isTrue,
+    );
+
+    server.events.add(
+      snapshotEvent(120, 'proof-lost-after-scan', actionVersion: 2, convSeq: 5),
+    );
+    final updated = await recovery.syncOnce(expectedAuthorization: scope);
+    expect(updated.kind, PersonalHistorySyncOutcomeKind.synced);
+    expect(updated.cursor, 120);
+    expect(await versions(), {'next-live': 0, 'proof-lost-after-scan': 2});
+    expect(server.ackedCursors, [100, 112, 120]);
+  });
+
+  test(
+    'account reset capability is optional for legacy changes requests',
+    () async {
+      server.events.add(snapshotEvent(9, 'legacy')..remove('accepted_message'));
+      final legacy = PersonalHistoryApiClient(transport: server.call);
+      final reply = await legacy.changes(cursor: 0);
+      expect(reply.nextCursor, 9);
+      expect(reply.events.single.suppressed, isFalse);
+      expect(server.changeQueries.single.containsKey('snapshot'), isFalse);
+      await expectLater(
+        legacy.changes(cursor: 0, accountRecovery: true),
+        throwsA(
+          isA<PersonalHistoryApiException>().having(
+            (error) => error.code,
+            'code',
+            PersonalHistoryErrorCode.identityRejected,
+          ),
+        ),
+      );
+      expect(server.changeQueries, hasLength(1));
+    },
+  );
+
+  test('failed account completion leaves old checkpoint and retries staged rows idempotently', () async {
+    prepareAccountSnapshot();
+    final recovery = accountRecoveryEngine();
+    server.rejectCompletionAck = true;
+    final failed = await recovery.syncOnce(
+      expectedAuthorization: accountSnapshotScope(),
+    );
+    expect(failed.kind, PersonalHistorySyncOutcomeKind.ackFailed);
+    expect(await store.readCheckpoint(domain), isNull);
+    expect(server.ackedCursors, isEmpty);
+    expect(server.completionAcks, hasLength(1));
+    server.rejectCompletionAck = false;
+    final retried = await recovery.syncOnce(
+      expectedAuthorization: accountSnapshotScope(),
+    );
+    expect(retried.kind, PersonalHistorySyncOutcomeKind.synced);
+    expect(retried.duplicates, 4);
+    expect(server.snapshotRequests, [
+      null,
+      'second-page-token',
+      null,
+      'second-page-token',
+    ]);
+    expect((await store.readCheckpoint(domain))?.cursor, 120);
+  });
+
+  test(
+    'account reset never sends completion with failed durable barrier',
+    () async {
+      prepareAccountSnapshot();
+      final recovery = accountRecoveryEngine(
+        durable: () async {
+          throw StateError('indexeddb durability failure');
+        },
+      );
+      final outcome = await recovery.syncOnce(
+        expectedAuthorization: accountSnapshotScope(),
+      );
+      expect(outcome.kind, PersonalHistorySyncOutcomeKind.durabilityFailed);
+      expect(server.completionAcks, isEmpty);
+      expect(server.ackedCursors, isEmpty);
+      expect(await store.readCheckpoint(domain), isNull);
+    },
+  );
 
   test(
     'acknowledgement with a different generation does not sign off sync',
@@ -826,6 +1483,38 @@ void main() {
       expect(after, hasLength(9));
       final checkpoint = await store.readCheckpoint(domain);
       expect(checkpoint!.cursor, 10);
+    },
+  );
+
+  test(
+    'upload reports a partial result when a batch leaves ciphertext',
+    () async {
+      for (var id = 1; id <= 33; id++) {
+        await store.enqueueUpload(
+          domain: domain,
+          generation: 3,
+          conversationId: 'conv-batch-limit',
+          msgId: 'batch-$id',
+          actionVersion: 0,
+          convSeq: id,
+          ciphertext: 'Y2lwaGVydGV4dA==',
+          envelopeMeta: const {'alg': 'aes-256-gcm', 'key_version': 1},
+          clientTs: 1700000000000 + id,
+        );
+      }
+      final first = await engine.flushUploads(generation: 3);
+      expect(first.kind, PersonalHistorySyncOutcomeKind.uploadPartial);
+      expect(first.uploaded, 32);
+      expect(
+        (await store.pendingUploads(domain, 3)).single['msg_id'],
+        'batch-33',
+      );
+
+      final second = await engine.flushUploads(generation: 3);
+      expect(second.kind, PersonalHistorySyncOutcomeKind.synced);
+      expect(second.uploaded, 1);
+      expect(server.uploadedKeys, hasLength(33));
+      expect(await store.pendingUploads(domain, 3), isEmpty);
     },
   );
 

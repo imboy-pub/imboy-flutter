@@ -12,10 +12,16 @@
 /// 这样 B 读 metadata 得到的 peer 恰是 A。
 library;
 
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:imboy/component/helper/func.dart';
-import 'package:imboy/config/init.dart' show deviceId;
+import 'package:imboy/config/init.dart' as app_init;
+import 'package:imboy/service/auth_session_scope.dart';
 import 'package:imboy/service/e2ee/e2ee_protocol.dart';
+import 'package:imboy/service/e2ee/policy_gate.dart' show E2eeSecurityException;
+import 'package:imboy/service/e2ee_key_service.dart';
 import 'package:imboy/service/olm_session_service.dart';
+import 'package:imboy/service/storage_secure.dart';
+import 'package:imboy/store/api/e2ee_api.dart';
 
 class OlmProtocol implements E2eeSessionProtocol {
   OlmProtocol();
@@ -37,9 +43,63 @@ class OlmProtocol implements E2eeSessionProtocol {
     required String userId,
     required String deviceId,
   }) async {
-    _selfUid = userId;
+    final webSession = kIsWeb ? authSessionReader.current : null;
+    if (webSession != null) {
+      await _publishWebDeviceKey(userId, deviceId, webSession);
+    }
     // 幂等：OlmSessionService 内部按 pickle 是否存在决定是否重建身份。
-    await OlmSessionService.to.publishIdentityAndPrekeys();
+    await OlmSessionService.to.publishIdentityAndPrekeys(
+      deviceType: kIsWeb ? 'web' : null,
+      expectedWebSession: webSession,
+    );
+    _selfUid = userId;
+  }
+
+  Future<void> _publishWebDeviceKey(
+    String uid,
+    String did,
+    AuthSessionScope session,
+  ) async {
+    final storage = StorageSecureService.to;
+    final keyGeneration = storage.e2eeKeyGeneration;
+    void requireCurrent() {
+      if (uid != session.uid ||
+          did.isEmpty ||
+          did != app_init.deviceId ||
+          !authSessionReader.isCurrent(session) ||
+          authSessionReader.transitionFailed ||
+          keyGeneration != storage.e2eeKeyGeneration) {
+        throw const E2eeSecurityException('outbound_session_changed');
+      }
+    }
+
+    requireCurrent();
+    if (!await storage.hasE2EEKeys()) {
+      requireCurrent();
+      await E2EEKeyService.generateKeyPair();
+    }
+    final publicKey = await storage.getPublicKey();
+    final keyId = await storage.getKeyId();
+    final storedDid = await storage.getDeviceId();
+    requireCurrent();
+    if (storedDid != did ||
+        (keyId?.isEmpty ?? true) ||
+        (publicKey?.isEmpty ?? true)) {
+      throw const E2eeSecurityException('e2ee_protocol_not_ready');
+    }
+
+    // The existing C2C fan-out checks the active device directory before
+    // validating Olm capability. Register the same DID in both directories.
+    final registered = await E2EEApi().reportDeviceKey(
+      deviceId: did,
+      deviceType: 'web',
+      publicKey: publicKey!,
+      keyId: keyId!,
+    );
+    requireCurrent();
+    if (!registered.ok) {
+      throw const E2eeSecurityException('e2ee_protocol_not_ready');
+    }
   }
 
   @override
@@ -78,7 +138,7 @@ class OlmProtocol implements E2eeSessionProtocol {
       'e2ee_suite': suite.legacyWire,
       // peer 视角：填发送方自身身份，接收方据此定位「对端=发送方」
       'peer_uid': selfUid,
-      'peer_device_id': deviceId,
+      'peer_device_id': app_init.deviceId,
       'message_type': res.messageType,
       'session_id': res.sessionId,
     });

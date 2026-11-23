@@ -1,6 +1,8 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:dio/dio.dart';
+import 'package:sqflite_sqlcipher/sqflite.dart' show Database, DatabaseExecutor;
 import 'package:synchronized/synchronized.dart';
 import 'package:flutter/foundation.dart';
 import 'package:imboy/component/http/http_client.dart';
@@ -18,7 +20,14 @@ import 'account_local_task_registry.dart';
 import 'auth_session_scope.dart';
 import 'browser_attachment_durability.dart';
 import 'personal_history_key_service.dart';
+import 'personal_history_native_transport.dart';
 import 'sqlite.dart';
+import 'sqflite_init.dart' show isEncryptionSupported;
+import 'web_personal_history_upload_refs.dart';
+
+part 'web_personal_history_snapshot.dart';
+part 'web_personal_history_upload.dart';
+part 'native_personal_history_delivery.dart';
 
 const _aborted = PersonalHistorySyncOutcome(
   kind: PersonalHistorySyncOutcomeKind.aborted,
@@ -44,6 +53,7 @@ class _UnlockedWebHistory {
   final PersonalHistoryKeyService ring;
   final ValueNotifier<bool> authorization;
   final AuthSessionScope session;
+  final snapshotPositions = <String, _SnapshotPosition>{};
   bool _closed = false;
 
   bool get current =>
@@ -61,6 +71,7 @@ class _UnlockedWebHistory {
   void close() {
     if (_closed) return;
     _closed = true;
+    snapshotPositions.clear();
     if (identical(_unlocked, this)) _unlocked = null;
     authSessionReader.removeListener(_onSessionChanged);
     ring.close();
@@ -159,8 +170,11 @@ Future<PersonalHistorySyncOutcome> _recover({
       (!previous.current || !status.authorizesSameScope(previous.status))) {
     previous.close();
   }
+  await _historyUploadLock.synchronized(
+    () => _observeUploadStatus(status, owner, requireCurrent),
+  );
   if (enable) {
-    return _enablePersonalHistory(
+    final outcome = await _enablePersonalHistory(
       client: client,
       initial: status,
       instance: instance,
@@ -168,6 +182,13 @@ Future<PersonalHistorySyncOutcome> _recover({
       requireCurrent: requireCurrent,
       passphrase: passphrase!,
     );
+    final enabled = _unlocked;
+    if (outcome.kind == PersonalHistorySyncOutcomeKind.cloudEnabled &&
+        enabled != null &&
+        enabled.current) {
+      unawaited(_tryFlushWebHistory(enabled));
+    }
+    return outcome;
   }
   Future<void> requireAuthorization() async {
     final live = await client.status();
@@ -234,220 +255,127 @@ Future<PersonalHistorySyncOutcome> _recover({
   final db = await SqliteService.to.db;
   requireCurrent();
   if (db == null) throw StateError('Personal history database unavailable');
-  Future<void> confirmDurable() async {
-    requireCurrent();
-    await durableBrowserAccountDatabase(
-      db,
-      databaseName: SqliteService.databaseNameForUid(owner.uid),
-    );
-    requireCurrent();
-  }
+  Future<void> confirmDurable() =>
+      _confirmUploadDurable(db, owner, requireCurrent);
 
   final store = PersonalHistoryLocalStore(() async {
     requireCurrent();
     return db;
   });
+  Future<Map<String, dynamic>?> decryptCopy(_HistoryCopyEnvelope copy) async {
+    _requireActive(active, requireCurrent);
+    if (!active.ring.hasVersion(copy.keyVersion)) {
+      if (passphrase == null) return null;
+      final package = await client.getKeyPackage(
+        keyVersion: copy.keyVersion,
+        generation: status.generation,
+      );
+      _requireActive(active, requireCurrent);
+      if (package.generation != status.generation ||
+          package.keyVersion != copy.keyVersion) {
+        throw const FormatException('Personal history package scope changed');
+      }
+      await requireAuthorization();
+      await active.ring.restorePackage(_wirePackage(package), passphrase);
+      await requireAuthorization();
+    }
+    _requireActive(active, requireCurrent);
+    return _decryptHistory(copy, active.ring);
+  }
+
   final engine = PersonalHistorySyncEngine(
     client: client,
     store: store,
     domain: domain,
-    decrypt: (event) async {
-      requireCurrent();
-      if (!active.ring.hasVersion(event.keyVersion) && passphrase == null) {
-        return null;
-      }
-      return _decryptHistory(
-        event,
-        loadKey: (version) async {
-          if (active.ring.hasVersion(version)) return;
-          final package = await client.getKeyPackage(
-            keyVersion: version,
-            generation: status.generation,
-          );
-          requireCurrent();
-          if (package.generation != status.generation ||
-              package.keyVersion != version) {
-            throw const FormatException(
-              'Personal history package scope changed',
-            );
-          }
-          await requireAuthorization();
-          await active.ring.restorePackage(_wirePackage(package), passphrase!);
-          await requireAuthorization();
-        },
-        keyRing: active.ring,
-      );
-    },
+    decrypt: (event) => decryptCopy((
+      conversationId: event.conversationId,
+      msgId: event.msgId,
+      actionVersion: event.actionVersion,
+      convSeq: event.convSeq,
+      keyVersion: event.keyVersion,
+      ciphertext: event.ciphertext,
+      envelopeMeta: event.envelopeMeta,
+      acceptedMessage: event.acceptedMessage,
+    )),
     isCurrent: () => current() && active.current,
     durableConfirm: confirmDurable,
   );
   final upload = await _historyUploadLock.synchronized(() async {
     requireCurrent();
-    await confirmDurable();
-    return engine.flushUploads(generation: status.generation);
+    return _flushWebHistory(
+      active: active,
+      client: client,
+      cancel: cancel,
+      refs: WebPersonalHistoryUploadRefs(
+        db,
+        owner.storageDigest,
+        requireCurrent,
+      ),
+      store: store,
+      engine: engine,
+      requireCurrent: requireCurrent,
+      confirmDurable: confirmDurable,
+    );
   });
   final outcome = await engine.syncOnce(expectedAuthorization: status);
-  if (outcome.kind != PersonalHistorySyncOutcomeKind.synced) return outcome;
-  await requireAuthorization();
+  if (outcome.kind != PersonalHistorySyncOutcomeKind.synced) {
+    final error = outcome.error;
+    if ((error is PersonalHistoryApiException &&
+            error.code == PersonalHistoryErrorCode.generationExpired) ||
+        (outcome.kind == PersonalHistorySyncOutcomeKind.aborted &&
+            current() &&
+            active.current)) {
+      active.close();
+    }
+    return outcome;
+  }
   final conversationId = _c2cHistoryKey(owner.uid, peerId);
-  final restored = conversationId == null
-      ? const <String>[]
-      : await _readRestoredText(store, client, status, conversationId);
+  _SnapshotResult restored = (texts: const [], partial: false, position: null);
+  if (conversationId != null) {
+    try {
+      restored = await _readRestoredText(
+        store: store,
+        client: client,
+        status: status,
+        conversationId: conversationId,
+        start: active.snapshotPositions[conversationId],
+        requireCurrent: () => _requireActive(active, requireCurrent),
+        confirmDurable: confirmDurable,
+        decryptCopy: decryptCopy,
+      );
+      final live = await client.status();
+      _requireActive(active, requireCurrent);
+      if (!live.authorizesSameScope(status)) {
+        active.close();
+        return _aborted;
+      }
+      final position = restored.position;
+      if (position == null) {
+        active.snapshotPositions.remove(conversationId);
+      } else {
+        active.snapshotPositions[conversationId] = position;
+      }
+    } on PersonalHistoryApiException catch (error) {
+      if (error.code != PersonalHistoryErrorCode.generationExpired) rethrow;
+      active.close();
+      return _aborted;
+    }
+  }
   requireCurrent();
+  final kind = upload.kind == PersonalHistorySyncOutcomeKind.synced
+      ? outcome.kind
+      : upload.kind;
   return PersonalHistorySyncOutcome(
-    kind: upload.kind == PersonalHistorySyncOutcomeKind.synced
-        ? outcome.kind
-        : upload.kind,
+    kind: restored.partial
+        ? PersonalHistorySyncOutcomeKind.rescanRequired
+        : kind,
     applied: outcome.applied,
     duplicates: outcome.duplicates,
     cursor: outcome.cursor,
     uploaded: upload.uploaded,
-    recoveredText: restored,
+    recoveredText: restored.texts,
+    canContinueSnapshot: restored.position != null,
   );
-}
-
-/// Accepts a positively confirmed live C2C text row. Media and expiring
-/// messages use different retention and authorization rules.
-Future<void> archiveWebAcceptedC2cText({
-  required AuthSessionScope session,
-  required MessageModel message,
-  required int? sequence,
-  bool verifyOutbound = false,
-}) async {
-  final unlocked = _unlocked;
-  if (!kIsWeb ||
-      unlocked == null ||
-      !unlocked.current ||
-      unlocked.session != session ||
-      message.type != 'C2C' ||
-      message.msgType != 'text' ||
-      message.id.isEmpty ||
-      (!verifyOutbound && (sequence == null || sequence <= 0))) {
-    return;
-  }
-  final payload = message.payloadMap;
-  final text = payload['text'];
-  if (text is! String ||
-      text.isEmpty ||
-      message.createdAt <= 0 ||
-      ChatBurnService.isBurnPayload(payload) ||
-      payload['burn_deleted'] == true) {
-    return;
-  }
-  final from = message.fromId.toString();
-  final to = message.toId.toString();
-  final participant = verifyOutbound ? from == session.uid : to == session.uid;
-  final conversationId = _c2cHistoryKey(from, to);
-  if (!participant || conversationId == null) return;
-  final cancel = CancelToken();
-  try {
-    await AccountLocalTaskRegistry.instance.run(
-      unlocked.owner,
-      onCancel: () => cancel.cancel(),
-      operation: (task) => _historyUploadLock.synchronized(() async {
-        bool current() => !task.isCancelled && unlocked.current;
-        void requireCurrent() {
-          if (!current()) throw StateError('Personal history owner changed');
-        }
-
-        requireCurrent();
-        var acceptedSequence = sequence;
-        if (verifyOutbound) {
-          acceptedSequence = await MsgApi()
-              .acceptedC2cSequence(
-                peerId: to,
-                messageId: message.id,
-                cancelToken: cancel,
-                requireCurrent: requireCurrent,
-              )
-              .timeout(const Duration(seconds: 3));
-          requireCurrent();
-          if (sequence != null && sequence != acceptedSequence) return;
-        }
-        if (acceptedSequence == null ||
-            acceptedSequence <= 0 ||
-            acceptedSequence > PersonalHistoryApiClient.maxSafeInteger) {
-          return;
-        }
-        final client = _historyClient(
-          unlocked.instance,
-          cancel,
-          requireCurrent,
-        );
-        final live = await client.status();
-        requireCurrent();
-        if (!live.authorizesSameScope(unlocked.status)) {
-          unlocked.close();
-          return;
-        }
-        final db = await SqliteService.to.db;
-        requireCurrent();
-        if (db == null) return;
-        final store = PersonalHistoryLocalStore(() async {
-          requireCurrent();
-          return db;
-        });
-        final position = (
-          conversationId: conversationId,
-          messageId: message.id,
-          actionVersion: 0,
-          sequence: BigInt.from(acceptedSequence),
-        );
-        final body = utf8.encode(
-          jsonEncode({
-            'chat_type': 'c2c',
-            'msg_id': message.id,
-            'from': from,
-            'to': to,
-            'msg_type': 'text',
-            'created_at': message.createdAt,
-            'payload': {'text': text},
-          }),
-        );
-        final PersonalHistoryCiphertext sealed;
-        try {
-          sealed = unlocked.ring.encrypt(body, position);
-        } finally {
-          body.fillRange(0, body.length, 0);
-        }
-        await store.enqueueUpload(
-          domain: unlocked.ring.domain,
-          generation: unlocked.ring.generation,
-          conversationId: conversationId,
-          msgId: message.id,
-          actionVersion: 0,
-          convSeq: acceptedSequence,
-          ciphertext: sealed.ciphertext,
-          envelopeMeta: {
-            'alg': sealed.algorithm,
-            'key_version': sealed.keyVersion,
-            'nonce': sealed.nonce,
-            'aad': sealed.aad,
-          },
-          clientTs: DateTime.now().millisecondsSinceEpoch,
-        );
-        requireCurrent();
-        await durableBrowserAccountDatabase(
-          db,
-          databaseName: SqliteService.databaseNameForUid(unlocked.owner.uid),
-        );
-        requireCurrent();
-        await PersonalHistorySyncEngine(
-          client: client,
-          store: store,
-          domain: unlocked.ring.domain,
-          decrypt: (_) async => null,
-          isCurrent: current,
-        ).flushUploads(generation: unlocked.ring.generation);
-      }),
-    );
-  } on Object catch (error) {
-    if (unlocked.current) {
-      AppLogger.warning(
-        'Personal history upload interrupted (${error.runtimeType})',
-      );
-    }
-  }
 }
 
 String? _c2cHistoryKey(String from, String to) {
@@ -461,60 +389,6 @@ String? _c2cHistoryKey(String from, String to) {
     return null;
   }
   return fromId < toId ? 'c2c:$fromId:$toId' : 'c2c:$toId:$fromId';
-}
-
-Future<List<String>> _readRestoredText(
-  PersonalHistoryLocalStore store,
-  PersonalHistoryApiClient client,
-  PersonalHistoryStatus status,
-  String conversationId,
-) async {
-  final page = await client.page(conversationId: conversationId);
-  final messages = page['messages'];
-  if (page['generation'] != status.generation ||
-      page['conversation_id'] != conversationId ||
-      messages is! List) {
-    throw const FormatException('Invalid personal history snapshot');
-  }
-  final accepted = <String, PersonalHistoryAcceptedMessage>{};
-  for (final value in messages) {
-    if (value is! Map || value['deleted'] != false) continue;
-    final proof = parsePersonalHistoryAcceptedMessage(
-      value['accepted_message'],
-    );
-    final id = value['msg_id'];
-    if (id is String &&
-        proof != null &&
-        value['conv_seq'] == proof.sequence &&
-        value['action_version'] == proof.actionVersion) {
-      accepted[id] = proof;
-    }
-  }
-  final rows = await store.readRestoredRows(
-    domain: status.domain!,
-    generation: status.generation,
-    conversationId: conversationId,
-  );
-  final texts = <String>[];
-  for (final row in rows) {
-    final proof = accepted[row['msg_id']];
-    if (proof == null || row['action_version'] != proof.actionVersion) continue;
-    final body = jsonDecode(row['row'] as String);
-    if (body is! Map<String, dynamic> ||
-        body['chat_type'] != 'c2c' ||
-        body['msg_id'] != row['msg_id'] ||
-        body['msg_type'] != 'text' ||
-        body['from'] != proof.fromId ||
-        body['to'] != proof.toId ||
-        _c2cHistoryKey('${body['from']}', '${body['to']}') != conversationId) {
-      continue;
-    }
-    final payload = body['payload'];
-    if (payload is Map && payload['text'] is String) {
-      texts.add(payload['text'] as String);
-    }
-  }
-  return texts;
 }
 
 const _initialKeyVersion = 1;
@@ -566,6 +440,9 @@ Future<PersonalHistorySyncOutcome> _enablePersonalHistory({
       status.domain != domain) {
     return _aborted;
   }
+  await _historyUploadLock.synchronized(
+    () => _observeUploadStatus(status, owner, requireCurrent),
+  );
   Future<void> requireAuthorization() async {
     final live = await client.status();
     requireCurrent();
@@ -649,11 +526,10 @@ PersonalHistoryApiClient _historyClient(
   },
 );
 
-Future<Map<String, dynamic>> _decryptHistory(
-  PersonalHistoryEvent event, {
-  required Future<void> Function(int version) loadKey,
-  required PersonalHistoryKeyService keyRing,
-}) async {
+Map<String, dynamic> _decryptHistory(
+  _HistoryCopyEnvelope event,
+  PersonalHistoryKeyService keyRing,
+) {
   final source = event.acceptedMessage;
   if (source == null ||
       source.sequence != event.convSeq ||
@@ -661,7 +537,6 @@ Future<Map<String, dynamic>> _decryptHistory(
       _c2cHistoryKey(source.fromId, source.toId) != event.conversationId) {
     throw const FormatException('Missing accepted personal history source');
   }
-  await loadKey(event.keyVersion);
   final meta = event.envelopeMeta;
   final bytes = keyRing.decrypt(
     (
@@ -686,7 +561,8 @@ Future<Map<String, dynamic>> _decryptHistory(
         decoded['to'] != source.toId) {
       throw const FormatException('Invalid personal history message');
     }
-    return decoded;
+    // Locally stamp only the sequence verified by the accepted proof and AEAD.
+    return {...decoded, _restoredConvSeq: event.convSeq};
   } finally {
     bytes.fillRange(0, bytes.length, 0);
   }

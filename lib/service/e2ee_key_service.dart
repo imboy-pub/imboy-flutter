@@ -7,6 +7,7 @@ import 'package:imboy/app_core/feature_flags/app_feature_registry.dart';
 import 'package:imboy/app_core/feature_flags/feature_keys.dart';
 
 import 'package:flutter/foundation.dart' show kIsWeb, compute;
+import 'package:imboy/service/auth_session_scope.dart';
 import 'package:pointycastle/export.dart' as pg;
 import 'package:pointycastle/pointycastle.dart';
 
@@ -105,6 +106,7 @@ class E2EEKeyService {
   static Future<Map<String, dynamic>> generateKeyPair() async {
     final storage = StorageSecureService.to;
     final keyGeneration = storage.e2eeKeyGeneration;
+    final webSession = kIsWeb ? authSessionReader.current : null;
     try {
       String publicKeyPem;
       String privateKeyPem;
@@ -140,6 +142,17 @@ class E2EEKeyService {
       // 并发，存在竞态：setKeyId 抢先写入后，savePrivateKey 读到的将是新 kid，旧私钥被
       // 错误归档到新 kid 下，导致历史私钥永久丢失。故必须串行，且 savePrivateKey 在 setKeyId 之前。
       await storage.writeE2eeKeys(keyGeneration, () async {
+        if (webSession != null) {
+          await storage.saveWebDeviceKeyBundle(
+            session: webSession,
+            did: deviceId,
+            keyId: keyId,
+            privateKey: privateKeyPem,
+            publicKey: publicKeyPem,
+            createdAt: createdAt,
+          );
+          return;
+        }
         await storage.savePrivateKey(privateKeyPem); // 先：归档旧私钥(按旧kid) + 写新私钥
         await storage.setKeyId(keyId); // 后：写入新 kid
         await storage.savePublicKey(publicKeyPem);

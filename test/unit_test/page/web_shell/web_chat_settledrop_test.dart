@@ -225,7 +225,8 @@ void main() {
         createdAt: DateTime(2026, 11, 17, 11, 59 - (23 - seq)),
         metadata: {'conversation_uk3': _Conversation('2').uk3},
       ),
-      'TextMessage',
+      // Match the runtimeType label observed in the minified Web release.
+      'minified:k6',
     );
   }
 

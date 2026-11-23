@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:crypto/crypto.dart' show Digest, sha256;
 import 'package:imboy/component/chat/message_scroll_provider.dart';
 import 'package:imboy/page/chat/chat/services/chat_network_service.dart'
     show
@@ -960,6 +961,7 @@ class PersonalHistorySyncOutcome {
     this.cursor = 0,
     this.uploaded = 0,
     this.recoveredText = const [],
+    this.canContinueSnapshot = false,
     this.error,
   });
 
@@ -969,6 +971,7 @@ class PersonalHistorySyncOutcome {
   final int cursor;
   final int uploaded;
   final List<String> recoveredText;
+  final bool canContinueSnapshot;
   final Object? error;
 }
 
@@ -1037,67 +1040,53 @@ class PersonalHistorySyncEngine {
       if (checkpoint != null && checkpoint.generation == status.generation) {
         cursor = checkpoint.cursor;
       }
+      final accountRecovery =
+          expectedAuthorization != null &&
+          client.clientInstance?.isNotEmpty == true;
       var totalApplied = 0;
       var totalDuplicates = 0;
       var pages = 0;
+      int? recoveredAccountCursor;
       while (pages < maxPages) {
         if (!isCurrent()) {
           return const PersonalHistorySyncOutcome(
             kind: PersonalHistorySyncOutcomeKind.aborted,
           );
         }
-        final page = await client.changes(cursor: cursor);
+        final page = await client.changes(
+          cursor: cursor,
+          accountRecovery: accountRecovery,
+        );
         if (!isCurrent() || page.generation != status.generation) {
           return const PersonalHistorySyncOutcome(
             kind: PersonalHistorySyncOutcomeKind.aborted,
           );
         }
         if (page.resetHint) {
-          return PersonalHistorySyncOutcome(
-            kind: PersonalHistorySyncOutcomeKind.rescanRequired,
-            applied: totalApplied,
-            duplicates: totalDuplicates,
-            cursor: cursor,
-          );
-        }
-        final localEvents = <PersonalHistoryLocalEvent>[];
-        for (final event in page.events) {
-          if (event.deleted) {
-            localEvents.add(
-              PersonalHistoryLocalEvent(
-                seq: event.seq,
-                conversationId: event.conversationId,
-                msgId: event.msgId,
-                actionVersion: event.actionVersion,
-                deleted: true,
-                plaintext: null,
-              ),
-            );
-            continue;
-          }
-          final plaintext = await decrypt(event);
-          if (!isCurrent()) {
-            return const PersonalHistorySyncOutcome(
-              kind: PersonalHistorySyncOutcomeKind.aborted,
-            );
-          }
-          if (plaintext == null) {
+          if (!accountRecovery || recoveredAccountCursor != null) {
             return PersonalHistorySyncOutcome(
-              kind: PersonalHistorySyncOutcomeKind.waitingKey,
+              kind: PersonalHistorySyncOutcomeKind.rescanRequired,
               applied: totalApplied,
               duplicates: totalDuplicates,
               cursor: cursor,
             );
           }
-          localEvents.add(
-            PersonalHistoryLocalEvent(
-              seq: event.seq,
-              conversationId: event.conversationId,
-              msgId: event.msgId,
-              actionVersion: event.actionVersion,
-              deleted: false,
-              plaintext: plaintext,
-            ),
+          final recovered = await _recoverAccountSnapshot(status, cursor);
+          if (recovered.kind != PersonalHistorySyncOutcomeKind.synced) {
+            return recovered;
+          }
+          totalApplied += recovered.applied;
+          totalDuplicates += recovered.duplicates;
+          recoveredAccountCursor = cursor = recovered.cursor;
+          continue;
+        }
+        final localEvents = await _decryptLocalEvents(page.events);
+        if (localEvents == null) {
+          return PersonalHistorySyncOutcome(
+            kind: PersonalHistorySyncOutcomeKind.waitingKey,
+            applied: totalApplied,
+            duplicates: totalDuplicates,
+            cursor: cursor,
           );
         }
         if (expectedAuthorization != null) {
@@ -1115,6 +1104,7 @@ class PersonalHistorySyncEngine {
           events: localEvents,
           proposedCursor: nextCursor,
           allowGenerationAdvance: expectedAuthorization != null,
+          allowSuppression: accountRecovery,
           applyEvent: _applyMergedRow,
           isCurrent: isCurrent,
         );
@@ -1143,7 +1133,9 @@ class PersonalHistorySyncEngine {
           kind: PersonalHistorySyncOutcomeKind.aborted,
         );
       }
-      await client.ackCursor(cursor, generation: status.generation);
+      if (cursor != recoveredAccountCursor) {
+        await client.ackCursor(cursor, generation: status.generation);
+      }
       return PersonalHistorySyncOutcome(
         kind: PersonalHistorySyncOutcomeKind.synced,
         applied: totalApplied,
@@ -1167,6 +1159,186 @@ class PersonalHistorySyncEngine {
         kind: PersonalHistorySyncOutcomeKind.failed,
         error: e,
       );
+    }
+  }
+
+  Future<List<PersonalHistoryLocalEvent>?> _decryptLocalEvents(
+    List<PersonalHistoryEvent> events,
+  ) async {
+    final local = <PersonalHistoryLocalEvent>[];
+    for (final event in events) {
+      final hasBody = !event.deleted && !event.suppressed;
+      final plaintext = hasBody ? await decrypt(event) : null;
+      if (!isCurrent()) throw StateError('personal history owner changed');
+      if (hasBody && plaintext == null) return null;
+      local.add(
+        PersonalHistoryLocalEvent(
+          seq: event.seq,
+          conversationId: event.conversationId,
+          msgId: event.msgId,
+          actionVersion: event.actionVersion,
+          deleted: event.deleted,
+          suppressed: event.suppressed,
+          plaintext: plaintext,
+        ),
+      );
+    }
+    return local;
+  }
+
+  Future<PersonalHistorySyncOutcome> _recoverAccountSnapshot(
+    PersonalHistoryStatus status,
+    int startingCursor,
+  ) async {
+    String? token;
+    final issuedTokenDigests = <Digest>{};
+    var applied = 0;
+    var duplicates = 0;
+    var pagesSinceBarrier = 0;
+    while (true) {
+      if (!isCurrent()) throw StateError('personal history owner changed');
+      final page = await client.accountSnapshot(pageToken: token);
+      if (!isCurrent() || page.generation != status.generation) {
+        throw const PersonalHistoryApiException(
+          PersonalHistoryErrorCode.generationExpired,
+          0,
+        );
+      }
+      final nextToken = page.pageToken;
+      if (nextToken != null &&
+          !issuedTokenDigests.add(sha256.convert(utf8.encode(nextToken)))) {
+        throw const PersonalHistoryApiException(
+          PersonalHistoryErrorCode.malformedRequest,
+          0,
+        );
+      }
+      final events = await _decryptLocalEvents(page.events);
+      if (events == null) {
+        return PersonalHistorySyncOutcome(
+          kind: PersonalHistorySyncOutcomeKind.waitingKey,
+          applied: applied,
+          duplicates: duplicates,
+          cursor: startingCursor,
+        );
+      }
+      await _requireSnapshotGrant(status);
+      final merged = await store.applyEvents(
+        domain: domain,
+        generation: status.generation,
+        events: events,
+        proposedCursor: startingCursor,
+        expectedCursor: startingCursor,
+        allowGenerationAdvance: true,
+        commitCheckpoint: false,
+        allowSuppression: true,
+        applyEvent: _applyMergedRow,
+        isCurrent: isCurrent,
+      );
+      applied += merged.applied;
+      duplicates += merged.duplicates;
+      token = nextToken;
+      if (token == null) {
+        return _completeAccountSnapshot(
+          status: status,
+          startingCursor: startingCursor,
+          cursor: page.recoveryCursor!,
+          completionToken: page.completionToken!,
+          applied: applied,
+          duplicates: duplicates,
+        );
+      }
+      if (++pagesSinceBarrier == 8) {
+        final durable = await _confirmSnapshotDurable();
+        if (!durable) {
+          return PersonalHistorySyncOutcome(
+            kind: PersonalHistorySyncOutcomeKind.durabilityFailed,
+            applied: applied,
+            duplicates: duplicates,
+            cursor: startingCursor,
+          );
+        }
+        pagesSinceBarrier = 0;
+      }
+    }
+  }
+
+  Future<PersonalHistorySyncOutcome> _completeAccountSnapshot({
+    required PersonalHistoryStatus status,
+    required int startingCursor,
+    required int cursor,
+    required String completionToken,
+    required int applied,
+    required int duplicates,
+  }) async {
+    if (cursor < startingCursor) {
+      throw const PersonalHistoryApiException(
+        PersonalHistoryErrorCode.malformedRequest,
+        0,
+      );
+    }
+    if (!await _confirmSnapshotDurable()) {
+      return PersonalHistorySyncOutcome(
+        kind: PersonalHistorySyncOutcomeKind.durabilityFailed,
+        applied: applied,
+        duplicates: duplicates,
+        cursor: startingCursor,
+      );
+    }
+    await _requireSnapshotGrant(status);
+    try {
+      await client.ackCursor(
+        cursor,
+        generation: status.generation,
+        completionToken: completionToken,
+      );
+    } on PersonalHistoryApiException catch (error) {
+      return PersonalHistorySyncOutcome(
+        kind: PersonalHistorySyncOutcomeKind.ackFailed,
+        applied: applied,
+        duplicates: duplicates,
+        cursor: startingCursor,
+        error: error,
+      );
+    }
+    if (!isCurrent()) throw StateError('personal history owner changed');
+    await store.applyEvents(
+      domain: domain,
+      generation: status.generation,
+      events: const [],
+      proposedCursor: cursor,
+      expectedCursor: startingCursor,
+      allowGenerationAdvance: true,
+      applyEvent: _applyMergedRow,
+      isCurrent: isCurrent,
+    );
+    final durable = await _confirmSnapshotDurable();
+    return PersonalHistorySyncOutcome(
+      kind: durable
+          ? PersonalHistorySyncOutcomeKind.synced
+          : PersonalHistorySyncOutcomeKind.durabilityFailed,
+      applied: applied,
+      duplicates: duplicates,
+      cursor: durable ? cursor : startingCursor,
+    );
+  }
+
+  Future<void> _requireSnapshotGrant(PersonalHistoryStatus status) async {
+    if (!isCurrent()) throw StateError('personal history owner changed');
+    final live = await client.status();
+    if (!isCurrent() || !live.authorizesSameScope(status)) {
+      throw const PersonalHistoryApiException(
+        PersonalHistoryErrorCode.generationExpired,
+        0,
+      );
+    }
+  }
+
+  Future<bool> _confirmSnapshotDurable() async {
+    try {
+      await durableConfirm?.call();
+      return true;
+    } on Object {
+      return false;
     }
   }
 
@@ -1194,6 +1366,7 @@ class PersonalHistorySyncEngine {
   Future<PersonalHistorySyncOutcome> flushUploads({
     required int generation,
     int limit = 32,
+    Set<String>? attemptedThisRun,
   }) async {
     var uploaded = 0;
     var retryableLeft = false;
@@ -1202,6 +1375,7 @@ class PersonalHistorySyncEngine {
         domain,
         generation,
         limit: limit,
+        excluding: attemptedThisRun ?? const {},
       );
       for (final row in pending) {
         if (!isCurrent()) {
@@ -1211,6 +1385,7 @@ class PersonalHistorySyncEngine {
           );
         }
         final key = row['idempotency_key'] as String;
+        attemptedThisRun?.add(key);
         try {
           await client.upload({
             'conversation_id': row['conversation_id'],
@@ -1238,6 +1413,17 @@ class PersonalHistorySyncEngine {
             retryableLeft = true;
           }
         }
+      }
+      if (!isCurrent()) {
+        return PersonalHistorySyncOutcome(
+          kind: PersonalHistorySyncOutcomeKind.aborted,
+          uploaded: uploaded,
+        );
+      }
+      if (!retryableLeft &&
+          (pending.length == limit || attemptedThisRun != null)) {
+        final rest = await store.pendingUploads(domain, generation, limit: 1);
+        retryableLeft = rest.isNotEmpty;
       }
     } on Object catch (e) {
       return PersonalHistorySyncOutcome(

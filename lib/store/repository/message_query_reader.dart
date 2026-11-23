@@ -264,19 +264,25 @@ class MessageQueryReader {
         .toList(growable: false);
   }
 
-  Future<MessageModel?> find(String id, {Transaction? txn}) async {
+  Future<MessageModel?> find(
+    String id, {
+    Transaction? txn,
+    bool includeConversationSequence = false,
+  }) async {
+    final columns = _readColumns;
+    if (includeConversationSequence) columns.add(MessageColumns.convSeq);
     List<Map<String, dynamic>> maps;
     if (txn != null) {
       maps = await txn.query(
         tableName,
-        columns: _readColumns,
+        columns: columns,
         where: '${MessageColumns.id} = ?',
         whereArgs: [id],
       );
     } else {
       maps = await db.query(
         tableName,
-        columns: _readColumns,
+        columns: columns,
         where: '${MessageColumns.id} = ?',
         whereArgs: [id],
       );

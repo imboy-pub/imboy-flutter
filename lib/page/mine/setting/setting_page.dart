@@ -25,6 +25,11 @@ import 'package:imboy/config/init.dart';
 import 'package:imboy/config/routes.dart';
 import 'package:imboy/modules/organization/presentation/organization_routes.dart';
 import 'package:imboy/page/single/markdown_page.dart';
+import 'package:imboy/page/settings/native_personal_history_page.dart';
+import 'package:imboy/service/account_local_task_registry.dart';
+import 'package:imboy/service/auth_session_scope.dart';
+import 'package:imboy/service/native_personal_history_sync.dart';
+import 'package:imboy/service/sqflite_init.dart' show isEncryptionSupported;
 import 'package:imboy/service/app_upgrade_service.dart';
 import 'package:imboy/modules/security_privacy/public.dart';
 import 'package:imboy/store/api/user_api.dart';
@@ -204,6 +209,36 @@ class _SettingPageState extends ConsumerState<SettingPage> {
     return env;
   }
 
+  void _openNativePersonalHistory() {
+    final session = authSessionReader.current;
+    if (!authSessionReader.isCurrent(session) ||
+        authSessionReader.transitionFailed) {
+      return;
+    }
+    final owner = AccountLocalTaskOwner.capture(uid: session.uid);
+    bool current() =>
+        authSessionReader.isCurrent(session) &&
+        !authSessionReader.transitionFailed &&
+        AccountLocalTaskOwner.capture(uid: session.uid) == owner;
+    Navigator.of(context).push(
+      CupertinoPageRoute<void>(
+        builder: (_) => NativePersonalHistoryPage(
+          authentication: authSessionReader,
+          isCurrent: current,
+          restore: (passphrase, page, enable, viewIsCurrent) =>
+              restoreNativePersonalHistory(
+                session: session,
+                owner: owner,
+                passphrase: passphrase,
+                page: page,
+                enable: enable,
+                viewIsCurrent: viewIsCurrent,
+              ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     ref.watch(featureRevisionProvider);
@@ -230,6 +265,13 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                   title: Text(t.account.accountSecurity),
                   leading: _buildIcon(CupertinoIcons.lock_shield),
                   onTap: () => context.push('/account_security'),
+                ),
+              if (!kIsWeb && isEncryptionSupported && user != null)
+                DetailSettingsTile(
+                  key: const ValueKey('native-personal-history-entry'),
+                  title: Text(chinese ? '个人云端历史' : 'Personal cloud history'),
+                  leading: _buildIcon(CupertinoIcons.cloud_download),
+                  onTap: _openNativePersonalHistory,
                 ),
               DetailSettingsTile(
                 title: Text(t.talkRecord.aiServicesTitle),

@@ -111,6 +111,9 @@ Future<Map<String, dynamic>> defaultHeaders() async {
   };
 }
 
+/// Captures the actual authorized HTTP response before envelope normalization.
+const httpObserveRawResponse = 'http_observe_raw_response';
+
 typedef _RequestSession = ({
   String uid,
   int generation,
@@ -571,6 +574,8 @@ class HttpClient {
       _requireSession(session, uri);
       final response = await requestFn(_guardedOptions(options, session, uri));
       _requireSession(session, uri);
+      final observe = options?.extra?[httpObserveRawResponse];
+      if (observe is void Function(Response<dynamic>)) observe(response);
       final resp = handleResponse(
         response,
         uri: safeHttpUri(uri),

@@ -557,30 +557,20 @@ class ChatEventSubscriptionManager {
   void _setupMessageListener() {
     _ssMsg = AppEventBus.on<DataWrapperEvent<dynamic>>().listen((event) async {
       if (isCurrent?.call() == false) return;
-      // 检查数据类型，处理 Message 及其子类型
-      // flutter_chat_core 包中的消息类型：TextMessage, ImageMessage 等
-      // 它们的 runtimeType 是 'TextMessage' 等，不是抽象的 'Message'
-      final dataType = event.dataType.toLowerCase();
-      final isMessageType =
-          dataType == 'message' ||
-          dataType == 'textmessage' ||
-          dataType == 'imagemessage' ||
-          dataType == 'videomessage' ||
-          dataType == 'audiomessage' ||
-          dataType == 'filemessage' ||
-          dataType == 'locationmessage' ||
-          dataType == 'custommessage';
-
-      if (!isMessageType) {
+      // Web release builds minify runtime type names. Use the concrete payload types
+      // for ordinary delivery while retaining the explicit Message tag.
+      final msg = event.data;
+      if (msg is! Message) return;
+      if (event.dataType.toLowerCase() != 'message' &&
+          msg is! TextMessage &&
+          msg is! ImageMessage &&
+          msg is! VideoMessage &&
+          msg is! AudioMessage &&
+          msg is! FileMessage &&
+          msg is! CustomMessage) {
         return;
       }
 
-      // 安全地转换数据
-      if (event.data is! Message) {
-        return;
-      }
-
-      final Message msg = event.data as Message;
       try {
         final String msgConversationUk3 = parseModelString(
           msg.metadata?['conversation_uk3'],
@@ -837,8 +827,9 @@ class ChatEventSubscriptionManager {
                 continue;
               }
               final hidden = _withoutQuoteSnapshot(message);
-              if (hidden != null)
+              if (hidden != null) {
                 unawaited(chat.updateMessage(message, hidden));
+              }
             }
           }
           final index = chat.messages.indexWhere((item) => item.id == value.id);

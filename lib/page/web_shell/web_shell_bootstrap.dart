@@ -80,7 +80,7 @@ import 'package:imboy/page/chat/chat/chat_panel.dart';
 import 'package:imboy/page/chat/widget/chat_history_status.dart';
 import 'package:imboy/page/chat/chat/chat_provider.dart';
 import 'package:imboy/page/chat/chat/services/chat_archive_service.dart'
-    show PersonalHistorySyncOutcomeKind;
+    show PersonalHistorySyncOutcome, PersonalHistorySyncOutcomeKind;
 import 'package:imboy/page/conversation/conversation_page.dart';
 import 'package:imboy/page/mine/mine/mine_page.dart';
 import 'package:imboy/page/workspace_shell/space_switcher_button.dart';

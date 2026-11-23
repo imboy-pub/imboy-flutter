@@ -182,6 +182,28 @@ void main() {
     });
   }
 
+  test('从持久 C2C 正文同一行读回权威序号', () async {
+    final before = await repo.find(
+      _msgId.toString(),
+      includeConversationSequence: true,
+    );
+    expect(before, isNotNull);
+    expect(before?.convSeq, isNull);
+
+    await db.update(
+      'msg_c2c',
+      {'conv_seq': 42},
+      where: 'id = ?',
+      whereArgs: [_msgId],
+    );
+    final message = await repo.find(
+      _msgId.toString(),
+      includeConversationSequence: true,
+    );
+    expect(message?.convSeq, 42);
+    expect(message?.payloadMap['ciphertext'], 'fake');
+  });
+
   test('缺失双列：补齐 conv_seq 与 accepted_at，其余列逐字段不变', () async {
     final before = await fetchRow();
 

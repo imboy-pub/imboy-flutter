@@ -1706,6 +1706,7 @@ class PersonalHistoryEvent {
     required this.deleted,
     required this.createdAt,
     this.acceptedMessage,
+    this.suppressed = false,
   });
 
   final int seq;
@@ -1719,6 +1720,7 @@ class PersonalHistoryEvent {
   final bool deleted; // tombstone（MSG-H15）
   final int createdAt;
   final PersonalHistoryAcceptedMessage? acceptedMessage;
+  final bool suppressed;
 }
 
 class PersonalHistoryChangesPage {
@@ -1734,6 +1736,14 @@ class PersonalHistoryChangesPage {
   final int? nextCursor;
   final bool resetHint;
 }
+
+typedef PersonalHistoryAccountPage = ({
+  int generation,
+  List<PersonalHistoryEvent> events,
+  String? pageToken,
+  int? recoveryCursor,
+  String? completionToken,
+});
 
 /// key-package 读取响应（mh04 addendum：当前 generation 同域数字校验）。
 class PersonalHistoryKeyPackageRead {
@@ -1888,13 +1898,21 @@ class PersonalHistoryApiClient {
   Future<PersonalHistoryChangesPage> changes({
     required int cursor,
     int limit = 50,
+    bool accountRecovery = false,
   }) async {
+    if (accountRecovery && clientInstance?.isNotEmpty != true) {
+      throw const PersonalHistoryApiException(
+        PersonalHistoryErrorCode.identityRejected,
+        0,
+      );
+    }
     final payload = await _send(
       'GET',
       '$_base/changes',
       queryParameters: {
         'cursor': cursor,
         'limit': limit,
+        if (accountRecovery) 'snapshot': 'account',
         if (clientInstance != null) 'client_instance': clientInstance,
       },
     );
@@ -1917,6 +1935,37 @@ class PersonalHistoryApiClient {
         resetHint is! bool) {
       throw malformed;
     }
+    final events = _readHistoryEvents(
+      rawEvents,
+      accountRecovery: accountRecovery,
+    );
+    if (accountRecovery) {
+      var last = cursor;
+      for (final event in events) {
+        if (event.seq <= last) throw malformed;
+        last = event.seq;
+      }
+      if ((resetHint && events.isNotEmpty) ||
+          nextCursor != (events.isEmpty ? null : last)) {
+        throw malformed;
+      }
+    }
+    return PersonalHistoryChangesPage(
+      generation: generation,
+      events: events,
+      nextCursor: nextCursor as int?,
+      resetHint: resetHint,
+    );
+  }
+
+  List<PersonalHistoryEvent> _readHistoryEvents(
+    List<dynamic> rawEvents, {
+    bool accountRecovery = false,
+  }) {
+    const malformed = PersonalHistoryApiException(
+      PersonalHistoryErrorCode.malformedRequest,
+      0,
+    );
     final events = <PersonalHistoryEvent>[];
     for (final raw in rawEvents) {
       if (raw is! Map) throw malformed;
@@ -1932,7 +1981,54 @@ class PersonalHistoryApiClient {
           msgId.isEmpty) {
         throw malformed;
       }
+      final suppressed = accountRecovery && raw['suppressed'] == true;
+      if (raw.containsKey('suppressed') && !suppressed) throw malformed;
       final envelopeMeta = raw['envelope_meta'];
+      final source = parsePersonalHistoryAcceptedMessage(
+        raw['accepted_message'],
+      );
+      if (accountRecovery) {
+        final version = raw['action_version'];
+        final sequence = raw['conv_seq'];
+        final keyVersion = raw['key_version'];
+        final ciphertext = raw['ciphertext'];
+        final deleted = raw['deleted'];
+        if (version is! int ||
+            version < 0 ||
+            version > maxSafeInteger ||
+            sequence is! int ||
+            sequence <= 0 ||
+            sequence > maxSafeInteger ||
+            deleted is! bool) {
+          throw malformed;
+        }
+        if (suppressed) {
+          const identityFields = {
+            'event_seq',
+            'conversation_id',
+            'msg_id',
+            'conv_seq',
+            'action_version',
+            'created_at',
+            'deleted',
+            'suppressed',
+          };
+          if (deleted || raw.keys.any((key) => !identityFields.contains(key))) {
+            throw malformed;
+          }
+        } else if (keyVersion is! int ||
+            keyVersion <= 0 ||
+            keyVersion > maxSafeInteger ||
+            (!deleted &&
+                (source == null ||
+                    source.sequence != sequence ||
+                    source.actionVersion != version ||
+                    envelopeMeta is! Map<String, dynamic> ||
+                    ciphertext is! String ||
+                    ciphertext.isEmpty))) {
+          throw malformed;
+        }
+      }
       events.add(
         PersonalHistoryEvent(
           seq: eventSeq,
@@ -1947,17 +2043,70 @@ class PersonalHistoryApiClient {
               : const {},
           deleted: raw['deleted'] == true,
           createdAt: raw['created_at'] as int? ?? 0,
-          acceptedMessage: parsePersonalHistoryAcceptedMessage(
-            raw['accepted_message'],
-          ),
+          acceptedMessage: source,
+          suppressed: suppressed,
         ),
       );
     }
-    return PersonalHistoryChangesPage(
+    return events;
+  }
+
+  /// Account-scoped projection recovery, independent of conversation paging.
+  Future<PersonalHistoryAccountPage> accountSnapshot({
+    String? pageToken,
+  }) async {
+    final instance = clientInstance;
+    if (instance == null || instance.isEmpty) {
+      throw const PersonalHistoryApiException(
+        PersonalHistoryErrorCode.identityRejected,
+        0,
+      );
+    }
+    final payload = await _send(
+      'GET',
+      '$_base/page',
+      queryParameters: {
+        'snapshot': 'account',
+        'client_instance': instance,
+        if (pageToken != null) 'page_token': pageToken,
+      },
+    );
+    final generation = payload['generation'];
+    final rows = payload['events'];
+    final hasMore = payload['has_more'];
+    final nextToken = payload['page_token'];
+    final recoveryCursor = payload['recovery_cursor'];
+    final completionToken = payload['completion_token'];
+    if (generation is! int ||
+        generation <= 0 ||
+        generation > maxSafeInteger ||
+        rows is! List ||
+        rows.length > 50 ||
+        hasMore is! bool ||
+        (hasMore
+            ? rows.isEmpty ||
+                  nextToken is! String ||
+                  nextToken.isEmpty ||
+                  nextToken == pageToken ||
+                  recoveryCursor != null ||
+                  completionToken != null
+            : nextToken != null ||
+                  recoveryCursor is! int ||
+                  recoveryCursor < 0 ||
+                  recoveryCursor > maxSafeInteger ||
+                  completionToken is! String ||
+                  completionToken.isEmpty)) {
+      throw const PersonalHistoryApiException(
+        PersonalHistoryErrorCode.malformedRequest,
+        0,
+      );
+    }
+    return (
       generation: generation,
-      events: events,
-      nextCursor: nextCursor as int?,
-      resetHint: resetHint,
+      events: _readHistoryEvents(rows, accountRecovery: true),
+      pageToken: nextToken as String?,
+      recoveryCursor: recoveryCursor as int?,
+      completionToken: completionToken as String?,
     );
   }
 
@@ -1977,7 +2126,18 @@ class PersonalHistoryApiClient {
   );
 
   /// §10.2 POST /ack-cursor（幂等；仅推进 ≤ 服务端已发放最大值）。
-  Future<void> ackCursor(int cursor, {required int generation}) async {
+  Future<void> ackCursor(
+    int cursor, {
+    required int generation,
+    String? completionToken,
+  }) async {
+    if (completionToken != null &&
+        (completionToken.isEmpty || clientInstance?.isNotEmpty != true)) {
+      throw const PersonalHistoryApiException(
+        PersonalHistoryErrorCode.malformedRequest,
+        0,
+      );
+    }
     final payload = await _send(
       'POST',
       '$_base/ack-cursor',
@@ -1985,6 +2145,7 @@ class PersonalHistoryApiClient {
         'cursor': cursor,
         'generation': generation,
         if (clientInstance != null) 'client_instance': clientInstance,
+        if (completionToken != null) 'completion_token': completionToken,
       },
     );
     final acknowledgedGeneration = payload['generation'];
@@ -1994,7 +2155,13 @@ class PersonalHistoryApiClient {
         0,
       );
     }
-    if (acknowledgedGeneration is! int || payload['accepted'] != true) {
+    final advancedTo = payload['advanced_to'];
+    if (acknowledgedGeneration is! int ||
+        payload['accepted'] != true ||
+        (completionToken != null &&
+            (advancedTo is! int ||
+                advancedTo < cursor ||
+                advancedTo > maxSafeInteger))) {
       throw const PersonalHistoryApiException(
         PersonalHistoryErrorCode.malformedRequest,
         0,

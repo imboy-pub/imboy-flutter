@@ -25,6 +25,9 @@ Future<bool> _processMessageInBackground(
     payload: payload,
   );
 
+  bool ownsNotification() =>
+      _ownsMessageSession(notificationSession, notificationOwner);
+
   var committed = false;
   try {
     // 启动竞态治根：WS 消息可能先于 DB 初始化就绪到达（或初始化失败进入
@@ -114,6 +117,7 @@ Future<bool> _processMessageInBackground(
     // 消息插入 + 会话 upsert + 未读自增放入同一排他事务。
     // 在事务内确认新行后才插入并增加未读，重复投递保留已存本地状态。
     // exclusive:true 走全局 _dbLock.synchronized，串行化所有并发 _processMessageInBackground。
+    var historyQueued = false;
     final (ConversationModel savedConv, bool isNewRow) = await service
         ._conversationRepo
         .runInTransaction((txn) async {
@@ -126,7 +130,7 @@ Future<bool> _processMessageInBackground(
             // before the receive caller marks its crypto inbox complete.
             if (tempMsg.e2ee?['meta_version'] == 3 &&
                 payload['_e2ee_v3_verified'] == true) {
-              await service._materializeExistingInbound(
+              final recovered = await service._materializeExistingInbound(
                 data,
                 payload,
                 repo,
@@ -137,12 +141,30 @@ Future<bool> _processMessageInBackground(
                   }
                 },
               );
+              if (recovered) {
+                historyQueued = await service._queueRecoveredNativeHistory(
+                  data,
+                  repo,
+                  txn,
+                  notificationSession,
+                  notificationOwner,
+                );
+              }
             }
             // Like the receive preflight's duplicate branch, no conversation
             // metadata or UI is emitted for an already-persisted message.
             return (conv, false);
           }
           await repo.insert(msg, txn: txn);
+          if (chatType == 'C2C' && protectedHistorySource) {
+            historyQueued = await recordAcceptedPersonalHistoryC2cText(
+              transaction: txn,
+              session: notificationSession,
+              owner: notificationOwner,
+              message: msg,
+              sequence: msg.convSeq,
+            );
+          }
 
           // 会话元数据 upsert；未读计数交由下方的新消息增量更新。
           final convResult = await service._conversationRepo.save(
@@ -174,6 +196,13 @@ Future<bool> _processMessageInBackground(
       iPrint('🔍 [DEBUG] 消息保存完成: msgType=${msg.msgType}, isNewRow=$isNewRow');
     }
 
+    if (historyQueued) {
+      await confirmAcceptedPersonalHistoryC2cText(
+        notificationSession,
+        notificationOwner,
+      );
+    }
+
     // 【修复】重复消息（非新行）跳过后续 UI/通知处理
     // 与原 existed>0 守卫语义一致，但更彻底：未读已不会自增，且连 fireData 都不发
     if (!isNewRow) {
@@ -181,15 +210,7 @@ Future<bool> _processMessageInBackground(
       return true;
     }
 
-    if (chatType == 'C2C' && protectedHistorySource) {
-      unawaited(
-        archiveWebAcceptedC2cText(
-          session: notificationSession,
-          message: msg,
-          sequence: msg.convSeq,
-        ),
-      );
-    }
+    if (!ownsNotification()) return true;
 
     // 单一来源：以会话快照统一同步会话与提醒，避免局部字段漂移
     service._conversationNotifier.applyConversationSnapshot(savedConv);
@@ -198,6 +219,7 @@ Future<bool> _processMessageInBackground(
     // Trigger UI update again to show complete peer info
     AppEventBus.fireData(savedConv);
     final tMsg = await msg.toTypeMessage();
+    if (!ownsNotification()) return true;
     AppEventBus.fireData(tMsg);
 
     // BUG#148 接线：新消息 @ 当前用户时广播 NewMentionEvent，驱动
@@ -261,9 +283,18 @@ Future<bool> _processMessageInBackground(
     // when a later presentation step fails.
     if (committed) return true;
 
-    // 处理失败，从 UI 中移除该消息
-    // Failed to process, remove message from UI
-    service._handleMessageProcessingFailure(msgId, chatType, tempConv, e);
+    // A failed previous-account transaction cannot roll back current UI.
+    if (ownsNotification()) {
+      service._handleMessageProcessingFailure(msgId, chatType, tempConv, e);
+    }
     return false;
   }
 }
+
+bool _ownsMessageSession(
+  AuthSessionScope session,
+  AccountLocalTaskOwner owner,
+) =>
+    authSessionReader.isCurrent(session) &&
+    !authSessionReader.transitionFailed &&
+    AccountLocalTaskOwner.capture(uid: session.uid) == owner;

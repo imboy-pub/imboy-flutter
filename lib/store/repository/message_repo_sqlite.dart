@@ -833,8 +833,16 @@ class MessageRepo implements MessageRepository {
   }
 
   @override
-  Future<MessageModel?> find(String id, {Transaction? txn}) async {
-    final message = await _reader.find(id, txn: txn);
+  Future<MessageModel?> find(
+    String id, {
+    Transaction? txn,
+    bool includeConversationSequence = false,
+  }) async {
+    final message = await _reader.find(
+      id,
+      txn: txn,
+      includeConversationSequence: includeConversationSequence,
+    );
     if (message != null && tableName == MessageRepo.c2sTable && txn == null) {
       message.toId =
           await findC2sPeer(id, message.fromId, message.autoId) ?? message.toId;
@@ -1159,6 +1167,7 @@ class PersonalHistoryLocalEvent {
     required this.actionVersion,
     required this.deleted,
     required this.plaintext,
+    this.suppressed = false,
   });
 
   final int seq;
@@ -1169,7 +1178,10 @@ class PersonalHistoryLocalEvent {
   /// tombstone 事件（MSG-H15 稳定删除表达）。
   final bool deleted;
 
-  /// 引擎解密后的明文行（deleted 事件为空）。
+  /// Account recovery removal of a no-longer-proven restored version.
+  final bool suppressed;
+
+  /// 引擎解密后的明文行（deleted/suppressed 事件为空）。
   final Map<String, dynamic>? plaintext;
 }
 
@@ -1197,7 +1209,27 @@ class PersonalHistoryApplyResult {
 /// 个人历史域 SQL 载体（唯一 writer 事务边界由 sqflite Database 提供；
 /// Web 平台的 VFS 持久确认在引擎层注入，见 PersonalHistorySyncEngine）。
 class PersonalHistoryLocalStore {
-  PersonalHistoryLocalStore(this._dbOpener);
+  PersonalHistoryLocalStore(this._dbOpener, {String? nativeOwnerDigest})
+    : _nativePrefix = _ownerPrefix(nativeOwnerDigest);
+
+  final String _nativePrefix;
+
+  static String _ownerPrefix(String? digest) {
+    if (digest == null) return '';
+    if (!RegExp(r'^[0-9a-f]{64}$').hasMatch(digest)) {
+      throw ArgumentError('Invalid native personal history owner');
+    }
+    return 'native:$digest:';
+  }
+
+  String _projectionDomain(String domain) => '$_nativePrefix$domain';
+
+  String _tombstoneConversation(
+    String projectionDomain,
+    String conversationId,
+  ) => _nativePrefix.isEmpty
+      ? conversationId
+      : '$projectionDomain|$conversationId';
 
   final Future<Database?> Function() _dbOpener;
 
@@ -1279,7 +1311,7 @@ class PersonalHistoryLocalStore {
       stateTable,
       columns: ['generation', 'acked_cursor'],
       where: 'domain = ?',
-      whereArgs: [domain],
+      whereArgs: [_projectionDomain(domain)],
       limit: 1,
     );
     if (rows.isEmpty) return null;
@@ -1300,6 +1332,9 @@ class PersonalHistoryLocalStore {
     required List<PersonalHistoryLocalEvent> events,
     required int proposedCursor,
     bool allowGenerationAdvance = false,
+    bool commitCheckpoint = true,
+    bool allowSuppression = false,
+    int? expectedCursor,
     required Future<void> Function(
       Transaction txn,
       PersonalHistoryLocalEvent event,
@@ -1319,6 +1354,7 @@ class PersonalHistoryLocalStore {
         proposedCursor > maxSafeInteger) {
       throw ArgumentError('personal history cursor out of domain');
     }
+    final projectionDomain = _projectionDomain(domain);
     return db.transaction((txn) async {
       if (isCurrent?.call() == false) {
         throw StateError('personal history session changed');
@@ -1327,7 +1363,7 @@ class PersonalHistoryLocalStore {
         stateTable,
         columns: ['generation', 'acked_cursor'],
         where: 'domain = ?',
-        whereArgs: [domain],
+        whereArgs: [projectionDomain],
         limit: 1,
       );
       final recordedGeneration = state.isEmpty
@@ -1344,12 +1380,36 @@ class PersonalHistoryLocalStore {
           ? state.first['acked_cursor'] as int
           : 0;
 
+      if (expectedCursor != null && currentCursor != expectedCursor) {
+        throw StateError('personal history checkpoint changed during recovery');
+      }
+
       var applied = 0;
       var duplicates = 0;
       final now = DateTime.now().millisecondsSinceEpoch;
       for (final event in events) {
+        var hidden = 0;
+        if (event.suppressed) {
+          if (!allowSuppression || event.deleted || event.plaintext != null) {
+            throw StateError('invalid personal history account suppression');
+          }
+          // Even a previously merged event can lose its accepted source proof.
+          hidden = await txn.delete(
+            'personal_history_restored_row',
+            where:
+                'domain = ? AND generation = ? AND conversation_id = ? '
+                'AND msg_id = ? AND action_version <= ?',
+            whereArgs: [
+              projectionDomain,
+              generation,
+              event.conversationId,
+              event.msgId,
+              event.actionVersion,
+            ],
+          );
+        }
         final dedup = await txn.insert(mergedEventTable, {
-          'domain': domain,
+          'domain': projectionDomain,
           'generation': generation,
           'seq': event.seq,
           'conversation_id': event.conversationId,
@@ -1358,30 +1418,35 @@ class PersonalHistoryLocalStore {
           'merged_at': now,
           // 晚到/重复 seq：账本主键冲突 → 幂等跳过，不重复应用业务效果。
         }, conflictAlgorithm: ConflictAlgorithm.ignore);
-        if (dedup == 0) {
+        if (dedup == 0 && hidden == 0) {
           duplicates++;
           continue;
         }
         applied++;
+        if (event.suppressed) continue;
         if (event.deleted) {
           await txn.insert(tombstoneTable, {
-            'conversation_id': event.conversationId,
+            'conversation_id': _tombstoneConversation(
+              projectionDomain,
+              event.conversationId,
+            ),
             'msg_id': event.msgId,
             'deleted_at': now,
           }, conflictAlgorithm: ConflictAlgorithm.replace);
         } else {
-          await applyEvent(txn, event, domain, generation);
+          await applyEvent(txn, event, projectionDomain, generation);
         }
       }
 
-      final nextCursor = proposedCursor > currentCursor
+      final nextCursor = commitCheckpoint && proposedCursor > currentCursor
           ? proposedCursor
           : currentCursor;
-      if (nextCursor != currentCursor ||
-          advancesGeneration ||
-          recordedGeneration == null) {
+      if (commitCheckpoint &&
+          (nextCursor != currentCursor ||
+              advancesGeneration ||
+              recordedGeneration == null)) {
         await txn.insert(stateTable, {
-          'domain': domain,
+          'domain': projectionDomain,
           'generation': generation,
           'acked_cursor': nextCursor,
           'updated_at': now,
@@ -1399,38 +1464,147 @@ class PersonalHistoryLocalStore {
     });
   }
 
-  /// 本机个人云端恢复副本。墓碑和更高动作版本优先于旧正文。
-  Future<List<Map<String, Object?>>> readRestoredRows({
+  /// Updates only rows that still match the snapshot verified by the caller.
+  Future<Set<String>> stampRestoredRowsForPage({
     required String domain,
     required int generation,
     required String conversationId,
-    int limit = 50,
+    required List<
+      ({String msgId, int actionVersion, String previous, String stamped})
+    >
+    stamps,
+    required void Function() requireCurrent,
   }) async {
+    if (stamps.isEmpty) return const {};
+    if (stamps.length > 50) {
+      throw ArgumentError('Personal history snapshot page exceeds 50 rows');
+    }
+    final db = await _db();
+    requireCurrent();
+    if (db == null) return const {};
+    return db.transaction((txn) async {
+      final confirmed = <String>{};
+      for (final stamp in stamps) {
+        requireCurrent();
+        final affected = await txn.rawUpdate(
+          'UPDATE personal_history_restored_row AS r SET row = ? '
+          'WHERE r.domain = ? AND r.generation = ? AND r.conversation_id = ? '
+          'AND r.msg_id = ? AND r.action_version = ? AND r.row = ? '
+          'AND NOT EXISTS (SELECT 1 FROM $tombstoneTable AS t '
+          'WHERE t.conversation_id = r.conversation_id AND t.msg_id = r.msg_id) '
+          'AND NOT EXISTS (SELECT 1 FROM personal_history_restored_row AS newer '
+          'WHERE newer.domain = r.domain AND newer.generation = r.generation '
+          'AND newer.conversation_id = r.conversation_id AND newer.msg_id = r.msg_id '
+          'AND newer.action_version > r.action_version)',
+          [
+            stamp.stamped,
+            domain,
+            generation,
+            conversationId,
+            stamp.msgId,
+            stamp.actionVersion,
+            stamp.previous,
+          ],
+        );
+        if (affected == 1) confirmed.add(stamp.msgId);
+      }
+      requireCurrent();
+      return confirmed;
+    });
+  }
+
+  /// Read only the locally merged rows named by one server snapshot page.
+  Future<List<Map<String, Object?>>> readRestoredRowsForPage({
+    required String domain,
+    required int generation,
+    required String conversationId,
+    required List<String> messageIds,
+  }) async {
+    if (messageIds.isEmpty) return const [];
+    if (messageIds.length > 50) {
+      throw ArgumentError('Personal history snapshot page exceeds 50 rows');
+    }
     final db = await _db();
     if (db == null) return const [];
+    final placeholders = List.filled(messageIds.length, '?').join(', ');
     return db.rawQuery(
       'SELECT r.msg_id, r.action_version, r.row FROM personal_history_restored_row AS r '
       'WHERE r.domain = ? AND r.generation = ? AND r.conversation_id = ? '
+      'AND r.msg_id IN ($placeholders) '
       'AND NOT EXISTS (SELECT 1 FROM $tombstoneTable AS t '
       'WHERE t.conversation_id = r.conversation_id AND t.msg_id = r.msg_id) '
       'AND NOT EXISTS (SELECT 1 FROM personal_history_restored_row AS newer '
       'WHERE newer.domain = r.domain AND newer.generation = r.generation '
       'AND newer.conversation_id = r.conversation_id AND newer.msg_id = r.msg_id '
+      'AND newer.action_version > r.action_version)',
+      [domain, generation, conversationId, ...messageIds],
+    );
+  }
+
+  /// 本机个人云端恢复副本。墓碑和更高动作版本优先于旧正文。
+  Future<List<Map<String, Object?>>> readRestoredRows({
+    required String domain,
+    required int generation,
+    String? conversationId,
+    ({int mergedAt, String messageId, String conversationId})? after,
+    int limit = 50,
+  }) async {
+    final db = await _db();
+    if (db == null) return const [];
+    final columns = conversationId == null
+        ? 'r.conversation_id, r.merged_at, '
+        : '';
+    final filters = [
+      if (conversationId != null) 'AND r.conversation_id = ? ',
+      if (after != null)
+        'AND (r.merged_at, r.msg_id, r.conversation_id) < (?, ?, ?) ',
+    ].join();
+    final tombstoneConversation = _nativePrefix.isEmpty
+        ? 'r.conversation_id'
+        : "r.domain || '|' || r.conversation_id";
+    return db.rawQuery(
+      'SELECT ${columns}r.msg_id, r.action_version, r.row FROM personal_history_restored_row AS r '
+      'WHERE r.domain = ? AND r.generation = ? $filters'
+      'AND NOT EXISTS (SELECT 1 FROM $tombstoneTable AS t '
+      'WHERE t.conversation_id = $tombstoneConversation AND t.msg_id = r.msg_id) '
+      'AND NOT EXISTS (SELECT 1 FROM personal_history_restored_row AS newer '
+      'WHERE newer.domain = r.domain AND newer.generation = r.generation '
+      'AND newer.conversation_id = r.conversation_id AND newer.msg_id = r.msg_id '
       'AND newer.action_version > r.action_version) '
-      'ORDER BY r.merged_at DESC, r.msg_id DESC LIMIT ?',
-      [domain, generation, conversationId, limit.clamp(1, 50)],
+      'ORDER BY r.merged_at DESC, r.msg_id DESC, r.conversation_id DESC LIMIT ?',
+      [
+        _projectionDomain(domain),
+        generation,
+        if (conversationId != null) conversationId,
+        if (after != null) ...[
+          after.mergedAt,
+          after.messageId,
+          after.conversationId,
+        ],
+        limit.clamp(1, 50),
+      ],
     );
   }
 
   /// 本地 tombstone 查询（删除进度/可恢复范围提示）。
-  Future<bool> isTombstoned(String conversationId, String msgId) async {
+  Future<bool> isTombstoned(
+    String conversationId,
+    String msgId, {
+    String? domain,
+  }) async {
+    if (_nativePrefix.isNotEmpty && domain == null) {
+      throw ArgumentError('Missing native personal history domain');
+    }
     final db = await _db();
     if (db == null) return false;
     final rows = await db.query(
       tombstoneTable,
       columns: ['deleted_at'],
       where: 'conversation_id = ? AND msg_id = ?',
-      whereArgs: [conversationId, msgId],
+      whereArgs: [
+        _tombstoneConversation(_projectionDomain(domain ?? ''), conversationId),
+        msgId,
+      ],
       limit: 1,
     );
     return rows.isNotEmpty;
@@ -1453,7 +1627,8 @@ class PersonalHistoryLocalStore {
       throw StateError('personal history store unavailable');
     }
     await db.insert(uploadQueueTable, {
-      'idempotency_key': '$domain|$generation|$conversationId|$msgId',
+      'idempotency_key':
+          '$_nativePrefix$domain|$generation|$conversationId|$msgId',
       'conversation_id': conversationId,
       'msg_id': msgId,
       'action_version': actionVersion,
@@ -1472,19 +1647,34 @@ class PersonalHistoryLocalStore {
     String domain,
     int generation, {
     int limit = 32,
+    Set<String> excluding = const {},
   }) async {
     final db = await _db();
     if (db == null) return const [];
+    final filters = [
+      'domain = ? AND generation = ?',
+      if (_nativePrefix.isNotEmpty) 'substr(idempotency_key, 1, ?) = ?',
+      if (excluding.isNotEmpty)
+        'idempotency_key NOT IN (${List.filled(excluding.length, '?').join(', ')})',
+    ];
     return db.query(
       uploadQueueTable,
-      where: 'domain = ? AND generation = ?',
-      whereArgs: [domain, generation],
-      orderBy: 'client_ts ASC',
+      where: filters.join(' AND '),
+      whereArgs: [
+        domain,
+        generation,
+        if (_nativePrefix.isNotEmpty) ...[_nativePrefix.length, _nativePrefix],
+        ...excluding,
+      ],
+      orderBy: _nativePrefix.isEmpty
+          ? 'client_ts ASC'
+          : 'attempts ASC, client_ts ASC, idempotency_key ASC',
       limit: limit,
     );
   }
 
   Future<void> markUploadAttempted(String idempotencyKey) async {
+    if (!idempotencyKey.startsWith(_nativePrefix)) return;
     final db = await _db();
     if (db == null) return;
     await db.rawUpdate(
@@ -1495,6 +1685,7 @@ class PersonalHistoryLocalStore {
   }
 
   Future<void> removeUpload(String idempotencyKey) async {
+    if (!idempotencyKey.startsWith(_nativePrefix)) return;
     final db = await _db();
     if (db == null) return;
     await db.delete(

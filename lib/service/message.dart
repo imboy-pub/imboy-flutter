@@ -257,6 +257,12 @@ class MessageService with EventSubscriptionManager {
         _isOnline = isConnected;
         _onlineStatusController.add(isConnected);
         if (isConnected) {
+          if (!kIsWeb) {
+            scheduleNativePersonalHistoryUploads(
+              authSessionReader.current,
+              AccountLocalTaskOwner.capture(),
+            );
+          }
           AppEventBus.fire(
             RetryMessagesRequestedEvent(
               source: 'WebSocketConnected',
@@ -600,6 +606,8 @@ class MessageService with EventSubscriptionManager {
   Future<bool> _receiveMessage(Map<String, dynamic> data) async {
     final notificationSession = authSessionReader.current;
     final notificationOwner = AccountLocalTaskOwner.capture();
+    bool notificationOwned() =>
+        _ownsMessageSession(notificationSession, notificationOwner);
     final startTime = DateTimeHelper.millisecond();
     final msgId = parseModelString(data['id']);
     // chatType 持会话类型 (C2C/C2G/C2S)，对齐 WebSocket API v2.0 顶层 `type` 字段
@@ -902,8 +910,13 @@ class MessageService with EventSubscriptionManager {
         notificationOwner: notificationOwner,
         protectedHistorySource: protectedHistorySource,
       );
-      if (!committed) return false;
-      if (!await _completeInboundIfStaged(data, msgId)) return false;
+      if (!committed || !notificationOwned()) return false;
+      final completed = await _completeInboundIfStaged(
+        data,
+        msgId,
+        isCurrent: notificationOwned,
+      );
+      if (!completed || !notificationOwned()) return false;
       _addToContentHashCache(contentHash, msgId);
       return true;
     } finally {
@@ -923,22 +936,38 @@ class MessageService with EventSubscriptionManager {
       }
     }
 
+    final owner = AccountLocalTaskOwner.capture(uid: session.uid);
     try {
       requireCurrent();
       if (payload['_e2ee_v3_verified'] != true) return false;
       final db = await SqliteService.to.db;
       requireCurrent();
       if (db == null) return false;
-      final visible = await db.transaction(
-        (txn) => _materializeExistingInbound(
+      var historyQueued = false;
+      final visible = await db.transaction((txn) async {
+        final materialized = await _materializeExistingInbound(
           data,
           payload,
           repo,
           txn,
           requireCurrent,
-        ),
-      );
+        );
+        if (materialized) {
+          historyQueued = await _queueRecoveredNativeHistory(
+            data,
+            repo,
+            txn,
+            session,
+            owner,
+          );
+        }
+        return materialized;
+      });
       requireCurrent();
+      if (historyQueued) {
+        await confirmAcceptedPersonalHistoryC2cText(session, owner);
+        requireCurrent();
+      }
       // Bind completion to the same account database as the message write.
       await CryptoStore(db).completeInbound(data['id'].toString());
       requireCurrent();
@@ -958,6 +987,33 @@ class MessageService with EventSubscriptionManager {
       iPrint('[E2EE_INBOX] recovery failed: ${e.runtimeType}');
       return false;
     }
+  }
+
+  /// A recovered ciphertext becomes eligible only in the transaction that
+  /// commits the authenticated body to its existing ordinary message row.
+  Future<bool> _queueRecoveredNativeHistory(
+    Map<String, dynamic> data,
+    MessageRepo repo,
+    Transaction transaction,
+    AuthSessionScope session,
+    AccountLocalTaskOwner owner,
+  ) async {
+    if (kIsWeb || repo.tableName != MessageRepo.c2cTable) return false;
+    final sequence = MessageModel.parseConvSeq(data['conv_seq']);
+    if (sequence == null) return false;
+    final message = await repo.find(
+      data['id'].toString(),
+      txn: transaction,
+      includeConversationSequence: true,
+    );
+    if (message == null || message.convSeq != sequence) return false;
+    return recordAcceptedPersonalHistoryC2cText(
+      transaction: transaction,
+      session: session,
+      owner: owner,
+      message: message,
+      sequence: sequence,
+    );
   }
 
   Future<bool> _materializeExistingInbound(
@@ -1103,15 +1159,17 @@ class MessageService with EventSubscriptionManager {
 
   Future<bool> _completeInboundIfStaged(
     Map<String, dynamic> data,
-    String messageId,
-  ) async {
+    String messageId, {
+    bool Function()? isCurrent,
+  }) async {
+    if (isCurrent?.call() == false) return false;
     final e2ee = _parseE2eeMetadata(data['e2ee']);
     if (e2ee?['meta_version'] != 3) return true;
     try {
       final store = await OlmSessionService.to.cryptoStore;
-      if (store == null) return false;
+      if (store == null || isCurrent?.call() == false) return false;
       await store.completeInbound(messageId);
-      return true;
+      return isCurrent?.call() ?? true;
     } on Object catch (e) {
       iPrint('[E2EE_INBOX] completion failed: $e');
       return false;
@@ -1656,6 +1714,13 @@ class MessageService with EventSubscriptionManager {
     }
     final db = await SqliteService.to.db;
     if (db == null || !current()) return;
+    final historySession = authSessionReader.current;
+    final historyOwner = AccountLocalTaskOwner.capture(uid: ownerUid);
+    final trackHistory =
+        chatType == 'C2C' &&
+        historySession.uid == ownerUid &&
+        historySession.generation == generation;
+    var historyQueued = false;
     final persisted = await ServerAckReceipts.persist(
       db: db,
       ackId: msgId,
@@ -1665,8 +1730,27 @@ class MessageService with EventSubscriptionManager {
       expectedPeerId: peerId,
       requireAttempt: requiresProof,
       isCurrent: current,
+      persistAcceptedC2c: !trackHistory
+          ? null
+          : (tx) async {
+              final accepted = await repo.find(msgId, txn: tx);
+              if (accepted == null) {
+                throw StateError('accepted C2C message disappeared');
+              }
+              historyQueued = await recordAcceptedPersonalHistoryC2cText(
+                transaction: tx,
+                session: historySession,
+                owner: historyOwner,
+                message: accepted,
+                sequence: MessageModel.parseConvSeq(data['conv_seq']),
+                outbound: true,
+              );
+            },
     );
     if (!persisted || !current()) return;
+    if (historyQueued) {
+      await confirmAcceptedPersonalHistoryC2cText(historySession, historyOwner);
+    }
     final msg = await repo.find(msgId);
     if (!current() || msg == null) return;
     if (!ServerAckReceipts.record(
@@ -1679,19 +1763,6 @@ class MessageService with EventSubscriptionManager {
       emit: AppEventBus.fire,
     )) {
       return;
-    }
-    if (chatType == 'C2C') {
-      final session = authSessionReader.current;
-      if (session.uid == ownerUid && session.generation == generation) {
-        unawaited(
-          archiveWebAcceptedC2cText(
-            session: session,
-            message: msg,
-            sequence: MessageModel.parseConvSeq(data['conv_seq']),
-            verifyOutbound: true,
-          ),
-        );
-      }
     }
     AppEventBus.fire(
       RemoveFromRetryQueueRequestedEvent(

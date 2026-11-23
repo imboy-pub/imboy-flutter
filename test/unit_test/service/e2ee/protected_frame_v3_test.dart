@@ -279,6 +279,47 @@ void main() {
       );
     });
 
+    test('preserves the high word of PFv3 millisecond timestamps', () {
+      const createdAtMs = 1795409406323;
+      final timestampBytes = Uint8List.fromList([
+        0x1B,
+        0x00,
+        0x00,
+        0x01,
+        0xA2,
+        0x06,
+        0xBD,
+        0x69,
+        0x73,
+      ]);
+      expect(CanonicalCbor.encode(createdAtMs), timestampBytes);
+      expect(CanonicalCbor.decode(timestampBytes, strict: true), createdAtMs);
+    });
+
+    test(
+      'preserves the sign and shortest width around the 32-bit boundary',
+      () {
+        for (final (value, bytes) in [
+          (4294967295, [0x1A, 0xFF, 0xFF, 0xFF, 0xFF]),
+          (4294967296, [0x1B, 0x00, 0x00, 0x00, 0x01, 0, 0, 0, 0]),
+          (-4294967297, [0x3B, 0x00, 0x00, 0x00, 0x01, 0, 0, 0, 0]),
+        ]) {
+          expect(CanonicalCbor.encode(value), bytes);
+          expect(
+            CanonicalCbor.decode(Uint8List.fromList(bytes), strict: true),
+            value,
+          );
+        }
+        expect(
+          () => CanonicalCbor.decode(
+            Uint8List.fromList([0x1B, 0, 0, 0, 0, 0xFF, 0xFF, 0xFF, 0xFF]),
+            strict: true,
+          ),
+          throwsA(isA<CborParseException>()),
+        );
+      },
+    );
+
     test('rejects duplicate map keys', () {
       // map(2) with key "a" twice
       final bad = Uint8List.fromList([
@@ -332,8 +373,7 @@ void main() {
         );
       });
 
-      test('补码负 length（0xFFFF.. = -1）→ CborParseException', () {
-        // shortest 检查应在 _readBytes 之前拦截（负值 < 2^32 判非最短）。
+      test('超出有符号 int 范围的 length → CborParseException', () {
         final bad = Uint8List.fromList([
           0x5B,
           0xFF,

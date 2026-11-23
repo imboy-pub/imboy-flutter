@@ -31,9 +31,10 @@ import '../../vodozemac_native_lib.dart';
 /// 不是内部函数的返回值。
 
 class _FakeOlmApi extends OlmApi {
-  _FakeOlmApi({required this.countResult});
+  _FakeOlmApi({required this.countResult, this.beforeIdentityReport});
 
   final int? countResult;
+  final void Function()? beforeIdentityReport;
   int reportPrekeysCalls = 0;
   int reportIdentityCalls = 0;
   int countCalls = 0;
@@ -46,6 +47,7 @@ class _FakeOlmApi extends OlmApi {
     required String curve25519Key,
     required String signature,
   }) async {
+    beforeIdentityReport?.call();
     reportIdentityCalls++;
     return true;
   }
@@ -83,14 +85,20 @@ void main() {
     'plugins.it_nomads.com/flutter_secure_storage',
   );
   final secureStore = <String, String?>{};
+  const accountPickleKey = 'olm_account_pickle';
+  var rejectedAccountWrites = 0;
 
   setUpAll(() async {
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
         .setMockMethodCallHandler(storageChannel, (call) async {
           switch (call.method) {
             case 'write':
-              secureStore[call.arguments['key'] as String] =
-                  call.arguments['value'] as String?;
+              final key = call.arguments['key'] as String;
+              if (key == accountPickleKey && rejectedAccountWrites > 0) {
+                rejectedAccountWrites--;
+                throw PlatformException(code: 'synthetic_write_failure');
+              }
+              secureStore[key] = call.arguments['value'] as String?;
               return null;
             case 'read':
               return secureStore[call.arguments['key'] as String];
@@ -119,6 +127,7 @@ void main() {
 
   setUp(() {
     secureStore.clear();
+    rejectedAccountWrites = 0;
     OlmSessionService.to.debugResetAccountCache();
   });
 
@@ -129,6 +138,29 @@ void main() {
     expect(api.reportIdentityCalls, 1, reason: '对照组红 = 发布流程根本没跑起来');
     expect(api.reportPrekeysCalls, 1, reason: '新建账号服务端一把 OTK 都没有，必须无条件铺满');
     expect(api.countCalls, 0, reason: '新建账号不该依赖查询——查询一失败就永远没有 OTK');
+  });
+
+  test('首次身份持久化失败时，重试也不能先发布未保存的身份', () async {
+    final api = _FakeOlmApi(
+      countResult: 50,
+      beforeIdentityReport: () {
+        expect(secureStore[accountPickleKey], isNotEmpty);
+      },
+    );
+    rejectedAccountWrites = 2;
+    final service = OlmSessionService.to;
+    for (var attempt = 0; attempt < 2; attempt++) {
+      await expectLater(
+        service.publishIdentityAndPrekeys(api: api),
+        throwsA(isA<PlatformException>()),
+      );
+      expect(secureStore, isNot(contains(accountPickleKey)));
+      expect(api.reportIdentityCalls, 0);
+    }
+
+    await service.publishIdentityAndPrekeys(api: api);
+    expect(api.reportIdentityCalls, 1);
+    expect(api.reportPrekeysCalls, 1);
   });
 
   test('从 pickle 载入 + 池健康 → 不得重发 OTK', () async {
