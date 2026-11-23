@@ -79,6 +79,8 @@ import 'package:imboy/page/bottom_navigation/bottom_navigation_page.dart';
 import 'package:imboy/page/chat/chat/chat_panel.dart';
 import 'package:imboy/page/chat/widget/chat_history_status.dart';
 import 'package:imboy/page/chat/chat/chat_provider.dart';
+import 'package:imboy/page/chat/chat/services/chat_archive_service.dart'
+    show PersonalHistorySyncOutcomeKind;
 import 'package:imboy/page/conversation/conversation_page.dart';
 import 'package:imboy/page/mine/mine/mine_page.dart';
 import 'package:imboy/page/workspace_shell/space_switcher_button.dart';
@@ -88,6 +90,7 @@ import 'package:imboy/store/repository/contact_repo_sqlite.dart';
 import 'package:imboy/store/repository/conversation_repo_sqlite.dart';
 import 'package:imboy/store/repository/group_repo_sqlite.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
+import 'package:imboy/service/web_personal_history_sync.dart';
 
 import 'package:imboy/component/image_gallery/image_gallery.dart'
     show zoomInPhotoView;

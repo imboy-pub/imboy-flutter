@@ -6,7 +6,8 @@ import 'package:imboy/page/chat/chat/services/chat_network_service.dart'
         PersonalHistoryApiClient,
         PersonalHistoryApiException,
         PersonalHistoryErrorCode,
-        PersonalHistoryEvent;
+        PersonalHistoryEvent,
+        PersonalHistoryStatus;
 import 'package:imboy/store/repository/message_repo_sqlite.dart'
     show PersonalHistoryLocalEvent, PersonalHistoryLocalStore;
 import 'package:sqflite_sqlcipher/sqflite.dart'
@@ -917,6 +918,15 @@ enum PersonalHistorySyncOutcomeKind {
   /// 云端关闭（默认 OFF）：无任何拉取/ACK。
   cloudOff,
 
+  /// 已关闭上传与恢复，等待在线清理。
+  purgePending,
+
+  /// 授权已打开，当前代次尚未建立恢复密钥包。
+  setupRequired,
+
+  /// 已授权并验证本代次密钥包。
+  cloudEnabled,
+
   /// 完整同步成功（含 ACK）。
   synced,
 
@@ -949,6 +959,7 @@ class PersonalHistorySyncOutcome {
     this.duplicates = 0,
     this.cursor = 0,
     this.uploaded = 0,
+    this.recoveredText = const [],
     this.error,
   });
 
@@ -957,6 +968,7 @@ class PersonalHistorySyncOutcome {
   final int duplicates;
   final int cursor;
   final int uploaded;
+  final List<String> recoveredText;
   final Object? error;
 }
 
@@ -985,13 +997,15 @@ class PersonalHistorySyncEngine {
   final bool Function() isCurrent;
 
   /// Web 注入的真实 VFS 持久确认（bridge barrier）；null = 原生语义
-  /// （SQL 提交即持久）。生产 Web 接线随 MH-06 真服务合验落地。
+  /// （SQL 提交即持久）。
   final Future<void> Function()? durableConfirm;
 
   final int maxPages;
 
   /// 单趟下行同步。
-  Future<PersonalHistorySyncOutcome> syncOnce() async {
+  Future<PersonalHistorySyncOutcome> syncOnce({
+    PersonalHistoryStatus? expectedAuthorization,
+  }) async {
     try {
       final status = await client.status();
       if (!isCurrent()) {
@@ -1004,8 +1018,16 @@ class PersonalHistorySyncEngine {
           kind: PersonalHistorySyncOutcomeKind.cloudOff,
         );
       }
-      var checkpoint = await store.readCheckpoint(domain);
-      if (!isCurrent()) {
+      if (expectedAuthorization != null &&
+          (status.domain != domain ||
+              !status.authorizesSameScope(expectedAuthorization))) {
+        return const PersonalHistorySyncOutcome(
+          kind: PersonalHistorySyncOutcomeKind.aborted,
+        );
+      }
+      final checkpoint = await store.readCheckpoint(domain);
+      if (!isCurrent() ||
+          (checkpoint != null && checkpoint.generation > status.generation)) {
         return const PersonalHistorySyncOutcome(
           kind: PersonalHistorySyncOutcomeKind.aborted,
         );
@@ -1078,12 +1100,21 @@ class PersonalHistorySyncEngine {
             ),
           );
         }
+        if (expectedAuthorization != null) {
+          final live = await client.status();
+          if (!isCurrent() || !live.authorizesSameScope(status)) {
+            return const PersonalHistorySyncOutcome(
+              kind: PersonalHistorySyncOutcomeKind.aborted,
+            );
+          }
+        }
         final nextCursor = page.nextCursor ?? cursor;
         final result = await store.applyEvents(
           domain: domain,
           generation: status.generation,
           events: localEvents,
           proposedCursor: nextCursor,
+          allowGenerationAdvance: expectedAuthorization != null,
           applyEvent: _applyMergedRow,
           isCurrent: isCurrent,
         );
@@ -1186,6 +1217,7 @@ class PersonalHistorySyncEngine {
             'msg_id': row['msg_id'],
             'action_version': row['action_version'],
             'conv_seq': row['conv_seq'],
+            'generation': generation,
             'ciphertext': row['ciphertext'],
             'envelope_meta': jsonDecode(row['envelope_meta'] as String),
             'client_ts': row['client_ts'],

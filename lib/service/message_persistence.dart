@@ -11,6 +11,7 @@ Future<bool> _processMessageInBackground(
   MessageRepo repo, {
   required AuthSessionScope notificationSession,
   required AccountLocalTaskOwner notificationOwner,
+  required bool protectedHistorySource,
 }) async {
   final msgId = parseModelString(data['id']);
   final chatType = parseModelString(data['type']); // 消息会话类型 (C2C/C2G/C2S)
@@ -178,6 +179,16 @@ Future<bool> _processMessageInBackground(
     if (!isNewRow) {
       iPrint('⚠️ 消息已存在（数据库检查），跳过后续处理: $msgId');
       return true;
+    }
+
+    if (chatType == 'C2C' && protectedHistorySource) {
+      unawaited(
+        archiveWebAcceptedC2cText(
+          session: notificationSession,
+          message: msg,
+          sequence: msg.convSeq,
+        ),
+      );
     }
 
     // 单一来源：以会话快照统一同步会话与提醒，避免局部字段漂移

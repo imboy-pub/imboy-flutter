@@ -27,6 +27,7 @@ Future<Map<String, dynamic>> _handleE2EEMessage({
   // ignore: unused_element_parameter
   required String chatType,
   required int createdAtMs,
+  VoidCallback? onVerifiedV3,
 }) async {
   // WebSocket API v2.0: 保留原始消息的 msg_type（内容类型）
   final originalMsgType = parseModelString(
@@ -55,6 +56,7 @@ Future<Map<String, dynamic>> _handleE2EEMessage({
       };
     }
     iPrint('✅ [E2EE] v3 解密成功: msgId=$msgId');
+    if (v3Result['_e2ee_v3_verified'] == true) onVerifiedV3?.call();
     return v3Result;
   }
 

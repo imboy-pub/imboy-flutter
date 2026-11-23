@@ -42,17 +42,24 @@ import '../env_test_pin.dart';
 /// 合同级 fixture 服务端：按冻结合同出页/受理 ACK/幂等上传。
 /// （PersonalHistoryTransport 是 typedef；本类的 call 即该签名实现。）
 class _FixtureServer {
-  _FixtureServer({required this.generation, required this.events});
+  _FixtureServer({
+    required this.generation,
+    required this.events,
+    required this.domain,
+  });
 
-  final int generation;
+  int generation;
+  final String domain;
   final List<Map<String, dynamic>> events;
 
   final calls = <String>[];
   final ackedCursors = <int>[];
   final ackedGenerations = <int>[];
+  final changeInstances = <Object?>[];
+  final ackInstances = <Object?>[];
   final uploadedKeys = <String>[];
   final uploadedBodies = <Map<String, dynamic>>[];
-  int maxIssuedCursor = 0;
+  final issuedByScope = <(int, Object?), int>{};
   int? changesGeneration;
   int? ackResponseGeneration;
   bool offline = false;
@@ -87,12 +94,14 @@ class _FixtureServer {
         body: _ok({
           'state': 'ON',
           'generation': generation,
+          'domain': domain,
           'upload_cursor': 0,
         }),
         headers: {'cache-control': 'no-store'},
       );
     }
     if (path.endsWith('/changes')) {
+      changeInstances.add(queryParameters?['client_instance']);
       final cursor = (queryParameters?['cursor'] as int? ?? 0);
       final pending =
           events.where((event) => (event['event_seq'] as int) > cursor).toList()
@@ -102,8 +111,9 @@ class _FixtureServer {
             );
       final page = pending.take(3).toList();
       final nextCursor = page.isEmpty ? null : page.last['event_seq'] as int;
-      if (nextCursor != null && nextCursor > maxIssuedCursor) {
-        maxIssuedCursor = nextCursor;
+      final scope = (generation, queryParameters?['client_instance']);
+      if (nextCursor != null && nextCursor > (issuedByScope[scope] ?? 0)) {
+        issuedByScope[scope] = nextCursor;
       }
       return PersonalHistoryTransportResult(
         httpStatus: 200,
@@ -117,6 +127,7 @@ class _FixtureServer {
     }
     if (path.endsWith('/ack-cursor')) {
       final body = data as Map;
+      ackInstances.add(body['client_instance']);
       final cursor = body['cursor'] as int;
       final requestedGeneration = body['generation'];
       if (requestedGeneration != generation) {
@@ -125,7 +136,8 @@ class _FixtureServer {
           body: _error('generation_expired'),
         );
       }
-      if (cursor > maxIssuedCursor) {
+      if (cursor >
+          (issuedByScope[(generation, body['client_instance'])] ?? 0)) {
         return PersonalHistoryTransportResult(
           httpStatus: 409,
           body: _error('malformed_request'),
@@ -227,7 +239,7 @@ void main() {
     db = (await SqliteService.to.db)!;
     databaseName = SqliteService.databaseNameForUid(uid);
     domain = 'fl04-chrome-test-${domainSeq++}';
-    server = _FixtureServer(generation: 3, events: []);
+    server = _FixtureServer(generation: 3, events: [], domain: domain);
     store = PersonalHistoryLocalStore(() async => db);
     engine = PersonalHistorySyncEngine(
       client: PersonalHistoryApiClient(transport: server.call),
@@ -304,6 +316,201 @@ void main() {
       expect(await store.readCheckpoint(domain), isNull);
       expect(await restoredRows(conversationId), isEmpty);
       expect(server.ackedCursors, isEmpty);
+    },
+  );
+
+  test(
+    'recovery refuses a different authorization domain before changes',
+    () async {
+      final outcome = await engine.syncOnce(
+        expectedAuthorization: const PersonalHistoryStatus(
+          state: 'ON',
+          generation: 3,
+          domain: 'different-deployment',
+        ),
+      );
+
+      expect(outcome.kind, PersonalHistorySyncOutcomeKind.aborted);
+      expect(await store.readCheckpoint(domain), isNull);
+      expect(server.changeInstances, isEmpty);
+      expect(server.ackInstances, isEmpty);
+    },
+  );
+
+  test('recovery uses the same device instance for changes and ack', () async {
+    final client = PersonalHistoryApiClient(
+      transport: server.call,
+      clientInstance: 'new-browser-device',
+    );
+    final status = await client.status();
+    server.events.add(_event(1, 'conv-device-cursor', 'm-1'));
+    final outcome = await PersonalHistorySyncEngine(
+      client: client,
+      store: store,
+      domain: domain,
+      decrypt: engineDecrypt,
+      isCurrent: () => true,
+      durableConfirm: () => browserSqliteStorageBridge.durableAccountBarrier(
+        db,
+        databaseName: databaseName,
+      ),
+    ).syncOnce(expectedAuthorization: status);
+
+    expect(status.domain, domain);
+    expect(outcome.kind, PersonalHistorySyncOutcomeKind.synced);
+    expect(server.changeInstances, everyElement('new-browser-device'));
+    expect(server.changeInstances, isNotEmpty);
+    expect(server.ackInstances, ['new-browser-device']);
+    expect(server.ackedGenerations, [3]);
+  });
+
+  test(
+    'fresh authorization advances generation and rejects late rollback',
+    () async {
+      final client = PersonalHistoryApiClient(transport: server.call);
+      final previous = await client.status();
+      server.events.add(_event(4, 'conv-before-reopen', 'm-before'));
+      expect(
+        (await engine.syncOnce(expectedAuthorization: previous)).kind,
+        PersonalHistorySyncOutcomeKind.synced,
+      );
+      expect(await store.readCheckpoint(domain), (generation: 3, cursor: 4));
+
+      server.generation = 4;
+      server.events
+        ..clear()
+        ..add(_event(10005, 'conv-after-reopen', 'm-after'));
+      final reopened = await client.status();
+      expect(
+        (await engine.syncOnce(expectedAuthorization: reopened)).kind,
+        PersonalHistorySyncOutcomeKind.synced,
+      );
+      expect(await store.readCheckpoint(domain), (
+        generation: 4,
+        cursor: 10005,
+      ));
+      expect(await restoredRows('conv-before-reopen'), hasLength(1));
+      expect(await restoredRows('conv-after-reopen'), hasLength(1));
+
+      server.generation = 3;
+      expect(
+        (await engine.syncOnce(expectedAuthorization: previous)).kind,
+        PersonalHistorySyncOutcomeKind.aborted,
+      );
+      expect(await store.readCheckpoint(domain), (
+        generation: 4,
+        cursor: 10005,
+      ));
+      expect(server.ackedGenerations, [3, 4]);
+    },
+  );
+
+  test('revoked authorization after decrypt prevents merge and ack', () async {
+    final client = PersonalHistoryApiClient(transport: server.call);
+    final authorized = await client.status();
+    const conversationId = 'conv-revoke-after-decrypt';
+    server.events.add(_event(1, conversationId, 'm-revoked'));
+    final recovery = PersonalHistorySyncEngine(
+      client: client,
+      store: store,
+      domain: domain,
+      decrypt: (event) async {
+        server.generation = 4;
+        return engineDecrypt(event);
+      },
+      isCurrent: () => true,
+    );
+    expect(
+      (await recovery.syncOnce(expectedAuthorization: authorized)).kind,
+      PersonalHistorySyncOutcomeKind.aborted,
+    );
+    expect(await store.readCheckpoint(domain), isNull);
+    expect(await restoredRows(conversationId), isEmpty);
+    expect(server.ackedCursors, isEmpty);
+  });
+
+  test('Web key package uses an explicit authorization generation', () async {
+    final sent = <Map<String, dynamic>>[];
+    var responseGeneration = 9;
+    final client = PersonalHistoryApiClient(
+      webFace: true,
+      transport: (method, path, {queryParameters, data}) async {
+        expect(method, 'POST');
+        expect(path, '/api/v1/web/personal-history/key-package');
+        sent.add(Map<String, dynamic>.from(data as Map));
+        return PersonalHistoryTransportResult(
+          httpStatus: 200,
+          body: {
+            'code': 0,
+            'payload': {'key_version': 1, 'generation': responseGeneration},
+          },
+        );
+      },
+    );
+    const package = {'key_version': 1, 'wrapped_key': 'encoded-fixture'};
+
+    await client.putKeyPackage(package, generation: 9);
+    expect(sent.single, {...package, 'generation': 9});
+
+    responseGeneration = 10;
+    await expectLater(
+      client.putKeyPackage(package, generation: 9),
+      throwsA(
+        isA<PersonalHistoryApiException>().having(
+          (error) => error.code,
+          'code',
+          PersonalHistoryErrorCode.generationExpired,
+        ),
+      ),
+    );
+    expect(sent.last['generation'], 9);
+  });
+
+  test(
+    'restored copy uses the newest scoped row with accepted facts',
+    () async {
+      const conv = 'conv-restored-copy';
+      final current = _event(2, conv, 'edited', actionVersion: 1)
+        ..['accepted_message'] = {
+          'from_id': '9007199254740993',
+          'to_id': '9007199254740995',
+          'conv_seq': 2,
+          'action_version': 1,
+        };
+      server.events.addAll([
+        _event(1, conv, 'edited'),
+        current,
+        _event(3, conv, 'removed'),
+        _event(4, conv, 'removed', deleted: true, actionVersion: 1),
+        _event(5, 'other-conversation', 'unrelated'),
+      ]);
+      final client = PersonalHistoryApiClient(transport: server.call);
+      final page = await client.changes(cursor: 0);
+      expect(page.events[1].acceptedMessage, (
+        fromId: '9007199254740993',
+        toId: '9007199254740995',
+        sequence: 2,
+        actionVersion: 1,
+      ));
+      expect(
+        (await engine.syncOnce()).kind,
+        PersonalHistorySyncOutcomeKind.synced,
+      );
+      final rows = await store.readRestoredRows(
+        domain: domain,
+        generation: 3,
+        conversationId: conv,
+      );
+      expect(rows.single['msg_id'], 'edited');
+      expect(rows.single['action_version'], 1);
+      expect(
+        await store.readRestoredRows(
+          domain: domain,
+          generation: 4,
+          conversationId: conv,
+        ),
+        isEmpty,
+      );
     },
   );
 
@@ -674,6 +881,7 @@ void main() {
       final flushed = await flushEngine.flushUploads(generation: 3);
       expect(flushed.kind, PersonalHistorySyncOutcomeKind.uploadPartial);
       expect(flushed.uploaded, 1);
+      expect(server.uploadedBodies.single['generation'], 3);
       pending = await store.pendingUploads(domain, 3);
       expect(pending.map((r) => r['msg_id']), ['up-2']);
       expect(pending.single['attempts'], 1);

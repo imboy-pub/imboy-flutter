@@ -68,6 +68,7 @@ class WebChatPanelState extends ConsumerState<WebChatPanel> {
   var _failed = false;
   var _historyReady = false;
   Future<void> _historyTail = Future<void>.value();
+  bool _personalHistoryBusy = false;
 
   String get _conversationKey => ConversationUk3Generator.generateSmart(
     type: widget.selection.chatType,
@@ -473,12 +474,174 @@ class WebChatPanelState extends ConsumerState<WebChatPanel> {
     unawaited(_activate());
   }
 
-  /// FL-04 阶段一：个人云端历史四维状态可见性（MH-01 §10.9 优先级矩阵）。
-  ///
-  /// 个人历史域限 C2C（合同 §0），故仅在非 C2G 会话展示；当前只做
-  /// 状态投影（删除进度 > 等待密钥 > 同步失败 > 云端关闭 > 本地空态），
-  /// 重试/恢复密钥/删除进度动作由 FL-06 二阶段接线（共享文件交接点）。
-  /// 文案暂为字面量，i18n 键随二阶段补齐。
+  Future<void> _restorePersonalHistory() async {
+    final session = _owner;
+    final resource = _resourceOwner;
+    final notifier = _notifier;
+    if (_personalHistoryBusy ||
+        session == null ||
+        resource == null ||
+        notifier == null ||
+        !_readingOwned ||
+        widget.selection.chatType != 'C2C') {
+      return;
+    }
+    final request = _request;
+    final selection = widget.selection;
+    bool current() => _readingOwned && _current(request, selection, session);
+    setState(() => _personalHistoryBusy = true);
+    try {
+      final outcome = await syncWebPersonalHistory(
+        session: session,
+        owner: resource,
+        viewIsCurrent: current,
+        peerId: selection.peerId,
+      );
+      if (!current()) return;
+      notifier.updatePersonalHistoryState(outcome);
+      if (outcome.recoveredText.isNotEmpty) {
+        await _showRestoredHistory(outcome.recoveredText, current);
+        return;
+      }
+      final enable =
+          outcome.kind == PersonalHistorySyncOutcomeKind.cloudOff ||
+          outcome.kind == PersonalHistorySyncOutcomeKind.setupRequired;
+      if (!enable &&
+          outcome.kind != PersonalHistorySyncOutcomeKind.waitingKey) {
+        return;
+      }
+      final passphrase = await _requestHistoryPassphrase(enable: enable);
+      if (passphrase == null || passphrase.isEmpty || !current()) return;
+      final restored = await syncWebPersonalHistory(
+        session: session,
+        owner: resource,
+        viewIsCurrent: current,
+        peerId: selection.peerId,
+        passphrase: passphrase,
+        enable: enable,
+      );
+      if (!current()) return;
+      notifier.updatePersonalHistoryState(restored);
+      if (restored.recoveredText.isNotEmpty) {
+        await _showRestoredHistory(restored.recoveredText, current);
+      }
+    } finally {
+      if (mounted) setState(() => _personalHistoryBusy = false);
+    }
+  }
+
+  Future<void> _showRestoredHistory(
+    List<String> texts,
+    bool Function() isCurrent,
+  ) async {
+    final t = Translations.of(context);
+    final isChinese = Localizations.localeOf(context).languageCode == 'zh';
+    await showCupertinoDialog<void>(
+      context: context,
+      builder: (dialogContext) => AnimatedBuilder(
+        animation: _sessions,
+        builder: (context, _) => CupertinoAlertDialog(
+          title: Text(isChinese ? '个人云端历史副本' : 'Personal cloud history copy'),
+          content: !isCurrent()
+              ? const SizedBox.shrink()
+              : ConstrainedBox(
+                  constraints: BoxConstraints(
+                    maxHeight: MediaQuery.sizeOf(context).height * 0.4,
+                  ),
+                  child: SingleChildScrollView(
+                    child: Column(
+                      key: const ValueKey('web-personal-history-restored-text'),
+                      children: [
+                        for (final text in texts)
+                          Padding(
+                            padding: AppSpacing.allSmall,
+                            child: Text(text),
+                          ),
+                      ],
+                    ),
+                  ),
+                ),
+          actions: [
+            CupertinoDialogAction(
+              onPressed: () => Navigator.of(dialogContext).pop(),
+              child: Text(t.common.buttonClose),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<String?> _requestHistoryPassphrase({required bool enable}) {
+    final t = Translations.of(context);
+    final isChinese = Localizations.localeOf(context).languageCode == 'zh';
+    final enableLabel = isChinese
+        ? '开启个人云端历史'
+        : 'Enable personal cloud history';
+    final startNote = isChinese
+        ? '开启后同步新消息。请保存恢复口令，换设备时需要用它解密。'
+        : 'New messages sync after you enable this. Keep your passphrase to restore them on another device.';
+    var passphrase = '';
+    var confirmation = '';
+    return showCupertinoDialog<String>(
+      context: context,
+      builder: (dialogContext) => StatefulBuilder(
+        builder: (context, update) => CupertinoAlertDialog(
+          title: Text(
+            enable ? enableLabel : t.common.e2eeBackupCloudRestoreTitle,
+          ),
+          content: Padding(
+            padding: AppSpacing.allSmall,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (enable) ...[Text(startNote), AppSpacing.verticalSmall],
+                CupertinoTextField(
+                  key: const ValueKey('web-personal-history-passphrase'),
+                  obscureText: true,
+                  enableSuggestions: false,
+                  autocorrect: false,
+                  placeholder: t.common.e2eeBackupCloudPwdHint,
+                  onChanged: (value) => update(() => passphrase = value),
+                ),
+                if (enable) ...[
+                  AppSpacing.verticalSmall,
+                  CupertinoTextField(
+                    key: const ValueKey(
+                      'web-personal-history-confirm-passphrase',
+                    ),
+                    obscureText: true,
+                    enableSuggestions: false,
+                    autocorrect: false,
+                    placeholder: t.common.e2eeBackupConfirmPwdHint,
+                    onChanged: (value) => update(() => confirmation = value),
+                  ),
+                ],
+              ],
+            ),
+          ),
+          actions: [
+            CupertinoDialogAction(
+              onPressed: () => Navigator.of(dialogContext).pop(),
+              child: Text(t.common.buttonCancel),
+            ),
+            CupertinoDialogAction(
+              key: const ValueKey('web-personal-history-confirm-action'),
+              onPressed:
+                  passphrase.trim().isNotEmpty &&
+                      (!enable || passphrase == confirmation)
+                  ? () => Navigator.of(dialogContext).pop(passphrase)
+                  : null,
+              child: Text(
+                enable ? enableLabel : t.common.e2eeBackupCloudRestoreBtn,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget? _personalHistoryBanner(ChatState state) {
     final text = switch (state.personalHistoryVisibility) {
       PersonalHistoryVisibility.deletionProgress => '云端历史清理中，暂不可读',
@@ -488,22 +651,52 @@ class WebChatPanelState extends ConsumerState<WebChatPanel> {
       PersonalHistoryVisibility.localEmpty => '云端历史已开启，本设备暂无投影',
       PersonalHistoryVisibility.none => null,
     };
-    if (text == null) return null;
-    return Tooltip(
-      message: 'personal-history-status',
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 8),
-        child: Text(
-          text,
-          key: const ValueKey('web-personal-history-banner'),
-          style: ref
-              .read(themeProvider.notifier)
-              .getTextStyle(
-                FontSizeType.small,
-                color: CupertinoColors.secondaryLabel.resolveFrom(context),
+    final status = text == null
+        ? null
+        : Tooltip(
+            message: 'personal-history-status',
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8),
+              child: Text(
+                text,
+                key: const ValueKey('web-personal-history-banner'),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: ref
+                    .read(themeProvider.notifier)
+                    .getTextStyle(
+                      FontSizeType.small,
+                      color: CupertinoColors.secondaryLabel.resolveFrom(
+                        context,
+                      ),
+                    ),
               ),
+            ),
+          );
+    if (!kIsWeb || !identical(_sessions, authSessionReader) || !_readingOwned) {
+      return status;
+    }
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        if (status != null) Flexible(child: status),
+        Tooltip(
+          message: Translations.of(context).common.e2eeBackupCloudRestoreBtn,
+          excludeFromSemantics: true,
+          child: CupertinoButton(
+            key: const ValueKey('web-personal-history-restore'),
+            minimumSize: const Size.square(AppSizes.touchTarget),
+            padding: AppSpacing.allSmall,
+            onPressed: _personalHistoryBusy ? null : _restorePersonalHistory,
+            child: Icon(
+              CupertinoIcons.cloud_download,
+              semanticLabel: Translations.of(context)
+                  .common
+                  .e2eeBackupCloudRestoreBtn,
+            ),
+          ),
         ),
-      ),
+      ],
     );
   }
 

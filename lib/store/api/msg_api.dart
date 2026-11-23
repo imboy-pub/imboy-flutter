@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:imboy/component/http/channel_id_response_decoder.dart';
 import 'package:imboy/component/http/http_client.dart';
 import 'package:imboy/component/http/http_response.dart';
+import 'package:imboy/component/http/http_request_policy.dart';
 import 'package:imboy/config/const.dart';
 
 /// 消息 API 客户端
@@ -14,6 +15,37 @@ class MsgApi extends HttpClient {
     required String chatType,
     required String peerId,
     required String messageId,
+  }) async =>
+      await _committedMessage(
+        chatType: chatType,
+        peerId: peerId,
+        messageId: messageId,
+      ) !=
+      null;
+
+  Future<int?> acceptedC2cSequence({
+    required String peerId,
+    required String messageId,
+    required CancelToken cancelToken,
+    required void Function() requireCurrent,
+  }) async {
+    final accepted = await _committedMessage(
+      chatType: 'c2c',
+      peerId: peerId,
+      messageId: messageId,
+      cancelToken: cancelToken,
+      requireCurrent: requireCurrent,
+    );
+    final sequence = accepted?['conv_seq'];
+    return sequence is int && sequence > 0 ? sequence : null;
+  }
+
+  Future<Map<String, dynamic>?> _committedMessage({
+    required String chatType,
+    required String peerId,
+    required String messageId,
+    CancelToken? cancelToken,
+    void Function()? requireCurrent,
   }) async {
     final response = await get(
       '/api/v1/msg/result',
@@ -22,18 +54,28 @@ class MsgApi extends HttpClient {
         'peer_id': peerId,
         'message_id': messageId,
       },
+      cancelToken: cancelToken,
       options: Options(
+        extra: {
+          if (requireCurrent != null) ...{
+            httpRequestGuard: requireCurrent,
+            httpNoAutoRetry: true,
+          },
+        },
         responseDecoder: channelIdResponseDecoder(
           ChannelResponseShape.messageResult,
         ),
       ),
     );
-    if (!response.ok) return false;
+    if (!response.ok) return null;
     final payload = IMBoyHttpResponse.payloadAsMap(response.payload);
-    return payload['message_id'] == messageId &&
-        payload['chat_type'] == chatType &&
-        payload['peer_id'].toString() == peerId &&
-        payload['state'] == 'committed';
+    if (payload['message_id'] != messageId ||
+        payload['chat_type'] != chatType ||
+        payload['peer_id'].toString() != peerId ||
+        payload['state'] != 'committed') {
+      return null;
+    }
+    return payload;
   }
 
   /// 查询会话消息历史（conv_seq 游标分页）

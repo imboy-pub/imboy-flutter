@@ -1487,8 +1487,7 @@ class ChatNotifier extends _$ChatNotifier {
   ///
   /// 与 msg_store 归档回填（historySyncFailed/historyUnavailable）正交：
   /// 本状态只描述个人云端副本通道（opt-in、账号级、默认 OFF）。
-  /// 真服务接线（PersonalHistorySyncEngine 的生产 wiring）随 MH-06；
-  /// 本方法把引擎/合同 fixture 的结果投影为 UI 可见的优先级横幅。
+  /// 本方法把同步结果投影为 UI 可见的优先级横幅。
   void updatePersonalHistoryState(
     PersonalHistorySyncOutcome outcome, {
     bool? cloudEnabled,
@@ -1496,8 +1495,11 @@ class ChatNotifier extends _$ChatNotifier {
   }) {
     if (_isDisposed) return;
     final sync = switch (outcome.kind) {
-      PersonalHistorySyncOutcomeKind.synced => PersonalHistorySyncStatus.idle,
+      PersonalHistorySyncOutcomeKind.synced ||
+      PersonalHistorySyncOutcomeKind.cloudEnabled ||
+      PersonalHistorySyncOutcomeKind.purgePending ||
       PersonalHistorySyncOutcomeKind.cloudOff => PersonalHistorySyncStatus.idle,
+      PersonalHistorySyncOutcomeKind.setupRequired ||
       PersonalHistorySyncOutcomeKind.waitingKey =>
         PersonalHistorySyncStatus.waitingKey,
       PersonalHistorySyncOutcomeKind.rescanRequired ||
@@ -1510,13 +1512,25 @@ class ChatNotifier extends _$ChatNotifier {
     final resolvedCloud =
         cloudEnabled ??
         switch (outcome.kind) {
-          PersonalHistorySyncOutcomeKind.cloudOff => false,
-          PersonalHistorySyncOutcomeKind.synced => true,
+          PersonalHistorySyncOutcomeKind.cloudOff ||
+          PersonalHistorySyncOutcomeKind.purgePending => false,
+          PersonalHistorySyncOutcomeKind.synced ||
+          PersonalHistorySyncOutcomeKind.cloudEnabled ||
+          PersonalHistorySyncOutcomeKind.setupRequired => true,
           _ => null,
         };
     state = state.copyWith(
       personalHistorySyncStatus: sync,
       personalHistoryCloudEnabled: resolvedCloud,
+      personalHistoryDeletionPhase: switch (outcome.kind) {
+        PersonalHistorySyncOutcomeKind.purgePending =>
+          PersonalHistoryDeletionPhase.pending,
+        PersonalHistorySyncOutcomeKind.cloudOff ||
+        PersonalHistorySyncOutcomeKind.cloudEnabled ||
+        PersonalHistorySyncOutcomeKind.synced =>
+          PersonalHistoryDeletionPhase.none,
+        _ => null,
+      },
       personalHistoryLocalPresent:
           localPresent ?? (outcome.applied > 0 ? true : null),
     );

@@ -248,7 +248,7 @@ class _ChatPanelHeader extends StatelessWidget {
               overflow: TextOverflow.ellipsis,
             ),
           ),
-          ?accessory,
+          if (accessory case final accessory?) Flexible(child: accessory),
           if (onClose != null)
             IconButton(
               // F2（uxfix-batch1）：头部图标按钮补显式语义标签。icon semanticLabel

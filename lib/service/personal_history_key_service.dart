@@ -141,6 +141,9 @@ class PersonalHistoryKeyService {
     _pendingRestores.clear();
   }
 
+  bool hasVersion(int version) =>
+      !_closed && _isAuthorized && _keys.containsKey(version);
+
   /// A new version is selected by the authorized caller. Old versions remain
   /// readable until the session ends.
   void rotate(int version) {

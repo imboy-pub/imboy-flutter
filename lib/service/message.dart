@@ -22,6 +22,7 @@ import 'package:imboy/service/server_ack_receipts.dart';
 import 'package:imboy/service/c2g_rejection_hold.dart';
 import 'package:imboy/service/c2g_send_gate.dart';
 import 'package:imboy/service/web_writer_gate.dart';
+import 'package:imboy/service/web_personal_history_sync.dart';
 import 'package:imboy/service/app_logger.dart';
 import 'package:imboy/service/sqlite.dart';
 import 'package:imboy/service/olm_session_service.dart';
@@ -641,6 +642,7 @@ class MessageService with EventSubscriptionManager {
     // v2.0: 处理 E2EE 消息（payload 为字符串）
     // 或普通消息（payload 为 Map<String, dynamic>）
     Map<String, dynamic>? payload;
+    var protectedHistorySource = false;
     final payloadRaw = data['payload'];
 
     // 归一化 created_at 时间戳（需要在解密前准备）。
@@ -675,6 +677,7 @@ class MessageService with EventSubscriptionManager {
         msgId: msgId,
         chatType: chatType,
         createdAtMs: createdAtMs,
+        onVerifiedV3: () => protectedHistorySource = true,
       );
 
       // 解密后的 payload
@@ -897,6 +900,7 @@ class MessageService with EventSubscriptionManager {
         repo,
         notificationSession: notificationSession,
         notificationOwner: notificationOwner,
+        protectedHistorySource: protectedHistorySource,
       );
       if (!committed) return false;
       if (!await _completeInboundIfStaged(data, msgId)) return false;
@@ -1675,6 +1679,19 @@ class MessageService with EventSubscriptionManager {
       emit: AppEventBus.fire,
     )) {
       return;
+    }
+    if (chatType == 'C2C') {
+      final session = authSessionReader.current;
+      if (session.uid == ownerUid && session.generation == generation) {
+        unawaited(
+          archiveWebAcceptedC2cText(
+            session: session,
+            message: msg,
+            sequence: MessageModel.parseConvSeq(data['conv_seq']),
+            verifyOutbound: true,
+          ),
+        );
+      }
     }
     AppEventBus.fire(
       RemoveFromRetryQueueRequestedEvent(

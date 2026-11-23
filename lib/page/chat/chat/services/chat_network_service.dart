@@ -1640,14 +1640,56 @@ class PersonalHistoryStatus {
   const PersonalHistoryStatus({
     required this.state,
     required this.generation,
+    this.domain,
     this.uploadCursor,
   });
 
   final String state; // OFF | ON | OFF_PURGE_PENDING | OFF_PURGED
   final int generation;
+  final String? domain;
   final int? uploadCursor;
 
   bool get enabled => state == 'ON';
+
+  bool authorizesSameScope(PersonalHistoryStatus expected) =>
+      enabled &&
+      expected.enabled &&
+      domain != null &&
+      domain == expected.domain &&
+      generation == expected.generation;
+}
+
+/// Backend-confirmed C2C identity and ordering facts. Content still needs
+/// account-local decryption before it can be displayed.
+typedef PersonalHistoryAcceptedMessage = ({
+  String fromId,
+  String toId,
+  int sequence,
+  int actionVersion,
+});
+
+PersonalHistoryAcceptedMessage? parsePersonalHistoryAcceptedMessage(
+  Object? value,
+) {
+  if (value is! Map) return null;
+  final fromId = value['from_id'];
+  final toId = value['to_id'];
+  final sequence = value['conv_seq'];
+  final version = value['action_version'];
+  if (fromId is! String ||
+      toId is! String ||
+      sequence is! int ||
+      sequence <= 0 ||
+      version is! int ||
+      version < 0) {
+    return null;
+  }
+  return (
+    fromId: fromId,
+    toId: toId,
+    sequence: sequence,
+    actionVersion: version,
+  );
 }
 
 /// `/personal-history/changes` 单事件（§2.4：稳定合并版本 + tombstone）。
@@ -1663,6 +1705,7 @@ class PersonalHistoryEvent {
     required this.envelopeMeta,
     required this.deleted,
     required this.createdAt,
+    this.acceptedMessage,
   });
 
   final int seq;
@@ -1675,6 +1718,7 @@ class PersonalHistoryEvent {
   final Map<String, dynamic> envelopeMeta; // {alg, key_version, nonce, aad}
   final bool deleted; // tombstone（MSG-H15）
   final int createdAt;
+  final PersonalHistoryAcceptedMessage? acceptedMessage;
 }
 
 class PersonalHistoryChangesPage {
@@ -1710,10 +1754,15 @@ class PersonalHistoryKeyPackageRead {
 
 /// 合同级 /personal-history/* 客户端。
 class PersonalHistoryApiClient {
-  PersonalHistoryApiClient({required this.transport, this.webFace = false});
+  PersonalHistoryApiClient({
+    required this.transport,
+    this.webFace = false,
+    this.clientInstance,
+  });
 
   final PersonalHistoryTransport transport;
   final bool webFace;
+  final String? clientInstance;
 
   static const String _nativeBase = '/api/v1/personal-history';
   static const String _webBase = '/api/v1/web/personal-history';
@@ -1804,6 +1853,7 @@ class PersonalHistoryApiClient {
     return PersonalHistoryStatus(
       state: state,
       generation: generation,
+      domain: payload['domain'] is String ? payload['domain'] as String : null,
       uploadCursor: payload['upload_cursor'] is int
           ? payload['upload_cursor'] as int
           : null,
@@ -1818,10 +1868,16 @@ class PersonalHistoryApiClient {
       data: {'client_instance_id': clientInstanceId},
     );
     final generation = payload['generation'];
-    return PersonalHistoryStatus(
-      state: payload['state']?.toString() ?? 'ON',
-      generation: generation is int ? generation : 0,
-    );
+    if (payload['state'] != 'ON' ||
+        generation is! int ||
+        generation <= 0 ||
+        generation > maxSafeInteger) {
+      throw const PersonalHistoryApiException(
+        PersonalHistoryErrorCode.malformedRequest,
+        0,
+      );
+    }
+    return PersonalHistoryStatus(state: 'ON', generation: generation);
   }
 
   /// §2.3 POST /upload（幂等键 = account+domain+conversation+msg_id，由服务端裁决）。
@@ -1836,7 +1892,11 @@ class PersonalHistoryApiClient {
     final payload = await _send(
       'GET',
       '$_base/changes',
-      queryParameters: {'cursor': cursor, 'limit': limit},
+      queryParameters: {
+        'cursor': cursor,
+        'limit': limit,
+        if (clientInstance != null) 'client_instance': clientInstance,
+      },
     );
     const malformed = PersonalHistoryApiException(
       PersonalHistoryErrorCode.malformedRequest,
@@ -1887,6 +1947,9 @@ class PersonalHistoryApiClient {
               : const {},
           deleted: raw['deleted'] == true,
           createdAt: raw['created_at'] as int? ?? 0,
+          acceptedMessage: parsePersonalHistoryAcceptedMessage(
+            raw['accepted_message'],
+          ),
         ),
       );
     }
@@ -1918,7 +1981,11 @@ class PersonalHistoryApiClient {
     final payload = await _send(
       'POST',
       '$_base/ack-cursor',
-      data: {'cursor': cursor, 'generation': generation},
+      data: {
+        'cursor': cursor,
+        'generation': generation,
+        if (clientInstance != null) 'client_instance': clientInstance,
+      },
     );
     final acknowledgedGeneration = payload['generation'];
     if (acknowledgedGeneration is int && acknowledgedGeneration != generation) {
@@ -1935,9 +2002,35 @@ class PersonalHistoryApiClient {
     }
   }
 
-  /// §2.5 PUT /key-package。
-  Future<Map<String, dynamic>> putKeyPackage(Map<String, dynamic> package) =>
-      _send(_keyPackagePutMethod, '$_base/key-package', data: package);
+  /// §2.5 PUT /key-package。显式带代次，避免跨关闭/重开后写入旧包。
+  Future<void> putKeyPackage(
+    Map<String, dynamic> package, {
+    required int generation,
+  }) async {
+    if (generation <= 0 || generation > maxSafeInteger) {
+      throw const PersonalHistoryApiException(
+        PersonalHistoryErrorCode.malformedPackageRequest,
+        422,
+      );
+    }
+    final payload = await _send(
+      _keyPackagePutMethod,
+      '$_base/key-package',
+      data: {...package, 'generation': generation},
+    );
+    if (payload['generation'] != generation) {
+      throw const PersonalHistoryApiException(
+        PersonalHistoryErrorCode.generationExpired,
+        0,
+      );
+    }
+    if (payload['key_version'] != package['key_version']) {
+      throw const PersonalHistoryApiException(
+        PersonalHistoryErrorCode.malformedPackage,
+        0,
+      );
+    }
+  }
 
   /// mh04 addendum GET /key-package：查询参数恰好一份 key_version 与一份
   /// generation，十进制 ASCII 数字（无符号/前导零/指数/浮点），同域校验。

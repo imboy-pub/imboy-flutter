@@ -176,7 +176,6 @@ class SqliteService {
   ///
   /// 数据库按环境和账号隔离；登出时必须使用登出前捕获的 uid，不能
   /// 依赖清理完存储后的 currentUid。
-  @visibleForTesting
   static String databaseNameForUid(String uid) => '${currentEnv}_$uid.db';
 
   /// 删除指定 uid 的本地数据库及 SQLite sidecar 文件。

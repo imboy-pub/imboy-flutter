@@ -1292,13 +1292,14 @@ class PersonalHistoryLocalStore {
   /// 事务化合并：业务行、tombstone、去重账与检查点在同一 SQLite 提交。
   ///
   /// - seq 主键去重：晚到/重复事件幂等跳过，不回退持久进度（§8.2）。
-  /// - 代次围栏：域内已记录代次与本次不符 → StateError 回滚（无游标串用）。
+  /// - 代次围栏：显式确认更高代次时才重置游标；拒绝旧代次回写。
   /// - 检查点单调：仅当 proposedCursor 大于现值才推进。
   Future<PersonalHistoryApplyResult> applyEvents({
     required String domain,
     required int generation,
     required List<PersonalHistoryLocalEvent> events,
     required int proposedCursor,
+    bool allowGenerationAdvance = false,
     required Future<void> Function(
       Transaction txn,
       PersonalHistoryLocalEvent event,
@@ -1329,26 +1330,19 @@ class PersonalHistoryLocalStore {
         whereArgs: [domain],
         limit: 1,
       );
-      int currentCursor;
-      if (state.isEmpty) {
-        currentCursor = 0;
-        await txn.insert(stateTable, {
-          'domain': domain,
-          'generation': generation,
-          'acked_cursor': 0,
-          'updated_at': DateTime.now().millisecondsSinceEpoch,
-        });
-      } else {
-        final recordedGeneration = state.first['generation'] as int;
-        if (recordedGeneration != generation) {
-          // 代次变更：本批属于旧任务，整体回滚（账号/撤销后中止旧任务）。
-          throw StateError(
-            'personal history generation changed: '
-            '$recordedGeneration != $generation',
-          );
-        }
-        currentCursor = state.first['acked_cursor'] as int;
+      final recordedGeneration = state.isEmpty
+          ? null
+          : state.single['generation'] as int;
+      final advancesGeneration =
+          recordedGeneration != null && recordedGeneration != generation;
+      if (recordedGeneration != null &&
+          advancesGeneration &&
+          (!allowGenerationAdvance || recordedGeneration > generation)) {
+        throw StateError('personal history generation changed');
       }
+      final currentCursor = recordedGeneration == generation
+          ? state.first['acked_cursor'] as int
+          : 0;
 
       var applied = 0;
       var duplicates = 0;
@@ -1383,17 +1377,15 @@ class PersonalHistoryLocalStore {
       final nextCursor = proposedCursor > currentCursor
           ? proposedCursor
           : currentCursor;
-      if (nextCursor != currentCursor || state.isEmpty) {
-        await txn.update(
-          stateTable,
-          {
-            'generation': generation,
-            'acked_cursor': nextCursor,
-            'updated_at': now,
-          },
-          where: 'domain = ?',
-          whereArgs: [domain],
-        );
+      if (nextCursor != currentCursor ||
+          advancesGeneration ||
+          recordedGeneration == null) {
+        await txn.insert(stateTable, {
+          'domain': domain,
+          'generation': generation,
+          'acked_cursor': nextCursor,
+          'updated_at': now,
+        }, conflictAlgorithm: ConflictAlgorithm.replace);
       }
       if (isCurrent?.call() == false) {
         throw StateError('personal history session changed during merge');
@@ -1405,6 +1397,29 @@ class PersonalHistoryLocalStore {
         generation: generation,
       );
     });
+  }
+
+  /// 本机个人云端恢复副本。墓碑和更高动作版本优先于旧正文。
+  Future<List<Map<String, Object?>>> readRestoredRows({
+    required String domain,
+    required int generation,
+    required String conversationId,
+    int limit = 50,
+  }) async {
+    final db = await _db();
+    if (db == null) return const [];
+    return db.rawQuery(
+      'SELECT r.msg_id, r.action_version, r.row FROM personal_history_restored_row AS r '
+      'WHERE r.domain = ? AND r.generation = ? AND r.conversation_id = ? '
+      'AND NOT EXISTS (SELECT 1 FROM $tombstoneTable AS t '
+      'WHERE t.conversation_id = r.conversation_id AND t.msg_id = r.msg_id) '
+      'AND NOT EXISTS (SELECT 1 FROM personal_history_restored_row AS newer '
+      'WHERE newer.domain = r.domain AND newer.generation = r.generation '
+      'AND newer.conversation_id = r.conversation_id AND newer.msg_id = r.msg_id '
+      'AND newer.action_version > r.action_version) '
+      'ORDER BY r.merged_at DESC, r.msg_id DESC LIMIT ?',
+      [domain, generation, conversationId, limit.clamp(1, 50)],
+    );
   }
 
   /// 本地 tombstone 查询（删除进度/可恢复范围提示）。
