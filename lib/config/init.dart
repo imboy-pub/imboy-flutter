@@ -857,7 +857,7 @@ class AppInitializer {
       requireWebWriter();
       if (kIsWeb &&
           (config.containsKey('error') || currentWebBootstrap == null)) {
-        throw StateError('Web bootstrap initialization failed');
+        throw const WebBootstrapUnavailable();
       }
     } else {
       AppLogger.info('✅ Using cached initConfig (apiPublicKey exists)');
@@ -1215,4 +1215,9 @@ class AppInitializer {
     serviceContainer.clear();
     AppLogger.info('AppInitializer reset completed');
   }
+}
+
+/// Web startup could not obtain a usable backend bootstrap.
+class WebBootstrapUnavailable implements Exception {
+  const WebBootstrapUnavailable();
 }

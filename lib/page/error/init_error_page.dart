@@ -5,6 +5,7 @@ import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/font_types.dart';
 import 'package:imboy/theme/default/theme.dart';
 import 'package:imboy/i18n/strings.g.dart';
+import 'package:imboy/config/init.dart' show WebBootstrapUnavailable;
 import 'package:imboy/service/web_writer_gate.dart';
 
 /// 初始化失败兜底页 / Init failure fallback page
@@ -52,6 +53,7 @@ class _InitErrorPageState extends State<InitErrorPage> {
 
   @override
   Widget build(BuildContext context) {
+    final bootstrapUnavailable = widget.error is WebBootstrapUnavailable;
     final writerFailure = widget.error is WebWriterGateFailure
         ? widget.error as WebWriterGateFailure
         : null;
@@ -95,7 +97,10 @@ class _InitErrorPageState extends State<InitErrorPage> {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    writerFailure == null
+                    bootstrapUnavailable
+                        ? '无法获取 Web 初始配置。请确认后端版本支持 Web 客户端，'
+                              '并检查服务地址和 /api/v1/web/bootstrap 路由。'
+                        : writerFailure == null
                         ? '可能是网络或本地存储异常导致，请重试；'
                               '若持续失败请重新安装或联系客服。'
                         : _writerFailureDescription(writerFailure.kind),
@@ -106,7 +111,7 @@ class _InitErrorPageState extends State<InitErrorPage> {
                     ),
                   ),
                   const SizedBox(height: 12),
-                  if (writerFailure == null)
+                  if (writerFailure == null && !bootstrapUnavailable)
                     SelectableText(
                       widget.error.toString(),
                       style: context
