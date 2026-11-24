@@ -225,7 +225,7 @@ class EnterpriseOaBrandConfig {
     if (uri == null || uri.host.isEmpty) return '';
     final String host = uri.host.toLowerCase();
     final int port = uri.hasPort || uri.port != 0 ? uri.port : 443;
-    return port == 443 ? 'https://$host' : 'https://$host:$port';
+    return port == 443 ? 'https://$host' : 'https://$host:$port'; // nosemgrep: request-host-used — Dart 插值构造规范化 origin，host 经 _httpsOrigin 强制 https://+非空+小写校验，非 nginx $host 变量
   }
 
   /// `#RRGGBB` → Color；非法返回 null 由调用方回退。

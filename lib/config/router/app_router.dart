@@ -89,7 +89,7 @@ bool isTrustedResourceUrl(String rawUrl) {
   }..removeWhere((host) => host.isEmpty);
 
   return trustedHosts.any(
-    (host) => uri.host == host || uri.host.endsWith('.$host'),
+    (host) => uri.host == host || uri.host.endsWith('.$host'), // nosemgrep: request-host-used — Dart 插值 $host 取自 Env 配置的可信域名白名单（apiBaseUrl/publicBaseUrl），非请求方可控输入
   );
 }
 
