@@ -4189,6 +4189,42 @@
         "Receipts bind scope, declared source/deployment SHAs and credential digests without plaintext tokens. Actual runner source and deployed-backend identity must also be verified externally; declaring an SHA is not deployment evidence.",
         "Cold-start recovery and the normal Native settings logout are checked before fixture teardown. This establishes neither forced-kill recovery nor server-side revocation, real-camera scanning or WebSocket message roundtrips."
       ]
+    },
+    "integration_test/customer_service/cs_strict_tls_device_probe_test.dart": {
+      "suite": "device-single",
+      "runner": "flutter-device",
+      "platforms": [
+        "android"
+      ],
+      "products": [
+        "phase1_delivery"
+      ],
+      "dependencies": [
+        "isolated-backend",
+        "isolated-accounts"
+      ],
+      "required_true_env": [
+        "FL15_DEVICE_PROBE_OPT_IN"
+      ],
+      "basis": [
+        "FL-15 customer-service strict-TLS device probe reviewed per the ownership gate: bare main() entrypoint (runApp plus debugPrint verdict markers, no test()/testWidgets(), no IntegrationTestWidgetsFlutterBinding/patrol), so the device-dart classifier cannot gather automatic device evidence and this reviewed registration is required.",
+        "Execution reality: physical Android device with package pub.imboy.app.masterqa, a staged fl15-device-fixture.json in the app support directory, device-identity headers, and an isolated local HTTPS origin (pinned CA via adb reverse). The external FL-15 QA window harness drives it and reads FL15_DEVICE_PROBE_PASS/FAIL markers; planned auto_test runs stay skipped unless FL15_DEVICE_PROBE_OPT_IN=true.",
+        "Read-only against the QA backend (seats session list plus SSE stream check); no third-party data and no business writes, so business-writes is deliberately not declared."
+      ]
+    },
+    "integration_test/settings/personal_history_acceptance_test.dart": {
+      "suite": "unit",
+      "runner": "flutter-machine",
+      "platforms": [
+        "linux",
+        "macos"
+      ],
+      "offline": true,
+      "basis": [
+        "MH-04 personal-history key lifecycle acceptance reviewed against reality: the import closure is pure Dart (pointycastle PBKDF2 via compute() isolate, ChangeNotifier session; no IntegrationTestWidgetsFlutterBinding/patrol, platform channel, file system or network), so no device capability is exercised.",
+        "Bare test() entrypoints without the integration binding cannot report results under flutter-device (flutter test --machine -d), so the honest ownership is the host unit suite, matching the classifier's own host-Dart fallback and the existing host-suite override precedent for integration_test/ paths.",
+        "The previous file header claimed a real-device window and the platform native KDF branch; both claims were stale (KDF is pure-Dart PBKDF2) and the header was corrected in the same change."
+      ]
     }
   },
   "profiles": {

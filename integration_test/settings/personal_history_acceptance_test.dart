@@ -1,13 +1,14 @@
 // integration_test/settings/personal_history_acceptance_test.dart
 //
-// 个人消息历史域设备端验收（MH-04 计划件；执行窗口=FL-15 客服完整旅程或
-// MH-06 汇总前的真机窗口，小米 45861a）。本文件是可执行验收载体而非占位：
-// 在真机上驱动 PersonalHistoryKeyService 的封包/恢复/轮换/撤销链路并核验
-// 平台 KDF（native）分支真实参与。
+// 个人消息历史域密钥链路验收（MH-04 计划件）。本文件是可执行验收载体而非
+// 占位：驱动 PersonalHistoryKeyService 的封包/恢复/轮换/撤销链路。
+// 依赖闭包为纯 Dart（KDF=pointycastle PBKDF2，经 compute() 在 isolate 执行，
+// 无平台通道/文件系统/网络），故在宿主 flutter test（unit 套件）即可完整
+// 执行，不需要真机窗口。
 //
 // 红线：仅本地环境；无真实通知/外发；口令为合成 fixture；断言失败即红。
 // 服务端面（upload/changes/disable）由 MH-02 后端套件与 FL 侧 API 验收覆盖，
-// 本文件聚焦密钥域设备侧行为。夹具构造与单测
+// 本文件聚焦密钥域客户端行为。夹具构造与单测
 // （test/unit_test/service/personal_history_key_test.dart）同款。
 
 import 'package:flutter/foundation.dart';

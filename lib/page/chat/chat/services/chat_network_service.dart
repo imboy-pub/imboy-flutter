@@ -2068,7 +2068,7 @@ class PersonalHistoryApiClient {
       queryParameters: {
         'snapshot': 'account',
         'client_instance': instance,
-        if (pageToken != null) 'page_token': pageToken,
+        'page_token': ?pageToken,
       },
     );
     final generation = payload['generation'];
@@ -2144,8 +2144,8 @@ class PersonalHistoryApiClient {
       data: {
         'cursor': cursor,
         'generation': generation,
-        if (clientInstance != null) 'client_instance': clientInstance,
-        if (completionToken != null) 'completion_token': completionToken,
+        'client_instance': ?clientInstance,
+        'completion_token': ?completionToken,
       },
     );
     final acknowledgedGeneration = payload['generation'];

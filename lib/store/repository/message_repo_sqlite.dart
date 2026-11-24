@@ -1575,7 +1575,7 @@ class PersonalHistoryLocalStore {
       [
         _projectionDomain(domain),
         generation,
-        if (conversationId != null) conversationId,
+        ?conversationId,
         if (after != null) ...[
           after.mergedAt,
           after.messageId,
