@@ -110,6 +110,18 @@ void main() {
     },
   );
 
+  test('fresh browser IDs have independent random suffixes', () async {
+    final suffixes = <String>{};
+    for (var i = 0; i < 10; i++) {
+      web.window.localStorage.removeItem('web_device_id');
+      final did = (await DeviceExt().detail)!['did'] as String;
+      expect(did, matches(RegExp(r'^web_\d+_[a-z0-9]{22}$')));
+      expect(did.length, lessThanOrEqualTo(40));
+      suffixes.add(did.split('_').last);
+    }
+    expect(suffixes, hasLength(10));
+  });
+
   test('DID limit counts UTF8-valid code points without truncation', () async {
     final exactly128 = List.filled(128, '设').join();
     web.window.localStorage.setItem('web_device_id', exactly128);

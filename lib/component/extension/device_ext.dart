@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:math';
 
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
@@ -42,7 +43,7 @@ class DeviceExt extends DeviceInfoPlugin {
       }
       if (deviceId == null || deviceId.isEmpty) {
         final newDeviceId =
-            'web_${DateTime.now().millisecondsSinceEpoch}_${_generateRandomString(8)}';
+            'web_${DateTime.now().millisecondsSinceEpoch}_${_generateRandomString(22)}';
         browser.setItem('web_device_id', newDeviceId);
         deviceId = newDeviceId;
       }
@@ -209,10 +210,10 @@ class DeviceExt extends DeviceInfoPlugin {
   /// 生成随机字符串（用于 Web 设备 ID）
   String _generateRandomString(int length) {
     const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
-    final random = DateTime.now().millisecondsSinceEpoch;
+    final random = Random.secure();
     final sb = StringBuffer();
     for (int i = 0; i < length; i++) {
-      sb.write(chars[(random + i) % chars.length]);
+      sb.write(chars[random.nextInt(chars.length)]);
     }
     return sb.toString();
   }
