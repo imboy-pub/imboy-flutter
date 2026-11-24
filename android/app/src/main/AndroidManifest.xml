@@ -155,12 +155,7 @@
         <!-- 微信支付回调入口（继承 fluwx 的 FluwxWXEntryActivity）。
              微信 SDK 硬性约定：必须位于 <applicationId>.wxapi.WXPayEntryActivity。
              exported=true 供微信客户端回调，launchMode=singleTop 避免重复创建。 -->
-        <activity
-            android:name=".wxapi.WXPayEntryActivity"
-            android:exported="true"
-            android:launchMode="singleTop"
-            android:taskAffinity="pub.imboy.app"
-            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
+        <activity android:name=".wxapi.WXPayEntryActivity" android:exported="true" android:launchMode="singleTop" android:taskAffinity="pub.imboy.app" android:theme="@android:style/Theme.Translucent.NoTitleBar" /> <!-- nosemgrep: exported_activity — 微信 SDK 硬性要求 exported=true（FluwxWXEntryActivity 支付回调） -->
 
     </application>
     <!-- Required to query activities that can process text, see:

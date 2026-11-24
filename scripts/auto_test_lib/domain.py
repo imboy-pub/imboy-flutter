@@ -848,7 +848,7 @@ def _run(cmd: list[str], cwd: Path | None = None, timeout: int = 120) -> dict:
 
 def _probe_http(url: str, timeout: float = 2.0) -> dict:
     try:
-        with urlopen(url, timeout=timeout) as resp:
+        with urlopen(url, timeout=timeout) as resp:  # nosemgrep: dynamic-urllib-use-detected — 只读探活本地/fixture URL（QA 工具，非用户可控）
             body = resp.read(512).decode('utf-8', errors='replace')
             return {'url': url, 'reachable': True, 'status': resp.status, 'body_head': body[:200]}
     except URLError as exc:

@@ -52,7 +52,7 @@ def main():
     assert Path(subprocess.check_output(
         ['git', 'rev-parse', '--show-toplevel'], cwd=root, text=True).strip()) == root
     run = Path(tempfile.mkdtemp(prefix='gz-oa-macos-session-'))
-    os.chmod(run, 0o700)
+    os.chmod(run, 0o700)  # nosemgrep: insecure-file-permissions — 0o700 仅属主 rwx，为最严格目录权限（规则 $BITS>=0o650 阈值误报）
     bundle = 'pub.imboy.app.gzoatest.' + uuid.uuid4().hex
     paths = ['scripts/oa_webview_macos_session_gate.py',
              'scripts/oa_webview_native_session_gate.py',

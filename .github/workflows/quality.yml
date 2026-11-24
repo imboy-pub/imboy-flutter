@@ -34,7 +34,7 @@ jobs:
         working-directory: imboyapp
     steps:
       - name: Checkout imboyapp
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           path: imboyapp
 
@@ -43,7 +43,7 @@ jobs:
         run: python3 .github/scripts/ci_source_lock.py outputs --app . --github-output "$GITHUB_OUTPUT"
 
       - name: Checkout backend contract sources
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           repository: ${{ steps.sources.outputs.backend_repository }}
           ref: ${{ steps.sources.outputs.backend_sha }}
@@ -51,7 +51,7 @@ jobs:
           fetch-depth: 1
 
       - name: Checkout admin product contract sources
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           repository: ${{ steps.sources.outputs.admin_repository }}
           ref: ${{ steps.sources.outputs.admin_sha }}
@@ -83,7 +83,7 @@ jobs:
 
       - name: Upload framework gate diagnostics
         if: always()
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:
           name: auto-test-framework-logs
           path: |
@@ -101,7 +101,7 @@ jobs:
     name: SQLite migration gate
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           submodules: false
 
@@ -110,7 +110,7 @@ jobs:
         run: bash .github/scripts/ci_checkout_submodules.sh
 
       - name: Setup Flutter
-        uses: subosito/flutter-action@v2
+        uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2
         with:
           flutter-version: '3.50.0'
           channel: 'stable'
@@ -138,7 +138,7 @@ jobs:
 
       - name: Upload gate evidence
         if: always()
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:
           name: sqlite-migration-gate-logs
           path: build/sqlite-migration-gate/
@@ -152,7 +152,7 @@ jobs:
     name: Flutter analyze
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           submodules: false
           fetch-depth: 0
@@ -163,7 +163,7 @@ jobs:
 
       - name: Setup Flutter
         id: flutter-sdk
-        uses: subosito/flutter-action@v2
+        uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2
         with:
           # 与 ci.yml/integration_test.yml 的 FLUTTER_VERSION 保持一致，
           # 避免 analyze ratchet 基线跨版本不可比
@@ -233,7 +233,7 @@ jobs:
 
       - name: Upload formatting correction
         if: failure() && steps.dart-format.outcome == 'failure'
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:
           name: dart-format-patch
           path: ${{ runner.temp }}/dart-format.patch
@@ -268,7 +268,7 @@ jobs:
     name: Secrets scan (gitleaks)
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           fetch-depth: 0
 
