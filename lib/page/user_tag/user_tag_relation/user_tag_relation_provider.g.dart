@@ -42,7 +42,7 @@ final class UserTagRelationNotifierProvider
 }
 
 String _$userTagRelationNotifierHash() =>
-    r'4b39a77c9575fad5f33216271848d7437ceaef9e';
+    r'6d73c107c388b8003fcb73995a45f12f543b2ce8';
 
 abstract class _$UserTagRelationNotifier
     extends $Notifier<UserTagRelationState> {

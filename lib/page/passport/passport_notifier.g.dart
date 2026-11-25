@@ -9,17 +9,14 @@ part of 'passport_notifier.dart';
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
 /// Passport 模块 Riverpod Notifier
-/// 管理 Passport 模块的状态和业务逻辑
 
 @ProviderFor(PassportNotifier)
 final passportProvider = PassportNotifierProvider._();
 
 /// Passport 模块 Riverpod Notifier
-/// 管理 Passport 模块的状态和业务逻辑
 final class PassportNotifierProvider
     extends $NotifierProvider<PassportNotifier, PassportState> {
   /// Passport 模块 Riverpod Notifier
-  /// 管理 Passport 模块的状态和业务逻辑
   PassportNotifierProvider._()
     : super(
         from: null,
@@ -47,10 +44,9 @@ final class PassportNotifierProvider
   }
 }
 
-String _$passportNotifierHash() => r'1fadfee2dfd9d5bc00c96bc6804e014d7a6fefb6';
+String _$passportNotifierHash() => r'3701cf604a59d22f98e7e1cbaa6b79fba5a95198';
 
 /// Passport 模块 Riverpod Notifier
-/// 管理 Passport 模块的状态和业务逻辑
 
 abstract class _$PassportNotifier extends $Notifier<PassportState> {
   PassportState build();
