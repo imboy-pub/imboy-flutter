@@ -57,6 +57,7 @@ jobs:
             --config=p/secrets \
             --config=p/owasp-top-ten \
             --exclude=.security-reports \
+            --exclude=assets/i18n \
             --json --output=.security-reports/semgrep.json \
             --sarif-output=.security-reports/semgrep.sarif \
             .

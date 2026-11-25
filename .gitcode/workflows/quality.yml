@@ -32,7 +32,7 @@ jobs:
     timeout-minutes: 30
     steps:
       - name: 检出代码
-        uses: checkout
+        uses: checkout # nosemgrep: github-actions-mutable-action-tag — gitcode 内置 action（docs.gitcode.com 流水线语法，仅支持 uses: checkout，无 @ref 形式）
 
       # 版本与 .github/workflows/ci.yml 的 FLUTTER_VERSION 保持一致
       - name: 安装 Flutter 3.47.5

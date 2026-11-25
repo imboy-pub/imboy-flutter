@@ -261,7 +261,7 @@ class _SetRegionPageState extends ConsumerState<SetRegionPage> {
           debugPrint('保存地区缓存失败: $error');
         }
       }
-      if (!_preferences.isCurrent) return;
+      if (!_preferences.isCurrent || !mounted) return;
 
       // 从任意递归层级统一退出整个地区编辑流程，回到调用方（MorePage）。
       final navigator = Navigator.of(context);

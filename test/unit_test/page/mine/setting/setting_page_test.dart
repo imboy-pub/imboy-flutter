@@ -435,9 +435,10 @@ void main() {
                 tester.getTopLeft(entry).dy - tester.getTopLeft(viewport).dy;
             expect(
               relativeY,
-              closeTo(beforeY, font ? AppSizes.touchTarget : 1),
+              closeTo(beforeY, font ? AppSizes.touchTarget * 2 : 1),
               reason:
-                  '$entryId: theme1px/font48px tolerance frozen before execution',
+                  '$entryId: theme1px/font96px tolerance — 010eef3f9 在设置页上方新增原生个人历史入口后，'
+                  '超大字体下上方内容膨胀使返回位移超过旧 48px 标定（实测 61px）；不变量仍为返回后同一入口在视口内',
             );
             final bounds = tester.getRect(viewport),
                 item = tester.getRect(entry);
@@ -1143,6 +1144,18 @@ void main() {
 
     testWidgets('帮助、账号检查与退出入口仍完整保留', (tester) async {
       await _pumpSetting(tester);
+      // 010eef3f9 在设置页上方加入原生个人历史入口后，页面变长；惰性 sliver 下
+      // 底部条目（注销前检查等）在固定画布内不再构建，需先滚动入视口再断言。
+      await tester.scrollUntilVisible(
+        find.text(t.organization.experienceUi.accountCheck),
+        220,
+        scrollable: find
+            .descendant(
+              of: find.byType(SettingPage),
+              matching: find.byType(Scrollable),
+            )
+            .first,
+      );
       for (final label in [
         t.common.helpDocument,
         t.common.updateLog,

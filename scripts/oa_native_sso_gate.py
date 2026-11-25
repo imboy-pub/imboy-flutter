@@ -59,7 +59,7 @@ class Oa(http.server.BaseHTTPRequestHandler):
                 'Content-Type': 'application/json',
                 'Authorization': 'Bearer ' + self.fixture['native_oa']['credential']})
         try:
-            response = urllib.request.urlopen(request, timeout=10)
+            response = urllib.request.urlopen(request, timeout=10)  # nosemgrep: dynamic-urllib-use-detected — loopback fixture (127.0.0.1) SSO exchange，QA 门脚本
         except urllib.error.HTTPError as error:
             response = error
         with response:

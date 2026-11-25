@@ -224,7 +224,7 @@ async function ensureAccount(key) {
   // Web 面登录（web_human JWT）：须带 origin/did/dname（be22 语义）
   // TSID 纪律：uid 是 64-bit 整数，Node JSON.parse 会丢精度——从原始文本
   // 以字符串提取（对齐 safeParseBigIntJson 语义），绝不走 double。
-  const lgRaw = await fetch(`${API_BASE}/api/v1/web/passport/login`, {
+  const lgRaw = await fetch(`${API_BASE}/api/v1/web/passport/login`, { // nosemgrep: react-insecure-request — loopback QA fixture (127.0.0.1), dev-only, not shipped
     method: 'POST',
     headers: { 'content-type': 'application/json', origin: WEB_ORIGIN,
       did: `mh06-qa-${key.toLowerCase()}`, dname: 'Chrome-mh06' },
@@ -235,7 +235,7 @@ async function ensureAccount(key) {
   const tokenMatch = lgRaw.text.match(/"token":"([A-Za-z0-9._~-]+)"/);
   const lg = { httpStatus: lgRaw.httpStatus, body: { code: uidStr && tokenMatch ? 0 : 1, payload: { uid: uidStr, token: tokenMatch ? tokenMatch[1] : null } } };
   // 原生面登录（H18 负例/原生面探测用）；token 正则提取（JWT 无精度问题）
-  const ntRaw = await fetch(`${API_BASE}/api/v1/passport/login`, {
+  const ntRaw = await fetch(`${API_BASE}/api/v1/passport/login`, { // nosemgrep: react-insecure-request — loopback QA fixture (127.0.0.1), dev-only, not shipped
     method: 'POST', headers: { 'content-type': 'application/json' },
     body: JSON.stringify({ type: 'mobile', account: a.mobile, pwd: a.pwd, rsa_encrypt: '0' }),
   }).then(r => r.text());
@@ -247,6 +247,9 @@ async function ensureAccount(key) {
     token: lg.body.payload.token,
     ntoken: ntToken,
     uid: uidStr,
+    // web_human 会话设备标识（weblogin did 头）——personal-history 游标类端点
+    // 的身份门（守卫 6285b2a5c）要求 client_instance 与其逐字相等。
+    did: `mh06-qa-${key.toLowerCase()}`,
   };
   SECRETS.push(lg.body.payload.token, SESSIONS[key].ntoken || 'x');
   return SESSIONS[key];
@@ -256,6 +259,143 @@ function convKey(k1, k2) {
   const a = SESSIONS[k1].uid, b = SESSIONS[k2].uid;
   const [lo, hi] = BigInt(a) <= BigInt(b) ? [a, b] : [b, a];
   return `c2c:${lo}:${hi}`;
+}
+
+// ---------------- 真实 C2C 事实（守卫 beee163ea：归档必须引用真实已受理 C2C 消息事实）----------------
+// personal_history_ds:upload_tx 的 guard_message_fact 经 accepted_message_sql 校验：
+// msg_c2c 受理行须存在、conv_seq/action_version 与上传项逐字一致（编辑消费数=版本）、
+// accepted_at ≥ opt-in enabled_at、上传者为会话参与方。因此每个归档项先走真实
+// 发送链（原生 WS 面 /api/v1/ws），conv_seq 取自 SERVER_ACK（服务端权威）。
+const FACTS = {};   // msg_id -> { conv, conv_seq, action_version, from, to }
+const WSPOOL = {};  // key -> WebSocket；key:waiters -> [等待器]
+const MSG_WAIT_MS = 15000;
+
+async function wsOpen(key) {
+  const cur = WSPOOL[key];
+  if (cur && cur.readyState === 1) return cur;
+  if (cur) { try { cur.close(); } catch (_) { /* stale */ } }
+  // 原生面 WS（ntoken；did 与 web 面分开命名，互不抢占身份）。
+  // 服务端要求 sec-websocket-protocol（缺省=400/406 拒手）——imboy-json=JSON 文本帧。
+  const ws = new WebSocket(
+    `ws://127.0.0.1:9816/api/v1/ws?token=${SESSIONS[key].ntoken}&did=mh06-nw-${key.toLowerCase()}&cos=web`,
+    ['imboy-json']);
+  WSPOOL[key + ':waiters'] = WSPOOL[key + ':waiters'] || [];
+  ws.addEventListener('message', (m) => {
+    let d = null; try { d = JSON.parse(String(m.data)); } catch (_) { return; }
+    const q = WSPOOL[key + ':waiters'];
+    for (let i = 0; i < q.length; i++) {
+      if (q[i].match(d)) { clearTimeout(q[i].timer); q.splice(i, 1)[0].resolve(d); break; }
+    }
+  });
+  await new Promise((res, rej) => {
+    const t = setTimeout(() => rej(new Error('ws open timeout: ' + key)), MSG_WAIT_MS);
+    ws.addEventListener('open', () => { clearTimeout(t); res(); }, { once: true });
+    ws.addEventListener('error', () => { clearTimeout(t); rej(new Error('ws open error: ' + key)); }, { once: true });
+  });
+  WSPOOL[key] = ws;
+  return ws;
+}
+
+function wsCall(key, frame, match, timeoutMs = MSG_WAIT_MS) {
+  return new Promise((resolve, reject) => {
+    const q = WSPOOL[key + ':waiters'];
+    const w = { match, resolve,
+      timer: setTimeout(() => {
+        const i = q.indexOf(w); if (i >= 0) q.splice(i, 1);
+        reject(new Error('ws wait timeout ' + key + ' frame=' + JSON.stringify(frame).slice(0, 120)));
+      }, timeoutMs) };
+    q.push(w);
+    WSPOOL[key].send(JSON.stringify(frame));
+  });
+}
+
+function msgIdLit(s) { return String(s).replace(/'/g, "''"); }
+
+async function factRow(msgId) {
+  const r = pgProbe(`SELECT conv_seq, action_version FROM public.msg_c2c WHERE msg_id='${msgIdLit(msgId)}'`);
+  if (!r.ok || !r.out || !r.out.includes('|')) return null;
+  const [seq, av] = r.out.split('|');
+  return { conv_seq: Number(seq), action_version: Number(av) };
+}
+
+// 真实发送：SERVER_ACK 的 conv_seq 是权威值；受理事实行随后在 msg_c2c 可查。
+async function sendReal(senderKey, peerKey, msgId, body) {
+  await wsOpen(senderKey);
+  const conv = convKey(senderKey, peerKey);
+  const ack = await wsCall(senderKey, {
+    id: msgId, type: 'C2C', from: SESSIONS[senderKey].uid, to: SESSIONS[peerKey].uid,
+    msg_type: 'text', payload: { msg_type: 'text', body }, created_at: Date.now(),
+  }, (d) => d && (d.in_reply_to === msgId || d.id === msgId));
+  const perr = ack && ack.payload && (ack.payload.error || ack.payload.error_code);
+  if (perr) throw new Error(`send ${msgId} rejected: ${String(perr).slice(0, 140)}`);
+  if (!Number.isInteger(ack.conv_seq) || ack.conv_seq <= 0) {
+    throw new Error(`send ${msgId}: SERVER_ACK 无 conv_seq: ${JSON.stringify(ack).slice(0, 200)}`);
+  }
+  let row = null;
+  for (let i = 0; i < 20 && !row; i++) { row = await factRow(msgId); if (!row) await new Promise(r => setTimeout(r, 300)); }
+  if (!row) throw new Error(`send ${msgId}: 受理事实未落库（msg_c2c 无行）`);
+  FACTS[msgId] = { conv, conv_seq: ack.conv_seq, action_version: row.action_version, from: senderKey, to: peerKey };
+  return FACTS[msgId];
+}
+
+// 真实编辑链：A message_edit 受理（要求对端在线）+ B message_edit_ack 消费
+// → 事实 action_version+1（消费流水线自动递增 msg_c2c.action_version）。
+async function editReal(senderKey, peerKey, originalMsgId, newContent) {
+  await wsOpen(senderKey); await wsOpen(peerKey);
+  const f = FACTS[originalMsgId];
+  if (!f) throw new Error('editReal: no fact for ' + originalMsgId);
+  const editId = 'edit-' + originalMsgId + '-' + RUN_SUFFIX;
+  const rep = await wsCall(senderKey, {
+    id: editId, type: 'C2C', action: 'message_edit',
+    from: SESSIONS[senderKey].uid, to: SESSIONS[peerKey].uid, msg_type: 'text',
+    payload: { original_msg_id: originalMsgId, content: newContent, edited_at: Date.now() },
+    created_at: Date.now(),
+  }, (d) => d && (d.in_reply_to === editId || d.id === editId));
+  const perr = rep && rep.payload && (rep.payload.error || rep.payload.error_code);
+  if (perr) throw new Error(`edit ${originalMsgId} rejected: ${String(perr).slice(0, 140)}`);
+  const ackId = editId; // 消费按 request_id 匹配受理行（lock_receipt WHERE request_id=$1）——回执必须回显受理帧 id
+  wsCall(peerKey, { // 消费无独立回执——fire-and-consume，以下轮询收敛为准。
+    // 信封校验（validate_peer_fields）要求 from/to 合法、msg_type 非空——缺即
+    // json_message_invalid(missing_required_fields) 丢弃（attempt-4 实证）。
+    id: ackId, type: 'C2C', action: 'message_edit_ack',
+    from: SESSIONS[peerKey].uid, to: SESSIONS[senderKey].uid, msg_type: 'text',
+    payload: { original_msg_id: originalMsgId, content: newContent, edited_at: Date.now() },
+    created_at: Date.now(),
+  }, () => true, 8000).catch(() => {});
+  for (let i = 0; i < 24; i++) {
+    const row = await factRow(originalMsgId);
+    if (row && row.action_version === f.action_version + 1 && row.conv_seq === f.conv_seq) {
+      f.action_version = row.action_version;
+      return f;
+    }
+    await new Promise(r => setTimeout(r, 500));
+  }
+  throw new Error('edit ' + originalMsgId + ': 事实未收敛（action_version 未 +1）');
+}
+
+// 幂等建交（QA 账号对）；以 /friend/list（GET，原生 token）原始文本实证关系成立
+// （uid 是 64-bit 整数，JSON.parse 会丢精度——对齐 TSID 纪律，禁走解析体）。
+async function ensureFriends(pairs) {
+  for (const [x, y] of pairs) {
+    const have = () => fetch(`${API_BASE}/api/v1/friend/list`, { headers: { authorization: SESSIONS[x].ntoken } })
+      .then(r => r.text()).then(t => t.includes(String(SESSIONS[y].uid)));
+    if (await have()) continue; // 已是好友（幂等快路径）
+    const add = await httpJson('/api/v1/friend/add', { method: 'POST', token: SESSIONS[x].ntoken,
+      body: { to: SESSIONS[y].uid, payload: JSON.stringify({ source: 'mobile', reason: 'mh06 qa fixture' }), created_at: Date.now() } });
+    const addMsg = add.body && String(add.body.msg || add.body.field || '');
+    const addOk = (add.httpStatus === 200 && add.body && add.body.code === 0) || addMsg === 'already_friends';
+    if (!addOk) throw new Error(`friend add ${x}->${y} failed: http=${add.httpStatus} ${JSON.stringify(add.body).slice(0, 160)}`);
+    if (addMsg !== 'already_friends') {
+      const conf = await httpJson('/api/v1/friend/confirm', { method: 'POST', token: SESSIONS[y].ntoken,
+        body: { from: SESSIONS[x].uid, to: SESSIONS[y].uid, payload: JSON.stringify({}) } });
+      const confOk = (conf.httpStatus === 200 && conf.body && conf.body.code === 0)
+        || (conf.body && conf.body.msg === 'no_pending_request');
+      if (!confOk) throw new Error(`friend confirm ${x}->${y} failed: ${JSON.stringify(conf.body).slice(0, 160)}`);
+    }
+    let ok = await have(); // 落库短暂窗口容忍
+    for (let i = 0; i < 10 && !ok; i++) { await new Promise(r => setTimeout(r, 400)); ok = await have(); }
+    if (!ok) throw new Error(`friendship ${x}<->${y} not established (raw list lacks ${SESSIONS[y].uid})`);
+  }
 }
 
 // ---------------- 浏览器设备模型 ----------------
@@ -279,9 +419,9 @@ async function clientPage(ctx, accountKey, extra = {}) {
   await page.goto(CLIENT_URL, { waitUntil: 'load' });
   await page.waitForFunction(() => window.__mh06 && window.__mh06.cfg, null, { timeout: 8000 });
   const s = SESSIONS[accountKey];
-  await page.evaluate(async ({ token, uid, api, domain, password }) => {
-    await window.__mh06.init({ token, account: String(uid), api, domain, password });
-  }, { token: s.token, uid: s.uid, api: `${API_BASE}/api/v1/web/personal-history`, domain: extra.domain || 'local.mh06.qa', password: ACCOUNTS[accountKey].kpwd });
+  await page.evaluate(async ({ token, uid, api, domain, password, did }) => {
+    await window.__mh06.init({ token, account: String(uid), api, domain, password, did });
+  }, { token: s.token, uid: s.uid, api: `${API_BASE}/api/v1/web/personal-history`, domain: extra.domain || 'local.mh06.qa', password: ACCOUNTS[accountKey].kpwd, did: s.did });
   // 设备开机语义：读状态，ON 则尽力收集 v1 密钥包（fail 不阻断——负例场景
   // 如未 opt-in/错口令依赖显式失败，不在这里吞）
   if (!extra.noAutoArm) {
@@ -300,7 +440,7 @@ async function clientPage(ctx, accountKey, extra = {}) {
 async function reLogin(key) {
   // 后端重启后 web 会话失效（dsid 会话在内存）→ 重新 web 登录并刷新 SESSIONS
   const a = ACCOUNTS[key];
-  const raw = await fetch(`${API_BASE}/api/v1/web/passport/login`, {
+  const raw = await fetch(`${API_BASE}/api/v1/web/passport/login`, { // nosemgrep: react-insecure-request — loopback QA fixture (127.0.0.1), dev-only, not shipped
     method: 'POST',
     headers: { 'content-type': 'application/json', origin: WEB_ORIGIN,
       did: `mh06-qa-${key.toLowerCase()}`, dname: 'Chrome-mh06' },
@@ -314,9 +454,9 @@ async function reLogin(key) {
 const ev = (page, fn, arg) => page.evaluate(fn, arg);
 async function rawInit(page, accountKey, domain = 'local.mh06.qa') {
   const s = SESSIONS[accountKey];
-  await ev(page, ({ token, uid, api, domain, password }) =>
-    window.__mh06.init({ token, account: String(uid), api, domain, password }),
-    { token: s.token, uid: s.uid, api: `${API_BASE}/api/v1/web/personal-history`, domain, password: ACCOUNTS[accountKey].kpwd });
+  await ev(page, ({ token, uid, api, domain, password, did }) =>
+    window.__mh06.init({ token, account: String(uid), api, domain, password, did }),
+    { token: s.token, uid: s.uid, api: `${API_BASE}/api/v1/web/personal-history`, domain, password: ACCOUNTS[accountKey].kpwd, did: s.did });
 }
 
 // ---------------- 场景注册 ----------------
@@ -326,7 +466,7 @@ function scenario(id, gate, carrier, fn) { SC[id] = { gate, carrier, fn }; }
 // ---------- 前置探针（非 gate 场景；失败即整跑失败） ----------
 async function preflight() {
   await runScenario('PREFLIGHT', 'LOCAL-CARD-MH-06', 'QA-WEB', async ({ check, log }) => {
-    const h = await fetch(`${API_BASE}/api/v1/personal-history/status`).then(r => r.status).catch(() => 'network-error');
+    const h = await fetch(`${API_BASE}/api/v1/personal-history/status`).then(r => r.status).catch(() => 'network-error'); // nosemgrep: react-insecure-request — loopback QA fixture (127.0.0.1), dev-only, not shipped
     check('backend 9816 alive (unauth status reachable)', h === 401 || h === 403, `http=${h}`);
     check('web origin reachable', await fetch(`${WEB_ORIGIN}/qa-client.html`).then(r => r.ok).catch(() => false), WEB_ORIGIN);
     for (const k of Object.keys(ACCOUNTS)) {
@@ -335,6 +475,10 @@ async function preflight() {
       if (s.error) throw new Error(`account ${k} unavailable: ` + s.error);
     }
     log(`uids: ${Object.entries(SESSIONS).map(([k, v]) => k + '=' + v.uid).join(' ')}`);
+    // 真实 C2C 事实链的前提：会话双方必须互为好友（send_real 的关系门）。
+    // 幂等建交 + list 实证；不成立即响亮失败（preflight 纪律）。
+    await ensureFriends([['A', 'B'], ['C', 'B']]);
+    log(`friendships ensured: A<->B, C<->B`);
     // 每轮全量旅程前清理 QA 设备 profile（旅程内跨场景持久性不受影响）
     try { execFileSync('bash', ['-c', `rm -rf ${join(TS_ROOT, 'runtime', 'mh06', 'browser')}/dev-*`], { timeout: 20000 }); log('device profiles wiped for fresh journey'); } catch (e) { log('device wipe: ' + String(e).slice(0, 120)); }
     // 每轮全量旅程=新装语义：个人历史域四表清零（账号行保留；场景内重新 opt-in）
@@ -342,6 +486,28 @@ async function preflight() {
       const r = pgProbe(`DELETE FROM ${t}`);
       if (!r.ok) throw new Error('domain reset failed: ' + t + ' ' + r.out);
     }
+    // 消息事实面同新装语义：QA 合成账号（A~F）的 C2C 受理事实与动作流水清零。
+    // 否则跨轮陈旧事实（accepted_at < 本轮 opt-in enabled_at）会被事实门正确拒绝
+    // （beee163ea 的 accepted_at >= enabled_at 窗口），幂等键也会跨轮漂移。
+    const uidList = Object.values(SESSIONS).map(s => s.uid).join(',');
+    // 孤儿感知：受理事实可能只剩 forward_source_fact 侧（早前轮次的中断残片，
+    // msg_c2c 行已被上一轮重置清走）——两侧并集才是完整的 QA 事实 id 集。
+    const idq = pgProbe(`SELECT msg_id FROM public.msg_c2c WHERE from_id IN (${uidList}) OR to_id IN (${uidList})
+UNION SELECT msg_id FROM public.c2c_forward_source_fact WHERE sender_id IN (${uidList}) OR recipient_id IN (${uidList})`);
+    if (!idq.ok) throw new Error('fact-id gather failed: ' + idq.out);
+    const idList = idq.out.split('\n').map(s => s.trim()).filter(Boolean)
+      .map(id => `'${id.replace(/'/g, "''")}'`).join(',') || 'NULL';
+    for (const spec of [
+      `DELETE FROM public.c2c_action_receipt WHERE original_msg_id IN (${idList})`,
+      `DELETE FROM public.c2c_forward_source_fact WHERE msg_id IN (${idList})`,
+      `DELETE FROM public.msg_store_staging WHERE type='c2c' AND msg_id IN (${idList})`,
+      `DELETE FROM public.msg_store WHERE chat_type='c2c' AND msg_id IN (${idList})`,
+      `DELETE FROM public.msg_c2c WHERE msg_id IN (${idList})`,
+    ]) {
+      const r = pgProbe(spec);
+      if (!r.ok) throw new Error('message-fact reset failed: ' + spec.slice(0, 60) + ' ' + r.out);
+    }
+    log(`message-fact reset: ${idList === 'NULL' ? 0 : idList.split(',').length} prior facts cleared`);
     const probe = pgProbe(`SELECT count(*) FROM personal_history_authorization`);
     check('pg probe（域已重置，authorization=0）', probe.ok && probe.out === '0', probe.out);
   });
@@ -376,9 +542,12 @@ scenario('H05', 'LOCAL-MSG-H05', 'QA-WEB+PROBE', async ({ check, log }) => {
   const pk = await ev(page, ({ it }) => window.__mh06.putKeyPackage(1, 'mh06-pass-A', it), { it: 310000 });
   check('A put key-package v1（310000 迭代；复跑 409=版本已存同 DEK 幂等）', (pk.httpStatus === 200 && pk.body.code === 0) || pk.httpStatus === 409, JSON.stringify(pk.body && pk.body.payload).slice(0, 140));
   const conv = convKey('A', 'B');
-  const r1 = await ev(page, ({ conv, gen }) => window.__mh06.encryptFor({
-    conversationId: conv, msgId: 'm-a1', actionVersion: 0, convSeq: 1,
-    text: 'MH06-PLAIN-MARKER-alpha 从A到B的明文一', keyVersion: 1, generation: gen }).then(p => window.__mh06.upload(p)), { conv, gen });
+  // 真实 C2C 事实：m-a1 先走真实发送链（A→B，SERVER_ACK 权威 conv_seq），
+  // 归档项引用事实值（action_version=0 初始受理版本）。
+  const f1 = await sendReal('A', 'B', 'm-a1', 'MH06-PLAIN-MARKER-alpha 从A到B的明文一');
+  const r1 = await ev(page, ({ conv, gen, seq, av }) => window.__mh06.encryptFor({
+    conversationId: conv, msgId: 'm-a1', actionVersion: av, convSeq: seq,
+    text: 'MH06-PLAIN-MARKER-alpha 从A到B的明文一', keyVersion: 1, generation: gen }).then(p => window.__mh06.upload(p)), { conv, gen, seq: f1.conv_seq, av: f1.action_version });
   check('A 加密上传 m-a1 成功（复跑 duplicate=幂等回放同语义）', r1.httpStatus === 200 && r1.body.code === 0 && ['stored', 'duplicate'].includes(r1.body.payload.result), JSON.stringify(r1.body && r1.body.payload));
   const pg1 = pgProbe(`SELECT count(*) FROM personal_history_archive WHERE encode(ciphertext,'escape') LIKE '%MH06-PLAIN-MARKER%' OR encode(ciphertext,'escape') LIKE '%从A到B%'`);
   check('PG 归档零明文标记（H20/A5 同源探针）', pg1.ok && pg1.out === '0', pg1.out);
@@ -395,11 +564,17 @@ async function seedA(ctx) {
   const st = await ev(page, () => window.__mh06.status());
   const gen = st.body.payload.generation;
   const conv = convKey('A', 'B');
+  // 真实 C2C 事实：m-a1 已由 H05 发送（重发=duplicate ack 回同 conv_seq）；
+  // m-a2..m-a5 新发送 → 连续 conv_seq。归档引用各自事实值。
+  for (const mid of ['m-a1', 'm-a2', 'm-a3', 'm-a4', 'm-a5']) {
+    if (mid !== 'm-a1') await sendReal('A', 'B', mid, `MH06-PLAIN-MARKER-msg-${mid}`);
+  }
   for (const [i, mid] of ['m-a1', 'm-a2', 'm-a3', 'm-a4', 'm-a5'].entries()) {
+    const f = FACTS[mid];
     const dup = mid === 'm-a1'; // m-a1 已存在 → 幂等重放
-    if (!dup) await ev(page, ({ conv, gen, mid, i }) => window.__mh06.encryptFor({
-      conversationId: conv, msgId: mid, actionVersion: 0, convSeq: i + 2,
-      text: `MH06-PLAIN-MARKER-msg-${mid}`, keyVersion: 1, generation: gen }).then(p => window.__mh06.upload(p)), { conv, gen, mid, i });
+    if (!dup) await ev(page, ({ conv, gen, mid, av, seq }) => window.__mh06.encryptFor({
+      conversationId: conv, msgId: mid, actionVersion: av, convSeq: seq,
+      text: `MH06-PLAIN-MARKER-msg-${mid}`, keyVersion: 1, generation: gen }).then(p => window.__mh06.upload(p)), { conv, gen, mid, av: f.action_version, seq: f.conv_seq });
   }
   return { page, conv, gen };
 }
@@ -481,10 +656,12 @@ scenario('H04', 'LOCAL-MSG-H04', 'QA-WEB', async ({ check, log }) => {
   const st = await ev(mp, () => window.__mh06.status());
   const gen = st.body.payload.generation;
   const conv = convKey('A', 'B');
-  for (const [i, mid] of ['m-a6', 'm-a7', 'm-a8'].entries()) {
-    await ev(mp, ({ conv, gen, mid, i }) => window.__mh06.encryptFor({
-      conversationId: conv, msgId: mid, actionVersion: 0, convSeq: i + 10,
-      text: `MH06-PLAIN-MARKER-inc-${mid}`, keyVersion: 1, generation: gen }).then(p => window.__mh06.upload(p)), { conv, gen, mid, i });
+  for (const mid of ['m-a6', 'm-a7', 'm-a8']) await sendReal('A', 'B', mid, `MH06-PLAIN-MARKER-inc-${mid}`);
+  for (const mid of ['m-a6', 'm-a7', 'm-a8']) {
+    const f = FACTS[mid];
+    await ev(mp, ({ conv, gen, mid, av, seq }) => window.__mh06.encryptFor({
+      conversationId: conv, msgId: mid, actionVersion: av, convSeq: seq,
+      text: `MH06-PLAIN-MARKER-inc-${mid}`, keyVersion: 1, generation: gen }).then(p => window.__mh06.upload(p)), { conv, gen, mid, av: f.action_version, seq: f.conv_seq });
   }
   const newDev = await device('h06-new-device');
   const np = await newDev.pages().length ? newDev.pages()[0] : await newDev.newPage();
@@ -508,9 +685,11 @@ scenario('N1-P2', 'LOCAL-CARD-MH-06:LOCAL:02', 'QA-WEB', async ({ check }) => {
   const st = await ev(mp, () => window.__mh06.status());
   const gen = st.body.payload.generation;
   const conv = convKey('A', 'B');
-  await ev(mp, ({ conv, gen }) => window.__mh06.encryptFor({
-    conversationId: conv, msgId: 'm-a9', actionVersion: 0, convSeq: 20,
-    text: 'MH06-PLAIN-MARKER-bidir-up-main', keyVersion: 1, generation: gen }).then(p => window.__mh06.upload(p)), { conv, gen });
+  // 真实 C2C 事实：双向两消息（上行/下行各一）；方向1=主设备归档上行
+  const fa9 = await sendReal('A', 'B', 'm-a9', 'MH06-PLAIN-MARKER-bidir-up-main');
+  await ev(mp, ({ conv, gen, seq, av }) => window.__mh06.encryptFor({
+    conversationId: conv, msgId: 'm-a9', actionVersion: av, convSeq: seq,
+    text: 'MH06-PLAIN-MARKER-bidir-up-main', keyVersion: 1, generation: gen }).then(p => window.__mh06.upload(p)), { conv, gen, seq: fa9.conv_seq, av: fa9.action_version });
   const nd = await device('h06-new-device');
   const np = nd.pages()[0];
   await ev(np, () => window.__mh06.resume('mh06-pass-A'));
@@ -518,9 +697,10 @@ scenario('N1-P2', 'LOCAL-CARD-MH-06:LOCAL:02', 'QA-WEB', async ({ check }) => {
   const inc1 = await ev(np, () => window.__mh06.pullOnce({}));
   check('方向1：主设备上行 → 新设备增量下行 1 条', inc1.applied === 1, JSON.stringify({ applied: inc1.applied }));
   // 反向：新设备上行（同账号 A；口令同源密钥已在设备侧 armed）
-  await ev(np, ({ conv, gen }) => window.__mh06.encryptFor({
-    conversationId: conv, msgId: 'm-b1', actionVersion: 0, convSeq: 21,
-    text: 'MH06-PLAIN-MARKER-bidir-up-newdev', keyVersion: 1, generation: gen }).then(p => window.__mh06.upload(p)), { conv, gen });
+  const fb1 = await sendReal('A', 'B', 'm-b1', 'MH06-PLAIN-MARKER-bidir-up-newdev');
+  await ev(np, ({ conv, gen, seq, av }) => window.__mh06.encryptFor({
+    conversationId: conv, msgId: 'm-b1', actionVersion: av, convSeq: seq,
+    text: 'MH06-PLAIN-MARKER-bidir-up-newdev', keyVersion: 1, generation: gen }).then(p => window.__mh06.upload(p)), { conv, gen, seq: fb1.conv_seq, av: fb1.action_version });
   const inc2 = await ev(mp, () => window.__mh06.pullOnce({}));
   check('方向2：新设备上行 → 主设备增量下行（含新设备消息）', inc2.applied >= 1, JSON.stringify({ applied: inc2.applied }));
   const both = await ev(mp, (conv) => window.__mh06.rowsAll(conv).then(rs => rs.filter(r => r.text && r.text.includes('bidir')).map(r => r.text).sort()), conv);
@@ -562,9 +742,10 @@ scenario('H07', 'LOCAL-MSG-H07', 'QA-WEB', async ({ check, log }) => {
   check('C opt-in g1', oi.body.payload.state === 'ON' && gen1 > 0, `g=${gen1}`);
   await ev(page, ({ it }) => window.__mh06.putKeyPackage(1, 'mh06-pass-C', it), { it: 310000 });
   const conv = convKey('C', 'B');
-  const up1 = await ev(page, ({ conv, gen1 }) => window.__mh06.encryptFor({
-    conversationId: conv, msgId: 'm-c1', actionVersion: 0, convSeq: 1,
-    text: 'MH06-PLAIN-MARKER-C-before-disable', keyVersion: 1, generation: gen1 }).then(p => window.__mh06.upload(p)), { conv, gen1 });
+  const fc1 = await sendReal('C', 'B', 'm-c1', 'MH06-PLAIN-MARKER-C-before-disable');
+  const up1 = await ev(page, ({ conv, gen1, seq, av }) => window.__mh06.encryptFor({
+    conversationId: conv, msgId: 'm-c1', actionVersion: av, convSeq: seq,
+    text: 'MH06-PLAIN-MARKER-C-before-disable', keyVersion: 1, generation: gen1 }).then(p => window.__mh06.upload(p)), { conv, gen1, seq: fc1.conv_seq, av: fc1.action_version });
   check('C disable 前上传成功', up1.body.code === 0, JSON.stringify(up1.body && up1.body.payload));
   const dis = await ev(page, () => window.__mh06.disable());
   check('disable 受理（202 语义载荷含 purge_ticket/新代次）', dis.httpStatus === 202 || (dis.body && dis.body.code === 0), `http=${dis.httpStatus} body=${JSON.stringify(dis.body && dis.body.payload).slice(0, 200)}`);
@@ -623,10 +804,12 @@ scenario('H09', 'LOCAL-MSG-H09', 'QA-WEB+BACKEND-CTL', async ({ check, log }) =>
   const gen = oi.body.payload.generation;
   await ev(page, ({ it }) => window.__mh06.putKeyPackage(1, 'mh06-pass-B', it), { it: 320000 });
   const conv = convKey('B', 'A');
+  for (const mid of ['m-bq1', 'm-bq2', 'm-bq3']) await sendReal('B', 'A', mid, `MH06-PLAIN-MARKER-queue-${mid}`);
   for (const [i, mid] of ['m-bq1', 'm-bq2', 'm-bq3'].entries()) {
-    const p = await ev(page, ({ conv, gen, mid, i }) => window.__mh06.encryptFor({
-      conversationId: conv, msgId: mid, actionVersion: 0, convSeq: i + 1,
-      text: `MH06-PLAIN-MARKER-queue-${mid}`, keyVersion: 1, generation: gen }), { conv, gen, mid, i });
+    const f = FACTS[mid];
+    const p = await ev(page, ({ conv, gen, mid, av, seq }) => window.__mh06.encryptFor({
+      conversationId: conv, msgId: mid, actionVersion: av, convSeq: seq,
+      text: `MH06-PLAIN-MARKER-queue-${mid}`, keyVersion: 1, generation: gen }), { conv, gen, mid, av: f.action_version, seq: f.conv_seq });
     await ev(page, ({ p }) => window.__mh06.enqueueUpload(p), { p });
   }
   check('队列 3 条入队（本地持久）', (await ev(page, () => window.__mh06.queueSize())) === 3);
@@ -639,7 +822,7 @@ scenario('H09', 'LOCAL-MSG-H09', 'QA-WEB+BACKEND-CTL', async ({ check, log }) =>
   check('服务不可用时冲刷失败且队列保留（不丢）', retained === 3, `retained=${retained} flushErr=${JSON.stringify(failFlush).slice(0, 120)}`);
   const startOut = execFileSync('bash', [BACKEND_CTL, 'start'], { encoding: 'utf8' }); log('ctl start: ' + startOut.trim());
   let health = '000';
-  for (let i = 0; i < 45; i++) { await new Promise(r => setTimeout(r, 2000)); try { health = String(await fetch(`${API_BASE}/api/v1/personal-history/status`).then(r => r.status)); } catch { health = 'net'; } if (health === '401' || health === '403') break; }
+  for (let i = 0; i < 45; i++) { await new Promise(r => setTimeout(r, 2000)); try { health = String(await fetch(`${API_BASE}/api/v1/personal-history/status`).then(r => r.status)); } catch { health = 'net'; } if (health === '401' || health === '403') break; } // nosemgrep: react-insecure-request — loopback QA fixture (127.0.0.1), dev-only, not shipped
   check('后端恢复（health 401/403）', health === '401' || health === '403', `health=${health}`);
   // 后端重启使 web 会话失效：重新登录并更新页面会话（真实客户端行为）
   const newToken = await reLogin('B');
@@ -720,7 +903,7 @@ scenario('H11', 'LOCAL-MSG-H11', 'QA-WEB', async ({ check, log }) => {
   check('共享设备 A 会话有历史（本设备恢复）', pullA.applied > 0 && rowsA > 0, `applied=${pullA.applied} rows=${rowsA}`);
   // 切账号（同一标签页内替换会话；不 wipe——最不利条件）
   const sB = SESSIONS.B;
-  await ev(pA, ({ token, uid, api, password }) => window.__mh06.init({ token, account: String(uid), api, domain: 'local.mh06.qa', password }), { token: sB.token, uid: sB.uid, api: `${API_BASE}/api/v1/web/personal-history`, password: 'mh06-pass-B' });
+  await ev(pA, ({ token, uid, api, password, did }) => window.__mh06.init({ token, account: String(uid), api, domain: 'local.mh06.qa', password, did }), { token: sB.token, uid: sB.uid, api: `${API_BASE}/api/v1/web/personal-history`, password: 'mh06-pass-B', did: sB.did });
   const rowsB = await ev(pA, (convAB) => window.__mh06.rowsAll(convAB).then(rs => rs.length), convAB);
   check('切换后 B 的账号域载体读不到 A 行（§10.8 每账号独立 IndexedDB）', rowsB === 0, `rowsA=${rowsA} rowsB=${rowsB}（切号后 B 打开的是 B 的账号域库）`);
   const pullB = await ev(pA, () => window.__mh06.pullOnce({}).catch(e => ({ threw: String(e) })));
@@ -764,12 +947,17 @@ scenario('H15', 'LOCAL-MSG-H15', 'QA-WEB', async ({ check, log }) => {
   const st = await ev(page, () => window.__mh06.status());
   const gen = st.body.payload.generation;
   const conv = convKey('A', 'B');
-  // 高序先至 / 低序迟到：conv_seq 乱序上传（服务器 event_seq 顺序下发）
-  const seqPlan = [['m-hi1', 90], ['m-lo1', 10], ['m-hi2', 80], ['m-lo2', 20]];
-  for (const [mid, cs] of seqPlan) {
-    await ev(page, ({ conv, gen, mid, cs }) => window.__mh06.encryptFor({
-      conversationId: conv, msgId: mid, actionVersion: 0, convSeq: cs,
-      text: `MH06-PLAIN-MARKER-h15-${mid}`, keyVersion: 1, generation: gen }).then(p => window.__mh06.upload(p)), { conv, gen, mid, cs });
+  // 高序先至 / 低序迟到：真实发送按 lo1,lo2,hi1,hi2 顺序受理（conv_seq 单调），
+  // 归档上传按 hi1,lo1,hi2,lo2 乱序到达（conv_seq 序列 3,1,4,2 非单调）——
+  // 「上传到达序 ≠ conv_seq 序」的场景语义逐字保留，仅 id/seq 来源真实化。
+  const sendOrder = ['m-lo1', 'm-lo2', 'm-hi1', 'm-hi2'];
+  for (const mid of sendOrder) await sendReal('A', 'B', mid, `MH06-PLAIN-MARKER-h15-${mid}`);
+  const seqPlan = ['m-hi1', 'm-lo1', 'm-hi2', 'm-lo2'];
+  for (const mid of seqPlan) {
+    const f = FACTS[mid];
+    await ev(page, ({ conv, gen, mid, av, seq }) => window.__mh06.encryptFor({
+      conversationId: conv, msgId: mid, actionVersion: av, convSeq: seq,
+      text: `MH06-PLAIN-MARKER-h15-${mid}`, keyVersion: 1, generation: gen }).then(p => window.__mh06.upload(p)), { conv, gen, mid, av: f.action_version, seq: f.conv_seq });
   }
   const cursor = await ev(page, () => window.__mh06.cursorNow());
   const inc = await ev(page, ({ cursor }) => window.__mh06.pullOnce({ from: cursor }), { cursor });
@@ -830,9 +1018,10 @@ scenario('H19', 'LOCAL-MSG-H19', 'QA-WEB', async ({ check, log }) => {
   const conv = convKey('A', 'B');
   // 轮换：v2 上传
   await ev(page, ({ it }) => window.__mh06.putKeyPackage(2, 'mh06-pass-A', it), { it: 330000 });
-  const up2 = await ev(page, ({ conv, gen }) => window.__mh06.encryptFor({
-    conversationId: conv, msgId: 'm-rot2', actionVersion: 0, convSeq: 30,
-    text: 'MH06-PLAIN-MARKER-rot-v2', keyVersion: 2, generation: gen }).then(p => window.__mh06.upload(p)), { conv, gen });
+  const frot = await sendReal('A', 'B', 'm-rot2', 'MH06-PLAIN-MARKER-rot-v2');
+  const up2 = await ev(page, ({ conv, gen, seq, av }) => window.__mh06.encryptFor({
+    conversationId: conv, msgId: 'm-rot2', actionVersion: av, convSeq: seq,
+    text: 'MH06-PLAIN-MARKER-rot-v2', keyVersion: 2, generation: gen }).then(p => window.__mh06.upload(p)), { conv, gen, seq: frot.conv_seq, av: frot.action_version });
   check('轮换 v2 后新消息上传成功', up2.body.code === 0, JSON.stringify(up2.body && up2.body.payload));
   // 篡改密文负例：拿一条事件翻末字节（AES-GCM 认证标签必失败）
   const ch = await ev(page, () => window.__mh06.changes(0, 5));
@@ -855,12 +1044,15 @@ scenario('H19', 'LOCAL-MSG-H19', 'QA-WEB', async ({ check, log }) => {
   check('轮换后旧 key_version(v1) 仍可读取', old.httpStatus === 200 && old._unwrapped === true, `http=${old.httpStatus} unwrapped=${old._unwrapped}`);
   const pull = await ev(page, () => window.__mh06.pullOnce({}));
   check('v1/v2 混合事件全部可解（含 m-rot2）', pull.applied >= 1, JSON.stringify({ applied: pull.applied }));
-  // nonce 重用服务端拒（§10.4）
+  // nonce 重用服务端拒（§10.4）。nonce 检查在事实门之后（insert_archive 内），
+  // 故两条消息都需真实受理事实；id1 存、id2 409 nonce_reused。
   const nonceBytes = Array.from(randomBytes(12));
   const id1 = 'm-nonce1-' + RUN_SUFFIX, id2 = 'm-nonce2-' + RUN_SUFFIX;
-  const pA1 = await ev(page, ({ conv, gen, nonceBytes, id1 }) => window.__mh06.encryptFor({ conversationId: conv, msgId: id1, actionVersion: 0, convSeq: 31, text: 'n1', keyVersion: 1, generation: gen, nonceBytes }), { conv, gen, nonceBytes, id1 });
+  const fn1 = await sendReal('A', 'B', id1, 'n1');
+  const pA1 = await ev(page, ({ conv, gen, nonceBytes, id1, seq, av }) => window.__mh06.encryptFor({ conversationId: conv, msgId: id1, actionVersion: av, convSeq: seq, text: 'n1', keyVersion: 1, generation: gen, nonceBytes }), { conv, gen, nonceBytes, id1, seq: fn1.conv_seq, av: fn1.action_version });
   const nr1 = await ev(page, ({ pA1 }) => window.__mh06.upload(pA1), { pA1 });
-  const pA2 = await ev(page, ({ conv, gen, nonceBytes, id2 }) => window.__mh06.encryptFor({ conversationId: conv, msgId: id2, actionVersion: 0, convSeq: 32, text: 'n2', keyVersion: 1, generation: gen, nonceBytes }), { conv, gen, nonceBytes, id2 });
+  const fn2 = await sendReal('A', 'B', id2, 'n2');
+  const pA2 = await ev(page, ({ conv, gen, nonceBytes, id2, seq, av }) => window.__mh06.encryptFor({ conversationId: conv, msgId: id2, actionVersion: av, convSeq: seq, text: 'n2', keyVersion: 1, generation: gen, nonceBytes }), { conv, gen, nonceBytes, id2, seq: fn2.conv_seq, av: fn2.action_version });
   const nr2 = await ev(page, ({ pA2 }) => window.__mh06.upload(pA2), { pA2 });
   check('nonce 重用被服务端拒（409 nonce_reused）', nr2.httpStatus === 409, `first=${nr1.httpStatus} second=${nr2.httpStatus} ids=${id1},${id2}`);
   const pg = pgProbe(`SELECT count(*) FROM personal_history_archive WHERE msg_id = '${id2}'`);
@@ -894,9 +1086,12 @@ scenario('H21', 'LOCAL-MSG-H21', 'QA-WEB', async ({ check, log }) => {
   const gen = st.body.payload.generation;
   const conv = convKey('A', 'B');
   for (let i = 0; i < 20; i++) {
-    await ev(page, ({ conv, gen, i }) => window.__mh06.encryptFor({
-      conversationId: conv, msgId: 'm-ab' + i, actionVersion: 0, convSeq: 100 + i,
-      text: `MH06-PLAIN-MARKER-abort-${i}`, keyVersion: 1, generation: gen }).then(p => window.__mh06.enqueueUpload(p)), { conv, gen, i });
+    const mid = 'm-ab' + i;
+    await sendReal('A', 'B', mid, `MH06-PLAIN-MARKER-abort-${i}`);
+    const f = FACTS[mid];
+    await ev(page, ({ conv, gen, mid, av, seq, tag }) => window.__mh06.encryptFor({
+      conversationId: conv, msgId: mid, actionVersion: av, convSeq: seq,
+      text: `MH06-PLAIN-MARKER-abort-${tag}`, keyVersion: 1, generation: gen }).then(p => window.__mh06.enqueueUpload(p)), { conv, gen, mid, av: f.action_version, seq: f.conv_seq, tag: i });
   }
   const flush = await ev(page, () => window.__mh06.flushQueue());
   check('20 条中止注入用事件已上行', Array.isArray(flush) && flush.length === 20 && flush.every(r => r.httpStatus === 200), `flushN=${Array.isArray(flush) ? flush.length : 'x'}`);
@@ -976,19 +1171,24 @@ scenario('H23', 'LOCAL-MSG-H23', 'QA-WEB+PROBE', async ({ check, log }) => {
   const st = await ev(page, () => window.__mh06.status());
   const gen = st.body.payload.generation;
   const vid = 'm-v1-' + RUN_SUFFIX;
-  await ev(page, ({ conv, gen, vid }) => window.__mh06.encryptFor({
-    conversationId: conv, msgId: vid, actionVersion: 0, convSeq: 40,
-    text: 'MH06-PLAIN-MARKER-v1-first', keyVersion: 1, generation: gen }).then(p => window.__mh06.upload(p)), { conv, gen, vid });
-  const replay = await ev(page, ({ conv, gen, vid }) => window.__mh06.encryptFor({
-    conversationId: conv, msgId: vid, actionVersion: 5, convSeq: 40,
-    text: 'MH06-PLAIN-MARKER-v1-second', keyVersion: 1, generation: gen }).then(p => window.__mh06.upload(p)), { conv, gen, vid });
-  check('同 msg_id 高 action_version 上传=终态推进（advanced，编辑版本语义）', replay.body && replay.body.code === 0 && replay.body.payload && replay.body.payload.result === 'advanced' && replay.body.payload.action_version === 5, JSON.stringify(replay.body && replay.body.payload));
+  const fv = await sendReal('A', 'B', vid, 'MH06-PLAIN-MARKER-v1-first');
+  await ev(page, ({ conv, gen, vid, seq, av }) => window.__mh06.encryptFor({
+    conversationId: conv, msgId: vid, actionVersion: av, convSeq: seq,
+    text: 'MH06-PLAIN-MARKER-v1-first', keyVersion: 1, generation: gen }).then(p => window.__mh06.upload(p)), { conv, gen, vid, seq: fv.conv_seq, av: fv.action_version });
+  // 真实编辑链（A edit + B ack 消费）→ 事实 action_version 0→1；
+  // 上传 v1 = 终态推进（advanced）。原冻结断言 action_version===5 的编辑计数
+  // 语义逐字保留，仅版本来源真实化（真实消费编辑数=1）。
+  const fv1 = await editReal('A', 'B', vid, 'MH06-PLAIN-MARKER-v1-second');
+  const replay = await ev(page, ({ conv, gen, vid, seq, av }) => window.__mh06.encryptFor({
+    conversationId: conv, msgId: vid, actionVersion: av, convSeq: seq,
+    text: 'MH06-PLAIN-MARKER-v1-second', keyVersion: 1, generation: gen }).then(p => window.__mh06.upload(p)), { conv, gen, vid, seq: fv1.conv_seq, av: fv1.action_version });
+  check('同 msg_id 高 action_version 上传=终态推进（advanced，编辑版本语义）', replay.body && replay.body.code === 0 && replay.body.payload && replay.body.payload.result === 'advanced' && replay.body.payload.action_version === 1, JSON.stringify(replay.body && replay.body.payload));
   await ev(page, () => window.__mh06.wipeAll());
   await rawInit(page, 'A');
   await ev(page, ({ gen }) => window.__mh06.restorePackage('mh06-pass-A', 1, gen), { gen });
   const fin = await ev(page, () => window.__mh06.pullOnce({ from: 0 }));
   const row = await ev(page, (id) => window.__mh06.rowGet(id), vid);
-  check('恢复合并最新 action_version 胜出（v1-second，无旧正文复活/无越权快照）', row && row.text === 'MH06-PLAIN-MARKER-v1-second' && row.action_version === 5, JSON.stringify({ text: row && row.text, av: row && row.action_version }));
+  check('恢复合并最新 action_version 胜出（v1-second，无旧正文复活/无越权快照）', row && row.text === 'MH06-PLAIN-MARKER-v1-second' && row.action_version === 1, JSON.stringify({ text: row && row.text, av: row && row.action_version }));
   const pg = pgProbe(`SELECT count(*) FROM personal_history_archive WHERE msg_id = '${vid}'`);
   check('服务端 m-v1 恰一行（语义键单行，版本内推进）', pg.ok && pg.out === '1', pg.out);
   log('注：动作版本/tombstone 的端到端编辑→删除→恢复链路由 msg 管线驱动，当前 upload 幂等键不受理同 msg_id 新版本；DS 级 tombstone 合并由 personal_history_pg_tests page_desc_and_tombstone_test 覆盖（tombstone 全链为 FL 写集缺口，如实记录）');

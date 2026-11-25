@@ -32,7 +32,7 @@ jobs:
         working-directory: imboyapp
     steps:
       - name: Checkout imboyapp（生成物所在仓）
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           path: imboyapp
 
@@ -41,7 +41,7 @@ jobs:
         run: python3 .github/scripts/ci_source_lock.py outputs --app . --github-output "$GITHUB_OUTPUT"
 
       - name: Checkout imboy backend（错误码真源仓）
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           repository: ${{ steps.sources.outputs.backend_repository }}
           ref: ${{ steps.sources.outputs.backend_sha }}
@@ -54,7 +54,7 @@ jobs:
       - name: Setup Dart
         # 生成器纯 dart:io 标准库（无 package: 依赖、无需 pub get、
         # 无需 Flutter SDK），使用满足项目 SDK 下限的 Dart 3.13.4
-        uses: dart-lang/setup-dart@v1
+        uses: dart-lang/setup-dart@2286a0c042b44434fe26d292bbce8d34f7ec662b # v1
         with:
           sdk: '3.13.4'
 
@@ -67,7 +67,7 @@ jobs:
 
       - name: Retain source identity
         if: always()
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:
           name: error-code-source-checkout
           path: ${{ runner.temp }}/error-code-source-checkout.json
@@ -87,7 +87,7 @@ jobs:
         working-directory: imboyapp
     steps:
       - name: Checkout imboyapp（生成物所在仓）
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           path: imboyapp
 
@@ -96,7 +96,7 @@ jobs:
         run: python3 .github/scripts/ci_source_lock.py outputs --app . --github-output "$GITHUB_OUTPUT"
 
       - name: Checkout imboy backend（proto 真源仓）
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           repository: ${{ steps.sources.outputs.backend_repository }}
           ref: ${{ steps.sources.outputs.backend_sha }}
@@ -114,7 +114,7 @@ jobs:
           protoc --version
 
       - name: Setup Dart + protoc_plugin
-        uses: dart-lang/setup-dart@v1
+        uses: dart-lang/setup-dart@2286a0c042b44434fe26d292bbce8d34f7ec662b # v1
         with:
           sdk: '3.13.4'
       - name: Verify SDK compatibility
@@ -128,7 +128,7 @@ jobs:
 
       - name: Retain source identity
         if: always()
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:
           name: proto-source-checkout
           path: ${{ runner.temp }}/proto-source-checkout.json

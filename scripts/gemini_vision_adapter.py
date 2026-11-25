@@ -79,7 +79,7 @@ def main() -> int:
         method='POST',
     )
     try:
-        with urlopen(request, timeout=60) as response:
+        with urlopen(request, timeout=60) as response:  # nosemgrep: dynamic-urllib-use-detected — https 字面量 googleapis host + quote() 参数，非用户可控 URL
             body = json.loads(response.read().decode('utf-8'))
     except HTTPError as exc:
         fail(f'Gemini 请求失败: HTTP {exc.code}', 1)

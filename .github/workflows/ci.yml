@@ -30,7 +30,7 @@ jobs:
     outputs:
       matrix: ${{ steps.matrix.outputs.matrix }}
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
       - name: Validate all tracked test ownership
         run: bash .github/scripts/validate_ci_test_paths.sh
       # zero-tracked-PNG 惯例守卫（瘦身 V1 治理 2026-11-18）：test/ 下禁止
@@ -54,7 +54,7 @@ jobs:
           with open(os.environ['GITHUB_OUTPUT'], 'a', encoding='utf-8') as output:
               output.write('matrix=' + json.dumps(matrix, separators=(',', ':')) + '\n')
           PY
-      - uses: actions/upload-artifact@v7
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:
           name: execution-plan
           path: |
@@ -74,7 +74,7 @@ jobs:
       run:
         working-directory: imboyapp
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           path: imboyapp
           submodules: false
@@ -85,12 +85,12 @@ jobs:
       - name: Resolve pinned cross-repository sources
         id: sources
         run: python3 .github/scripts/ci_source_lock.py outputs --app . --github-output "$GITHUB_OUTPUT"
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           repository: ${{ steps.sources.outputs.backend_repository }}
           ref: ${{ steps.sources.outputs.backend_sha }}
           path: imboy
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           repository: ${{ steps.sources.outputs.admin_repository }}
           ref: ${{ steps.sources.outputs.admin_sha }}
@@ -98,7 +98,7 @@ jobs:
       - name: Verify actual source checkouts
         id: source-check
         run: python3 .github/scripts/ci_source_lock.py checkout --app . --backend ../imboy --admin ../imboyadmin --output "${{ runner.temp }}/execution-${{ matrix.platform }}-${{ matrix.suite }}/source-checkout.json"
-      - uses: actions/download-artifact@v8
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
         with:
           name: execution-plan
           path: ${{ runner.temp }}/execution-plan
@@ -108,7 +108,7 @@ jobs:
         run: bash .github/scripts/ci_ensure_system_sqlite.sh
       - name: Setup Flutter
         id: sdk
-        uses: subosito/flutter-action@v2
+        uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2
         with:
           flutter-version: ${{ env.FLUTTER_VERSION }}
           channel: stable
@@ -164,7 +164,7 @@ jobs:
             --artifact-dir "${{ runner.temp }}/execution-${{ matrix.platform }}-${{ matrix.suite }}"
       - name: Upload execution evidence even after failure
         if: always()
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:
           name: execution-${{ matrix.platform }}-${{ matrix.suite }}
           path: ${{ runner.temp }}/execution-${{ matrix.platform }}-${{ matrix.suite }}/
@@ -210,7 +210,7 @@ jobs:
             python3 --version
             dpkg-query -W libc6 libstdc++6 libsqlite3-0 libsqlite3-dev
           } | tee "$DEBIAN_CORE_DIR/environment.log"
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           path: imboyapp
           submodules: false
@@ -223,7 +223,7 @@ jobs:
         id: sources
         run: python3 .github/scripts/ci_source_lock.py outputs --app . --github-output "$GITHUB_OUTPUT"
       - name: Checkout backend product contract sources
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           repository: ${{ steps.sources.outputs.backend_repository }}
           ref: ${{ steps.sources.outputs.backend_sha }}
@@ -234,7 +234,7 @@ jobs:
         run: python3 scripts/auto_test.py execution-plan --profile linux-compat --output "$DEBIAN_CORE_DIR/plan.json"
       - name: Setup Flutter with Debian-only caches
         id: sdk
-        uses: subosito/flutter-action@v2
+        uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2
         with:
           flutter-version: ${{ env.FLUTTER_VERSION }}
           channel: stable
@@ -285,7 +285,7 @@ jobs:
             --output "$DEBIAN_CORE_DIR/summary.json"
       - name: Retain Debian evidence separately from PR coverage
         if: always()
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:
           name: debian-core-evidence
           path: ${{ env.DEBIAN_CORE_DIR }}/
@@ -297,15 +297,15 @@ jobs:
     needs: [execution-plan, host-tests]
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
       - name: Download frozen PR plan
-        uses: actions/download-artifact@v8
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
         with:
           name: execution-plan
           path: ${{ runner.temp }}/execution-plan
       - name: Collect every Linux worker artifact
         if: always()
-        uses: actions/download-artifact@v8
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
         with:
           pattern: execution-linux-*
           path: ${{ runner.temp }}/linux-results
@@ -319,7 +319,7 @@ jobs:
             --output "${{ runner.temp }}/execution-coverage/lcov.info" --minimum 38
       - name: Retain combined coverage evidence
         if: always()
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:
           name: execution-coverage
           path: ${{ runner.temp }}/execution-coverage/
@@ -339,12 +339,12 @@ jobs:
     needs: [execution-plan, host-tests, debian-core, coverage, quality-gates, contract-gates, route-smoke-test]
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
       - name: Reconstruct expected plan from the checked-out commit
         run: python3 scripts/auto_test.py execution-plan --profile pr --output "${{ runner.temp }}/pr-plan.json"
       - name: Collect results
         if: always()
-        uses: actions/download-artifact@v8
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
         with:
           pattern: execution-*
           path: ${{ runner.temp }}/execution-results
@@ -360,7 +360,7 @@ jobs:
             --output "${{ runner.temp }}/execution-summary.json"
       - name: Retain final reconciliation
         if: always()
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:
           name: execution-summary
           path: ${{ runner.temp }}/execution-summary.json
@@ -380,7 +380,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           submodules: false
 
@@ -390,13 +390,13 @@ jobs:
 
       # ic_storage_space inherits its Kotlin JVM target from this JDK.
       - name: Setup JDK 17
-        uses: actions/setup-java@v6
+        uses: actions/setup-java@d1374f8ac74474200d16ef8ecee22c7ae7a51880 # v6
         with:
           distribution: temurin
           java-version: '17'
 
       - name: Setup Flutter
-        uses: subosito/flutter-action@v2
+        uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2
         with:
           flutter-version: ${{ env.FLUTTER_VERSION }}
           channel: 'stable'
@@ -457,7 +457,7 @@ jobs:
         run: python3 .github/scripts/ci_check_android_repositories.py --artifact-dir "${RUNNER_TEMP}/android-repositories"
 
       - name: Upload APK
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:
           name: app-release-apk
           path: build/app/outputs/flutter-apk/app-standard-release.apk
@@ -473,7 +473,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           submodules: false
 
@@ -488,7 +488,7 @@ jobs:
           xcrun --sdk iphoneos --show-sdk-version
 
       - name: Setup Flutter
-        uses: subosito/flutter-action@v2
+        uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2
         with:
           flutter-version: ${{ env.FLUTTER_VERSION }}
           channel: 'stable'
@@ -533,7 +533,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           fetch-depth: 0
 
@@ -556,7 +556,7 @@ jobs:
       run:
         working-directory: imboyapp
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           submodules: false
           path: imboyapp
@@ -566,7 +566,7 @@ jobs:
       - name: Resolve pinned cross-repository sources
         id: sources
         run: python3 .github/scripts/ci_source_lock.py outputs --app . --github-output "$GITHUB_OUTPUT"
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           repository: ${{ steps.sources.outputs.backend_repository }}
           ref: ${{ steps.sources.outputs.backend_sha }}
@@ -579,7 +579,7 @@ jobs:
         timeout-minutes: 5
         run: bash .github/scripts/ci_ensure_system_sqlite.sh
       - name: Setup Flutter
-        uses: subosito/flutter-action@v2
+        uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2
         with:
           flutter-version: ${{ env.FLUTTER_VERSION }}
           cache: true
@@ -595,7 +595,7 @@ jobs:
       - name: Reconcile routes
         if: always()
         run: python3 scripts/auto_test.py execution-summary --plan "${{ runner.temp }}/routes-plan.json" --results "${{ runner.temp }}/routes" --output "${{ runner.temp }}/routes-summary.json"
-      - uses: actions/upload-artifact@v7
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         if: always()
         with:
           name: route-smoke-evidence
