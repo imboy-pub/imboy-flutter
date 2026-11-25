@@ -138,13 +138,22 @@ for d in mdpi hdpi xhdpi xxhdpi xxxhdpi; do
   mkdir -p "$PKG/replace/android/app/src/main/res/mipmap-$d"
   cp "$FLUTTER_ROOT/android/app/src/main/res/mipmap-$d/ic_launcher.png" \
      "$PKG/replace/android/app/src/main/res/mipmap-$d/ic_launcher.png"
+  # dedicated adaptive-icon foreground layer: MUST NOT reference
+  # @mipmap/ic_launcher itself — ic_launcher resolves to the anydpi-v26
+  # adaptive XML on API 26+, so a self-referencing foreground is a resource
+  # cycle (W PackageManager "Failure retrieving resources ... mipmap/
+  # ic_launcher" and a system fallback icon; observed on the 2026-11-25
+  # device smoke). The foreground is the same vendor PNG under a distinct
+  # resource name, which keeps the fixture self-contained AND acyclic.
+  cp "$FLUTTER_ROOT/android/app/src/main/res/mipmap-$d/ic_launcher.png" \
+     "$PKG/replace/android/app/src/main/res/mipmap-$d/ic_launcher_foreground.png"
 done
-# synthetic (valid) adaptive icon + its color: self-contained, no extra drawables
+# synthetic (valid, acyclic) adaptive icon + its color: self-contained
 cat > "$PKG/replace/android/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml" <<'EOF'
 <?xml version="1.0" encoding="utf-8"?>
 <adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
     <background android:drawable="@color/ic_launcher_background"/>
-    <foreground android:drawable="@mipmap/ic_launcher"/>
+    <foreground android:drawable="@mipmap/ic_launcher_foreground"/>
 </adaptive-icon>
 EOF
 cat > "$PKG/replace/android/app/src/main/res/values/colors.xml" <<'EOF'
