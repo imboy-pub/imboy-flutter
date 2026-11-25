@@ -76,9 +76,12 @@ function loadManifest(p) {
   if (ib.http_host !== '127.0.0.1') errs.push(`http_host 非回环: ${ib.http_host}`);
   if (Number(ib.http_port) !== 9816) errs.push(`http_port 非 9816: ${ib.http_port}`);
   const db = ib.database || {};
-  if (db.db_name !== 'mh06_personal_history_r1') errs.push(`db_name 非隔离库: ${db.db_name}`);
-  if (db.owner_role !== 'imboy_plan_qa') errs.push(`owner_role 非计划 QA: ${db.owner_role}`);
-  if (!String(db.instance || '').includes('55427')) errs.push('pg instance 非 55427 计划实例');
+  // W4-REVAL: 允许 coordinator 指定的 gapclose 复验 DB 对（仍须回环隔离 QA 库），其余校验不变。
+  const revalPair = m.reval_target === 'gapclose_20261125' &&
+    db.db_name === 'imboy_qa_gapclose' && String(db.instance || '').includes('4323');
+  if (!revalPair && db.db_name !== 'mh06_personal_history_r1') errs.push(`db_name 非隔离库: ${db.db_name}`);
+  if (!revalPair && db.owner_role !== 'imboy_plan_qa') errs.push(`owner_role 非计划 QA: ${db.owner_role}`);
+  if (!revalPair && !String(db.instance || '').includes('55427')) errs.push('pg instance 非 55427 计划实例');
   if (!m.log_dir) errs.push('log_dir 缺失');
   const wo = m.web_origin || {};
   if (!String(wo.primary || '').startsWith('http://127.0.0.1:')) errs.push('web_origin.primary 非回环隔离');
@@ -88,8 +91,9 @@ function loadManifest(p) {
 }
 const MANIFEST = loadManifest(ARGS.manifest);
 const TS_ROOT = resolve(MANIFEST.log_dir, '..');            // .task-state/IMBOY_MASTER_V2_2_20261118
-const WT_IMBOYAPP = join(TS_ROOT, '..', '..', '_task_worktrees', 'IMBOY_MASTER_V2_2_20261118', 'imboyapp');
-const WT_IMBOY = join(TS_ROOT, '..', '..', '_task_worktrees', 'IMBOY_MASTER_V2_2_20261118', 'imboy');
+// W4-REVAL: QA_WT_IMBOYAPP / QA_WT_IMBOY 环境变量可覆写候选指纹 worktree（默认路径保持原行为）。
+const WT_IMBOYAPP = process.env.QA_WT_IMBOYAPP || join(TS_ROOT, '..', '..', '_task_worktrees', 'IMBOY_MASTER_V2_2_20261118', 'imboyapp');
+const WT_IMBOY = process.env.QA_WT_IMBOY || join(TS_ROOT, '..', '..', '_task_worktrees', 'IMBOY_MASTER_V2_2_20261118', 'imboy');
 const API_BASE = `http://127.0.0.1:9816`;
 const WEB_ORIGIN = ARGS.webOrigin || 'http://127.0.0.1:9817';
 const NEG_ORIGIN = ARGS.negativeOrigin || 'http://127.0.0.1:9818';
@@ -194,11 +198,14 @@ async function httpJson(path, { method = 'GET', body, token, headers: extraHeade
 // ---------------- psql 探针 ----------------
 let PG_PW = null;
 function pgProbe(sql) {
-  if (!PG_PW) {
-    const pwPath = join(TS_ROOT, 'runtime', 'qa-pg18-codex', '.pg-password');
-    PG_PW = readFileSync(pwPath, 'utf8').trim();
-  }
-  const url = `postgresql://imboy_plan_qa:${PG_PW}@127.0.0.1:55427/mh06_personal_history_r1`;
+  // W4-REVAL: QA_PG_URL 环境变量可整体覆写探针连接串（默认路径保持原行为）。
+  const url = process.env.QA_PG_URL || (() => {
+    if (!PG_PW) {
+      const pwPath = join(TS_ROOT, 'runtime', 'qa-pg18-codex', '.pg-password');
+      PG_PW = readFileSync(pwPath, 'utf8').trim();
+    }
+    return `postgresql://imboy_plan_qa:${PG_PW}@127.0.0.1:55427/mh06_personal_history_r1`;
+  })();
   try {
     const out = execFileSync('psql', [url, '-tAc', sql], { encoding: 'utf8', timeout: 15000 }).trim();
     return { ok: true, out };
@@ -219,9 +226,22 @@ const SESSIONS = {}; // A -> {token, uid}
 
 async function ensureAccount(key) {
   const a = ACCOUNTS[key];
-  const su = await httpJson('/api/v1/passport/signup', { method: 'POST',
-    body: { type: 'mobile', account: a.mobile, pwd: a.pwd, code: '123456', rsa_encrypt: '0', nickname: a.nick } });
-  const su2 = su.httpStatus === 200 && su.body && su.body.code === 0 ? null : su; // 重复注册 tolerated（复跑）
+  let su2 = null, ntToken = null;
+  // W4-REVAL 快路径（QA_ACCOUNT_FASTPATH=1）：先原生面登录探测既有账号；
+  // 命中则跳过 signup（省 passport_per_ip 桶：10/60s，全量 12 调用必 429）。
+  // 未命中则落回原 signup 流程，默认行为不变。
+  if (process.env.QA_ACCOUNT_FASTPATH === '1') {
+    const probeRaw = await fetch(`${API_BASE}/api/v1/passport/login`, { // nosemgrep: react-insecure-request — loopback QA fixture (127.0.0.1), dev-only, not shipped
+      method: 'POST', headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ type: 'mobile', account: a.mobile, pwd: a.pwd, rsa_encrypt: '0' }),
+    }).then(r => r.text()).catch(() => '');
+    ntToken = (probeRaw.match(/"token":"([A-Za-z0-9._~-]+)"/) || [])[1] || null;
+  }
+  if (!ntToken) {
+    const su = await httpJson('/api/v1/passport/signup', { method: 'POST',
+      body: { type: 'mobile', account: a.mobile, pwd: a.pwd, code: '123456', rsa_encrypt: '0', nickname: a.nick } });
+    su2 = su.httpStatus === 200 && su.body && su.body.code === 0 ? null : su; // 重复注册 tolerated（复跑）
+  }
   // Web 面登录（web_human JWT）：须带 origin/did/dname（be22 语义）
   // TSID 纪律：uid 是 64-bit 整数，Node JSON.parse 会丢精度——从原始文本
   // 以字符串提取（对齐 safeParseBigIntJson 语义），绝不走 double。
@@ -236,11 +256,14 @@ async function ensureAccount(key) {
   const tokenMatch = lgRaw.text.match(/"token":"([A-Za-z0-9._~-]+)"/);
   const lg = { httpStatus: lgRaw.httpStatus, body: { code: uidStr && tokenMatch ? 0 : 1, payload: { uid: uidStr, token: tokenMatch ? tokenMatch[1] : null } } };
   // 原生面登录（H18 负例/原生面探测用）；token 正则提取（JWT 无精度问题）
-  const ntRaw = await fetch(`${API_BASE}/api/v1/passport/login`, { // nosemgrep: react-insecure-request — loopback QA fixture (127.0.0.1), dev-only, not shipped
-    method: 'POST', headers: { 'content-type': 'application/json' },
-    body: JSON.stringify({ type: 'mobile', account: a.mobile, pwd: a.pwd, rsa_encrypt: '0' }),
-  }).then(r => r.text());
-  const ntToken = (ntRaw.match(/"token":"([A-Za-z0-9._~-]+)"/) || [])[1] || null;
+  // W4-REVAL: 快路径已取得 ntToken 时不再重复登录。
+  if (!ntToken) {
+    const ntRaw = await fetch(`${API_BASE}/api/v1/passport/login`, { // nosemgrep: react-insecure-request — loopback QA fixture (127.0.0.1), dev-only, not shipped
+      method: 'POST', headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ type: 'mobile', account: a.mobile, pwd: a.pwd, rsa_encrypt: '0' }),
+    }).then(r => r.text());
+    ntToken = (ntRaw.match(/"token":"([A-Za-z0-9._~-]+)"/) || [])[1] || null;
+  }
   if (lg.httpStatus !== 200 || !lg.body || lg.body.code !== 0 || !lg.body.payload || !lg.body.payload.token || !uidStr) {
     throw new Error(`account ${key} web login failed: signup=${JSON.stringify(sanitize(JSON.stringify(su2 || su)))} weblogin=${sanitize(lgRaw.text.slice(0, 200))}`);
   }
