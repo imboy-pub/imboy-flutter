@@ -377,7 +377,8 @@ async function editReal(senderKey, peerKey, originalMsgId, newContent) {
 // （uid 是 64-bit 整数，JSON.parse 会丢精度——对齐 TSID 纪律，禁走解析体）。
 async function ensureFriends(pairs) {
   for (const [x, y] of pairs) {
-    const have = () => fetch(`${API_BASE}/api/v1/friend/list`, { headers: { authorization: SESSIONS[x].ntoken } })
+    // 假阳性抑制：本文件是本机 QA fixture，API_BASE 恒为回环 127.0.0.1（见 L84 回环断言），TLS 无意义。
+    const have = () => fetch(`${API_BASE}/api/v1/friend/list`, { headers: { authorization: SESSIONS[x].ntoken } }) // nosemgrep: typescript.react.security.react-insecure-request.react-insecure-request
       .then(r => r.text()).then(t => t.includes(String(SESSIONS[y].uid)));
     if (await have()) continue; // 已是好友（幂等快路径）
     const add = await httpJson('/api/v1/friend/add', { method: 'POST', token: SESSIONS[x].ntoken,
