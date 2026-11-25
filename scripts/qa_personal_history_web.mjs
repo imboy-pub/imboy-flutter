@@ -264,7 +264,8 @@ async function ensureAccount(key) {
     ntToken = (ntRaw.match(/"token":"([A-Za-z0-9._~-]+)"/) || [])[1] || null;
   }
   if (lg.httpStatus !== 200 || !lg.body || lg.body.code !== 0 || !lg.body.payload || !lg.body.payload.token || !uidStr) {
-    throw new Error(`account ${key} web login failed: signup=${JSON.stringify(sanitize(JSON.stringify(su2 || su)))} weblogin=${sanitize(lgRaw.text.slice(0, 200))}`);
+    // su 是 if (!ntToken) 块内 const——快路径命中时越界；诊断只用 su2（未注册=null）。
+    throw new Error(`account ${key} web login failed: signup=${JSON.stringify(sanitize(JSON.stringify(su2 || null)))} weblogin=${sanitize(lgRaw.text.slice(0, 200))}`);
   }
   SESSIONS[key] = {
     token: lg.body.payload.token,
