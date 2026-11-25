@@ -6,155 +6,13 @@ import 'package:imboy/config/const.dart';
 import 'package:imboy/page/conversation/conversation_provider.dart';
 import 'package:imboy/service/sqlite.dart';
 import 'package:imboy/service/storage.dart';
-import 'package:imboy/store/api/conversation_api.dart';
 import 'package:imboy/store/model/conversation_model.dart';
-import 'package:imboy/store/model/message_model.dart' show IMBoyMessageStatus;
 import 'package:imboy/store/repository/conversation_repo_sqlite.dart';
-import 'package:imboy/store/repository/message_repo_sqlite.dart'
-    show MessageRepo;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 import '../../../fixtures/sqlite_migration/sqlite_migration_fixtures.dart';
-
-const _testUid = '995011';
-
-class _FakeConversationApi extends ConversationApi {
-  List<Map<String, dynamic>> entries = const <Map<String, dynamic>>[];
-  bool pinResult = true;
-  bool deleteResult = true;
-  bool restoreResult = true;
-  Completer<bool>? deleteGate;
-  bool deleteThrows = false;
-
-  final List<Map<String, String>> pinCalls = <Map<String, String>>[];
-  final List<Map<String, String>> unpinCalls = <Map<String, String>>[];
-  final List<Map<String, String>> deleteCalls = <Map<String, String>>[];
-  final List<Map<String, String>> restoreCalls = <Map<String, String>>[];
-
-  @override
-  Future<List<Map<String, dynamic>>> listMine({int? lastServerTs}) async {
-    return entries;
-  }
-
-  @override
-  Future<bool> pin({
-    required String conversationId,
-    required String type,
-  }) async {
-    pinCalls.add({'conversation_id': conversationId, 'type': type});
-    return pinResult;
-  }
-
-  @override
-  Future<bool> unpin({
-    required String conversationId,
-    required String type,
-  }) async {
-    unpinCalls.add({'conversation_id': conversationId, 'type': type});
-    return pinResult;
-  }
-
-  @override
-  Future<bool> deleteConversation({
-    required String conversationId,
-    required String type,
-  }) async {
-    deleteCalls.add({'conversation_id': conversationId, 'type': type});
-    if (deleteThrows) throw StateError('transport unavailable');
-    if (deleteGate != null) return deleteGate!.future;
-    return deleteResult;
-  }
-
-  @override
-  Future<bool> restoreConversation({
-    required String conversationId,
-    required String type,
-  }) async {
-    restoreCalls.add({'conversation_id': conversationId, 'type': type});
-    return restoreResult;
-  }
-}
-
-class _TestConversationNotifier extends ConversationNotifier {
-  _TestConversationNotifier({required ConversationApi api})
-    : super(conversationApi: api);
-}
-
-Future<ConversationModel> _insertConversation({
-  required int peerId,
-  required String type,
-  required int lastTime,
-  bool isShow = true,
-  bool isPinned = false,
-  String avatar = '',
-}) async {
-  final repo = ConversationRepo();
-  final id = await repo.insert(
-    ConversationModel(
-      id: 0,
-      peerId: peerId,
-      avatar: avatar,
-      title: '$peerId',
-      subtitle: 'subtitle-$peerId',
-      type: type,
-      msgType: 'text',
-      lastTime: lastTime,
-      lastMsgId: 'msg-$peerId',
-      unreadNum: 0,
-      isShow: isShow ? 1 : 0,
-      payload: {
-        'authoritative': {
-          'is_pinned': isPinned,
-          'server_ts': lastTime,
-          'last_msg': {'text': 'subtitle-$peerId'},
-        },
-      },
-    ),
-  );
-  return (await repo.findById(id))!;
-}
-
-/// UX-02：给会话种一条消息行（真实 msg_c2c/msg_c2g 表）。
-Future<void> _seedMessage(
-  Database db, {
-  required String type,
-  required String uk3,
-  required int autoId,
-  required int msgId,
-  required int status,
-  required bool own,
-}) async {
-  await db.insert(MessageRepo.getTableName(type), {
-    MessageRepo.autoId: autoId,
-    MessageRepo.id: msgId,
-    'msg_type': 'text',
-    MessageRepo.from: own ? int.parse(_testUid) : 8000,
-    MessageRepo.to: own ? 8000 : int.parse(_testUid),
-    MessageRepo.conversationUk3: uk3,
-    'e2ee': '',
-    MessageRepo.payload: '{"text":"m-$msgId"}',
-    MessageRepo.createdAt: autoId,
-    MessageRepo.topicId: 0,
-    MessageRepo.status: status,
-    MessageRepo.isAuthor: own ? 1 : 0,
-    MessageRepo.type: type,
-    'action': '',
-  });
-}
-
-ProviderContainer _containerWith(ConversationApi api) {
-  final container = ProviderContainer(
-    overrides: [
-      conversationProvider.overrideWith(
-        () => _TestConversationNotifier(api: api),
-      ),
-    ],
-  );
-  addTearDown(container.dispose);
-  container.listen(conversationProvider, (_, _) {});
-  return container;
-}
+import 'conversation_authority_actions_support.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -163,7 +21,7 @@ void main() {
   setUpAll(() async {
     SharedPreferences.setMockInitialValues(<String, Object>{});
     await StorageService.init();
-    await StorageService.to.setString(Keys.currentUid, _testUid);
+    await StorageService.to.setString(Keys.currentUid, authorityTestUid);
     sqfliteFfiInit();
     databaseFactory = databaseFactoryFfi;
     db = await openFixtureDatabaseAtVersion(version: 32);
@@ -179,13 +37,13 @@ void main() {
     await SqliteService.to.delete(
       ConversationRepo.tableName,
       where: '${ConversationRepo.userId} = ?',
-      whereArgs: <Object?>[_testUid],
+      whereArgs: <Object?>[authorityTestUid],
     );
   });
 
   group('Conversation authority actions', () {
     test('免打扰等待数据库事务期间切号，不写入旧账号偏好', () async {
-      final visible = await _insertConversation(
+      final visible = await insertConversationFixture(
         peerId: 8007,
         type: 'C2C',
         lastTime: 1000,
@@ -200,7 +58,7 @@ void main() {
       final pending = ConversationRepo().setMutedForPeer('C2C', '8006', true);
       final rejected = expectLater(pending, throwsStateError);
       final hidden = ConversationRepo().hideForAccount(
-        account: _testUid,
+        account: authorityTestUid,
         kind: 'C2C',
         peer: visible.peerId,
       );
@@ -226,7 +84,7 @@ void main() {
           isEmpty,
         );
       } finally {
-        await StorageService.to.setString(Keys.currentUid, _testUid);
+        await StorageService.to.setString(Keys.currentUid, authorityTestUid);
       }
     });
 
@@ -256,7 +114,7 @@ void main() {
     });
 
     test('隐藏写入按账号和对象寻址，不使用另一账号的本地行号', () async {
-      final row = await _insertConversation(
+      final row = await insertConversationFixture(
         peerId: 8005,
         type: 'C2C',
         lastTime: 1000,
@@ -269,7 +127,7 @@ void main() {
       );
       expect(
         await ConversationRepo().hideForAccount(
-          account: _testUid,
+          account: authorityTestUid,
           kind: 'C2C',
           peer: '8005',
         ),
@@ -297,7 +155,7 @@ void main() {
     });
 
     test('免打扰保留消息、未读和会话可见性', () async {
-      final row = await _insertConversation(
+      final row = await insertConversationFixture(
         peerId: 8002,
         type: 'C2G',
         lastTime: 1000,
@@ -332,8 +190,8 @@ void main() {
 
     test('移除忙态防重且失败后可以重试', () async {
       final gate = Completer<bool>();
-      final api = _FakeConversationApi()..deleteGate = gate;
-      final conversation = await _insertConversation(
+      final api = FakeConversationApi()..deleteGate = gate;
+      final conversation = await insertConversationFixture(
         peerId: 7001,
         type: 'C2G',
         lastTime: 1000,
@@ -341,7 +199,7 @@ void main() {
       final container = ProviderContainer(
         overrides: [
           conversationProvider.overrideWith(
-            () => _TestConversationNotifier(api: api),
+            () => TestConversationNotifier(api: api),
           ),
         ],
       );
@@ -362,8 +220,8 @@ void main() {
     });
 
     test('移除请求抛错时保留本地会话并释放忙态', () async {
-      final api = _FakeConversationApi()..deleteThrows = true;
-      final conversation = await _insertConversation(
+      final api = FakeConversationApi()..deleteThrows = true;
+      final conversation = await insertConversationFixture(
         peerId: 7002,
         type: 'C2C',
         lastTime: 1000,
@@ -371,7 +229,7 @@ void main() {
       final container = ProviderContainer(
         overrides: [
           conversationProvider.overrideWith(
-            () => _TestConversationNotifier(api: api),
+            () => TestConversationNotifier(api: api),
           ),
         ],
       );
@@ -428,14 +286,18 @@ void main() {
     });
 
     test('authoritative pull 应隐藏服务端已不存在的本地会话', () async {
-      final api = _FakeConversationApi()
+      final api = FakeConversationApi()
         ..entries = const <Map<String, dynamic>>[];
-      await _insertConversation(peerId: 3001, type: 'C2C', lastTime: 1000);
+      await insertConversationFixture(
+        peerId: 3001,
+        type: 'C2C',
+        lastTime: 1000,
+      );
 
       final container = ProviderContainer(
         overrides: [
           conversationProvider.overrideWith(
-            () => _TestConversationNotifier(api: api),
+            () => TestConversationNotifier(api: api),
           ),
         ],
       );
@@ -458,7 +320,7 @@ void main() {
     });
 
     test('authoritative pull 应恢复隐藏会话并刷新置顶排序', () async {
-      final api = _FakeConversationApi()
+      final api = FakeConversationApi()
         ..entries = <Map<String, dynamic>>[
           {
             'conversation_id': '4001',
@@ -478,18 +340,22 @@ void main() {
           },
         ];
 
-      await _insertConversation(
+      await insertConversationFixture(
         peerId: 4001,
         type: 'C2C',
         lastTime: 1000,
         isShow: false,
       );
-      await _insertConversation(peerId: 4002, type: 'C2C', lastTime: 1000);
+      await insertConversationFixture(
+        peerId: 4002,
+        type: 'C2C',
+        lastTime: 1000,
+      );
 
       final container = ProviderContainer(
         overrides: [
           conversationProvider.overrideWith(
-            () => _TestConversationNotifier(api: api),
+            () => TestConversationNotifier(api: api),
           ),
         ],
       );
@@ -514,8 +380,8 @@ void main() {
     });
 
     test('服务端删除失败时不应修改本地会话可见性', () async {
-      final api = _FakeConversationApi()..deleteResult = false;
-      final conversation = await _insertConversation(
+      final api = FakeConversationApi()..deleteResult = false;
+      final conversation = await insertConversationFixture(
         peerId: 5001,
         type: 'C2C',
         lastTime: 1000,
@@ -524,7 +390,7 @@ void main() {
       final container = ProviderContainer(
         overrides: [
           conversationProvider.overrideWith(
-            () => _TestConversationNotifier(api: api),
+            () => TestConversationNotifier(api: api),
           ),
         ],
       );
@@ -546,8 +412,8 @@ void main() {
     });
 
     test('服务端置顶失败时不应提前改本地 payload', () async {
-      final api = _FakeConversationApi()..pinResult = false;
-      final conversation = await _insertConversation(
+      final api = FakeConversationApi()..pinResult = false;
+      final conversation = await insertConversationFixture(
         peerId: 6001,
         type: 'C2C',
         lastTime: 1000,
@@ -557,7 +423,7 @@ void main() {
       final container = ProviderContainer(
         overrides: [
           conversationProvider.overrideWith(
-            () => _TestConversationNotifier(api: api),
+            () => TestConversationNotifier(api: api),
           ),
         ],
       );
@@ -576,8 +442,8 @@ void main() {
     });
 
     test('J17.a: 明确 pin=true/false 分别落服务端真源并可回读排序', () async {
-      final api = _FakeConversationApi();
-      final conversation = await _insertConversation(
+      final api = FakeConversationApi();
+      final conversation = await insertConversationFixture(
         peerId: 6101,
         type: 'C2C',
         lastTime: 1000,
@@ -587,7 +453,7 @@ void main() {
       final container = ProviderContainer(
         overrides: [
           conversationProvider.overrideWith(
-            () => _TestConversationNotifier(api: api),
+            () => TestConversationNotifier(api: api),
           ),
         ],
       );
@@ -628,7 +494,7 @@ void main() {
       expect(afterUnpin!.isPinned, isFalse);
 
       // 工作区成员向量：C2G 会话同 API 通道，type 明确 c2g。
-      final groupConversation = await _insertConversation(
+      final groupConversation = await insertConversationFixture(
         peerId: 6102,
         type: 'C2G',
         lastTime: 800,
@@ -647,8 +513,8 @@ void main() {
     });
 
     test('J17.b: hidden=true/false 明确目标本地与远端一致，失败可重试', () async {
-      final api = _FakeConversationApi();
-      final conversation = await _insertConversation(
+      final api = FakeConversationApi();
+      final conversation = await insertConversationFixture(
         peerId: 6201,
         type: 'C2C',
         lastTime: 1000,
@@ -657,7 +523,7 @@ void main() {
       final container = ProviderContainer(
         overrides: [
           conversationProvider.overrideWith(
-            () => _TestConversationNotifier(api: api),
+            () => TestConversationNotifier(api: api),
           ),
         ],
       );
@@ -711,284 +577,6 @@ void main() {
 
       keepAlive.close();
       container.dispose();
-    });
-
-    group('UX-02:LOCAL:01 权限撤回与世代隔离（持久终态）', () {
-      test('退群撤权：行删除后入口/未读终态清空且重入不复活', () async {
-        final api = _FakeConversationApi();
-        final conv = await _insertConversation(
-          peerId: 8101,
-          type: 'C2G',
-          lastTime: 1750000002000,
-          // 已设自定义头像的群不预热成员拼图（产品规则），避免
-          // conversationsList 的后台 warmup 走网络路径污染纯本地旅程。
-          avatar: 'group-avatar-ref',
-        );
-        await _seedMessage(
-          db,
-          type: 'C2G',
-          uk3: conv.uk3,
-          autoId: 1,
-          msgId: 101,
-          status: IMBoyMessageStatus.delivered,
-          own: false,
-        );
-        await _seedMessage(
-          db,
-          type: 'C2G',
-          uk3: conv.uk3,
-          autoId: 2,
-          msgId: 102,
-          status: IMBoyMessageStatus.delivered,
-          own: false,
-        );
-        final container = _containerWith(api);
-        final notifier = container.read(conversationProvider.notifier);
-
-        await notifier.conversationsList();
-        final loaded = container.read(conversationProvider);
-        expect(loaded.conversationMap[conv.uk3], isNotNull);
-        expect(loaded.conversationRemind[conv.uk3], 2);
-
-        // 退群 cleanData 管线：先删消息行，再删会话行（J19.a 链）。
-        await db.delete(
-          'msg_c2g',
-          where: 'conversation_uk3 = ?',
-          whereArgs: [conv.uk3],
-        );
-        await db.delete('conversation', where: 'id = ?', whereArgs: [conv.id]);
-
-        // 页面等效收回：本地行查无 → 内存表与未读映射同步移除。
-        expect(await ConversationRepo().findByPeerId('C2G', '8101'), isNull);
-        notifier.removeConversationFromMap(conv.uk3);
-        var after = container.read(conversationProvider);
-        expect(after.conversationMap[conv.uk3], isNull);
-        expect(after.conversationRemind[conv.uk3], isNull);
-
-        // 重入（新页面 mount → 重新本地/权威拉取）不复活旧世代条目。
-        await notifier.conversationsList();
-        await notifier.conversationsList();
-        after = container.read(conversationProvider);
-        expect(
-          after.conversationMap[conv.uk3],
-          isNull,
-          reason: '撤权后的会话不得在重入时复活',
-        );
-        expect(after.conversationRemind[conv.uk3], isNull);
-        expect(
-          await db.query('conversation', where: 'id = ?', whereArgs: [conv.id]),
-          isEmpty,
-        );
-      });
-
-      test('世代隔离：切号后重入列表为空且旧账号行不被串写', () async {
-        final api = _FakeConversationApi();
-        final conv = await _insertConversation(
-          peerId: 8201,
-          type: 'C2C',
-          lastTime: 1750000001500,
-        );
-        final container = _containerWith(api);
-        final notifier = container.read(conversationProvider.notifier);
-
-        await notifier.conversationsList();
-        expect(
-          container.read(conversationProvider).conversationMap[conv.uk3],
-          isNotNull,
-        );
-
-        await StorageService.to.setString(Keys.currentUid, '2002');
-        // 仿按账号供库：新账号打开自己的库（此处仍用同一句柄承接，
-        // 行隔离由 user_id 列保证——正是本用例要验证的边界）。
-        SqliteService.setDbForTest(db);
-        try {
-          // 换账号后的重入拉取：不得继承旧账号会话。
-          await notifier.conversationsList();
-          final switched = container.read(conversationProvider);
-          expect(switched.conversationMap[conv.uk3], isNull);
-          expect(switched.conversationRemind[conv.uk3], isNull);
-          // 旧账号行原样保留（未被新账号旅程串写/隐藏）。
-          final rows = await db.query(
-            'conversation',
-            where: 'id = ?',
-            whereArgs: [conv.id],
-          );
-          expect(rows.single['user_id'].toString(), _testUid);
-          expect(rows.single['is_show'], 1);
-        } finally {
-          await StorageService.to.setString(Keys.currentUid, _testUid);
-          SqliteService.setDbForTest(db);
-        }
-
-        // 切回原账号：自己的会话恢复可见（无跨账号残留破坏）。
-        await notifier.conversationsList();
-        expect(
-          container.read(conversationProvider).conversationMap[conv.uk3],
-          isNotNull,
-        );
-      });
-    });
-
-    group('UX-02:LOCAL:02 未读/预览/历史与权威终态一致', () {
-      test('未读重算：本人消息/已读消息不误计，重复推进幂等且落库', () async {
-        final api = _FakeConversationApi();
-        final conv = await _insertConversation(
-          peerId: 8301,
-          type: 'C2C',
-          lastTime: 1000,
-        );
-        // auto_id 1/2 对方未读；3 对方已读；4 水位之上的本人消息。
-        await _seedMessage(
-          db,
-          type: 'C2C',
-          uk3: conv.uk3,
-          autoId: 1,
-          msgId: 201,
-          status: IMBoyMessageStatus.delivered,
-          own: false,
-        );
-        await _seedMessage(
-          db,
-          type: 'C2C',
-          uk3: conv.uk3,
-          autoId: 2,
-          msgId: 202,
-          status: IMBoyMessageStatus.delivered,
-          own: false,
-        );
-        await _seedMessage(
-          db,
-          type: 'C2C',
-          uk3: conv.uk3,
-          autoId: 3,
-          msgId: 203,
-          status: IMBoyMessageStatus.seen,
-          own: false,
-        );
-        await _seedMessage(
-          db,
-          type: 'C2C',
-          uk3: conv.uk3,
-          autoId: 4,
-          msgId: 204,
-          status: IMBoyMessageStatus.delivered,
-          own: true,
-        );
-        await db.update(
-          'conversation',
-          {'mention_unread': 1},
-          where: 'id = ?',
-          whereArgs: [conv.id],
-        );
-
-        final container = _containerWith(api);
-        final notifier = container.read(conversationProvider.notifier);
-        await notifier.conversationsList();
-        var state = container.read(conversationProvider);
-        expect(state.conversationRemind[conv.uk3], 2, reason: '本人消息与已读消息不计入未读');
-        expect(state.conversationMap[conv.uk3]!.unreadNum, 2);
-
-        // 标已读：水位推进到来自对方最新（auto_id=3），未读终态归零。
-        await notifier.advanceWatermarkToLatest(conv);
-        state = container.read(conversationProvider);
-        expect(state.conversationRemind[conv.uk3], 0);
-        var stored = await ConversationRepo().findByPeerId('C2C', '8301');
-        expect(stored!.unreadNum, 0);
-        expect(stored.mentionUnread, 0, reason: '未读清零时 @ 未读同步清零（C7-β）');
-        expect(stored.payload?['last_read_auto_id'], 3);
-
-        // 重复标读/重算幂等：不出现负数、不复活（AC-11 重复已读不误计）。
-        await notifier.recalculateConversationRemind(stored);
-        await notifier.advanceWatermarkToLatest(stored);
-        await notifier.recalculateConversationRemind(stored);
-        stored = await ConversationRepo().findByPeerId('C2C', '8301');
-        expect(stored!.unreadNum, 0);
-        expect(
-          container.read(conversationProvider).conversationRemind[conv.uk3],
-          0,
-        );
-      });
-
-      test('权威终态：预览/时间推进到服务端终态且逆序条目不回退、不伪造未读', () async {
-        final api = _FakeConversationApi();
-        final conv = await _insertConversation(
-          peerId: 8401,
-          type: 'C2C',
-          lastTime: 1750000002000,
-        );
-        await _seedMessage(
-          db,
-          type: 'C2C',
-          uk3: conv.uk3,
-          autoId: 141,
-          msgId: 141,
-          status: IMBoyMessageStatus.delivered,
-          own: false,
-        );
-        await _seedMessage(
-          db,
-          type: 'C2C',
-          uk3: conv.uk3,
-          autoId: 142,
-          msgId: 142,
-          status: IMBoyMessageStatus.delivered,
-          own: false,
-        );
-
-        api.entries = <Map<String, dynamic>>[
-          {
-            'conversation_id': '8401',
-            'conversation_type': 'c2c',
-            'server_ts': 1750000003000,
-            'last_msg_id': 9401,
-            'last_msg': {'text': 'authoritative-final-preview'},
-            'is_pinned': 1,
-          },
-        ];
-        final container = _containerWith(api);
-        final notifier = container.read(conversationProvider.notifier);
-
-        await notifier.syncAuthoritativeConversationList(
-          trigger: 'ux02_advance',
-        );
-        var model = await ConversationRepo().findByPeerId('C2C', '8401');
-        expect(model!.subtitle, 'authoritative-final-preview');
-        expect(model.lastTime, 1750000003000);
-        expect(model.lastMsgId, '9401');
-        expect(model.isPinned, isTrue);
-        // 未读不受权威预览旅程影响（不伪造增量）。
-        expect(model.unreadNum, 2, reason: '权威预览合并不得改动本地未读水位');
-        expect(
-          container.read(conversationProvider).conversationRemind[conv.uk3],
-          2,
-        );
-
-        // 逆序/迟到条目（server_ts 更旧）不得回退已推进的预览与历史。
-        api.entries = <Map<String, dynamic>>[
-          {
-            'conversation_id': '8401',
-            'conversation_type': 'c2c',
-            'server_ts': 1750000001000,
-            'last_msg_id': 9301,
-            'last_msg': {'text': 'stale-out-of-order'},
-            'is_pinned': 1,
-          },
-        ];
-        await notifier.syncAuthoritativeConversationList(trigger: 'ux02_stale');
-        model = await ConversationRepo().findByPeerId('C2C', '8401');
-        expect(model!.lastTime, 1750000003000, reason: '逆序权威条目不得回退 lastTime');
-        expect(
-          model.subtitle,
-          'authoritative-final-preview',
-          reason: '逆序权威条目不得回退预览',
-        );
-        expect(model.lastMsgId, '9401');
-        expect(model.unreadNum, 2);
-        expect(
-          container.read(conversationProvider).conversationRemind[conv.uk3],
-          2,
-        );
-      });
     });
   });
 }
