@@ -54,6 +54,8 @@ export 'package:imboy/page/chat/chat/chat_state.dart'
 part 'chat_provider.g.dart';
 part 'chat_local_preferences.dart';
 
+part 'chat_provider_messages_load.dart';
+
 /// 消息处理服务 Provider
 @riverpod
 MessageHandlingService messageHandlingService(Ref ref) {
@@ -391,158 +393,9 @@ class ChatNotifier extends _$ChatNotifier {
     return pending;
   }
 
-  Future<List<Message>> _loadMoreMessagesImpl(
-    ConversationModel obj, {
-    bool isInitial = false,
-    bool webNewestFirst = false,
-    bool allowPendingRetry = true,
-  }) async {
-    iPrint(
-      '_loadMoreMessages: isInitial=$isInitial, hasMore=${state.hasMoreMessage}, loading=${state.isLoading}',
-    );
-
-    if (isInitial) {
-      final String oldConversationId = state.currentConversationId;
-      if (oldConversationId != obj.uk3) _locationRequest++;
-
-      (_chatService?.messages.length ?? 0) > 0;
-      final bool isStateReset = state.currentConversationId.isEmpty;
-
-      final bool isDifferentConversation =
-          !isStateReset && state.currentConversationId != obj.uk3;
-      final keepContext =
-          _contextPaginationConversationId == obj.uk3 &&
-          (_chatService?.messages.isNotEmpty ?? false);
-      if (!keepContext) _contextPaginationConversationId = null;
-
-      state = state.copyWith(
-        nextAutoId: keepContext ? state.nextAutoId : 0,
-        prevAutoId: keepContext ? state.prevAutoId : 0,
-        hasMoreMessage: true,
-        currentConversationId: obj.uk3,
-      );
-
-      // P1-2：进会话后台正向同步服务端归档历史入 SQLite（不阻塞首屏渲染）
-      unawaited(
-        syncHistoryBackfill(
-          obj,
-          webNewestFirst: webNewestFirst,
-          allowPendingRetry: allowPendingRetry,
-        ),
-      );
-
-      if (isDifferentConversation) {
-        _chatService?.setMessages([]);
-        iPrint('切换会话: $oldConversationId -> ${obj.uk3}');
-      } else {
-        final int messageCount = _chatService?.messages.length ?? 0;
-        iPrint(
-          '会话初始化: ${obj.uk3}, 保留现有消息 ($messageCount 条), isStateReset=$isStateReset',
-        );
-
-        if (messageCount == 0) {
-          iPrint('警告：会话初始化但消息列表为空，将重新加载');
-        } else if (!webNewestFirst) {
-          iPrint('会话初始化：跳过加载，直接返回现有 $messageCount 条消息');
-          return _chatService!.messages.toList();
-        }
-      }
-
-      iPrint('设置当前会话ID: ${obj.uk3}');
-    }
-
-    if (state.isLoading) return [];
-
-    if (!isInitial && !state.hasMoreMessage) {
-      final int messageCount = _chatService?.messages.length ?? 0;
-      if (messageCount > 0) {
-        iPrint('没有更多消息，返回现有 $messageCount 条消息');
-        return _chatService!.messages.toList();
-      }
-    }
-
-    final request = _locationRequest;
-    final service = _chatService;
-    final conversationId = obj.uk3;
-    bool current() =>
-        !_isDisposed &&
-        sessionReader.isCurrent(_ownerSession) &&
-        Env().apiBaseUrl == _ownerEndpoint &&
-        request == _locationRequest &&
-        identical(service, _chatService) &&
-        state.currentConversationId == conversationId;
-    if (!current()) return [];
-    state = state.copyWith(isLoading: true);
-    final List<Message> items;
-    try {
-      items = await pageMessagesForConversation(
-        obj,
-        state.pageSize,
-        current,
-        allowPendingRetry: allowPendingRetry,
-      );
-    } finally {
-      if (current()) state = state.copyWith(isLoading: false);
-    }
-    if (!current()) return [];
-
-    syncMessagesToState();
-
-    if (items.isEmpty) {
-      state = state.copyWith(hasMoreMessage: false);
-      return [];
-    }
-
-    final Set<String> currentIds =
-        _chatService?.messages.map((e) => e.id).toSet() ?? <String>{};
-    final List<Message> newItems = items
-        .where((msg) => !currentIds.contains(msg.id))
-        .toList();
-
-    iPrint(
-      'loadMoreMessages: items=${items.length}, currentIds=${currentIds.length}, newItems=${newItems.length}, isInitial=$isInitial',
-    );
-
-    if (isInitial && webNewestFirst) {
-      final service = _chatService;
-      if (service == null) return [];
-      final merged = _mergeWebInitialMessages(service.messages.toList(), items);
-      await service.setMessages(merged, animated: false);
-      if (!current()) return [];
-    }
-    if (newItems.isNotEmpty) {
-      if (isInitial) {
-        final service = _chatService;
-        if (!webNewestFirst) service?.setMessages(newItems);
-        state = state.copyWith(
-          nextAutoId: parseModelInt(newItems.first.metadata?['auto_id']),
-          prevAutoId: parseModelInt(newItems.last.metadata?['auto_id']),
-        );
-      } else {
-        if (webNewestFirst) {
-          final service = _chatService;
-          await service?.insertAllMessages(
-            newItems.reversed.toList(),
-            index: service.messages.length,
-          );
-          if (!current()) return [];
-        } else {
-          _chatService?.insertAllMessages(newItems, index: 0);
-        }
-        if (_contextPaginationConversationId != obj.uk3) {
-          state = state.copyWith(
-            nextAutoId: parseModelInt(
-              newItems.first.metadata?['auto_id'],
-              defaultValue: state.nextAutoId,
-            ),
-          );
-        }
-      }
-    }
-
-    if (current()) syncMessagesToState();
-    return newItems;
-  }
+  /// 供分页加载扩展（part 文件）访问 Riverpod @protected state 的库内桥。
+  ChatState get loadState => state;
+  set loadState(ChatState value) => state = value;
 
   /// Test seam for observing existing pending-message retry behavior.
   Future<bool> retryPendingMessage(MessageModel item) =>
