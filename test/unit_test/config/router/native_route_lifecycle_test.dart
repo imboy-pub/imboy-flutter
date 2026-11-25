@@ -17,6 +17,7 @@ import 'package:go_router/go_router.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:imboy/config/router/app_router.dart';
+import 'package:imboy/component/location/amap_helper.dart';
 import 'package:imboy/component/location/widget.dart';
 import 'package:imboy/service/message.dart';
 // 原生边界测试复用 webview_flutter 已锁定的平台接口。
@@ -156,6 +157,11 @@ void main() {
   testWidgets(
     'map bridge accepts a move event while the real page is mounted',
     (tester) async {
+      // host VM 平台守卫下 AMapHelper.grant 恒 null（widget 侧注释明示的
+      // 测试缝隙）：不注入授权对象时 picker 永远渲染 fallback，webview
+      // 分支（fake-webview-surface/FlutterBridge 桥）无法到达。
+      AMapHelper.grantOverrideForTest = Object();
+      addTearDown(() => AMapHelper.grantOverrideForTest = null);
       final platform = FakeWebViewPlatform();
       final previous = WebViewPlatform.instance;
       WebViewPlatform.instance = platform;
@@ -199,6 +205,9 @@ void main() {
   testWidgets(
     'map route mounts its real page and configures the WebView bridge',
     (tester) async {
+      // 同上：注入授权对象，绕过 host VM 的恒 null 平台守卫。
+      AMapHelper.grantOverrideForTest = Object();
+      addTearDown(() => AMapHelper.grantOverrideForTest = null);
       final route = smokeRoutes.singleWhere(
         (route) => route.name == 'map_location_picker',
       );
