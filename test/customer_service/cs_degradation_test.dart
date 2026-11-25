@@ -347,7 +347,11 @@ void main() {
       expect(flowB.conversationId, conversationId);
       expect(detailB?.assigneeIdentityId, seatB, reason: '经办已切换为 B');
 
-      // 消息 count 不变、id 集合一致
+      // 消息 count 不变、id 集合一致。
+      // A 转接成功后内存态按 invalidateReadScope(transferredAway) 语义清空
+      // （历史真源在共享 store，不删不重写），故基准取已知 history id，
+      // 而非 flowA 清空后的内存列表。
+      expect(flowA.messages, isEmpty, reason: 'A 转接成功后内存态清空');
       expect(flowB.messages, hasLength(2));
       expect(flowB.messages.map((m) => m.id).toList(), aMessageIds);
 

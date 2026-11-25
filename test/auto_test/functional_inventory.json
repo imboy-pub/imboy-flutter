@@ -4,10 +4,10 @@
     "app_head": "see-catalog",
     "ledger_count": 171,
     "ledger_row_count": 1897,
-    "lib_page_count": 173,
+    "lib_page_count": 174,
     "module_page_count": 40,
     "route_page_component_count": 162,
-    "function_count": 2133,
+    "function_count": 2135,
     "generated_ledger_pages": [],
     "note": "disposition 仅静态 required/excluded；运行结果只写 ignored RUN_ROOT/results/**"
   },
@@ -33616,6 +33616,52 @@
       "exclusion_code": null
     },
     {
+      "function_id": "fn:personal_info:set_region_sub_page:001",
+      "page": "lib/page/personal_info/set_region/set_region_sub_page.dart",
+      "route_or_entry": "in_page_control",
+      "route_registered": false,
+      "source": "generated:lib_page",
+      "control": "button",
+      "action": "触发第 1 处 button 交互入口",
+      "expected_oracle": "expect(<控件可观察状态>)",
+      "details": "GENERATED_ORACLE_PLACEHOLDER; lib page static extraction",
+      "platforms": [
+        "android",
+        "macos"
+      ],
+      "requirements": [
+        "device.android",
+        "device.macos"
+      ],
+      "fixture": "pending:authorized-isolated",
+      "test_target": null,
+      "disposition": "required",
+      "exclusion_code": null
+    },
+    {
+      "function_id": "fn:personal_info:set_region_sub_page:002",
+      "page": "lib/page/personal_info/set_region/set_region_sub_page.dart",
+      "route_or_entry": "in_page_control",
+      "route_registered": false,
+      "source": "generated:lib_page",
+      "control": "button",
+      "action": "触发第 2 处 button 交互入口",
+      "expected_oracle": "expect(<控件可观察状态>)",
+      "details": "GENERATED_ORACLE_PLACEHOLDER; lib page static extraction",
+      "platforms": [
+        "android",
+        "macos"
+      ],
+      "requirements": [
+        "device.android",
+        "device.macos"
+      ],
+      "fixture": "pending:authorized-isolated",
+      "test_target": null,
+      "disposition": "required",
+      "exclusion_code": null
+    },
+    {
       "function_id": "fn:personal_info:update_page:001",
       "page": "lib/page/personal_info/update/update_page.dart",
       "route_or_entry": "UpdatePage",
@@ -50303,6 +50349,14 @@
       "function_count": 11,
       "route_registered": true,
       "has_ledger": true,
+      "ledger_generated": false
+    },
+    {
+      "page": "lib/page/personal_info/set_region/set_region_sub_page.dart",
+      "module": "personal_info",
+      "function_count": 2,
+      "route_registered": false,
+      "has_ledger": false,
       "ledger_generated": false
     },
     {

@@ -1,3 +1,6 @@
+// BUG#119/R06/R07/W8 历史回填落库测试（DDL/uid fixture 下沉至
+// history_backfill_persist_support.dart，ratchet <800 行约束）。
+
 /// BUG#119 闭环复现：history 拉回本地后 `pageForConversation` 仍 0 条。
 ///
 /// 用后端 `msg_archive_repo:get_history` + `messaging_logic:encode_history_msg`
@@ -28,121 +31,7 @@ import 'package:imboy/store/repository/message_repo_sqlite.dart';
 import 'package:imboy/store/repository/offline_message_writer.dart';
 import 'package:imboy/utils/conversation_uk3_generator.dart';
 
-/// 当前测试账号（与 C2C 行的 from 一致，使 isAuthor=true → peerId=toId）
-const String _currentUid = '1817128709888507904';
-const String _peerUid = '1825989847768576000';
-const String _groupId = '1818608297223856128';
-
-const String _msgC2cDDL = '''
-  CREATE TABLE msg_c2c (
-    auto_id INTEGER PRIMARY KEY,
-    id INTEGER NOT NULL,
-    msg_type TEXT,
-    from_id INTEGER,
-    to_id INTEGER,
-    conversation_uk3 TEXT,
-    e2ee TEXT,
-    payload TEXT,
-    created_at INTEGER,
-    topic_id INTEGER,
-    status INTEGER,
-    is_author INTEGER,
-    type TEXT DEFAULT 'C2C',
-    action TEXT DEFAULT '',
-    sender_did TEXT,
-    conv_seq INTEGER,
-    accepted_at INTEGER,
-    CONSTRAINT uk_MsgId UNIQUE (id)
-  )
-''';
-
-const String _msgC2gDDL = '''
-  CREATE TABLE msg_c2g (
-    auto_id INTEGER PRIMARY KEY,
-    id INTEGER NOT NULL,
-    msg_type TEXT,
-    from_id INTEGER,
-    to_id INTEGER,
-    conversation_uk3 TEXT,
-    e2ee TEXT,
-    payload TEXT,
-    created_at INTEGER,
-    topic_id INTEGER,
-    status INTEGER,
-    is_author INTEGER,
-    type TEXT DEFAULT 'C2G',
-    action TEXT DEFAULT '',
-    conv_seq INTEGER,
-    accepted_at INTEGER,
-    CONSTRAINT uk_MsgId UNIQUE (id)
-  )
-''';
-
-const String _conversationDDL = '''
-  CREATE TABLE conversation (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    user_id INTEGER,
-    peer_id INTEGER,
-    avatar TEXT,
-    title TEXT,
-    subtitle TEXT,
-    region TEXT,
-    sign TEXT,
-    unread_num INTEGER,
-    mention_unread INTEGER DEFAULT 0,
-    is_muted INTEGER DEFAULT 0,
-    "type" TEXT,
-    msg_type TEXT,
-    is_show INTEGER,
-    last_time INTEGER,
-    last_msg_id INTEGER,
-    last_msg_status INTEGER,
-    payload TEXT
-  )
-''';
-
-const String _contactDDL = '''
-  CREATE TABLE contact (
-    auto_id INTEGER PRIMARY KEY,
-    user_id INTEGER NOT NULL,
-    peer_id INTEGER NOT NULL,
-    nickname TEXT NOT NULL DEFAULT '',
-    avatar TEXT NOT NULL DEFAULT '',
-    gender INTEGER NOT NULL DEFAULT 0,
-    account TEXT NOT NULL DEFAULT '',
-    status TEXT NOT NULL DEFAULT '',
-    remark TEXT DEFAULT '',
-    tag TEXT DEFAULT '',
-    region TEXT DEFAULT '',
-    sign TEXT NOT NULL DEFAULT '',
-    source TEXT NOT NULL DEFAULT '',
-    updated_at INTEGER NOT NULL DEFAULT 0,
-    is_friend INTEGER NOT NULL DEFAULT 0,
-    is_from INTEGER NOT NULL DEFAULT 0,
-    category_id INTEGER NOT NULL DEFAULT 0,
-    last_seen_at INTEGER
-  )
-''';
-
-const String _groupDDL = '''
-  CREATE TABLE "group" (
-    id INTEGER PRIMARY KEY,
-    type INTEGER DEFAULT 1,
-    join_limit INTEGER DEFAULT 2,
-    content_limit INTEGER DEFAULT 2,
-    owner_uid INTEGER NOT NULL,
-    creator_uid INTEGER NOT NULL,
-    member_max INTEGER NOT NULL DEFAULT 1000,
-    member_count INTEGER NOT NULL DEFAULT 1,
-    introduction TEXT NOT NULL DEFAULT '',
-    avatar TEXT NOT NULL DEFAULT '',
-    title TEXT NOT NULL DEFAULT '',
-    status INTEGER NOT NULL DEFAULT 1,
-    updated_at INTEGER DEFAULT 0,
-    created_at INTEGER NOT NULL,
-    pinned_msg TEXT
-  )
-''';
+import 'history_backfill_persist_support.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -156,15 +45,15 @@ void main() {
   setUp(() async {
     SharedPreferences.setMockInitialValues({});
     await StorageService.init();
-    await StorageService.to.setString(Keys.currentUid, _currentUid);
+    await StorageService.to.setString(Keys.currentUid, backfillCurrentUid);
 
     db = await databaseFactoryFfi.openDatabase(inMemoryDatabasePath);
     for (final ddl in [
-      _msgC2cDDL,
-      _msgC2gDDL,
-      _conversationDDL,
-      _contactDDL,
-      _groupDDL,
+      backfillMsgC2cDDL,
+      backfillMsgC2gDDL,
+      backfillConversationDDL,
+      backfillContactDDL,
+      backfillGroupDDL,
     ]) {
       await db.execute(ddl);
     }
@@ -204,8 +93,8 @@ void main() {
       final rows = [
         c2cHistoryRow(
           convSeq: 1,
-          from: int.parse(_currentUid),
-          to: int.parse(_peerUid),
+          from: int.parse(backfillCurrentUid),
+          to: int.parse(backfillPeerUid),
           payload: '{"text":"你好","msg_type":"text"}',
         ),
       ];
@@ -224,8 +113,8 @@ void main() {
       // 与聊天页 loadMoreMessages 完全相同的查询（uk3 同源生成）
       final String uk3 = ConversationUk3Generator.generateSmart(
         type: 'C2C',
-        currentUserId: _currentUid,
-        peerId: _peerUid,
+        currentUserId: backfillCurrentUid,
+        peerId: backfillPeerUid,
       );
       final items = await repo.pageForConversation(uk3, 0, 16);
 
@@ -242,8 +131,8 @@ void main() {
       const sourceId = '1817128709888508123';
       final uk3 = ConversationUk3Generator.generateSmart(
         type: 'C2C',
-        currentUserId: _currentUid,
-        peerId: _peerUid,
+        currentUserId: backfillCurrentUid,
+        peerId: backfillPeerUid,
       );
       await db.insert('msg_c2c', {
         'id': int.parse(sourceId),
@@ -256,8 +145,8 @@ void main() {
       for (final (sequence, trustedArchive) in [(201, false), (202, true)]) {
         final row = c2cHistoryRow(
           convSeq: sequence,
-          from: int.parse(_peerUid),
-          to: int.parse(_currentUid),
+          from: int.parse(backfillPeerUid),
+          to: int.parse(backfillCurrentUid),
           payload: jsonEncode({
             'quote_msg': {'id': sourceId, 'text': 'cached original'},
             'quote_text': 'reply body',
@@ -277,8 +166,8 @@ void main() {
       final row =
           c2cHistoryRow(
               convSeq: 290,
-              from: int.parse(_peerUid),
-              to: int.parse(_currentUid),
+              from: int.parse(backfillPeerUid),
+              to: int.parse(backfillCurrentUid),
               payload: jsonEncode({
                 'quote_msg': {'id': sourceId, 'text': 'cached original'},
                 'quote_text': 'reply body',
@@ -312,9 +201,9 @@ void main() {
           'chat_type': 'c2g',
           'conv_seq': 1,
           'msg_type': 'text',
-          'from': int.parse(_currentUid),
+          'from': int.parse(backfillCurrentUid),
           // 后端 encode_history_msg：C2G 的 to_id 为 null → 不设置 to 键
-          'group_id': int.parse(_groupId),
+          'group_id': int.parse(backfillGroupId),
           'e2ee': null,
           'payload': '{"text":"群消息","msg_type":"text"}',
           'created_at': 1750000000000,
@@ -323,7 +212,7 @@ void main() {
       ];
       final shaped = rows.map(archiveRowToOfflineShape).toList(growable: false);
       // 纯函数兜底：group_id 已被填进 to
-      expect(shaped.single['to'], int.parse(_groupId));
+      expect(shaped.single['to'], int.parse(backfillGroupId));
 
       final repo = MessageRepo(tableName: MessageRepo.getTableName('C2G'));
       final msgIds = await repo.batchInsertOfflineMessages(
@@ -333,7 +222,7 @@ void main() {
       expect(msgIds, hasLength(1));
 
       final items = await repo.pageForConversation(
-        'C2G_${_currentUid}_$_groupId',
+        'C2G_${backfillCurrentUid}_$backfillGroupId',
         0,
         16,
       );
@@ -344,8 +233,8 @@ void main() {
       final rows = [
         c2cHistoryRow(
           convSeq: 1,
-          from: int.parse(_currentUid),
-          to: int.parse(_peerUid),
+          from: int.parse(backfillCurrentUid),
+          to: int.parse(backfillPeerUid),
           payload: '{"text":"去重","msg_type":"text"}',
         ),
       ];
@@ -373,9 +262,13 @@ void main() {
         'type': 'C2G',
         'conv_seq': convSeq,
         'msg_type': 'text',
-        'from': int.parse(_currentUid),
-        'to': int.parse(_groupId),
-        'e2ee': {'protocol': 'megolm', 'gid': _groupId, '_archive_conv_seq': 1},
+        'from': int.parse(backfillCurrentUid),
+        'to': int.parse(backfillGroupId),
+        'e2ee': {
+          'protocol': 'megolm',
+          'gid': backfillGroupId,
+          '_archive_conv_seq': 1,
+        },
         'payload': 'ciphertext',
         'created_at': 1750000000000,
       };
@@ -395,13 +288,13 @@ void main() {
       const msgId = 1817128709888511000;
       final e2ee = {
         'protocol': 'megolm',
-        'gid': _groupId,
+        'gid': backfillGroupId,
         'session_id': 'session-a',
       };
       final raw = {
         'id': msgId,
-        'from': int.parse(_currentUid),
-        'to': int.parse(_groupId),
+        'from': int.parse(backfillCurrentUid),
+        'to': int.parse(backfillGroupId),
         'type': 'C2G',
         'msg_type': 'text',
         'payload': 'ciphertext-a',
@@ -410,8 +303,8 @@ void main() {
       await db.insert(MessageRepo.c2gTable, {
         MessageRepo.id: msgId,
         MessageRepo.type: 'C2G',
-        MessageRepo.from: int.parse(_currentUid),
-        MessageRepo.to: int.parse(_groupId),
+        MessageRepo.from: int.parse(backfillCurrentUid),
+        MessageRepo.to: int.parse(backfillGroupId),
         MessageRepo.payload: jsonEncode({
           '_e2ee_failed': true,
           '_e2ee_raw': raw,
@@ -419,7 +312,8 @@ void main() {
         MessageRepo.createdAt: 1750000000000,
         MessageRepo.isAuthor: 1,
         MessageRepo.topicId: 0,
-        MessageRepo.conversationUk3: 'C2G_${_currentUid}_$_groupId',
+        MessageRepo.conversationUk3:
+            'C2G_${backfillCurrentUid}_$backfillGroupId',
         MessageRepo.status: 2,
         MessageRepo.msgType: 'text',
         MessageRepo.action: '',
@@ -440,13 +334,13 @@ void main() {
       const msgId = 1817128709888511001;
       final e2ee = {
         'protocol': 'megolm',
-        'gid': _groupId,
+        'gid': backfillGroupId,
         'session_id': 'session-a',
       };
       final raw = {
         'id': msgId,
-        'from': int.parse(_currentUid),
-        'to': int.parse(_groupId),
+        'from': int.parse(backfillCurrentUid),
+        'to': int.parse(backfillGroupId),
         'type': 'C2G',
         'msg_type': 'text',
         'payload': 'ciphertext-a',
@@ -456,13 +350,14 @@ void main() {
       await db.insert(MessageRepo.c2gTable, {
         MessageRepo.id: msgId,
         MessageRepo.type: 'C2G',
-        MessageRepo.from: int.parse(_currentUid),
-        MessageRepo.to: int.parse(_groupId),
+        MessageRepo.from: int.parse(backfillCurrentUid),
+        MessageRepo.to: int.parse(backfillGroupId),
         MessageRepo.payload: placeholder,
         MessageRepo.createdAt: 1750000000000,
         MessageRepo.isAuthor: 1,
         MessageRepo.topicId: 0,
-        MessageRepo.conversationUk3: 'C2G_${_currentUid}_$_groupId',
+        MessageRepo.conversationUk3:
+            'C2G_${backfillCurrentUid}_$backfillGroupId',
         MessageRepo.status: 2,
         MessageRepo.msgType: 'text',
         MessageRepo.action: '',
@@ -501,8 +396,8 @@ void main() {
         <String, dynamic>{
           'msg_id': msgId,
           'type': 'C2C',
-          'from': _peerUid,
-          'to': _currentUid,
+          'from': backfillPeerUid,
+          'to': backfillCurrentUid,
           'msg_type': 'text',
           'payload': {'text': text, 'msg_type': 'text'},
           'created_at': createdAt,
@@ -625,7 +520,7 @@ void main() {
       await db.execute(
         "UPDATE conversation SET last_msg_id = 'r06-rc-a', last_time = ?, "
         "subtitle = 'rcA' WHERE peer_id = ?",
-        [t100, int.parse(_peerUid)],
+        [t100, int.parse(backfillPeerUid)],
       );
 
       final writer = OfflineMessageWriter(
@@ -647,7 +542,7 @@ void main() {
       );
       final fixed = await writer.recomputeConversationHead(
         type: 'C2C',
-        peerId: _peerUid,
+        peerId: backfillPeerUid,
       );
 
       expect(fixed, isNotNull);

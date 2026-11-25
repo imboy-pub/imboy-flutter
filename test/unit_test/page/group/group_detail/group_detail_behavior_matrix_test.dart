@@ -1,3 +1,7 @@
+// 群详情行为矩阵（矩阵1-8 + UX-02:LOCAL:01 撤权/授权即时迁移与世代隔离）。
+//
+// Notifier fixture 下沉至 group_detail_behavior_matrix_support.dart
+// （ratchet <800 行约束）。
 import 'dart:io';
 
 import 'package:cupertino_ui/cupertino_ui.dart';
@@ -19,6 +23,8 @@ import 'package:imboy/service/network_monitor.dart';
 import 'package:imboy/service/storage.dart';
 import 'package:imboy/store/model/group_model.dart';
 import 'package:imboy/store/model/people_model.dart';
+
+import 'group_detail_behavior_matrix_support.dart';
 
 /// ENT-APP-02 行为矩阵测试（before/after 等价基线）。
 ///
@@ -47,72 +53,6 @@ import 'package:imboy/store/model/people_model.dart';
 ///     **失败 toast** 分支——这正是矩阵要钉死的失败路径。
 /// 固定 state 注入 notifier：build 返回注入值；initData 的所有 setter
 /// no-op，钉住 role/title/memberCount 等矩阵输入不被异步链路覆盖。
-class _FixedStateNotifier extends GroupDetailNotifier {
-  _FixedStateNotifier(this.fixed);
-  final GroupDetailState fixed;
-
-  @override
-  GroupDetailState build() => fixed;
-
-  @override
-  void setLoading(bool value) {}
-  @override
-  void setTitle(String title) {}
-  @override
-  void setMemberCount(int count) {}
-  @override
-  void setRoleInfo(int role, bool isAdmin) {}
-  @override
-  void setMemberList(List<PeopleModel> list) {}
-  @override
-  void setMyGroupAlias(String? alias) {}
-  @override
-  void setGroupRemark(String? remark) {}
-  @override
-  void setGroup(GroupModel group) {}
-  @override
-  void addMember(PeopleModel member) {}
-  @override
-  void removeMember(String userId) {}
-}
-
-/// UX-02:LOCAL:01：仅放行 role 迁移的状态注入。其余 setter 与
-/// [_FixedStateNotifier] 同款 no-op（防 initData 异步回写污染注入态、
-/// 防 setLoading 翻转把页面钉在加载态）；setRoleInfo 走真实 copyWith，
-/// 用「撤权/授权」状态迁移驱动页面即时收回/恢复治理动作（与 initData
-/// 服务回写 role 同一条 UI 出口）。
-class _RoleTransitionNotifier extends GroupDetailNotifier {
-  _RoleTransitionNotifier(this.initial);
-  final GroupDetailState initial;
-
-  @override
-  GroupDetailState build() => initial;
-
-  @override
-  void setLoading(bool value) {}
-  @override
-  void setTitle(String title) {}
-  @override
-  void setMemberCount(int count) {}
-  @override
-  void setRoleInfo(int role, bool isAdmin) {
-    state = state.copyWith(role: role, isAdmin: isAdmin);
-  }
-
-  @override
-  void setMemberList(List<PeopleModel> list) {}
-  @override
-  void setMyGroupAlias(String? alias) {}
-  @override
-  void setGroupRemark(String? remark) {}
-  @override
-  void setGroup(GroupModel group) {}
-  @override
-  void addMember(PeopleModel member) {}
-  @override
-  void removeMember(String userId) {}
-}
-
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
@@ -282,7 +222,9 @@ void main() {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
-          groupDetailProvider.overrideWith(() => _FixedStateNotifier(state)),
+          groupDetailProvider.overrideWith(
+            () => FixedStateMatrixNotifier(state),
+          ),
         ],
         child: TranslationProvider(
           child: MaterialApp(
@@ -734,7 +676,7 @@ void main() {
   });
 
   group('UX-02:LOCAL:01 撤权/授权即时迁移与世代隔离', () {
-    Future<_RoleTransitionNotifier> pumpMutable(
+    Future<RoleTransitionMatrixNotifier> pumpMutable(
       WidgetTester tester,
       GroupDetailState state,
     ) async {
@@ -744,7 +686,7 @@ void main() {
         tester.view.resetDevicePixelRatio();
         tester.view.resetPhysicalSize();
       });
-      final notifier = _RoleTransitionNotifier(state);
+      final notifier = RoleTransitionMatrixNotifier(state);
       await tester.pumpWidget(
         ProviderScope(
           overrides: [groupDetailProvider.overrideWith(() => notifier)],
