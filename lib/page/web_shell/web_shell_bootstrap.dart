@@ -117,6 +117,8 @@ import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/font_types.dart';
 
 part 'web_chat_panel.dart';
+part 'web_chat_panel_history.dart';
+part 'web_chat_panel_message_actions.dart';
 part 'web_group_message_author.dart';
 part 'web_chat_reading_restore.dart';
 
