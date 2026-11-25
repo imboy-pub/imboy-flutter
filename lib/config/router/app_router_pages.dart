@@ -1,0 +1,740 @@
+part of 'app_router.dart';
+
+/// 路由表装配（自 createAppRouter 抽出；part 共享库导入与私有辅助符号）。
+List<RouteBase> buildAppRoutes() {
+  return [
+    for (final path in ['/oa/login', '/oa/link'])
+      GoRoute(
+        path: path,
+        pageBuilder: (context, state) => CupertinoPage(
+          key: state.pageKey,
+          child: OaLoginPage(
+            callback: state.uri,
+            config: state.extra is EnterpriseOaRuntimeConfig
+                ? state.extra as EnterpriseOaRuntimeConfig
+                : null,
+          ),
+        ),
+      ),
+    // ==================== 认证和启动页面 ====================
+    GoRoute(
+      path: AppRoutes.initial,
+      name: 'splash',
+      pageBuilder: (context, state) =>
+          CupertinoPage(key: state.pageKey, child: const SplashPage()),
+    ),
+    GoRoute(
+      path: '/welcome',
+      name: 'welcome',
+      pageBuilder: (context, state) =>
+          CupertinoPage(key: state.pageKey, child: const WelcomePage()),
+    ),
+    GoRoute(
+      path: AppRoutes.signIn,
+      name: 'sign_in',
+      pageBuilder: (context, state) {
+        // 宽屏 Native 保留分栏登录 UI；QR 设备及认证面由运行平台决定。
+        final useSplitView =
+            kIsWeb || AppBreakpoints.isWide(MediaQuery.sizeOf(context).width);
+        return CupertinoPage(
+          key: state.pageKey,
+          child: useSplitView ? const WebLoginPage() : const LoginPage(),
+        );
+      },
+    ),
+    GoRoute(
+      path: AppRoutes.signUp,
+      name: 'sign_up',
+      pageBuilder: (context, state) =>
+          CupertinoPage(key: state.pageKey, child: const SignupPage()),
+    ),
+    GoRoute(
+      path: '/sign_up/continue',
+      name: 'sign_up_continue',
+      pageBuilder: (context, state) =>
+          CupertinoPage(key: state.pageKey, child: const SignupContinuePage()),
+    ),
+    GoRoute(
+      path: AppRoutes.forgotPassword,
+      name: 'forgot_password',
+      pageBuilder: (context, state) =>
+          CupertinoPage(key: state.pageKey, child: const ForgotPasswordPage()),
+    ),
+    // 忘记密码验证码页（原生×go_router 混用修复：原 forgot_password_page
+    // 原生 push，页内重置成功后 context.go('/sign_in') 失灵）
+    // 参数解析 extra 优先、query 兜底：deep link/web shell 刷新场景
+    // 丢失 extra，query（account/accountType）让页面可独立直达
+    // （批次124 集成测试依赖此路径）。
+    GoRoute(
+      path: '/forgot_password/pin',
+      name: 'forgot_password_pin',
+      pageBuilder: (context, state) {
+        final extra = state.extra as Map<String, dynamic>? ?? {};
+        final query = state.uri.queryParameters;
+        String param(String key, String def) =>
+            (extra[key] ?? query[key])?.toString() ?? def;
+        return CupertinoPage(
+          key: state.pageKey,
+          child: PinCodeVerificationPage(
+            account: param('account', ''),
+            accountType: param('accountType', 'mobile'),
+          ),
+        );
+      },
+    ),
+    GoRoute(
+      path: '/set_password',
+      name: 'set_password',
+      pageBuilder: (context, state) =>
+          CupertinoPage(key: state.pageKey, child: SetPasswordPage()),
+    ),
+    GoRoute(
+      path: '/manage_account',
+      name: 'manage_account',
+      pageBuilder: (context, state) =>
+          CupertinoPage(key: state.pageKey, child: const ManageAccountPage()),
+    ),
+
+    // ==================== 主框架 ====================
+    // T2 (WP1)：Chat 体验壳挂载点——experience=chat（/api/v1/init 的
+    // effective_product_experience，缺失/未知值降级 chat）时渲染现状首页：
+    // 移动端 BottomNavigationPage / 桌面端 WebShellBootstrap，宽度自适应。
+    // experience=workspace 是 WP5 (T8) WorkspaceShell 的扩展点（本期不落 UI）。
+    // 路由 path/name 不变，仅包壳，既有导航入口零改动。
+    GoRoute(
+      path: '/bottom_navigation',
+      name: 'bottom_navigation',
+      pageBuilder: (context, state) =>
+          CupertinoPage(key: state.pageKey, child: const ChatShellBootstrap()),
+    ),
+    // Web Shell 三栏壳（Phase 1.1.h.1+i）— Web 登录成功后跳转的入口
+    // 内部按响应式断点决定：< 900px → 回退 BottomNavigationPage，>= 900px → 三栏
+    // 深链支持：/web_shell?tab=chat&id=xxx&type=C2C 由 1.1.m parseShellRouteParams 解析
+    GoRoute(
+      path: '/web_shell',
+      name: 'web_shell',
+      pageBuilder: (context, state) => CupertinoPage(
+        key: state.pageKey,
+        child: WebShellRoute(uri: state.uri, child: const WebShellBootstrap()),
+      ),
+    ),
+
+    // ==================== 会话列表 ====================
+    GoRoute(
+      path: '/conversation',
+      name: 'conversation',
+      pageBuilder: (context, state) =>
+          CupertinoPage(key: state.pageKey, child: ConversationPage()),
+    ),
+
+    ...compiledProductFeatureRoutes(),
+
+    // ==================== 聊天相关 ====================
+    // 转发消息页 - 使用 CupertinoPage 支持 iOS 风格滑动返回
+    GoRoute(
+      path: '/chat/send_to',
+      name: 'send_to',
+      pageBuilder: (context, state) {
+        final extra = state.extra as Map<String, dynamic>?;
+        final dynamic rawMsg = extra?['msg'];
+        Message? msg;
+        if (rawMsg is Message) {
+          msg = rawMsg;
+        } else if (rawMsg is Map<String, dynamic>) {
+          if (rawMsg.containsKey('id') && rawMsg.containsKey('authorId')) {
+            msg = Message.fromJson(rawMsg);
+          } else {
+            final msgMap = <String, dynamic>{
+              'id': rawMsg['id'] ?? Xid().toString(),
+              'authorId': rawMsg['authorId'] ?? UserRepoLocal.to.currentUid,
+              'type': 'custom',
+              'createdAt': DateTime.now().millisecondsSinceEpoch,
+              'metadata': rawMsg,
+            };
+            msg = Message.fromJson(msgMap);
+          }
+        }
+        return CupertinoPage(
+          key: state.pageKey,
+          child: SendToPage(msg: msg!),
+        );
+      },
+    ),
+    // 合并转发聊天记录详情页（chat_history_bundle_v1，W3-I）：
+    // extra 携带 bundle 快照 Map（来自消息 metadata，详情页不路由重查）。
+    // 必须注册在 `/chat/:peerId` 之前，避免被 path 参数路由吞掉。
+    GoRoute(
+      path: '/chat/history_bundle',
+      name: 'chat_history_bundle_detail',
+      pageBuilder: (context, state) {
+        final bundle = state.extra is Map<String, dynamic>
+            ? state.extra as Map<String, dynamic>
+            : const <String, dynamic>{};
+        if (bundle.isEmpty &&
+            _emptyBundleToastKeys.add(state.pageKey.toString())) {
+          // extra 非法/空（深链误入、调用方漏传快照）：不再静默渲染空
+          // 详情页——toast 提示后退回。pageBuilder 构建期同步 pop 会打断
+          // 路由装配，与 redirect 内 loginExpired 延迟 toast 同模式延后。
+          Future<dynamic>.delayed(Duration.zero, () {
+            if (!context.mounted) return;
+            AppLoading.showToast(t.chat.bundleInvalidOrEmpty);
+            if (context.canPop()) {
+              context.pop();
+            }
+          });
+        }
+        return CupertinoPage(
+          key: state.pageKey,
+          child: HistoryBundleDetailPage(bundle: bundle),
+        );
+      },
+    ),
+    // 聊天页面路由 - 使用 CupertinoPage 支持 iOS 风格滑动返回
+    GoRoute(
+      path: '/chat/:peerId',
+      name: 'chat',
+      pageBuilder: (context, state) {
+        final peerId = state.pathParameters['peerId'] ?? '';
+        // 支持两种传参方式：queryParameters 和 extra
+        final type = state.uri.queryParameters['type'] ?? 'C2C';
+        final msgId = state.uri.queryParameters['msg_id'] ?? '';
+        final title = state.uri.queryParameters['title'] ?? '';
+        final avatar = state.uri.queryParameters['avatar'] ?? '';
+        final sign = state.uri.queryParameters['sign'] ?? '';
+        final extra = state.extra as Map<String, dynamic>? ?? {};
+        // extra 参数优先级更高
+        return CupertinoPage(
+          key: state.pageKey,
+          child: ChatPage(
+            peerId: peerId,
+            type: extra['type']?.toString() ?? type,
+            peerTitle: extra['title']?.toString() ?? title,
+            peerAvatar: extra['avatar']?.toString() ?? avatar,
+            peerSign: extra['sign']?.toString() ?? sign,
+            msgId: extra['msg_id']?.toString() ?? msgId,
+            options: extra['options'] as Map<String, dynamic>?,
+          ),
+        );
+      },
+    ),
+    // 聊天设置页 - 使用 CupertinoPage 支持 iOS 风格滑动返回
+    GoRoute(
+      path: '/chat_setting/:peerId',
+      name: 'chat_setting',
+      pageBuilder: (context, state) {
+        final peerId = state.pathParameters['peerId'] ?? '';
+        final extra = state.extra as Map<String, dynamic>? ?? {};
+        return CupertinoPage(
+          key: state.pageKey,
+          child: ChatSettingPage(
+            peerId,
+            type: extra['type']?.toString() ?? 'C2C',
+            options: extra['options'] as Map<String, dynamic>?,
+          ),
+        );
+      },
+    ),
+    // 发起聊天页（顶层路由，用于从任何地方发起聊天）
+    GoRoute(
+      path: '/launch_chat',
+      name: 'launch_chat',
+      pageBuilder: (context, state) =>
+          CupertinoPage(key: state.pageKey, child: const LaunchChatPage()),
+    ),
+    // ==================== 联系人相关 ====================
+    GoRoute(
+      path: '/contact',
+      name: 'contact',
+      pageBuilder: (context, state) =>
+          CupertinoPage(key: state.pageKey, child: const ContactPage()),
+      routes: [
+        // 联系人设置页（原生×go_router 混用修复：原 people_info_page 原生
+        // push，页内删除联系人成功后 context.go 失灵）
+        GoRoute(
+          path: '/contact_setting/:peerId',
+          name: 'contact_setting',
+          pageBuilder: (context, state) {
+            final extra = state.extra as Map<String, dynamic>? ?? {};
+            return CupertinoPage(
+              key: state.pageKey,
+              child: ContactSettingPage(
+                peerId: state.pathParameters['peerId'] ?? '',
+                peerAvatar: extra['peerAvatar']?.toString() ?? '',
+                peerAccount: extra['peerAccount']?.toString() ?? '',
+                peerNickname: extra['peerNickname']?.toString() ?? '',
+                peerGender: extra['peerGender'] as int? ?? 0,
+                peerTitle: extra['peerTitle']?.toString() ?? '',
+                peerSign: extra['peerSign']?.toString() ?? '',
+                peerRegion: extra['peerRegion']?.toString() ?? '',
+                peerSource: extra['peerSource']?.toString() ?? '',
+                peerRemark: extra['peerRemark']?.toString() ?? '',
+                peerTag: extra['peerTag']?.toString() ?? '',
+              ),
+            );
+          },
+        ),
+        // 共同群组页（混用修复：原 people_info_more_page 原生 push）
+        GoRoute(
+          path: '/people_info_same_group',
+          name: 'people_info_same_group',
+          pageBuilder: (context, state) {
+            final extra = state.extra as Map<String, dynamic>? ?? {};
+            return CupertinoPage(
+              key: state.pageKey,
+              child: PeopleInfoSameGroupPage(
+                groupList:
+                    extra['groupList'] as List<GroupModel>? ??
+                    const <GroupModel>[],
+              ),
+            );
+          },
+        ),
+        GoRoute(
+          path: '/people/:id',
+          name: 'people_info',
+          pageBuilder: (context, state) {
+            final id = state.pathParameters['id'] ?? '';
+            final scene = state.uri.queryParameters['scene'] ?? 'contact_page';
+            return CupertinoPage(
+              key: state.pageKey,
+              child: PeopleInfoPage(id: id, scene: scene),
+            );
+          },
+        ),
+        GoRoute(
+          path: '/new_friend',
+          name: 'new_friend',
+          pageBuilder: (context, state) =>
+              CupertinoPage(key: state.pageKey, child: NewFriendPage()),
+        ),
+        GoRoute(
+          path: '/add_friend',
+          name: 'add_friend',
+          pageBuilder: (context, state) =>
+              CupertinoPage(key: state.pageKey, child: AddFriendPage()),
+        ),
+        GoRoute(
+          path: '/select_friend',
+          name: 'select_friend',
+          pageBuilder: (context, state) {
+            final extra = state.extra as Map<String, dynamic>? ?? {};
+            return CupertinoPage(
+              key: state.pageKey,
+              child: SelectFriendPage(
+                peer: (extra['peer'] as Map<String, String>?) ?? {},
+                peerIsReceiver: extra['peerIsReceiver'] as bool? ?? false,
+              ),
+            );
+          },
+        ),
+        GoRoute(
+          path: '/recently_registered_user',
+          name: 'recently_registered_user',
+          pageBuilder: (context, state) => CupertinoPage(
+            key: state.pageKey,
+            child: RecentlyRegisteredUserPage(),
+          ),
+        ),
+        GoRoute(
+          path: '/assistant_plaza',
+          name: 'assistant_plaza',
+          pageBuilder: (context, state) => CupertinoPage(
+            key: state.pageKey,
+            child: const AssistantPlazaPage(),
+          ),
+        ),
+        GoRoute(
+          path: '/people_info_more/:id',
+          name: 'people_info_more',
+          pageBuilder: (context, state) {
+            final id = state.pathParameters['id'] ?? '';
+            return CupertinoPage(
+              key: state.pageKey,
+              child: PeopleInfoMorePage(id: id),
+            );
+          },
+        ),
+        GoRoute(
+          path: '/tags',
+          name: 'user_tag_list',
+          pageBuilder: (context, state) =>
+              CupertinoPage(key: state.pageKey, child: ContactTagListPage()),
+        ),
+      ],
+    ),
+
+    // 群组路由
+    ...groupRoutes(),
+    ...talkRecordRoutes(),
+
+    // 工作区路由（WP5/T8：切换器/创建流/频道详情/邀请/Branding）
+    ...workspaceRoutes(),
+
+    // 企业路由（app-amendment-001 §2.2：显式企业入口，个人导航不变）
+    ...enterpriseRoutes(),
+
+    // 客服坐席工作台路由（CSM-01 §12.5.1：入口权限驱动可见）
+    ...csWorkspaceRoutes(),
+
+    // 组织路由（ORG-13：入口/切换/成员/邀请/部门，个人导航不变）
+    ...organizationRoutes(),
+
+    // 个人中心路由
+    ...mineRoutes(),
+
+    // ==================== Single 页面 ====================
+    GoRoute(
+      path: '/markdown',
+      name: 'markdown',
+      pageBuilder: (context, state) {
+        final title = state.uri.queryParameters['title'] ?? '';
+        final rawUrl = state.uri.queryParameters['url'] ?? '';
+        final url = isTrustedResourceUrl(rawUrl) ? rawUrl : '';
+        final selectable = state.uri.queryParameters['selectable'] == 'true';
+        return CupertinoPage(
+          key: state.pageKey,
+          child: MarkdownPage(title: title, url: url, selectable: selectable),
+        );
+      },
+    ),
+    GoRoute(
+      path: '/video_viewer',
+      name: 'video_viewer',
+      pageBuilder: (context, state) {
+        final rawUrl = state.uri.queryParameters['url'] ?? '';
+        final rawThumb = state.uri.queryParameters['thumb'] ?? '';
+        final url = isTrustedResourceUrl(rawUrl) ? rawUrl : '';
+        final thumb = isTrustedResourceUrl(rawThumb) ? rawThumb : '';
+        return CupertinoPage(
+          key: state.pageKey,
+          child: VideoViewerPage(url: url, thumb: thumb),
+        );
+      },
+    ),
+    GoRoute(
+      path: '/upgrade',
+      name: 'upgrade',
+      pageBuilder: (context, state) {
+        final rawDownLoadUrl = state.uri.queryParameters['downLoadUrl'] ?? '';
+        final downLoadUrl = isTrustedResourceUrl(rawDownLoadUrl)
+            ? rawDownLoadUrl
+            : '';
+        final message = state.uri.queryParameters['message'] ?? '';
+        final version = state.uri.queryParameters['version'] ?? '';
+        final isForce = state.uri.queryParameters['isForce'] == 'true';
+        return CupertinoPage(
+          key: state.pageKey,
+          child: UpgradePage(
+            downLoadUrl: downLoadUrl,
+            message: message,
+            version: version,
+            isForce: isForce,
+          ),
+        );
+      },
+    ),
+    // 隐私政策没有独立路由：设置页走 _openMarkdown("asset://docs/privacy-policy.md")。
+    // 原 PrivacyPolicyPage 是零入口死页面，且硬编码了一份与 asset 日期不一致的
+    // 法律文本（生效日期 2026-01-01 vs asset 最后更新 2026-04-05）——
+    // 法务文档留两个真相源比留死代码更危险，已删（BUG#88）。
+    GoRoute(
+      path: AppRoutes.termsOfService,
+      name: 'terms_of_service',
+      pageBuilder: (context, state) =>
+          CupertinoPage(key: state.pageKey, child: const TermsOfServicePage()),
+    ),
+    GoRoute(
+      path: '/network_failure_guidance',
+      name: 'network_failure_guidance',
+      pageBuilder: (context, state) => CupertinoPage(
+        key: state.pageKey,
+        child: const NetworkFailureGuidancePage(),
+      ),
+    ),
+    // ==================== 直播间相关 ====================
+    GoRoute(
+      path: '/live_room',
+      name: 'live_room',
+      pageBuilder: (context, state) =>
+          CupertinoPage(key: state.pageKey, child: const LiveRoomListPage()),
+      routes: [
+        GoRoute(
+          path: '/publisher',
+          name: 'live_room_publisher',
+          pageBuilder: (context, state) => CupertinoPage(
+            key: state.pageKey,
+            child: PublisherPage(room: state.extra as LiveRoomModel?),
+          ),
+        ),
+        GoRoute(
+          path: '/subscriber',
+          name: 'live_room_subscriber',
+          pageBuilder: (context, state) => CupertinoPage(
+            key: state.pageKey,
+            child: SubscriberPage(room: state.extra as LiveRoomModel?),
+          ),
+        ),
+      ],
+    ),
+
+    // ==================== 二维码和扫描相关 ====================
+    GoRoute(
+      path: '/scanner',
+      name: 'scanner',
+      pageBuilder: (context, state) =>
+          CupertinoPage(key: state.pageKey, child: const ScannerPage()),
+    ),
+    GoRoute(
+      path: '/scanner/result',
+      name: 'scanner_result',
+      pageBuilder: (context, state) {
+        final scanResult = state.uri.queryParameters['result'] ?? '';
+        return CupertinoPage(
+          key: state.pageKey,
+          child: ScannerResultPage(scanResult: scanResult),
+        );
+      },
+    ),
+    GoRoute(
+      path: '/qrcode',
+      name: 'qrcode',
+      redirect: (context, state) => '/qrcode/user',
+    ),
+    GoRoute(
+      path: '/qrcode/user',
+      name: 'qrcode_user',
+      pageBuilder: (context, state) =>
+          CupertinoPage(key: state.pageKey, child: UserQrCodePage()),
+    ),
+    GoRoute(
+      path: '/qrcode/group',
+      name: 'qrcode_group',
+      pageBuilder: (context, state) {
+        final extra = state.extra as Map<String, dynamic>?;
+        final group = extra?['group'] as GroupModel?;
+        if (group == null) {
+          return CupertinoPage(
+            key: state.pageKey,
+            child: CupertinoPageScaffold(
+              child: Center(child: Text(t.common.dataNotFound)),
+            ),
+          );
+        }
+        return CupertinoPage(
+          key: state.pageKey,
+          child: GroupQrCodePage(group: group),
+        );
+      },
+    ),
+
+    // ==================== 个人信息相关 ====================
+    GoRoute(
+      path: '/personal_info',
+      name: 'personal_info',
+      pageBuilder: (context, state) =>
+          CupertinoPage(key: state.pageKey, child: const PersonalInfoPage()),
+      routes: [
+        GoRoute(
+          path: '/set_nickname',
+          name: 'set_nickname',
+          pageBuilder: (context, state) =>
+              CupertinoPage(key: state.pageKey, child: const SetNicknamePage()),
+        ),
+        GoRoute(
+          path: '/set_gender',
+          name: 'set_gender',
+          pageBuilder: (context, state) =>
+              CupertinoPage(key: state.pageKey, child: const SetGenderPage()),
+        ),
+        GoRoute(
+          path: '/set_region',
+          name: 'set_region',
+          pageBuilder: (context, state) {
+            final androidQa = isAndroidGeoQaRequested();
+            final title = state.uri.queryParameters['title'] ?? '';
+
+            return CupertinoPage(
+              key: state.pageKey,
+              child: SetRegionPage(
+                title: title.isNotEmpty ? title : t.common.setRegion,
+                currentValue: UserRepoLocal.to.currentUser?.region ?? '',
+                androidGeoQa: androidQa,
+                onSave: androidQa
+                    ? (_) async => false
+                    : (val) => UserProfileService.updateField('region', val),
+              ),
+            );
+          },
+        ),
+        GoRoute(
+          path: '/update',
+          name: 'update',
+          pageBuilder: (context, state) {
+            final title = state.uri.queryParameters['title'] ?? '';
+            final value = state.uri.queryParameters['value'] ?? '';
+            final field = state.uri.queryParameters['field'] ?? 'input';
+            // 目标后端字段名（如 sign/profession/school），与 [field]
+            // （UpdatePage 的控件类型 input/text/gender）是两个不同概念。
+            final apiField = state.uri.queryParameters['apiField'] ?? '';
+            final maxLength =
+                int.tryParse(state.uri.queryParameters['maxLength'] ?? '56') ??
+                56;
+
+            return CupertinoPage(
+              key: state.pageKey,
+              child: UpdatePage(
+                title: title.isNotEmpty ? title : '',
+                value: value,
+                field: field,
+                maxLength: maxLength,
+                callback: apiField.isEmpty
+                    ? (val) async => false
+                    : (val) => UserProfileService.updateField(apiField, val),
+              ),
+            );
+          },
+        ),
+        GoRoute(
+          path: '/more',
+          name: 'more',
+          pageBuilder: (context, state) =>
+              CupertinoPage(key: state.pageKey, child: const MorePage()),
+        ),
+        GoRoute(
+          path: '/profile',
+          name: 'profile',
+          pageBuilder: (context, state) =>
+              CupertinoPage(key: state.pageKey, child: const ProfilePage()),
+        ),
+        GoRoute(
+          path: '/privacy_settings',
+          name: 'privacy_settings',
+          pageBuilder: (context, state) => CupertinoPage(
+            key: state.pageKey,
+            child: const PrivacySettingsPage(),
+          ),
+        ),
+      ],
+    ),
+
+    // ==================== 搜索相关 ====================
+    GoRoute(
+      path: '/search_chat',
+      name: 'search_chat',
+      pageBuilder: (context, state) {
+        final extra = state.extra as Map<String, dynamic>? ?? {};
+        return CupertinoPage(
+          key: state.pageKey,
+          child: SearchChatPage(
+            conversationUk3: extra['conversationUk3']?.toString() ?? '',
+            type: extra['type']?.toString() ?? 'C2C',
+            peerId: extra['peerId']?.toString() ?? '',
+            peerTitle: extra['peerTitle']?.toString() ?? '',
+            peerAvatar: extra['peerAvatar']?.toString() ?? '',
+            peerSign: extra['peerSign']?.toString() ?? '',
+          ),
+        );
+      },
+    ),
+
+    // 消息搜索页面
+    GoRoute(
+      path: '/message_search',
+      name: 'message_search',
+      pageBuilder: (context, state) {
+        final extra = state.extra as Map<String, dynamic>?;
+        return CupertinoPage(
+          key: state.pageKey,
+          child: MessageSearchPage(
+            conversationUk3: extra?['conversationUk3']?.toString(),
+            conversationTitle: extra?['conversationTitle']?.toString(),
+            conversationType: extra?['conversationType']?.toString(),
+            peerId: extra?['peerId']?.toString(),
+            peerAvatar: extra?['peerAvatar']?.toString(),
+          ),
+        );
+      },
+    ),
+
+    // Web 端全局搜索
+    GoRoute(
+      path: '/web_search',
+      name: 'web_search',
+      pageBuilder: (context, state) {
+        final query = state.uri.queryParameters['q'];
+        final scope = state.uri.queryParameters['scope'];
+        return CupertinoPage(
+          key: state.pageKey,
+          child: WebSearchPage(initialQuery: query, scope: scope),
+        );
+      },
+    ),
+
+    // 群功能增强路由
+    ...groupFeatureRoutes(),
+
+    // ==================== @提及 ====================
+    GoRoute(
+      path: '/mention',
+      name: 'mention_list',
+      pageBuilder: (context, state) {
+        final groupId = state.uri.queryParameters['groupId'];
+        return CupertinoPage(
+          key: state.pageKey,
+          child: MentionListPage(groupId: groupId),
+        );
+      },
+    ),
+
+    // ==================== 用户信息相关 ====================
+    GoRoute(
+      path: '/people_info/:id',
+      name: 'people_info_top',
+      pageBuilder: (context, state) {
+        final id = state.pathParameters['id'] ?? '';
+        final scene = state.uri.queryParameters['scene'] ?? 'contact_page';
+        return CupertinoPage(
+          key: state.pageKey,
+          child: PeopleInfoPage(id: id, scene: scene),
+        );
+      },
+    ),
+  ];
+}
+
+/// go_router 404 页（自 createAppRouter 抽出）。
+Widget appRouterErrorBuilder(BuildContext context, GoRouterState state) =>
+    CupertinoPageScaffold(
+      navigationBar: const CupertinoNavigationBar(middle: Text('imboy')),
+      child: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(
+              CupertinoIcons.exclamationmark_triangle,
+              size: 48,
+              color: AppColors.iosRed,
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'Page not found',
+              // fontSize 20 最近档位 extraLarge(20)
+              style: context.textStyle(FontSizeType.extraLarge),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              state.uri.path,
+              style: TextStyle(
+                fontSize: FontSizeType.normal.size,
+                color: AppColors.iosGray,
+              ),
+            ),
+            const SizedBox(height: 16),
+            CupertinoButton.filled(
+              onPressed: () => context.go(AppRoutes.initial),
+              child: Text(t.common.buttonBackHome),
+            ),
+          ],
+        ),
+      ),
+    );

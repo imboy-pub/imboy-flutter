@@ -662,6 +662,16 @@ inject_android_res() {
   fi
   [ -f "$WORKTREE/android/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml" ] || die "adaptive icon xml missing after overlay"
   [ -f "$WORKTREE/android/app/src/main/res/values/colors.xml" ] || die "adaptive colors.xml missing after overlay"
+  # API 26+ cycle guard: ic_launcher resolves to the anydpi-v26 adaptive XML,
+  # so a foreground/background drawable referencing @mipmap/ic_launcher itself
+  # is infinite recursion at inflation time — PackageManager logs "Failure
+  # retrieving resources ... mipmap/ic_launcher" and the launcher falls back
+  # to the system icon (observed on real-device smoke 2026-11-25, fixture
+  # ic_launcher.xml v1). Fail the build instead of shipping a fallback icon.
+  if grep -q 'android:drawable="@mipmap/ic_launcher"' \
+      "$WORKTREE/android/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml"; then
+    die "adaptive icon self-reference: foreground/background must not be @mipmap/ic_launcher (resource cycle on API 26+; use a dedicated ic_launcher_foreground resource)"
+  fi
   grep -q "@mipmap/ic_launcher" "$WORKTREE/android/app/src/main/AndroidManifest.xml" || die "manifest icon reference lost"
   info "android res overlay applied (mipmap + anydpi-v26 adaptive + foreground + colors; splash concept drawables excluded under splash.mode=inherit)"
 }
@@ -887,6 +897,23 @@ prepare_gradle_proxy() {
   fi
 }
 
+# ---------- gradle repository mode (mirror off by default; gapclose 20261125) ----------
+prepare_gradle_repository_mode() {
+  # 2026-11-25 CI incident: the aliyun mirror answered 502 and Gradle's 5xx
+  # handling does NOT fall through to the later google()/mavenCentral() entries
+  # (android/settings.gradle.kts lists mirrors FIRST when
+  # imboyUseMavenMirror=true, which is that file's default for local dev).
+  # This CI-facing build path therefore pins the mirror OFF (direct official
+  # repos) unless the caller explicitly opts back in with
+  # IMBOY_USE_MAVEN_MIRROR=true. ORG_GRADLE_PROJECT_* is Gradle's documented
+  # environment -> project property bridge, honored by
+  # providers.gradleProperty() in settings and build scripts alike; nothing in
+  # the shared checkout is modified.
+  local mode="${IMBOY_USE_MAVEN_MIRROR:-false}"
+  export ORG_GRADLE_PROJECT_imboyUseMavenMirror="$mode"
+  info "gradle repository mode: imboyUseMavenMirror=$mode (direct official repos by default; opt-in via IMBOY_USE_MAVEN_MIRROR=true)"
+}
+
 # ---------- builds (into the run-private staging dir; F02/F03) ----------
 DEMO_SIGNING_DISCLOSURE=""
 ensure_android_demo_signing() {
@@ -967,6 +994,7 @@ BUILD_STATUS="PASS"
 # prepare signing in the MAIN shell (build functions run in pipeline subshells;
 # their variable assignments would not propagate to the manifest block)
 if [ "$DRY_RUN" = "0" ] && has_platform android; then
+  prepare_gradle_repository_mode
   prepare_gradle_proxy
   if [ "$ENV_NAME" = "production" ]; then
     [ -f "$CUSTOMER_DIR/signing/key.properties" ] || die "production android requires customers/$CUSTOMER_ID/signing/key.properties (customer-supplied signing)"
