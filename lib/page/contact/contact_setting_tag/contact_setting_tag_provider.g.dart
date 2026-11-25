@@ -46,7 +46,7 @@ final class ContactSettingTagNotifierProvider
 }
 
 String _$contactSettingTagNotifierHash() =>
-    r'2e76662e484a54a4eeba779adb67aebb6a673409';
+    r'378d67e34474318d6b1d9028db4439b7797ef802';
 
 /// 联系人标签设置 Notifier
 

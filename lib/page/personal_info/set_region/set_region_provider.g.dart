@@ -44,7 +44,7 @@ final class SetRegionNotifierProvider
   }
 }
 
-String _$setRegionNotifierHash() => r'0756ad4abc5d82853841210f0e799f2d8e3258b1';
+String _$setRegionNotifierHash() => r'a6fe8878b5481f01d6bedb66c661f19189ff0213';
 
 /// 设置地区 Provider
 

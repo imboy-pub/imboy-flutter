@@ -6,7 +6,6 @@ import 'package:easy_refresh/easy_refresh.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:cupertino_ui/cupertino_ui.dart';
 import 'package:webview_flutter/webview_flutter.dart';
-import 'package:imboy/config/env.dart';
 import 'package:imboy/service/auth_session_scope.dart';
 import 'package:imboy/service/optional_sdk_consent.dart';
 import 'package:imboy/component/http/http_response.dart';
@@ -20,6 +19,8 @@ import 'package:imboy/theme/default/font_types.dart';
 import 'package:imboy/component/ui/app_loading.dart';
 
 import 'amap_helper.dart';
+import 'amap_web_map_html.dart';
+import 'location_poi_source.dart';
 
 import 'package:imboy/i18n/strings.g.dart';
 
@@ -114,8 +115,6 @@ class _MapLocationPickerState extends State<MapLocationPicker> with _BLoCMixin {
   }
 
   List<AMapPosition> poiInfoList = [];
-  String searchType =
-      "010000|020000|030000|040000|050000|060000|070000|080000|090000|100000|110000|120201|120300|140000|150400|190600|190301";
   AMapPosition? _sendMsg;
   @override
   void initState() {
@@ -161,7 +160,7 @@ class _MapLocationPickerState extends State<MapLocationPicker> with _BLoCMixin {
         'FlutterBridge',
         onMessageReceived: _onWebViewMessage,
       )
-      ..loadHtmlString(_buildMapHtml(widget.latLng!));
+      ..loadHtmlString(buildAmapWebMapHtml(widget.latLng!));
   }
 
   void _onWebViewMessage(JavaScriptMessage message) {
@@ -192,45 +191,6 @@ class _MapLocationPickerState extends State<MapLocationPicker> with _BLoCMixin {
     } catch (e) {
       // JS 桥消息解析失败不影响地图本身可用性，忽略即可
     }
-  }
-
-  String _buildMapHtml(LatLng center) {
-    final jsKey = Env().aMapWebKey;
-    return '''
-<!DOCTYPE html>
-<html>
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<style>html,body,#map{width:100%;height:100%;margin:0;padding:0;}</style>
-</head>
-<body>
-<div id="map"></div>
-<script src="https://webapi.amap.com/maps?v=2.0&key=$jsKey"></script>
-<script>
-  var map = new AMap.Map('map', {
-    zoom: 16,
-    center: [${center.longitude}, ${center.latitude}],
-    resizeEnable: true
-  });
-  function bridgeSend(type, data) {
-    if (window.FlutterBridge) {
-      window.FlutterBridge.postMessage(JSON.stringify({type: type, data: data}));
-    }
-  }
-  map.on('dragend', function () {
-    var c = map.getCenter();
-    bridgeSend('moveend', {lat: c.lat, lng: c.lng});
-  });
-  // 供 Flutter 端程序化移动地图中心（我的位置 / 点击 POI 列表项）
-  window.setMapCenter = function (lat, lng) {
-    var pos = [lng, lat];
-    map.setCenter(pos);
-  };
-</script>
-</body>
-</html>
-''';
   }
 
   @override
@@ -682,7 +642,12 @@ class _MapLocationPickerState extends State<MapLocationPicker> with _BLoCMixin {
     });
     poiStream.add(List.unmodifiable(poiInfoList));
     try {
-      final incoming = await _requestPoi(keyword, center, nextPage);
+      final incoming = await LocationPoiSource.fetchPoi(
+        keyword,
+        center,
+        widget.citycode,
+        nextPage,
+      );
       if (!mounted || !_mapAllowed || generation != _generation) return;
       setState(() {
         poiInfoList = more ? [...poiInfoList, ...incoming] : incoming;
@@ -702,64 +667,6 @@ class _MapLocationPickerState extends State<MapLocationPicker> with _BLoCMixin {
         poiStream.add(List.unmodifiable(poiInfoList));
       }
     }
-  }
-
-  Future<List<AMapPosition>> _requestPoi(
-    String keyword,
-    LatLng center,
-    int page,
-  ) async {
-    final response = keyword.isNotEmpty
-        ? await AMapApi.getMapByKeyword(
-            keyword,
-            searchType,
-            widget.citycode,
-            true,
-            10,
-            page,
-          )
-        : await AMapApi.getAmapPoi(
-            '${center.longitude},${center.latitude}',
-            searchType,
-            10,
-            page,
-          );
-    final data = response.data;
-    if (data is! Map ||
-        data['status']?.toString() != '1' ||
-        data['pois'] is! List) {
-      throw const FormatException('Invalid location search response');
-    }
-    return (data['pois'] as List).map(_parsePosition).toList();
-  }
-
-  AMapPosition _parsePosition(dynamic raw) {
-    if (raw is! Map || raw['id'] is! String || raw['name'] is! String) {
-      throw const FormatException('Invalid location result');
-    }
-    final coordinates = raw['location']?.toString().split(',') ?? [];
-    final lng = coordinates.length == 2
-        ? double.tryParse(coordinates[0])
-        : null;
-    final lat = coordinates.length == 2
-        ? double.tryParse(coordinates[1])
-        : null;
-    if (lat == null ||
-        lng == null ||
-        !lat.isFinite ||
-        !lng.isFinite ||
-        lat.abs() > 90 ||
-        lng.abs() > 180) {
-      throw const FormatException('Invalid location coordinate');
-    }
-    return AMapPosition(
-      id: raw['id'] as String,
-      name: raw['name'] as String,
-      latLng: LatLng(lat, lng),
-      address: raw['address']?.toString() ?? '',
-      adCode: raw['adcode']?.toString() ?? '',
-      distance: raw['distance']?.toString() ?? '',
-    );
   }
 
   Widget _buildResults(ScrollController controller, List<AMapPosition> data) =>
