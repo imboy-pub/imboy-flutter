@@ -213,7 +213,7 @@ check "18-second-customer" 0 bash "$BUILDAPP" selftest-beta development web --dr
 
 # 19 manifest fields
 if [ -n "$A_ART" ] && [ -f "$A_ART/build-manifest.yaml" ] && \
-   grep -q 'customer_id: selftest-alpha' "$A_ART/build-manifest.yaml" && \
+   grep -q 'customer_id: "selftest-alpha"' "$A_ART/build-manifest.yaml" && \
    grep -q 'mode: dry-run' "$A_ART/build-manifest.yaml" && \
    grep -q 'source_commit:' "$A_ART/build-manifest.yaml" && \
    grep -q 'identity_used:' "$A_ART/build-manifest.yaml" && \
@@ -297,19 +297,23 @@ else
   bad "T4c-inject-android-vendor-is-verify-only-noop" "vendor scheme injection was not a no-op"
 fi
 check "T4d-inject-refuses-double" nonzero python3 "$SCHEME_TOOL" inject-android "$TT/m-alpha.xml" betaapp
+check "T4e-ios-vendor-inherit-noop" 0 python3 "$SCHEME_TOOL" inject-ios "$TT/p-base.plist" imboy
 
 # T5 ShareExtension: no URL registration, but AppGroupId is customer-scoped.
 if ! grep -q "CFBundleURLTypes" "$TT/se-before.plist"; then ok "T5-shareextension-no-url-registration"; else bad "T5-shareextension-no-url-registration" "unexpected CFBundleURLTypes"; fi
 mkdir -p "$TT/ag-alpha/Runner" "$TT/ag-alpha/ShareExtension" "$TT/ag-beta/Runner" "$TT/ag-beta/ShareExtension"
 for customer in alpha beta; do
+  mkdir -p "$TT/ag-$customer/Runner.xcodeproj"
+  cp "$FLUTTER_ROOT/ios/Runner.xcodeproj/project.pbxproj" "$TT/ag-$customer/Runner.xcodeproj/"
+  cp "$FLUTTER_ROOT/ios/Runner/Info.plist" "$TT/ag-$customer/Runner/Info.plist"
   cp "$FLUTTER_ROOT/ios/ShareExtension/Info.plist" "$TT/ag-$customer/ShareExtension/Info.plist"
   for ent in "$FLUTTER_ROOT"/ios/Runner/*.entitlements; do cp "$ent" "$TT/ag-$customer/Runner/"; done
   cp "$FLUTTER_ROOT/ios/ShareExtension/ShareExtension.entitlements" "$TT/ag-$customer/ShareExtension/"
 done
-if python3 "$APP_GROUP_TOOL" inject "$TT/ag-alpha/ShareExtension/Info.plist" group.com.example.alpha "$TT"/ag-alpha/Runner/*.entitlements "$TT"/ag-alpha/ShareExtension/*.entitlements \
-   && python3 "$APP_GROUP_TOOL" verify "$TT/ag-alpha/ShareExtension/Info.plist" group.com.example.alpha "$TT"/ag-alpha/Runner/*.entitlements "$TT"/ag-alpha/ShareExtension/*.entitlements \
-   && python3 "$APP_GROUP_TOOL" inject "$TT/ag-beta/ShareExtension/Info.plist" group.com.example.beta "$TT"/ag-beta/Runner/*.entitlements "$TT"/ag-beta/ShareExtension/*.entitlements \
-   && python3 "$APP_GROUP_TOOL" verify "$TT/ag-beta/ShareExtension/Info.plist" group.com.example.beta "$TT"/ag-beta/Runner/*.entitlements "$TT"/ag-beta/ShareExtension/*.entitlements \
+if python3 "$APP_GROUP_TOOL" inject "$TT/ag-alpha" com.example.alpha \
+   && python3 "$APP_GROUP_TOOL" verify "$TT/ag-alpha" com.example.alpha \
+   && python3 "$APP_GROUP_TOOL" inject "$TT/ag-beta" com.example.beta \
+   && python3 "$APP_GROUP_TOOL" verify "$TT/ag-beta" com.example.beta \
    && ! grep -R -q 'group.com.example.beta' "$TT/ag-alpha" \
    && ! grep -R -q 'group.com.example.alpha' "$TT/ag-beta" \
    && ! grep -R -q 'group.pub.imboy.app' "$TT/ag-alpha" "$TT/ag-beta"; then
@@ -317,14 +321,13 @@ if python3 "$APP_GROUP_TOOL" inject "$TT/ag-alpha/ShareExtension/Info.plist" gro
 else
   bad "T5a-share-app-group-customer-isolation" "AppGroupId/entitlements mismatch or cross-customer residue"
 fi
-cp "$TT/ag-alpha/ShareExtension/Info.plist" "$TT/ag-alpha/mismatch.plist"
-python3 - "$TT/ag-alpha/mismatch.plist" <<'PY'
+python3 - "$TT/ag-alpha/ShareExtension/Info.plist" <<'PY'
 import plistlib, sys
 with open(sys.argv[1], "rb") as f: data = plistlib.load(f)
 data["AppGroupId"] = "group.pub.imboy.app"
 with open(sys.argv[1], "wb") as f: plistlib.dump(data, f)
 PY
-if python3 "$APP_GROUP_TOOL" verify "$TT/ag-alpha/mismatch.plist" group.com.example.alpha "$TT"/ag-alpha/Runner/*.entitlements "$TT"/ag-alpha/ShareExtension/*.entitlements >/dev/null 2>&1; then
+if python3 "$APP_GROUP_TOOL" verify "$TT/ag-alpha" com.example.alpha >/dev/null 2>&1; then
   bad "T5b-stale-share-app-group-rejected" "stale vendor AppGroupId was accepted"
 else
   ok "T5b-stale-share-app-group-rejected"
@@ -334,6 +337,8 @@ if grep -q 'group.pub.imboy.app' "$FLUTTER_ROOT/ios/ShareExtension/Info.plist" &
 else
   bad "T5c-source-vendor-baseline-unchanged" "shared vendor source files were mutated"
 fi
+check "T5d-share-identity-regressions" 0 python3 "$SCRIPT_DIR/buildapp_ios_app_group_test.py"
+check "T5e-receipt-writer-yaml" 0 python3 "$SCRIPT_DIR/buildapp_manifest_test.py"
 
 # T6 png fallback resizer round-trip (pure-python path)
 if python3 "$PNG_TOOL" resize "$FLUTTER_ROOT/web/icons/Icon-192.png" "$TT/r64.png" 64 64 2>&1 \
@@ -424,13 +429,13 @@ expect_file_grep "S1c-validation-verified" "$S1_ART/build-manifest.yaml" 'url_sc
 expect_file_grep "S1d-device-pending" "$S1_ART/build-manifest.yaml" 'device_coexistence_test_status: DEVICE_TEST_PENDING'
 if sha_check "$S1_ART"; then ok "S1e-receipt-sha"; else bad "S1e-receipt-sha" "SHA256SUMS mismatch"; fi
 
-# S2 ios: only customer scheme as the deeplink URL type; others preserved
+# S2 ios: customer deeplink, shared group, and ShareMedia callback; third-party types preserved
 run_capture "S2-ios-alpha" customer-alpha development ios --dry-run
 S2_ART="$RECV_DIR"
 expect_file_grep "S2a-ios-schemes" "$S2_ART/build-manifest.yaml" 'ios_registered_url_schemes: "alphaapp"'
-expect_file_grep "S2b-ios-all-types" "$S2_ART/build-manifest.yaml" 'ShareMedia-pub.imboy.app'
+expect_file_grep "S2b-ios-share-callback" "$S2_ART/build-manifest.yaml" 'ShareMedia-pub.imboy.app.demo.customer-alpha'
 expect_file_grep "S2c-ios-alipay-kept" "$S2_ART/build-manifest.yaml" 'alipay'
-expect_file_grep "S2e-customer-app-group" "$S2_ART/build-manifest.yaml" 'ios_app_group_id: group.pub.imboy.app.demo.customer_alpha'
+expect_file_grep "S2e-customer-app-group" "$S2_ART/build-manifest.yaml" 'ios_app_group_id: group.pub.imboy.app.demo.customer-alpha'
 expect_file_grep "S2f-app-group-verified" "$S2_ART/build-manifest.yaml" 'ios_app_group_validation_status: verified'
 if [ -f "$S2_ART/build-manifest.yaml" ] && grep -q 'build_status: DRY_RUN' "$S2_ART/build-manifest.yaml"; then ok "S2d-dryrun-status"; else bad "S2d-dryrun-status" "dry-run receipt must not claim PASS"; fi
 
@@ -440,6 +445,15 @@ S3_ART="$RECV_DIR"
 expect_file_grep "S3a-beta-schemes" "$S3_ART/build-manifest.yaml" 'android_registered_url_schemes: "betaapp, https"'
 if [ -f "$S3_ART/build-manifest.yaml" ] && ! grep -q 'alphaapp' "$S3_ART/build-manifest.yaml"; then ok "S3b-no-alpha-leak"; else bad "S3b-no-alpha-leak" "alpha leaked into beta receipt"; fi
 if [ -n "$S1_ART" ] && sha_check "$S1_ART"; then ok "S3c-alpha-receipt-intact"; else bad "S3c-alpha-receipt-intact" "alpha receipt corrupted after beta run"; fi
+run_capture "S3d-ios-beta" customer-beta development ios --dry-run
+S3_IOS_ART="$RECV_DIR"
+expect_file_grep "S3e-beta-app-group" "$S3_IOS_ART/build-manifest.yaml" 'ios_app_group_id: group.pub.imboy.app.demo.customer-beta'
+expect_file_grep "S3f-beta-share-callback" "$S3_IOS_ART/build-manifest.yaml" 'ios_share_url_scheme: ShareMedia-pub.imboy.app.demo.customer-beta'
+if [ -f "$S3_IOS_ART/build-manifest.yaml" ] && ! grep -q 'customer-alpha' "$S3_IOS_ART/build-manifest.yaml" && sha_check "$S2_ART"; then
+  ok "S3g-ios-customers-isolated"
+else
+  bad "S3g-ios-customers-isolated" "cross-customer identity or modified alpha receipt"
+fi
 
 # S4 demo inheritance is explicit + disclosed (vendor scheme allowed only here)
 run_capture "S4-inherit-demo-android" selftest-alpha development android --dry-run
@@ -448,6 +462,8 @@ expect_file_grep "S4a-inherit-resolution" "$S4_ART/build-manifest.yaml" 'resolut
 expect_file_grep "S4b-inherit-disclosure" "$S4_ART/build-manifest.yaml" 'INHERITS the vendor imboy:// scheme'
 expect_file_grep "S4c-inherit-verified" "$S4_ART/build-manifest.yaml" 'url_scheme_validation_status: verified-vendor-inherited'
 expect_file_grep "S4d-inherit-android-schemes" "$S4_ART/build-manifest.yaml" 'android_registered_url_schemes: "https, imboy"'
+run_capture "S4e-inherit-demo-ios" selftest-alpha development ios --dry-run
+expect_file_grep "S4f-inherit-ios-share-isolated" "$RECV_DIR/build-manifest.yaml" 'ios_share_url_scheme: ShareMedia-pub.imboy.app.demo.selftest-alpha'
 
 # S5 demo WITHOUT scheme and WITHOUT inherit flag => fail-closed
 sedi 's|inherit_vendor_url_scheme: "true"|inherit_vendor_url_scheme: "false"|' "$CUSTOMERS_ROOT/selftest-beta/config/app.yaml"
@@ -462,7 +478,7 @@ fixture customer-prod prodapp --production-identity
 # S7 production happy path (synthetic identity) => verified customer scheme
 run_capture "S7-prod-ok" customer-prod production web --dry-run
 S7_ART="$RECV_DIR"
-expect_file_grep "S7a-prod-scheme" "$S7_ART/build-manifest.yaml" 'configured_url_scheme: prodapp'
+expect_file_grep "S7a-prod-scheme" "$S7_ART/build-manifest.yaml" 'configured_url_scheme: "prodapp"'
 expect_file_grep "S7b-prod-resolution" "$S7_ART/build-manifest.yaml" 'resolution: identity.url_scheme'
 expect_file_grep "S7c-prod-webonly-status" "$S7_ART/build-manifest.yaml" 'url_scheme_validation_status: config-validated-web-only'
 
@@ -541,6 +557,20 @@ if [ "$REAL_COUNT" -ge 1 ] && [ "$DRY_COUNT" -ge 1 ]; then ok "R4a-layout-separa
 
 # R5 staging root is empty after every published/failed run (no residue mixing)
 if [ -z "$(ls -A "$CB/.staging" 2>/dev/null)" ]; then ok "R5-staging-empty"; else bad "R5-staging-empty" "staging residue: $(ls -A "$CB/.staging" 2>/dev/null | tr '\n' ' ')"; fi
+
+# Parse actual receipts, not just matching isolated lines. Also enforce source
+# evidence vs unsigned-artifact evidence and preserve disclosures as strings.
+RECEIPTS=()
+for id in $ALL_FIXTURES; do
+  if [ -d "$CUSTOMERS_ROOT/$id/builds/dry-runs" ]; then
+    while IFS= read -r receipt; do RECEIPTS+=("$receipt"); done < <(find "$CUSTOMERS_ROOT/$id/builds/dry-runs" -name build-manifest.yaml -type f)
+  fi
+done
+if [ ${#RECEIPTS[@]} -gt 0 ]; then
+  check "R6-all-receipts-parse-as-yaml" 0 python3 "$SCRIPT_DIR/buildapp_manifest_test.py" "${RECEIPTS[@]}"
+else
+  bad "R6-all-receipts-parse-as-yaml" "no generated receipts to validate"
+fi
 
 echo "== results: PASS=$PASS FAIL=$FAIL =="
 [ "$FAIL" -eq 0 ] || exit 1

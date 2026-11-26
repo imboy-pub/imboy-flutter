@@ -5,7 +5,7 @@ name: buildapp receipts & url schemes
 #     macOS-only tools (sips) are only exercised on macOS; every other code
 #     path is portable and must stay green on Linux too
 #   * real-build artifact checks: the final APK's merged manifest (aapt2/
-#     apkanalyzer) and the built Runner.app Info.plist (plistlib) are verified
+#     apkanalyzer) and the built Runner/ShareExtension plists are verified
 #     by buildapp.sh itself; these jobs exist to make that path actually run
 #     against real flutter builds in CI
 on:
@@ -13,10 +13,14 @@ on:
     paths:
       - 'scripts/buildapp*.sh'
       - 'scripts/buildapp*.py'
+      - 'scripts/requirements-tooling.txt'
       - '.github/workflows/buildapp.yml'
       - 'android/app/src/main/AndroidManifest.xml'
       - 'ios/Runner/Info.plist'
       - 'ios/ShareExtension/Info.plist'
+      - 'ios/Runner/*.entitlements'
+      - 'ios/ShareExtension/*.entitlements'
+      - 'ios/Runner.xcodeproj/project.pbxproj'
   push:
     branches: [ main ]
   workflow_dispatch:
@@ -43,7 +47,7 @@ jobs:
       - name: Checkout pinned submodules (bounded retry)
         timeout-minutes: 10
         run: bash .github/scripts/ci_checkout_submodules.sh
-      - name: Install pinned python tooling (defusedxml, hashed, venv)
+      - name: Install pinned python tooling (defusedxml + PyYAML, hashed, venv)
         run: |
           set -euo pipefail
           python_env="$(mktemp -d "$RUNNER_TEMP/buildapp-python.XXXXXX")"
@@ -64,7 +68,7 @@ jobs:
       - name: Checkout pinned submodules (bounded retry)
         timeout-minutes: 10
         run: bash .github/scripts/ci_checkout_submodules.sh
-      - name: Install pinned python tooling (defusedxml, hashed, venv)
+      - name: Install pinned python tooling (defusedxml + PyYAML, hashed, venv)
         run: |
           set -euo pipefail
           python_env="$(mktemp -d "$RUNNER_TEMP/buildapp-python.XXXXXX")"
@@ -85,7 +89,7 @@ jobs:
       - name: Checkout pinned submodules (bounded retry)
         timeout-minutes: 10
         run: bash .github/scripts/ci_checkout_submodules.sh
-      - name: Install pinned python tooling (defusedxml, hashed, venv)
+      - name: Install pinned python tooling (defusedxml + PyYAML, hashed, venv)
         run: |
           set -euo pipefail
           python_env="$(mktemp -d "$RUNNER_TEMP/buildapp-python.XXXXXX")"
@@ -114,9 +118,10 @@ jobs:
           set -euo pipefail
           ART="$(find ../customers/customer-alpha/builds/development -maxdepth 1 -mindepth 1 -type d | head -1)"
           echo "receipt: $ART"
+          python3 scripts/buildapp_manifest_test.py "$ART/build-manifest.yaml"
           grep -q 'build_status: PASS' "$ART/build-manifest.yaml"
           grep -q 'android_registered_url_schemes: "alphaapp, https"' "$ART/build-manifest.yaml"
-          grep -q 'configured_url_scheme: alphaapp' "$ART/build-manifest.yaml"
+          grep -q 'configured_url_scheme: "alphaapp"' "$ART/build-manifest.yaml"
           grep -qE 'android_apk_url_schemes: "(alphaapp, https|https, alphaapp)"' "$ART/build-manifest.yaml"
           grep -q 'device_coexistence_test_status: DEVICE_TEST_PENDING' "$ART/build-manifest.yaml"
           [ -f "$ART/android/app-release.apk" ]
@@ -124,6 +129,8 @@ jobs:
           echo "APK merged-manifest evidence recorded in receipt"
 
   ios-app-plist:
+    # Keep the existing check name for branch protection; this now verifies
+    # the embedded ShareExtension identity and callback as well.
     name: real Runner.app plist scheme check (F13, macOS)
     # macos-26-intel: same image the main CI iOS build uses. On macos-15 the
     # pinned video_player_avfoundation 2.12.3 fails Swift compilation
@@ -138,7 +145,7 @@ jobs:
       - name: Checkout pinned submodules (bounded retry)
         timeout-minutes: 10
         run: bash .github/scripts/ci_checkout_submodules.sh
-      - name: Install pinned python tooling (defusedxml, hashed, venv)
+      - name: Install pinned python tooling (defusedxml + PyYAML, hashed, venv)
         run: |
           set -euo pipefail
           python_env="$(mktemp -d "$RUNNER_TEMP/buildapp-python.XXXXXX")"
@@ -157,15 +164,20 @@ jobs:
         run: bash scripts/buildapp_fixture.sh customer-alpha alphaapp --gate-skip
       - name: Real unsigned iOS build via buildapp.sh
         run: bash scripts/buildapp.sh customer-alpha development ios
-      - name: Assert receipt + built-plist scheme evidence
+      - name: Assert receipt + packaged host and extension identity
         run: |
           set -euo pipefail
           ART="$(find ../customers/customer-alpha/builds/development -maxdepth 1 -mindepth 1 -type d | head -1)"
           echo "receipt: $ART"
+          python3 scripts/buildapp_manifest_test.py "$ART/build-manifest.yaml"
           grep -q 'build_status: PASS' "$ART/build-manifest.yaml"
           grep -q 'ios_registered_url_schemes: "alphaapp"' "$ART/build-manifest.yaml"
           grep -q 'ios_app_url_schemes: "alphaapp"' "$ART/build-manifest.yaml"
+          grep -q 'ios_app_group_validation_status: verified-unsigned-plists' "$ART/build-manifest.yaml"
+          grep -q 'ios_share_url_scheme: ShareMedia-pub.imboy.app.demo.customer-alpha' "$ART/build-manifest.yaml"
           grep -q 'device_coexistence_test_status: DEVICE_TEST_PENDING' "$ART/build-manifest.yaml"
           [ -f "$ART/ios/Runner-unsigned.app.zip" ]
+          unzip -q "$ART/ios/Runner-unsigned.app.zip" -d "$RUNNER_TEMP/buildapp-ios-artifact"
+          python3 scripts/buildapp_ios_app_group_tools.py verify-app "$RUNNER_TEMP/buildapp-ios-artifact/Runner.app" pub.imboy.app.demo.customer-alpha
           ( cd "$ART" && shasum -a 256 -c SHA256SUMS --status )
-          echo "Runner.app plist evidence recorded in receipt"
+          echo "Packaged Runner + ShareExtension plist identities verified; signed entitlements and device coexistence remain pending"

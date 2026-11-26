@@ -306,7 +306,9 @@ def cmd_inject_ios(path, scheme):
             fail("vendor-inherited demo build but no %r URL type with scheme %r found" % (IOS_DEEPLINK_URL_NAME, VENDOR_SCHEME))
         out({"ok": True, "replaced": 0, "vendor_inherited": True,
              "url_type_count": len(_ios_types(plist)),
-             "deeplink_schemes": t.get("CFBundleURLSchemes")})
+             "deeplink_schemes": t.get("CFBundleURLSchemes"),
+             "other_url_types_preserved": [other.get("CFBundleURLName")
+                                            for other in _ios_types(plist) if other is not t]})
         return
     scheme = validate_or_die(scheme)
 

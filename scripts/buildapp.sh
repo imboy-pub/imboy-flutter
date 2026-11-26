@@ -85,9 +85,13 @@ WEB_TITLE="" ; PUSH_DEMO="unset"
 RESOLVED_SCHEME="" ; SCHEME_RESOLUTION="" ; SCHEME_INHERITED=0
 ANDROID_REGISTERED_SCHEMES="not-injected" ; IOS_REGISTERED_SCHEMES="not-injected"
 IOS_ALL_URL_SCHEMES="not-injected"
+IOS_APP_GROUP_ID="not-injected" ; IOS_SHARE_SCHEME="not-injected"
 IOS_APP_GROUP_STATUS="not-applicable"
+IOS_APP_GROUP_EVIDENCE="not-applicable"
 URL_SCHEME_VALIDATION="not-applicable"
 ANDROID_APK_SCHEMES="not-built" ; ANDROID_APK_TOOL="none" ; IOS_APP_SCHEMES="not-built"
+IOS_APP_GROUP_ARTIFACT_ID="not-built" ; IOS_SHARE_ARTIFACT_SCHEME="not-built"
+IOS_SHARE_ARTIFACT_BUNDLE_ID="not-built" ; IOS_APP_GROUP_ARTIFACT_STATUS="not-built"
 
 info()  { echo "[buildapp] $*"; }
 warn()  { echo "[buildapp] WARNING: $*" >&2; }
@@ -551,39 +555,35 @@ verify_android_scheme() { # F12: read registration back from the injected file
 }
 
 inject_ios_identity() {
+  # share_handler_ios uses one shared group and opens ShareMedia-<host bundle>.
+  # Validate the customer bundle before using it in any native-file replacement.
+  python3 "$APP_GROUP_TOOL" inject "$WORKTREE/ios" "$BUNDLE_ID" >> "$LOG" \
+    || die "iOS share identity injection failed — stale or mismatched target groups/callback"
   plist_set_string "$WORKTREE/ios/Runner/Info.plist" CFBundleDisplayName "$APP_NAME" \
     || die "iOS display name injection failed"
   plist_set_string "$WORKTREE/ios/ShareExtension/Info.plist" CFBundleDisplayName "$APP_NAME" \
     || die "ShareExtension display name injection failed"
-  sedi "s|$VENDOR_BUNDLE_ID|$BUNDLE_ID|g" "$WORKTREE/ios/Runner.xcodeproj/project.pbxproj"
-  # share_handler_ios reads AppGroupId from ShareExtension/Info.plist.
-  # Inject one customer-owned group into the extension plist and both targets.
-  python3 "$APP_GROUP_TOOL" inject \
-    "$WORKTREE/ios/ShareExtension/Info.plist" "group.$BUNDLE_ID" \
-    "$WORKTREE"/ios/Runner/*.entitlements \
-    "$WORKTREE"/ios/ShareExtension/*.entitlements \
-    || die "iOS App Group injection failed — stale or mismatched target groups"
+  sedi "s|pub\\.imboy\\.app|$BUNDLE_ID|g" "$WORKTREE/ios/Runner.xcodeproj/project.pbxproj"
   [ "$(plist_get_string "$WORKTREE/ios/Runner/Info.plist" CFBundleDisplayName)" = "$APP_NAME" ] || die "iOS display name injection failed"
   [ "$(plist_get_string "$WORKTREE/ios/ShareExtension/Info.plist" CFBundleDisplayName)" = "$APP_NAME" ] || die "ShareExtension display name injection failed"
   grep -q "$BUNDLE_ID" "$WORKTREE/ios/Runner.xcodeproj/project.pbxproj" || die "iOS bundle id injection failed"
-  python3 "$APP_GROUP_TOOL" verify \
-    "$WORKTREE/ios/ShareExtension/Info.plist" "group.$BUNDLE_ID" \
-    "$WORKTREE"/ios/Runner/*.entitlements \
-    "$WORKTREE"/ios/ShareExtension/*.entitlements \
-    || die "iOS App Group cross-verification failed — vendor/cross-customer group remains"
-  IOS_APP_GROUP_STATUS="verified"
   # F11: rewrite ONLY the IMBoy deeplink URL type's CFBundleURLSchemes
-  # (CFBundleURLName == "imboy.pub"); weixin/alipay/ShareMedia URL types,
-  # E2EE backup registrations and every other plist key stay untouched.
-  # ShareExtension/Info.plist carries NO CFBundleURLTypes (verified by tests)
-  # and is deliberately not scheme-injected.
+  # (CFBundleURLName == "imboy.pub"). The customer ShareMedia callback above,
+  # weixin/alipay, and E2EE backup registrations remain unchanged by this step.
+  # ShareExtension carries no URL registration; Runner owns both callbacks.
   local js
   js="$(python3 "$SCHEME_TOOL" inject-ios "$WORKTREE/ios/Runner/Info.plist" "$RESOLVED_SCHEME")" \
     || die "iOS url scheme injection failed (see errors above)"
   echo "$js" | python3 -c 'import json,sys
 d = json.load(sys.stdin)
 print("[buildapp] ios url scheme: replaced=%(replaced)s vendor_inherited=%(vendor_inherited)s deeplink=%(deeplink_schemes)s preserved=%(other_url_types_preserved)s" % d)' >> "$LOG"
-  info "ios identity injected: bundle=$BUNDLE_ID display=$APP_NAME url_scheme=$RESOLVED_SCHEME customer App Group shared by Runner + ShareExtension; no URL registration in extension)"
+  js="$(python3 "$APP_GROUP_TOOL" verify "$WORKTREE/ios" "$BUNDLE_ID")" \
+    || die "iOS share identity cross-verification failed — vendor/cross-customer group or callback remains"
+  IOS_APP_GROUP_ID="$(echo "$js" | jf app_group_id)"
+  IOS_SHARE_SCHEME="$(echo "$js" | jf share_url_scheme)"
+  IOS_APP_GROUP_STATUS="verified"
+  IOS_APP_GROUP_EVIDENCE="Runner/Info.plist + ShareExtension/Info.plist + $(echo "$js" | jf entitlement_files)"
+  info "ios identity verified: bundle=$BUNDLE_ID display=$APP_NAME url_scheme=$RESOLVED_SCHEME app_group=$IOS_APP_GROUP_ID share_callback=$IOS_SHARE_SCHEME"
 }
 
 verify_ios_scheme() { # F12: read registration back from the injected file
@@ -852,7 +852,7 @@ verify_android_apk_schemes() { # $1=apk  -> sets ANDROID_APK_SCHEMES / ANDROID_A
   record_check ANDROID_APK_TOOL "$ANDROID_APK_TOOL"
 }
 
-verify_ios_app_schemes() { # $1=Runner.app dir -> sets IOS_APP_SCHEMES
+verify_ios_app_schemes() { # $1=Runner.app dir; checks host + embedded extension
   local plist="$1/Info.plist"
   [ -f "$plist" ] || die "cannot verify built iOS app: $plist missing"
   local flag="" js
@@ -861,6 +861,16 @@ verify_ios_app_schemes() { # $1=Runner.app dir -> sets IOS_APP_SCHEMES
     || die "built Runner.app Info.plist scheme verification FAILED (plistlib): $plist"
   IOS_APP_SCHEMES="$(echo "$js" | jf deeplink_schemes)"
   record_check IOS_APP_SCHEMES "$IOS_APP_SCHEMES"
+  js="$(python3 "$APP_GROUP_TOOL" verify-app "$1" "$BUNDLE_ID")" \
+    || die "built iOS share identity verification FAILED (Runner + ShareExtension plists): $1"
+  IOS_APP_GROUP_ARTIFACT_ID="$(echo "$js" | jf app_group_id)"
+  IOS_SHARE_ARTIFACT_SCHEME="$(echo "$js" | jf share_url_scheme)"
+  IOS_SHARE_ARTIFACT_BUNDLE_ID="$(echo "$js" | jf extension_bundle_id)"
+  IOS_APP_GROUP_ARTIFACT_STATUS="verified-unsigned-plists"
+  record_check IOS_APP_GROUP_ARTIFACT_ID "$IOS_APP_GROUP_ARTIFACT_ID"
+  record_check IOS_SHARE_ARTIFACT_SCHEME "$IOS_SHARE_ARTIFACT_SCHEME"
+  record_check IOS_SHARE_ARTIFACT_BUNDLE_ID "$IOS_SHARE_ARTIFACT_BUNDLE_ID"
+  record_check IOS_APP_GROUP_ARTIFACT_STATUS "$IOS_APP_GROUP_ARTIFACT_STATUS"
 }
 
 # ---------- gradle proxy hygiene (worktree copy only) ----------
@@ -1004,16 +1014,25 @@ rm -f "$INVENTORY_FILE"
 _r="$(read_check ANDROID_APK_SCHEMES)"; [ -n "$_r" ] && ANDROID_APK_SCHEMES="$_r"
 _r="$(read_check ANDROID_APK_TOOL)";    [ -n "$_r" ] && ANDROID_APK_TOOL="$_r"
 _r="$(read_check IOS_APP_SCHEMES)";     [ -n "$_r" ] && IOS_APP_SCHEMES="$_r"
+_r="$(read_check IOS_APP_GROUP_ARTIFACT_ID)"; [ -n "$_r" ] && IOS_APP_GROUP_ARTIFACT_ID="$_r"
+_r="$(read_check IOS_SHARE_ARTIFACT_SCHEME)"; [ -n "$_r" ] && IOS_SHARE_ARTIFACT_SCHEME="$_r"
+_r="$(read_check IOS_SHARE_ARTIFACT_BUNDLE_ID)"; [ -n "$_r" ] && IOS_SHARE_ARTIFACT_BUNDLE_ID="$_r"
+_r="$(read_check IOS_APP_GROUP_ARTIFACT_STATUS)"; [ -n "$_r" ] && IOS_APP_GROUP_ARTIFACT_STATUS="$_r"
 rm -f "$CHECKS_FILE"
 
 MANIFEST="$STAGING_DIR/build-manifest.yaml"
+# JSON-quoted strings are valid YAML scalars. Escape free text with the Python
+# stdlib so colons, quotes and line breaks cannot alter receipt structure.
+yaml_string() {
+  python3 -c 'import json, sys; print(json.dumps(sys.argv[1], ensure_ascii=False))' "$1"
+}
 {
   echo "run_id: $RUN_ID"
   echo "receipt_version: 2"
-  echo "customer_id: $CUSTOMER_ID"
-  echo "customer_type: $(yaml_get "$CONFIG_DIR/app.yaml" customer_type)"
-  echo "project_purpose: $(yaml_get "$CONFIG_DIR/app.yaml" project_purpose)"
-  echo "authorization_status: $AUTH_STATUS"
+  printf 'customer_id: %s\n' "$(yaml_string "$CUSTOMER_ID")"
+  printf 'customer_type: %s\n' "$(yaml_string "$(yaml_get "$CONFIG_DIR/app.yaml" customer_type)")"
+  printf 'project_purpose: %s\n' "$(yaml_string "$(yaml_get "$CONFIG_DIR/app.yaml" project_purpose)")"
+  printf 'authorization_status: %s\n' "$(yaml_string "$AUTH_STATUS")"
   echo "store_submission_allowed: $(yaml_get "$CONFIG_DIR/app.yaml" store_submission.allowed)"
   echo "mode: $( [ "$DRY_RUN" = "1" ] && echo dry-run || echo real-build )"
   echo "environment: $ENV_NAME"
@@ -1021,60 +1040,72 @@ MANIFEST="$STAGING_DIR/build-manifest.yaml"
   echo "platforms: ${PLATFORMS[*]}"
   echo "build_status: $BUILD_STATUS"
   echo "source_commit: $SRC_COMMIT"
-  echo "build_name: \"$BUILD_NAME\""
+  printf 'build_name: %s\n' "$(yaml_string "$BUILD_NAME")"
   echo "build_number: $BUILD_NUMBER"
   echo "generated_at_utc: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
   echo "assets:"
-  echo "  package: $ASSET_PKG_NAME"
-  echo "  version: $ASSET_VERSION"
-  echo "  replacement_map: $REPLACEMENT_MAP"
+  printf '  package: %s\n' "$(yaml_string "$ASSET_PKG_NAME")"
+  printf '  version: %s\n' "$(yaml_string "$ASSET_VERSION")"
+  printf '  replacement_map: %s\n' "$(yaml_string "$REPLACEMENT_MAP")"
   echo "identity_used:"
   echo "  android_application_id: $APP_ID"
   echo "  ios_bundle_id: $BUNDLE_ID"
-  echo "  display_name: $APP_NAME"
-  echo "  ios_app_group_id: group.$BUNDLE_ID"
+  printf '  display_name: %s\n' "$(yaml_string "$APP_NAME")"
+  echo "  ios_app_group_id: $IOS_APP_GROUP_ID"
+  echo "  ios_share_url_scheme: $IOS_SHARE_SCHEME"
+  printf '  url_scheme: %s\n' "$(yaml_string "$URL_SCHEME_NOTE")"
   echo "ios_app_group_validation_status: $IOS_APP_GROUP_STATUS"
-  echo "ios_app_group_evidence_source: ShareExtension-Info.plist + Runner/ShareExtension-entitlements"
-  echo "  url_scheme: $URL_SCHEME_NOTE"
+  printf 'ios_app_group_evidence_source: %s\n' "$(yaml_string "$IOS_APP_GROUP_EVIDENCE")"
   echo "url_scheme:"
-  echo "  configured_url_scheme: $RESOLVED_SCHEME"
+  printf '  configured_url_scheme: %s\n' "$(yaml_string "$RESOLVED_SCHEME")"
   echo "  resolution: $SCHEME_RESOLUTION"
   echo "  vendor_scheme_inherited: $([ "$SCHEME_INHERITED" = "1" ] && echo true || echo false)"
-  echo "  android_registered_url_schemes: \"$ANDROID_REGISTERED_SCHEMES\""
-  echo "  ios_registered_url_schemes: \"$IOS_REGISTERED_SCHEMES\""
-  echo "  ios_all_url_type_schemes: \"$IOS_ALL_URL_SCHEMES\""
+  printf '  android_registered_url_schemes: %s\n' "$(yaml_string "$ANDROID_REGISTERED_SCHEMES")"
+  printf '  ios_registered_url_schemes: %s\n' "$(yaml_string "$IOS_REGISTERED_SCHEMES")"
+  printf '  ios_all_url_type_schemes: %s\n' "$(yaml_string "$IOS_ALL_URL_SCHEMES")"
   echo "  url_scheme_validation_status: $URL_SCHEME_VALIDATION"
   echo "  registration_evidence_source: injected-native-files (structural parse, F12)"
   echo "  device_coexistence_test_status: DEVICE_TEST_PENDING"
   echo "api:"
   echo "  source: $API_SOURCE"
   echo "artifact_checks:"
-  echo "  android_apk_url_schemes: \"$ANDROID_APK_SCHEMES\""
+  printf '  android_apk_url_schemes: %s\n' "$(yaml_string "$ANDROID_APK_SCHEMES")"
   echo "  android_apk_check_tool: $ANDROID_APK_TOOL"
-  echo "  ios_app_url_schemes: \"$IOS_APP_SCHEMES\""
+  printf '  ios_app_url_schemes: %s\n' "$(yaml_string "$IOS_APP_SCHEMES")"
+  echo "  ios_app_group_id: $IOS_APP_GROUP_ARTIFACT_ID"
+  echo "  ios_share_url_scheme: $IOS_SHARE_ARTIFACT_SCHEME"
+  echo "  ios_share_extension_bundle_id: $IOS_SHARE_ARTIFACT_BUNDLE_ID"
+  echo "  ios_app_group_validation_status: $IOS_APP_GROUP_ARTIFACT_STATUS"
+  if [ "$IOS_APP_GROUP_ARTIFACT_STATUS" = "verified-unsigned-plists" ]; then
+    echo "  ios_app_group_evidence_source: Runner.app/Info.plist + Runner.app/PlugIns/ShareExtension.appex/Info.plist"
+    echo "  ios_signed_entitlements_status: NOT_VERIFIED_UNSIGNED_BUILD"
+  else
+    echo "  ios_app_group_evidence_source: not-built"
+    echo "  ios_signed_entitlements_status: not-built"
+  fi
   echo "artifacts:"
   if [ ${#INVENTORY[@]} -eq 0 ]; then
     echo "  []"
   else
-    for rel in "${INVENTORY[@]}"; do echo "  - $rel"; done
+    for rel in "${INVENTORY[@]}"; do printf '  - %s\n' "$(yaml_string "$rel")"; done
   fi
   echo "features_injected:"
   echo "  push_demo_enabled: $PUSH_DEMO"
   echo "  features_gate: $FEATURES_GATE"
   echo "disclosures:"
-  echo "  - brand resources carry authorization_status=$AUTH_STATUS; NOT for store submission or public release"
-  echo "  - ios IPA export not performed unless customer signing credentials are configured (unsigned .app.zip only)"
-  echo "  - vendor release keystore and vendor production endpoints are never substituted into customer builds"
+  printf '  - %s\n' "$(yaml_string "brand resources carry authorization_status=$AUTH_STATUS; NOT for store submission or public release")"
+  printf '  - %s\n' "$(yaml_string "ios IPA export not performed unless customer signing credentials are configured (unsigned .app.zip only)")"
+  printf '  - %s\n' "$(yaml_string "vendor release keystore and vendor production endpoints are never substituted into customer builds")"
   if [ "$API_SOURCE" = "inherited-vendor-demo" ]; then
-    echo "  - demo build inherits vendor demo backend by explicit ALLOW_DEMO_INHERITED_API=yes"
+    printf '  - %s\n' "$(yaml_string "demo build inherits vendor demo backend by explicit ALLOW_DEMO_INHERITED_API=yes")"
   fi
   if [ "$SCHEME_INHERITED" = "1" ]; then
-    echo "  - URL scheme: $ENV_NAME build INHERITS the vendor ${VENDOR_URL_SCHEME}:// scheme (explicitly configured identity.demo.inherit_vendor_url_scheme=true); never valid for production"
+    printf '  - %s\n' "$(yaml_string "URL scheme: $ENV_NAME build INHERITS the vendor ${VENDOR_URL_SCHEME}:// scheme (explicitly configured identity.demo.inherit_vendor_url_scheme=true); never valid for production")"
   fi
-  [ -n "$GATE_DISCLOSURE" ] && echo "  - $GATE_DISCLOSURE"
-  [ -n "$CODEGEN_DISCLOSURE" ] && echo "  - $CODEGEN_DISCLOSURE"
-  [ -n "$DEMO_SIGNING_DISCLOSURE" ] && echo "  - $DEMO_SIGNING_DISCLOSURE"
-  echo "  - dual-app coexistence (vendor IMBoy + this build on one device) NOT verified on a real device yet: DEVICE_TEST_PENDING"
+  [ -n "$GATE_DISCLOSURE" ] && printf '  - %s\n' "$(yaml_string "$GATE_DISCLOSURE")"
+  [ -n "$CODEGEN_DISCLOSURE" ] && printf '  - %s\n' "$(yaml_string "$CODEGEN_DISCLOSURE")"
+  [ -n "$DEMO_SIGNING_DISCLOSURE" ] && printf '  - %s\n' "$(yaml_string "$DEMO_SIGNING_DISCLOSURE")"
+  printf '  - %s\n' "$(yaml_string "dual-app coexistence (vendor IMBoy + this build on one device) NOT verified on a real device yet: DEVICE_TEST_PENDING")"
   echo "log: build.log"
 } > "$MANIFEST"
 
