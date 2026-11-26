@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 # IMBoy 文件行数 ratchet 门（APP-02，2026-08-29）
 #
-# 编码规范（AGENTS.md / CLAUDE.md）：Dart 源文件 < 800 行。存量 47 个文件
-# 已超限（最大 2726 行，lib/page/chat/chat/chat_page.dart）——本门不做
+# 编码规范（AGENTS.md / CLAUDE.md）：Dart 源文件 < 800 行。存量 117 个文件
+# 已超限（最大 5057 行，test/unit_test/store/attachment_upload_task_recovery_test.dart）——本门不做
 # 存量拆分，只防新增债务：
 #   1) 新文件超过 800 行 → FAIL（不在基线）；
 #   2) 基线内文件行数**增长** → FAIL（只许减不许增）；
@@ -27,22 +27,10 @@ BASELINE="$REPO_ROOT/scripts/quality/file_size_baseline.txt"
 MAX_LINES=800
 
 MODE="check"
-AGAINST_REF=""
 case "${1:-}" in
-  "")
-    [ "$#" -eq 0 ] || { echo "usage: bash $SCRIPT_REL [--update-baseline | --against-ref <git-ref>]"; exit 64; }
-    MODE="check"
-    ;;
-  --update-baseline)
-    [ "$#" -eq 1 ] || { echo "usage: bash $SCRIPT_REL [--update-baseline | --against-ref <git-ref>]"; exit 64; }
-    MODE="update"
-    ;;
-  --against-ref)
-    [ "$#" -eq 2 ] && [ -n "${2:-}" ] || { echo "usage: bash $SCRIPT_REL [--update-baseline | --against-ref <git-ref>]"; exit 64; }
-    MODE="against-ref"
-    AGAINST_REF="$2"
-    ;;
-  *) echo "usage: bash $SCRIPT_REL [--update-baseline | --against-ref <git-ref>]"; exit 64 ;;
+  "")                 MODE="check"  ;;
+  --update-baseline)  MODE="update" ;;
+  *)  echo "usage: bash $SCRIPT_REL [--update-baseline]"; exit 64 ;;
 esac
 
 command -v git >/dev/null 2>&1 || { echo "BLOCKED: command 'git' not found"; exit 2; }
@@ -62,78 +50,6 @@ collect_oversized() {
 
 CURRENT="$(collect_oversized)"
 CUR_COUNT=$(printf '%s\n' "$CURRENT" | awk 'NF' | wc -l | tr -d ' ')
-
-# ---------- PR/push mode: compare only changed Dart files to the actual base ----------
-# The static baseline is intentionally historical. On CI events, unrelated debt
-# already present on the target branch must not fail a PR that introduces no new debt.
-is_excluded_dart() {
-  case "$1" in
-    plugin/*|build/*|.dart_tool/*) return 0 ;;
-    *.g.dart|*.freezed.dart|*.gr.dart|*.pb.dart|*.pbenum.dart|*.pbjson.dart|*.pbserver.dart) return 0 ;;
-  esac
-  return 1
-}
-
-check_against_ref_file() {
-  local base_path="$1" current_path="$2" base_count current_count
-  is_excluded_dart "$current_path" && return 0
-  [ -f "$current_path" ] || return 0
-  current_count=$(wc -l < "$current_path" | tr -d ' ')
-  base_count=0
-  if [ -n "$base_path" ] && git cat-file -e "$AGAINST_REF:$base_path" 2>/dev/null; then
-    base_count=$(git show "$AGAINST_REF:$base_path" | wc -l | tr -d ' ')
-  fi
-  if [ "$base_count" -gt "$MAX_LINES" ]; then
-    if [ "$current_count" -gt "$base_count" ]; then
-      echo "  +GROW $current_path (base $base_count -> current $current_count; existing over-limit files may only shrink)"
-      FAIL_TOTAL=$((FAIL_TOTAL + 1))
-    fi
-  elif [ "$current_count" -gt "$MAX_LINES" ]; then
-    echo "  +NEW  $current_path ($current_count lines > $MAX_LINES; base $base_count)"
-    FAIL_TOTAL=$((FAIL_TOTAL + 1))
-  fi
-}
-
-if [ "$MODE" = "against-ref" ]; then
-  git rev-parse --verify "$AGAINST_REF"'^{commit}' >/dev/null 2>&1 || {
-    echo "BLOCKED: comparison ref is unavailable: $AGAINST_REF"
-    exit 2
-  }
-  echo "Comparing changed Dart files against $AGAINST_REF (merge-base ... HEAD)"
-  FAIL_TOTAL=0
-  while IFS= read -r -d '' status; do
-    case "$status" in
-      R*|C*)
-        IFS= read -r -d '' old_path || exit 2
-        IFS= read -r -d '' new_path || exit 2
-        check_against_ref_file "$old_path" "$new_path"
-        ;;
-      D*)
-        IFS= read -r -d '' deleted_path || exit 2
-        ;;
-      A*)
-        IFS= read -r -d '' added_path || exit 2
-        check_against_ref_file "" "$added_path"
-        ;;
-      *)
-        IFS= read -r -d '' changed_path || exit 2
-        check_against_ref_file "$changed_path" "$changed_path"
-        ;;
-    esac
-  done < <(git diff --name-status -z --find-renames "$AGAINST_REF...HEAD" -- '*.dart')
-
-  # Include untracked, non-ignored Dart files in local invocations.
-  while IFS= read -r -d '' untracked_path; do
-    check_against_ref_file "" "$untracked_path"
-  done < <(git ls-files --others --exclude-standard -z -- '*.dart')
-
-  if [ "$FAIL_TOTAL" -gt 0 ]; then
-    echo "RESULT: FAIL -- $FAIL_TOTAL changed Dart files introduce file-size debt"
-    exit 1
-  fi
-  echo "RESULT: PASS (no new >$MAX_LINES Dart files and no growth in existing over-limit files)"
-  exit 0
-fi
 
 # ---------- --update-baseline：重采基线 ----------
 if [ "$MODE" = "update" ]; then

@@ -259,18 +259,7 @@ jobs:
       # 债务被承认入基线，ratchet 拦住下一个）。
       # ----------------------------------------------------------------
       - name: File size ratchet gate (800-line)
-        env:
-          PR_BASE_SHA: ${{ github.event.pull_request.base.sha || '' }}
-          PUSH_BASE_SHA: ${{ github.event.before || '' }}
-        run: |
-          set -euo pipefail
-          base_sha="$PR_BASE_SHA"
-          if [[ -z "$base_sha" ]]; then base_sha="$PUSH_BASE_SHA"; fi
-          if [[ -n "$base_sha" && "$base_sha" != "0000000000000000000000000000000000000000" ]]; then
-            bash scripts/quality/check_file_size_ratchet.sh --against-ref "$base_sha"
-          else
-            bash scripts/quality/check_file_size_ratchet.sh
-          fi
+        run: bash scripts/quality/check_file_size_ratchet.sh
 
   # ----------------------------------------------------------------
   # 2) Secrets — gitleaks
