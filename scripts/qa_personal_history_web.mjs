@@ -177,7 +177,7 @@ function loadPlaywright() {
 }
 
 // ---------------- 后端 HTTP（node 侧，用于账号准备）----------------
-async function httpJson(path, { method = 'GET', body, token, headers: extraHeaders } = {}) {
+async function httpJson(path, { method = 'GET', body, token, headers: extraHeaders, rawText = false } = {}) {
   const res = await fetch(API_BASE + path, {
     method,
     headers: Object.assign({},
@@ -186,6 +186,7 @@ async function httpJson(path, { method = 'GET', body, token, headers: extraHeade
       extraHeaders || {}),
     body: body ? JSON.stringify(body) : undefined,
   });
+  if (rawText) return { httpStatus: res.status, bodyText: await res.text() };
   let json = null; try { json = await res.json(); } catch (_) {}
   return { httpStatus: res.status, body: json };
 }
@@ -377,9 +378,10 @@ async function editReal(senderKey, peerKey, originalMsgId, newContent) {
 // （uid 是 64-bit 整数，JSON.parse 会丢精度——对齐 TSID 纪律，禁走解析体）。
 async function ensureFriends(pairs) {
   for (const [x, y] of pairs) {
-    // The QA manifest pins API_BASE to the isolated 127.0.0.1 backend; this is not a user-controlled URL.
-    const have = () => fetch(`${API_BASE}/api/v1/friend/list`, { headers: { authorization: SESSIONS[x].ntoken } }) // nosemgrep: react-insecure-request — fixed loopback-only QA fixture
-      .then(r => r.text()).then(t => t.includes(String(SESSIONS[y].uid)));
+    const have = () => httpJson('/api/v1/friend/list', {
+      token: SESSIONS[x].ntoken,
+      rawText: true,
+    }).then(r => r.bodyText.includes(String(SESSIONS[y].uid)));
     if (await have()) continue; // 已是好友（幂等快路径）
     const add = await httpJson('/api/v1/friend/add', { method: 'POST', token: SESSIONS[x].ntoken,
       body: { to: SESSIONS[y].uid, payload: JSON.stringify({ source: 'mobile', reason: 'mh06 qa fixture' }), created_at: Date.now() } });
