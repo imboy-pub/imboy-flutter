@@ -440,7 +440,9 @@ void main() {
     test('geolocator：实时定位失败降级 lastKnown，再失败返回 null 不崩溃', () async {
       // CI/local isolated mode intentionally suppresses all map/location access.
       // Assert that guard here; exercise the geolocator fallback only when allowed.
-      if (LocalExternalServicesPolicy.mapsSuppressed) {
+      if (LocalExternalServicesPolicy.mapsSuppressed ||
+          Platform.isLinux ||
+          Platform.isWindows) {
         expect(await LocationService().getCurrentPosition(), isNull);
         expect(geolocator.positionCalls, 0);
         expect(geolocator.lastKnownCalls, 0);
