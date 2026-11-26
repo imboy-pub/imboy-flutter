@@ -259,6 +259,33 @@ class ShareIdentityTests(unittest.TestCase):
         path.unlink()
         self.reject_without_writes()
 
+    def test_plist_entity_declarations_are_rejected_without_expansion(self):
+        sentinel = self.root / "entity-sentinel.txt"
+        sentinel_text = "BUILDAPP_ENTITY_SENTINEL_MUST_NOT_BE_EXPANDED"
+        sentinel.write_text(sentinel_text)
+        path = self.ios / "ShareExtension/Info.plist"
+        for declaration in (f'"{sentinel_text}"', f'SYSTEM "{sentinel.as_uri()}"'):
+            with self.subTest(declaration=declaration):
+                path.write_text(
+                    '<?xml version="1.0"?>\n'
+                    f'<!DOCTYPE plist [<!ENTITY share {declaration}>]>\n'
+                    '<plist version="1.0"><dict><key>AppGroupId</key>'
+                    '<string>&share;</string></dict></plist>'
+                )
+                before = self.snapshot()
+                with self.assertRaisesRegex(ValueError, "entity declarations") as error:
+                    share.inject(self.ios, ALPHA)
+                self.assertEqual(before, self.snapshot())
+                self.assertNotIn(sentinel_text, str(error.exception))
+                result = subprocess.run(
+                    [sys.executable, str(TOOL), "inject", str(self.ios), ALPHA],
+                    capture_output=True, text=True,
+                )
+                self.assertNotEqual(0, result.returncode)
+                self.assertEqual("", result.stdout)
+                self.assertNotIn(sentinel_text, result.stderr)
+                self.assertNotIn("Traceback", result.stderr)
+
     def test_share_callback_cannot_be_missing_duplicate_or_foreign(self):
         path = self.ios / "Runner/Info.plist"
         baseline = share.load(path)

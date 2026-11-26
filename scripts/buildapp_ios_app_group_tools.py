@@ -11,7 +11,6 @@ import plistlib
 import re
 import sys
 from pathlib import Path
-from xml.parsers.expat import ExpatError
 
 VENDOR_BUNDLE = "pub.imboy.app"
 VENDOR_GROUP = f"group.{VENDOR_BUNDLE}"
@@ -30,7 +29,9 @@ def load(path):
     try:
         with Path(path).open("rb") as stream:
             value = plistlib.load(stream)
-    except (OSError, ValueError, plistlib.InvalidFileException, ExpatError) as exc:
+    except Exception as exc:
+        # plistlib rejects XML entity declarations. Normalize its XML/binary
+        # parser failures at this input boundary without importing a raw parser.
         raise ValueError(f"{path}: invalid or missing plist: {exc}") from exc
     if not isinstance(value, dict):
         raise ValueError(f"{path}: plist root must be a dictionary")
