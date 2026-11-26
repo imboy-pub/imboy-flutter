@@ -22,7 +22,7 @@ import 'package:imboy/service/message_retry.dart';
 import 'package:imboy/service/protocol/imboy_frame.dart';
 import 'package:imboy/service/protocol/imboy_pb_codec.dart';
 import 'package:imboy/service/protocol/outbound_message.dart';
-import 'package:web_socket_channel/io.dart';
+import 'package:imboy/service/websocket_connection_io.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
 import 'package:imboy/component/helper/func.dart';
@@ -481,7 +481,7 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
         );
       } else {
         // 移动端/桌面端使用 IOWebSocketChannel
-        attemptChannel = IOWebSocketChannel.connect(
+        attemptChannel = await connectNativeWebSocket(
           wsUrl,
           headers: {...await defaultHeaders(), Keys.tokenKey: token},
           protocols: protocols,
