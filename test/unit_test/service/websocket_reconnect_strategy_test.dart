@@ -7,9 +7,11 @@
 /// 4. 重连间隔计算
 library;
 
+import 'dart:async';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/service/exponential_backoff.dart'
-    show ExponentialBackoff, JitterType;
+    show ExponentialBackoff, JitterType, awaitWebSocketConnectionReady;
 
 void main() {
   group('ExponentialBackoff 重连策略测试', () {
@@ -285,6 +287,30 @@ void main() {
       // 这个测试需要 UserRepo 和 WebSocketService 的 mock
       // 在实际实现时补充
       expect(true, true); // 占位符
+    });
+  });
+
+  group('WebSocket 握手超时回归 (#6)', () {
+    test('ready 长时间不完成时必须以 TimeoutException 结束', () async {
+      final pendingReady = Completer<void>();
+
+      await expectLater(
+        awaitWebSocketConnectionReady(
+          pendingReady.future,
+          timeout: const Duration(milliseconds: 20),
+        ),
+        throwsA(isA<TimeoutException>()),
+      );
+    });
+
+    test('ready 在超时前完成时正常返回', () async {
+      await expectLater(
+        awaitWebSocketConnectionReady(
+          Future<void>.value(),
+          timeout: const Duration(milliseconds: 20),
+        ),
+        completes,
+      );
     });
   });
 }

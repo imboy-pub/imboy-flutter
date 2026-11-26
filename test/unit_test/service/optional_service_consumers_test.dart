@@ -44,6 +44,7 @@ import 'package:imboy/component/location/widget.dart';
 import 'package:imboy/component/webrtc/session.dart';
 import 'package:imboy/config/const.dart' show Keys;
 import 'package:imboy/config/init.dart' show currentEnv;
+import 'package:imboy/config/local_external_services_policy.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/chat/p2p_call_screen/p2p_call_screen_provider.dart';
 import 'package:imboy/page/chat/widget/extra_item.dart';
@@ -437,6 +438,16 @@ void main() {
     });
 
     test('geolocator：实时定位失败降级 lastKnown，再失败返回 null 不崩溃', () async {
+      // CI/local isolated mode intentionally suppresses all map/location access.
+      // Assert that guard here; exercise the geolocator fallback only when allowed.
+      if (LocalExternalServicesPolicy.mapsSuppressed ||
+          Platform.isLinux ||
+          Platform.isWindows) {
+        expect(await LocationService().getCurrentPosition(), isNull);
+        expect(geolocator.positionCalls, 0);
+        expect(geolocator.lastKnownCalls, 0);
+        return;
+      }
       geolocator.positionError = const SocketException('gps lost');
       expect(await LocationService().getCurrentPosition(), isNull);
       expect(geolocator.positionCalls, 1);
@@ -449,10 +460,24 @@ void main() {
       expect(geolocator.positionCalls, 2);
     });
 
-    test('geolocator：正常授权下单次定位成功', () async {
+    test('geolocator：平台守卫与正常授权下单次定位', () async {
       final result = await LocationService().getCurrentPosition();
+      if (LocalExternalServicesPolicy.mapsSuppressed ||
+          Platform.isLinux ||
+          Platform.isWindows) {
+        expect(result, isNull, reason: '隔离模式或未支持平台不发起实时定位');
+        expect(geolocator.positionCalls, 0);
+        expect(geolocator.lastKnownCalls, 0);
+        expect(geolocator.permissionRequests, 0);
+        return;
+      }
+
       expect(result, isNotNull);
+      expect(result!.latitude, 23);
+      expect(result.longitude, 113);
       expect(geolocator.positionCalls, 1);
+      expect(geolocator.lastKnownCalls, 0);
+      expect(geolocator.permissionRequests, 0);
     });
   });
 

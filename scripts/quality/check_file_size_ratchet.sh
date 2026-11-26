@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 # IMBoy 文件行数 ratchet 门（APP-02，2026-08-29）
 #
-# 编码规范（AGENTS.md / CLAUDE.md）：Dart 源文件 < 800 行。存量 47 个文件
-# 已超限（最大 2726 行，lib/page/chat/chat/chat_page.dart）——本门不做
+# 编码规范（AGENTS.md / CLAUDE.md）：Dart 源文件 < 800 行。存量 117 个文件
+# 已超限（最大 5057 行，test/unit_test/store/attachment_upload_task_recovery_test.dart）——本门不做
 # 存量拆分，只防新增债务：
 #   1) 新文件超过 800 行 → FAIL（不在基线）；
 #   2) 基线内文件行数**增长** → FAIL（只许减不许增）；
