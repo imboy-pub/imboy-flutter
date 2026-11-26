@@ -1460,7 +1460,7 @@ void main() {
     });
   });
 
-  if (!kIsWeb) group('UX-02 原生 FFI 旅程', () {
+  group('UX-02 原生 FFI 旅程', () {
     late Database db;
 
     setUp(() async {
@@ -1581,7 +1581,7 @@ void main() {
         reentered.read(conversationProvider).conversationMap[group.uk3],
         isNull,
       );
-    });
+    }, skip: kIsWeb);
 
     testWidgets('LOCAL:01 世代守卫：切号后长按「标为已读」不落库', (tester) async {
       final api = _Ux02JourneyApi();
@@ -1673,7 +1673,7 @@ void main() {
         reason: '旧世代的行操作不得把消息写成已读',
       );
       expect(unread, 2, reason: '旧世代的行操作不得改写未读水位');
-    });
+    }, skip: kIsWeb);
 
     testWidgets('LOCAL:02 权威同步与标已读：预览/未读/历史落到终态', (tester) async {
       final api = _Ux02JourneyApi();
@@ -1808,6 +1808,6 @@ void main() {
         findsNothing,
         reason: '未读角标必须随终态消失',
       );
-    });
+    }, skip: kIsWeb);
   });
 }
