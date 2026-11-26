@@ -12,6 +12,7 @@ import 'package:imboy/page/chat/chat/sqlite_chat_service.dart';
 import 'package:imboy/page/web_shell/web_shell.dart';
 import 'package:imboy/service/auth_session_scope.dart';
 import 'package:imboy/service/voice_playback_service.dart';
+import 'package:imboy/service/sqflite_init.dart';
 import 'package:imboy/service/web_writer_gate.dart';
 
 import '../web_shell/fixtures/chat_input_io_fence.dart';
