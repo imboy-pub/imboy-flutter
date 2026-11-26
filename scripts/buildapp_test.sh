@@ -523,11 +523,21 @@ echo "stray" > "$CUSTOMERS_ROOT/customer-alpha/builds/development/stray.apk"
 run_capture "R2a-poison-run" customer-alpha development web --dry-run
 R2_ART="$RECV_DIR"
 LINES=$(wc -l < "$R2_ART/SHA256SUMS" | tr -d ' ')
-if [ "$LINES" = "2" ] && ! grep -q "stray.apk" "$R2_ART/SHA256SUMS" && ! grep -q "9.9.9" "$R2_ART/SHA256SUMS" \
-   && [ "$(cat "$POISON/app-release.apk")" = "fake-old-apk" ] && [ -f "$POISON/build-manifest.yaml" ]; then
+# Check the inventory filenames, not digest text: the regex 9.9.9 can match
+# a perfectly valid SHA256 digest (for example, 9e989).
+R2_FILES="$(awk '{print $2}' "$R2_ART/SHA256SUMS" | LC_ALL=C sort)"
+R2_EXPECTED_FILES="$(printf '%s\n' build-manifest.yaml build.log)"
+R2_POISON_UNCHANGED=no
+if [ "$(cat "$POISON/app-release.apk" 2>/dev/null)" = "fake-old-apk" ] \
+   && [ "$(cat "$POISON/build-manifest.yaml" 2>/dev/null)" = "build_status: PASS" ] \
+   && [ "$(cat "$POISON/SHA256SUMS" 2>/dev/null)" = "deadbeef  app-release.apk" ] \
+   && [ "$(cat "$CUSTOMERS_ROOT/customer-alpha/builds/development/stray.apk" 2>/dev/null)" = "stray" ]; then
+  R2_POISON_UNCHANGED=yes
+fi
+if [ "$LINES" = "2" ] && [ "$R2_FILES" = "$R2_EXPECTED_FILES" ] && [ "$R2_POISON_UNCHANGED" = yes ]; then
   ok "R2b-poison-isolated"
 else
-  bad "R2b-poison-isolated" "receipt SHA256SUMS has $LINES lines or poisoned files disturbed"
+  bad "R2b-poison-isolated" "SHA256SUMS lines=$LINES filenames=[$(printf '%s' "$R2_FILES" | tr '\n' ',')]; expected [build-manifest.yaml,build.log]; old poison files unchanged=$R2_POISON_UNCHANGED"
 fi
 
 # R3 success then failing rerun: old PASS receipt survives, no new PASS receipt
