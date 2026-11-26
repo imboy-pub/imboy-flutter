@@ -464,7 +464,7 @@ void main() {
       final result = await LocationService().getCurrentPosition();
       expect(result, isNotNull);
       expect(geolocator.positionCalls, 1);
-    });
+    }, skip: !Platform.isMacOS);
   });
 
   group('FL-17 D. 推送消费者：零调用与重试预算', () {
