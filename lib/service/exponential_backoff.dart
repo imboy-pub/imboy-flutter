@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math';
 
 import 'package:imboy/service/app_logger.dart';
@@ -102,3 +103,12 @@ enum JitterType {
   /// 偏差抖动（±jitterFactor * delay）
   deviation,
 }
+
+/// Maximum time allowed for the WebSocket HTTP upgrade handshake.
+const websocketConnectionReadyTimeout = Duration(seconds: 15);
+
+/// Fails stalled handshakes so the caller can enter its normal retry path.
+Future<void> awaitWebSocketConnectionReady(
+  Future<void> ready, {
+  Duration timeout = websocketConnectionReadyTimeout,
+}) => ready.timeout(timeout);

@@ -494,7 +494,7 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
         return;
       }
       _channel = attemptChannel;
-      await attemptChannel.ready;
+      await awaitWebSocketConnectionReady(attemptChannel.ready);
 
       // closeSocket() 可能在 ready 等待期间使本次连接失效；旧连接不得
       // 抢占新连接的 channel 或把状态重新改成 connected。
