@@ -1460,7 +1460,7 @@ void main() {
     });
   });
 
-  if (!kIsWeb) group('UX-02 群与会话权限·未读页面旅程（真实事件驱动）', () {
+  group('UX-02 群与会话权限·未读页面旅程（真实事件驱动）', () {
     late Database db;
 
     setUp(() async {
@@ -1809,5 +1809,5 @@ void main() {
         reason: '未读角标必须随终态消失',
       );
     });
-  });
+  }, skip: kIsWeb);
 }
