@@ -5,7 +5,7 @@
 | 门 | 范围 | 基线 | 状态 |
 |---|---|---|---|
 | `check_analyzer_ratchet.sh` | **全仓** analyzer | `analyzer_ratchet_baseline.txt`（**零基线**） | APP-02（2026-08-29）新增 |
-| `check_file_size_ratchet.sh` | **全仓** Dart 文件行数 | `file_size_baseline.txt`（47 个存量超限） | APP-02（2026-08-29）新增 |
+| `check_file_size_ratchet.sh` | **全仓** Dart 文件行数 | `file_size_baseline.txt`（117 个存量超限，2026-11-26 重采） | APP-02（2026-08-29）新增 |
 | `check_analyze_increment.sh` | 双体验功能目录（16 前缀） | `analyze_baseline.txt` | 历史门，零基线后自动恒 PASS |
 
 ## 1. 全仓 analyzer ratchet 门（check_analyzer_ratchet.sh）
@@ -47,7 +47,7 @@ bash scripts/quality/check_analyzer_ratchet.sh --update-baseline   # 有意变�
 
 ### 规则
 
-编码规范：Dart 源文件 **< 800 行**。存量 47 个文件超限（最大 2726 行，
+编码规范：Dart 源文件 **< 800 行**。存量 117 个文件超限（2026-11-26 按当前仓库重新采样）（最大 2726 行，
 `lib/page/chat/chat/chat_page.dart`）已入基线，只防新增债务：
 
 1. 新文件超 800 行（不在基线）→ FAIL；
