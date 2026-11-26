@@ -460,11 +460,25 @@ void main() {
       expect(geolocator.positionCalls, 2);
     });
 
-    test('geolocator：正常授权下单次定位成功', () async {
+    test('geolocator：平台守卫与正常授权下单次定位', () async {
       final result = await LocationService().getCurrentPosition();
+      if (LocalExternalServicesPolicy.mapsSuppressed ||
+          Platform.isLinux ||
+          Platform.isWindows) {
+        expect(result, isNull, reason: '隔离模式或未支持平台不发起实时定位');
+        expect(geolocator.positionCalls, 0);
+        expect(geolocator.lastKnownCalls, 0);
+        expect(geolocator.permissionRequests, 0);
+        return;
+      }
+
       expect(result, isNotNull);
+      expect(result!.latitude, 23);
+      expect(result.longitude, 113);
       expect(geolocator.positionCalls, 1);
-    }, skip: !Platform.isMacOS);
+      expect(geolocator.lastKnownCalls, 0);
+      expect(geolocator.permissionRequests, 0);
+    });
   });
 
   group('FL-17 D. 推送消费者：零调用与重试预算', () {
