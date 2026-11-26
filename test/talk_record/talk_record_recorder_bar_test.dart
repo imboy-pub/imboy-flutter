@@ -213,7 +213,11 @@ void main() {
   });
 
   testWidgets('结束确认弹窗：取消继续录，确认后结束', (tester) async {
-    final svc = await pumpRecording(tester);
+    // The completion future must share the real async zone with file I/O.
+    final endedFromUi = (await tester.runAsync(
+      () async => Completer<TalkRecordSessionResult>(),
+    ))!;
+    final svc = await pumpRecording(tester, onEnded: endedFromUi.complete);
 
     await drive(tester, () async => tickBoth(700));
     await tester.pump();
@@ -224,16 +228,19 @@ void main() {
 
     await tapAndSettle(tester, find.text('继续录制'));
     expect(svc.phase, TalkRecordRecorderPhase.recording); // 取消不动会话
+    expect(endedFromUi.isCompleted, isFalse);
 
-    await tester.tap(find.byKey(const ValueKey('trr_btn_end')));
+    // Start the dialog in the real async zone so its confirmed continuation
+    // can finish file I/O without a fixed budget of fake/real polling rounds.
+    await tester.runAsync(
+      () => tester.tap(find.byKey(const ValueKey('trr_btn_end'))),
+    );
     await tester.pumpAndSettle();
     await tester.tap(find.text('结束并保存').last);
-    // 轮询最终快照（end() 全链含封段/清单/teardown 多段真实 IO，
-    // fake-zone 续体靠 pump↔runAsync 交替推进）。
-    await settleUntil(
-      tester,
-      () => svc.snapshot.phase == TalkRecordRecorderPhase.ended,
-    );
+    final uiResult = await tester.runAsync(() => endedFromUi.future);
+    await tester.pumpAndSettle();
+    expect(uiResult, isNotNull);
+    expect(svc.snapshot.phase, TalkRecordRecorderPhase.ended);
     expect(svc.phase, TalkRecordRecorderPhase.ended);
     // 弹窗已随确认关闭（dialog 流程完成）；结果干净保存。
     expect(find.text('结束并保存'), findsNothing);
@@ -242,6 +249,7 @@ void main() {
     TalkRecordSessionResult? result;
     await drive(tester, () async => result = await svc.end());
     expect(result, isNotNull);
+    expect(result, same(uiResult));
     final ended = result!;
     expect(ended.savedCleanly, isTrue);
     expect(ended.effectiveDurationMs, 704); // T1 真实样本轴：11帧×1024@16kHz
