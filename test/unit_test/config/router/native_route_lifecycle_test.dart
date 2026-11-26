@@ -17,6 +17,7 @@ import 'package:go_router/go_router.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:imboy/config/router/app_router.dart';
+import 'package:imboy/component/location/amap_helper.dart';
 import 'package:imboy/component/location/widget.dart';
 import 'package:imboy/service/message.dart';
 // 原生边界测试复用 webview_flutter 已锁定的平台接口。
@@ -156,6 +157,8 @@ void main() {
   testWidgets(
     'map bridge accepts a move event while the real page is mounted',
     (tester) async {
+      AMapHelper.grantOverrideForTest = Object();
+      addTearDown(() => AMapHelper.grantOverrideForTest = null);
       final platform = FakeWebViewPlatform();
       final previous = WebViewPlatform.instance;
       WebViewPlatform.instance = platform;
@@ -199,6 +202,8 @@ void main() {
   testWidgets(
     'map route mounts its real page and configures the WebView bridge',
     (tester) async {
+      AMapHelper.grantOverrideForTest = Object();
+      addTearDown(() => AMapHelper.grantOverrideForTest = null);
       final route = smokeRoutes.singleWhere(
         (route) => route.name == 'map_location_picker',
       );
