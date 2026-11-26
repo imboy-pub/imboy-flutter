@@ -209,7 +209,7 @@ void journeyGroups() {
   // 10 分钟超时（CanvasKit 渲染+真实事件链），sqlite/迁移契约面已由本文件
   // 其余 32 个 web 用例与 migration_v38_fts_web_test 覆盖；旅程本身由
   // macos/linux 宿主套件完整覆盖（本文件在该两平台无条件全量运行）。
-  if (!kIsWeb)
+  if (!kIsWeb) {
     group('UX-02 群与会话权限·未读页面旅程（真实事件驱动）', () {
       late Database db;
 
@@ -575,4 +575,5 @@ void journeyGroups() {
         );
       });
     });
+  }
 }
