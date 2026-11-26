@@ -47,8 +47,8 @@ bash scripts/quality/check_analyzer_ratchet.sh --update-baseline   # 有意变�
 
 ### 规则
 
-编码规范：Dart 源文件 **< 800 行**。存量 117 个文件超限（2026-11-26 按当前仓库重新采样）（最大 2726 行，
-`lib/page/chat/chat/chat_page.dart`）已入基线，只防新增债务：
+编码规范：Dart 源文件 **< 800 行**。存量 117 个文件超限（2026-11-26 按当前仓库重新采样）（最大 5057 行，
+`test/unit_test/store/attachment_upload_task_recovery_test.dart`）已入基线，只防新增债务：
 
 1. 新文件超 800 行（不在基线）→ FAIL；
 2. 基线内文件行数**增长** → FAIL（只许减不许增）；
