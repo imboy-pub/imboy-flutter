@@ -300,6 +300,7 @@ void main() {
         '7266418340025468962',
       ]);
 
+      final flowAIds = flowA.messages.map((m) => m.id).toList();
       final failure = await flowA.transferTo(seatB);
       expect(failure, isNull, reason: 'A 转接成功');
 
@@ -347,10 +348,7 @@ void main() {
 
       // 消息 count 不变、id 集合一致
       expect(flowB.messages, hasLength(2));
-      expect(
-        flowB.messages.map((m) => m.id).toList(),
-        flowA.messages.map((m) => m.id).toList(),
-      );
+      expect(flowB.messages.map((m) => m.id).toList(), flowAIds);
 
       // 历史 sender/actor 不重写：visitor 仍 visitor、A 的出站仍署名 A
       final bVisitor = flowB.messages[0];

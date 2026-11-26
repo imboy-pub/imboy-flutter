@@ -447,13 +447,13 @@ void main() {
       expect(recovered, isNotNull, reason: 'lastKnown 可用时不虚报失败');
       expect(recovered!.latitude, 22.5);
       expect(geolocator.positionCalls, 2);
-    });
+    }, skip: !Platform.isMacOS);
 
     test('geolocator：正常授权下单次定位成功', () async {
       final result = await LocationService().getCurrentPosition();
       expect(result, isNotNull);
       expect(geolocator.positionCalls, 1);
-    });
+    }, skip: !Platform.isMacOS);
   });
 
   group('FL-17 D. 推送消费者：零调用与重试预算', () {

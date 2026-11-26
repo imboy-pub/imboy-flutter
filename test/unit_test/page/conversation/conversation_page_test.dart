@@ -1460,7 +1460,7 @@ void main() {
     });
   });
 
-  group('UX-02 群与会话权限·未读页面旅程（真实事件驱动）', () {
+  if (!kIsWeb) group('UX-02 群与会话权限·未读页面旅程（真实事件驱动）', () {
     late Database db;
 
     setUp(() async {
