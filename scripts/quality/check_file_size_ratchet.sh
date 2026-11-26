@@ -95,7 +95,7 @@ check_against_ref_file() {
 }
 
 if [ "$MODE" = "against-ref" ]; then
-  git rev-parse --verify "\${AGAINST_REF}^{commit}" >/dev/null 2>&1 || {
+  git rev-parse --verify "$AGAINST_REF"'^{commit}' >/dev/null 2>&1 || {
     echo "BLOCKED: comparison ref is unavailable: $AGAINST_REF"
     exit 2
   }
