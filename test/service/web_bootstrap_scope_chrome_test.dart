@@ -2,8 +2,6 @@
 library;
 
 import 'dart:async';
-import 'dart:convert';
-import 'dart:math';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/services.dart';
@@ -19,8 +17,6 @@ import 'package:imboy/config/init.dart';
 import 'package:imboy/service/storage.dart';
 import 'package:imboy/service/web_writer_gate.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:pointycastle/export.dart' as pc;
-import 'package:pointycastle/asn1.dart' as asn1;
 
 const _firstRoot = 'http://127.0.0.1:19801';
 const _secondRoot = 'http://127.0.0.1:19802';
@@ -41,35 +37,18 @@ Map<String, dynamic> _payload(String suffix) => {
   },
 };
 
-// Same synthetic SPKI encoding used by the native password transport regression.
-String _publicKey() {
-  final random = Random.secure();
-  final rng = pc.SecureRandom('Fortuna')
-    ..seed(
-      pc.KeyParameter(
-        Uint8List.fromList(List.generate(32, (_) => random.nextInt(256))),
-      ),
-    );
-  final generator = pc.RSAKeyGenerator()
-    ..init(
-      pc.ParametersWithRandom(
-        pc.RSAKeyGeneratorParameters(BigInt.from(65537), 2048, 64),
-        rng,
-      ),
-    );
-  final public = generator.generateKeyPair().publicKey;
-  final algorithm = asn1.ASN1Sequence()
-    ..add(asn1.ASN1ObjectIdentifier.fromName('rsaEncryption'))
-    ..add(asn1.ASN1Null());
-  final key = asn1.ASN1Sequence()
-    ..add(asn1.ASN1Integer(public.modulus))
-    ..add(asn1.ASN1Integer(public.exponent));
-  final spki = asn1.ASN1Sequence()
-    ..add(algorithm)
-    ..add(asn1.ASN1BitString(stringValues: key.encode()));
-  return '-----BEGIN PUBLIC KEY-----\n${base64Encode(spki.encode())}\n'
-      '-----END PUBLIC KEY-----';
-}
+// Fixed synthetic RSA-2048 SPKI from backend test/lib/alipay_openapi_tests.erl.
+// Keep browser bootstrap validation deterministic without runtime key generation.
+const _publicKey =
+    '-----BEGIN PUBLIC KEY-----\n'
+    'MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAs4Aw97QNRScIx7EabhOx\n'
+    'MgrwNszeaq5rCctQJw5EdGO86QH9XQ0szEp0a8fFP1z5J80s1GF5FDjn8kbBDdcq\n'
+    'viYrT8icCLKbkj/sFIZGcL6V9rTpFIHRO1+Iq6cAjWeYQw3s/n3GFKFKKXHQwghE\n'
+    'nGdsK+6AINZSA4eqoboynX0tOAD9R8ijUBjTioi3lSNrWf8TWGha2Wn/62nkauHL\n'
+    'ApRKSQUnfEsYq5Shro71p0x2UoCGJcjFryhbLm6bRWoTy0XOCwkm7fTf7AyetT5b\n'
+    'ZOvvK3Nk6tCb7OyH2iB/DAD4HvYvEaba3IACarfEIuEbXUvotQQAX8PaJdU9EVYr\n'
+    '9wIDAQAB\n'
+    '-----END PUBLIC KEY-----';
 
 // Only the existing HttpClient service boundary is substituted. No HTTP proof.
 class _BootstrapClient extends http.HttpClient {
@@ -150,7 +129,7 @@ void main() {
     final payload = AppInitializer.validateWebBootstrapPayload({
       ..._payload('rsa'),
       'login_pwd_rsa_encrypt': '1',
-      'login_rsa_pub_key': _publicKey(),
+      'login_rsa_pub_key': _publicKey,
     });
     expect(payload['login_pwd_rsa_encrypt'], '1');
     expect(
