@@ -24,7 +24,6 @@ class BrandConfig {
     required this.company,
     required this.supportUrl,
     required this.privacyUrl,
-    required this.edition,
   });
 
   /// 应用名
@@ -56,9 +55,6 @@ class BrandConfig {
   /// 隐私政策地址，同上，默认为空。
   final String privacyUrl;
 
-  /// License 版次，只读展示用
-  final String edition;
-
   /// 默认品牌 = 当前 imboy 原生外观（未配置任何 brand_* 时的形态）
   static const BrandConfig fallback = BrandConfig(
     siteName: 'imboy',
@@ -72,7 +68,6 @@ class BrandConfig {
     company: '',
     supportUrl: '',
     privacyUrl: '',
-    edition: 'community',
   );
 
   static const String themeLight = 'light';
@@ -93,7 +88,6 @@ class BrandConfig {
       company: _text(json['company'], fallback.company),
       supportUrl: _httpUrl(json['support_url']),
       privacyUrl: _httpUrl(json['privacy_url']),
-      edition: _text(json['edition'], fallback.edition, allowEmpty: false),
     );
   }
 
@@ -114,7 +108,6 @@ class BrandConfig {
     String? company,
     String? supportUrl,
     String? privacyUrl,
-    String? edition,
   }) {
     return BrandConfig(
       siteName: siteName ?? this.siteName,
@@ -128,7 +121,6 @@ class BrandConfig {
       company: company ?? this.company,
       supportUrl: supportUrl ?? this.supportUrl,
       privacyUrl: privacyUrl ?? this.privacyUrl,
-      edition: edition ?? this.edition,
     );
   }
 

@@ -17,7 +17,6 @@ Map<String, dynamic> defaultFixture() => <String, dynamic>{
   'company': '',
   'support_url': '',
   'privacy_url': '',
-  'edition': 'community',
 };
 
 /// 白标 fixture：私有化客户完整换品牌
@@ -33,7 +32,6 @@ Map<String, dynamic> whiteLabelFixture() => <String, dynamic>{
   'company': '某企业股份有限公司',
   'support_url': 'https://support.example.com',
   'privacy_url': 'https://example.com/privacy',
-  'edition': 'enterprise',
 };
 
 void main() {
@@ -84,7 +82,6 @@ void main() {
       expect(b.isWhiteLabelled, isTrue);
       expect(b.supportUrl, 'https://support.example.com');
       expect(b.privacyUrl, 'https://example.com/privacy');
-      expect(b.edition, 'enterprise');
     });
   });
 
