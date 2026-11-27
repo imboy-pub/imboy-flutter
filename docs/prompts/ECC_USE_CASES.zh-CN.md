@@ -158,245 +158,810 @@ $production-audit $deployment-patterns
 
 > 本组面向客户业务场景复刻。每个场景提供两条独立提示词：A 用于需求/能力映射；B 用于在批准后实施客户差异。将提示词中的“客户”替换为具体客户、行业、角色和目标流程。
 
+
 ### ECC-090 · 客户聊天 App 复刻方案
 
 **场景：** 个人即时通讯客户端体验
 
-**A · `product-lens` + `product-capability` · 客户场景映射**
+**A · 新增功能 · `product-capability` + `orch-add-feature` + `dart-flutter-patterns` + `tdd-workflow`**
 
 ```text
-$product-lens $product-capability
+$product-capability $orch-add-feature $dart-flutter-patterns $tdd-workflow
+
+当前功能场景：客户聊天 App 复刻方案（个人即时通讯客户端体验）。目标客户/目标业务流程：[请填写客户行业、用户角色、业务目标、关键流程、特殊规则和优先级]。目标范围：[请填写本次要覆盖的端/模块/子功能]。
+
+先读取当前仓库规则和权威文档，再核对实际代码与测试。不得把设计、文档或 API 存在等同于功能已交付；明确标注 CURRENT、TARGET、LOCKED、UNKNOWN 和 NOT_VERIFIED。
+
+任务类型：新增功能。
 
 为客户设计 IMBoy Flutter 个人聊天 App 复刻方案。映射登录、好友、会话列表、消息气泡、消息状态、历史同步、输入状态、撤回编辑、转发引用、多设备和离线恢复。检查现有页面与 messaging/social_graph/identity 模块，输出页面地图、交互差异、端能力限制和验收用例。
-```
-
-**B · `dart-flutter-patterns` + `contract-first` + `orch-change-feature` · 客户差异实施**
-
-```text
-$dart-flutter-patterns $contract-first $orch-change-feature
 
 实施已批准的聊天客户端差异。复用 messaging Facade/Repository、现有消息模型、SQLite 表和 WS 服务。遵守 conv_seq 排序、ACK/重试、未知消息类型降级渲染、生成代码不可手改和 DESIGN 规范。补充 Widget/单元测试；真机媒体/网络验证按测试合同执行。
+
+请先判断需求能否由现有能力配置/组合完成；只有确认存在真实能力缺口才新增代码。输出 capability contract：参与角色、用户旅程、状态机、权限/数据边界、API/WS/客户端界面、迁移兼容、观测和验收标准。客户输入不完整或涉及产品决策时，列出阻塞问题并停在方案阶段。输入充分且任务明确时，按 TDD 先写失败测试再实现，遵循项目已有架构和测试命令。遵守 Gate：计划/契约先审阅，实施后完整验证；不 commit、不 push、不合并、不部署。
 ```
+
+**B · 优化现有功能 / 新模型复审旧 AI 代码 · `brownfield-retrospective` + `flutter-dart-code-review` + `tdd-workflow` + `verification-loop`**
+
+```text
+$brownfield-retrospective $flutter-dart-code-review $tdd-workflow $verification-loop
+
+当前功能场景：客户聊天 App 复刻方案（个人即时通讯客户端体验）。目标客户/目标业务流程：[请填写客户行业、用户角色、业务目标、关键流程、特殊规则和优先级]。目标范围：[请填写本次要覆盖的端/模块/子功能]。
+
+先读取当前仓库规则和权威文档，再核对实际代码与测试。不得把设计、文档或 API 存在等同于功能已交付；明确标注 CURRENT、TARGET、LOCKED、UNKNOWN 和 NOT_VERIFIED。
+
+任务类型：优化现有功能，特别用于新一代 AI 模型复审和改进旧 AI 模型生成的代码。
+
+为客户设计 IMBoy Flutter 个人聊天 App 复刻方案。映射登录、好友、会话列表、消息气泡、消息状态、历史同步、输入状态、撤回编辑、转发引用、多设备和离线恢复。检查现有页面与 messaging/social_graph/identity 模块，输出页面地图、交互差异、端能力限制和验收用例。
+
+实施已批准的聊天客户端差异。复用 messaging Facade/Repository、现有消息模型、SQLite 表和 WS 服务。遵守 conv_seq 排序、ACK/重试、未知消息类型降级渲染、生成代码不可手改和 DESIGN 规范。补充 Widget/单元测试；真机媒体/网络验证按测试合同执行。
+
+请把当前实现视为待验证证据，不信任注释、旧模型自评或“看起来合理”的抽象。按 brownfield-retrospective 的 slice-first 方法，先限定约 15 个文件或 2000 行以内的功能切片，重建实际行为和不变量，建立现有测试/性能/错误行为基线，再检查：逻辑正确性、并发与竞态、失败处理、边界条件、权限与安全、资源生命周期、性能热点、重复/过度抽象、可维护性和跨端一致性。
+
+优先做行为保持型优化；不得为了体现新模型能力而重写整个模块、改变公共契约或引入新依赖。每项发现提供文件/行号、复现或证据、影响、建议和风险。先新增/修正测试证明原行为与目标行为，再实施最小改动。若需要改变用户可见行为、数据结构或协议，先停下请求确认。检查生成代码、Riverpod 生命周期、Facade/Repository 边界、SQLite、WebSocket、平台差异和真实设备约束。
+
+不要自动创建 docs/retro、重复计划或审计文档；先在会话中输出基线、差距登记和改进方案。经用户明确授权后才落盘必要的长期文档。完成后运行相关测试、静态检查和 diff review；不 commit、不 push、不合并、不部署。
+```
+
+**C · 测试现有功能 · `test-collaboration` + `ai-regression-testing` + `verification-loop`**
+
+```text
+$test-collaboration $ai-regression-testing $verification-loop
+
+当前功能场景：客户聊天 App 复刻方案（个人即时通讯客户端体验）。目标客户/目标业务流程：[请填写客户行业、用户角色、业务目标、关键流程、特殊规则和优先级]。目标范围：[请填写本次要覆盖的端/模块/子功能]。
+
+先读取当前仓库规则和权威文档，再核对实际代码与测试。不得把设计、文档或 API 存在等同于功能已交付；明确标注 CURRENT、TARGET、LOCKED、UNKNOWN 和 NOT_VERIFIED。
+
+任务类型：测试现有功能。
+
+为客户设计 IMBoy Flutter 个人聊天 App 复刻方案。映射登录、好友、会话列表、消息气泡、消息状态、历史同步、输入状态、撤回编辑、转发引用、多设备和离线恢复。检查现有页面与 messaging/social_graph/identity 模块，输出页面地图、交互差异、端能力限制和验收用例。
+
+实施已批准的聊天客户端差异。复用 messaging Facade/Repository、现有消息模型、SQLite 表和 WS 服务。遵守 conv_seq 排序、ACK/重试、未知消息类型降级渲染、生成代码不可手改和 DESIGN 规范。补充 Widget/单元测试；真机媒体/网络验证按测试合同执行。
+
+请不要先修改业务实现。先盘点该场景已有单元、组件/Widget、契约、集成、E2E、平台/设备测试和 CI 门禁，建立“需求/业务规则 → TEST-ID 或现有测试资产 → 执行命令 → 证据”矩阵。重点设计正常路径、权限拒绝、非法输入、边界值、重复请求、并发、超时、断线恢复、旧数据兼容和跨端一致性用例。针对旧 AI 生成代码，额外检查 mock/sandbox 与真实路径不一致、遗漏 SELECT/序列化字段、只测 happy path、异常被吞、测试与实现共享同一错误假设等盲点。
+
+只新增真正有区分力的测试，不复制重复用例、不降低阈值、不扩大 skip。遵循 docs/testing/execution.md、test/auto_test/execution_contract.json；不得把模拟器结果冒充真机验收。
+
+执行后逐项报告通过/失败/阻塞/未执行，给出实际命令、退出码、测试数量和证据位置。发现产品代码缺陷时先提交复现证据和最小修复建议；没有明确授权不修改业务代码。不得把未运行、环境缺失或模拟测试写成 PASS。
+```
+
 
 ### ECC-091 · 客户社群 App 复刻方案
 
 **场景：** 群组协作客户端体验
 
-**A · `product-lens` + `product-capability` · 客户场景映射**
+**A · 新增功能 · `product-capability` + `orch-add-feature` + `dart-flutter-patterns` + `tdd-workflow`**
 
 ```text
-$product-lens $product-capability
+$product-capability $orch-add-feature $dart-flutter-patterns $tdd-workflow
+
+当前功能场景：客户社群 App 复刻方案（群组协作客户端体验）。目标客户/目标业务流程：[请填写客户行业、用户角色、业务目标、关键流程、特殊规则和优先级]。目标范围：[请填写本次要覆盖的端/模块/子功能]。
+
+先读取当前仓库规则和权威文档，再核对实际代码与测试。不得把设计、文档或 API 存在等同于功能已交付；明确标注 CURRENT、TARGET、LOCKED、UNKNOWN 和 NOT_VERIFIED。
+
+任务类型：新增功能。
 
 为客户复刻群聊/社群 App。映射群创建、邀请、成员角色、群公告、@、群文件/相册、日程/任务/投票、群资料和群治理。检查 group_collab 与现有 group 页面/服务，区分已接线功能、后台 API 已有但 App 未消费的功能及 phase lock。
-```
-
-**B · `dart-flutter-patterns` + `contract-first` + `orch-add-feature` · 客户差异实施**
-
-```text
-$dart-flutter-patterns $contract-first $orch-add-feature
 
 实施已批准的群组客户端增量。优先使用 lib/modules/group_collab/public.dart、现有 Service 和 Repository。按角色与 scope 控制操作，补充单元/Widget/设备测试计划；不复制后端规则到客户端作为唯一授权依据。
+
+请先判断需求能否由现有能力配置/组合完成；只有确认存在真实能力缺口才新增代码。输出 capability contract：参与角色、用户旅程、状态机、权限/数据边界、API/WS/客户端界面、迁移兼容、观测和验收标准。客户输入不完整或涉及产品决策时，列出阻塞问题并停在方案阶段。输入充分且任务明确时，按 TDD 先写失败测试再实现，遵循项目已有架构和测试命令。遵守 Gate：计划/契约先审阅，实施后完整验证；不 commit、不 push、不合并、不部署。
 ```
+
+**B · 优化现有功能 / 新模型复审旧 AI 代码 · `brownfield-retrospective` + `flutter-dart-code-review` + `tdd-workflow` + `verification-loop`**
+
+```text
+$brownfield-retrospective $flutter-dart-code-review $tdd-workflow $verification-loop
+
+当前功能场景：客户社群 App 复刻方案（群组协作客户端体验）。目标客户/目标业务流程：[请填写客户行业、用户角色、业务目标、关键流程、特殊规则和优先级]。目标范围：[请填写本次要覆盖的端/模块/子功能]。
+
+先读取当前仓库规则和权威文档，再核对实际代码与测试。不得把设计、文档或 API 存在等同于功能已交付；明确标注 CURRENT、TARGET、LOCKED、UNKNOWN 和 NOT_VERIFIED。
+
+任务类型：优化现有功能，特别用于新一代 AI 模型复审和改进旧 AI 模型生成的代码。
+
+为客户复刻群聊/社群 App。映射群创建、邀请、成员角色、群公告、@、群文件/相册、日程/任务/投票、群资料和群治理。检查 group_collab 与现有 group 页面/服务，区分已接线功能、后台 API 已有但 App 未消费的功能及 phase lock。
+
+实施已批准的群组客户端增量。优先使用 lib/modules/group_collab/public.dart、现有 Service 和 Repository。按角色与 scope 控制操作，补充单元/Widget/设备测试计划；不复制后端规则到客户端作为唯一授权依据。
+
+请把当前实现视为待验证证据，不信任注释、旧模型自评或“看起来合理”的抽象。按 brownfield-retrospective 的 slice-first 方法，先限定约 15 个文件或 2000 行以内的功能切片，重建实际行为和不变量，建立现有测试/性能/错误行为基线，再检查：逻辑正确性、并发与竞态、失败处理、边界条件、权限与安全、资源生命周期、性能热点、重复/过度抽象、可维护性和跨端一致性。
+
+优先做行为保持型优化；不得为了体现新模型能力而重写整个模块、改变公共契约或引入新依赖。每项发现提供文件/行号、复现或证据、影响、建议和风险。先新增/修正测试证明原行为与目标行为，再实施最小改动。若需要改变用户可见行为、数据结构或协议，先停下请求确认。检查生成代码、Riverpod 生命周期、Facade/Repository 边界、SQLite、WebSocket、平台差异和真实设备约束。
+
+不要自动创建 docs/retro、重复计划或审计文档；先在会话中输出基线、差距登记和改进方案。经用户明确授权后才落盘必要的长期文档。完成后运行相关测试、静态检查和 diff review；不 commit、不 push、不合并、不部署。
+```
+
+**C · 测试现有功能 · `test-collaboration` + `ai-regression-testing` + `verification-loop`**
+
+```text
+$test-collaboration $ai-regression-testing $verification-loop
+
+当前功能场景：客户社群 App 复刻方案（群组协作客户端体验）。目标客户/目标业务流程：[请填写客户行业、用户角色、业务目标、关键流程、特殊规则和优先级]。目标范围：[请填写本次要覆盖的端/模块/子功能]。
+
+先读取当前仓库规则和权威文档，再核对实际代码与测试。不得把设计、文档或 API 存在等同于功能已交付；明确标注 CURRENT、TARGET、LOCKED、UNKNOWN 和 NOT_VERIFIED。
+
+任务类型：测试现有功能。
+
+为客户复刻群聊/社群 App。映射群创建、邀请、成员角色、群公告、@、群文件/相册、日程/任务/投票、群资料和群治理。检查 group_collab 与现有 group 页面/服务，区分已接线功能、后台 API 已有但 App 未消费的功能及 phase lock。
+
+实施已批准的群组客户端增量。优先使用 lib/modules/group_collab/public.dart、现有 Service 和 Repository。按角色与 scope 控制操作，补充单元/Widget/设备测试计划；不复制后端规则到客户端作为唯一授权依据。
+
+请不要先修改业务实现。先盘点该场景已有单元、组件/Widget、契约、集成、E2E、平台/设备测试和 CI 门禁，建立“需求/业务规则 → TEST-ID 或现有测试资产 → 执行命令 → 证据”矩阵。重点设计正常路径、权限拒绝、非法输入、边界值、重复请求、并发、超时、断线恢复、旧数据兼容和跨端一致性用例。针对旧 AI 生成代码，额外检查 mock/sandbox 与真实路径不一致、遗漏 SELECT/序列化字段、只测 happy path、异常被吞、测试与实现共享同一错误假设等盲点。
+
+只新增真正有区分力的测试，不复制重复用例、不降低阈值、不扩大 skip。遵循 docs/testing/execution.md、test/auto_test/execution_contract.json；不得把模拟器结果冒充真机验收。
+
+执行后逐项报告通过/失败/阻塞/未执行，给出实际命令、退出码、测试数量和证据位置。发现产品代码缺陷时先提交复现证据和最小修复建议；没有明确授权不修改业务代码。不得把未运行、环境缺失或模拟测试写成 PASS。
+```
+
 
 ### ECC-092 · 客户内容频道 App 复刻方案
 
 **场景：** 频道订阅客户端体验
 
-**A · `product-lens` + `product-capability` · 客户场景映射**
+**A · 新增功能 · `product-capability` + `orch-add-feature` + `dart-flutter-patterns` + `tdd-workflow`**
 
 ```text
-$product-lens $product-capability
+$product-capability $orch-add-feature $dart-flutter-patterns $tdd-workflow
+
+当前功能场景：客户内容频道 App 复刻方案（频道订阅客户端体验）。目标客户/目标业务流程：[请填写客户行业、用户角色、业务目标、关键流程、特殊规则和优先级]。目标范围：[请填写本次要覆盖的端/模块/子功能]。
+
+先读取当前仓库规则和权威文档，再核对实际代码与测试。不得把设计、文档或 API 存在等同于功能已交付；明确标注 CURRENT、TARGET、LOCKED、UNKNOWN 和 NOT_VERIFIED。
+
+任务类型：新增功能。
 
 为客户复刻频道/内容订阅 App。映射频道发现、详情、订阅/购买、帖子列表、评论、精华/置顶、讨论群、通知和付费内容访问。核对 channel_content 模块与后端 channel-api-contract-v1，标注一期/二期和支付通道的真实开放状态。
-```
-
-**B · `dart-flutter-patterns` + `contract-first` + `orch-change-feature` · 客户差异实施**
-
-```text
-$dart-flutter-patterns $contract-first $orch-change-feature
 
 实施已批准的频道客户端差异。复用 channel_content 模块和 API 契约，正确处理 visibility/access_type/join_policy、订阅/购买状态、分页、TSID 和错误信封。补充未订阅/已购买/私有频道等正反例测试，不在客户端绕过后端授权。
+
+请先判断需求能否由现有能力配置/组合完成；只有确认存在真实能力缺口才新增代码。输出 capability contract：参与角色、用户旅程、状态机、权限/数据边界、API/WS/客户端界面、迁移兼容、观测和验收标准。客户输入不完整或涉及产品决策时，列出阻塞问题并停在方案阶段。输入充分且任务明确时，按 TDD 先写失败测试再实现，遵循项目已有架构和测试命令。遵守 Gate：计划/契约先审阅，实施后完整验证；不 commit、不 push、不合并、不部署。
 ```
+
+**B · 优化现有功能 / 新模型复审旧 AI 代码 · `brownfield-retrospective` + `flutter-dart-code-review` + `tdd-workflow` + `verification-loop`**
+
+```text
+$brownfield-retrospective $flutter-dart-code-review $tdd-workflow $verification-loop
+
+当前功能场景：客户内容频道 App 复刻方案（频道订阅客户端体验）。目标客户/目标业务流程：[请填写客户行业、用户角色、业务目标、关键流程、特殊规则和优先级]。目标范围：[请填写本次要覆盖的端/模块/子功能]。
+
+先读取当前仓库规则和权威文档，再核对实际代码与测试。不得把设计、文档或 API 存在等同于功能已交付；明确标注 CURRENT、TARGET、LOCKED、UNKNOWN 和 NOT_VERIFIED。
+
+任务类型：优化现有功能，特别用于新一代 AI 模型复审和改进旧 AI 模型生成的代码。
+
+为客户复刻频道/内容订阅 App。映射频道发现、详情、订阅/购买、帖子列表、评论、精华/置顶、讨论群、通知和付费内容访问。核对 channel_content 模块与后端 channel-api-contract-v1，标注一期/二期和支付通道的真实开放状态。
+
+实施已批准的频道客户端差异。复用 channel_content 模块和 API 契约，正确处理 visibility/access_type/join_policy、订阅/购买状态、分页、TSID 和错误信封。补充未订阅/已购买/私有频道等正反例测试，不在客户端绕过后端授权。
+
+请把当前实现视为待验证证据，不信任注释、旧模型自评或“看起来合理”的抽象。按 brownfield-retrospective 的 slice-first 方法，先限定约 15 个文件或 2000 行以内的功能切片，重建实际行为和不变量，建立现有测试/性能/错误行为基线，再检查：逻辑正确性、并发与竞态、失败处理、边界条件、权限与安全、资源生命周期、性能热点、重复/过度抽象、可维护性和跨端一致性。
+
+优先做行为保持型优化；不得为了体现新模型能力而重写整个模块、改变公共契约或引入新依赖。每项发现提供文件/行号、复现或证据、影响、建议和风险。先新增/修正测试证明原行为与目标行为，再实施最小改动。若需要改变用户可见行为、数据结构或协议，先停下请求确认。检查生成代码、Riverpod 生命周期、Facade/Repository 边界、SQLite、WebSocket、平台差异和真实设备约束。
+
+不要自动创建 docs/retro、重复计划或审计文档；先在会话中输出基线、差距登记和改进方案。经用户明确授权后才落盘必要的长期文档。完成后运行相关测试、静态检查和 diff review；不 commit、不 push、不合并、不部署。
+```
+
+**C · 测试现有功能 · `test-collaboration` + `ai-regression-testing` + `verification-loop`**
+
+```text
+$test-collaboration $ai-regression-testing $verification-loop
+
+当前功能场景：客户内容频道 App 复刻方案（频道订阅客户端体验）。目标客户/目标业务流程：[请填写客户行业、用户角色、业务目标、关键流程、特殊规则和优先级]。目标范围：[请填写本次要覆盖的端/模块/子功能]。
+
+先读取当前仓库规则和权威文档，再核对实际代码与测试。不得把设计、文档或 API 存在等同于功能已交付；明确标注 CURRENT、TARGET、LOCKED、UNKNOWN 和 NOT_VERIFIED。
+
+任务类型：测试现有功能。
+
+为客户复刻频道/内容订阅 App。映射频道发现、详情、订阅/购买、帖子列表、评论、精华/置顶、讨论群、通知和付费内容访问。核对 channel_content 模块与后端 channel-api-contract-v1，标注一期/二期和支付通道的真实开放状态。
+
+实施已批准的频道客户端差异。复用 channel_content 模块和 API 契约，正确处理 visibility/access_type/join_policy、订阅/购买状态、分页、TSID 和错误信封。补充未订阅/已购买/私有频道等正反例测试，不在客户端绕过后端授权。
+
+请不要先修改业务实现。先盘点该场景已有单元、组件/Widget、契约、集成、E2E、平台/设备测试和 CI 门禁，建立“需求/业务规则 → TEST-ID 或现有测试资产 → 执行命令 → 证据”矩阵。重点设计正常路径、权限拒绝、非法输入、边界值、重复请求、并发、超时、断线恢复、旧数据兼容和跨端一致性用例。针对旧 AI 生成代码，额外检查 mock/sandbox 与真实路径不一致、遗漏 SELECT/序列化字段、只测 happy path、异常被吞、测试与实现共享同一错误假设等盲点。
+
+只新增真正有区分力的测试，不复制重复用例、不降低阈值、不扩大 skip。遵循 docs/testing/execution.md、test/auto_test/execution_contract.json；不得把模拟器结果冒充真机验收。
+
+执行后逐项报告通过/失败/阻塞/未执行，给出实际命令、退出码、测试数量和证据位置。发现产品代码缺陷时先提交复现证据和最小修复建议；没有明确授权不修改业务代码。不得把未运行、环境缺失或模拟测试写成 PASS。
+```
+
 
 ### ECC-093 · 客户动态社区 App 复刻方案
 
 **场景：** 朋友圈客户端体验
 
-**A · `product-lens` + `product-capability` · 客户场景映射**
+**A · 新增功能 · `product-capability` + `orch-add-feature` + `dart-flutter-patterns` + `tdd-workflow`**
 
 ```text
-$product-lens $product-capability
+$product-capability $orch-add-feature $dart-flutter-patterns $tdd-workflow
+
+当前功能场景：客户动态社区 App 复刻方案（朋友圈客户端体验）。目标客户/目标业务流程：[请填写客户行业、用户角色、业务目标、关键流程、特殊规则和优先级]。目标范围：[请填写本次要覆盖的端/模块/子功能]。
+
+先读取当前仓库规则和权威文档，再核对实际代码与测试。不得把设计、文档或 API 存在等同于功能已交付；明确标注 CURRENT、TARGET、LOCKED、UNKNOWN 和 NOT_VERIFIED。
+
+任务类型：新增功能。
 
 为客户复刻动态/朋友圈客户端。映射发布图文/视频、可见性设置、好友互动、评论、收藏、举报和内容详情。检查 moment_social 与现有 moment 页面，依据 moment-api-contract-v1 建立隐私与关系矩阵，指出尚未消费的 API。
-```
-
-**B · `dart-flutter-patterns` + `contract-first` + `orch-add-feature` · 客户差异实施**
-
-```text
-$dart-flutter-patterns $contract-first $orch-add-feature
 
 实施已批准的动态客户端差异。复用 moment_social 模块、附件授权服务和现有 UI 规范。验证不同可见性、黑名单优先、删除内容、分页和媒体授权。补充 Widget 与 API contract tests，不在本地缓存泄露受限动态。
+
+请先判断需求能否由现有能力配置/组合完成；只有确认存在真实能力缺口才新增代码。输出 capability contract：参与角色、用户旅程、状态机、权限/数据边界、API/WS/客户端界面、迁移兼容、观测和验收标准。客户输入不完整或涉及产品决策时，列出阻塞问题并停在方案阶段。输入充分且任务明确时，按 TDD 先写失败测试再实现，遵循项目已有架构和测试命令。遵守 Gate：计划/契约先审阅，实施后完整验证；不 commit、不 push、不合并、不部署。
 ```
+
+**B · 优化现有功能 / 新模型复审旧 AI 代码 · `brownfield-retrospective` + `flutter-dart-code-review` + `tdd-workflow` + `verification-loop`**
+
+```text
+$brownfield-retrospective $flutter-dart-code-review $tdd-workflow $verification-loop
+
+当前功能场景：客户动态社区 App 复刻方案（朋友圈客户端体验）。目标客户/目标业务流程：[请填写客户行业、用户角色、业务目标、关键流程、特殊规则和优先级]。目标范围：[请填写本次要覆盖的端/模块/子功能]。
+
+先读取当前仓库规则和权威文档，再核对实际代码与测试。不得把设计、文档或 API 存在等同于功能已交付；明确标注 CURRENT、TARGET、LOCKED、UNKNOWN 和 NOT_VERIFIED。
+
+任务类型：优化现有功能，特别用于新一代 AI 模型复审和改进旧 AI 模型生成的代码。
+
+为客户复刻动态/朋友圈客户端。映射发布图文/视频、可见性设置、好友互动、评论、收藏、举报和内容详情。检查 moment_social 与现有 moment 页面，依据 moment-api-contract-v1 建立隐私与关系矩阵，指出尚未消费的 API。
+
+实施已批准的动态客户端差异。复用 moment_social 模块、附件授权服务和现有 UI 规范。验证不同可见性、黑名单优先、删除内容、分页和媒体授权。补充 Widget 与 API contract tests，不在本地缓存泄露受限动态。
+
+请把当前实现视为待验证证据，不信任注释、旧模型自评或“看起来合理”的抽象。按 brownfield-retrospective 的 slice-first 方法，先限定约 15 个文件或 2000 行以内的功能切片，重建实际行为和不变量，建立现有测试/性能/错误行为基线，再检查：逻辑正确性、并发与竞态、失败处理、边界条件、权限与安全、资源生命周期、性能热点、重复/过度抽象、可维护性和跨端一致性。
+
+优先做行为保持型优化；不得为了体现新模型能力而重写整个模块、改变公共契约或引入新依赖。每项发现提供文件/行号、复现或证据、影响、建议和风险。先新增/修正测试证明原行为与目标行为，再实施最小改动。若需要改变用户可见行为、数据结构或协议，先停下请求确认。检查生成代码、Riverpod 生命周期、Facade/Repository 边界、SQLite、WebSocket、平台差异和真实设备约束。
+
+不要自动创建 docs/retro、重复计划或审计文档；先在会话中输出基线、差距登记和改进方案。经用户明确授权后才落盘必要的长期文档。完成后运行相关测试、静态检查和 diff review；不 commit、不 push、不合并、不部署。
+```
+
+**C · 测试现有功能 · `test-collaboration` + `ai-regression-testing` + `verification-loop`**
+
+```text
+$test-collaboration $ai-regression-testing $verification-loop
+
+当前功能场景：客户动态社区 App 复刻方案（朋友圈客户端体验）。目标客户/目标业务流程：[请填写客户行业、用户角色、业务目标、关键流程、特殊规则和优先级]。目标范围：[请填写本次要覆盖的端/模块/子功能]。
+
+先读取当前仓库规则和权威文档，再核对实际代码与测试。不得把设计、文档或 API 存在等同于功能已交付；明确标注 CURRENT、TARGET、LOCKED、UNKNOWN 和 NOT_VERIFIED。
+
+任务类型：测试现有功能。
+
+为客户复刻动态/朋友圈客户端。映射发布图文/视频、可见性设置、好友互动、评论、收藏、举报和内容详情。检查 moment_social 与现有 moment 页面，依据 moment-api-contract-v1 建立隐私与关系矩阵，指出尚未消费的 API。
+
+实施已批准的动态客户端差异。复用 moment_social 模块、附件授权服务和现有 UI 规范。验证不同可见性、黑名单优先、删除内容、分页和媒体授权。补充 Widget 与 API contract tests，不在本地缓存泄露受限动态。
+
+请不要先修改业务实现。先盘点该场景已有单元、组件/Widget、契约、集成、E2E、平台/设备测试和 CI 门禁，建立“需求/业务规则 → TEST-ID 或现有测试资产 → 执行命令 → 证据”矩阵。重点设计正常路径、权限拒绝、非法输入、边界值、重复请求、并发、超时、断线恢复、旧数据兼容和跨端一致性用例。针对旧 AI 生成代码，额外检查 mock/sandbox 与真实路径不一致、遗漏 SELECT/序列化字段、只测 happy path、异常被吞、测试与实现共享同一错误假设等盲点。
+
+只新增真正有区分力的测试，不复制重复用例、不降低阈值、不扩大 skip。遵循 docs/testing/execution.md、test/auto_test/execution_contract.json；不得把模拟器结果冒充真机验收。
+
+执行后逐项报告通过/失败/阻塞/未执行，给出实际命令、退出码、测试数量和证据位置。发现产品代码缺陷时先提交复现证据和最小修复建议；没有明确授权不修改业务代码。不得把未运行、环境缺失或模拟测试写成 PASS。
+```
+
 
 ### ECC-094 · 客户登录/扫码登录/多账号体验
 
 **场景：** 登录、账号和设备
 
-**A · `product-lens` + `product-capability` · 客户场景映射**
+**A · 新增功能 · `product-capability` + `orch-add-feature` + `dart-flutter-patterns` + `tdd-workflow`**
 
 ```text
-$product-lens $product-capability
+$product-capability $orch-add-feature $dart-flutter-patterns $tdd-workflow
+
+当前功能场景：客户登录/扫码登录/多账号体验（登录、账号和设备）。目标客户/目标业务流程：[请填写客户行业、用户角色、业务目标、关键流程、特殊规则和优先级]。目标范围：[请填写本次要覆盖的端/模块/子功能]。
+
+先读取当前仓库规则和权威文档，再核对实际代码与测试。不得把设计、文档或 API 存在等同于功能已交付；明确标注 CURRENT、TARGET、LOCKED、UNKNOWN 和 NOT_VERIFIED。
+
+任务类型：新增功能。
 
 为客户复刻身份入口。映射手机号/邮箱/账号登录、注册、验证码、找回密码、二维码登录、OIDC/企业 SSO、设备管理、账号切换和退出清理。检查 identity、passport、QR login、enterprise_oa 模块及各平台限制，输出旅程和安全验收矩阵。
-```
-
-**B · `dart-flutter-patterns` + `contract-first` + `tdd-workflow` · 客户差异实施**
-
-```text
-$dart-flutter-patterns $contract-first $tdd-workflow
 
 实施已批准的身份客户端差异。复用 Passport/QR/OIDC 服务和 auth session scope。验证 QR token 一次性领取、confirmed uid_str 精度、Token 清理、账号本地数据隔离、Web 与原生平台差异。不得把凭据写入 URL、日志或普通偏好存储。
+
+请先判断需求能否由现有能力配置/组合完成；只有确认存在真实能力缺口才新增代码。输出 capability contract：参与角色、用户旅程、状态机、权限/数据边界、API/WS/客户端界面、迁移兼容、观测和验收标准。客户输入不完整或涉及产品决策时，列出阻塞问题并停在方案阶段。输入充分且任务明确时，按 TDD 先写失败测试再实现，遵循项目已有架构和测试命令。遵守 Gate：计划/契约先审阅，实施后完整验证；不 commit、不 push、不合并、不部署。
 ```
+
+**B · 优化现有功能 / 新模型复审旧 AI 代码 · `brownfield-retrospective` + `flutter-dart-code-review` + `tdd-workflow` + `verification-loop`**
+
+```text
+$brownfield-retrospective $flutter-dart-code-review $tdd-workflow $verification-loop
+
+当前功能场景：客户登录/扫码登录/多账号体验（登录、账号和设备）。目标客户/目标业务流程：[请填写客户行业、用户角色、业务目标、关键流程、特殊规则和优先级]。目标范围：[请填写本次要覆盖的端/模块/子功能]。
+
+先读取当前仓库规则和权威文档，再核对实际代码与测试。不得把设计、文档或 API 存在等同于功能已交付；明确标注 CURRENT、TARGET、LOCKED、UNKNOWN 和 NOT_VERIFIED。
+
+任务类型：优化现有功能，特别用于新一代 AI 模型复审和改进旧 AI 模型生成的代码。
+
+为客户复刻身份入口。映射手机号/邮箱/账号登录、注册、验证码、找回密码、二维码登录、OIDC/企业 SSO、设备管理、账号切换和退出清理。检查 identity、passport、QR login、enterprise_oa 模块及各平台限制，输出旅程和安全验收矩阵。
+
+实施已批准的身份客户端差异。复用 Passport/QR/OIDC 服务和 auth session scope。验证 QR token 一次性领取、confirmed uid_str 精度、Token 清理、账号本地数据隔离、Web 与原生平台差异。不得把凭据写入 URL、日志或普通偏好存储。
+
+请把当前实现视为待验证证据，不信任注释、旧模型自评或“看起来合理”的抽象。按 brownfield-retrospective 的 slice-first 方法，先限定约 15 个文件或 2000 行以内的功能切片，重建实际行为和不变量，建立现有测试/性能/错误行为基线，再检查：逻辑正确性、并发与竞态、失败处理、边界条件、权限与安全、资源生命周期、性能热点、重复/过度抽象、可维护性和跨端一致性。
+
+优先做行为保持型优化；不得为了体现新模型能力而重写整个模块、改变公共契约或引入新依赖。每项发现提供文件/行号、复现或证据、影响、建议和风险。先新增/修正测试证明原行为与目标行为，再实施最小改动。若需要改变用户可见行为、数据结构或协议，先停下请求确认。检查生成代码、Riverpod 生命周期、Facade/Repository 边界、SQLite、WebSocket、平台差异和真实设备约束。
+
+不要自动创建 docs/retro、重复计划或审计文档；先在会话中输出基线、差距登记和改进方案。经用户明确授权后才落盘必要的长期文档。完成后运行相关测试、静态检查和 diff review；不 commit、不 push、不合并、不部署。
+```
+
+**C · 测试现有功能 · `test-collaboration` + `ai-regression-testing` + `verification-loop`**
+
+```text
+$test-collaboration $ai-regression-testing $verification-loop
+
+当前功能场景：客户登录/扫码登录/多账号体验（登录、账号和设备）。目标客户/目标业务流程：[请填写客户行业、用户角色、业务目标、关键流程、特殊规则和优先级]。目标范围：[请填写本次要覆盖的端/模块/子功能]。
+
+先读取当前仓库规则和权威文档，再核对实际代码与测试。不得把设计、文档或 API 存在等同于功能已交付；明确标注 CURRENT、TARGET、LOCKED、UNKNOWN 和 NOT_VERIFIED。
+
+任务类型：测试现有功能。
+
+为客户复刻身份入口。映射手机号/邮箱/账号登录、注册、验证码、找回密码、二维码登录、OIDC/企业 SSO、设备管理、账号切换和退出清理。检查 identity、passport、QR login、enterprise_oa 模块及各平台限制，输出旅程和安全验收矩阵。
+
+实施已批准的身份客户端差异。复用 Passport/QR/OIDC 服务和 auth session scope。验证 QR token 一次性领取、confirmed uid_str 精度、Token 清理、账号本地数据隔离、Web 与原生平台差异。不得把凭据写入 URL、日志或普通偏好存储。
+
+请不要先修改业务实现。先盘点该场景已有单元、组件/Widget、契约、集成、E2E、平台/设备测试和 CI 门禁，建立“需求/业务规则 → TEST-ID 或现有测试资产 → 执行命令 → 证据”矩阵。重点设计正常路径、权限拒绝、非法输入、边界值、重复请求、并发、超时、断线恢复、旧数据兼容和跨端一致性用例。针对旧 AI 生成代码，额外检查 mock/sandbox 与真实路径不一致、遗漏 SELECT/序列化字段、只测 happy path、异常被吞、测试与实现共享同一错误假设等盲点。
+
+只新增真正有区分力的测试，不复制重复用例、不降低阈值、不扩大 skip。遵循 docs/testing/execution.md、test/auto_test/execution_contract.json；不得把模拟器结果冒充真机验收。
+
+执行后逐项报告通过/失败/阻塞/未执行，给出实际命令、退出码、测试数量和证据位置。发现产品代码缺陷时先提交复现证据和最小修复建议；没有明确授权不修改业务代码。不得把未运行、环境缺失或模拟测试写成 PASS。
+```
+
 
 ### ECC-095 · 客户消息互动与效率工具
 
 **场景：** 聊天消息丰富交互
 
-**A · `product-lens` + `product-capability` · 客户场景映射**
+**A · 新增功能 · `product-capability` + `orch-add-feature` + `dart-flutter-patterns` + `tdd-workflow`**
 
 ```text
-$product-lens $product-capability
+$product-capability $orch-add-feature $dart-flutter-patterns $tdd-workflow
+
+当前功能场景：客户消息互动与效率工具（聊天消息丰富交互）。目标客户/目标业务流程：[请填写客户行业、用户角色、业务目标、关键流程、特殊规则和优先级]。目标范围：[请填写本次要覆盖的端/模块/子功能]。
+
+先读取当前仓库规则和权威文档，再核对实际代码与测试。不得把设计、文档或 API 存在等同于功能已交付；明确标注 CURRENT、TARGET、LOCKED、UNKNOWN 和 NOT_VERIFIED。
+
+任务类型：新增功能。
 
 为客户复刻增强聊天体验。映射图片/语音/视频/文件/位置/引用/转发/表情回应/置顶/主题/@提及/已读/阅后即焚/历史归档。检查现有消息类型、操作菜单、SQLite 和 API/WS 支持，输出能力矩阵及平台适配缺口。
-```
-
-**B · `dart-flutter-patterns` + `tdd-workflow` + `module-regression` · 客户差异实施**
-
-```text
-$dart-flutter-patterns $tdd-workflow $module-regression
 
 实施已批准的消息交互差异。遵守消息类型归一化、未知类型 unsupported、消息 ID 不透明字符串、conv_seq 排序、附件授权、E2EE 密文规则和离线任务持久化。补充消息解析、操作状态、Widget 和迁移回归。
+
+请先判断需求能否由现有能力配置/组合完成；只有确认存在真实能力缺口才新增代码。输出 capability contract：参与角色、用户旅程、状态机、权限/数据边界、API/WS/客户端界面、迁移兼容、观测和验收标准。客户输入不完整或涉及产品决策时，列出阻塞问题并停在方案阶段。输入充分且任务明确时，按 TDD 先写失败测试再实现，遵循项目已有架构和测试命令。遵守 Gate：计划/契约先审阅，实施后完整验证；不 commit、不 push、不合并、不部署。
 ```
+
+**B · 优化现有功能 / 新模型复审旧 AI 代码 · `brownfield-retrospective` + `flutter-dart-code-review` + `tdd-workflow` + `verification-loop`**
+
+```text
+$brownfield-retrospective $flutter-dart-code-review $tdd-workflow $verification-loop
+
+当前功能场景：客户消息互动与效率工具（聊天消息丰富交互）。目标客户/目标业务流程：[请填写客户行业、用户角色、业务目标、关键流程、特殊规则和优先级]。目标范围：[请填写本次要覆盖的端/模块/子功能]。
+
+先读取当前仓库规则和权威文档，再核对实际代码与测试。不得把设计、文档或 API 存在等同于功能已交付；明确标注 CURRENT、TARGET、LOCKED、UNKNOWN 和 NOT_VERIFIED。
+
+任务类型：优化现有功能，特别用于新一代 AI 模型复审和改进旧 AI 模型生成的代码。
+
+为客户复刻增强聊天体验。映射图片/语音/视频/文件/位置/引用/转发/表情回应/置顶/主题/@提及/已读/阅后即焚/历史归档。检查现有消息类型、操作菜单、SQLite 和 API/WS 支持，输出能力矩阵及平台适配缺口。
+
+实施已批准的消息交互差异。遵守消息类型归一化、未知类型 unsupported、消息 ID 不透明字符串、conv_seq 排序、附件授权、E2EE 密文规则和离线任务持久化。补充消息解析、操作状态、Widget 和迁移回归。
+
+请把当前实现视为待验证证据，不信任注释、旧模型自评或“看起来合理”的抽象。按 brownfield-retrospective 的 slice-first 方法，先限定约 15 个文件或 2000 行以内的功能切片，重建实际行为和不变量，建立现有测试/性能/错误行为基线，再检查：逻辑正确性、并发与竞态、失败处理、边界条件、权限与安全、资源生命周期、性能热点、重复/过度抽象、可维护性和跨端一致性。
+
+优先做行为保持型优化；不得为了体现新模型能力而重写整个模块、改变公共契约或引入新依赖。每项发现提供文件/行号、复现或证据、影响、建议和风险。先新增/修正测试证明原行为与目标行为，再实施最小改动。若需要改变用户可见行为、数据结构或协议，先停下请求确认。检查生成代码、Riverpod 生命周期、Facade/Repository 边界、SQLite、WebSocket、平台差异和真实设备约束。
+
+不要自动创建 docs/retro、重复计划或审计文档；先在会话中输出基线、差距登记和改进方案。经用户明确授权后才落盘必要的长期文档。完成后运行相关测试、静态检查和 diff review；不 commit、不 push、不合并、不部署。
+```
+
+**C · 测试现有功能 · `test-collaboration` + `ai-regression-testing` + `verification-loop`**
+
+```text
+$test-collaboration $ai-regression-testing $verification-loop
+
+当前功能场景：客户消息互动与效率工具（聊天消息丰富交互）。目标客户/目标业务流程：[请填写客户行业、用户角色、业务目标、关键流程、特殊规则和优先级]。目标范围：[请填写本次要覆盖的端/模块/子功能]。
+
+先读取当前仓库规则和权威文档，再核对实际代码与测试。不得把设计、文档或 API 存在等同于功能已交付；明确标注 CURRENT、TARGET、LOCKED、UNKNOWN 和 NOT_VERIFIED。
+
+任务类型：测试现有功能。
+
+为客户复刻增强聊天体验。映射图片/语音/视频/文件/位置/引用/转发/表情回应/置顶/主题/@提及/已读/阅后即焚/历史归档。检查现有消息类型、操作菜单、SQLite 和 API/WS 支持，输出能力矩阵及平台适配缺口。
+
+实施已批准的消息交互差异。遵守消息类型归一化、未知类型 unsupported、消息 ID 不透明字符串、conv_seq 排序、附件授权、E2EE 密文规则和离线任务持久化。补充消息解析、操作状态、Widget 和迁移回归。
+
+请不要先修改业务实现。先盘点该场景已有单元、组件/Widget、契约、集成、E2E、平台/设备测试和 CI 门禁，建立“需求/业务规则 → TEST-ID 或现有测试资产 → 执行命令 → 证据”矩阵。重点设计正常路径、权限拒绝、非法输入、边界值、重复请求、并发、超时、断线恢复、旧数据兼容和跨端一致性用例。针对旧 AI 生成代码，额外检查 mock/sandbox 与真实路径不一致、遗漏 SELECT/序列化字段、只测 happy path、异常被吞、测试与实现共享同一错误假设等盲点。
+
+只新增真正有区分力的测试，不复制重复用例、不降低阈值、不扩大 skip。遵循 docs/testing/execution.md、test/auto_test/execution_contract.json；不得把模拟器结果冒充真机验收。
+
+执行后逐项报告通过/失败/阻塞/未执行，给出实际命令、退出码、测试数量和证据位置。发现产品代码缺陷时先提交复现证据和最小修复建议；没有明确授权不修改业务代码。不得把未运行、环境缺失或模拟测试写成 PASS。
+```
+
 
 ### ECC-096 · 客户媒体/位置消息场景
 
 **场景：** 多媒体与位置共享
 
-**A · `product-lens` + `product-capability` · 客户场景映射**
+**A · 新增功能 · `product-capability` + `orch-add-feature` + `dart-flutter-patterns` + `tdd-workflow`**
 
 ```text
-$product-lens $product-capability
+$product-capability $orch-add-feature $dart-flutter-patterns $tdd-workflow
+
+当前功能场景：客户媒体/位置消息场景（多媒体与位置共享）。目标客户/目标业务流程：[请填写客户行业、用户角色、业务目标、关键流程、特殊规则和优先级]。目标范围：[请填写本次要覆盖的端/模块/子功能]。
+
+先读取当前仓库规则和权威文档，再核对实际代码与测试。不得把设计、文档或 API 存在等同于功能已交付；明确标注 CURRENT、TARGET、LOCKED、UNKNOWN 和 NOT_VERIFIED。
+
+任务类型：新增功能。
 
 为客户复刻媒体与位置分享。映射相机/相册、图片视频预览、语音录制播放、文件选择、位置权限、地图展示、缩略图和断点续传。检查 attachments、camera、location 页面和服务，列出 Android/iOS/macOS/Web 的能力差异与权限提示。
-```
-
-**B · `dart-flutter-patterns` + `contract-first` + `tdd-workflow` · 客户差异实施**
-
-```text
-$dart-flutter-patterns $contract-first $tdd-workflow
 
 实施已批准的媒体/位置客户端差异。复用 AssetsService.viewUrl、附件上传、权限服务和现有缓存策略。验证授权 URL、文件大小/MIME、取消/重试、账号切换、Web 持久化和权限拒绝；按执行合同安排真机验收。
+
+请先判断需求能否由现有能力配置/组合完成；只有确认存在真实能力缺口才新增代码。输出 capability contract：参与角色、用户旅程、状态机、权限/数据边界、API/WS/客户端界面、迁移兼容、观测和验收标准。客户输入不完整或涉及产品决策时，列出阻塞问题并停在方案阶段。输入充分且任务明确时，按 TDD 先写失败测试再实现，遵循项目已有架构和测试命令。遵守 Gate：计划/契约先审阅，实施后完整验证；不 commit、不 push、不合并、不部署。
 ```
+
+**B · 优化现有功能 / 新模型复审旧 AI 代码 · `brownfield-retrospective` + `flutter-dart-code-review` + `tdd-workflow` + `verification-loop`**
+
+```text
+$brownfield-retrospective $flutter-dart-code-review $tdd-workflow $verification-loop
+
+当前功能场景：客户媒体/位置消息场景（多媒体与位置共享）。目标客户/目标业务流程：[请填写客户行业、用户角色、业务目标、关键流程、特殊规则和优先级]。目标范围：[请填写本次要覆盖的端/模块/子功能]。
+
+先读取当前仓库规则和权威文档，再核对实际代码与测试。不得把设计、文档或 API 存在等同于功能已交付；明确标注 CURRENT、TARGET、LOCKED、UNKNOWN 和 NOT_VERIFIED。
+
+任务类型：优化现有功能，特别用于新一代 AI 模型复审和改进旧 AI 模型生成的代码。
+
+为客户复刻媒体与位置分享。映射相机/相册、图片视频预览、语音录制播放、文件选择、位置权限、地图展示、缩略图和断点续传。检查 attachments、camera、location 页面和服务，列出 Android/iOS/macOS/Web 的能力差异与权限提示。
+
+实施已批准的媒体/位置客户端差异。复用 AssetsService.viewUrl、附件上传、权限服务和现有缓存策略。验证授权 URL、文件大小/MIME、取消/重试、账号切换、Web 持久化和权限拒绝；按执行合同安排真机验收。
+
+请把当前实现视为待验证证据，不信任注释、旧模型自评或“看起来合理”的抽象。按 brownfield-retrospective 的 slice-first 方法，先限定约 15 个文件或 2000 行以内的功能切片，重建实际行为和不变量，建立现有测试/性能/错误行为基线，再检查：逻辑正确性、并发与竞态、失败处理、边界条件、权限与安全、资源生命周期、性能热点、重复/过度抽象、可维护性和跨端一致性。
+
+优先做行为保持型优化；不得为了体现新模型能力而重写整个模块、改变公共契约或引入新依赖。每项发现提供文件/行号、复现或证据、影响、建议和风险。先新增/修正测试证明原行为与目标行为，再实施最小改动。若需要改变用户可见行为、数据结构或协议，先停下请求确认。检查生成代码、Riverpod 生命周期、Facade/Repository 边界、SQLite、WebSocket、平台差异和真实设备约束。
+
+不要自动创建 docs/retro、重复计划或审计文档；先在会话中输出基线、差距登记和改进方案。经用户明确授权后才落盘必要的长期文档。完成后运行相关测试、静态检查和 diff review；不 commit、不 push、不合并、不部署。
+```
+
+**C · 测试现有功能 · `test-collaboration` + `ai-regression-testing` + `verification-loop`**
+
+```text
+$test-collaboration $ai-regression-testing $verification-loop
+
+当前功能场景：客户媒体/位置消息场景（多媒体与位置共享）。目标客户/目标业务流程：[请填写客户行业、用户角色、业务目标、关键流程、特殊规则和优先级]。目标范围：[请填写本次要覆盖的端/模块/子功能]。
+
+先读取当前仓库规则和权威文档，再核对实际代码与测试。不得把设计、文档或 API 存在等同于功能已交付；明确标注 CURRENT、TARGET、LOCKED、UNKNOWN 和 NOT_VERIFIED。
+
+任务类型：测试现有功能。
+
+为客户复刻媒体与位置分享。映射相机/相册、图片视频预览、语音录制播放、文件选择、位置权限、地图展示、缩略图和断点续传。检查 attachments、camera、location 页面和服务，列出 Android/iOS/macOS/Web 的能力差异与权限提示。
+
+实施已批准的媒体/位置客户端差异。复用 AssetsService.viewUrl、附件上传、权限服务和现有缓存策略。验证授权 URL、文件大小/MIME、取消/重试、账号切换、Web 持久化和权限拒绝；按执行合同安排真机验收。
+
+请不要先修改业务实现。先盘点该场景已有单元、组件/Widget、契约、集成、E2E、平台/设备测试和 CI 门禁，建立“需求/业务规则 → TEST-ID 或现有测试资产 → 执行命令 → 证据”矩阵。重点设计正常路径、权限拒绝、非法输入、边界值、重复请求、并发、超时、断线恢复、旧数据兼容和跨端一致性用例。针对旧 AI 生成代码，额外检查 mock/sandbox 与真实路径不一致、遗漏 SELECT/序列化字段、只测 happy path、异常被吞、测试与实现共享同一错误假设等盲点。
+
+只新增真正有区分力的测试，不复制重复用例、不降低阈值、不扩大 skip。遵循 docs/testing/execution.md、test/auto_test/execution_contract.json；不得把模拟器结果冒充真机验收。
+
+执行后逐项报告通过/失败/阻塞/未执行，给出实际命令、退出码、测试数量和证据位置。发现产品代码缺陷时先提交复现证据和最小修复建议；没有明确授权不修改业务代码。不得把未运行、环境缺失或模拟测试写成 PASS。
+```
+
 
 ### ECC-097 · 客户 VoIP/视频会议客户端
 
 **场景：** 音视频客户端
 
-**A · `product-lens` + `product-capability` · 客户场景映射**
+**A · 新增功能 · `product-capability` + `orch-add-feature` + `dart-flutter-patterns` + `tdd-workflow`**
 
 ```text
-$product-lens $product-capability
+$product-capability $orch-add-feature $dart-flutter-patterns $tdd-workflow
+
+当前功能场景：客户 VoIP/视频会议客户端（音视频客户端）。目标客户/目标业务流程：[请填写客户行业、用户角色、业务目标、关键流程、特殊规则和优先级]。目标范围：[请填写本次要覆盖的端/模块/子功能]。
+
+先读取当前仓库规则和权威文档，再核对实际代码与测试。不得把设计、文档或 API 存在等同于功能已交付；明确标注 CURRENT、TARGET、LOCKED、UNKNOWN 和 NOT_VERIFIED。
+
+任务类型：新增功能。
 
 为客户复刻一对一通话/视频沟通客户端。映射呼叫邀请、振铃、接听、拒绝、挂断、超时、摄像头/麦克风权限、设备切换、网络恢复和 LiveKit 房间。检查 p2p_call_screen、rtc_room、flutter_webrtc 与 LiveKit SDK，标注群通话/录制等锁定或未验收能力。
-```
-
-**B · `dart-flutter-patterns` + `contract-first` + `tdd-workflow` · 客户差异实施**
-
-```text
-$dart-flutter-patterns $contract-first $tdd-workflow
 
 实施已批准的 RTC 客户端差异。保持 IM 信令状态机与媒体传输职责分离，正确清理 track/room/peer connection，处理权限拒绝、后台恢复和异常断线。不得把模拟器结果当真实媒体验收；列出并执行可用的真机双端测试义务。
+
+请先判断需求能否由现有能力配置/组合完成；只有确认存在真实能力缺口才新增代码。输出 capability contract：参与角色、用户旅程、状态机、权限/数据边界、API/WS/客户端界面、迁移兼容、观测和验收标准。客户输入不完整或涉及产品决策时，列出阻塞问题并停在方案阶段。输入充分且任务明确时，按 TDD 先写失败测试再实现，遵循项目已有架构和测试命令。遵守 Gate：计划/契约先审阅，实施后完整验证；不 commit、不 push、不合并、不部署。
 ```
+
+**B · 优化现有功能 / 新模型复审旧 AI 代码 · `brownfield-retrospective` + `flutter-dart-code-review` + `tdd-workflow` + `verification-loop`**
+
+```text
+$brownfield-retrospective $flutter-dart-code-review $tdd-workflow $verification-loop
+
+当前功能场景：客户 VoIP/视频会议客户端（音视频客户端）。目标客户/目标业务流程：[请填写客户行业、用户角色、业务目标、关键流程、特殊规则和优先级]。目标范围：[请填写本次要覆盖的端/模块/子功能]。
+
+先读取当前仓库规则和权威文档，再核对实际代码与测试。不得把设计、文档或 API 存在等同于功能已交付；明确标注 CURRENT、TARGET、LOCKED、UNKNOWN 和 NOT_VERIFIED。
+
+任务类型：优化现有功能，特别用于新一代 AI 模型复审和改进旧 AI 模型生成的代码。
+
+为客户复刻一对一通话/视频沟通客户端。映射呼叫邀请、振铃、接听、拒绝、挂断、超时、摄像头/麦克风权限、设备切换、网络恢复和 LiveKit 房间。检查 p2p_call_screen、rtc_room、flutter_webrtc 与 LiveKit SDK，标注群通话/录制等锁定或未验收能力。
+
+实施已批准的 RTC 客户端差异。保持 IM 信令状态机与媒体传输职责分离，正确清理 track/room/peer connection，处理权限拒绝、后台恢复和异常断线。不得把模拟器结果当真实媒体验收；列出并执行可用的真机双端测试义务。
+
+请把当前实现视为待验证证据，不信任注释、旧模型自评或“看起来合理”的抽象。按 brownfield-retrospective 的 slice-first 方法，先限定约 15 个文件或 2000 行以内的功能切片，重建实际行为和不变量，建立现有测试/性能/错误行为基线，再检查：逻辑正确性、并发与竞态、失败处理、边界条件、权限与安全、资源生命周期、性能热点、重复/过度抽象、可维护性和跨端一致性。
+
+优先做行为保持型优化；不得为了体现新模型能力而重写整个模块、改变公共契约或引入新依赖。每项发现提供文件/行号、复现或证据、影响、建议和风险。先新增/修正测试证明原行为与目标行为，再实施最小改动。若需要改变用户可见行为、数据结构或协议，先停下请求确认。检查生成代码、Riverpod 生命周期、Facade/Repository 边界、SQLite、WebSocket、平台差异和真实设备约束。
+
+不要自动创建 docs/retro、重复计划或审计文档；先在会话中输出基线、差距登记和改进方案。经用户明确授权后才落盘必要的长期文档。完成后运行相关测试、静态检查和 diff review；不 commit、不 push、不合并、不部署。
+```
+
+**C · 测试现有功能 · `test-collaboration` + `ai-regression-testing` + `verification-loop`**
+
+```text
+$test-collaboration $ai-regression-testing $verification-loop
+
+当前功能场景：客户 VoIP/视频会议客户端（音视频客户端）。目标客户/目标业务流程：[请填写客户行业、用户角色、业务目标、关键流程、特殊规则和优先级]。目标范围：[请填写本次要覆盖的端/模块/子功能]。
+
+先读取当前仓库规则和权威文档，再核对实际代码与测试。不得把设计、文档或 API 存在等同于功能已交付；明确标注 CURRENT、TARGET、LOCKED、UNKNOWN 和 NOT_VERIFIED。
+
+任务类型：测试现有功能。
+
+为客户复刻一对一通话/视频沟通客户端。映射呼叫邀请、振铃、接听、拒绝、挂断、超时、摄像头/麦克风权限、设备切换、网络恢复和 LiveKit 房间。检查 p2p_call_screen、rtc_room、flutter_webrtc 与 LiveKit SDK，标注群通话/录制等锁定或未验收能力。
+
+实施已批准的 RTC 客户端差异。保持 IM 信令状态机与媒体传输职责分离，正确清理 track/room/peer connection，处理权限拒绝、后台恢复和异常断线。不得把模拟器结果当真实媒体验收；列出并执行可用的真机双端测试义务。
+
+请不要先修改业务实现。先盘点该场景已有单元、组件/Widget、契约、集成、E2E、平台/设备测试和 CI 门禁，建立“需求/业务规则 → TEST-ID 或现有测试资产 → 执行命令 → 证据”矩阵。重点设计正常路径、权限拒绝、非法输入、边界值、重复请求、并发、超时、断线恢复、旧数据兼容和跨端一致性用例。针对旧 AI 生成代码，额外检查 mock/sandbox 与真实路径不一致、遗漏 SELECT/序列化字段、只测 happy path、异常被吞、测试与实现共享同一错误假设等盲点。
+
+只新增真正有区分力的测试，不复制重复用例、不降低阈值、不扩大 skip。遵循 docs/testing/execution.md、test/auto_test/execution_contract.json；不得把模拟器结果冒充真机验收。
+
+执行后逐项报告通过/失败/阻塞/未执行，给出实际命令、退出码、测试数量和证据位置。发现产品代码缺陷时先提交复现证据和最小修复建议；没有明确授权不修改业务代码。不得把未运行、环境缺失或模拟测试写成 PASS。
+```
+
 
 ### ECC-098 · 客户安全聊天和密钥管理 UI
 
 **场景：** 端到端加密客户端体验
 
-**A · `product-lens` + `product-capability` · 客户场景映射**
+**A · 新增功能 · `product-capability` + `orch-add-feature` + `dart-flutter-patterns` + `tdd-workflow`**
 
 ```text
-$product-lens $product-capability
+$product-capability $orch-add-feature $dart-flutter-patterns $tdd-workflow
+
+当前功能场景：客户安全聊天和密钥管理 UI（端到端加密客户端体验）。目标客户/目标业务流程：[请填写客户行业、用户角色、业务目标、关键流程、特殊规则和优先级]。目标范围：[请填写本次要覆盖的端/模块/子功能]。
+
+先读取当前仓库规则和权威文档，再核对实际代码与测试。不得把设计、文档或 API 存在等同于功能已交付；明确标注 CURRENT、TARGET、LOCKED、UNKNOWN 和 NOT_VERIFIED。
+
+任务类型：新增功能。
 
 为客户复刻安全聊天体验。映射设备身份核验、安全码/二维码、加密状态、密钥备份恢复、社交恢复、群成员世代变化和加密附件。检查 security_privacy 模块和 E2EE 设置页，按交付 profile 区分可用/锁定能力。
-```
-
-**B · `security-review` + `dart-flutter-patterns` + `tdd-workflow` · 客户差异实施**
-
-```text
-$security-review $dart-flutter-patterns $tdd-workflow
 
 实施已批准的 E2EE 客户端差异。复用 vodozemac、现有 Olm/Megolm、backup 和 trust service；遵守密钥不进入日志/明文持久层、设备 capability 协商和群密钥世代隔离。补充安全负例、迁移和真机恢复测试，不改变密码学协议而不更新契约。
+
+请先判断需求能否由现有能力配置/组合完成；只有确认存在真实能力缺口才新增代码。输出 capability contract：参与角色、用户旅程、状态机、权限/数据边界、API/WS/客户端界面、迁移兼容、观测和验收标准。客户输入不完整或涉及产品决策时，列出阻塞问题并停在方案阶段。输入充分且任务明确时，按 TDD 先写失败测试再实现，遵循项目已有架构和测试命令。遵守 Gate：计划/契约先审阅，实施后完整验证；不 commit、不 push、不合并、不部署。
 ```
+
+**B · 优化现有功能 / 新模型复审旧 AI 代码 · `brownfield-retrospective` + `flutter-dart-code-review` + `tdd-workflow` + `verification-loop`**
+
+```text
+$brownfield-retrospective $flutter-dart-code-review $tdd-workflow $verification-loop
+
+当前功能场景：客户安全聊天和密钥管理 UI（端到端加密客户端体验）。目标客户/目标业务流程：[请填写客户行业、用户角色、业务目标、关键流程、特殊规则和优先级]。目标范围：[请填写本次要覆盖的端/模块/子功能]。
+
+先读取当前仓库规则和权威文档，再核对实际代码与测试。不得把设计、文档或 API 存在等同于功能已交付；明确标注 CURRENT、TARGET、LOCKED、UNKNOWN 和 NOT_VERIFIED。
+
+任务类型：优化现有功能，特别用于新一代 AI 模型复审和改进旧 AI 模型生成的代码。
+
+为客户复刻安全聊天体验。映射设备身份核验、安全码/二维码、加密状态、密钥备份恢复、社交恢复、群成员世代变化和加密附件。检查 security_privacy 模块和 E2EE 设置页，按交付 profile 区分可用/锁定能力。
+
+实施已批准的 E2EE 客户端差异。复用 vodozemac、现有 Olm/Megolm、backup 和 trust service；遵守密钥不进入日志/明文持久层、设备 capability 协商和群密钥世代隔离。补充安全负例、迁移和真机恢复测试，不改变密码学协议而不更新契约。
+
+请把当前实现视为待验证证据，不信任注释、旧模型自评或“看起来合理”的抽象。按 brownfield-retrospective 的 slice-first 方法，先限定约 15 个文件或 2000 行以内的功能切片，重建实际行为和不变量，建立现有测试/性能/错误行为基线，再检查：逻辑正确性、并发与竞态、失败处理、边界条件、权限与安全、资源生命周期、性能热点、重复/过度抽象、可维护性和跨端一致性。
+
+优先做行为保持型优化；不得为了体现新模型能力而重写整个模块、改变公共契约或引入新依赖。每项发现提供文件/行号、复现或证据、影响、建议和风险。先新增/修正测试证明原行为与目标行为，再实施最小改动。若需要改变用户可见行为、数据结构或协议，先停下请求确认。检查生成代码、Riverpod 生命周期、Facade/Repository 边界、SQLite、WebSocket、平台差异和真实设备约束。
+
+不要自动创建 docs/retro、重复计划或审计文档；先在会话中输出基线、差距登记和改进方案。经用户明确授权后才落盘必要的长期文档。完成后运行相关测试、静态检查和 diff review；不 commit、不 push、不合并、不部署。
+```
+
+**C · 测试现有功能 · `test-collaboration` + `ai-regression-testing` + `verification-loop`**
+
+```text
+$test-collaboration $ai-regression-testing $verification-loop
+
+当前功能场景：客户安全聊天和密钥管理 UI（端到端加密客户端体验）。目标客户/目标业务流程：[请填写客户行业、用户角色、业务目标、关键流程、特殊规则和优先级]。目标范围：[请填写本次要覆盖的端/模块/子功能]。
+
+先读取当前仓库规则和权威文档，再核对实际代码与测试。不得把设计、文档或 API 存在等同于功能已交付；明确标注 CURRENT、TARGET、LOCKED、UNKNOWN 和 NOT_VERIFIED。
+
+任务类型：测试现有功能。
+
+为客户复刻安全聊天体验。映射设备身份核验、安全码/二维码、加密状态、密钥备份恢复、社交恢复、群成员世代变化和加密附件。检查 security_privacy 模块和 E2EE 设置页，按交付 profile 区分可用/锁定能力。
+
+实施已批准的 E2EE 客户端差异。复用 vodozemac、现有 Olm/Megolm、backup 和 trust service；遵守密钥不进入日志/明文持久层、设备 capability 协商和群密钥世代隔离。补充安全负例、迁移和真机恢复测试，不改变密码学协议而不更新契约。
+
+请不要先修改业务实现。先盘点该场景已有单元、组件/Widget、契约、集成、E2E、平台/设备测试和 CI 门禁，建立“需求/业务规则 → TEST-ID 或现有测试资产 → 执行命令 → 证据”矩阵。重点设计正常路径、权限拒绝、非法输入、边界值、重复请求、并发、超时、断线恢复、旧数据兼容和跨端一致性用例。针对旧 AI 生成代码，额外检查 mock/sandbox 与真实路径不一致、遗漏 SELECT/序列化字段、只测 happy path、异常被吞、测试与实现共享同一错误假设等盲点。
+
+只新增真正有区分力的测试，不复制重复用例、不降低阈值、不扩大 skip。遵循 docs/testing/execution.md、test/auto_test/execution_contract.json；不得把模拟器结果冒充真机验收。
+
+执行后逐项报告通过/失败/阻塞/未执行，给出实际命令、退出码、测试数量和证据位置。发现产品代码缺陷时先提交复现证据和最小修复建议；没有明确授权不修改业务代码。不得把未运行、环境缺失或模拟测试写成 PASS。
+```
+
 
 ### ECC-099 · 客户企业通讯录和协作工作台
 
 **场景：** 组织与工作台体验
 
-**A · `product-lens` + `product-capability` · 客户场景映射**
+**A · 新增功能 · `product-capability` + `orch-add-feature` + `dart-flutter-patterns` + `tdd-workflow`**
 
 ```text
-$product-lens $product-capability
+$product-capability $orch-add-feature $dart-flutter-patterns $tdd-workflow
+
+当前功能场景：客户企业通讯录和协作工作台（组织与工作台体验）。目标客户/目标业务流程：[请填写客户行业、用户角色、业务目标、关键流程、特殊规则和优先级]。目标范围：[请填写本次要覆盖的端/模块/子功能]。
+
+先读取当前仓库规则和权威文档，再核对实际代码与测试。不得把设计、文档或 API 存在等同于功能已交付；明确标注 CURRENT、TARGET、LOCKED、UNKNOWN 和 NOT_VERIFIED。
+
+任务类型：新增功能。
 
 为客户复刻企业工作台。映射组织创建/切换、部门、成员邀请、工作区、项目、任务/里程碑、企业通讯录、OA 工作台和免登。检查 organization、enterprise、enterprise_app、enterprise_oa、workspace 页面与模块，输出角色矩阵、页面入口和后端能力缺口。
-```
-
-**B · `dart-flutter-patterns` + `contract-first` + `orch-change-feature` · 客户差异实施**
-
-```text
-$dart-flutter-patterns $contract-first $orch-change-feature
 
 实施已批准的企业工作台差异。复用 organization/enterprise/enterprise_oa 模块和 public.dart；遵守组织/工作区/项目各自角色边界、active owner 不变量、OA code/state/exchange 安全和 TSID 精度。补充路由、权限、状态恢复与跨仓契约测试。
+
+请先判断需求能否由现有能力配置/组合完成；只有确认存在真实能力缺口才新增代码。输出 capability contract：参与角色、用户旅程、状态机、权限/数据边界、API/WS/客户端界面、迁移兼容、观测和验收标准。客户输入不完整或涉及产品决策时，列出阻塞问题并停在方案阶段。输入充分且任务明确时，按 TDD 先写失败测试再实现，遵循项目已有架构和测试命令。遵守 Gate：计划/契约先审阅，实施后完整验证；不 commit、不 push、不合并、不部署。
 ```
+
+**B · 优化现有功能 / 新模型复审旧 AI 代码 · `brownfield-retrospective` + `flutter-dart-code-review` + `tdd-workflow` + `verification-loop`**
+
+```text
+$brownfield-retrospective $flutter-dart-code-review $tdd-workflow $verification-loop
+
+当前功能场景：客户企业通讯录和协作工作台（组织与工作台体验）。目标客户/目标业务流程：[请填写客户行业、用户角色、业务目标、关键流程、特殊规则和优先级]。目标范围：[请填写本次要覆盖的端/模块/子功能]。
+
+先读取当前仓库规则和权威文档，再核对实际代码与测试。不得把设计、文档或 API 存在等同于功能已交付；明确标注 CURRENT、TARGET、LOCKED、UNKNOWN 和 NOT_VERIFIED。
+
+任务类型：优化现有功能，特别用于新一代 AI 模型复审和改进旧 AI 模型生成的代码。
+
+为客户复刻企业工作台。映射组织创建/切换、部门、成员邀请、工作区、项目、任务/里程碑、企业通讯录、OA 工作台和免登。检查 organization、enterprise、enterprise_app、enterprise_oa、workspace 页面与模块，输出角色矩阵、页面入口和后端能力缺口。
+
+实施已批准的企业工作台差异。复用 organization/enterprise/enterprise_oa 模块和 public.dart；遵守组织/工作区/项目各自角色边界、active owner 不变量、OA code/state/exchange 安全和 TSID 精度。补充路由、权限、状态恢复与跨仓契约测试。
+
+请把当前实现视为待验证证据，不信任注释、旧模型自评或“看起来合理”的抽象。按 brownfield-retrospective 的 slice-first 方法，先限定约 15 个文件或 2000 行以内的功能切片，重建实际行为和不变量，建立现有测试/性能/错误行为基线，再检查：逻辑正确性、并发与竞态、失败处理、边界条件、权限与安全、资源生命周期、性能热点、重复/过度抽象、可维护性和跨端一致性。
+
+优先做行为保持型优化；不得为了体现新模型能力而重写整个模块、改变公共契约或引入新依赖。每项发现提供文件/行号、复现或证据、影响、建议和风险。先新增/修正测试证明原行为与目标行为，再实施最小改动。若需要改变用户可见行为、数据结构或协议，先停下请求确认。检查生成代码、Riverpod 生命周期、Facade/Repository 边界、SQLite、WebSocket、平台差异和真实设备约束。
+
+不要自动创建 docs/retro、重复计划或审计文档；先在会话中输出基线、差距登记和改进方案。经用户明确授权后才落盘必要的长期文档。完成后运行相关测试、静态检查和 diff review；不 commit、不 push、不合并、不部署。
+```
+
+**C · 测试现有功能 · `test-collaboration` + `ai-regression-testing` + `verification-loop`**
+
+```text
+$test-collaboration $ai-regression-testing $verification-loop
+
+当前功能场景：客户企业通讯录和协作工作台（组织与工作台体验）。目标客户/目标业务流程：[请填写客户行业、用户角色、业务目标、关键流程、特殊规则和优先级]。目标范围：[请填写本次要覆盖的端/模块/子功能]。
+
+先读取当前仓库规则和权威文档，再核对实际代码与测试。不得把设计、文档或 API 存在等同于功能已交付；明确标注 CURRENT、TARGET、LOCKED、UNKNOWN 和 NOT_VERIFIED。
+
+任务类型：测试现有功能。
+
+为客户复刻企业工作台。映射组织创建/切换、部门、成员邀请、工作区、项目、任务/里程碑、企业通讯录、OA 工作台和免登。检查 organization、enterprise、enterprise_app、enterprise_oa、workspace 页面与模块，输出角色矩阵、页面入口和后端能力缺口。
+
+实施已批准的企业工作台差异。复用 organization/enterprise/enterprise_oa 模块和 public.dart；遵守组织/工作区/项目各自角色边界、active owner 不变量、OA code/state/exchange 安全和 TSID 精度。补充路由、权限、状态恢复与跨仓契约测试。
+
+请不要先修改业务实现。先盘点该场景已有单元、组件/Widget、契约、集成、E2E、平台/设备测试和 CI 门禁，建立“需求/业务规则 → TEST-ID 或现有测试资产 → 执行命令 → 证据”矩阵。重点设计正常路径、权限拒绝、非法输入、边界值、重复请求、并发、超时、断线恢复、旧数据兼容和跨端一致性用例。针对旧 AI 生成代码，额外检查 mock/sandbox 与真实路径不一致、遗漏 SELECT/序列化字段、只测 happy path、异常被吞、测试与实现共享同一错误假设等盲点。
+
+只新增真正有区分力的测试，不复制重复用例、不降低阈值、不扩大 skip。遵循 docs/testing/execution.md、test/auto_test/execution_contract.json；不得把模拟器结果冒充真机验收。
+
+执行后逐项报告通过/失败/阻塞/未执行，给出实际命令、退出码、测试数量和证据位置。发现产品代码缺陷时先提交复现证据和最小修复建议；没有明确授权不修改业务代码。不得把未运行、环境缺失或模拟测试写成 PASS。
+```
+
 
 ### ECC-100 · 客户客服 App/坐席端复刻方案
 
 **场景：** 客服坐席工作台
 
-**A · `product-lens` + `product-capability` · 客户场景映射**
+**A · 新增功能 · `product-capability` + `orch-add-feature` + `dart-flutter-patterns` + `tdd-workflow`**
 
 ```text
-$product-lens $product-capability
+$product-capability $orch-add-feature $dart-flutter-patterns $tdd-workflow
+
+当前功能场景：客户客服 App/坐席端复刻方案（客服坐席工作台）。目标客户/目标业务流程：[请填写客户行业、用户角色、业务目标、关键流程、特殊规则和优先级]。目标范围：[请填写本次要覆盖的端/模块/子功能]。
+
+先读取当前仓库规则和权威文档，再核对实际代码与测试。不得把设计、文档或 API 存在等同于功能已交付；明确标注 CURRENT、TARGET、LOCKED、UNKNOWN 和 NOT_VERIFIED。
+
+任务类型：新增功能。
 
 为客户复刻客服坐席工作台。映射坐席启停、队列、会话认领/转接/关闭、客户上下文、快捷回复、附件发送、评分、在线状态和并发限制。检查 customer_service 模块及 seat 工作台代码，确认哪些能力在 App 消费、哪些仅后台或挂件可用。
-```
-
-**B · `dart-flutter-patterns` + `contract-first` + `tdd-workflow` · 客户差异实施**
-
-```text
-$dart-flutter-patterns $contract-first $tdd-workflow
 
 实施已批准的坐席客户端差异。遵守 seat identity 绑定 business_identity、会话 CAS 版本、队列 claim、消息复用 enterprise_message、撤销权限和 scope 校验。补充发送/撤销/并发/附件恢复测试；不得在客户端复制客服消息存储。
+
+请先判断需求能否由现有能力配置/组合完成；只有确认存在真实能力缺口才新增代码。输出 capability contract：参与角色、用户旅程、状态机、权限/数据边界、API/WS/客户端界面、迁移兼容、观测和验收标准。客户输入不完整或涉及产品决策时，列出阻塞问题并停在方案阶段。输入充分且任务明确时，按 TDD 先写失败测试再实现，遵循项目已有架构和测试命令。遵守 Gate：计划/契约先审阅，实施后完整验证；不 commit、不 push、不合并、不部署。
 ```
+
+**B · 优化现有功能 / 新模型复审旧 AI 代码 · `brownfield-retrospective` + `flutter-dart-code-review` + `tdd-workflow` + `verification-loop`**
+
+```text
+$brownfield-retrospective $flutter-dart-code-review $tdd-workflow $verification-loop
+
+当前功能场景：客户客服 App/坐席端复刻方案（客服坐席工作台）。目标客户/目标业务流程：[请填写客户行业、用户角色、业务目标、关键流程、特殊规则和优先级]。目标范围：[请填写本次要覆盖的端/模块/子功能]。
+
+先读取当前仓库规则和权威文档，再核对实际代码与测试。不得把设计、文档或 API 存在等同于功能已交付；明确标注 CURRENT、TARGET、LOCKED、UNKNOWN 和 NOT_VERIFIED。
+
+任务类型：优化现有功能，特别用于新一代 AI 模型复审和改进旧 AI 模型生成的代码。
+
+为客户复刻客服坐席工作台。映射坐席启停、队列、会话认领/转接/关闭、客户上下文、快捷回复、附件发送、评分、在线状态和并发限制。检查 customer_service 模块及 seat 工作台代码，确认哪些能力在 App 消费、哪些仅后台或挂件可用。
+
+实施已批准的坐席客户端差异。遵守 seat identity 绑定 business_identity、会话 CAS 版本、队列 claim、消息复用 enterprise_message、撤销权限和 scope 校验。补充发送/撤销/并发/附件恢复测试；不得在客户端复制客服消息存储。
+
+请把当前实现视为待验证证据，不信任注释、旧模型自评或“看起来合理”的抽象。按 brownfield-retrospective 的 slice-first 方法，先限定约 15 个文件或 2000 行以内的功能切片，重建实际行为和不变量，建立现有测试/性能/错误行为基线，再检查：逻辑正确性、并发与竞态、失败处理、边界条件、权限与安全、资源生命周期、性能热点、重复/过度抽象、可维护性和跨端一致性。
+
+优先做行为保持型优化；不得为了体现新模型能力而重写整个模块、改变公共契约或引入新依赖。每项发现提供文件/行号、复现或证据、影响、建议和风险。先新增/修正测试证明原行为与目标行为，再实施最小改动。若需要改变用户可见行为、数据结构或协议，先停下请求确认。检查生成代码、Riverpod 生命周期、Facade/Repository 边界、SQLite、WebSocket、平台差异和真实设备约束。
+
+不要自动创建 docs/retro、重复计划或审计文档；先在会话中输出基线、差距登记和改进方案。经用户明确授权后才落盘必要的长期文档。完成后运行相关测试、静态检查和 diff review；不 commit、不 push、不合并、不部署。
+```
+
+**C · 测试现有功能 · `test-collaboration` + `ai-regression-testing` + `verification-loop`**
+
+```text
+$test-collaboration $ai-regression-testing $verification-loop
+
+当前功能场景：客户客服 App/坐席端复刻方案（客服坐席工作台）。目标客户/目标业务流程：[请填写客户行业、用户角色、业务目标、关键流程、特殊规则和优先级]。目标范围：[请填写本次要覆盖的端/模块/子功能]。
+
+先读取当前仓库规则和权威文档，再核对实际代码与测试。不得把设计、文档或 API 存在等同于功能已交付；明确标注 CURRENT、TARGET、LOCKED、UNKNOWN 和 NOT_VERIFIED。
+
+任务类型：测试现有功能。
+
+为客户复刻客服坐席工作台。映射坐席启停、队列、会话认领/转接/关闭、客户上下文、快捷回复、附件发送、评分、在线状态和并发限制。检查 customer_service 模块及 seat 工作台代码，确认哪些能力在 App 消费、哪些仅后台或挂件可用。
+
+实施已批准的坐席客户端差异。遵守 seat identity 绑定 business_identity、会话 CAS 版本、队列 claim、消息复用 enterprise_message、撤销权限和 scope 校验。补充发送/撤销/并发/附件恢复测试；不得在客户端复制客服消息存储。
+
+请不要先修改业务实现。先盘点该场景已有单元、组件/Widget、契约、集成、E2E、平台/设备测试和 CI 门禁，建立“需求/业务规则 → TEST-ID 或现有测试资产 → 执行命令 → 证据”矩阵。重点设计正常路径、权限拒绝、非法输入、边界值、重复请求、并发、超时、断线恢复、旧数据兼容和跨端一致性用例。针对旧 AI 生成代码，额外检查 mock/sandbox 与真实路径不一致、遗漏 SELECT/序列化字段、只测 happy path、异常被吞、测试与实现共享同一错误假设等盲点。
+
+只新增真正有区分力的测试，不复制重复用例、不降低阈值、不扩大 skip。遵循 docs/testing/execution.md、test/auto_test/execution_contract.json；不得把模拟器结果冒充真机验收。
+
+执行后逐项报告通过/失败/阻塞/未执行，给出实际命令、退出码、测试数量和证据位置。发现产品代码缺陷时先提交复现证据和最小修复建议；没有明确授权不修改业务代码。不得把未运行、环境缺失或模拟测试写成 PASS。
+```
+
 
 ### ECC-101 · 客户充值/账单/订阅中心复刻
 
 **场景：** 钱包与支付客户端
 
-**A · `product-lens` + `product-capability` · 客户场景映射**
+**A · 新增功能 · `product-capability` + `orch-add-feature` + `dart-flutter-patterns` + `tdd-workflow`**
 
 ```text
-$product-lens $product-capability
+$product-capability $orch-add-feature $dart-flutter-patterns $tdd-workflow
+
+当前功能场景：客户充值/账单/订阅中心复刻（钱包与支付客户端）。目标客户/目标业务流程：[请填写客户行业、用户角色、业务目标、关键流程、特殊规则和优先级]。目标范围：[请填写本次要覆盖的端/模块/子功能]。
+
+先读取当前仓库规则和权威文档，再核对实际代码与测试。不得把设计、文档或 API 存在等同于功能已交付；明确标注 CURRENT、TARGET、LOCKED、UNKNOWN 和 NOT_VERIFIED。
+
+任务类型：新增功能。
 
 为客户复刻钱包和付费权益客户端。映射余额、充值、支付渠道、交易记录、订阅/购买、账单、支付失败恢复和权益状态。检查 billing、wallet 页面及 API，标注支付渠道配置、商店支付限制和后端真实回调状态。
-```
-
-**B · `contract-first` + `orch-change-feature` + `tdd-workflow` · 客户差异实施**
-
-```text
-$contract-first $orch-change-feature $tdd-workflow
 
 实施已批准的支付客户端差异。复用钱包/账单 API，按后端订单状态为准，处理重复回调、支付中断、恢复购买和金额精度。不得在客户端自行认定支付成功，不在真实账户进行测试支付。
+
+请先判断需求能否由现有能力配置/组合完成；只有确认存在真实能力缺口才新增代码。输出 capability contract：参与角色、用户旅程、状态机、权限/数据边界、API/WS/客户端界面、迁移兼容、观测和验收标准。客户输入不完整或涉及产品决策时，列出阻塞问题并停在方案阶段。输入充分且任务明确时，按 TDD 先写失败测试再实现，遵循项目已有架构和测试命令。遵守 Gate：计划/契约先审阅，实施后完整验证；不 commit、不 push、不合并、不部署。
 ```
+
+**B · 优化现有功能 / 新模型复审旧 AI 代码 · `brownfield-retrospective` + `flutter-dart-code-review` + `tdd-workflow` + `verification-loop`**
+
+```text
+$brownfield-retrospective $flutter-dart-code-review $tdd-workflow $verification-loop
+
+当前功能场景：客户充值/账单/订阅中心复刻（钱包与支付客户端）。目标客户/目标业务流程：[请填写客户行业、用户角色、业务目标、关键流程、特殊规则和优先级]。目标范围：[请填写本次要覆盖的端/模块/子功能]。
+
+先读取当前仓库规则和权威文档，再核对实际代码与测试。不得把设计、文档或 API 存在等同于功能已交付；明确标注 CURRENT、TARGET、LOCKED、UNKNOWN 和 NOT_VERIFIED。
+
+任务类型：优化现有功能，特别用于新一代 AI 模型复审和改进旧 AI 模型生成的代码。
+
+为客户复刻钱包和付费权益客户端。映射余额、充值、支付渠道、交易记录、订阅/购买、账单、支付失败恢复和权益状态。检查 billing、wallet 页面及 API，标注支付渠道配置、商店支付限制和后端真实回调状态。
+
+实施已批准的支付客户端差异。复用钱包/账单 API，按后端订单状态为准，处理重复回调、支付中断、恢复购买和金额精度。不得在客户端自行认定支付成功，不在真实账户进行测试支付。
+
+请把当前实现视为待验证证据，不信任注释、旧模型自评或“看起来合理”的抽象。按 brownfield-retrospective 的 slice-first 方法，先限定约 15 个文件或 2000 行以内的功能切片，重建实际行为和不变量，建立现有测试/性能/错误行为基线，再检查：逻辑正确性、并发与竞态、失败处理、边界条件、权限与安全、资源生命周期、性能热点、重复/过度抽象、可维护性和跨端一致性。
+
+优先做行为保持型优化；不得为了体现新模型能力而重写整个模块、改变公共契约或引入新依赖。每项发现提供文件/行号、复现或证据、影响、建议和风险。先新增/修正测试证明原行为与目标行为，再实施最小改动。若需要改变用户可见行为、数据结构或协议，先停下请求确认。检查生成代码、Riverpod 生命周期、Facade/Repository 边界、SQLite、WebSocket、平台差异和真实设备约束。
+
+不要自动创建 docs/retro、重复计划或审计文档；先在会话中输出基线、差距登记和改进方案。经用户明确授权后才落盘必要的长期文档。完成后运行相关测试、静态检查和 diff review；不 commit、不 push、不合并、不部署。
+```
+
+**C · 测试现有功能 · `test-collaboration` + `ai-regression-testing` + `verification-loop`**
+
+```text
+$test-collaboration $ai-regression-testing $verification-loop
+
+当前功能场景：客户充值/账单/订阅中心复刻（钱包与支付客户端）。目标客户/目标业务流程：[请填写客户行业、用户角色、业务目标、关键流程、特殊规则和优先级]。目标范围：[请填写本次要覆盖的端/模块/子功能]。
+
+先读取当前仓库规则和权威文档，再核对实际代码与测试。不得把设计、文档或 API 存在等同于功能已交付；明确标注 CURRENT、TARGET、LOCKED、UNKNOWN 和 NOT_VERIFIED。
+
+任务类型：测试现有功能。
+
+为客户复刻钱包和付费权益客户端。映射余额、充值、支付渠道、交易记录、订阅/购买、账单、支付失败恢复和权益状态。检查 billing、wallet 页面及 API，标注支付渠道配置、商店支付限制和后端真实回调状态。
+
+实施已批准的支付客户端差异。复用钱包/账单 API，按后端订单状态为准，处理重复回调、支付中断、恢复购买和金额精度。不得在客户端自行认定支付成功，不在真实账户进行测试支付。
+
+请不要先修改业务实现。先盘点该场景已有单元、组件/Widget、契约、集成、E2E、平台/设备测试和 CI 门禁，建立“需求/业务规则 → TEST-ID 或现有测试资产 → 执行命令 → 证据”矩阵。重点设计正常路径、权限拒绝、非法输入、边界值、重复请求、并发、超时、断线恢复、旧数据兼容和跨端一致性用例。针对旧 AI 生成代码，额外检查 mock/sandbox 与真实路径不一致、遗漏 SELECT/序列化字段、只测 happy path、异常被吞、测试与实现共享同一错误假设等盲点。
+
+只新增真正有区分力的测试，不复制重复用例、不降低阈值、不扩大 skip。遵循 docs/testing/execution.md、test/auto_test/execution_contract.json；不得把模拟器结果冒充真机验收。
+
+执行后逐项报告通过/失败/阻塞/未执行，给出实际命令、退出码、测试数量和证据位置。发现产品代码缺陷时先提交复现证据和最小修复建议；没有明确授权不修改业务代码。不得把未运行、环境缺失或模拟测试写成 PASS。
+```
+
 
 ## 维护说明
 
