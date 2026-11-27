@@ -158,7 +158,7 @@ $production-audit $deployment-patterns
 > 本组面向客户业务场景复刻。每个场景提供三条独立提示词：A 新增功能；B 优化现有功能（重点适用于新模型复审旧 AI 代码）；C 测试现有功能。将提示词中的“客户”替换为具体客户、行业、角色和目标流程。
 
 
-### ECC-090 · 客户聊天 App 复刻方案
+#### ECC-090 · 客户聊天 App 复刻方案
 
 **场景：** 个人即时通讯客户端体验
 
@@ -225,7 +225,7 @@ $test-collaboration $ai-regression-testing $verification-loop
 ```
 
 
-### ECC-091 · 客户社群 App 复刻方案
+#### ECC-091 · 客户社群 App 复刻方案
 
 **场景：** 群组协作客户端体验
 
@@ -292,7 +292,7 @@ $test-collaboration $ai-regression-testing $verification-loop
 ```
 
 
-### ECC-092 · 客户内容频道 App 复刻方案
+#### ECC-092 · 客户内容频道 App 复刻方案
 
 **场景：** 频道订阅客户端体验
 
@@ -359,7 +359,7 @@ $test-collaboration $ai-regression-testing $verification-loop
 ```
 
 
-### ECC-093 · 客户动态社区 App 复刻方案
+#### ECC-093 · 客户动态社区 App 复刻方案
 
 **场景：** 朋友圈客户端体验
 
@@ -426,7 +426,7 @@ $test-collaboration $ai-regression-testing $verification-loop
 ```
 
 
-### ECC-094 · 客户登录/扫码登录/多账号体验
+#### ECC-094 · 客户登录/扫码登录/多账号体验
 
 **场景：** 登录、账号和设备
 
@@ -493,7 +493,7 @@ $test-collaboration $ai-regression-testing $verification-loop
 ```
 
 
-### ECC-095 · 客户消息互动与效率工具
+#### ECC-095 · 客户消息互动与效率工具
 
 **场景：** 聊天消息丰富交互
 
@@ -560,7 +560,7 @@ $test-collaboration $ai-regression-testing $verification-loop
 ```
 
 
-### ECC-096 · 客户媒体/位置消息场景
+#### ECC-096 · 客户媒体/位置消息场景
 
 **场景：** 多媒体与位置共享
 
@@ -627,7 +627,7 @@ $test-collaboration $ai-regression-testing $verification-loop
 ```
 
 
-### ECC-097 · 客户 VoIP/视频会议客户端
+#### ECC-097 · 客户 VoIP/视频会议客户端
 
 **场景：** 音视频客户端
 
@@ -694,7 +694,7 @@ $test-collaboration $ai-regression-testing $verification-loop
 ```
 
 
-### ECC-098 · 客户安全聊天和密钥管理 UI
+#### ECC-098 · 客户安全聊天和密钥管理 UI
 
 **场景：** 端到端加密客户端体验
 
@@ -761,7 +761,7 @@ $test-collaboration $ai-regression-testing $verification-loop
 ```
 
 
-### ECC-099 · 客户企业通讯录和协作工作台
+#### ECC-099 · 客户企业通讯录和协作工作台
 
 **场景：** 组织与工作台体验
 
@@ -828,7 +828,7 @@ $test-collaboration $ai-regression-testing $verification-loop
 ```
 
 
-### ECC-100 · 客户客服 App/坐席端复刻方案
+#### ECC-100 · 客户客服 App/坐席端复刻方案
 
 **场景：** 客服坐席工作台
 
@@ -895,7 +895,7 @@ $test-collaboration $ai-regression-testing $verification-loop
 ```
 
 
-### ECC-101 · 客户充值/账单/订阅中心复刻
+#### ECC-101 · 客户充值/账单/订阅中心复刻
 
 **场景：** 钱包与支付客户端
 
@@ -963,7 +963,7 @@ $test-collaboration $ai-regression-testing $verification-loop
 
 
 
-### ECC-117 · 设备管理与推送体验
+#### ECC-117 · 设备管理与推送体验
 
 **场景：** 多设备登录、通知设置和推送排障
 
@@ -1016,7 +1016,7 @@ $test-collaboration $ai-regression-testing $verification-loop
 ```
 
 
-### ECC-118 · 举报、位置与个人数据控制
+#### ECC-118 · 举报、位置与个人数据控制
 
 **场景：** 客户隐私设置、位置授权和举报入口
 
