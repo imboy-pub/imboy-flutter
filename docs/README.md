@@ -1,6 +1,6 @@
 # imboyapp 文档入口
 
-> 本目录只放 Flutter 客户端的稳定知识、代码地图、合规和架构决策。AI 计划、审查报告、测试报告和一次性测试材料放在仓外，不进入 Git；完整项目说明见 [根 README](../README.md) 和 [CLAUDE.md](../CLAUDE.md)。
+> 本目录只放 Flutter 客户端的稳定知识、代码地图、合规、架构决策和可复用提示词。AI 计划、审查报告、测试报告和一次性测试材料放在仓外，不进入 Git；完整项目说明见 [根 README](../README.md) 和 [CLAUDE.md](../CLAUDE.md)。
 
 ## 按目标开始
 
@@ -8,6 +8,7 @@
 |---|---|
 | 第一次运行项目 | [根 README](../README.md) |
 | 了解架构和边界 | [CLAUDE.md](../CLAUDE.md) · [模块地图](./module-map.md) |
+| 使用 ECC 工程提示词 | [Flutter ECC 案例库](./prompts/ECC_USE_CASES.zh-CN.md) · [四仓统一索引](https://github.com/imboy-pub/imboy/blob/main/docs/prompts/README.md) |
 | 找代码入口 | [代码地图](./codemaps/index.md)（2026-06-18 生成快照，文件路径以实际代码为准） |
 | 写 UI | 先读 [DESIGN.md](../DESIGN.md) |
 | 做单元 / Widget / 真机测试 | [测试源码](../test/) · [原生集成测试](../integration_test/) · [运行命令](../README.md) |
