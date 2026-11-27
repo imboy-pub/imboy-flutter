@@ -416,6 +416,8 @@
         "scripts/auto_test.py",
         "scripts/auto_test_lib/auto_test_platform_gate_test.py",
         "scripts/auto_test_lib/capture_integrity_test.py",
+        "scripts/buildapp_ios_app_group_test.py",
+        "scripts/buildapp_manifest_test.py",
         "scripts/test_mc22_owned_coordinator.py",
         "tool/uiux/recovery_contract_test.py",
         "tool/uiux/test_lock_contract.py",

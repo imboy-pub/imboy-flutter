@@ -39,6 +39,8 @@ done
 # Java package names cannot contain '-'; fixture ids like customer-alpha must
 # map to aapt-valid application ids (real gradle builds link AndroidManifest).
 SAFE_ID="$(printf '%s' "$ID" | tr '-' '_')"
+# iOS bundle identifiers allow '-' but never '_'; keep the validated fixture ID.
+IOS_ID="$ID"
 
 SCHEME_VALUE="UNCONFIGURED" ; INHERIT="true"
 case "$SPEC" in
@@ -74,7 +76,7 @@ PROD_ID_BLOCK="  android_application_id: UNCONFIGURED
   ios_bundle_id: UNCONFIGURED"
 if [ "$PROD" = "1" ]; then
   PROD_ID_BLOCK="  android_application_id: app.$SAFE_ID.example
-  ios_bundle_id: app.$SAFE_ID.example"
+  ios_bundle_id: app.$IOS_ID.example"
   printf 'API_BASE_URL=https://api.%s.example/\nWS_URL=wss://api.%s.example/ws\n' "$SAFE_ID" "$SAFE_ID" \
     > "$BASE/config/environments/production.env"
   printf 'API_BASE_URL=https://api.%s.example/\nWS_URL=wss://api.%s.example/ws\n' "$SAFE_ID" "$SAFE_ID" \
@@ -103,7 +105,7 @@ $PROD_ID_BLOCK
   url_scheme: $SCHEME_VALUE
   demo:
     android_application_id: pub.imboy.app.demo.$SAFE_ID
-    ios_bundle_id: pub.imboy.app.demo.$SAFE_ID
+    ios_bundle_id: pub.imboy.app.demo.$IOS_ID
     inherit_vendor_url_scheme: "$INHERIT"
 splash:
   mode: inherit
