@@ -158,7 +158,7 @@ $production-audit $deployment-patterns
 
 > 本组面向客户业务场景复刻。每个场景提供两条独立提示词：A 用于需求/能力映射；B 用于在批准后实施客户差异。将提示词中的“客户”替换为具体客户、行业、角色和目标流程。
 
-### ECC-074 · 客户聊天 App 复刻方案
+### ECC-090 · 客户聊天 App 复刻方案
 
 **场景：** 个人即时通讯客户端体验
 
@@ -170,15 +170,15 @@ $product-lens $product-capability
 为客户设计 IMBoy Flutter 个人聊天 App 复刻方案。映射登录、好友、会话列表、消息气泡、消息状态、历史同步、输入状态、撤回编辑、转发引用、多设备和离线恢复。检查现有页面与 messaging/social_graph/identity 模块，输出页面地图、交互差异、端能力限制和验收用例。
 ```
 
-**B ·  · 客户差异实施**
+**B · `dart-flutter-patterns` + `contract-first` + `orch-change-feature` · 客户差异实施**
 
 ```text
+$dart-flutter-patterns $contract-first $orch-change-feature
 
-
-undefined
+实施已批准的聊天客户端差异。复用 messaging Facade/Repository、现有消息模型、SQLite 表和 WS 服务。遵守 conv_seq 排序、ACK/重试、未知消息类型降级渲染、生成代码不可手改和 DESIGN 规范。补充 Widget/单元测试；真机媒体/网络验证按测试合同执行。
 ```
 
-### ECC-076 · 客户社群 App 复刻方案
+### ECC-091 · 客户社群 App 复刻方案
 
 **场景：** 群组协作客户端体验
 
@@ -190,15 +190,15 @@ $product-lens $product-capability
 为客户复刻群聊/社群 App。映射群创建、邀请、成员角色、群公告、@、群文件/相册、日程/任务/投票、群资料和群治理。检查 group_collab 与现有 group 页面/服务，区分已接线功能、后台 API 已有但 App 未消费的功能及 phase lock。
 ```
 
-**B ·  · 客户差异实施**
+**B · `dart-flutter-patterns` + `contract-first` + `orch-add-feature` · 客户差异实施**
 
 ```text
+$dart-flutter-patterns $contract-first $orch-add-feature
 
-
-undefined
+实施已批准的群组客户端增量。优先使用 lib/modules/group_collab/public.dart、现有 Service 和 Repository。按角色与 scope 控制操作，补充单元/Widget/设备测试计划；不复制后端规则到客户端作为唯一授权依据。
 ```
 
-### ECC-078 · 客户内容频道 App 复刻方案
+### ECC-092 · 客户内容频道 App 复刻方案
 
 **场景：** 频道订阅客户端体验
 
@@ -210,15 +210,15 @@ $product-lens $product-capability
 为客户复刻频道/内容订阅 App。映射频道发现、详情、订阅/购买、帖子列表、评论、精华/置顶、讨论群、通知和付费内容访问。核对 channel_content 模块与后端 channel-api-contract-v1，标注一期/二期和支付通道的真实开放状态。
 ```
 
-**B ·  · 客户差异实施**
+**B · `dart-flutter-patterns` + `contract-first` + `orch-change-feature` · 客户差异实施**
 
 ```text
+$dart-flutter-patterns $contract-first $orch-change-feature
 
-
-undefined
+实施已批准的频道客户端差异。复用 channel_content 模块和 API 契约，正确处理 visibility/access_type/join_policy、订阅/购买状态、分页、TSID 和错误信封。补充未订阅/已购买/私有频道等正反例测试，不在客户端绕过后端授权。
 ```
 
-### ECC-080 · 客户动态社区 App 复刻方案
+### ECC-093 · 客户动态社区 App 复刻方案
 
 **场景：** 朋友圈客户端体验
 
@@ -230,15 +230,15 @@ $product-lens $product-capability
 为客户复刻动态/朋友圈客户端。映射发布图文/视频、可见性设置、好友互动、评论、收藏、举报和内容详情。检查 moment_social 与现有 moment 页面，依据 moment-api-contract-v1 建立隐私与关系矩阵，指出尚未消费的 API。
 ```
 
-**B ·  · 客户差异实施**
+**B · `dart-flutter-patterns` + `contract-first` + `orch-add-feature` · 客户差异实施**
 
 ```text
+$dart-flutter-patterns $contract-first $orch-add-feature
 
-
-undefined
+实施已批准的动态客户端差异。复用 moment_social 模块、附件授权服务和现有 UI 规范。验证不同可见性、黑名单优先、删除内容、分页和媒体授权。补充 Widget 与 API contract tests，不在本地缓存泄露受限动态。
 ```
 
-### ECC-098 · 客户登录/扫码登录/多账号体验
+### ECC-094 · 客户登录/扫码登录/多账号体验
 
 **场景：** 登录、账号和设备
 
@@ -250,15 +250,15 @@ $product-lens $product-capability
 为客户复刻身份入口。映射手机号/邮箱/账号登录、注册、验证码、找回密码、二维码登录、OIDC/企业 SSO、设备管理、账号切换和退出清理。检查 identity、passport、QR login、enterprise_oa 模块及各平台限制，输出旅程和安全验收矩阵。
 ```
 
-**B ·  · 客户差异实施**
+**B · `dart-flutter-patterns` + `contract-first` + `tdd-workflow` · 客户差异实施**
 
 ```text
+$dart-flutter-patterns $contract-first $tdd-workflow
 
-
-undefined
+实施已批准的身份客户端差异。复用 Passport/QR/OIDC 服务和 auth session scope。验证 QR token 一次性领取、confirmed uid_str 精度、Token 清理、账号本地数据隔离、Web 与原生平台差异。不得把凭据写入 URL、日志或普通偏好存储。
 ```
 
-### ECC-100 · 客户消息互动与效率工具
+### ECC-095 · 客户消息互动与效率工具
 
 **场景：** 聊天消息丰富交互
 
@@ -270,15 +270,15 @@ $product-lens $product-capability
 为客户复刻增强聊天体验。映射图片/语音/视频/文件/位置/引用/转发/表情回应/置顶/主题/@提及/已读/阅后即焚/历史归档。检查现有消息类型、操作菜单、SQLite 和 API/WS 支持，输出能力矩阵及平台适配缺口。
 ```
 
-**B ·  · 客户差异实施**
+**B · `dart-flutter-patterns` + `tdd-workflow` + `module-regression` · 客户差异实施**
 
 ```text
+$dart-flutter-patterns $tdd-workflow $module-regression
 
-
-undefined
+实施已批准的消息交互差异。遵守消息类型归一化、未知类型 unsupported、消息 ID 不透明字符串、conv_seq 排序、附件授权、E2EE 密文规则和离线任务持久化。补充消息解析、操作状态、Widget 和迁移回归。
 ```
 
-### ECC-102 · 客户媒体/位置消息场景
+### ECC-096 · 客户媒体/位置消息场景
 
 **场景：** 多媒体与位置共享
 
@@ -290,15 +290,15 @@ $product-lens $product-capability
 为客户复刻媒体与位置分享。映射相机/相册、图片视频预览、语音录制播放、文件选择、位置权限、地图展示、缩略图和断点续传。检查 attachments、camera、location 页面和服务，列出 Android/iOS/macOS/Web 的能力差异与权限提示。
 ```
 
-**B ·  · 客户差异实施**
+**B · `dart-flutter-patterns` + `contract-first` + `tdd-workflow` · 客户差异实施**
 
 ```text
+$dart-flutter-patterns $contract-first $tdd-workflow
 
-
-undefined
+实施已批准的媒体/位置客户端差异。复用 AssetsService.viewUrl、附件上传、权限服务和现有缓存策略。验证授权 URL、文件大小/MIME、取消/重试、账号切换、Web 持久化和权限拒绝；按执行合同安排真机验收。
 ```
 
-### ECC-104 · 客户 VoIP/视频会议客户端
+### ECC-097 · 客户 VoIP/视频会议客户端
 
 **场景：** 音视频客户端
 
@@ -310,15 +310,15 @@ $product-lens $product-capability
 为客户复刻一对一通话/视频沟通客户端。映射呼叫邀请、振铃、接听、拒绝、挂断、超时、摄像头/麦克风权限、设备切换、网络恢复和 LiveKit 房间。检查 p2p_call_screen、rtc_room、flutter_webrtc 与 LiveKit SDK，标注群通话/录制等锁定或未验收能力。
 ```
 
-**B ·  · 客户差异实施**
+**B · `dart-flutter-patterns` + `contract-first` + `tdd-workflow` · 客户差异实施**
 
 ```text
+$dart-flutter-patterns $contract-first $tdd-workflow
 
-
-undefined
+实施已批准的 RTC 客户端差异。保持 IM 信令状态机与媒体传输职责分离，正确清理 track/room/peer connection，处理权限拒绝、后台恢复和异常断线。不得把模拟器结果当真实媒体验收；列出并执行可用的真机双端测试义务。
 ```
 
-### ECC-106 · 客户安全聊天和密钥管理 UI
+### ECC-098 · 客户安全聊天和密钥管理 UI
 
 **场景：** 端到端加密客户端体验
 
@@ -330,15 +330,15 @@ $product-lens $product-capability
 为客户复刻安全聊天体验。映射设备身份核验、安全码/二维码、加密状态、密钥备份恢复、社交恢复、群成员世代变化和加密附件。检查 security_privacy 模块和 E2EE 设置页，按交付 profile 区分可用/锁定能力。
 ```
 
-**B ·  · 客户差异实施**
+**B · `security-review` + `dart-flutter-patterns` + `tdd-workflow` · 客户差异实施**
 
 ```text
+$security-review $dart-flutter-patterns $tdd-workflow
 
-
-undefined
+实施已批准的 E2EE 客户端差异。复用 vodozemac、现有 Olm/Megolm、backup 和 trust service；遵守密钥不进入日志/明文持久层、设备 capability 协商和群密钥世代隔离。补充安全负例、迁移和真机恢复测试，不改变密码学协议而不更新契约。
 ```
 
-### ECC-108 · 客户企业通讯录和协作工作台
+### ECC-099 · 客户企业通讯录和协作工作台
 
 **场景：** 组织与工作台体验
 
@@ -350,15 +350,15 @@ $product-lens $product-capability
 为客户复刻企业工作台。映射组织创建/切换、部门、成员邀请、工作区、项目、任务/里程碑、企业通讯录、OA 工作台和免登。检查 organization、enterprise、enterprise_app、enterprise_oa、workspace 页面与模块，输出角色矩阵、页面入口和后端能力缺口。
 ```
 
-**B ·  · 客户差异实施**
+**B · `dart-flutter-patterns` + `contract-first` + `orch-change-feature` · 客户差异实施**
 
 ```text
+$dart-flutter-patterns $contract-first $orch-change-feature
 
-
-undefined
+实施已批准的企业工作台差异。复用 organization/enterprise/enterprise_oa 模块和 public.dart；遵守组织/工作区/项目各自角色边界、active owner 不变量、OA code/state/exchange 安全和 TSID 精度。补充路由、权限、状态恢复与跨仓契约测试。
 ```
 
-### ECC-110 · 客户客服 App/坐席端复刻方案
+### ECC-100 · 客户客服 App/坐席端复刻方案
 
 **场景：** 客服坐席工作台
 
@@ -370,15 +370,15 @@ $product-lens $product-capability
 为客户复刻客服坐席工作台。映射坐席启停、队列、会话认领/转接/关闭、客户上下文、快捷回复、附件发送、评分、在线状态和并发限制。检查 customer_service 模块及 seat 工作台代码，确认哪些能力在 App 消费、哪些仅后台或挂件可用。
 ```
 
-**B ·  · 客户差异实施**
+**B · `dart-flutter-patterns` + `contract-first` + `tdd-workflow` · 客户差异实施**
 
 ```text
+$dart-flutter-patterns $contract-first $tdd-workflow
 
-
-undefined
+实施已批准的坐席客户端差异。遵守 seat identity 绑定 business_identity、会话 CAS 版本、队列 claim、消息复用 enterprise_message、撤销权限和 scope 校验。补充发送/撤销/并发/附件恢复测试；不得在客户端复制客服消息存储。
 ```
 
-### ECC-112 · 客户充值/账单/订阅中心复刻
+### ECC-101 · 客户充值/账单/订阅中心复刻
 
 **场景：** 钱包与支付客户端
 
@@ -390,12 +390,12 @@ $product-lens $product-capability
 为客户复刻钱包和付费权益客户端。映射余额、充值、支付渠道、交易记录、订阅/购买、账单、支付失败恢复和权益状态。检查 billing、wallet 页面及 API，标注支付渠道配置、商店支付限制和后端真实回调状态。
 ```
 
-**B ·  · 客户差异实施**
+**B · `contract-first` + `orch-change-feature` + `tdd-workflow` · 客户差异实施**
 
 ```text
+$contract-first $orch-change-feature $tdd-workflow
 
-
-undefined
+实施已批准的支付客户端差异。复用钱包/账单 API，按后端订单状态为准，处理重复回调、支付中断、恢复购买和金额精度。不得在客户端自行认定支付成功，不在真实账户进行测试支付。
 ```
 
 ## 维护说明
