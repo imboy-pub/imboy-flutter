@@ -963,6 +963,112 @@ $test-collaboration $ai-regression-testing $verification-loop
 ```
 
 
+
+### ECC-117 · 设备管理与推送体验
+
+**场景：** 多设备登录、通知设置和推送排障
+
+**A · 新增功能 · `product-capability` + `orch-add-feature` + `dart-flutter-patterns` + `tdd-workflow`**
+
+```text
+$product-capability $orch-add-feature $dart-flutter-patterns $tdd-workflow
+
+目标客户/用户角色/业务目标：[填写]。客户业务规则和验收指标：[填写]。本次目标端/模块：[填写]。
+
+先读取仓库规则、当前 HEAD、工作区状态、对应概念文档/接口契约/代码/测试。区分 CURRENT、TARGET、LOCKED、UNKNOWN、NOT_VERIFIED；不能把设计或 API 存在说成端到端交付。
+
+任务类型：新增功能。
+
+盘点 Flutter 设备注册、设备列表/撤销、APNs/FCM/JPush 绑定、通知权限、前后台推送点击、深链接、免打扰和账号切换清理。核对 Android/iOS/macOS/Web 平台差异与当前未支持能力。
+
+判断现有功能能否通过配置或组合满足需求，只有真实缺口才新增。输出能力合同（角色、流程、状态机、权限、数据归属、接口、失败恢复、观测、兼容和验收）。输入不完整时列出阻塞问题并停在方案阶段。输入明确时按 TDD 先写失败测试再实现，使用现有架构和测试命令。先过计划门禁；不 commit/push/合并/部署。
+```
+
+**B · 优化现有功能 / 新模型复审旧 AI 代码 · `brownfield-retrospective` + `flutter-dart-code-review` + `tdd-workflow` + `verification-loop`**
+
+```text
+$brownfield-retrospective $flutter-dart-code-review $tdd-workflow $verification-loop
+
+目标客户/用户角色/业务目标：[填写]。客户业务规则和验收指标：[填写]。本次目标端/模块：[填写]。
+
+先读取仓库规则、当前 HEAD、工作区状态、对应概念文档/接口契约/代码/测试。区分 CURRENT、TARGET、LOCKED、UNKNOWN、NOT_VERIFIED；不能把设计或 API 存在说成端到端交付。
+
+任务类型：优化现有功能，重点复审旧 AI 模型生成的实现。
+
+盘点 Flutter 设备注册、设备列表/撤销、APNs/FCM/JPush 绑定、通知权限、前后台推送点击、深链接、免打扰和账号切换清理。核对 Android/iOS/macOS/Web 平台差异与当前未支持能力。
+
+按 brownfield-retrospective 的 slice-first 方法限制在约 15 个文件或 2000 行以内。不要信任旧模型自评、注释或现有测试的完整性；独立重建行为，建立基线，审查正确性、权限、安全、竞态、失败处理、数据兼容、性能、资源生命周期和可维护性。每个发现给出文件/行号、证据、影响和最小修复建议。优先行为保持型优化，先补测试证明问题再修改；涉及协议、数据结构或用户可见行为变化时先请求确认。不要创建 docs/retro 或重复报告，先在会话中输出。遵循 Flutter migration manifest、public.dart、真机验收合同和生成代码规则。不 commit/push/合并/部署。
+```
+
+**C · 测试现有功能 · `test-collaboration` + `ai-regression-testing` + `verification-loop`**
+
+```text
+$test-collaboration $ai-regression-testing $verification-loop
+
+目标客户/用户角色/业务目标：[填写]。客户业务规则和验收指标：[填写]。本次目标端/模块：[填写]。
+
+先读取仓库规则、当前 HEAD、工作区状态、对应概念文档/接口契约/代码/测试。区分 CURRENT、TARGET、LOCKED、UNKNOWN、NOT_VERIFIED；不能把设计或 API 存在说成端到端交付。
+
+任务类型：测试现有功能。
+
+盘点 Flutter 设备注册、设备列表/撤销、APNs/FCM/JPush 绑定、通知权限、前后台推送点击、深链接、免打扰和账号切换清理。核对 Android/iOS/macOS/Web 平台差异与当前未支持能力。
+
+先不改业务实现。盘点现有单元/集成/契约/E2E/平台测试，建立需求/不变量→测试资产→命令→证据矩阵。覆盖正常、权限拒绝、边界值、重复、并发、超时、故障恢复、旧数据兼容和跨端行为。针对旧 AI 代码特别检查 mock 与真实路径不一致、遗漏持久化/序列化字段、happy-path-only、异常吞掉、重试副作用和测试迎合实现。只新增高价值测试，不降低阈值、不扩大 skip。遵循 docs/testing/execution.md 和 auto_test execution contract；缺少真机标 BLOCKED。报告 PASS/FAIL/BLOCKED/NOT RUN、命令、退出码、数量和证据。发现缺陷先给复现和修复建议，未经授权不改业务代码。
+```
+
+
+### ECC-118 · 举报、位置与个人数据控制
+
+**场景：** 客户隐私设置、位置授权和举报入口
+
+**A · 新增功能 · `product-capability` + `orch-add-feature` + `dart-flutter-patterns` + `tdd-workflow`**
+
+```text
+$product-capability $orch-add-feature $dart-flutter-patterns $tdd-workflow
+
+目标客户/用户角色/业务目标：[填写]。客户业务规则和验收指标：[填写]。本次目标端/模块：[填写]。
+
+先读取仓库规则、当前 HEAD、工作区状态、对应概念文档/接口契约/代码/测试。区分 CURRENT、TARGET、LOCKED、UNKNOWN、NOT_VERIFIED；不能把设计或 API 存在说成端到端交付。
+
+任务类型：新增功能。
+
+盘点 Flutter 用户资料、收藏、标签、好友分组、黑名单、位置服务、举报/申诉、隐私设置和账号本地数据导出/删除入口。确认位置精度与授权提示、denylist 优先、敏感数据缓存和跨账号清理。
+
+判断现有功能能否通过配置或组合满足需求，只有真实缺口才新增。输出能力合同（角色、流程、状态机、权限、数据归属、接口、失败恢复、观测、兼容和验收）。输入不完整时列出阻塞问题并停在方案阶段。输入明确时按 TDD 先写失败测试再实现，使用现有架构和测试命令。先过计划门禁；不 commit/push/合并/部署。
+```
+
+**B · 优化现有功能 / 新模型复审旧 AI 代码 · `brownfield-retrospective` + `flutter-dart-code-review` + `tdd-workflow` + `verification-loop`**
+
+```text
+$brownfield-retrospective $flutter-dart-code-review $tdd-workflow $verification-loop
+
+目标客户/用户角色/业务目标：[填写]。客户业务规则和验收指标：[填写]。本次目标端/模块：[填写]。
+
+先读取仓库规则、当前 HEAD、工作区状态、对应概念文档/接口契约/代码/测试。区分 CURRENT、TARGET、LOCKED、UNKNOWN、NOT_VERIFIED；不能把设计或 API 存在说成端到端交付。
+
+任务类型：优化现有功能，重点复审旧 AI 模型生成的实现。
+
+盘点 Flutter 用户资料、收藏、标签、好友分组、黑名单、位置服务、举报/申诉、隐私设置和账号本地数据导出/删除入口。确认位置精度与授权提示、denylist 优先、敏感数据缓存和跨账号清理。
+
+按 brownfield-retrospective 的 slice-first 方法限制在约 15 个文件或 2000 行以内。不要信任旧模型自评、注释或现有测试的完整性；独立重建行为，建立基线，审查正确性、权限、安全、竞态、失败处理、数据兼容、性能、资源生命周期和可维护性。每个发现给出文件/行号、证据、影响和最小修复建议。优先行为保持型优化，先补测试证明问题再修改；涉及协议、数据结构或用户可见行为变化时先请求确认。不要创建 docs/retro 或重复报告，先在会话中输出。遵循 Flutter migration manifest、public.dart、真机验收合同和生成代码规则。不 commit/push/合并/部署。
+```
+
+**C · 测试现有功能 · `test-collaboration` + `ai-regression-testing` + `verification-loop`**
+
+```text
+$test-collaboration $ai-regression-testing $verification-loop
+
+目标客户/用户角色/业务目标：[填写]。客户业务规则和验收指标：[填写]。本次目标端/模块：[填写]。
+
+先读取仓库规则、当前 HEAD、工作区状态、对应概念文档/接口契约/代码/测试。区分 CURRENT、TARGET、LOCKED、UNKNOWN、NOT_VERIFIED；不能把设计或 API 存在说成端到端交付。
+
+任务类型：测试现有功能。
+
+盘点 Flutter 用户资料、收藏、标签、好友分组、黑名单、位置服务、举报/申诉、隐私设置和账号本地数据导出/删除入口。确认位置精度与授权提示、denylist 优先、敏感数据缓存和跨账号清理。
+
+先不改业务实现。盘点现有单元/集成/契约/E2E/平台测试，建立需求/不变量→测试资产→命令→证据矩阵。覆盖正常、权限拒绝、边界值、重复、并发、超时、故障恢复、旧数据兼容和跨端行为。针对旧 AI 代码特别检查 mock 与真实路径不一致、遗漏持久化/序列化字段、happy-path-only、异常吞掉、重试副作用和测试迎合实现。只新增高价值测试，不降低阈值、不扩大 skip。遵循 docs/testing/execution.md 和 auto_test execution contract；缺少真机标 BLOCKED。报告 PASS/FAIL/BLOCKED/NOT RUN、命令、退出码、数量和证据。发现缺陷先给复现和修复建议，未经授权不改业务代码。
+```
+
 ## 维护说明
 
 - 本文只维护本仓库职责范围内的提示词；跨仓案例的统一索引位于 [imboy 后端主仓 docs/prompts/README.md](https://github.com/imboy-pub/imboy/blob/main/docs/prompts/README.md)。
