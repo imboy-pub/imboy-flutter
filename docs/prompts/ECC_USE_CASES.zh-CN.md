@@ -1,6 +1,6 @@
 # IMBoy ECC 使用案例 / Flutter
 
-> 本文是可直接复制到 Codex 会话的 ECC 使用案例库。每个案例均可独立复制，以 `$skill-name` 开头。原 72 个工程案例各提供一个提示词；新增功能场景提供 A 新增功能、B 优化现有功能、C 测试现有功能三个独立提示词。
+ > 本文是可直接复制到 Codex 会话的 ECC 使用案例库。每个案例均可独立复制，以 `$skill-name` 开头。原 72 个工程案例各提供一个提示词；新增功能场景提供 A 新增功能、B 优化现有功能、C 测试现有功能三个独立提示词。
 >
 > **使用约定**
 > - 在已安装 ECC 的 Codex 会话中，复制单个案例的完整代码块执行。
@@ -16,11 +16,15 @@
 ## 本仓库范围
 
 本文件包含 Flutter 工程案例 13 个，以及 Flutter 客户场景复刻/功能迭代案例 14 个；合计 27 个（ECC-002、023–034、090–101、117–118）。
+
+> **时间估算说明**：时间为单个案例的一次 A/B/C 模式执行预算，包含仓库阅读、代码分析、必要实施及相关验证；不是保证完成时间。A/B/C 只能选择一种执行。30 分钟及以上建议安排 ZCODE 闲时任务。遇到缺少设备、数据库、凭据、外部服务或需求决策时，应报告 BLOCKED/NOT RUN，不能为了符合预算而跳过验证。复杂度按当前仓库结构与案例提示词范围估算，实际会随工作树状态、测试环境和缺陷数量变化。
 ## 案例清单
 
 ### 项目理解与架构分析
 
 #### ECC-002 · Flutter 多端架构梳理
+
+**预计执行时间：45 分钟**（单次执行；包含代码阅读、定向实施/分析与相关验证）
 
 **Skills：** `codebase-onboarding`
 
@@ -34,6 +38,8 @@ $codebase-onboarding
 
 #### ECC-023 · 新增聊天消息功能
 
+**预计执行时间：60 分钟**（单次执行；包含代码阅读、定向实施/分析与相关验证）
+
 **Skills：** `dart-flutter-patterns` · `tdd-workflow`
 
 ```text
@@ -43,6 +49,8 @@ $dart-flutter-patterns $tdd-workflow
 ```
 
 #### ECC-024 · Riverpod 状态管理治理
+
+**预计执行时间：45 分钟**（单次执行；包含代码阅读、定向实施/分析与相关验证）
 
 **Skills：** `flutter-dart-code-review` · `change-impact`
 
@@ -54,6 +62,8 @@ $flutter-dart-code-review $change-impact
 
 #### ECC-025 · SQLite 数据库迁移
 
+**预计执行时间：60 分钟**（单次执行；包含代码阅读、定向实施/分析与相关验证）
+
 **Skills：** `change-impact` · `tdd-workflow` · `test-collaboration`
 
 ```text
@@ -63,6 +73,8 @@ $change-impact $tdd-workflow $test-collaboration
 ```
 
 #### ECC-026 · E2EE 密钥备份与恢复
+
+**预计执行时间：90 分钟**（单次执行；包含代码阅读、定向实施/分析与相关验证）
 
 **Skills：** `security-review` · `test-collaboration`
 
@@ -74,6 +86,8 @@ $security-review $test-collaboration
 
 #### ECC-027 · WebSocket 重连和消息 ACK
 
+**预计执行时间：60 分钟**（单次执行；包含代码阅读、定向实施/分析与相关验证）
+
 **Skills：** `change-impact` · `tdd-workflow`
 
 ```text
@@ -83,6 +97,8 @@ $change-impact $tdd-workflow
 ```
 
 #### ECC-028 · 附件上传断点续传
+
+**预计执行时间：90 分钟**（单次执行；包含代码阅读、定向实施/分析与相关验证）
 
 **Skills：** `tdd-workflow` · `module-regression`
 
@@ -94,6 +110,8 @@ $tdd-workflow $module-regression
 
 #### ECC-029 · 四平台行为差异
 
+**预计执行时间：60 分钟**（单次执行；包含代码阅读、定向实施/分析与相关验证）
+
 **Skills：** `test-collaboration` · `parallel-execution-optimizer`
 
 ```text
@@ -103,6 +121,8 @@ $test-collaboration $parallel-execution-optimizer
 ```
 
 #### ECC-030 · Widget 无障碍检查
+
+**预计执行时间：30 分钟**（单次执行；包含代码阅读、定向实施/分析与相关验证）
 
 **Skills：** `flutter-dart-code-review` · `test-collaboration`
 
@@ -114,6 +134,8 @@ $flutter-dart-code-review $test-collaboration
 
 #### ECC-031 · 路由与登录守卫
 
+**预计执行时间：45 分钟**（单次执行；包含代码阅读、定向实施/分析与相关验证）
+
 **Skills：** `dart-flutter-patterns` · `tdd-workflow`
 
 ```text
@@ -123,6 +145,8 @@ $dart-flutter-patterns $tdd-workflow
 ```
 
 #### ECC-032 · PR/Full 测试计划
+
+**预计执行时间：60 分钟**（单次执行；包含代码阅读、定向实施/分析与相关验证）
 
 **Skills：** `test-collaboration` · `verification-loop`
 
@@ -134,6 +158,8 @@ $test-collaboration $verification-loop
 
 #### ECC-033 · Flutter 模块边界治理
 
+**预计执行时间：60 分钟**（单次执行；包含代码阅读、定向实施/分析与相关验证）
+
 **Skills：** `module-governance` · `module-regression`
 
 ```text
@@ -143,6 +169,8 @@ $module-governance $module-regression
 ```
 
 #### ECC-034 · Flutter 多端发布验收
+
+**预计执行时间：90 分钟**（单次执行；包含代码阅读、定向实施/分析与相关验证）
 
 **Skills：** `production-audit` · `deployment-patterns`
 
@@ -160,6 +188,8 @@ $production-audit $deployment-patterns
 
 
 #### ECC-090 · 客户聊天 App 复刻方案
+
+**预计执行时间（单选一种模式）：A 新增功能 90 分钟 · B 优化现有功能 60 分钟 · C 测试现有功能 45 分钟**
 
 **场景：** 个人即时通讯客户端体验
 
@@ -221,6 +251,8 @@ $test-collaboration $ai-regression-testing $verification-loop
 
 #### ECC-091 · 客户社群 App 复刻方案
 
+**预计执行时间（单选一种模式）：A 新增功能 90 分钟 · B 优化现有功能 60 分钟 · C 测试现有功能 45 分钟**
+
 **场景：** 群组协作客户端体验
 
 **A · 新增功能 · `product-capability` + `orch-add-feature` + `dart-flutter-patterns` + `tdd-workflow`**
@@ -280,6 +312,8 @@ $test-collaboration $ai-regression-testing $verification-loop
 ```
 
 #### ECC-092 · 客户内容频道 App 复刻方案
+
+**预计执行时间（单选一种模式）：A 新增功能 90 分钟 · B 优化现有功能 60 分钟 · C 测试现有功能 45 分钟**
 
 **场景：** 频道订阅客户端体验
 
@@ -341,6 +375,8 @@ $test-collaboration $ai-regression-testing $verification-loop
 
 #### ECC-093 · 客户动态社区 App 复刻方案
 
+**预计执行时间（单选一种模式）：A 新增功能 90 分钟 · B 优化现有功能 60 分钟 · C 测试现有功能 45 分钟**
+
 **场景：** 朋友圈客户端体验
 
 **A · 新增功能 · `product-capability` + `orch-add-feature` + `dart-flutter-patterns` + `tdd-workflow`**
@@ -400,6 +436,8 @@ $test-collaboration $ai-regression-testing $verification-loop
 ```
 
 #### ECC-094 · 客户登录/扫码登录/多账号体验
+
+**预计执行时间（单选一种模式）：A 新增功能 90 分钟 · B 优化现有功能 60 分钟 · C 测试现有功能 45 分钟**
 
 **场景：** 登录、账号和设备
 
@@ -461,6 +499,8 @@ $test-collaboration $ai-regression-testing $verification-loop
 
 #### ECC-095 · 客户消息互动与效率工具
 
+**预计执行时间（单选一种模式）：A 新增功能 90 分钟 · B 优化现有功能 60 分钟 · C 测试现有功能 45 分钟**
+
 **场景：** 聊天消息丰富交互
 
 **A · 新增功能 · `product-capability` + `orch-add-feature` + `dart-flutter-patterns` + `tdd-workflow`**
@@ -520,6 +560,8 @@ $test-collaboration $ai-regression-testing $verification-loop
 ```
 
 #### ECC-096 · 客户媒体/位置消息场景
+
+**预计执行时间（单选一种模式）：A 新增功能 90 分钟 · B 优化现有功能 60 分钟 · C 测试现有功能 45 分钟**
 
 **场景：** 多媒体与位置共享
 
@@ -581,6 +623,8 @@ $test-collaboration $ai-regression-testing $verification-loop
 
 #### ECC-097 · 客户 VoIP/视频会议客户端
 
+**预计执行时间（单选一种模式）：A 新增功能 150 分钟 · B 优化现有功能 105 分钟 · C 测试现有功能 75 分钟**
+
 **场景：** 音视频客户端
 
 **A · 新增功能 · `product-capability` + `orch-add-feature` + `dart-flutter-patterns` + `tdd-workflow`**
@@ -640,6 +684,8 @@ $test-collaboration $ai-regression-testing $verification-loop
 ```
 
 #### ECC-098 · 客户安全聊天和密钥管理 UI
+
+**预计执行时间（单选一种模式）：A 新增功能 150 分钟 · B 优化现有功能 105 分钟 · C 测试现有功能 75 分钟**
 
 **场景：** 端到端加密客户端体验
 
@@ -701,6 +747,8 @@ $test-collaboration $ai-regression-testing $verification-loop
 
 #### ECC-099 · 客户企业通讯录和协作工作台
 
+**预计执行时间（单选一种模式）：A 新增功能 90 分钟 · B 优化现有功能 60 分钟 · C 测试现有功能 45 分钟**
+
 **场景：** 组织与工作台体验
 
 **A · 新增功能 · `product-capability` + `orch-add-feature` + `dart-flutter-patterns` + `tdd-workflow`**
@@ -760,6 +808,8 @@ $test-collaboration $ai-regression-testing $verification-loop
 ```
 
 #### ECC-100 · 客户客服 App/坐席端复刻方案
+
+**预计执行时间（单选一种模式）：A 新增功能 150 分钟 · B 优化现有功能 105 分钟 · C 测试现有功能 75 分钟**
 
 **场景：** 客服坐席工作台
 
@@ -821,6 +871,8 @@ $test-collaboration $ai-regression-testing $verification-loop
 
 #### ECC-101 · 客户充值/账单/订阅中心复刻
 
+**预计执行时间（单选一种模式）：A 新增功能 150 分钟 · B 优化现有功能 105 分钟 · C 测试现有功能 75 分钟**
+
 **场景：** 钱包与支付客户端
 
 **A · 新增功能 · `product-capability` + `orch-add-feature` + `dart-flutter-patterns` + `tdd-workflow`**
@@ -881,6 +933,8 @@ $test-collaboration $ai-regression-testing $verification-loop
 
 #### ECC-117 · 设备管理与推送体验
 
+**预计执行时间（单选一种模式）：A 新增功能 90 分钟 · B 优化现有功能 60 分钟 · C 测试现有功能 45 分钟**
+
 **场景：** 多设备登录、通知设置和推送排障
 
 **A · 新增功能 · `product-capability` + `orch-add-feature` + `dart-flutter-patterns` + `tdd-workflow`**
@@ -940,6 +994,8 @@ $test-collaboration $ai-regression-testing $verification-loop
 ```
 
 #### ECC-118 · 举报、位置与个人数据控制
+
+**预计执行时间（单选一种模式）：A 新增功能 90 分钟 · B 优化现有功能 60 分钟 · C 测试现有功能 45 分钟**
 
 **场景：** 客户隐私设置、位置授权和举报入口
 
