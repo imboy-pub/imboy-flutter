@@ -394,6 +394,7 @@ jobs:
         with:
           distribution: temurin
           java-version: '17'
+          cache: gradle
 
       - name: Setup Flutter
         uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2
@@ -446,6 +447,9 @@ jobs:
             --dart-define=SENTRY_DSN="${SENTRY_DSN:-}"
 
       - name: Build standard AAB (debug-signed CI smoke only)
+        # appbundle 仅做存在性冒烟（无 bundletool 验证、不上传 artifact）；
+        # PR 跳过省一次全量 release 编译（CI 审计 V3），main push 保留覆盖。
+        if: github.event_name == 'push'
         env:
           SENTRY_DSN: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && secrets.SENTRY_DSN || '' }}
         run: |
@@ -508,6 +512,19 @@ jobs:
         if: ${{ env.GOOGLE_SERVICE_INFO_PLIST_B64 != '' }}
         run: |
           echo "$GOOGLE_SERVICE_INFO_PLIST_B64" | base64 -d > ios/Runner/GoogleService-Info.plist
+
+      - name: Compute specs mirror cache key (weekly)
+        id: specs_cache_key
+        run: echo "week=$(date -u +%G-W%V)" >> "$GITHUB_OUTPUT"
+
+      - name: Cache CocoaPods specs mirror
+        # specs 仓库是纯外部依赖（与 Podfile.lock 内容无关）：key 按 ISO 周
+        # 轮换（命中≤7 天陈旧，prefetch 脚本幂等走 pod repo update 增量），
+        # 免每次整库 clone tuna Specs（Build iOS 实测 ~950s）。
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
+        with:
+          path: ~/.cocoapods/repos
+          key: cocoapods-repos-${{ runner.os }}-${{ steps.specs_cache_key.outputs.week }}
 
       - name: Prefetch CocoaPods specs mirror (bounded retry)
         # pod install 对未配置 source 会现场 clone tuna Specs（排队+curl56
