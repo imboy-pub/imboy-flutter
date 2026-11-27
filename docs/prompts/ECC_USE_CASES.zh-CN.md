@@ -159,7 +159,7 @@ $production-audit $deployment-patterns
 
 
 
-#### ECC-90 · 客户聊天 App 复刻方案
+#### ECC-090 · 客户聊天 App 复刻方案
 
 **场景：** 个人即时通讯客户端体验
 
@@ -288,7 +288,7 @@ $test-collaboration $ai-regression-testing $verification-loop
 ```
 
 
-#### ECC-91 · 客户社群 App 复刻方案
+#### ECC-091 · 客户社群 App 复刻方案
 
 **场景：** 群组协作客户端体验
 
@@ -417,7 +417,7 @@ $test-collaboration $ai-regression-testing $verification-loop
 ```
 
 
-#### ECC-92 · 客户内容频道 App 复刻方案
+#### ECC-092 · 客户内容频道 App 复刻方案
 
 **场景：** 频道订阅客户端体验
 
@@ -546,7 +546,7 @@ $test-collaboration $ai-regression-testing $verification-loop
 ```
 
 
-#### ECC-93 · 客户动态社区 App 复刻方案
+#### ECC-093 · 客户动态社区 App 复刻方案
 
 **场景：** 朋友圈客户端体验
 
@@ -675,7 +675,7 @@ $test-collaboration $ai-regression-testing $verification-loop
 ```
 
 
-#### ECC-94 · 客户登录/扫码登录/多账号体验
+#### ECC-094 · 客户登录/扫码登录/多账号体验
 
 **场景：** 登录、账号和设备
 
@@ -804,7 +804,7 @@ $test-collaboration $ai-regression-testing $verification-loop
 ```
 
 
-#### ECC-95 · 客户消息互动与效率工具
+#### ECC-095 · 客户消息互动与效率工具
 
 **场景：** 聊天消息丰富交互
 
@@ -933,7 +933,7 @@ $test-collaboration $ai-regression-testing $verification-loop
 ```
 
 
-#### ECC-96 · 客户媒体/位置消息场景
+#### ECC-096 · 客户媒体/位置消息场景
 
 **场景：** 多媒体与位置共享
 
@@ -1062,7 +1062,7 @@ $test-collaboration $ai-regression-testing $verification-loop
 ```
 
 
-#### ECC-97 · 客户 VoIP/视频会议客户端
+#### ECC-097 · 客户 VoIP/视频会议客户端
 
 **场景：** 音视频客户端
 
@@ -1191,7 +1191,7 @@ $test-collaboration $ai-regression-testing $verification-loop
 ```
 
 
-#### ECC-98 · 客户安全聊天和密钥管理 UI
+#### ECC-098 · 客户安全聊天和密钥管理 UI
 
 **场景：** 端到端加密客户端体验
 
@@ -1320,7 +1320,7 @@ $test-collaboration $ai-regression-testing $verification-loop
 ```
 
 
-#### ECC-99 · 客户企业通讯录和协作工作台
+#### ECC-099 · 客户企业通讯录和协作工作台
 
 **场景：** 组织与工作台体验
 
