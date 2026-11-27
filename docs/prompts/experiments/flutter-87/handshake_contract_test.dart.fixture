@@ -1,0 +1,353 @@
+@TestOn('vm')
+library;
+
+import 'dart:async';
+import 'dart:convert';
+import 'dart:io';
+
+import 'package:fake_async/fake_async.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:imboy/config/const.dart';
+import 'package:imboy/config/env.dart';
+import 'package:imboy/config/init.dart' show currentEnv;
+import 'package:imboy/service/event_bus.dart';
+import 'package:imboy/service/protocol/imboy_frame.dart';
+import 'package:imboy/service/storage.dart';
+import 'package:imboy/service/websocket.dart';
+import 'package:imboy/service/websocket_events.dart';
+import 'package:imboy/service/websocket_message_queue.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+const _ioDeadline = Duration(seconds: 5);
+const _secureStorage = MethodChannel(
+  'plugins.it_nomads.com/flutter_secure_storage',
+);
+final _testToken = [
+  '{"alg":"HS256"}',
+  '{"exp":4102444800}',
+  'synthetic-judge-signature',
+].map((value) => base64Url.encode(utf8.encode(value))).join('.');
+
+class _HandshakeEnv implements Env {
+  _HandshakeEnv(this.port);
+  final int port;
+
+  @override
+  String get apiBaseUrl => 'http://127.0.0.1:$port';
+
+  @override
+  String get wsUrl => 'ws://127.0.0.1:$port/ws';
+
+  @override
+  String get solidifiedKey => '';
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+}
+
+class _LoopbackHttpOverrides extends HttpOverrides {
+  _LoopbackHttpOverrides(this.port);
+  final int port;
+
+  @override
+  HttpClient createHttpClient(SecurityContext? context) {
+    return super.createHttpClient(context)
+      ..findProxy = ((_) => 'DIRECT')
+      ..connectionFactory = (uri, proxyHost, proxyPort) {
+        if (uri.scheme != 'http' ||
+            uri.host != '127.0.0.1' ||
+            uri.port != port ||
+            proxyHost != null ||
+            proxyPort != null) {
+          throw StateError('Only the synthetic handshake fixture is allowed');
+        }
+        return Socket.startConnect(InternetAddress.loopbackIPv4, port);
+      };
+  }
+}
+
+Future<void> _waitForIo(
+  FakeAsync clock,
+  bool Function() completed, {
+  required String reason,
+}) async {
+  final waiting = Stopwatch()..start();
+  while (!completed() && waiting.elapsed < _ioDeadline) {
+    clock.elapse(Duration.zero);
+    await Future<void>.delayed(const Duration(milliseconds: 1));
+  }
+  clock.elapse(Duration.zero);
+  expect(completed(), isTrue, reason: reason);
+}
+
+class _StalledHandshakes {
+  _StalledHandshakes(this.server, this.service);
+
+  final HttpServer server;
+  final WebSocketService service;
+  final clock = FakeAsync();
+  final requests = <HttpRequest>[];
+  final sockets = <Socket>[];
+  final closedSockets = <Socket>{};
+  bool firstAttemptFinished = false;
+
+  void start() {
+    // Keep each real HTTP upgrade pending without replying. The peer's EOF
+    // distinguishes an actually closed transport from a timed-out Future.
+    server.listen((request) async {
+      final socket = await request.response.detachSocket(writeHeaders: false);
+      sockets.add(socket);
+      socket.listen(
+        (_) {},
+        onDone: () {
+          closedSockets.add(socket);
+          socket.destroy();
+        },
+      );
+      requests.add(request);
+    });
+    clock.run(
+      (_) => HttpOverrides.runWithHttpOverrides(
+        () => unawaited(
+          service.openSocket(from: 'ecc027-judge').then((_) {
+            firstAttemptFinished = true;
+          }),
+        ),
+        _LoopbackHttpOverrides(server.port),
+      ),
+    );
+  }
+
+  int get attempts =>
+      service.getConnectionStats()['connection_attempts'] as int;
+
+  Future<void> waitForRequest(int count) async {
+    await _waitForIo(
+      clock,
+      () => requests.length >= count,
+      reason: 'expected $count real TCP upgrade request(s)',
+    );
+    expect(requests, hasLength(count));
+    expect(requests.every(WebSocketTransformer.isUpgradeRequest), isTrue);
+  }
+
+  Future<void> waitForPeerEof(int index) => _waitForIo(
+    clock,
+    () => closedSockets.contains(sockets[index]),
+    reason: 'the peer socket for attempt ${index + 1} must reach EOF',
+  );
+
+  Future<void> waitForRetryCount(int count) => _waitForIo(
+    clock,
+    () => attempts == count,
+    reason: 'expected $count retries to be scheduled at the deadline',
+  );
+
+  void close() {
+    clock.run((_) => unawaited(service.closeSocket(permanent: true)));
+  }
+
+  Future<void> dispose() async {
+    close();
+    clock.elapse(const Duration(minutes: 1));
+    for (final socket in sockets) {
+      socket.destroy();
+    }
+    await server.close(force: true);
+    await pumpEventQueue();
+    clock.elapse(Duration.zero);
+  }
+}
+
+Future<void> _withServer(Future<void> Function(HttpServer server) run) async {
+  final server = await HttpServer.bind(InternetAddress.loopbackIPv4, 0);
+  final environment = currentEnv;
+  final previousEnv = envMap[environment];
+  envMap[environment] = _HandshakeEnv(server.port);
+  try {
+    await run(server);
+  } finally {
+    if (previousEnv == null) {
+      envMap.remove(environment);
+    } else {
+      envMap[environment] = previousEnv;
+    }
+    await server.close(force: true);
+  }
+}
+
+Future<void> _withStalledHandshakes(
+  WebSocketService service,
+  Future<void> Function(_StalledHandshakes fixture) run,
+) => _withServer((server) async {
+  final fixture = _StalledHandshakes(server, service)..start();
+  try {
+    await fixture.waitForRequest(1);
+    await run(fixture);
+  } finally {
+    await fixture.dispose();
+  }
+});
+
+Future<void> _withHealthyHandshake(
+  WebSocketService service,
+  String protocol,
+  Future<void> Function(WebSocket peer, StreamIterator<dynamic> inbound) run,
+) => _withServer((server) async {
+  final upgraded = Completer<WebSocket>();
+  server.listen((request) async {
+    if (!WebSocketTransformer.isUpgradeRequest(request)) {
+      // Runtime feature refresh may probe an adjacent endpoint after open.
+      request.response.statusCode = HttpStatus.notFound;
+      await request.response.close();
+      return;
+    }
+    expect(request.headers.value(Keys.tokenKey), _testToken);
+    final peer = await WebSocketTransformer.upgrade(
+      request,
+      protocolSelector: (offered) =>
+          offered.contains(protocol) ? protocol : null,
+    );
+    upgraded.complete(peer);
+  });
+
+  WebSocket? peer;
+  StreamIterator<dynamic>? inbound;
+  try {
+    await HttpOverrides.runWithHttpOverrides(
+      () => service.openSocket(from: 'ecc027-judge'),
+      _LoopbackHttpOverrides(server.port),
+    ).timeout(_ioDeadline);
+    expect(service.status, SocketStatus.connected);
+    expect(service.getConnectionStats()['connection_attempts'], 0);
+    peer = await upgraded.future.timeout(_ioDeadline);
+    expect(peer.protocol, protocol);
+    inbound = StreamIterator<dynamic>(peer);
+    await run(peer, inbound);
+    expect(peer.readyState, WebSocket.open);
+  } finally {
+    await service.closeSocket(permanent: true);
+    await inbound?.cancel();
+    await peer?.close();
+  }
+});
+
+void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+  late WebSocketService service;
+
+  setUp(() async {
+    SharedPreferences.setMockInitialValues(<String, Object>{});
+    await StorageService.init();
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(_secureStorage, (call) async {
+          if (call.method == 'read' &&
+              call.arguments['key'] == 'secure_token') {
+            return _testToken;
+          }
+          return null;
+        });
+    WebSocketService.resetForTest();
+    service = WebSocketService.to;
+    // The explicit open owns the first attempt. No logged-in init auto-connect.
+    service.init();
+    await StorageService.to.setString(Keys.currentUid, 'synthetic-ecc027-uid');
+  });
+
+  tearDown(() async {
+    await service.closeSocket(permanent: true);
+    PersistentMessageQueue.to.dispose();
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(_secureStorage, null);
+    await StorageService.to.remove(Keys.currentUid);
+  });
+
+  test('ECC027-01 deadline and retries at 14 and 15 seconds', () async {
+    await _withStalledHandshakes(service, (fixture) async {
+      expect(service.status, SocketStatus.connecting);
+      expect(fixture.attempts, 0);
+      fixture.clock.elapse(const Duration(seconds: 14));
+      expect(fixture.firstAttemptFinished, isFalse);
+      expect(fixture.requests, hasLength(1));
+      expect(fixture.attempts, 0);
+
+      fixture.clock.elapse(const Duration(seconds: 1));
+      await fixture.waitForRetryCount(1);
+      await _waitForIo(
+        fixture.clock,
+        () => fixture.firstAttemptFinished,
+        reason: 'openSocket must settle at the 15 second deadline',
+      );
+      expect(fixture.attempts, 1);
+      fixture.clock.elapse(const Duration(seconds: 1));
+      await fixture.waitForRequest(2);
+      expect(service.status, SocketStatus.connecting);
+
+      fixture.clock.elapse(const Duration(seconds: 15));
+      await fixture.waitForRetryCount(2);
+      fixture.clock.elapse(const Duration(seconds: 2));
+      await fixture.waitForRequest(3);
+      expect(service.status, SocketStatus.connecting);
+    });
+  });
+
+  test(
+    'ECC027-02 timed-out native attempts each close their TCP transport',
+    () async {
+      await _withStalledHandshakes(service, (fixture) async {
+        fixture.clock.elapse(const Duration(seconds: 15));
+        await fixture.waitForPeerEof(0);
+        fixture.clock.elapse(const Duration(seconds: 1));
+        await fixture.waitForRequest(2);
+        fixture.clock.elapse(const Duration(seconds: 15));
+        await fixture.waitForPeerEof(1);
+        expect(fixture.closedSockets, hasLength(2));
+      });
+    },
+  );
+
+  test('ECC027-03 permanent close fences a still-pending upgrade', () async {
+    await _withStalledHandshakes(service, (fixture) async {
+      fixture.close();
+      fixture.clock.elapse(const Duration(minutes: 1));
+      await fixture.waitForPeerEof(0);
+      await pumpEventQueue();
+      fixture.clock.elapse(Duration.zero);
+      expect(fixture.requests, hasLength(1));
+      expect(fixture.attempts, 0);
+      expect(service.status, SocketStatus.disconnected);
+    });
+  });
+
+  test(
+    'ECC027-04 healthy authenticated legacy upgrade exchanges text',
+    () async {
+      await _withHealthyHandshake(service, 'text', (peer, inbound) async {
+        expect(service.framing, FramingMode.none);
+        final marker = AppEventBus.on<WebSocketMessageReceivedEvent>()
+            .firstWhere((event) => event.type == 'ECC_FIXTURE');
+        expect(service.sendDirect('ping'), isTrue);
+        expect(await inbound.moveNext().timeout(_ioDeadline), isTrue);
+        expect(inbound.current, 'ping');
+        peer.add(jsonEncode({'type': 'ECC_FIXTURE', 'payload': 'from-peer'}));
+        final message = await marker.timeout(_ioDeadline);
+        expect(message.data['payload'], 'from-peer');
+      });
+    },
+  );
+
+  test('ECC027-05 healthy authenticated V2 upgrade exchanges binary', () async {
+    await _withHealthyHandshake(service, kSubProtocolV2, (peer, inbound) async {
+      expect(service.framing, FramingMode.v2);
+      final ping = ImboyFrame.heartbeatPing(42);
+      final pong = ImboyFrame.heartbeatPong(42);
+      peer.add(ping);
+      expect(await inbound.moveNext().timeout(_ioDeadline), isTrue);
+      expect(inbound.current, pong);
+      expect(service.sendDirect(ping), isTrue);
+      expect(await inbound.moveNext().timeout(_ioDeadline), isTrue);
+      expect(inbound.current, ping);
+    });
+  });
+}

@@ -1,0 +1,194 @@
+// GENERATED CODE - DO NOT MODIFY BY HAND
+
+part of 'env_local_home.dart';
+
+// **************************************************************************
+// EnviedGenerator
+// **************************************************************************
+
+// coverage:ignore-file
+// ignore_for_file: type=lint
+// generated_from: .env.local_home
+final class _Env {
+  static const String apiBaseUrl = 'http://127.0.0.1:9800';
+
+  static const String iosAppId = '';
+
+  static const List<int> _enviedkeysolidifiedKey = <int>[
+    2383659344,
+    1192879680,
+    2385504429,
+    2536861372,
+    3857887743,
+    2584300252,
+    1922304255,
+    1125803376,
+    2789784595,
+    359058602,
+    3785443120,
+    2537567098,
+    4238512028,
+    2845031695,
+    1732266931,
+    3551125592,
+    713416907,
+    863631088,
+    1161158025,
+    937225178,
+    1832257473,
+    4167666943,
+    4257058948,
+    1855298309,
+    433343296,
+    3032486927,
+    1670318645,
+    58090697,
+    338933242,
+    1302653173,
+    2832593363,
+    203239761,
+  ];
+
+  static const List<int> _envieddatasolidifiedKey = <int>[
+    2383659315,
+    1192879657,
+    2385504413,
+    2536861325,
+    3857887644,
+    2584300213,
+    1922304207,
+    1125803329,
+    2789784688,
+    359058627,
+    3785443072,
+    2537567051,
+    4238512127,
+    2845031782,
+    1732266883,
+    3551125609,
+    713416872,
+    863631001,
+    1161158073,
+    937225195,
+    1832257442,
+    4167666838,
+    4257058996,
+    1855298356,
+    433343267,
+    3032487014,
+    1670318597,
+    58090744,
+    338933145,
+    1302653084,
+    2832593379,
+    203239776,
+  ];
+
+  static final String solidifiedKey = String.fromCharCodes(
+    List<int>.generate(
+      _envieddatasolidifiedKey.length,
+      (int i) => i,
+      growable: false,
+    ).map((int i) => _envieddatasolidifiedKey[i] ^ _enviedkeysolidifiedKey[i]),
+  );
+
+  static const List<int> _enviedkeysolidifiedKeyIv = <int>[
+    3720860981,
+    2472070660,
+    4152724071,
+    1132983580,
+    4203045336,
+    3908173825,
+    1048272664,
+    3130181374,
+    1488292120,
+    2754199735,
+    4256747354,
+    2447480495,
+    2872024829,
+    2798521595,
+    600384385,
+    1014125466,
+  ];
+
+  static const List<int> _envieddatasolidifiedKeyIv = <int>[
+    3720861014,
+    2472070765,
+    4152723985,
+    1132983596,
+    4203045353,
+    3908173922,
+    1048272753,
+    3130181256,
+    1488292136,
+    2754199686,
+    4256747321,
+    2447480518,
+    2872024715,
+    2798521547,
+    600384432,
+    1014125561,
+  ];
+
+  static final String solidifiedKeyIv = String.fromCharCodes(
+    List<int>.generate(
+      _envieddatasolidifiedKeyIv.length,
+      (int i) => i,
+      growable: false,
+    ).map(
+      (int i) => _envieddatasolidifiedKeyIv[i] ^ _enviedkeysolidifiedKeyIv[i],
+    ),
+  );
+
+  static const List<int> _enviedkeyaMapIosKey = <int>[];
+
+  static const List<int> _envieddataaMapIosKey = <int>[];
+
+  static final String aMapIosKey = String.fromCharCodes(
+    List<int>.generate(
+      _envieddataaMapIosKey.length,
+      (int i) => i,
+      growable: false,
+    ).map((int i) => _envieddataaMapIosKey[i] ^ _enviedkeyaMapIosKey[i]),
+  );
+
+  static const List<int> _enviedkeyaMapAndroidKey = <int>[];
+
+  static const List<int> _envieddataaMapAndroidKey = <int>[];
+
+  static final String aMapAndroidKey = String.fromCharCodes(
+    List<int>.generate(
+      _envieddataaMapAndroidKey.length,
+      (int i) => i,
+      growable: false,
+    ).map(
+      (int i) => _envieddataaMapAndroidKey[i] ^ _enviedkeyaMapAndroidKey[i],
+    ),
+  );
+
+  static const List<int> _enviedkeyaMapWebKey = <int>[];
+
+  static const List<int> _envieddataaMapWebKey = <int>[];
+
+  static final String aMapWebKey = String.fromCharCodes(
+    List<int>.generate(
+      _envieddataaMapWebKey.length,
+      (int i) => i,
+      growable: false,
+    ).map((int i) => _envieddataaMapWebKey[i] ^ _enviedkeyaMapWebKey[i]),
+  );
+
+  static const String jiguangAppKey = '';
+
+  static const String alipayAppId = '';
+
+  static const String alipayUniversalLink = '';
+
+  static const String wsUrl = 'ws://127.0.0.1:9800/api/v1/ws';
+
+  static const String openaiApiKey = '';
+
+  static const String anthropicApiKey = '';
+
+  static const bool aiTestEnabled = false;
+}

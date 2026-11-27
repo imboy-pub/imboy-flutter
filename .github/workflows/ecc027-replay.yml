@@ -1,0 +1,68 @@
+name: ECC-027 WebSocket Replay
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'docs/prompts/experiments/flutter-87/**'
+      - '.github/workflows/ecc027-replay.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ecc027-${{ github.event.pull_request.number || github.run_id }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  calibrate:
+    name: ECC-027 calibration (${{ matrix.control }})
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      matrix:
+        control: [base, initial, fixed]
+    steps:
+      - name: Checkout repository and historical commits
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Checkout pinned submodule history
+        timeout-minutes: 10
+        run: bash .github/scripts/ci_checkout_submodules.sh 0
+      - name: Set up Python
+        uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: '3.12'
+      - name: Set up Flutter
+        uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2
+        with:
+          channel: stable
+          flutter-version: '3.50.0'
+          cache: true
+      - name: Prepare Linux SQLite
+        timeout-minutes: 5
+        run: bash .github/scripts/ci_ensure_system_sqlite.sh
+      - name: Warm locked Flutter dependencies
+        timeout-minutes: 6
+        run: |
+          bash .github/scripts/ci_patch_path_deps.sh --check
+          bash .github/scripts/ci_retry_build_downloads.sh flutter pub get --enforce-lockfile
+      - name: Run historical control
+        env:
+          CONTROL: ${{ matrix.control }}
+          REPLAY_ROOT: ${{ runner.temp }}/ecc027-${{ matrix.control }}
+        run: |
+          python3 docs/prompts/experiments/flutter-87/replay.py \
+            --source . --flutter "$(command -v flutter)" --out "$REPLAY_ROOT" \
+            judge --control "$CONTROL"
+      - name: Upload replay evidence
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        with:
+          name: ecc027-${{ matrix.control }}-evidence
+          path: ${{ runner.temp }}/ecc027-${{ matrix.control }}/evidence/
+          if-no-files-found: warn
