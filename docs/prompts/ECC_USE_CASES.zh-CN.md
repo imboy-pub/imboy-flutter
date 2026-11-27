@@ -122,7 +122,7 @@ $test-collaboration $parallel-execution-optimizer
 
 #### ECC-030 · Widget 无障碍检查
 
-**预计执行时间：30 分钟**（单次执行；包含代码阅读、定向实施/分析与相关验证）
+**预计执行时间：20 分钟**（单次执行；包含代码阅读、定向实施/分析与相关验证）
 
 **Skills：** `flutter-dart-code-review` · `test-collaboration`
 
