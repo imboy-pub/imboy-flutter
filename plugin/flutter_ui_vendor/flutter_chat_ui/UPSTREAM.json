@@ -59,7 +59,7 @@
       "path": "pubspec.yaml",
       "changes": [
         "Mark the application-owned source copy publish_to: none.",
-        "Declare the Dart >=3.13 and Flutter >=3.47 minimum required by the selected public UI packages.",
+        "Preserve the upstream Dart >=3.8.0 and Flutter >=3.32.0 minimums verbatim (the upstream sources use language features, e.g. null-aware-elements, whose availability depends on the package language version; raising the floor breaks kernel compilation).",
         "Remove resolution: workspace after moving this package outside the upstream workspace.",
         "Convert cross_cache to the vendored sibling path ../../cross_cache.",
         "Convert flutter_chat_core to the vendored sibling path ../../flutter_chat_core."
