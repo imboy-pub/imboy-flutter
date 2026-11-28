@@ -101,6 +101,7 @@ jobs:
         with:
           distribution: temurin
           java-version: '17'
+          cache: gradle
       - name: Setup Flutter
         uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2
         with:
@@ -162,6 +163,17 @@ jobs:
         run: bash .github/scripts/ci_gen_env.sh
       - name: Create synthetic customer fixture
         run: bash scripts/buildapp_fixture.sh customer-alpha alphaapp --gate-skip
+      - name: Compute specs mirror cache key (weekly)
+        id: specs_cache_key
+        run: echo "week=$(date -u +%G-W%V)" >> "$GITHUB_OUTPUT"
+      - name: Cache CocoaPods specs mirror
+        # 与 ci.yml build-ios 同款：命中后 prefetch 幂等走增量，免整库 clone。
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
+        with:
+          path: ~/.cocoapods/repos
+          key: cocoapods-repos-${{ runner.os }}-${{ steps.specs_cache_key.outputs.week }}
+      - name: Prefetch CocoaPods specs mirror (bounded retry)
+        run: bash .github/scripts/ci_pod_specs_prefetch.sh
       - name: Real unsigned iOS build via buildapp.sh
         run: bash scripts/buildapp.sh customer-alpha development ios
       - name: Assert receipt + packaged host and extension identity
