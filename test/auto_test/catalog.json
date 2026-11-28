@@ -1,9 +1,9 @@
 {
   "schema_version": 1,
   "generated_from": {
-    "app_head": "91b2f7e278f1c497e01aa3011c57a25407b46005",
+    "app_head": "3a5985fe9bbc02bcf908a9c82d2f772fc81f1288",
     "backend_head": "NOT_A_GIT_REPO",
-    "integration_test_count": 212,
+    "integration_test_count": 213,
     "lib_page_count": 174,
     "module_page_count": 40,
     "route_page_component_count": 166,
@@ -2313,6 +2313,20 @@
       "requirements": [],
       "tags": [
         "r01_message_report_realdevice_test.dart"
+      ],
+      "enabled": false,
+      "oracle_hint": true
+    },
+    {
+      "id": "test:integration_test/r_upgrade_component_test.dart",
+      "target": "integration_test/r_upgrade_component_test.dart",
+      "target_sha256": "89832e858f6610c74f7fa3faa1bdf0376586ff8124dba893b40fc313d2f4df33",
+      "sources": [],
+      "dependencies": [],
+      "risk": "device-readonly",
+      "requirements": [],
+      "tags": [
+        "r_upgrade_component_test.dart"
       ],
       "enabled": false,
       "oracle_hint": true
