@@ -3,13 +3,15 @@
 // 2026-11-28 Mi 8 UD (45861a) 实证结论：
 //   ✅ upgrade(url) 返回任务 id；流收到 SUCCESSFUL 终态；getDownloadStatus
 //      可读；cancel 返回明确 bool。
-//   ⚠️ 实测观察：进度流未观察到 RUNNING 事件（500ms 轮询器理论上应发；
-//      本地回环下载过快亦可解释）——生产 upgrade_page 的进度条依赖 RUNNING
-//      更新，真实弱网升级场景需人工复验（真机清单 MANUAL_CONFIRM）。
-//   ⚠️ 组件层 upgrade() 到达 SUCCESSFUL 后插件无条件自动拉起系统安装器
-//      （UpgradeManager.installApkById）——生产路径经 fileHash 校验后才
-//      upgradeWithId；本测试以 cancel 清理任务避免干扰，安装确认级留
-//      MANUAL_CONFIRM。
+//   ✅ RUNNING 进度流正常（限速探针实证：~500ms 周期密集 RUNNING 事件至
+//      SUCCESSFUL；此前「缺失」为环境伪影——2MB 回环秒完错过窗口 + 404 伪
+//      成功假象）。
+//   ✅ pause 真实暂停：RUNNING 态 pause=true 且状态转 STATUS_PAUSED（限速
+//      探针实证；慢速用例未进正式文件——限速 server 编排较重，见 CHECKPOINT）。
+//   ⚠️ 插件缺陷候选（生产有 fileHash 兜底）：下载源返回 HTTP 404 时不校验
+//      状态码，错误页字节被当下载内容报 SUCCESSFUL 并触发自动安装。
+//   ⚠️ 组件层 SUCCESSFUL 后无条件自动拉起系统安装器（installApkById）；
+//      安装确认级留 MANUAL_CONFIRM。
 //
 // 范围：不经业务升级 API（不触生产服务端）；不碰禁改区（只调用插件公开 API）。
 //
