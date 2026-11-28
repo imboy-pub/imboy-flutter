@@ -52,7 +52,8 @@
         "Declare the Dart >=3.13 and Flutter >=3.47 minimum required by the selected public UI packages.",
         "Declare material_ui ^1.11.0 as a direct runtime dependency.",
         "Remove resolution: workspace after moving this package outside the upstream workspace.",
-        "Declare existing direct imports of imboy, locked flutter_chat_core, and the same audio_waveforms Git source already selected by the root application."
+        "Declare existing direct imports of imboy, locked flutter_chat_core, and the same audio_waveforms Git source already selected by the root application.",
+        "Point the flutter_chat_core path dependency at the vendored sibling after the monorepo submodule retired."
       ]
     }
   ]

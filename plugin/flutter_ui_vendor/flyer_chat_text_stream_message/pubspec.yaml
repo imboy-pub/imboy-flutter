@@ -1,0 +1,27 @@
+name: flyer_chat_text_stream_message
+publish_to: none
+version: 2.3.1
+description: >
+  Text stream message package for Flutter chat apps, complementing flutter_chat_ui. #chat #ui
+homepage: https://flyer.chat
+repository: https://github.com/flyerhq/flutter_chat_ui
+
+environment:
+  sdk: ">=3.8.0 <4.0.0"
+  flutter: ">=3.32.0"
+
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_chat_core:
+    path: ../../flutter_chat_core
+  gpt_markdown: ^1.1.4
+  provider: ^6.1.5+1
+  shimmer: ^3.0.0
+
+  material_ui: any
+dev_dependencies:
+  flutter_lints: ^6.0.0
+  flutter_test:
+    sdk: flutter

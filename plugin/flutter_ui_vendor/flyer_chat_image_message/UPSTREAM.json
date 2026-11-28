@@ -1,0 +1,52 @@
+{
+  "schema_version": 1,
+  "package": "flyer_chat_image_message",
+  "upstream": {
+    "source_kind": "git",
+    "version": "2.3.1",
+    "repository": "https://gitee.com/imboy-tripartite-deps/flutter_chat_ui.git",
+    "commit": "62245bd40067d73ddb5bf98d340537cbbe2ae3e7",
+    "subdirectory": "packages/flyer_chat_image_message",
+    "upstream_repository": "https://github.com/flyerhq/flutter_chat_ui",
+    "git_verification": "Files read from the immutable commit recorded by the parent repository gitlink."
+  },
+  "vendoring": {
+    "included_paths": [
+      "lib",
+      "LICENSE",
+      "pubspec.yaml"
+    ],
+    "excluded_paths": [
+      "test/",
+      "example/",
+      "examples/",
+      "benchmark/",
+      "screenshots/",
+      "screenshot/",
+      "README.md",
+      "CHANGELOG.md",
+      "analysis_options.yaml",
+      "publication-only images and binaries"
+    ],
+    "rationale": "Preserve the locked runtime implementation, licenses, native registrations and declared runtime assets. Migrate public UI-library ownership and explicitly typed contracts; record local source API/style and deprecated-API changes individually below. No private Flutter SDK imports, compatibility facade, added analyzer ignores or relaxed gates."
+  },
+  "original_files_sha256": {
+    "lib/flyer_chat_image_message.dart": "2261497bc3a319f0529c7abeda2f6558e5442cd835716a59e401c928277bf4d7",
+    "lib/src/flyer_chat_image_message.dart": "6dae07bdc728d2514dc242ce2358d562ae6ffd74258cb3776a4c8c02857f951f",
+    "lib/src/get_image_dimensions.dart": "08e0455ea71c0c77e84bac54a404d4b6a7f66adbc603b0a1c48f67415696aa9f",
+    "LICENSE": "caee0459717249540dc3371f49a1c89a4823ca78b481d552a7ef848f3e7e26e5",
+    "pubspec.yaml": "f2bcebb2e1b02999bd4b09f2a400f02956164eccf81736c80cba78caac39e365"
+  },
+  "modifications": [
+    {
+      "path": "pubspec.yaml",
+      "changes": [
+        "Mark the application-owned source copy publish_to: none.",
+        "Preserve the upstream Dart >=3.8.0 and Flutter >=3.32.0 minimums verbatim (the upstream sources use language features, e.g. null-aware-elements, whose availability depends on the package language version; raising the floor breaks kernel compilation).",
+        "Remove resolution: workspace after moving this package outside the upstream workspace.",
+        "Convert cross_cache to the vendored sibling path ../../cross_cache.",
+        "Convert flutter_chat_core to the vendored sibling path ../../flutter_chat_core."
+      ]
+    }
+  ]
+}

@@ -77,11 +77,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           path: imboyapp
-          submodules: false
           fetch-depth: 0
-      - name: Checkout pinned submodules (bounded retry)
-        timeout-minutes: 10
-        run: bash .github/scripts/ci_checkout_submodules.sh 0
       - name: Resolve pinned cross-repository sources
         id: sources
         run: python3 .github/scripts/ci_source_lock.py outputs --app . --github-output "$GITHUB_OUTPUT"
@@ -213,12 +209,8 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           path: imboyapp
-          submodules: false
       - name: Trust the mounted checkout in this container
         run: git config --global --add safe.directory "$GITHUB_WORKSPACE/imboyapp"
-      - name: Checkout pinned submodules (bounded retry)
-        timeout-minutes: 10
-        run: bash .github/scripts/ci_checkout_submodules.sh
       - name: Resolve pinned cross-repository sources
         id: sources
         run: python3 .github/scripts/ci_source_lock.py outputs --app . --github-output "$GITHUB_OUTPUT"
@@ -381,13 +373,6 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
-        with:
-          submodules: false
-
-      - name: Checkout pinned submodules (bounded retry)
-        timeout-minutes: 10
-        run: bash .github/scripts/ci_checkout_submodules.sh
-
       # ic_storage_space inherits its Kotlin JVM target from this JDK.
       - name: Setup JDK 17
         uses: actions/setup-java@d1374f8ac74474200d16ef8ecee22c7ae7a51880 # v6
@@ -478,13 +463,6 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
-        with:
-          submodules: false
-
-      - name: Checkout pinned submodules (bounded retry)
-        timeout-minutes: 10
-        run: bash .github/scripts/ci_checkout_submodules.sh
-
       - name: Report macOS build toolchain
         run: |
           uname -m
@@ -575,11 +553,7 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
-          submodules: false
           path: imboyapp
-      - name: Checkout pinned submodules (bounded retry)
-        timeout-minutes: 10
-        run: bash .github/scripts/ci_checkout_submodules.sh
       - name: Resolve pinned cross-repository sources
         id: sources
         run: python3 .github/scripts/ci_source_lock.py outputs --app . --github-output "$GITHUB_OUTPUT"

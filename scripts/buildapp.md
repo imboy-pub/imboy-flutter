@@ -44,7 +44,7 @@ bash scripts/buildapp.sh yaoxin production all        # 现在 fail-closed（正
 ## 隔离与安全模型
 
 1. **锁**：`.buildapp-locks/<customer_id>/`（PID 存活检测；死锁/孤儿 worktree 下次运行自动回收；SIGKILL 属不可陷阱退出，同样由下次运行回收）。
-2. **隔离 worktree**：`.buildapp-worktrees/<id>-<env>-<run_id>/` 从当前 HEAD detached 创建；submodule（`plugin/flutter_chat_ui`）自动 init；成功/失败/Ctrl-C/SIGTERM 均经 trap 清理并释放锁。
+2. **隔离 worktree**：`.buildapp-worktrees/<id>-<env>-<run_id>/` 从当前 HEAD detached 创建；聊天包已 vendor 进 `plugin/flutter_ui_vendor`（submodule 已退役），无需 init；成功/失败/Ctrl-C/SIGTERM 均经 trap 清理并释放锁。
 3. **共享工作区零污染**：注入只发生在 worktree；退出后 `git status --porcelain` 与运行前快照一致（测试 #17 守护）。
 4. **收据隔离（run receipt isolation）**：每次运行先分配**独占空暂存目录** `builds/.staging/<run_id>/`，产物全部落入暂存并登记进 run inventory；`build-manifest.yaml` 与 `SHA256SUMS` **最后**生成且只覆盖本轮 inventory；随后单次原子 `mv` 发布为正式收据目录。构建失败/中断：暂存内的收据文件被剥离、写入 `build-status.txt: FAIL`、移入 `builds/failed-runs/`——**失败永不产生（或冒充）PASS 收据**；父目录的旧 APK/manifest/checksum 不可能混入本轮（唯一 run 目录 + inventory 驱动的 SHA256SUMS）。
 5. **iOS Share Extension 客户隔离**：`buildapp_ios_app_group_tools.py` 先完整检查输入，再注入并回读双方 App Group 与宿主分享回调。Runner 的 Debug/Profile/Release 三份及 ShareExtension 一份必需 entitlement 缺一即失败，额外 entitlement 文件也参与校验。iOS Bundle ID 仅允许字母、数字、点、连字符，拒绝 vendor ID（含大小写变体）；每段必须非空。worktree 的 `Embed App Extensions` 阶段定点使用 `PlugIns` 目标（13），修正旧 `Frameworks` 目标（10）；其他 copy phase 不改。所有改动只发生在隔离 worktree，源仓 vendor 基线不变。

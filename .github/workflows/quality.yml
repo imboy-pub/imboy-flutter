@@ -2,7 +2,7 @@
 #
 # 关联：.claude/plans/quality-loop.md v1.3 T4.1（v1.1 §301: 三仓各一份）
 # 与 ci.yml/integration_test.yml 互补：本 workflow 仅跑质量门
-# Ratchet 上限：analyzer warnings 830 + infos 703 / gitleaks 22
+# Ratchet 上限：analyzer errors 0 / warnings 0 / infos 0（2026-11-28 收紧至实测清零；指纹级零基线另由 check_analyzer_ratchet.sh 把关）/ gitleaks 22
 # 创建：2026-05-09 / iteration 74 / T4.1
 
 name: imboyapp Quality Gate
@@ -102,13 +102,6 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
-        with:
-          submodules: false
-
-      - name: Checkout pinned submodules (bounded retry)
-        timeout-minutes: 10
-        run: bash .github/scripts/ci_checkout_submodules.sh
-
       - name: Setup Flutter
         uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2
         with:
@@ -144,9 +137,9 @@ jobs:
           path: build/sqlite-migration-gate/
 
   # ----------------------------------------------------------------
-  # 1) Flutter analyze (strict-* 启用后基线 830 warnings + 703 infos)
-  #    APP-02 (2026-08-29) 起全仓清零（159→0）；下方 severity 门为粗粒度
-  #    兜底，指纹级零基线门由 1.5) check_analyzer_ratchet.sh 把关。
+  # 1) Flutter analyze（APP-02 (2026-08-29) 起全仓清零 159→0；2026-11-28 起
+  #    severity 门同步收紧至 0/0/0 且 infos 升硬门，实测 No issues found；
+  #    指纹级零基线门由 1.5) scripts/quality/check_analyzer_ratchet.sh 把关。）
   # ----------------------------------------------------------------
   flutter-analyze:
     name: Flutter analyze
@@ -154,12 +147,7 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
-          submodules: false
           fetch-depth: 0
-
-      - name: Checkout pinned submodules (bounded retry)
-        timeout-minutes: 10
-        run: bash .github/scripts/ci_checkout_submodules.sh 0
 
       - name: Setup Flutter
         id: flutter-sdk
@@ -180,7 +168,7 @@ jobs:
       - name: Materialize CI environment
         run: bash .github/scripts/ci_gen_env.sh
 
-      - name: Analyze (ratchet — errors==0 / warnings<=830 / infos<=703)
+      - name: Analyze (ratchet — errors==0 / warnings==0 / infos==0)
         run: |
           set -euo pipefail
           set +e
@@ -206,12 +194,13 @@ jobs:
             echo "::error::flutter analyze errors $errors > 0 (零 error 基线)"
             exit 1
           fi
-          if [ "$warnings" -gt 830 ]; then
-            echo "::error::warnings $warnings exceed baseline 830 (ratchet)"
+          if [ "$warnings" -gt 0 ]; then
+            echo "::error::warnings $warnings exceed baseline 0 (ratchet, tightened 2026-11-28)"
             exit 1
           fi
-          if [ "$infos" -gt 703 ]; then
-            echo "::warning::infos $infos exceed baseline 703 (ratchet, soft)"
+          if [ "$infos" -gt 0 ]; then
+            echo "::error::infos $infos exceed baseline 0 (ratchet, hardened 2026-11-28)"
+            exit 1
           fi
 
       # ----------------------------------------------------------------

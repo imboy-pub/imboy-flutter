@@ -1,0 +1,52 @@
+{
+  "schema_version": 1,
+  "package": "flyer_chat_text_stream_message",
+  "upstream": {
+    "source_kind": "git",
+    "version": "2.3.1",
+    "repository": "https://gitee.com/imboy-tripartite-deps/flutter_chat_ui.git",
+    "commit": "62245bd40067d73ddb5bf98d340537cbbe2ae3e7",
+    "subdirectory": "packages/flyer_chat_text_stream_message",
+    "upstream_repository": "https://github.com/flyerhq/flutter_chat_ui",
+    "git_verification": "Files read from the immutable commit recorded by the parent repository gitlink."
+  },
+  "vendoring": {
+    "included_paths": [
+      "lib",
+      "LICENSE",
+      "pubspec.yaml"
+    ],
+    "excluded_paths": [
+      "test/",
+      "example/",
+      "examples/",
+      "benchmark/",
+      "screenshots/",
+      "screenshot/",
+      "README.md",
+      "CHANGELOG.md",
+      "analysis_options.yaml",
+      "publication-only images and binaries"
+    ],
+    "rationale": "Preserve the locked runtime implementation, licenses, native registrations and declared runtime assets. Migrate public UI-library ownership and explicitly typed contracts; record local source API/style and deprecated-API changes individually below. No private Flutter SDK imports, compatibility facade, added analyzer ignores or relaxed gates."
+  },
+  "original_files_sha256": {
+    "lib/flyer_chat_text_stream_message.dart": "4945e33763cab7d36cbba5ee6f322841f8f1ba090e6c48b22ad387d753727fd6",
+    "lib/src/flyer_chat_text_stream_message.dart": "1eaaaff3c6aa36e88c22e1cf73caad6f5d555849f804c33f45be44e0dc876993",
+    "lib/src/stream_state.dart": "924b1c5ab3be920ecb42c5899738349173a0c870431547745f78ad5d623e9b02",
+    "lib/src/text_segment.dart": "c3a9c29224e2baa4f272423718228f2c66fce4806f86a7f41050daf76347ab0c",
+    "LICENSE": "caee0459717249540dc3371f49a1c89a4823ca78b481d552a7ef848f3e7e26e5",
+    "pubspec.yaml": "8ca783f9150034492df98da211701af42ea7c74b99a52e90ba725e5185bf7c7e"
+  },
+  "modifications": [
+    {
+      "path": "pubspec.yaml",
+      "changes": [
+        "Mark the application-owned source copy publish_to: none.",
+        "Preserve the upstream Dart >=3.8.0 and Flutter >=3.32.0 minimums verbatim (the upstream sources use language features, e.g. null-aware-elements, whose availability depends on the package language version; raising the floor breaks kernel compilation).",
+        "Remove resolution: workspace after moving this package outside the upstream workspace.",
+        "Convert flutter_chat_core to the vendored sibling path ../../flutter_chat_core."
+      ]
+    }
+  ]
+}

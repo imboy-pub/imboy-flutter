@@ -1,0 +1,49 @@
+{
+  "schema_version": 1,
+  "package": "flyer_chat_location_message",
+  "upstream": {
+    "source_kind": "git",
+    "version": "0.0.13+1",
+    "repository": "https://gitee.com/imboy-tripartite-deps/flutter_chat_ui.git",
+    "commit": "62245bd40067d73ddb5bf98d340537cbbe2ae3e7",
+    "subdirectory": "packages/flyer_chat_location_message",
+    "upstream_repository": "https://github.com/flyerhq/flutter_chat_ui",
+    "git_verification": "Files read from the immutable commit recorded by the parent repository gitlink."
+  },
+  "vendoring": {
+    "included_paths": [
+      "lib",
+      "LICENSE",
+      "pubspec.yaml"
+    ],
+    "excluded_paths": [
+      "test/",
+      "example/",
+      "examples/",
+      "benchmark/",
+      "screenshots/",
+      "screenshot/",
+      "README.md",
+      "CHANGELOG.md",
+      "analysis_options.yaml",
+      "publication-only images and binaries"
+    ],
+    "rationale": "Preserve the locked runtime implementation, licenses, native registrations and declared runtime assets. Migrate public UI-library ownership and explicitly typed contracts; record local source API/style and deprecated-API changes individually below. No private Flutter SDK imports, compatibility facade, added analyzer ignores or relaxed gates."
+  },
+  "original_files_sha256": {
+    "lib/flyer_chat_location_message.dart": "f7b7c47006adbec32cc328411627489c0406dd9723b7f79463c6393a658054f4",
+    "lib/src/flyer_chat_location_message.dart": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+    "LICENSE": "caee0459717249540dc3371f49a1c89a4823ca78b481d552a7ef848f3e7e26e5",
+    "pubspec.yaml": "c82e52bc9c0a30cf4c756d2a801b32d74e57ee33775c545aa08e1a3e5bcdfdd1"
+  },
+  "modifications": [
+    {
+      "path": "pubspec.yaml",
+      "changes": [
+        "Mark the application-owned source copy publish_to: none.",
+        "Preserve the upstream Dart >=3.8.0 and Flutter >=3.32.0 minimums verbatim (the upstream sources use language features, e.g. null-aware-elements, whose availability depends on the package language version; raising the floor breaks kernel compilation).",
+        "Remove resolution: workspace after moving this package outside the upstream workspace."
+      ]
+    }
+  ]
+}

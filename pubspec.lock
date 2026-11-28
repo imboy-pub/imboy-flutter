@@ -375,7 +375,7 @@ packages:
   cross_cache:
     dependency: "direct main"
     description:
-      path: "plugin/flutter_chat_ui/packages/cross_cache"
+      path: "plugin/flutter_ui_vendor/cross_cache"
       relative: true
     source: path
     version: "1.1.1"
@@ -752,14 +752,14 @@ packages:
   flutter_chat_core:
     dependency: "direct main"
     description:
-      path: "plugin/flutter_chat_ui/packages/flutter_chat_core"
+      path: "plugin/flutter_ui_vendor/flutter_chat_core"
       relative: true
     source: path
     version: "2.9.1"
   flutter_chat_ui:
     dependency: "direct main"
     description:
-      path: "plugin/flutter_chat_ui/packages/flutter_chat_ui"
+      path: "plugin/flutter_ui_vendor/flutter_chat_ui"
       relative: true
     source: path
     version: "2.12.0"
@@ -1021,42 +1021,42 @@ packages:
   flyer_chat_file_message:
     dependency: "direct main"
     description:
-      path: "plugin/flutter_chat_ui/packages/flyer_chat_file_message"
+      path: "plugin/flutter_ui_vendor/flyer_chat_file_message"
       relative: true
     source: path
     version: "2.4.1"
   flyer_chat_image_message:
     dependency: "direct main"
     description:
-      path: "plugin/flutter_chat_ui/packages/flyer_chat_image_message"
+      path: "plugin/flutter_ui_vendor/flyer_chat_image_message"
       relative: true
     source: path
     version: "2.3.1"
   flyer_chat_location_message:
     dependency: "direct main"
     description:
-      path: "plugin/flutter_chat_ui/packages/flyer_chat_location_message"
+      path: "plugin/flutter_ui_vendor/flyer_chat_location_message"
       relative: true
     source: path
     version: "0.0.13+1"
   flyer_chat_system_message:
     dependency: "direct main"
     description:
-      path: "plugin/flutter_chat_ui/packages/flyer_chat_system_message"
+      path: "plugin/flutter_ui_vendor/flyer_chat_system_message"
       relative: true
     source: path
     version: "2.2.1"
   flyer_chat_text_message:
     dependency: "direct main"
     description:
-      path: "plugin/flutter_chat_ui/packages/flyer_chat_text_message"
+      path: "plugin/flutter_ui_vendor/flyer_chat_text_message"
       relative: true
     source: path
     version: "2.6.1"
   flyer_chat_text_stream_message:
     dependency: "direct main"
     description:
-      path: "plugin/flutter_chat_ui/packages/flyer_chat_text_stream_message"
+      path: "plugin/flutter_ui_vendor/flyer_chat_text_stream_message"
       relative: true
     source: path
     version: "2.3.1"

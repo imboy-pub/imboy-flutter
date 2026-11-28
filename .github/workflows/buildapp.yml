@@ -42,11 +42,6 @@ jobs:
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
-        with:
-          submodules: false
-      - name: Checkout pinned submodules (bounded retry)
-        timeout-minutes: 10
-        run: bash .github/scripts/ci_checkout_submodules.sh
       - name: Install pinned python tooling (defusedxml + PyYAML, hashed, venv)
         run: |
           set -euo pipefail
@@ -63,11 +58,6 @@ jobs:
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
-        with:
-          submodules: false
-      - name: Checkout pinned submodules (bounded retry)
-        timeout-minutes: 10
-        run: bash .github/scripts/ci_checkout_submodules.sh
       - name: Install pinned python tooling (defusedxml + PyYAML, hashed, venv)
         run: |
           set -euo pipefail
@@ -84,11 +74,6 @@ jobs:
     timeout-minutes: 60
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
-        with:
-          submodules: false
-      - name: Checkout pinned submodules (bounded retry)
-        timeout-minutes: 10
-        run: bash .github/scripts/ci_checkout_submodules.sh
       - name: Install pinned python tooling (defusedxml + PyYAML, hashed, venv)
         run: |
           set -euo pipefail
@@ -141,11 +126,6 @@ jobs:
     timeout-minutes: 120
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
-        with:
-          submodules: false
-      - name: Checkout pinned submodules (bounded retry)
-        timeout-minutes: 10
-        run: bash .github/scripts/ci_checkout_submodules.sh
       - name: Install pinned python tooling (defusedxml + PyYAML, hashed, venv)
         run: |
           set -euo pipefail

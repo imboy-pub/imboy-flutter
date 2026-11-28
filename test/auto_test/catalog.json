@@ -1,12 +1,12 @@
 {
   "schema_version": 1,
   "generated_from": {
-    "app_head": "b0c8ccde909c7afa6d3df5bea1f5fe18915323e9",
+    "app_head": "3a5985fe9bbc02bcf908a9c82d2f772fc81f1288",
     "backend_head": "NOT_A_GIT_REPO",
-    "integration_test_count": 212,
+    "integration_test_count": 213,
     "lib_page_count": 174,
     "module_page_count": 40,
-    "route_page_component_count": 162,
+    "route_page_component_count": 166,
     "spec_count": 31
   },
   "entries": [
@@ -2318,6 +2318,20 @@
       "oracle_hint": true
     },
     {
+      "id": "test:integration_test/r_upgrade_component_test.dart",
+      "target": "integration_test/r_upgrade_component_test.dart",
+      "target_sha256": "89832e858f6610c74f7fa3faa1bdf0376586ff8124dba893b40fc313d2f4df33",
+      "sources": [],
+      "dependencies": [],
+      "risk": "device-readonly",
+      "requirements": [],
+      "tags": [
+        "r_upgrade_component_test.dart"
+      ],
+      "enabled": false,
+      "oracle_hint": true
+    },
+    {
       "id": "test:integration_test/refined_pages_layout_smoke_test.dart",
       "target": "integration_test/refined_pages_layout_smoke_test.dart",
       "target_sha256": "98af330b3294456c4f43a4c763c359298ff7b8a7dc292cbdf0b06871799865ef",
@@ -3736,7 +3750,7 @@
       "page": "lib/page/channel/channel_discover_page.dart",
       "mapped_targets": [],
       "dependency_targets": [],
-      "route_registered": false,
+      "route_registered": true,
       "in_spec_sources": true,
       "excluded": false,
       "exclusion_code": null,
@@ -3758,7 +3772,7 @@
       "page": "lib/page/channel/channel_invitation_page.dart",
       "mapped_targets": [],
       "dependency_targets": [],
-      "route_registered": false,
+      "route_registered": true,
       "in_spec_sources": false,
       "excluded": false,
       "exclusion_code": null,
@@ -3801,7 +3815,7 @@
       "page": "lib/page/channel/channel_order_detail_page.dart",
       "mapped_targets": [],
       "dependency_targets": [],
-      "route_registered": false,
+      "route_registered": true,
       "in_spec_sources": false,
       "excluded": false,
       "exclusion_code": null,
@@ -3811,7 +3825,7 @@
       "page": "lib/page/channel/channel_order_list_page.dart",
       "mapped_targets": [],
       "dependency_targets": [],
-      "route_registered": false,
+      "route_registered": true,
       "in_spec_sources": false,
       "excluded": false,
       "exclusion_code": null,
