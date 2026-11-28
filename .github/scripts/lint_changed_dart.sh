@@ -21,7 +21,8 @@ done < <(
   git diff --name-only --diff-filter=ACMR "$DIFF_RANGE" -- '*.dart' \
     ':!**/*.g.dart' \
     ':!**/*.freezed.dart' \
-    ':!**/generated/**'
+    ':!**/generated/**' \
+    ':!plugin/flutter_ui_vendor/**'
 )
 
 if [[ ${#CHANGED_DART_FILES[@]} -eq 0 ]]; then
