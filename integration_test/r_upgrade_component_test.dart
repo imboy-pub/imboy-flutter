@@ -33,10 +33,8 @@ void main() {
       IntegrationTestWidgetsFlutterBinding.ensureInitialized();
   binding.defaultTestTimeout = const Timeout(Duration(minutes: 10));
 
-  testWidgets('RUpgrade 组件级真机合同：下载生命周期/状态/pause/cancel',
-      (tester) async {
-    expect(Platform.isAndroid, true,
-        reason: 'r_upgrade 插件合同仅在 Android 真机承载');
+  testWidgets('RUpgrade 组件级真机合同：下载生命周期/状态/pause/cancel', (tester) async {
+    expect(Platform.isAndroid, true, reason: 'r_upgrade 插件合同仅在 Android 真机承载');
 
     // ── 先订阅流再启动（2MB 供体走 loopback 秒完，upgrade 后订阅会错过全部事件）──
     final events = <DownloadInfo>[];
@@ -66,7 +64,8 @@ void main() {
     final live = await completerLive.future.timeout(
       const Duration(seconds: 90),
       onTimeout: () => throw StateError(
-          '90s 内进度流未到达 RUNNING/SUCCESSFUL；已收事件=${events.map((e) => "id=${e.id} st=${e.status}").take(20).toList()}'),
+        '90s 内进度流未到达 RUNNING/SUCCESSFUL；已收事件=${events.map((e) => "id=${e.id} st=${e.status}").take(20).toList()}',
+      ),
     );
     timer.cancel();
     expect(live.id, id, reason: '进度流事件必须携带本次任务 id');
