@@ -477,11 +477,8 @@ echo "$WORKTREE" > "$LOCK_DIR/last_worktree"
 SRC_COMMIT="$(git -C "$FLUTTER_ROOT" rev-parse HEAD)"
 git -C "$FLUTTER_ROOT" worktree add --detach "$WORKTREE" "$SRC_COMMIT" >/dev/null
 info "isolated worktree: $WORKTREE (from $SRC_COMMIT)"
-# initialize submodules inside the isolated worktree (repo has plugin/flutter_chat_ui;
-# without this, path dependencies fail pub get in a fresh worktree)
-git -C "$WORKTREE" submodule update --init --recursive \
-  || die "submodule init failed in worktree (network/remote issues?)"
-info "submodules initialized"
+# flutter_chat_ui is vendored in plugin/flutter_ui_vendor (submodule retired
+# 2026-11-28): path dependencies resolve without any submodule init.
 # test-only determinism hook: hold the run inside the isolated phase so
 # SIGINT/SIGTERM recovery can be exercised deterministically (see case 15).
 # The sleep runs in a background subshell and we wait on it with the `wait`

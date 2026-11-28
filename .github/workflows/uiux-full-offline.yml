@@ -95,8 +95,6 @@ jobs:
         with:
           path: imboyapp
           fetch-depth: 0
-      - name: Checkout pinned submodules
-        run: bash .github/scripts/ci_checkout_submodules.sh 0
       - name: Resolve pinned cross-repository sources
         id: sources
         run: python3 .github/scripts/ci_source_lock.py outputs --app . --github-output "$GITHUB_OUTPUT"
@@ -176,8 +174,6 @@ jobs:
         with:
           path: imboyapp
           fetch-depth: 0
-      - name: Checkout pinned submodules
-        run: bash .github/scripts/ci_checkout_submodules.sh 0
       - name: Resolve pinned cross-repository sources
         id: sources
         run: python3 .github/scripts/ci_source_lock.py outputs --app . --github-output "$GITHUB_OUTPUT"

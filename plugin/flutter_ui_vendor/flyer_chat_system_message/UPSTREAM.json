@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "package": "flyer_chat_system_message",
+  "upstream": {
+    "source_kind": "git",
+    "version": "2.2.1",
+    "repository": "https://gitee.com/imboy-tripartite-deps/flutter_chat_ui.git",
+    "commit": "62245bd40067d73ddb5bf98d340537cbbe2ae3e7",
+    "subdirectory": "packages/flyer_chat_system_message",
+    "upstream_repository": "https://github.com/flyerhq/flutter_chat_ui",
+    "git_verification": "Files read from the immutable commit recorded by the parent repository gitlink."
+  },
+  "vendoring": {
+    "included_paths": [
+      "lib",
+      "LICENSE",
+      "pubspec.yaml"
+    ],
+    "excluded_paths": [
+      "test/",
+      "example/",
+      "examples/",
+      "benchmark/",
+      "screenshots/",
+      "screenshot/",
+      "README.md",
+      "CHANGELOG.md",
+      "analysis_options.yaml",
+      "publication-only images and binaries"
+    ],
+    "rationale": "Preserve the locked runtime implementation, licenses, native registrations and declared runtime assets. Migrate public UI-library ownership and explicitly typed contracts; record local source API/style and deprecated-API changes individually below. No private Flutter SDK imports, compatibility facade, added analyzer ignores or relaxed gates."
+  },
+  "original_files_sha256": {
+    "lib/flyer_chat_system_message.dart": "747c3b3cf9356fb85078e41bd2ab050ec5350d7bd14f83a1f26ee03930148f3d",
+    "lib/src/flyer_chat_system_message.dart": "e70585485ad59a20dfa35097233cd0620480402d108b090de54b6573d9baab6a",
+    "LICENSE": "caee0459717249540dc3371f49a1c89a4823ca78b481d552a7ef848f3e7e26e5",
+    "pubspec.yaml": "9170ea4fb71cf63244c49f4d95bef96238f9ef59c220ae726277ac1ac890a0b1"
+  },
+  "modifications": [
+    {
+      "path": "pubspec.yaml",
+      "changes": [
+        "Mark the application-owned source copy publish_to: none.",
+        "Declare the Dart >=3.13 and Flutter >=3.47 minimum required by the selected public UI packages.",
+        "Remove resolution: workspace after moving this package outside the upstream workspace.",
+        "Convert flutter_chat_core to the vendored sibling path ../../flutter_chat_core."
+      ]
+    }
+  ]
+}

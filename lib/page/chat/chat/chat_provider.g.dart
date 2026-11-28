@@ -97,7 +97,7 @@ final class ChatNotifierProvider
   }
 }
 
-String _$chatNotifierHash() => r'04322b71a817b4bf024922cc18998d06afebe227';
+String _$chatNotifierHash() => r'efbd54ce7ccce8791c0598e2d3924de03887496a';
 
 /// 聊天 Provider（Riverpod Notifier 实现）
 

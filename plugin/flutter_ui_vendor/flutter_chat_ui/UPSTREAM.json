@@ -1,0 +1,69 @@
+{
+  "schema_version": 1,
+  "package": "flutter_chat_ui",
+  "upstream": {
+    "source_kind": "git",
+    "version": "2.12.0",
+    "repository": "https://gitee.com/imboy-tripartite-deps/flutter_chat_ui.git",
+    "commit": "62245bd40067d73ddb5bf98d340537cbbe2ae3e7",
+    "subdirectory": "packages/flutter_chat_ui",
+    "upstream_repository": "https://github.com/flyerhq/flutter_chat_ui",
+    "git_verification": "Files read from the immutable commit recorded by the parent repository gitlink."
+  },
+  "vendoring": {
+    "included_paths": [
+      "lib",
+      "LICENSE",
+      "pubspec.yaml"
+    ],
+    "excluded_paths": [
+      "test/",
+      "example/",
+      "examples/",
+      "benchmark/",
+      "screenshots/",
+      "screenshot/",
+      "README.md",
+      "CHANGELOG.md",
+      "analysis_options.yaml",
+      "publication-only images and binaries"
+    ],
+    "rationale": "Preserve the locked runtime implementation, licenses, native registrations and declared runtime assets. Migrate public UI-library ownership and explicitly typed contracts; record local source API/style and deprecated-API changes individually below. No private Flutter SDK imports, compatibility facade, added analyzer ignores or relaxed gates."
+  },
+  "original_files_sha256": {
+    "lib/flutter_chat_ui.dart": "182521254171ed77a35bbc8c6945fc0613302bd743562b3d501a34dcdb54b84e",
+    "lib/src/avatar.dart": "e5e6d7888cae9a2819bed75fa894cb924dfe2c087283c42e3cc88e16c8dcb3b3",
+    "lib/src/chat.dart": "493684fc64e53ffa15659925719511339a95d1493082ad17106e04394f2f4c59",
+    "lib/src/chat_animated_list/chat_animated_list.dart": "7fd23a4bab49be8725fa61201b14f186dc4101441d2bdae11644cf37f9459b30",
+    "lib/src/chat_animated_list/chat_animated_list_reversed.dart": "04fe016255771f4fac5e94c12b99aac9813005b3bc8c77ef257642cabe1e5261",
+    "lib/src/chat_animated_list/sliver_spacing.dart": "964661b4ad2228d43714cebc9329e5eddf5f045e07dffe06552cdf15754a6c8e",
+    "lib/src/chat_message/chat_message.dart": "5b855792dd4e683b904b82d62141494912ed215c131831270f54c3ff5da374c5",
+    "lib/src/chat_message/chat_message_internal.dart": "e9c6bf3ccd670f36686f50bbd73d91c9f1273127f1840b0d996f1bdd31aef046",
+    "lib/src/composer.dart": "dae6c5fb135bf1b7f05017506b2a5b735c8524566fb8ccbb711860b191ddd409",
+    "lib/src/empty_chat_list.dart": "723dfb82ef07966ce7adac565782da9a85098926863c590a784769908626e8c2",
+    "lib/src/is_typing.dart": "e827c2615767a154cdef2a19bf46cd74331b000cf35ddeab2bc5d3200f86e9cc",
+    "lib/src/load_more.dart": "7ad0d663fe1d071c32cb8353d03e1a8c1b6aa49c48003862834b1668ca83aa6a",
+    "lib/src/scroll_to_bottom.dart": "b8b707924b96db0c68b2b5551e0b5a9dc2adc4a46ce9312c87b0b7e4b01c7177",
+    "lib/src/simple_text_message.dart": "e38c660af834acecb664b23c8041c0bf97bb2e567584dbb4f6ed2bbc9053e1c1",
+    "lib/src/username.dart": "881d72d162de8781895064601287338c56df500342ac48f1e7faa4e640768451",
+    "lib/src/utils/composer_height_notifier.dart": "dbf6f66a6b08645150d96e67f26453f775f49748a42daed8c3a02d14a1597837",
+    "lib/src/utils/keyboard_mixin.dart": "a80a8459a9e00ce9417d31d7cbc91b517941ba4dd882e59eb77b37be419c6572",
+    "lib/src/utils/load_more_notifier.dart": "95f4b73c0def5d8e239264e696a855e19fbce81b8f94cf5f23da1528718ffe4f",
+    "lib/src/utils/message_list_diff.dart": "7bd0104e59c39be057201d014abad2e8a0979bf2508d70ea7653144758fcdb9f",
+    "lib/src/utils/typedefs.dart": "057c2e23465dbb1665384a14c410466ca2c18364b935a9bca6b922b711d2dacf",
+    "LICENSE": "7fce8e062bc5aa1126bf93c33ef45670bb6623f119d8e95a033d8ae843cfb044",
+    "pubspec.yaml": "1cdcc2f2a6ba50da2f8b7f70e17c102c2a4285c81f519c3ca07a5bec58b75512"
+  },
+  "modifications": [
+    {
+      "path": "pubspec.yaml",
+      "changes": [
+        "Mark the application-owned source copy publish_to: none.",
+        "Declare the Dart >=3.13 and Flutter >=3.47 minimum required by the selected public UI packages.",
+        "Remove resolution: workspace after moving this package outside the upstream workspace.",
+        "Convert cross_cache to the vendored sibling path ../../cross_cache.",
+        "Convert flutter_chat_core to the vendored sibling path ../../flutter_chat_core."
+      ]
+    }
+  ]
+}

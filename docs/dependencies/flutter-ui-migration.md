@@ -33,8 +33,8 @@ path 来源；原版本不是“上游已完成迁移”的声明。本地副本
 | `flyer_chat_video_message` | 聊天视频组件的 UI 类型 |
 
 Hosted 包的归档 SHA-256、原文件哈希和精确修改清单记录在各包的来源文件中。
-两个 Flyer 包来自 `flutter_chat_ui` 的锁定 Git 提交；其它聊天包仍使用原 submodule。
-移动这两个 workspace 包时显式声明了原本实际使用的依赖，包括它们已有的应用层耦合。
+全部 Flyer 聊天包与 `cross_cache` 来自 `flutter_chat_ui` 锁定 Git 提交 `62245bd40067d73ddb5bf98d340537cbbe2ae3e7`（fork gitee.com/imboy-tripartite-deps/flutter_chat_ui，上游 flyerhq/flutter_chat_ui v2.11.0 之上含 imboy 四笔本地修复）。2026-11-28 起该 monorepo 不再以 submodule 形态挂载：submodule 已退役，11 个聊天包全部按本目录约定 vendor 进 `flutter_ui_vendor/`，`.gitmodules` 与 CI 的 submodule 有界重试步骤一并移除；后续上游升级=以新提交替换对应包目录并更新其 UPSTREAM.json（原文件哈希记录复制时点源字节）。
+各 workspace 包迁移时显式声明了原本实际使用的依赖，包括它们已有的应用层耦合；包间依赖统一指向 vendor 兄弟目录。
 emoji 插件的原生注册源码完整保留；应用根 `ios/`、`macos/` 和 `plugin/r_upgrade`
 不属于这次迁移的修改范围。
 

@@ -1,0 +1,75 @@
+{
+  "schema_version": 1,
+  "package": "flutter_chat_core",
+  "upstream": {
+    "source_kind": "git",
+    "version": "2.9.1",
+    "repository": "https://gitee.com/imboy-tripartite-deps/flutter_chat_ui.git",
+    "commit": "62245bd40067d73ddb5bf98d340537cbbe2ae3e7",
+    "subdirectory": "packages/flutter_chat_core",
+    "upstream_repository": "https://github.com/flyerhq/flutter_chat_ui",
+    "git_verification": "Files read from the immutable commit recorded by the parent repository gitlink."
+  },
+  "vendoring": {
+    "included_paths": [
+      "lib",
+      "LICENSE",
+      "pubspec.yaml"
+    ],
+    "excluded_paths": [
+      "test/",
+      "example/",
+      "examples/",
+      "benchmark/",
+      "screenshots/",
+      "screenshot/",
+      "README.md",
+      "CHANGELOG.md",
+      "analysis_options.yaml",
+      "publication-only images and binaries"
+    ],
+    "rationale": "Preserve the locked runtime implementation, licenses, native registrations and declared runtime assets. Migrate public UI-library ownership and explicitly typed contracts; record local source API/style and deprecated-API changes individually below. No private Flutter SDK imports, compatibility facade, added analyzer ignores or relaxed gates."
+  },
+  "original_files_sha256": {
+    "lib/flutter_chat_core.dart": "12c5d06f20e725da481516276c86db4610a888f7d73cca960b3101df0ca248cf",
+    "lib/src/chat_controller/chat_controller.dart": "ea8261aff2cc05c207344485ee54056c0c44c9bbe1d318ccbd96812ceb9e233c",
+    "lib/src/chat_controller/chat_operation.dart": "8f724f9150948abaa6f7af32a961e2409dc6e578ed629c7b13e6df499f0128e7",
+    "lib/src/chat_controller/in_memory_chat_controller.dart": "e67bffbc998a188c5389f0530a7f94a87f9939d955f579e23a053718c86d3ed7",
+    "lib/src/chat_controller/scroll_to_message_mixin.dart": "3a57f6e2fccfe8b21e55576a04775d303acb57e2efaff86b4a031649ede08c40",
+    "lib/src/chat_controller/upload_progress_mixin.dart": "cb037c4acf2b485f37f4571b1cce94b81b562ac7fd5056c18b5114b29c32b146",
+    "lib/src/models/builders.dart": "1367aaa53531b565d212f0f8e18a9ea24ec1d10bb1840ed942f6aab38713dc1f",
+    "lib/src/models/builders.freezed.dart": "f906ccc73f4c27b8c6c1e5ac1ebaacc82c6e9aa8ba17c557df4c05a482bf160b",
+    "lib/src/models/duration_converter.dart": "a4caf07f4d2a166400e0b2460dcf039750f21f883d929293b6f7088fc6c28b98",
+    "lib/src/models/epoch_date_time_converter.dart": "e3e1d6e2dac65c341888cb9b4f20cf2293bc0dab59b931286cda9116c10e44d1",
+    "lib/src/models/link_preview_data.dart": "755716227747bcc41bb30531d6b513632c5046c3abc1fbf5a7e1fa8dbf2a4997",
+    "lib/src/models/link_preview_data.freezed.dart": "dc01f48339bded0b9aa262e064f8ff2b608307fe085fd0b2083905833829ac95",
+    "lib/src/models/link_preview_data.g.dart": "26a428c1e8ecb200eaed749472a45cd4612a7265a08c9baa3205805e2b11e787",
+    "lib/src/models/message.dart": "c3e0815bf59a97a8909ffbc0117595a23c7d12e39aae604f36bea0392cbafbc2",
+    "lib/src/models/message.freezed.dart": "20fb3e6f01e46a28ec850fb0527f153ee2cfbc6cf35af041940880a030ac75b4",
+    "lib/src/models/message.g.dart": "4a824c512e71583381b5fa2ab6703ecba5e47aa285f809afbf228764f8e5a0b5",
+    "lib/src/models/message_group_status.dart": "0433d83d190e8e437ade7550fb348f538d97240ff9b7cdf7ada34f9e36bf52f6",
+    "lib/src/models/user.dart": "ee75762e541bbe1dc9a79627bdf4424fc23b3a888d91ff8d6129bd1fbff89fb5",
+    "lib/src/models/user.freezed.dart": "fdcf540ab79ca577d16983ff892e1e02eb1989751080687bb34e5f0e90925239",
+    "lib/src/models/user.g.dart": "4dbb5ec0b512e47415d07e9b1a37f59c7391c196bd8f28fe611ca415c97baa9c",
+    "lib/src/theme/chat_theme.dart": "8e6f82c26279b7d6e9f0f8d799e2286eeda1c99a2da3ffa535c167c79ed07c3c",
+    "lib/src/theme/chat_theme.freezed.dart": "d50778fec0d06215b75475c69d8d4ada28ef0fc2135f8fb5ce7efd7272037d42",
+    "lib/src/theme/chat_theme_extension.dart": "7eb91ad5dc0dd3a32a261426d0835a8cd358885587f98cab374dec2fe22ff9a1",
+    "lib/src/utils/get_icon_for_status.dart": "f218dfbb0508ccf1cc83b824b224e0ad0d74195c3be9d7948d12c5a449c2f550",
+    "lib/src/utils/is_only_emoji.dart": "4149b29a7e829989eeaffcb463e3281eaa2c1342d5c220ff54750a2adbec6d3f",
+    "lib/src/utils/link_preview_position.dart": "f1b9b411debd1fff666b90c86752dc39f57097931ee17839970c55d786a739d9",
+    "lib/src/utils/typedefs.dart": "75572294fd79fb80a84cd0629b330aed12f0eea974d8e26579c90adaee6ae81e",
+    "lib/src/utils/user_cache.dart": "eb65dd455c105e313aa6d8e0c4016be85b604b506ed20fbd9d588e6826c0fade",
+    "LICENSE": "caee0459717249540dc3371f49a1c89a4823ca78b481d552a7ef848f3e7e26e5",
+    "pubspec.yaml": "e1f74dfe09306352d9fa83d4f86a732696ae7cd008f31129ba74ba0a21048546"
+  },
+  "modifications": [
+    {
+      "path": "pubspec.yaml",
+      "changes": [
+        "Mark the application-owned source copy publish_to: none.",
+        "Declare the Dart >=3.13 and Flutter >=3.47 minimum required by the selected public UI packages.",
+        "Remove resolution: workspace after moving this package outside the upstream workspace."
+      ]
+    }
+  ]
+}
